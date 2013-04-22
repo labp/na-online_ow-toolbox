@@ -1,0 +1,367 @@
+//---------------------------------------------------------------------------
+//
+// Project: OpenWalnut ( http://www.openwalnut.org )
+//
+// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+// For more information see http://www.openwalnut.org/copying
+//
+// This file is part of OpenWalnut.
+//
+// OpenWalnut is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// OpenWalnut is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+//
+//---------------------------------------------------------------------------
+
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <vector>
+
+#include <boost/bind.hpp>
+#include <boost/shared_ptr.hpp>
+
+#include "core/kernel/WModule.h"
+
+// Input & output connectors
+// TODO(pieloth) use OW classes
+#include "core/kernel/WLModuleInputDataRingBuffer.h"
+#include "core/kernel/WLModuleOutputDataCollectionable.h"
+
+// Input & output data
+#include "core/dataHandler/WDataSetEMM.h"
+
+#include "core/common/WItemSelectionItemTyped.h"
+#include "core/common/WLTimeProfiler.h"
+#include "core/common/WPathHelper.h"
+#include "core/common/WPropertyHelper.h"
+
+// FIR filter implementations
+#include "WFIRFilter.h"
+#ifdef FOUND_CUDA
+#include "WFIRFilterCuda.h"
+#endif //FOUND_CUDA
+#include "WFIRFilterCpu.h"
+#include "WFIRDesignWindow.h"
+
+#include "WMFIRFilter.h"
+#include "WMFIRFilter.xpm"
+
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMFIRFilter )
+
+WMFIRFilter::WMFIRFilter()
+{
+}
+
+WMFIRFilter::~WMFIRFilter()
+{
+}
+
+boost::shared_ptr< WModule > WMFIRFilter::factory() const
+{
+    return boost::shared_ptr< WModule >( new WMFIRFilter() );
+}
+
+const char** WMFIRFilter::getXPMIcon() const
+{
+    return firfilter_xpm;
+}
+
+const std::string WMFIRFilter::getName() const
+{
+    return "FIR Filter";
+}
+
+const std::string WMFIRFilter::getDescription() const
+{
+    return "FIR filter implementations: Lowpass, Highpass, Bandpass, Bandstop. Module supports LaBP data types only!";
+}
+
+void WMFIRFilter::connectors()
+{
+    // TODO(pieloth) use OW classes
+    m_input = boost::shared_ptr< LaBP::WLModuleInputDataRingBuffer< LaBP::WDataSetEMM > >(
+                    new LaBP::WLModuleInputDataRingBuffer< LaBP::WDataSetEMM >( 8, shared_from_this(), "in",
+                                    "Expects a EMM-DataSet for filtering." ) );
+    addConnector( m_input );
+
+    m_output = boost::shared_ptr< LaBP::WLModuleOutputDataCollectionable< LaBP::WDataSetEMM > >(
+                    new LaBP::WLModuleOutputDataCollectionable< LaBP::WDataSetEMM >( shared_from_this(), "out",
+                                    "Provides a filtered EMM-DataSet" ) );
+    addConnector( m_output );
+}
+
+void WMFIRFilter::properties()
+{
+    LaBP::WModuleEMMView::properties();
+
+    m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+
+    m_propGrpFirFilter = m_properties->addPropertyGroup( "FIR Filter", "Contains properties for FIR Filter.", false );
+
+    m_coeffFile = m_propGrpFirFilter->addProperty( "Coefficients:", "Load coefficients from file.", WPathHelper::getAppPath(),
+                    boost::bind( &WMFIRFilter::callbackCoeffFileChanged, this ) );
+    m_useCuda = m_propGrpFirFilter->addProperty( "Use Cuda", "Activate CUDA support.", true, m_propCondition );
+#ifndef FOUND_CUDA
+    m_useCuda->setHidden( true );
+#endif // FOUND_CUDA
+    // creating the list of Filtertypes
+    m_filterTypes = WItemSelection::SPtr( new WItemSelection() );
+    std::vector< WFIRFilter::WEFilterType::Enum > fEnums = WFIRFilter::WEFilterType::values();
+    for( std::vector< WFIRFilter::WEFilterType::Enum >::iterator it = fEnums.begin(); it != fEnums.end(); ++it )
+    {
+        m_filterTypes->addItem(
+                        WItemSelectionItemTyped< WFIRFilter::WEFilterType::Enum >::SPtr(
+                                        new WItemSelectionItemTyped< WFIRFilter::WEFilterType::Enum >( *it,
+                                                        WFIRFilter::WEFilterType::name( *it ),
+                                                        WFIRFilter::WEFilterType::name( *it ) ) ) );
+    }
+
+    // getting the SelectorProperty from the list an add it to the properties
+    m_filterTypeSelection = m_propGrpFirFilter->addProperty( "FilterType", "What kind of filter do you want to use",
+                    m_filterTypes->getSelectorFirst(), boost::bind( &WMFIRFilter::callbackFilterTypeChanged, this ) );
+
+    // Be sure it is at least one selected, but not more than one
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_filterTypeSelection );
+    WPropertyHelper::PC_NOTEMPTY::addTo( m_filterTypeSelection );
+
+    // same with windows
+    m_windows = boost::shared_ptr< WItemSelection >( new WItemSelection() );
+    std::vector< WFIRFilter::WEWindowsType::Enum > wEnums = WFIRFilter::WEWindowsType::values();
+    for( std::vector< WFIRFilter::WEWindowsType::Enum >::iterator it = wEnums.begin(); it != wEnums.end(); ++it )
+    {
+        m_windows->addItem(
+                        WItemSelectionItemTyped< WFIRFilter::WEWindowsType::Enum >::SPtr(
+                                        new WItemSelectionItemTyped< WFIRFilter::WEWindowsType::Enum >( *it,
+                                                        WFIRFilter::WEWindowsType::name( *it ),
+                                                        WFIRFilter::WEWindowsType::name( *it ) ) ) );
+    }
+
+    m_windowSelection = m_propGrpFirFilter->addProperty( "Window",
+                    "What kind of window do you want to use for designing a filter", m_windows->getSelectorFirst(),
+                    m_propCondition );
+
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_windowSelection );
+    WPropertyHelper::PC_NOTEMPTY::addTo( m_windowSelection );
+
+    // the frequencies
+    m_samplingFreq = m_propGrpFirFilter->addProperty( "Sampling Frequency",
+                    "Samplingfrequency comes from data. Do only change this for down- or upsampling", 500.0 );
+    m_samplingFreq->setMin( 0.0 );
+    m_samplingFreq->setMax( 48000.0 );
+
+    m_cFreq1 = m_propGrpFirFilter->addProperty( "Cutoff frequency 1", "Frequency for filterdesign", 1.0 );
+    m_cFreq1->setMin( 0.0 );
+    m_cFreq1->setMax( 48000.0 );
+
+    m_cFreq2 = m_propGrpFirFilter->addProperty( "Cutoff frequency 2",
+                    "Frequency for filterdesign. Second frequency is needed for bandpass and bandstop", 20.0 );
+    m_cFreq2->setMin( 0.0 );
+    m_cFreq2->setMax( 48000.0 );
+    m_cFreq2->setHidden( true );
+
+    m_order = m_propGrpFirFilter->addProperty( "Order:", "The number of coeffitients depends on the order", 200 );
+    m_order->setMax( 5000 );
+
+    // button for starting design
+    m_designTrigger = m_propGrpFirFilter->addProperty( "Filter:", "Calculate Filtercoeffitients", WPVBaseTypes::PV_TRIGGER_READY,
+                    boost::bind( &WMFIRFilter::callbackDesignButtonPressed, this ) );
+}
+
+void WMFIRFilter::initModule()
+{
+    infoLog() << "Initializing module ...";
+
+    waitRestored();
+    m_coeffFile->changed( true );
+    m_useCuda->changed( true );
+    handleImplementationChanged();
+    callbackFilterTypeChanged();
+    infoLog() << m_coeffFile->get().string();
+    if( !( m_coeffFile->get().string().empty() )
+                    && m_coeffFile->get().string().compare( WPathHelper::getAppPath().string() ) != 0 )
+    {
+        callbackCoeffFileChanged();
+    }
+    initView( LaBP::WLEMDDrawable2D::WEGraphType::DYNAMIC );
+
+    infoLog() << "Initializing module finished!";
+}
+
+void WMFIRFilter::moduleMain()
+{
+    // init moduleState for using Events in mainLoop
+    m_moduleState.setResetable( true, true ); // resetable, autoreset
+    m_moduleState.add( m_input->getDataChangedCondition() ); // when inputdata changed
+    m_moduleState.add( m_propCondition ); // when properties changed
+
+    LaBP::WDataSetEMM::SPtr emmIn;
+    LaBP::WDataSetEMM::SPtr emmOut;
+
+    ready(); // signal ready state
+
+    initModule();
+
+    debugLog() << "Entering main loop";
+    while( !m_shutdownFlag() )
+    {
+        debugLog() << "Waiting for Events";
+        if( m_input->isEmpty() ) // continue processing if data is available
+        {
+            m_moduleState.wait(); // wait for events like inputdata or properties changed
+        }
+
+        // ---------- SHUTDOWNEVENT ----------
+        if( m_shutdownFlag() )
+        {
+            break; // break mainLoop on shutdown
+        }
+
+        if( m_useCuda->changed( true ) )
+        {
+            handleImplementationChanged();
+        }
+
+        emmIn.reset();
+        if( !m_input->isEmpty() )
+        {
+            emmIn = m_input->getData();
+        }
+        const bool dataValid = ( emmIn );
+
+        // ---------- INPUTDATAUPDATEEVENT ----------
+        if( dataValid ) // If there was an update on the inputconnector
+        {
+            // The data is valid and we received an update. The data is not NULL but may be the same as in previous loops.
+            debugLog() << "Data received ...";
+            debugLog() << "EMM modalities: " << emmIn->getModalityCount();
+
+            LaBP::WLTimeProfiler::SPtr profiler = emmIn->createAndAddProfiler( getName(), "process" );
+            profiler->start();
+
+            // Create output data
+            emmOut.reset( new LaBP::WDataSetEMM( *emmIn ) );
+
+            std::vector< LaBP::WDataSetEMMEMD::SPtr > emdsIn = emmIn->getModalityList();
+            for( std::vector< LaBP::WDataSetEMMEMD::SPtr >::const_iterator emdIn = emdsIn.begin(); emdIn != emdsIn.end();
+                            ++emdIn )
+            {
+                debugLog() << "EMD type: " << ( *emdIn )->getModalityType();
+
+#ifdef DEBUG
+                // Show some input pieces
+                const size_t nbChannels = ( *emdIn )->getNrChans();
+                debugLog() << "EMD channels: " << nbChannels;
+                const size_t nbSamlesPerChan = nbChannels > 0 ? ( *emdIn )->getSamplesPerChan() : 0;
+                debugLog() << "EMD samples per channel: " << nbSamlesPerChan;
+                debugLog() << "Input pieces:\n" << LaBP::WDataSetEMMEMD::dataToString( ( *emdIn )->getData(), 5, 10 );
+#endif // DEBUG
+                LaBP::WDataSetEMMEMD::SPtr emdOut = m_firFilter->filter( ( *emdIn ), profiler );
+                emmOut->addModality( emdOut );
+
+#ifdef DEBUG
+                // Show some filtered pieces
+                debugLog() << "Filtered pieces:\n" << LaBP::WDataSetEMMEMD::dataToString( emdOut->getData(), 5, 10 );
+#endif // DEBUG
+            }
+            m_firFilter->doPostProcessing( emmOut, emmIn, profiler );
+
+            updateView( emmOut );
+
+            profiler->stopAndLog();
+            m_output->updateData( emmOut );
+        }
+    }
+}
+
+void WMFIRFilter::callbackCoeffFileChanged( void )
+{
+    debugLog() << "handleCoeffFileChanged() called!";
+    const char *path = m_coeffFile->get().string().c_str();
+    infoLog() << "Reading *.fcf file: " << m_coeffFile->get().string();
+
+    m_firFilter->setCoefficients( path );
+}
+
+void WMFIRFilter::handleImplementationChanged( void )
+{
+    debugLog() << "handleUseCudaChanged() called!";
+    WFIRFilter::WEFilterType::Enum fType = m_filterTypeSelection->get().at( 0 )->getAs<
+                    WItemSelectionItemTyped< WFIRFilter::WEFilterType::Enum > >()->getValue();
+    WFIRFilter::WEWindowsType::Enum wType = m_windowSelection->get().at( 0 )->getAs<
+                    WItemSelectionItemTyped< WFIRFilter::WEWindowsType::Enum > >()->getValue();
+
+    if( m_useCuda->get() )
+    {
+#ifdef FOUND_CUDA
+        infoLog() << "Using FIR filter for CUDA.";
+        m_firFilter = WFIRFilter::SPtr(
+                        new WFIRFilterCuda( fType, wType, m_order->get(), m_samplingFreq->get(), m_cFreq1->get(),
+                                        m_cFreq2->get() ) );
+#else
+        errorLog() << "Build process has detected, that your machine has no CUDA support! Using CPU instead.";
+        m_firFilter = WFIRFilter::SPtr(
+                        new WFIRFilterCpu( fType, wType, m_order->get(), m_samplingFreq->get(), m_cFreq1->get(),
+                                        m_cFreq2->get() ) );
+#endif // FOUND_CUDA
+    }
+    else
+    {
+        infoLog() << "Using FIR filter for CPU.";
+        m_firFilter = WFIRFilter::SPtr(
+                        new WFIRFilterCpu( fType, wType, m_order->get(), m_samplingFreq->get(), m_cFreq1->get(),
+                                        m_cFreq2->get() ) );
+    }
+}
+
+void WMFIRFilter::callbackDesignButtonPressed( void )
+{
+    debugLog() << "handleDesignButtonPressed() called!";
+    if( m_designTrigger->get() == WPVBaseTypes::PV_TRIGGER_READY )
+    {
+        // suppress double execution
+        return;
+    }
+
+    m_firFilter->setFilterType(
+                    m_filterTypeSelection->get().at( 0 )->getAs< WItemSelectionItemTyped< WFIRFilter::WEFilterType::Enum > >()->getValue() );
+    m_firFilter->setWindowsType(
+                    m_windowSelection->get().at( 0 )->getAs< WItemSelectionItemTyped< WFIRFilter::WEWindowsType::Enum > >()->getValue() );
+    m_firFilter->setOrder( m_order->get() );
+    m_firFilter->setSamplingFrequency( m_samplingFreq->get() );
+    m_firFilter->setCutOffFrequency1( m_cFreq1->get() );
+    m_firFilter->setCutOffFrequency2( m_cFreq2->get() );
+
+    m_firFilter->design();
+
+    m_designTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, true );
+    m_designTrigger->changed( true );
+
+    infoLog() << "New filter designed!";
+}
+
+void WMFIRFilter::callbackFilterTypeChanged( void )
+{
+    debugLog() << "handleFilterTypeChanged() called!";
+    if( ( WFIRFilter::WEFilterType::name( WFIRFilter::WEFilterType::BANDPASS ).compare(
+                    m_filterTypeSelection->get().at( 0 )->getName() ) == 0
+                    || WFIRFilter::WEFilterType::name( WFIRFilter::WEFilterType::BANDSTOP ).compare(
+                                    m_filterTypeSelection->get().at( 0 )->getName() ) == 0 ) )
+    {
+        m_cFreq2->setHidden( false );
+    }
+    else
+    {
+        m_cFreq2->setHidden( true );
+    }
+}
