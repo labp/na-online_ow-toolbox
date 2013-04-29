@@ -28,11 +28,12 @@
 #include <string>
 
 #include <core/common/WItemSelectionItemTyped.h>
-#include <core/common/math/WLMatrixTypes.h>
 #include <core/dataHandler/WDataSet.h>
-#include <core/gui/WGUI.h>
 #include <core/gui/WCustomWidget.h>
+#include <core/gui/WGUI.h>
 #include <core/kernel/WKernel.h>
+
+#include "core/common/math/WLMatrixTypes.h"
 
 #include "core/dataHandler/WDataSetEMM.h"
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"

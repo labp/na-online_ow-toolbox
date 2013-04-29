@@ -30,7 +30,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "core/common/WTimer.h"
+#include <core/common/WTimer.h>
 
 using std::string;
 using std::list;

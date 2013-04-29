@@ -46,15 +46,6 @@ namespace LaBP
         colors.push_back( ColorT( 0.666, 0.0, 0.0, 1.0 ) );
         colors.push_back( ColorT( 0.333, 0.0, 0.0, 1.0 ) );
 
-
-
-
-
-
-
-
-
-
         WLColorMap::setColors( colors );
     }
 

@@ -29,21 +29,11 @@
 
 namespace LaBP
 {
-
     WLColorMapHSV::WLColorMapHSV( ValueT min, ValueT max, WEColorMapMode::Enum mode ) :
                     WLColorMap( min, max, mode )
     {
         std::vector< ColorT > colors;
         colors.reserve( 10 );
-
-
-
-
-
-
-
-
-
 
         colors.push_back( osg::Vec4( 1.0, 0.0, 0.6, 1.0 ) );
         colors.push_back( osg::Vec4( 0.8, 0.0, 1.0, 1.0 ) );
@@ -67,5 +57,4 @@ namespace LaBP
     {
         return WEColorMap::HSV;
     }
-
 } /* namespace LaBP */

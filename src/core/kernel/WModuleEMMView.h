@@ -31,12 +31,12 @@
 #include <core/kernel/WModule.h>
 
 #include "core/dataHandler/WDataSetEMM.h"
-
+#include "core/dataHandler/WLBoundCalculator.h"
 #include "core/gui/WLEMDWidget.h"
 #include "core/gui/events/WLGUIEventHandler.h"
 #include "core/gui/drawable/WLEMDDrawable2D.h"
 #include "core/gui/drawable/WLEMDDrawable3D.h"
-#include "core/dataHandler/WLBoundCalculator.h"
+
 
 #include "core/graphicsEngine/WLColorMap.h"
 

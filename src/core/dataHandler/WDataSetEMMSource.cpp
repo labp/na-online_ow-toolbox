@@ -5,7 +5,8 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "core/common/WLogger.h"
+#include <core/common/WLogger.h>
+
 #include "core/common/math/WLMatrixTypes.h"
 
 #include "WDataSetEMMEnumTypes.h"

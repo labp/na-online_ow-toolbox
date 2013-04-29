@@ -32,8 +32,8 @@
 
 #include <cxxtest/TestSuite.h>
 
-#include "core/common/WException.h"
-#include "core/common/WLogger.h"
+#include <core/common/WException.h>
+#include <core/common/WLogger.h>
 
 #include "../WLRingBuffer.h"
 

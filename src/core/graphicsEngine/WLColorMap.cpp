@@ -30,8 +30,9 @@
 #include <osgSim/ColorRange>
 #include <osgSim/ScalarsToColors>
 
-#include "core/common/WAssert.h"
-#include "core/common/WLogger.h"
+#include <core/common/WAssert.h>
+#include <core/common/WLogger.h>
+
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"
 
 #include "WLColorMap.h"

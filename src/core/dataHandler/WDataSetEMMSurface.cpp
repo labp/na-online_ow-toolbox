@@ -4,8 +4,8 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "core/common/math/linearAlgebra/WPosition.h"
-#include "core/common/math/linearAlgebra/WVectorFixed.h"
+#include <core/common/math/linearAlgebra/WPosition.h>
+#include <core/common/math/linearAlgebra/WVectorFixed.h>
 
 #include "WDataSetEMMEnumTypes.h"
 #include "WDataSetEMMSurface.h"

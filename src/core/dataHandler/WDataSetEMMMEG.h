@@ -27,8 +27,8 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "core/common/math/linearAlgebra/WPosition.h"
-#include "core/common/math/linearAlgebra/WVectorFixed.h"
+#include <core/common/math/linearAlgebra/WPosition.h>
+#include <core/common/math/linearAlgebra/WVectorFixed.h>
 
 #include "WDataSetEMMEMD.h"
 #include "WDataSetEMMEnumTypes.h"

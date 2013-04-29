@@ -31,7 +31,6 @@
 
 namespace LaBP
 {
-
     class WLColorMapHSV: public LaBP::WLColorMap
     {
     public:

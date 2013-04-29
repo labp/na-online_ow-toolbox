@@ -33,9 +33,9 @@
 #include <boost/thread/locks.hpp>
 #include <boost/thread/mutex.hpp>
 
-#include "core/common/WAssert.h"
-#include "core/common/WException.h"
-#include "core/common/WLogger.h"
+#include <core/common/WAssert.h>
+#include <core/common/WException.h>
+#include <core/common/WLogger.h>
 
 namespace LaBP
 {

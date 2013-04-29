@@ -25,7 +25,7 @@
 #include <string>
 #include <vector>
 
-#include "core/common/math/linearAlgebra/WVectorFixed.h"
+#include <core/common/math/linearAlgebra/WVectorFixed.h>
 
 #include "WDataSetEMMEMD.h"
 #include "WDataSetEMMPCA.h"

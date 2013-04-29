@@ -25,7 +25,7 @@
 #include <string>
 #include <vector>
 
-#include "core/common/WAssert.h"
+#include <core/common/WAssert.h>
 
 #include "WDataSetEMMEnumTypes.h"
 

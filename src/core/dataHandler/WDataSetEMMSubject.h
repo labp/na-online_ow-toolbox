@@ -33,8 +33,9 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <Eigen/Core>
 
+#include <core/common/math/linearAlgebra/WVectorFixed.h>
+
 #include "core/common/math/WLMatrixTypes.h"
-#include "core/common/math/linearAlgebra/WVectorFixed.h"
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"
 
 #include "WDataSetEMMEnumTypes.h"
