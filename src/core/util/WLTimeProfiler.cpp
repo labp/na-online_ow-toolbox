@@ -25,8 +25,8 @@
 #include <list>
 #include <string>
 
-#include "core/common/WLogger.h"
-#include "core/common/WRealtimeTimer.h"
+#include <core/common/WLogger.h>
+#include <core/common/WRealtimeTimer.h>
 
 #include "WLTimeProfiler.h"
 

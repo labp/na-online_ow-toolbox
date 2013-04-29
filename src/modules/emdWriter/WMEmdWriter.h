@@ -30,12 +30,9 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "core/common/WLTimeProfiler.h"
-#include "core/dataHandler/WDataSetEMM.h"
-// temporary Fix for Error: »WPickInfo« has not been declared
-#include "core/graphicsEngine/WPickInfo.h"
+#include <core/kernel/WModule.h>
 
-#include "core/kernel/WModule.h"
+#include "core/dataHandler/WDataSetEMM.h"
 #include "core/kernel/WModuleEMMView.h"
 // TODO use OW classes
 #include "core/kernel/WLModuleInputDataRingBuffer.h"
@@ -72,13 +69,6 @@ public:
      * \return description to module.
      */
     virtual const std::string getDescription() const;
-
-    /**
-     * Sets pick text member variable
-     *
-     * \param pickInfo information about the pick
-     */
-    void updatePickText( WPickInfo pickInfo );
 
 protected:
     virtual void initModule();

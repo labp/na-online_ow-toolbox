@@ -27,7 +27,8 @@
 #include <functional> // plus, divide, bind
 #include <string>
 
-#include "core/common/WLogger.h"
+#include <core/common/WLogger.h>
+
 #include "core/dataHandler/WDataSetEMM.h"
 #include "core/dataHandler/WDataSetEMMEMD.h"
 

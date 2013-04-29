@@ -27,7 +27,7 @@
 #include <functional> // divides, plus, bind
 #include <string>
 
-#include "core/common/WLTimeProfiler.h"
+#include "core/util/WLTimeProfiler.h"
 #include "core/dataHandler/WDataSetEMM.h"
 #include "core/dataHandler/WDataSetEMMEMD.h"
 

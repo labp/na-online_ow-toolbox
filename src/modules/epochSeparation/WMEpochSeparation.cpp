@@ -28,18 +28,19 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "core/kernel/WModule.h"
+#include <core/common/WItemSelectionItemTyped.h>
+#include <core/common/WPropertyHelper.h>
+#include <core/kernel/WModule.h>
+
+// Input & output data
+#include "core/dataHandler/WDataSetEMM.h"
+
 // Input & output connectors
 // TODO(pieloth): use OW classes
 #include "core/kernel/WLModuleInputDataRingBuffer.h"
 #include "core/kernel/WLModuleOutputDataCollectionable.h"
 
-// Input & output data
-#include "core/dataHandler/WDataSetEMM.h"
-
-#include "core/common/WItemSelectionItemTyped.h"
-#include "core/common/WLTimeProfiler.h"
-#include "core/common/WPropertyHelper.h"
+#include "core/util/WLTimeProfiler.h"
 
 #include "WEpochSeparation.h"
 #include "WMEpochSeparation.h"

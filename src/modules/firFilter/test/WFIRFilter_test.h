@@ -32,11 +32,12 @@
 #include <boost/shared_ptr.hpp>
 #include <cxxtest/TestSuite.h>
 
-#include "core/common/WLogger.h"
-#include "core/common/WLTimeProfiler.h"
+#include <core/common/WLogger.h>
+
 #include "core/dataHandler/WDataSetEMM.h"
 #include "core/dataHandler/WDataSetEMMEMD.h"
 #include "core/dataHandler/WDataSetEMMEEG.h"
+#include "core/util/WLTimeProfiler.h"
 
 #include "WFIRFilterTestHelper.h"
 

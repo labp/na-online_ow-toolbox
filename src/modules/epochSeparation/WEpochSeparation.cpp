@@ -29,7 +29,8 @@
 #include <set>
 #include <string>
 
-#include "core/common/WAssert.h"
+#include <core/common/WAssert.h>
+
 #include "core/dataHandler/WDataSetEMM.h"
 
 #include "WEpochSeparation.h"

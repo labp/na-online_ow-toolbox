@@ -28,7 +28,10 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "core/kernel/WModule.h"
+#include <core/common/WItemSelectionItemTyped.h>
+#include <core/common/WPathHelper.h>
+#include <core/common/WPropertyHelper.h>
+#include <core/kernel/WModule.h>
 
 // Input & output connectors
 // TODO use OW classes
@@ -41,10 +44,7 @@
 #include "core/dataHandler/WDataSetEMMSource.h"
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"
 
-#include "core/common/WItemSelectionItemTyped.h"
-#include "core/common/WLTimeProfiler.h"
-#include "core/common/WPathHelper.h"
-#include "core/common/WPropertyHelper.h"
+#include "core/util/WLTimeProfiler.h"
 
 #include "WMEmdWriter.h"
 #include "WMEmdWriter.xpm"

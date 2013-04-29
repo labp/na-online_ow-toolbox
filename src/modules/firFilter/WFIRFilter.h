@@ -32,9 +32,10 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "core/common/WLTimeProfiler.h"
 #include "core/dataHandler/WDataSetEMM.h"
 #include "core/dataHandler/WDataSetEMMEMD.h"
+
+#include "core/util/WLTimeProfiler.h"
 
 class WFIRFilter
 {

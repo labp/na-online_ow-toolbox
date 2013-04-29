@@ -31,9 +31,10 @@
 
 #include <cxxtest/TestSuite.h>
 
-#include "core/common/WLTimeProfiler.h"
 #include "core/dataHandler/WDataSetEMMEMD.h"
 #include "core/dataHandler/WDataSetEMMEEG.h"
+
+#include "core/util/WLTimeProfiler.h"
 
 #include "../WFIRFilter.h"
 

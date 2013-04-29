@@ -35,7 +35,7 @@
 #include <core/common/WProperties.h>
 #include <core/dataHandler/WDataSet.h>
 
-#include "core/common/WLTimeProfiler.h"
+#include "core/util/WLTimeProfiler.h"
 
 #include "WDataSetEMMEMD.h"
 #include "WDataSetEMMSubject.h"

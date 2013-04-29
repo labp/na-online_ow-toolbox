@@ -24,7 +24,7 @@
 
 #include <cmath>
 
-#include "core/common/WAssert.h"
+#include <core/common/WAssert.h>
 
 #include "WFIRFilter.h"
 #include "WFIRDesignWindow.h"

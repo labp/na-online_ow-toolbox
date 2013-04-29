@@ -8,7 +8,7 @@
 #include <cxxtest/TestSuite.h>
 #include <boost/shared_ptr.hpp>
 
-#include "core/common/WLogger.h"
+#include <core/common/WLogger.h>
 
 #include "core/dataHandler/WDataSetEMM.h"
 #include "core/dataHandler/WDataSetEMMEMD.h"

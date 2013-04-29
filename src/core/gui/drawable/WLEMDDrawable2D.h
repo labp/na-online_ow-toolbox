@@ -38,7 +38,7 @@
 
 #include <core/gui/WCustomWidget.h>
 
-#include "core/common/datastructures/WLRingBuffer.h"
+#include "core/util/WLRingBuffer.h"
 #include "core/dataHandler/WDataSetEMMEMD.h"
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"
 

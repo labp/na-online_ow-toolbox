@@ -30,12 +30,14 @@
 #include <string>
 #include <vector>
 
-#include "core/common/WLTimeProfiler.h"
-#include "core/common/WAssert.h"
-#include "core/common/WLogger.h"
+#include <core/common/WAssert.h>
+#include <core/common/WLogger.h>
+
 #include "core/dataHandler/WDataSetEMM.h"
 #include "core/dataHandler/WDataSetEMMEMD.h"
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"
+
+#include "core/util/WLTimeProfiler.h"
 
 #include "WFIRFilter.h"
 #include "WFIRDesignWindow.h"

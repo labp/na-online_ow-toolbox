@@ -32,7 +32,7 @@
 #include <set>
 
 #include "core/dataHandler/WDataSetEMM.h"
-#include "core/common/datastructures/WLRingBuffer.h"
+#include "core/util/WLRingBuffer.h"
 
 /**
  * Epoch separation based on trigger detection. Epochs can be combined from several packets.

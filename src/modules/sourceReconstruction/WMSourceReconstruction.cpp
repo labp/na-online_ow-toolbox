@@ -27,14 +27,12 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "core/kernel/WModule.h"
-#include "core/common/WItemSelection.h"
-#include "core/common/WItemSelectionItemTyped.h"
+#include <core/common/WItemSelection.h>
+#include <core/common/WItemSelectionItemTyped.h>
+#include <core/common/WPropertyHelper.h>
+#include <core/kernel/WModule.h>
 
-// Input & output connectors
-// TODO(pieloth): use OW classes
-#include "core/kernel/WLModuleInputDataRingBuffer.h"
-#include "core/kernel/WLModuleOutputDataCollectionable.h"
+#include "core/common/math/WLMatrixTypes.h"
 
 // Input & output data
 #include "core/dataHandler/WDataSetEMM.h"
@@ -42,9 +40,12 @@
 #include "core/dataHandler/WDataSetEMMEMD.h"
 #include "core/dataHandler/WDataSetEMMSource.h"
 
-#include "core/common/math/WLMatrixTypes.h"
-#include "core/common/WLTimeProfiler.h"
-#include "core/common/WPropertyHelper.h"
+// Input & output connectors
+// TODO(pieloth): use OW classes
+#include "core/kernel/WLModuleInputDataRingBuffer.h"
+#include "core/kernel/WLModuleOutputDataCollectionable.h"
+
+#include "core/util/WLTimeProfiler.h"
 
 #include "WSourceReconstruction.h"
 #include "WSourceReconstructionCpu.h"

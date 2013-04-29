@@ -27,7 +27,8 @@
 
 #include <boost/bind.hpp>
 
-#include "core/kernel/WModule.h"
+#include <core/common/WItemSelectionItemTyped.h>
+#include <core/kernel/WModule.h>
 
 // Input & output connectors
 #include "core/kernel/WLModuleInputDataRingBuffer.h"
@@ -36,10 +37,7 @@
 // Input & output data
 #include "core/dataHandler/WDataSetEMM.h"
 #include "core/dataHandler/WDataSetEMMEEG.h"
-#include "core/common/WItemSelectionItemTyped.h"
-#include "core/common/WLTimeProfiler.h"
-
-#include "WPCA.h"
+#include "core/util/WLTimeProfiler.h"
 
 #include "WMPCA.h"
 #include "WMPCA.xpm"

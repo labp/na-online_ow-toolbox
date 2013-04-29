@@ -27,9 +27,9 @@
 
 #include <string>
 
-#include "core/dataHandler/WDataSetEMM.h"
+#include <core/kernel/WModule.h>
 
-#include "core/kernel/WModule.h"
+#include "core/dataHandler/WDataSetEMM.h"
 #include "core/kernel/WModuleEMMView.h"
 // TODO(pieloth): use OW classes
 #include "core/kernel/WLModuleInputDataRingBuffer.h"

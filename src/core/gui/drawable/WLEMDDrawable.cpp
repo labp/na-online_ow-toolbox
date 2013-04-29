@@ -32,7 +32,6 @@
 #include <core/gui/WCustomWidget.h>
 #include <core/graphicsEngine/WGEGroupNode.h> // Error: forward declaration
 
-#include "core/common/datastructures/WLRingBuffer.h"
 #include "core/dataHandler/WDataSetEMM.h"
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"
 

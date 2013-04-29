@@ -27,11 +27,9 @@
 
 #include <string>
 
-#include "core/dataHandler/WDataSetEMM.h"
-// temporary Fix for Error: »WPickInfo« has not been declared
-#include "core/graphicsEngine/WPickInfo.h"
+#include <core/kernel/WModule.h>
 
-#include "core/kernel/WModule.h"
+#include "core/dataHandler/WDataSetEMM.h"
 #include "core/kernel/WModuleEMMView.h"
 #include "core/kernel/WLModuleInputDataRingBuffer.h"
 #include "core/kernel/WLModuleOutputDataCollectionable.h"
@@ -68,13 +66,6 @@ public:
      * \return description to module.
      */
     virtual const std::string getDescription() const;
-
-    /**
-     * Sets pick text member variable
-     *
-     * \param pickInfo information about the pick
-     */
-    void updatePickText( WPickInfo pickInfo );
 
 protected:
     virtual void initModule();
