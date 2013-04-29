@@ -27,14 +27,14 @@
 
 #include <boost/filesystem.hpp>
 
-#include "core/kernel/WModule.h"
+#include <core/common/WItemSelectionItemTyped.h>
+#include <core/common/WPathHelper.h>
+#include <core/kernel/WModule.h>
 
 // Output connector and data
 // TODO(pieloth): use OW class
 #include "core/kernel/WLModuleOutputDataCollectionable.h"
 #include "core/dataHandler/WDataSetEMM.h"
-#include "core/common/WItemSelectionItemTyped.h"
-#include "core/common/WPathHelper.h"
 
 #include "WMMneRtClient.h"
 #include "WMMneRtClient.xpm"
@@ -291,9 +291,9 @@ void WMMneRtClient::callbackTrgDataStop()
 void WMMneRtClient::handleExtractExpLoader( std::string fName )
 {
     boost::filesystem::path fiffFile( fName );
-    boost::filesystem::path expRoot = WReaderExperiment::getExperimentRootFromFiff( fiffFile );
-    const std::string subject = WReaderExperiment::getSubjectFromFiff( fiffFile );
-    const std::string trial = WReaderExperiment::getTrialFromFiff( fiffFile );
+    boost::filesystem::path expRoot = WLReaderExperiment::getExperimentRootFromFiff( fiffFile );
+    const std::string subject = WLReaderExperiment::getSubjectFromFiff( fiffFile );
+    const std::string trial = WLReaderExperiment::getTrialFromFiff( fiffFile );
 
     m_expSubject->set( subject );
     m_expSubject->setHidden( false );
@@ -304,7 +304,7 @@ void WMMneRtClient::handleExtractExpLoader( std::string fName )
     {
         expRoot = expRoot.parent_path();
     }
-    m_expReader.reset( new WReaderExperiment( expRoot.string(), subject ) );
+    m_expReader.reset( new WLReaderExperiment( expRoot.string(), subject ) );
 
     std::set< std::string > bems = m_expReader->findBems();
     m_expBemFiles->clear();

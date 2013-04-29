@@ -22,55 +22,54 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WREADERVOL_H_
-#define WREADERVOL_H_
+#ifndef WLREADERFIFF_H_
+#define WLREADERFIFF_H_
 
-#include <fstream>
 #include <string>
-#include <vector>
 
-#include <boost/shared_ptr.hpp>
+#include <core/dataHandler/io/WReader.h>
 
-#include "core/common/math/linearAlgebra/WVectorFixed.h"
+#include <libfiffio/common/LFReturnCodes.h>
+#include <libfiffio/common/LFUnits.h>
 
-#include "core/dataHandler/io/WReader.h"
+#include "core/dataHandler/WDataSetEMM.h"
 #include "core/dataHandler/WDataSetEMMSubject.h"
-#include "core/dataHandler/WDataSetEMMBemBoundary.h"
+#include "core/dataHandler/WDataSetEMMEnumTypes.h"
+
+#include "core/io/WLReader.h"
 
 namespace LaBP
 {
 
-    class WReaderVOL: public WReader
+    class WLReaderFIFF: public WLReader
     {
     public:
 
-        struct ReturnCode
-        {
-            enum Enum
-            {
-                SUCCESS, /**< Normal */
-                ERROR_FOPEN, /**< Error opening file */
-                ERROR_FREAD, /**< File read error */
-                ERROR_UNKNOWN /**< Unknown error */
-            };
-        };
+        static const string CLASS;
 
         /**
          * Constructs a reader object.
          *
          * \param fname path to file which should be loaded
          */
-        explicit WReaderVOL( std::string fname );
-
-        ReturnCode::Enum read( boost::shared_ptr< std::vector< boost::shared_ptr< WDataSetEMMBemBoundary > > > boundaries );
+        explicit WLReaderFIFF( std::string fname );
+        /**
+         * Read the file and create a dataset out of it.
+         */
+        ReturnCode::Enum Read( LaBP::WDataSetEMM::SPtr out );
+        /**
+         * Reads subject data only.
+         */
+        ReturnCode::Enum Read( LaBP::WDataSetEMMSubject::SPtr out );
+        /**
+         * Reads raw data only.
+         */
+        ReturnCode::Enum Read( std::vector< std::vector< double > >& out );
 
     private:
-        ReturnCode::Enum readNumBoundaries( std::string& line, size_t& count );
-        ReturnCode::Enum readConductUnit( std::string& line, WEUnit::Enum& unit );
-        ReturnCode::Enum readConductivities( std::ifstream& ifs,
-                        std::vector< boost::shared_ptr< WDataSetEMMBemBoundary > >& boundaries );
-        ReturnCode::Enum readBndFiles( std::ifstream& ifs, std::string& line,
-                        std::vector< boost::shared_ptr< WDataSetEMMBemBoundary > >& boundaries );
+        static ReturnCode::Enum getReturnCode( returncode_t rc );
+
+        static LaBP::WEUnit::Enum getChanUnit( fiffunits_t unit );
     };
 }
-#endif /* WREADERVOL_H_ */
+#endif /* WLREADERFIFF_H_ */

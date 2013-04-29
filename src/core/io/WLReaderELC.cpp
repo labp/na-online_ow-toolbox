@@ -30,29 +30,29 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "core/common/exceptions/WTypeMismatch.h"
-#include "core/common/math/linearAlgebra/WPosition.h"
-#include "core/common/math/linearAlgebra/WVectorFixed.h"
-#include "core/common/WLogger.h"
-#include "core/common/WStringUtils.h"
+#include <core/common/exceptions/WTypeMismatch.h>
+#include <core/common/math/linearAlgebra/WPosition.h>
+#include <core/common/math/linearAlgebra/WVectorFixed.h>
+#include <core/common/WLogger.h>
+#include <core/common/WStringUtils.h>
 
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"
 
-#include "../algorithms/WGeometry.h"
+#include "core/util/WLGeometry.h"
 
-#include "WReaderELC.h"
+#include "WLReaderELC.h"
 
 using namespace LaBP;
 using namespace std;
 
-const string CLASS = "WReaderELC";
+const string CLASS = "WLReaderELC";
 
-WReaderELC::WReaderELC( std::string fname ) :
-                WReader( fname )
+WLReaderELC::WLReaderELC( std::string fname ) :
+                WLReader( fname )
 {
 }
 
-WReaderELC::ReturnCode::Enum WReaderELC::read( boost::shared_ptr< std::vector< WPosition > > posOut,
+WLReaderELC::ReturnCode::Enum WLReaderELC::read( boost::shared_ptr< std::vector< WPosition > > posOut,
                 boost::shared_ptr< std::vector< std::string > > labelsOut,
                 boost::shared_ptr< std::vector< WVector3i > > facesOut )
 {
@@ -119,14 +119,14 @@ WReaderELC::ReturnCode::Enum WReaderELC::read( boost::shared_ptr< std::vector< W
     if( facesOut->empty() )
     {
         wlog::warn( CLASS ) << "No faces found! Faces will be generated.";
-        WGeometry::computeTriangulation( *facesOut, *posOut );
+        WLGeometry::computeTriangulation( *facesOut, *posOut );
     }
 
     ifs.close();
     return rc;
 }
 
-void WReaderELC::convertToMilli( boost::shared_ptr< std::vector< WPosition > > pos, WEExponent::Enum& exp )
+void WLReaderELC::convertToMilli( boost::shared_ptr< std::vector< WPosition > > pos, WEExponent::Enum& exp )
 {
     wlog::info( CLASS ) << "Points will be converted from " << WEExponent::name( exp ) << " to "
                     << WEExponent::name( WEExponent::MILLI );
@@ -141,7 +141,7 @@ void WReaderELC::convertToMilli( boost::shared_ptr< std::vector< WPosition > > p
     }
 }
 
-WReaderELC::ReturnCode::Enum WReaderELC::readUnit( string& line, WEExponent::Enum& exp )
+WLReaderELC::ReturnCode::Enum WLReaderELC::readUnit( string& line, WEExponent::Enum& exp )
 {
     vector< string > tokens = string_utils::tokenize( line );
     string unit = tokens.at( 1 );
@@ -165,7 +165,7 @@ WReaderELC::ReturnCode::Enum WReaderELC::readUnit( string& line, WEExponent::Enu
 
 }
 
-WReaderELC::ReturnCode::Enum WReaderELC::readNumPos( string& line, size_t& count )
+WLReaderELC::ReturnCode::Enum WLReaderELC::readNumPos( string& line, size_t& count )
 {
     vector< string > tokens = string_utils::tokenize( line );
     count = string_utils::fromString< size_t >( tokens.at( 1 ) );
@@ -173,7 +173,7 @@ WReaderELC::ReturnCode::Enum WReaderELC::readNumPos( string& line, size_t& count
     return ReturnCode::SUCCESS;
 }
 
-WReaderELC::ReturnCode::Enum WReaderELC::readNumPoly( string& line, size_t& count )
+WLReaderELC::ReturnCode::Enum WLReaderELC::readNumPoly( string& line, size_t& count )
 {
     vector< string > tokens = string_utils::tokenize( line );
     count = string_utils::fromString< size_t >( tokens.at( 1 ) );
@@ -181,7 +181,7 @@ WReaderELC::ReturnCode::Enum WReaderELC::readNumPoly( string& line, size_t& coun
     return ReturnCode::SUCCESS;
 }
 
-WReaderELC::ReturnCode::Enum WReaderELC::readPositions( ifstream& ifs, size_t count,
+WLReaderELC::ReturnCode::Enum WLReaderELC::readPositions( ifstream& ifs, size_t count,
                 boost::shared_ptr< std::vector< WPosition > > posOut )
 {
     // Check output data
@@ -211,7 +211,7 @@ WReaderELC::ReturnCode::Enum WReaderELC::readPositions( ifstream& ifs, size_t co
     return ReturnCode::SUCCESS;
 }
 
-WReaderELC::ReturnCode::Enum WReaderELC::readLabels( ifstream& ifs, size_t count,
+WLReaderELC::ReturnCode::Enum WLReaderELC::readLabels( ifstream& ifs, size_t count,
                 boost::shared_ptr< std::vector< std::string > > labelsOut )
 {
     // Check output data
@@ -241,7 +241,7 @@ WReaderELC::ReturnCode::Enum WReaderELC::readLabels( ifstream& ifs, size_t count
     return ReturnCode::SUCCESS;
 }
 
-WReaderELC::ReturnCode::Enum WReaderELC::readPolygons( ifstream& ifs, size_t count,
+WLReaderELC::ReturnCode::Enum WLReaderELC::readPolygons( ifstream& ifs, size_t count,
                 boost::shared_ptr< std::vector< WVector3i > > facesOut )
 {
     // Check output data

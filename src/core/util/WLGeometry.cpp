@@ -11,15 +11,15 @@
 #include <osg/Array>
 #include <osgUtil/DelaunayTriangulator>
 
-#include "core/common/WLogger.h"
-#include "core/common/math/linearAlgebra/WMatrixFixed.h"
-#include "core/common/math/linearAlgebra/WPosition.h"
-#include "core/common/math/linearAlgebra/WVectorFixed.h"
-#include "core/graphicsEngine/WGEUtils.h"
+#include <core/common/WLogger.h>
+#include <core/common/math/linearAlgebra/WMatrixFixed.h>
+#include <core/common/math/linearAlgebra/WPosition.h>
+#include <core/common/math/linearAlgebra/WVectorFixed.h>
+#include <core/graphicsEngine/WGEUtils.h>
 
-#include "WGeometry.h"
+#include "WLGeometry.h"
 
-bool WGeometry::computeTriangulation( std::vector< WVector3i >& triangles, const std::vector< WPosition >& points,
+bool WLGeometry::computeTriangulation( std::vector< WVector3i >& triangles, const std::vector< WPosition >& points,
                 double transformationFactor )
 {
     // Using algorithm of core/graphicsEngine/WGEGeometryUtils.cpp
@@ -94,7 +94,7 @@ bool WGeometry::computeTriangulation( std::vector< WVector3i >& triangles, const
     return true;
 }
 
-WGeometry::MatrixRotation WGeometry::getRotationXYZMatrix( double x, double y, double z )
+WLGeometry::MatrixRotation WLGeometry::getRotationXYZMatrix( double x, double y, double z )
 {
     MatrixRotation rot;
 
@@ -113,19 +113,19 @@ WGeometry::MatrixRotation WGeometry::getRotationXYZMatrix( double x, double y, d
     return rot;
 }
 
-WGeometry::Point WGeometry::rotate( const MatrixRotation& rotation, const Point& point )
+WLGeometry::Point WLGeometry::rotate( const MatrixRotation& rotation, const Point& point )
 {
     Point rot = rotation * point;
     return rot;
 }
 
-WGeometry::Point WGeometry::tranlate( const Vector& translation, const Point& point )
+WLGeometry::Point WLGeometry::tranlate( const Vector& translation, const Point& point )
 {
     Vector tra = translation + point;
     return tra;
 }
 
-WGeometry::Point WGeometry::centerOfMass( const std::vector< Point >& points )
+WLGeometry::Point WLGeometry::centerOfMass( const std::vector< Point >& points )
 {
     Point c;
     c.x() = 0;
@@ -142,7 +142,7 @@ WGeometry::Point WGeometry::centerOfMass( const std::vector< Point >& points )
     return c;
 }
 
-WGeometry::Point WGeometry::minDistance( const Point& p, const std::vector< Point >& points )
+WLGeometry::Point WLGeometry::minDistance( const Point& p, const std::vector< Point >& points )
 {
     double dist = std::numeric_limits< double >::max();
     double distTmp = 0;
@@ -159,7 +159,7 @@ WGeometry::Point WGeometry::minDistance( const Point& p, const std::vector< Poin
     return pTmp;
 }
 
-double WGeometry::distance( const Point& p1, const Point& p2 )
+double WLGeometry::distance( const Point& p1, const Point& p2 )
 {
     double xd = p2.x() - p1.x();
     double yd = p2.y() - p1.y();

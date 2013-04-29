@@ -8,44 +8,45 @@
 #include <boost/regex.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include "core/common/WAssert.h"
-#include "core/common/WIOTools.h"
-#include "core/common/WLogger.h"
+#include <core/common/WAssert.h>
+#include <core/common/WIOTools.h>
+#include <core/common/WLogger.h>
+
 #include "core/dataHandler/exceptions/WDHNoSuchFile.h"
 #include "core/dataHandler/WDataSetEMMBemBoundary.h"
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"
 #include "core/dataHandler/WDataSetEMMSubject.h"
 #include "core/dataHandler/WDataSetEMMSurface.h"
 
-#include "WReaderDIP.h"
-#include "WReaderMatMab.h"
-#include "WReaderVOL.h"
+#include "WLReaderDIP.h"
+#include "WLReaderMatMab.h"
+#include "WLReaderVOL.h"
 
-#include "WReaderExperiment.h"
+#include "WLReaderExperiment.h"
 
 using namespace boost::filesystem;
 using namespace LaBP;
 using namespace std;
 
-const string WReaderExperiment::m_FOLDER_BEM = "bem";
-const string WReaderExperiment::m_FOLDER_FSLVOL = "fslvol";
-const string WReaderExperiment::m_FOLDER_RESULTS = "results";
-const string WReaderExperiment::m_FOLDER_SURF = "surf";
+const string WLReaderExperiment::m_FOLDER_BEM = "bem";
+const string WLReaderExperiment::m_FOLDER_FSLVOL = "fslvol";
+const string WLReaderExperiment::m_FOLDER_RESULTS = "results";
+const string WLReaderExperiment::m_FOLDER_SURF = "surf";
 
-const string WReaderExperiment::m_PIAL = "pial";
-const string WReaderExperiment::m_INFLATED = "inflated";
-const string WReaderExperiment::m_LEADFIELD = "leadfield";
-const string WReaderExperiment::m_LH = "lh";
-const string WReaderExperiment::m_RH = "rh";
-const string WReaderExperiment::m_EEG = "eeg";
-const string WReaderExperiment::m_MEG = "meg";
-const string WReaderExperiment::m_VOL = ".vol";
-const string WReaderExperiment::m_DIP = ".dip";
-const string WReaderExperiment::m_MAT = ".mat";
+const string WLReaderExperiment::m_PIAL = "pial";
+const string WLReaderExperiment::m_INFLATED = "inflated";
+const string WLReaderExperiment::m_LEADFIELD = "leadfield";
+const string WLReaderExperiment::m_LH = "lh";
+const string WLReaderExperiment::m_RH = "rh";
+const string WLReaderExperiment::m_EEG = "eeg";
+const string WLReaderExperiment::m_MEG = "meg";
+const string WLReaderExperiment::m_VOL = ".vol";
+const string WLReaderExperiment::m_DIP = ".dip";
+const string WLReaderExperiment::m_MAT = ".mat";
 
-const string WReaderExperiment::CLASS = "WReaderExperiment";
+const string WLReaderExperiment::CLASS = "WLReaderExperiment";
 
-WReaderExperiment::WReaderExperiment( std::string experimentPath, std::string subject ) throw( WDHNoSuchFile ) :
+WLReaderExperiment::WLReaderExperiment( std::string experimentPath, std::string subject ) throw( WDHNoSuchFile ) :
                 m_PATH_EXPERIMENT( experimentPath ), m_SUBJECT( subject )
 {
     if( !fileExists( m_PATH_EXPERIMENT ) )
@@ -54,11 +55,11 @@ WReaderExperiment::WReaderExperiment( std::string experimentPath, std::string su
     }
 }
 
-WReaderExperiment::~WReaderExperiment()
+WLReaderExperiment::~WLReaderExperiment()
 {
 }
 
-boost::filesystem::path WReaderExperiment::getExperimentRootFromFiff( boost::filesystem::path fiffFile )
+boost::filesystem::path WLReaderExperiment::getExperimentRootFromFiff( boost::filesystem::path fiffFile )
 {
     wlog::debug( CLASS ) << "fileName: " << fiffFile.filename();
     // TODO maybe exception if first parent_path is filesystem root.
@@ -100,7 +101,7 @@ boost::filesystem::path WReaderExperiment::getExperimentRootFromFiff( boost::fil
     }
 }
 
-std::string WReaderExperiment::getSubjectFromFiff( boost::filesystem::path fiffFile )
+std::string WLReaderExperiment::getSubjectFromFiff( boost::filesystem::path fiffFile )
 {
     boost::regex re( "(\\D+\\d+)(\\D+)(\\d+).fif" );
     boost::cmatch matches;
@@ -123,7 +124,7 @@ std::string WReaderExperiment::getSubjectFromFiff( boost::filesystem::path fiffF
     return subject;
 }
 
-std::string WReaderExperiment::getTrialFromFiff( boost::filesystem::path fiffFile )
+std::string WLReaderExperiment::getTrialFromFiff( boost::filesystem::path fiffFile )
 {
     boost::regex re( "\\D+(\\d+)(\\D+)(\\d+).fif" );
     boost::cmatch matches;
@@ -146,7 +147,7 @@ std::string WReaderExperiment::getTrialFromFiff( boost::filesystem::path fiffFil
     return trial;
 }
 
-std::set< std::string > WReaderExperiment::findBems()
+std::set< std::string > WLReaderExperiment::findBems()
 {
     wlog::debug( CLASS ) << "findBems() called!";
     path path( m_PATH_EXPERIMENT );
@@ -175,7 +176,7 @@ std::set< std::string > WReaderExperiment::findBems()
     return volFiles;
 }
 
-bool WReaderExperiment::readBem( std::string fname, LaBP::WDataSetEMMSubject::SPtr subject )
+bool WLReaderExperiment::readBem( std::string fname, LaBP::WDataSetEMMSubject::SPtr subject )
 {
     wlog::debug( CLASS ) << "readBem() called!";
     path path( m_PATH_EXPERIMENT );
@@ -185,9 +186,9 @@ bool WReaderExperiment::readBem( std::string fname, LaBP::WDataSetEMMSubject::SP
     path /= fname;
 
     boost::shared_ptr< vector< LaBP::WDataSetEMMBemBoundary::SPtr > > bems( new vector< LaBP::WDataSetEMMBemBoundary::SPtr >() );
-    WReaderVOL reader( path.string() );
-    WReaderVOL::ReturnCode::Enum rc = reader.read( bems );
-    if( rc == WReaderVOL::ReturnCode::SUCCESS )
+    WLReaderVOL reader( path.string() );
+    WLReaderVOL::ReturnCode::Enum rc = reader.read( bems );
+    if( rc == WLReaderVOL::ReturnCode::SUCCESS )
     {
         subject->setBemBoundaries( bems );
         wlog::info( CLASS ) << "Read " << bems->size() << " BEM boundaries.";
@@ -200,7 +201,7 @@ bool WReaderExperiment::readBem( std::string fname, LaBP::WDataSetEMMSubject::SP
     }
 }
 
-std::set< std::string > WReaderExperiment::findSurfaceKinds()
+std::set< std::string > WLReaderExperiment::findSurfaceKinds()
 {
     wlog::debug( CLASS ) << "findSurfaceKinds() called!";
     path path( m_PATH_EXPERIMENT );
@@ -237,7 +238,7 @@ std::set< std::string > WReaderExperiment::findSurfaceKinds()
     return surfaces;
 }
 
-bool WReaderExperiment::readSourceSpace( std::string surfaceKind, LaBP::WDataSetEMMSubject::SPtr subject )
+bool WLReaderExperiment::readSourceSpace( std::string surfaceKind, LaBP::WDataSetEMMSubject::SPtr subject )
 {
     wlog::debug( CLASS ) << "readBem() called!";
     bool rc = true;
@@ -252,9 +253,9 @@ bool WReaderExperiment::readSourceSpace( std::string surfaceKind, LaBP::WDataSet
     wlog::info( CLASS ) << "Read file: " << lhFile.string();
 
     WDataSetEMMSurface::SPtr lhSurface( new WDataSetEMMSurface() );
-    WReaderDIP lhReader( lhFile.string() );
-    WReaderDIP::ReturnCode::Enum lhReturn = lhReader.read( lhSurface );
-    if( lhReturn == WReaderDIP::ReturnCode::SUCCESS )
+    WLReaderDIP lhReader( lhFile.string() );
+    WLReaderDIP::ReturnCode::Enum lhReturn = lhReader.read( lhSurface );
+    if( lhReturn == WLReaderDIP::ReturnCode::SUCCESS )
     {
         wlog::info( CLASS ) << "Successfully read left surface!";
         lhSurface->setHemisphere( WDataSetEMMSurface::Hemisphere::LEFT );
@@ -271,9 +272,9 @@ bool WReaderExperiment::readSourceSpace( std::string surfaceKind, LaBP::WDataSet
     wlog::info( CLASS ) << "Read file: " << rhFile.string();
 
     WDataSetEMMSurface::SPtr rhSurface( new WDataSetEMMSurface() );
-    WReaderDIP rhReader( rhFile.string() );
-    WReaderDIP::ReturnCode::Enum rhReturn = rhReader.read( rhSurface );
-    if( rhReturn == WReaderDIP::ReturnCode::SUCCESS )
+    WLReaderDIP rhReader( rhFile.string() );
+    WLReaderDIP::ReturnCode::Enum rhReturn = rhReader.read( rhSurface );
+    if( rhReturn == WLReaderDIP::ReturnCode::SUCCESS )
     {
         wlog::info( CLASS ) << "Successfully read right surface!";
         rhSurface->setHemisphere( WDataSetEMMSurface::Hemisphere::RIGHT );
@@ -315,7 +316,7 @@ bool WReaderExperiment::readSourceSpace( std::string surfaceKind, LaBP::WDataSet
     return rc;
 }
 
-std::set< std::string > WReaderExperiment::findLeadfieldTrials()
+std::set< std::string > WLReaderExperiment::findLeadfieldTrials()
 {
     wlog::debug( CLASS ) << "findLeadfieldTrials() called!";
     path path( m_PATH_EXPERIMENT );
@@ -354,7 +355,7 @@ std::set< std::string > WReaderExperiment::findLeadfieldTrials()
     return trials;
 }
 
-bool WReaderExperiment::readLeadFields( std::string surface, std::string bemName, std::string trial,
+bool WLReaderExperiment::readLeadFields( std::string surface, std::string bemName, std::string trial,
                 LaBP::WDataSetEMMSubject::SPtr subject )
 {
     bool rc = true;
@@ -363,7 +364,7 @@ bool WReaderExperiment::readLeadFields( std::string surface, std::string bemName
     return rc;
 }
 
-bool WReaderExperiment::readLeadField( std::string surface, std::string bemName, std::string trial, std::string modality,
+bool WLReaderExperiment::readLeadField( std::string surface, std::string bemName, std::string trial, std::string modality,
                 LaBP::WDataSetEMMSubject::SPtr subject )
 {
     wlog::debug( CLASS ) << "readLeadField() called!";
@@ -384,10 +385,10 @@ bool WReaderExperiment::readLeadField( std::string surface, std::string bemName,
         return false;
     }
 
-    WReaderMatMab lhReader( lhFile.string() );
+    WLReaderMatMab lhReader( lhFile.string() );
     LaBP::MatrixSPtr lhMatrix;
-    WReaderMatMab::ReturnCode::Enum lhReturn = lhReader.read( lhMatrix );
-    if( lhReturn == WReaderMatMab::ReturnCode::SUCCESS )
+    WLReaderMatMab::ReturnCode::Enum lhReturn = lhReader.read( lhMatrix );
+    if( lhReturn == WLReaderMatMab::ReturnCode::SUCCESS )
     {
         wlog::info( CLASS ) << "Successfully read left leadfield!";
     }
@@ -406,10 +407,10 @@ bool WReaderExperiment::readLeadField( std::string surface, std::string bemName,
         return false;
     }
 
-    WReaderMatMab rhReader( rhFile.string() );
+    WLReaderMatMab rhReader( rhFile.string() );
     LaBP::MatrixSPtr rhMatrix;
-    WReaderMatMab::ReturnCode::Enum rhReturn = rhReader.read( rhMatrix );
-    if( rhReturn == WReaderMatMab::ReturnCode::SUCCESS )
+    WLReaderMatMab::ReturnCode::Enum rhReturn = rhReader.read( rhMatrix );
+    if( rhReturn == WLReaderMatMab::ReturnCode::SUCCESS )
     {
         wlog::info( CLASS ) << "Successfully read right leadfield!";
     }

@@ -30,10 +30,10 @@
 
 #include <fiff/fiff_ch_info.h>
 
-#include "core/common/WAssert.h"
-#include "core/common/WLogger.h"
+#include <core/common/WAssert.h>
+#include <core/common/WLogger.h>
 
-#include "algorithms/WGeometry.h"
+#include "core/util/WLGeometry.h"
 #include "WRtClient.h"
 
 const std::string WRtClient::CLASS = "WRtClient";
@@ -400,7 +400,7 @@ bool WRtClient::readChannelPositionsFaces()
         }
 
         m_facesEeg.reset( new std::vector< WVector3i > );
-        WGeometry::computeTriangulation( *m_facesEeg, *m_chPosEeg );
+        WLGeometry::computeTriangulation( *m_facesEeg, *m_chPosEeg );
     }
 
     // TODO(pieloth): MEG

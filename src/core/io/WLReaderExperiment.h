@@ -1,7 +1,7 @@
 // TODO doc & license
 
-#ifndef WREADEREXPERIMENT_H_
-#define WREADEREXPERIMENT_H_
+#ifndef WLREADEREXPERIMENT_H_
+#define WLREADEREXPERIMENT_H_
 
 #include <set>
 #include <string>
@@ -9,24 +9,25 @@
 #include <boost/filesystem.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include "core/dataHandler/exceptions/WDHNoSuchFile.h"
+#include <core/dataHandler/exceptions/WDHNoSuchFile.h>
+
 #include "core/dataHandler/WDataSetEMMSubject.h"
 
-class WReaderExperiment
+class WLReaderExperiment
 {
 public:
     /**
      * Abbreviation for a shared pointer.
      */
-    typedef boost::shared_ptr< WReaderExperiment > SPtr;
+    typedef boost::shared_ptr< WLReaderExperiment > SPtr;
 
     /**
      * Abbreviation for const shared pointer.
      */
-    typedef boost::shared_ptr< const WReaderExperiment > ConstSPtr;
+    typedef boost::shared_ptr< const WLReaderExperiment > ConstSPtr;
 
-    WReaderExperiment( std::string experimentPath, std::string subject ) throw( WDHNoSuchFile );
-    virtual ~WReaderExperiment();
+    WLReaderExperiment( std::string experimentPath, std::string subject ) throw( WDHNoSuchFile );
+    virtual ~WLReaderExperiment();
 
     static boost::filesystem::path getExperimentRootFromFiff(boost::filesystem::path fiffFile);
     static std::string getSubjectFromFiff(boost::filesystem::path fiffFile);
@@ -71,4 +72,4 @@ private:
     static const std::string CLASS;
 };
 
-#endif /* WREADEREXPERIMENT_H_ */
+#endif /* WLREADEREXPERIMENT_H_ */

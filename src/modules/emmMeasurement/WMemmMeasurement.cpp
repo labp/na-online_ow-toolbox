@@ -34,15 +34,14 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include "core/kernel/WModule.h"
+#include <core/kernel/WModule.h>
 
-#include "core/common/math/linearAlgebra/WPosition.h"
-#include "core/common/math/linearAlgebra/WVectorFixed.h"
-#include "core/common/WItemSelectionItemTyped.h"
-#include "core/common/WPathHelper.h"
-#include "core/common/WPropertyTypes.h"
-#include "core/common/WRealtimeTimer.h"
-#include "core/dataHandler/io/WReaderFIFF.h"
+#include <core/common/math/linearAlgebra/WPosition.h>
+#include <core/common/math/linearAlgebra/WVectorFixed.h>
+#include <core/common/WItemSelectionItemTyped.h>
+#include <core/common/WPathHelper.h>
+#include <core/common/WPropertyTypes.h>
+#include <core/common/WRealtimeTimer.h>
 
 // Output connector and data
 // TODO use OW class
@@ -55,12 +54,12 @@
 #include "core/dataHandler/WDataSetEMMBemBoundary.h"
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"
 
-#include "algorithms/WGeometry.h"
-
-#include "reader/WReaderELC.h"
-#include "reader/WReaderDIP.h"
-#include "reader/WReaderVOL.h"
-#include "reader/WReaderExperiment.h"
+#include "core/io/WLReaderELC.h"
+#include "core/io/WLReaderFIFF.h"
+#include "core/io/WLReaderDIP.h"
+#include "core/io/WLReaderVOL.h"
+#include "core/io/WLReaderExperiment.h"
+#include "core/util/WLGeometry.h"
 
 #include "WMemmMeasurement.h"
 #include "WMemmMeasurement.xpm"
@@ -540,9 +539,9 @@ bool WMemmMeasurement::readFiff( std::string fname )
     m_fiffFileStatus->set( LOADING_FILE, true );
     if( boost::filesystem::exists( fname ) && boost::filesystem::is_regular_file( fname ) )
     {
-        LaBP::WReaderFIFF fiffReader( fname );
+        LaBP::WLReaderFIFF fiffReader( fname );
         m_fiffEmm.reset( new LaBP::WDataSetEMM() );
-        if( fiffReader.Read( m_fiffEmm ) == LaBP::WReaderFIFF::SUCCESS )
+        if( fiffReader.Read( m_fiffEmm ) == LaBP::WLReaderFIFF::ReturnCode::SUCCESS )
         {
             if( m_fiffEmm->hasModality( LaBP::WEModalityType::EEG ) )
             {
@@ -550,7 +549,7 @@ bool WMemmMeasurement::readFiff( std::string fname )
                 if( eeg->getFaces().empty() )
                 {
                     warnLog() << "No faces found! Faces will be generated.";
-                    WGeometry::computeTriangulation( eeg->getFaces(), *eeg->getChannelPositions3d() );
+                    WLGeometry::computeTriangulation( eeg->getFaces(), *eeg->getChannelPositions3d() );
                 }
             }
             infoLog() << "Modalities:\t" << m_fiffEmm->getModalityCount();
@@ -584,10 +583,10 @@ bool WMemmMeasurement::readElc( std::string fname )
     m_elcPositions3d.reset( new std::vector< WPosition >() );
     m_elcFaces.reset( new std::vector< WVector3i >() );
 
-    LaBP::WReaderELC* elcReader;
+    LaBP::WLReaderELC* elcReader;
     try
     {
-        elcReader = new LaBP::WReaderELC( fname );
+        elcReader = new LaBP::WLReaderELC( fname );
     }
     catch( std::exception& e )
     {
@@ -596,7 +595,7 @@ bool WMemmMeasurement::readElc( std::string fname )
         return false;
     }
 
-    if( elcReader->read( m_elcPositions3d, m_elcLabels, m_elcFaces ) == LaBP::WReaderELC::ReturnCode::SUCCESS )
+    if( elcReader->read( m_elcPositions3d, m_elcLabels, m_elcFaces ) == LaBP::WLReaderELC::ReturnCode::SUCCESS )
     {
         m_elcChanLabelCount->set( m_elcLabels->size(), true );
         m_elcChanPositionCount->set( m_elcPositions3d->size(), true );
@@ -651,10 +650,10 @@ bool WMemmMeasurement::readDip( std::string fname )
     m_dipFileStatus->set( LOADING_FILE, true );
     m_dipSurface.reset();
 
-    LaBP::WReaderDIP* reader;
+    LaBP::WLReaderDIP* reader;
     try
     {
-        reader = new LaBP::WReaderDIP( fname );
+        reader = new LaBP::WLReaderDIP( fname );
     }
     catch( std::exception& e )
     {
@@ -664,7 +663,7 @@ bool WMemmMeasurement::readDip( std::string fname )
     }
 
     m_dipSurface.reset( new LaBP::WDataSetEMMSurface() );
-    if( reader->read( m_dipSurface ) == LaBP::WReaderDIP::ReturnCode::SUCCESS )
+    if( reader->read( m_dipSurface ) == LaBP::WLReaderDIP::ReturnCode::SUCCESS )
     {
         m_dipPositionCount->set( m_dipSurface->getVertex()->size(), true );
         m_dipFacesCount->set( m_dipSurface->getFaces().size(), true );
@@ -708,10 +707,10 @@ bool WMemmMeasurement::readVol( std::string fname )
     m_volFileStatus->set( LOADING_FILE, true );
     m_volBoundaries.reset();
 
-    LaBP::WReaderVOL* reader;
+    LaBP::WLReaderVOL* reader;
     try
     {
-        reader = new LaBP::WReaderVOL( fname );
+        reader = new LaBP::WLReaderVOL( fname );
     }
     catch( std::exception& e )
     {
@@ -721,7 +720,7 @@ bool WMemmMeasurement::readVol( std::string fname )
     }
 
     m_volBoundaries.reset( new std::vector< boost::shared_ptr< LaBP::WDataSetEMMBemBoundary > >() );
-    if( reader->read( m_volBoundaries ) == LaBP::WReaderVOL::ReturnCode::SUCCESS )
+    if( reader->read( m_volBoundaries ) == LaBP::WLReaderVOL::ReturnCode::SUCCESS )
     {
         m_volBoundaryCount->set( m_volBoundaries->size(), true );
         m_volFileStatus->set( FILE_LOADED, true );
@@ -865,9 +864,9 @@ void WMemmMeasurement::handleExperimentLoadChanged()
 void WMemmMeasurement::extractExpLoader( std::string fName )
 {
     boost::filesystem::path fiffFile( fName );
-    boost::filesystem::path expRoot = WReaderExperiment::getExperimentRootFromFiff( fiffFile );
-    const std::string subject = WReaderExperiment::getSubjectFromFiff( fiffFile );
-    const std::string trial = WReaderExperiment::getTrialFromFiff( fiffFile );
+    boost::filesystem::path expRoot = WLReaderExperiment::getExperimentRootFromFiff( fiffFile );
+    const std::string subject = WLReaderExperiment::getSubjectFromFiff( fiffFile );
+    const std::string trial = WLReaderExperiment::getTrialFromFiff( fiffFile );
 
     m_expSubject->set( subject );
     m_expSubject->setHidden( false );
@@ -878,7 +877,7 @@ void WMemmMeasurement::extractExpLoader( std::string fName )
     {
         expRoot = expRoot.parent_path();
     }
-    m_expReader.reset( new WReaderExperiment( expRoot.string(), subject ) );
+    m_expReader.reset( new WLReaderExperiment( expRoot.string(), subject ) );
 
     std::set< std::string > bems = m_expReader->findBems();
     m_expBemFiles->clear();

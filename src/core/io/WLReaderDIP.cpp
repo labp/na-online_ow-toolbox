@@ -29,30 +29,27 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "core/common/exceptions/WTypeMismatch.h"
-#include "core/common/math/linearAlgebra/WPosition.h"
-#include "core/common/math/linearAlgebra/WVectorFixed.h"
-#include "core/common/WLogger.h"
-#include "core/common/WStringUtils.h"
-#include "core/dataHandler/WDataSetEMMBemBoundary.h"
-#include "core/dataHandler/WDataSetEMMEnumTypes.h"
+#include <core/common/exceptions/WTypeMismatch.h>
+#include <core/common/math/linearAlgebra/WPosition.h>
+#include <core/common/math/linearAlgebra/WVectorFixed.h>
+#include <core/common/WLogger.h>
+#include <core/common/WStringUtils.h>
 
-#include "../algorithms/WGeometry.h"
+#include "core/dataHandler/WDataSetEMMSurface.h"
 
-#include "WReaderBND.h"
+#include "core/util/WLGeometry.h"
+
+#include "WLReaderDIP.h"
 
 using namespace LaBP;
 using namespace std;
 
-const string CLASS = "WReaderBND";
-
-WReaderBND::WReaderBND( std::string fname ) :
-                WReader( fname )
+WLReaderDIP::WLReaderDIP( std::string fname ) :
+                WLReader( fname )
 {
-    wlog::debug( CLASS ) << "file: " << fname;
 }
 
-WReaderBND::ReturnCode::Enum WReaderBND::read( boost::shared_ptr< WDataSetEMMBemBoundary > boundary )
+WLReaderDIP::ReturnCode::Enum WLReaderDIP::read( boost::shared_ptr< WDataSetEMMSurface > surface )
 {
     ifstream ifs;
     ifs.open( m_fname.c_str(), ifstream::in );
@@ -72,7 +69,7 @@ WReaderBND::ReturnCode::Enum WReaderBND::read( boost::shared_ptr< WDataSetEMMBem
         {
             if( line.find( "UnitPosition" ) == 0 )
             {
-                rc = readUnit( line, boundary );
+                rc = readUnit( line, surface );
             }
             else
                 if( line.find( "NumberPositions=" ) == 0 )
@@ -82,7 +79,7 @@ WReaderBND::ReturnCode::Enum WReaderBND::read( boost::shared_ptr< WDataSetEMMBem
                 else
                     if( line.find( "Positions" ) == 0 )
                     {
-                        rc = readPositions( ifs, countPos, boundary );
+                        rc = readPositions( ifs, countPos, surface );
                         hasPos = true;
                     }
                     else
@@ -93,87 +90,63 @@ WReaderBND::ReturnCode::Enum WReaderBND::read( boost::shared_ptr< WDataSetEMMBem
                         else
                             if( line.find( "Polygons" ) == 0 )
                             {
-                                rc = readPolygons( ifs, countPoly, boundary );
+                                rc = readPolygons( ifs, countPoly, surface );
                             }
-                            else
-                                if( line.find( "Type=" ) == 0 )
-                                {
-                                    rc = readType( line, boundary );
-                                }
         }
     }
     catch( WTypeMismatch& e )
     {
-        wlog::error( CLASS ) << e.what();
+        wlog::error( "WReaderDIP" ) << e.what();
         rc = ReturnCode::ERROR_UNKNOWN;
     }
 
-    if( boundary->getFaces().empty() )
+    if( surface->getFaces().empty() )
     {
-        wlog::warn( "WReaderBND" ) << "No faces found! Faces will be generated.";
-        WGeometry::computeTriangulation( boundary->getFaces(), boundary->getVertex() );
+        wlog::warn( "WReaderDIP" ) << "No faces found! Faces will be generated.";
+        WLGeometry::computeTriangulation( surface->getFaces(), *surface->getVertex() );
     }
 
     ifs.close();
     return rc;
 }
 
-WReaderBND::ReturnCode::Enum WReaderBND::readType( string& line, boost::shared_ptr< WDataSetEMMBemBoundary > boundary )
-{
-    vector< string > tokens = string_utils::tokenize( line );
-    string type = tokens.at( 1 );
-    wlog::debug( CLASS ) << "Type: " << type;
-    vector< WEBemType::Enum > types = WEBemType::values();
-    for( vector< WEBemType::Enum >::iterator it = types.begin(); it != types.end(); ++it )
-    {
-        if( type.find( WEBemType::name( *it ) ) != string::npos )
-        {
-            boundary->setBemType( *it );
-            return ReturnCode::SUCCESS;
-        }
-    }
-
-    wlog::warn( CLASS ) << "Unknown BEM type.";
-    return ReturnCode::ERROR_UNKNOWN;
-}
-
-WReaderBND::ReturnCode::Enum WReaderBND::readUnit( string& line, boost::shared_ptr< WDataSetEMMBemBoundary > boundary )
+WLReaderDIP::ReturnCode::Enum WLReaderDIP::readUnit( string& line, boost::shared_ptr< WDataSetEMMSurface > surface )
 {
     vector< string > tokens = string_utils::tokenize( line );
     string unit = tokens.at( 1 );
-    wlog::debug( CLASS ) << "Unit: " << unit;
+    wlog::debug( "WReaderDIP" ) << "Unit: " << unit;
     if( unit.find( "mm" ) != string::npos )
     {
-        boundary->setVertexUnit( WEUnit::METER );
-        boundary->setVertexExponent( WEExponent::MILLI );
+        surface->setVertexUnit( WEUnit::METER );
+        surface->setVertexExponent( WEExponent::MILLI );
         return ReturnCode::SUCCESS;
     }
     else
     {
-        wlog::warn( CLASS ) << "Unknown unit.";
+        wlog::warn( "WReaderDIP" ) << "Unknown unit.";
         return ReturnCode::ERROR_UNKNOWN;
     }
 
 }
 
-WReaderBND::ReturnCode::Enum WReaderBND::readNumPos( string& line, size_t& count )
+WLReaderDIP::ReturnCode::Enum WLReaderDIP::readNumPos( string& line, size_t& count )
 {
     vector< string > tokens = string_utils::tokenize( line );
     count = string_utils::fromString< size_t >( tokens.at( 1 ) );
-    wlog::debug( CLASS ) << "Number of positions: " << count;
+    wlog::debug( "WReaderDIP" ) << "Number of positions: " << count;
     return ReturnCode::SUCCESS;
 }
 
-WReaderBND::ReturnCode::Enum WReaderBND::readNumPoly( string& line, size_t& count )
+WLReaderDIP::ReturnCode::Enum WLReaderDIP::readNumPoly( string& line, size_t& count )
 {
     vector< string > tokens = string_utils::tokenize( line );
     count = string_utils::fromString< size_t >( tokens.at( 1 ) );
-    wlog::debug( CLASS ) << "Number of polygons: " << count;
+    wlog::debug( "WReaderDIP" ) << "Number of polygons: " << count;
     return ReturnCode::SUCCESS;
 }
 
-WReaderBND::ReturnCode::Enum WReaderBND::readPositions( ifstream& ifs, size_t count,
-                boost::shared_ptr< WDataSetEMMBemBoundary > boundary )
+WLReaderDIP::ReturnCode::Enum WLReaderDIP::readPositions( ifstream& ifs, size_t count,
+                boost::shared_ptr< WDataSetEMMSurface > surface )
 {
 
     boost::shared_ptr< std::vector< WPosition > > pos( new vector< WPosition >() );
@@ -182,7 +155,6 @@ WReaderBND::ReturnCode::Enum WReaderBND::readPositions( ifstream& ifs, size_t co
     string line;
     for( size_t i = 0; i < count && getline( ifs, line ); ++i )
     {
-
         vector< string > lineTokens = string_utils::tokenize( line, ":" );
 
         vector< string > posTokens = string_utils::tokenize( lineTokens.back() );
@@ -195,13 +167,13 @@ WReaderBND::ReturnCode::Enum WReaderBND::readPositions( ifstream& ifs, size_t co
     {
         return ReturnCode::ERROR_FREAD;
     }
-    boundary->setVertex( pos );
+    surface->setVertex( pos );
 
     return ReturnCode::SUCCESS;
 }
 
-WReaderBND::ReturnCode::Enum WReaderBND::readPolygons( ifstream& ifs, size_t count,
-                boost::shared_ptr< WDataSetEMMBemBoundary > surface )
+WLReaderDIP::ReturnCode::Enum WLReaderDIP::readPolygons( ifstream& ifs, size_t count,
+                boost::shared_ptr< WDataSetEMMSurface > surface )
 {
     boost::shared_ptr< std::vector< WVector3i > > faces( new vector< WVector3i >() );
     faces->reserve( count );

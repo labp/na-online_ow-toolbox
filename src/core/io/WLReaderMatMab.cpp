@@ -5,29 +5,29 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "core/common/math/WLMatrixTypes.h"
-#include "core/common/WLogger.h"
-#include "core/common/WStringUtils.h"
-#include "core/dataHandler/io/WReader.h"
+#include <core/common/WLogger.h>
+#include <core/common/WStringUtils.h>
+#include <core/dataHandler/io/WReader.h>
 
-#include "WReaderMatMab.h"
+#include "core/common/math/WLMatrixTypes.h"
+
+#include "WLReaderMatMab.h"
 
 using namespace std;
 
-const string CLASS = "WReaderMatMab";
+const string CLASS = "WLReaderMatMab";
 
-WReaderMatMab::WReaderMatMab( std::string fname ) :
-                WReader( fname )
+WLReaderMatMab::WLReaderMatMab( std::string fname ) :
+                WLReader( fname )
 {
     wlog::debug( CLASS ) << "file: " << fname;
 }
 
-WReaderMatMab::~WReaderMatMab()
+WLReaderMatMab::~WLReaderMatMab()
 {
-    // TODO Auto-generated destructor stub
 }
 
-WReaderMatMab::ReturnCode::Enum WReaderMatMab::read( LaBP::MatrixSPtr& matrix )
+WLReaderMatMab::ReturnCode::Enum WLReaderMatMab::read( LaBP::MatrixSPtr& matrix )
 {
 
     ifstream ifs;
@@ -86,7 +86,7 @@ WReaderMatMab::ReturnCode::Enum WReaderMatMab::read( LaBP::MatrixSPtr& matrix )
 
 }
 
-WReaderMatMab::ReturnCode::Enum WReaderMatMab::readMab( LaBP::MatrixSPtr matrix, std::string fName, size_t rows, size_t cols )
+WLReaderMatMab::ReturnCode::Enum WLReaderMatMab::readMab( LaBP::MatrixSPtr matrix, std::string fName, size_t rows, size_t cols )
 {
     if( static_cast< size_t >( matrix->rows() ) != rows || static_cast< size_t >( matrix->cols() ) != cols )
     {

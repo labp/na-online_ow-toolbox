@@ -7,9 +7,9 @@
 
 #include <boost/bind.hpp>
 
-#include "core/common/WAssert.h"
+#include <core/common/WAssert.h>
 
-#include "WGeometry.h"
+#include "core/util/WLGeometry.h"
 #include "WRegistration.h"
 
 WRegistration::WRegistration()
@@ -29,7 +29,7 @@ WRegistration::PointCloud WRegistration::closestPointCorresponces( const PointCl
     corresponces.reserve( P.size() );
     corresponces.resize( P.size() );
 
-    std::transform( P.begin(), P.end(), corresponces.begin(), boost::bind( WGeometry::minDistance, _1, X ) );
+    std::transform( P.begin(), P.end(), corresponces.begin(), boost::bind( WLGeometry::minDistance, _1, X ) );
 
     return corresponces;
 }
@@ -41,7 +41,7 @@ double WRegistration::meanSquareError( const PointCloud& P, const PointCloud& X 
     WAssertDebug( P.size() == X.size(), "Point clouds have different sizes!" );
     for( PointCloud::size_type i = 0; i < P.size(); ++i )
     {
-        mse += pow( WGeometry::distance( P.at( i ), X.at( i ) ), 2 );
+        mse += pow( WLGeometry::distance( P.at( i ), X.at( i ) ), 2 );
     }
 
     mse = mse / P.size();

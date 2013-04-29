@@ -45,7 +45,7 @@
 #include "algorithms/WRegistrationICP.h"
 #include "algorithms/WRegistrationNaive.h"
 
-#include "reader/WReaderExperiment.h"
+#include "core/io/WLReaderExperiment.h"
 
 /**
  * This module implements several onscreen status displays. At the moment the main purpose
@@ -271,7 +271,7 @@ private:
     WPropTrigger m_expLoadTrigger;
     WPropString m_expLoadStatus;
     void handleExperimentLoadChanged();
-    WReaderExperiment::SPtr m_expReader;
+    WLReaderExperiment::SPtr m_expReader;
 
     // File status string //
 

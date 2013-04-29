@@ -22,44 +22,29 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WREADERVOL_H
-#define WREADERVOL_H
+#ifndef WLREADER_H_
+#define WLREADER_H_
 
 #include <string>
-#include <vector>
-
-#include <boost/shared_ptr.hpp>
 
 #include <core/dataHandler/io/WReader.h>
-#include <core/dataHandler/WDataSet.h>
 
-
-/**
- * Read data from a VOL file.
- * \ingroup dataHandler
- */
-class WReaderVOL : public WReader // NOLINT
+class WLReader: public WReader
 {
 public:
-    /**
-     * Constructs a reader object.
-     *
-     * \param fname path to file which should be loaded
-     */
-    explicit WReaderVOL( std::string fname );
+    struct ReturnCode
+    {
+        enum Enum
+        {
+            SUCCESS, /**< Normal */
+            ERROR_FOPEN, /**< Error opening file */
+            ERROR_FREAD, /**< File read error */
+            ERROR_UNKNOWN /**< Unknown error */
+        };
+    };
 
-    /**
-     * Read the file and create a dataset out of it.
-     *
-     * \return reference to the dataset
-     */
-    std::vector< std::string > read();
+    explicit WLReader( std::string fname );
 
-
-protected:
-    std::vector< std::string > filenameBoundaries;
-private:
 };
 
-
-#endif  // WREADERVOL_H
+#endif  // WLREADER_H_

@@ -2,16 +2,16 @@
  * TODO license and documentation
  */
 
-#ifndef WGEOMETRY_H_
-#define WGEOMETRY_H_
+#ifndef WLGEOMETRY_H_
+#define WLGEOMETRY_H_
 
 #include <boost/shared_ptr.hpp>
 
-#include "core/common/math/linearAlgebra/WMatrixFixed.h"
-#include "core/common/math/linearAlgebra/WPosition.h"
-#include "core/common/math/linearAlgebra/WVectorFixed.h"
+#include <core/common/math/linearAlgebra/WMatrixFixed.h>
+#include <core/common/math/linearAlgebra/WPosition.h>
+#include <core/common/math/linearAlgebra/WVectorFixed.h>
 
-namespace WGeometry
+namespace WLGeometry
 {
     typedef WVector3d Vector;
     typedef WPosition Point;
@@ -34,4 +34,4 @@ namespace WGeometry
     Point minDistance( const Point&, const std::vector< Point >& );
 }
 
-#endif /* WGEOMETRY_H_ */
+#endif /* WLGEOMETRY_H_ */

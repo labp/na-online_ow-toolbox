@@ -27,14 +27,15 @@
 
 #include <string>
 
-#include "core/common/WPropertyTypes.h"
+#include <core/common/WPropertyTypes.h>
+
 #include "core/dataHandler/WDataSetEMM.h"
 
 #include "core/kernel/WModuleEMMView.h"
 // TODO(pieloth): use OW class
 #include "core/kernel/WLModuleOutputDataCollectionable.h"
 
-#include "reader/WReaderExperiment.h"
+#include "core/io/WLReaderExperiment.h"
 #include "WRtClient.h"
 
 /**
@@ -163,7 +164,7 @@ private:
     WPropString m_expLoadStatus;
     void handleExperimentLoadChanged();
     void handleExtractExpLoader( std::string fiffFile );
-    WReaderExperiment::SPtr m_expReader;
+    WLReaderExperiment::SPtr m_expReader;
 
     // File status string //
     static const std::string NO_DATA_LOADED;

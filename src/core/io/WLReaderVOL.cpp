@@ -29,29 +29,29 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "core/common/exceptions/WTypeMismatch.h"
-#include "core/common/math/linearAlgebra/WVectorFixed.h"
-#include "core/common/WLogger.h"
-#include "core/common/WStringUtils.h"
+#include <core/common/exceptions/WTypeMismatch.h>
+#include <core/common/math/linearAlgebra/WVectorFixed.h>
+#include <core/common/WLogger.h>
+#include <core/common/WStringUtils.h>
 
 #include "core/dataHandler/WDataSetEMMSubject.h"
 #include "core/dataHandler/WDataSetEMMBemBoundary.h"
 
-#include "WReaderBND.h"
-#include "WReaderVOL.h"
+#include "WLReaderBND.h"
+#include "WLReaderVOL.h"
 
 using namespace LaBP;
 using namespace std;
 
-const string CLASS = "WReaderVOL";
+const string CLASS = "WLReaderVOL";
 
-WReaderVOL::WReaderVOL( std::string fname ) :
-                WReader( fname )
+WLReaderVOL::WLReaderVOL( std::string fname ) :
+                WLReader( fname )
 {
     wlog::debug( CLASS ) << "file: " << fname;
 }
 
-WReaderVOL::ReturnCode::Enum WReaderVOL::read(
+WLReaderVOL::ReturnCode::Enum WLReaderVOL::read(
                 boost::shared_ptr< std::vector< boost::shared_ptr< WDataSetEMMBemBoundary > > > boundaries )
 {
     ifstream ifs;
@@ -114,7 +114,7 @@ WReaderVOL::ReturnCode::Enum WReaderVOL::read(
     return rc;
 }
 
-WReaderVOL::ReturnCode::Enum WReaderVOL::readNumBoundaries( std::string& line, size_t& count )
+WLReaderVOL::ReturnCode::Enum WLReaderVOL::readNumBoundaries( std::string& line, size_t& count )
 {
     vector< string > tokens = string_utils::tokenize( line );
     count = string_utils::fromString< size_t >( tokens.at( 1 ) );
@@ -122,7 +122,7 @@ WReaderVOL::ReturnCode::Enum WReaderVOL::readNumBoundaries( std::string& line, s
     return ReturnCode::SUCCESS;
 }
 
-WReaderVOL::ReturnCode::Enum WReaderVOL::readConductUnit( std::string& line, WEUnit::Enum& unit )
+WLReaderVOL::ReturnCode::Enum WLReaderVOL::readConductUnit( std::string& line, WEUnit::Enum& unit )
 {
     vector< string > tokens = string_utils::tokenize( line );
     string sunit = tokens.at( 1 );
@@ -140,7 +140,7 @@ WReaderVOL::ReturnCode::Enum WReaderVOL::readConductUnit( std::string& line, WEU
     }
 }
 
-WReaderVOL::ReturnCode::Enum WReaderVOL::readConductivities( std::ifstream& ifs,
+WLReaderVOL::ReturnCode::Enum WLReaderVOL::readConductivities( std::ifstream& ifs,
                 std::vector< boost::shared_ptr< WDataSetEMMBemBoundary > >& boundaries )
 {
     if( boundaries.size() == 0 )
@@ -167,7 +167,7 @@ WReaderVOL::ReturnCode::Enum WReaderVOL::readConductivities( std::ifstream& ifs,
     return ReturnCode::SUCCESS;
 }
 
-WReaderVOL::ReturnCode::Enum WReaderVOL::readBndFiles( std::ifstream& ifs, string& line,
+WLReaderVOL::ReturnCode::Enum WLReaderVOL::readBndFiles( std::ifstream& ifs, string& line,
                 std::vector< boost::shared_ptr< WDataSetEMMBemBoundary > >& boundaries )
 {
     if( boundaries.size() == 0 )
@@ -185,8 +185,8 @@ WReaderVOL::ReturnCode::Enum WReaderVOL::readBndFiles( std::ifstream& ifs, strin
         ++count;
         vector< string > tokens = string_utils::tokenize( line );
         string fname = tokens.at( 1 );
-        WReaderBND reader( path + fname );
-        if( reader.read( boundaries.at( count - 1 ) ) != WReaderBND::ReturnCode::SUCCESS )
+        WLReaderBND reader( path + fname );
+        if( reader.read( boundaries.at( count - 1 ) ) != WLReaderBND::ReturnCode::SUCCESS )
         {
             wlog::error( CLASS ) << "Error while reading " << fname;
         }

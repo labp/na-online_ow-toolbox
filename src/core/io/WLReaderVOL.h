@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WREADERVOL_H_
-#define WREADERVOL_H_
+#ifndef WLREADERVOL_H_
+#define WLREADERVOL_H_
 
 #include <fstream>
 #include <string>
@@ -31,36 +31,28 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "core/common/math/linearAlgebra/WVectorFixed.h"
+#include <core/common/math/linearAlgebra/WVectorFixed.h>
 
-#include "core/dataHandler/io/WReader.h"
 #include "core/dataHandler/WDataSetEMMSubject.h"
 #include "core/dataHandler/WDataSetEMMBemBoundary.h"
+#include "core/io/WLReader.h"
 
 namespace LaBP
 {
 
-    class WReaderVOL: public WReader
+    class WLReaderVOL: public WLReader
     {
     public:
-
-        struct ReturnCode
-        {
-            enum Enum
-            {
-                SUCCESS, /**< Normal */
-                ERROR_FOPEN, /**< Error opening file */
-                ERROR_FREAD, /**< File read error */
-                ERROR_UNKNOWN /**< Unknown error */
-            };
-        };
-
         /**
          * Constructs a reader object.
          *
          * \param fname path to file which should be loaded
          */
-        explicit WReaderVOL( std::string fname );
+        explicit WLReaderVOL( std::string fname );
+        virtual ~WLReaderVOL()
+        {
+        }
+        ;
 
         ReturnCode::Enum read( boost::shared_ptr< std::vector< boost::shared_ptr< WDataSetEMMBemBoundary > > > boundaries );
 
@@ -73,4 +65,4 @@ namespace LaBP
                         std::vector< boost::shared_ptr< WDataSetEMMBemBoundary > >& boundaries );
     };
 }
-#endif /* WREADERVOL_H_ */
+#endif /* WLREADERVOL_H_ */

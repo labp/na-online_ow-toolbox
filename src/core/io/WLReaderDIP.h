@@ -22,60 +22,40 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WREADERFIFF_H_
-#define WREADERFIFF_H_
+#ifndef WLREADERDIP_H_
+#define WLREADERDIP_H_
 
+#include <fstream>
 #include <string>
+#include <vector>
 
-#include <core/dataHandler/io/WReader.h>
+#include <boost/shared_ptr.hpp>
 
-#include <libfiffio/common/LFReturnCodes.h>
-#include <libfiffio/common/LFUnits.h>
+#include "core/dataHandler/WDataSetEMMSurface.h"
 
-#include "core/dataHandler/WDataSetEMM.h"
-#include "core/dataHandler/WDataSetEMMSubject.h"
-#include "core/dataHandler/WDataSetEMMEnumTypes.h"
+#include "core/io/WLReader.h"
 
 namespace LaBP
 {
 
-    class WReaderFIFF: public WReader
+    class WLReaderDIP: public WLReader
     {
     public:
-
-        static const string CLASS;
-
-        enum ReturnCode
-        {
-            SUCCESS, /**< Normal */
-            ERROR_FOPEN, /**< Error opening file */
-            ERROR_FREAD, /**< File read error */
-            ERROR_UNKNOWN /**< Unknown error */
-        };
-
         /**
          * Constructs a reader object.
          *
          * \param fname path to file which should be loaded
          */
-        explicit WReaderFIFF( std::string fname );
-        /**
-         * Read the file and create a dataset out of it.
-         */
-        ReturnCode Read( LaBP::WDataSetEMM::SPtr out );
-        /**
-         * Reads subject data only.
-         */
-        ReturnCode Read( LaBP::WDataSetEMMSubject::SPtr out );
-        /**
-         * Reads raw data only.
-         */
-        ReturnCode Read( std::vector< std::vector< double > >& out );
+        explicit WLReaderDIP( std::string fname );
+
+        ReturnCode::Enum read( boost::shared_ptr< WDataSetEMMSurface > surface );
 
     private:
-        static ReturnCode getReturnCode( returncode_t rc );
-
-        static LaBP::WEUnit::Enum getChanUnit( fiffunits_t unit );
+        ReturnCode::Enum readUnit( std::string& line, boost::shared_ptr< WDataSetEMMSurface > surface );
+        ReturnCode::Enum readNumPos( std::string& line, size_t& count );
+        ReturnCode::Enum readNumPoly( std::string& line, size_t& count );
+        ReturnCode::Enum readPositions( std::ifstream& ifs, size_t count, boost::shared_ptr< WDataSetEMMSurface > surface );
+        ReturnCode::Enum readPolygons( std::ifstream& ifs, size_t count, boost::shared_ptr< WDataSetEMMSurface > surface );
     };
 }
-#endif /* WREADERFIFF_H_ */
+#endif /* WLREADERDIP_H_ */

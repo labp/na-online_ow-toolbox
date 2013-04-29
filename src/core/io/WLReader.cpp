@@ -22,41 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WREADERBND_H
-#define WREADERBND_H
+#include "WLReader.h"
 
-#include <string>
-
-#include <boost/shared_ptr.hpp>
-
-#include <core/dataHandler/io/WReader.h>
-#include <core/dataHandler/WEEGPositionsLibrary.h>
-
-
-/**
- * Read position and triangulation data from a BND file.
- * \ingroup dataHandler
- */
-class WReaderBND : public WReader // NOLINT
+WLReader::WLReader( std::string fname ) :
+                WReader( fname )
 {
-public:
-    /**
-     * Constructs a reader object.
-     *
-     * \param fname path to file which should be loaded
-     */
-    explicit WReaderBND( std::string fname );
-
-    /**
-     * Read the file and create a dataset out of it.
-     *
-     * \return reference to the dataset
-     */
-    boost::shared_ptr< WEEGPositionsLibrary > read();
-
-protected:
-    std::vector< std::vector<int> > polygons;
-private:
-};
-
-#endif  // WREADERBND_H
+}

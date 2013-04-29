@@ -37,7 +37,6 @@
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 #include <core/common/WLogger.h>
 #include <core/common/WAssert.h>
-#include <core/dataHandler/io/WReaderFIFF.h>
 
 #include "core/dataHandler/WDataSetEMM.h"
 #include "core/dataHandler/WDataSetEMMSubject.h"
@@ -48,17 +47,19 @@
 #include "core/dataHandler/WDataSetEMMECG.h"
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"
 
+#include "WLReaderFIFF.h"
+
 using namespace LaBP;
 
-const std::string WReaderFIFF::CLASS = "WReaderFIFF";
+const std::string WLReaderFIFF::CLASS = "WLReaderFIFF";
 
-WReaderFIFF::WReaderFIFF( std::string fname ) :
-                WReader( fname )
+WLReaderFIFF::WLReaderFIFF( std::string fname ) :
+                WLReader( fname )
 {
     wlog::debug( CLASS ) << "file: " << fname;
 }
 
-WReaderFIFF::ReturnCode WReaderFIFF::Read( LaBP::WDataSetEMM::SPtr out )
+WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( LaBP::WDataSetEMM::SPtr out )
 {
     LFData data;
     returncode_t ret = LFInterface::fiffRead( data, m_fname.data() );
@@ -67,8 +68,8 @@ WReaderFIFF::ReturnCode WReaderFIFF::Read( LaBP::WDataSetEMM::SPtr out )
 
     // Set subject information
     LaBP::WDataSetEMMSubject::SPtr subject_out( new LaBP::WDataSetEMMSubject() );
-    ReturnCode rc = Read( subject_out );
-    if( rc != WReaderFIFF::SUCCESS )
+    ReturnCode::Enum rc = Read( subject_out );
+    if( rc != ReturnCode::SUCCESS )
         return rc;
     out->setSubject( subject_out );
 
@@ -287,7 +288,7 @@ WReaderFIFF::ReturnCode WReaderFIFF::Read( LaBP::WDataSetEMM::SPtr out )
     return getReturnCode( ret );
 }
 
-WReaderFIFF::ReturnCode WReaderFIFF::Read( LaBP::WDataSetEMMSubject::SPtr out )
+WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( LaBP::WDataSetEMMSubject::SPtr out )
 {
     LFSubject data;
     returncode_t ret = LFInterface::fiffRead( data, m_fname.data() );
@@ -326,7 +327,7 @@ WReaderFIFF::ReturnCode WReaderFIFF::Read( LaBP::WDataSetEMMSubject::SPtr out )
     return getReturnCode( ret );
 }
 
-WReaderFIFF::ReturnCode WReaderFIFF::Read( std::vector< std::vector< double > >& out )
+WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( std::vector< std::vector< double > >& out )
 {
     LFRawData data;
     returncode_t ret = LFInterface::fiffRead( data, m_fname.data() );
@@ -364,25 +365,25 @@ WReaderFIFF::ReturnCode WReaderFIFF::Read( std::vector< std::vector< double > >&
 //  return rc_normal; //dbg
 }
 
-WReaderFIFF::ReturnCode WReaderFIFF::getReturnCode( returncode_t rc )
+WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::getReturnCode( returncode_t rc )
 {
     switch( rc )
     {
         case rc_normal:
-            return SUCCESS;
+            return ReturnCode::SUCCESS;
         case rc_error_file_open:
-            return ERROR_FOPEN;
+            return ReturnCode::ERROR_FOPEN;
         case rc_error_file_read:
-            return ERROR_FREAD;
+            return ReturnCode::ERROR_FREAD;
         case rc_error_unknown:
-            return ERROR_UNKNOWN;
+            return ReturnCode::ERROR_UNKNOWN;
         default:
-            return ERROR_UNKNOWN;
+            return ReturnCode::ERROR_UNKNOWN;
     }
 
 }
 
-LaBP::WEUnit::Enum WReaderFIFF::getChanUnit( fiffunits_t unit )
+LaBP::WEUnit::Enum WLReaderFIFF::getChanUnit( fiffunits_t unit )
 {
     switch( unit )
     {

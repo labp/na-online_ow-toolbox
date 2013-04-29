@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WREADERBND_H_
-#define WREADERBND_H_
+#ifndef WLREADERELC_H_
+#define WLREADERELC_H_
 
 #include <fstream>
 #include <string>
@@ -31,44 +31,42 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "core/dataHandler/WDataSetEMMBemBoundary.h"
+#include <core/common/math/linearAlgebra/WPosition.h>
+#include <core/common/math/linearAlgebra/WVectorFixed.h>
 
-#include "core/dataHandler/io/WReader.h"
+#include "core/dataHandler/WDataSetEMMEnumTypes.h"
+#include "core/io/WLReader.h"
 
 namespace LaBP
 {
 
-    class WReaderBND: public WReader
+    class WLReaderELC: public WLReader
     {
     public:
-
-        struct ReturnCode
-        {
-            enum Enum
-            {
-                SUCCESS, /**< Normal */
-                ERROR_FOPEN, /**< Error opening file */
-                ERROR_FREAD, /**< File read error */
-                ERROR_UNKNOWN /**< Unknown error */
-            };
-        };
-
         /**
          * Constructs a reader object.
          *
          * \param fname path to file which should be loaded
          */
-        explicit WReaderBND( std::string fname );
+        explicit WLReaderELC( std::string fname );
 
-        ReturnCode::Enum read( boost::shared_ptr< WDataSetEMMBemBoundary > boundary );
+        /**
+         * Reads out a elc file. Positions are converted to millimeter, if necessary.
+         */
+        ReturnCode::Enum read( boost::shared_ptr< std::vector< WPosition > > posOut,
+                        boost::shared_ptr< std::vector< std::string > > labelsOut,
+                        boost::shared_ptr< std::vector< WVector3i > > facesOut );
 
     private:
-        ReturnCode::Enum readType( std::string& line, boost::shared_ptr< WDataSetEMMBemBoundary > boundary );
-        ReturnCode::Enum readUnit( std::string& line, boost::shared_ptr< WDataSetEMMBemBoundary > boundary );
+        ReturnCode::Enum readUnit( std::string& line, WEExponent::Enum& exp );
         ReturnCode::Enum readNumPos( std::string& line, size_t& count );
         ReturnCode::Enum readNumPoly( std::string& line, size_t& count );
-        ReturnCode::Enum readPositions( std::ifstream& ifs, size_t count, boost::shared_ptr< WDataSetEMMBemBoundary > boundary );
-        ReturnCode::Enum readPolygons( std::ifstream& ifs, size_t count, boost::shared_ptr< WDataSetEMMBemBoundary > boundary );
+        ReturnCode::Enum readPositions( std::ifstream& ifs, size_t count, boost::shared_ptr< std::vector< WPosition > > posOut );
+        ReturnCode::Enum readLabels( std::ifstream& ifs, size_t count,
+                        boost::shared_ptr< std::vector< std::string > > labelsOut );
+        ReturnCode::Enum readPolygons( std::ifstream& ifs, size_t count, boost::shared_ptr< std::vector< WVector3i > > facesOut );
+
+        void convertToMilli( boost::shared_ptr< std::vector< WPosition > > pos, WEExponent::Enum& exp );
     };
 }
-#endif /* WREADERBND_H_ */
+#endif /* WLREADERELC_H_ */

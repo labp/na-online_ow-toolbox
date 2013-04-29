@@ -7,9 +7,9 @@
 
 #include <Eigen/Dense>
 
-#include "core/common/WLogger.h"
+#include <core/common/WLogger.h>
 
-#include "WGeometry.h"
+#include "core/util/WLGeometry.h"
 #include "WRegistration.h"
 #include "WRegistrationICP.h"
 
@@ -104,11 +104,11 @@ double WRegistrationICP::compute( const WRegistration::PointCloud& from, const W
 
     std::vector< Point > rotated;
     rotated.resize( from.size() );
-    std::transform( from.begin(), from.end(), rotated.begin(), boost::bind( WGeometry::rotate, rotation, _1 ) );
+    std::transform( from.begin(), from.end(), rotated.begin(), boost::bind( WLGeometry::rotate, rotation, _1 ) );
 
     std::vector< Point > Pt;
     Pt.resize( from.size() );
-    std::transform( rotated.begin(), rotated.end(), Pt.begin(), boost::bind( WGeometry::tranlate, translation, _1 ) );
+    std::transform( rotated.begin(), rotated.end(), Pt.begin(), boost::bind( WLGeometry::tranlate, translation, _1 ) );
 
     double error = WRegistration::meanSquareError( Pt, WRegistration::closestPointCorresponces( Pt, to ) );
 

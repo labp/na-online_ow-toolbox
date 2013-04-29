@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WREADERBND_H_
-#define WREADERBND_H_
+#ifndef WLREADERBND_H_
+#define WLREADERBND_H_
 
 #include <fstream>
 #include <string>
@@ -32,33 +32,20 @@
 #include <boost/shared_ptr.hpp>
 
 #include "core/dataHandler/WDataSetEMMBemBoundary.h"
-
-#include "core/dataHandler/io/WReader.h"
+#include "core/io/WLReader.h"
 
 namespace LaBP
 {
 
-    class WReaderBND: public WReader
+    class WLReaderBND: public WLReader
     {
     public:
-
-        struct ReturnCode
-        {
-            enum Enum
-            {
-                SUCCESS, /**< Normal */
-                ERROR_FOPEN, /**< Error opening file */
-                ERROR_FREAD, /**< File read error */
-                ERROR_UNKNOWN /**< Unknown error */
-            };
-        };
-
         /**
          * Constructs a reader object.
          *
          * \param fname path to file which should be loaded
          */
-        explicit WReaderBND( std::string fname );
+        explicit WLReaderBND( std::string fname );
 
         ReturnCode::Enum read( boost::shared_ptr< WDataSetEMMBemBoundary > boundary );
 
@@ -71,4 +58,4 @@ namespace LaBP
         ReturnCode::Enum readPolygons( std::ifstream& ifs, size_t count, boost::shared_ptr< WDataSetEMMBemBoundary > boundary );
     };
 }
-#endif /* WREADERBND_H_ */
+#endif /* WLREADERBND_H_ */

@@ -9,10 +9,10 @@
 
 #include <boost/bind.hpp>
 
-#include "core/common/WAssert.h"
-#include "core/common/WLogger.h"
+#include <core/common/WAssert.h>
+#include <core/common/WLogger.h>
 
-#include "WGeometry.h"
+#include "core/util/WLGeometry.h"
 #include "WRegistration.h"
 #include "WRegistrationNaive.h"
 
@@ -72,7 +72,7 @@ void WRegistrationNaive::setErrorDelta( double val )
 
 WRegistration::MatrixTransformation WRegistrationNaive::getTransformationMatrix() const
 {
-    const MatrixRotation rotation = WGeometry::getRotationXYZMatrix( m_rotX, m_rotY, m_rotZ );
+    const MatrixRotation rotation = WLGeometry::getRotationXYZMatrix( m_rotX, m_rotY, m_rotZ );
     const Vector& translation = m_translation;
 
     WRegistration::MatrixTransformation transformation;
@@ -102,7 +102,7 @@ WRegistration::MatrixTransformation WRegistrationNaive::getTransformationMatrix(
 
 WRegistrationNaive::MatrixRotation WRegistrationNaive::getRotationXYZ()
 {
-    return WGeometry::getRotationXYZMatrix( m_rotX, m_rotY, m_rotZ );
+    return WLGeometry::getRotationXYZMatrix( m_rotX, m_rotY, m_rotZ );
 }
 
 double WRegistrationNaive::getRotationX()
@@ -210,15 +210,15 @@ double WRegistrationNaive::rotate( Angle& rotAct, const Angle rotX, const Angle 
     rotAct = angleOld + step;
     rotated.clear();
     rotated.resize( FROM.size() );
-    rotMat = WGeometry::getRotationXYZMatrix( rotX, rotY, rotZ );
-    std::transform( FROM.begin(), FROM.end(), rotated.begin(), boost::bind( WGeometry::rotate, rotMat, _1 ) );
+    rotMat = WLGeometry::getRotationXYZMatrix( rotX, rotY, rotZ );
+    std::transform( FROM.begin(), FROM.end(), rotated.begin(), boost::bind( WLGeometry::rotate, rotMat, _1 ) );
     errAdd = errorFct( rotated, closestPointCorresponces( rotated, TO ) );
 
     rotAct = angleOld - step;
     rotated.clear();
     rotated.resize( FROM.size() );
-    rotMat = WGeometry::getRotationXYZMatrix( rotX, rotY, rotZ );
-    std::transform( FROM.begin(), FROM.end(), rotated.begin(), boost::bind( WGeometry::rotate, rotMat, _1 ) );
+    rotMat = WLGeometry::getRotationXYZMatrix( rotX, rotY, rotZ );
+    std::transform( FROM.begin(), FROM.end(), rotated.begin(), boost::bind( WLGeometry::rotate, rotMat, _1 ) );
     errSub = errorFct( rotated, closestPointCorresponces( rotated, TO ) );
 
     Operation::Enum dir;
@@ -257,8 +257,8 @@ double WRegistrationNaive::rotate( Angle& rotAct, const Angle rotX, const Angle 
                 break;
         }
 
-        rotMat = WGeometry::getRotationXYZMatrix( rotX, rotY, rotZ );
-        std::transform( FROM.begin(), FROM.end(), rotated.begin(), boost::bind( WGeometry::rotate, rotMat, _1 ) );
+        rotMat = WLGeometry::getRotationXYZMatrix( rotX, rotY, rotZ );
+        std::transform( FROM.begin(), FROM.end(), rotated.begin(), boost::bind( WLGeometry::rotate, rotMat, _1 ) );
 
         error = errorFct( rotated, closestPointCorresponces( rotated, TO ) );
     } while( error < errorOld );
@@ -275,8 +275,8 @@ double WRegistrationNaive::translateCom( Vector& translation, PointCloud& transl
 {
     wlog::debug( CLASS ) << "translate() called! error=" << error;
 
-    const Point COM_FROM = WGeometry::centerOfMass( FROM );
-    const Point COM_TO = WGeometry::centerOfMass( TO );
+    const Point COM_FROM = WLGeometry::centerOfMass( FROM );
+    const Point COM_TO = WLGeometry::centerOfMass( TO );
     Vector step = COM_TO - COM_FROM;
     step = step * factor;
 
@@ -287,13 +287,13 @@ double WRegistrationNaive::translateCom( Vector& translation, PointCloud& transl
     tmp = translation + step;
     translated.clear();
     translated.resize( FROM.size() );
-    std::transform( FROM.begin(), FROM.end(), translated.begin(), boost::bind( WGeometry::tranlate, tmp, _1 ) );
+    std::transform( FROM.begin(), FROM.end(), translated.begin(), boost::bind( WLGeometry::tranlate, tmp, _1 ) );
     errAdd = errorFct( translated, closestPointCorresponces( translated, TO ) );
 
     tmp = translation - step;
     translated.clear();
     translated.resize( FROM.size() );
-    std::transform( FROM.begin(), FROM.end(), translated.begin(), boost::bind( WGeometry::tranlate, tmp, _1 ) );
+    std::transform( FROM.begin(), FROM.end(), translated.begin(), boost::bind( WLGeometry::tranlate, tmp, _1 ) );
     errSub = errorFct( translated, closestPointCorresponces( translated, TO ) );
 
     Operation::Enum dir;
@@ -330,7 +330,7 @@ double WRegistrationNaive::translateCom( Vector& translation, PointCloud& transl
 
         translated.clear();
         translated.resize( FROM.size() );
-        std::transform( FROM.begin(), FROM.end(), translated.begin(), boost::bind( WGeometry::tranlate, translation, _1 ) );
+        std::transform( FROM.begin(), FROM.end(), translated.begin(), boost::bind( WLGeometry::tranlate, translation, _1 ) );
 
         error = errorFct( translated, closestPointCorresponces( translated, TO ) );
     } while( error < errorOld );
@@ -343,7 +343,7 @@ double WRegistrationNaive::translateCom( Vector& translation, PointCloud& transl
 
     translated.clear();
     translated.resize( FROM.size() );
-    std::transform( FROM.begin(), FROM.end(), translated.begin(), boost::bind( WGeometry::tranlate, translation, _1 ) );
+    std::transform( FROM.begin(), FROM.end(), translated.begin(), boost::bind( WLGeometry::tranlate, translation, _1 ) );
 
     wlog::debug( CLASS ) << "error" << errorOld;
     return errorOld;
