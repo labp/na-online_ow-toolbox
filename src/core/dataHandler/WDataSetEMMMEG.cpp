@@ -27,12 +27,12 @@
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
-#include "WDataSetEMMEMD.h"
+#include "core/data/emd/WLEMD.h"
 #include "WDataSetEMMMEG.h"
 #include "WDataSetEMMEnumTypes.h"
 
 LaBP::WDataSetEMMMEG::WDataSetEMMMEG() :
-                WDataSetEMMEMD()
+                WLEMD()
 {
     m_chanPos3d = boost::shared_ptr< std::vector< WPosition > >( new std::vector< WPosition >() );
     m_faces = boost::shared_ptr< std::vector< WVector3i > >( new std::vector< WVector3i >() );
@@ -43,7 +43,7 @@ LaBP::WDataSetEMMMEG::WDataSetEMMMEG() :
 }
 
 LaBP::WDataSetEMMMEG::WDataSetEMMMEG( const WDataSetEMMMEG& meg ) :
-                WDataSetEMMEMD( meg )
+                WLEMD( meg )
 {
     m_chanPos3d = meg.m_chanPos3d;
     m_faces = meg.m_faces;
@@ -56,7 +56,7 @@ LaBP::WDataSetEMMMEG::~WDataSetEMMMEG()
 {
 }
 
-LaBP::WDataSetEMMEMD::SPtr LaBP::WDataSetEMMMEG::clone() const
+LaBP::WLEMD::SPtr LaBP::WDataSetEMMMEG::clone() const
 {
     LaBP::WDataSetEMMMEG::SPtr meg( new WDataSetEMMMEG( *this ) );
     return meg;

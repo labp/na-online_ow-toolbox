@@ -283,10 +283,10 @@ void LaBP::WLModuleDrawable::updateView( boost::shared_ptr< LaBP::WLDataSetEMM >
     {
         --m_autoScaleCounter;
         // Scale 2D
-        const LaBP::WDataSetEMMEMD::SampleT amplitudeScale = m_calculator->getMax2D( emm, getViewModality() );
+        const LaBP::WLEMD::SampleT amplitudeScale = m_calculator->getMax2D( emm, getViewModality() );
         m_amplitudeScale->set( amplitudeScale );
         // Scale 3D
-        const LaBP::WDataSetEMMEMD::SampleT sens3dScale = m_calculator->getMax3D( emm, getViewModality() );
+        const LaBP::WLEMD::SampleT sens3dScale = m_calculator->getMax3D( emm, getViewModality() );
         m_maxSensitity3D->set( sens3dScale );
         m_minSensitity3D->set( -sens3dScale );
     }

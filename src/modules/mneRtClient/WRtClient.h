@@ -41,7 +41,7 @@
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
 #include "core/data/WLDataSetEMM.h"
-#include "core/dataHandler/WDataSetEMMEMD.h"
+#include "core/data/emd/WLEMD.h"
 #include "core/dataHandler/WDataSetEMMEEG.h"
 #include "core/dataHandler/WDataSetEMMMEG.h"
 
@@ -99,7 +99,7 @@ private:
     LaBP::WDataSetEMMEEG::SPtr readEEG( const Eigen::MatrixXf& rawData );
     LaBP::WDataSetEMMMEG::SPtr readMEG( const Eigen::MatrixXf& rawData );
     boost::shared_ptr< LaBP::WLDataSetEMM::EDataT > readEvents( const Eigen::MatrixXf& rawData );
-    bool readEmd( LaBP::WDataSetEMMEMD* const emd, const Eigen::RowVectorXi& picks, const Eigen::MatrixXf& rawData );
+    bool readEmd( LaBP::WLEMD* const emd, const Eigen::RowVectorXi& picks, const Eigen::MatrixXf& rawData );
 };
 
 #endif  // WRTCLIENT_H_

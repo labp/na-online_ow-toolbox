@@ -27,7 +27,7 @@
 
 #include "core/data/WLMatrixTypes.h"
 #include "core/data/WLDataSetEMM.h"
-#include "core/dataHandler/WDataSetEMMEMD.h"
+#include "core/data/emd/WLEMD.h"
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"
 
 namespace LaBP
@@ -35,15 +35,15 @@ namespace LaBP
     class WLBoundCalculator
     {
     public:
-        explicit WLBoundCalculator( LaBP::WDataSetEMMEMD::SampleT alpha = 1.5 );
-        LaBP::WDataSetEMMEMD::SampleT getMax2D( LaBP::WLDataSetEMM::ConstSPtr emm, LaBP::WEModalityType::Enum modality );
-        LaBP::WDataSetEMMEMD::SampleT getMax3D( LaBP::WLDataSetEMM::ConstSPtr emm, LaBP::WEModalityType::Enum modality );
-        LaBP::WDataSetEMMEMD::SampleT getMax( const MatrixT& matrix );
-        LaBP::WDataSetEMMEMD::SampleT getMax( const LaBP::WDataSetEMMEMD::DataT& data );
+        explicit WLBoundCalculator( LaBP::WLEMD::SampleT alpha = 1.5 );
+        LaBP::WLEMD::SampleT getMax2D( LaBP::WLDataSetEMM::ConstSPtr emm, LaBP::WEModalityType::Enum modality );
+        LaBP::WLEMD::SampleT getMax3D( LaBP::WLDataSetEMM::ConstSPtr emm, LaBP::WEModalityType::Enum modality );
+        LaBP::WLEMD::SampleT getMax( const MatrixT& matrix );
+        LaBP::WLEMD::SampleT getMax( const LaBP::WLEMD::DataT& data );
         virtual ~WLBoundCalculator();
 
     private:
-        LaBP::WDataSetEMMEMD::SampleT m_alpha;
+        LaBP::WLEMD::SampleT m_alpha;
     };
 
 } /* namespace LaBP */

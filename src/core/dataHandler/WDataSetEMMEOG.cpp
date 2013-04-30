@@ -26,7 +26,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "WDataSetEMMEMD.h"
+#include "core/data/emd/WLEMD.h"
 #include "WDataSetEMMEOG.h"
 #include "WDataSetEMMEnumTypes.h"
 
@@ -44,7 +44,7 @@ LaBP::WDataSetEMMEOG::~WDataSetEMMEOG()
 {
 }
 
-LaBP::WDataSetEMMEMD::SPtr LaBP::WDataSetEMMEOG::clone() const
+LaBP::WLEMD::SPtr LaBP::WDataSetEMMEOG::clone() const
 {
     LaBP::WDataSetEMMEOG::SPtr eog( new WDataSetEMMEOG( *this ) );
     return eog;

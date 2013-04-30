@@ -32,10 +32,11 @@
 #include <Eigen/Dense>
 #include <Eigen/Eigenvalues>
 
-#include "core/common/WAssert.h"
-#include "core/common/WLogger.h"
+#include <core/common/WAssert.h>
+#include <core/common/WLogger.h>
+
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"
-#include "core/dataHandler/WDataSetEMMEMD.h"
+#include "core/data/emd/WLEMD.h"
 #include "core/dataHandler/WDataSetEMMPCA.h"
 
 #include "WPCA.h"
@@ -62,7 +63,7 @@ void WPCA::setParams( int newNumDimensions, bool newReverse )
     m_reverse = newReverse;
 }
 
-boost::shared_ptr< LaBP::WDataSetEMMEMD > WPCA::processData( LaBP::WDataSetEMMEMD::SPtr emdIn )
+boost::shared_ptr< LaBP::WLEMD > WPCA::processData( LaBP::WLEMD::SPtr emdIn )
 {
     wlog::debug( CLASS ) << "processData() called!";
     wlog::debug( CLASS ) << "Average pieces of first modality (PRE-COMPUTATION): ";
@@ -97,7 +98,7 @@ boost::shared_ptr< LaBP::WDataSetEMMEMD > WPCA::processData( LaBP::WDataSetEMMEM
     if( !m_reverse && emdIn->getModalityType() != LaBP::WEModalityType::PCA ) // EEG, MEG ... to PCA
     {
         wlog::debug( CLASS ) << "EEG, MEG ... to PCA";
-        LaBP::WDataSetEMMEMD::DataT& dataIn = emdIn->getData();
+        LaBP::WLEMD::DataT& dataIn = emdIn->getData();
         wlog::debug( CLASS ) << "dataIn: " << dataIn.size() << " x " << dataIn.front().size();
 #ifdef DEBUG
         wlog::debug( CLASS ) << "dataIn (first channels and samples only):";
@@ -135,7 +136,7 @@ boost::shared_ptr< LaBP::WDataSetEMMEMD > WPCA::processData( LaBP::WDataSetEMMEM
         {
             wlog::debug( CLASS ) << "PCA to EEG, MEG ...";
             LaBP::WDataSetEMMPCA::SPtr pcaIn = emdIn->getAs< LaBP::WDataSetEMMPCA >();
-            LaBP::WDataSetEMMEMD::SPtr emdOut = WPCA::convertPCAToModality( pcaIn );
+            LaBP::WLEMD::SPtr emdOut = WPCA::convertPCAToModality( pcaIn );
             return emdOut;
         }
         else
@@ -146,7 +147,7 @@ boost::shared_ptr< LaBP::WDataSetEMMEMD > WPCA::processData( LaBP::WDataSetEMMEM
         }
 }
 
-LaBP::WDataSetEMMEMD::SPtr WPCA::convertPCAToModality( LaBP::WDataSetEMMPCA::SPtr pcaIn )
+LaBP::WLEMD::SPtr WPCA::convertPCAToModality( LaBP::WDataSetEMMPCA::SPtr pcaIn )
 {
     wlog::debug( CLASS ) << "convertPCAToModality() called!";
     std::vector< std::vector< double > >& oldPcaData = pcaIn->getData();
@@ -211,12 +212,12 @@ LaBP::WDataSetEMMEMD::SPtr WPCA::convertPCAToModality( LaBP::WDataSetEMMPCA::SPt
         wlog::debug( CLASS ) << ss.str();
     }
 #endif // DEBUG
-    LaBP::WDataSetEMMEMD::SPtr emdOut( pcaIn->getPreprocessedData()->clone() );
+    LaBP::WLEMD::SPtr emdOut( pcaIn->getPreprocessedData()->clone() );
     emdOut->setData( modalityData );
     return emdOut;
 }
 
-LaBP::WDataSetEMMPCA::SPtr WPCA::createPCAContainer( LaBP::WDataSetEMMEMD::SPtr emdIn,
+LaBP::WDataSetEMMPCA::SPtr WPCA::createPCAContainer( LaBP::WLEMD::SPtr emdIn,
                 boost::shared_ptr< LaBP::WDataSetEMMPCA::DataT > pcaData )
 {
     LaBP::WDataSetEMMPCA::SPtr pcaOut( new LaBP::WDataSetEMMPCA( *emdIn ) );
@@ -249,7 +250,7 @@ Eigen::MatrixXd WPCA::getCovarianceMatrix( Eigen::MatrixXd data )
     return cov;
 }
 
-boost::shared_ptr< LaBP::WDataSetEMMEMD::DataT > WPCA::computePCA( LaBP::WDataSetEMMEMD::DataT& rawData )
+boost::shared_ptr< LaBP::WLEMD::DataT > WPCA::computePCA( LaBP::WLEMD::DataT& rawData )
 {
     wlog::debug( CLASS ) << "computePCA() called!";
     wlog::debug( CLASS ) << "Allocating data into Eigen structure ...";

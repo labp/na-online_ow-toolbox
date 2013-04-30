@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WDATASETEMMEMD_H
-#define WDATASETEMMEMD_H
+#ifndef WLEMD_H
+#define WLEMD_H
 
 #include <cstddef>
 #include <stdint.h>
@@ -33,8 +33,7 @@
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include "WDataSetEMMEnumTypes.h"
-#include "WDataSetEMMEMD.h"
+#include "core/dataHandler/WDataSetEMMEnumTypes.h"
 
 /**
  * TODO(kaehler): Comments
@@ -44,18 +43,18 @@ namespace LaBP
     /**
      * Class for general modality. Saves information which are present for all modalities.
      */
-    class WDataSetEMMEMD: public boost::enable_shared_from_this< WDataSetEMMEMD >
+    class WLEMD: public boost::enable_shared_from_this< WLEMD >
     {
     public:
         /**
          * Abbreviation for a shared pointer.
          */
-        typedef boost::shared_ptr< WDataSetEMMEMD > SPtr;
+        typedef boost::shared_ptr< WLEMD > SPtr;
 
         /**
          * Abbreviation for const shared pointer.
          */
-        typedef boost::shared_ptr< const WDataSetEMMEMD > ConstSPtr;
+        typedef boost::shared_ptr< const WLEMD > ConstSPtr;
 
         typedef double SampleT;
 
@@ -66,14 +65,14 @@ namespace LaBP
         /**
          * TODO(kaehler): Comments
          */
-        WDataSetEMMEMD();
+        WLEMD();
 
-        explicit WDataSetEMMEMD( const WDataSetEMMEMD& emd );
+        explicit WLEMD( const WLEMD& emd );
 
         /**
          * TODO(kaehler): Comments
          */
-        virtual ~WDataSetEMMEMD();
+        virtual ~WLEMD();
 
         /**
          * Cast to EMD if possible. Check modality type with getModalityType()!
@@ -105,7 +104,7 @@ namespace LaBP
         /**
          * TODO(kaehler): Comments
          */
-        virtual WDataSetEMMEMD::SPtr clone() const = 0;
+        virtual WLEMD::SPtr clone() const = 0;
 
         /**
          * Returns the data. NOTE: The method does not modify any object data, but data may modified indirectly!
@@ -340,4 +339,4 @@ namespace LaBP
         // TODO(fuchs): snr estimate or/and noise covariance matrix for source localisation
     };
 }
-#endif  // WDATASETEMMEMD_H
+#endif  // WLEMD_H

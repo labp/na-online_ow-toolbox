@@ -51,7 +51,7 @@ public:
     explicit WFIRFilterCuda( const char *pathToFcf );
 
 protected:
-    void filter( LaBP::WDataSetEMMEMD::DataT& out, const LaBP::WDataSetEMMEMD::DataT& in, const LaBP::WDataSetEMMEMD::DataT& prev,
+    void filter( LaBP::WLEMD::DataT& out, const LaBP::WLEMD::DataT& in, const LaBP::WLEMD::DataT& prev,
                     LaBP::WLTimeProfiler::SPtr profiler );
 };
 

@@ -27,7 +27,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "WDataSetEMMEMD.h"
+#include "core/data/emd/WLEMD.h"
 #include "WDataSetEMMEEG.h"
 #include "WDataSetEMMEnumTypes.h"
 
@@ -58,7 +58,7 @@ namespace LaBP
 
         virtual ~WDataSetEMMEOG();
 
-        virtual WDataSetEMMEMD::SPtr clone() const;
+        virtual WLEMD::SPtr clone() const;
 
         virtual LaBP::WEModalityType::Enum getModalityType() const;
 

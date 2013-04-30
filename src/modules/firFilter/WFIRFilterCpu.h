@@ -29,7 +29,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "core/dataHandler/WDataSetEMMEMD.h"
+#include "core/data/emd/WLEMD.h"
 
 #include "WFIRFilter.h"
 
@@ -54,12 +54,12 @@ public:
     //virtual ~WMFIRFilterCpu();
 
 protected:
-    void filter( LaBP::WDataSetEMMEMD::DataT& out, const LaBP::WDataSetEMMEMD::DataT& in,
-                    const LaBP::WDataSetEMMEMD::DataT& prevData, LaBP::WLTimeProfiler::SPtr profiler );
+    void filter( LaBP::WLEMD::DataT& out, const LaBP::WLEMD::DataT& in,
+                    const LaBP::WLEMD::DataT& prevData, LaBP::WLTimeProfiler::SPtr profiler );
 
 private:
-    void filterSingleChannel( LaBP::WDataSetEMMEMD::ChannelT& out, const LaBP::WDataSetEMMEMD::ChannelT& in,
-                    const LaBP::WDataSetEMMEMD::ChannelT& prev );
+    void filterSingleChannel( LaBP::WLEMD::ChannelT& out, const LaBP::WLEMD::ChannelT& in,
+                    const LaBP::WLEMD::ChannelT& prev );
 };
 
 #endif  // WFIRFILTERCPU_H

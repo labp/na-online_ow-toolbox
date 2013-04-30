@@ -29,7 +29,7 @@
 #include <core/common/WLogger.h>
 
 #include "core/data/WLMatrixTypes.h"
-#include "core/dataHandler/WDataSetEMMEMD.h"
+#include "core/data/emd/WLEMD.h"
 #include "core/dataHandler/WDataSetEMMSource.h"
 
 #include "core/util/WLTimeProfiler.h"
@@ -46,7 +46,7 @@ WSourceReconstructionCpu::~WSourceReconstructionCpu()
 {
 }
 
-LaBP::WDataSetEMMSource::SPtr WSourceReconstructionCpu::reconstruct( LaBP::WDataSetEMMEMD::ConstSPtr emd,
+LaBP::WDataSetEMMSource::SPtr WSourceReconstructionCpu::reconstruct( LaBP::WLEMD::ConstSPtr emd,
                 LaBP::WLTimeProfiler::SPtr profiler )
 {
     if( !m_inverse )
@@ -59,7 +59,7 @@ LaBP::WDataSetEMMSource::SPtr WSourceReconstructionCpu::reconstruct( LaBP::WData
 
     LaBP::WLTimeProfiler::SPtr avgProfiler( new LaBP::WLTimeProfiler( CLASS, "reconstruct_avgRef" ) );
     avgProfiler->start();
-    LaBP::WDataSetEMMEMD::DataT emdData;
+    LaBP::WLEMD::DataT emdData;
     WSourceReconstruction::averageReference( emdData, emd->getData() );
     avgProfiler->stopAndLog();
 

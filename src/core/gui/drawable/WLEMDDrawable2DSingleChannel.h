@@ -29,7 +29,7 @@
 
 #include <core/gui/WCustomWidget.h>
 
-#include "core/dataHandler/WDataSetEMMEMD.h"
+#include "core/data/emd/WLEMD.h"
 
 #include "WLEMDDrawable2D.h"
 
@@ -72,10 +72,10 @@ namespace LaBP
 
         virtual void osgNodeCallback( osg::NodeVisitor* nv );
 
-        virtual size_t maxChannels( const LaBP::WDataSetEMMEMD* emd ) const;
+        virtual size_t maxChannels( const LaBP::WLEMD* emd ) const;
 
     private:
-        void osgAddChannels( const LaBP::WDataSetEMMEMD* emd );
+        void osgAddChannels( const LaBP::WLEMD* emd );
     };
 
 } /* namespace LaBP */

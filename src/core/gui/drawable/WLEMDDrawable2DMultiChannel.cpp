@@ -37,7 +37,7 @@
 #include <core/gui/WCustomWidget.h>
 
 #include "core/data/WLDataSetEMM.h"
-#include "core/dataHandler/WDataSetEMMEMD.h"
+#include "core/data/emd/WLEMD.h"
 
 #include "WLEMDDrawable2DMultiChannel.h"
 
@@ -79,7 +79,7 @@ namespace LaBP
         }
     }
 
-    size_t WLEMDDrawable2DMultiChannel::maxChannels( const LaBP::WDataSetEMMEMD* emd ) const
+    size_t WLEMDDrawable2DMultiChannel::maxChannels( const LaBP::WLEMD* emd ) const
     {
         size_t channels = ( m_widget->height() / ( m_channelHeight ) );
         channels = channels < emd->getNrChans() ? channels : emd->getNrChans();
@@ -91,7 +91,7 @@ namespace LaBP
         m_draw = true;
     }
 
-    void WLEMDDrawable2DMultiChannel::osgAddLabels( const LaBP::WDataSetEMMEMD* emd )
+    void WLEMDDrawable2DMultiChannel::osgAddLabels( const LaBP::WLEMD* emd )
     {
         if( m_labelsText->getNumChildren() != emd->getNrChans() || m_channelHeightChanged )
         {

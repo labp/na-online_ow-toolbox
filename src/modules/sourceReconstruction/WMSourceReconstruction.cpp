@@ -35,7 +35,7 @@
 // Input & output data
 #include "core/data/WLDataSetEMM.h"
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"
-#include "core/dataHandler/WDataSetEMMEMD.h"
+#include "core/data/emd/WLEMD.h"
 #include "core/dataHandler/WDataSetEMMSource.h"
 #include "core/data/WLMatrixTypes.h"
 
@@ -259,7 +259,7 @@ void WMSourceReconstruction::moduleMain()
             {
                 if( emmIn->hasModality( modality ) )
                 {
-                    const LaBP::WDataSetEMMEMD::ConstSPtr emd = emmIn->getModality( modality );
+                    const LaBP::WLEMD::ConstSPtr emd = emmIn->getModality( modality );
                     const float frequence = emd->getSampFreq();
                     const double samples = static_cast< double >( emd->getSamplesPerChan() );
                     timeRange = samples / frequence;

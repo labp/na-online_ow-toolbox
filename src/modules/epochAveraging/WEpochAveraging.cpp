@@ -29,7 +29,7 @@
 
 #include "core/common/WLogger.h"
 #include "core/data/WLDataSetEMM.h"
-#include "core/dataHandler/WDataSetEMMEMD.h"
+#include "core/data/emd/WLEMD.h"
 
 #include "WEpochAveraging.h"
 
@@ -72,20 +72,20 @@ void WEpochAveraging::setTBase( size_t tbase, bool reset )
 
 LaBP::WLDataSetEMM::SPtr WEpochAveraging::baseline( LaBP::WLDataSetEMM::ConstSPtr emm )
 {
-    LaBP::WDataSetEMMEMD::ConstSPtr emd;
+    LaBP::WLEMD::ConstSPtr emd;
 
     LaBP::WLDataSetEMM::SPtr emmOut = emm->clone();
-    LaBP::WDataSetEMMEMD::SPtr emdOut;
+    LaBP::WLEMD::SPtr emdOut;
 
     for( size_t mod = 0; mod < emm->getModalityCount(); ++mod )
     {
         std::vector< double > means;
 
         emd = emm->getModality( mod );
-        LaBP::WDataSetEMMEMD::DataT& data = emd->getData();
+        LaBP::WLEMD::DataT& data = emd->getData();
 
         emdOut = emd->clone();
-        LaBP::WDataSetEMMEMD::DataT& dataOut = emdOut->getData();
+        LaBP::WLEMD::DataT& dataOut = emdOut->getData();
         dataOut.assign( data.begin(), data.end() );
 
         const size_t channels = emd->getNrChans();

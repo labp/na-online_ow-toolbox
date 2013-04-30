@@ -325,7 +325,7 @@ void WMEmMeasurement::streamData()
         int smplFrq;
         std::vector< std::vector< double > > fiffData;
         bool hasData;
-        std::vector< LaBP::WDataSetEMMEMD::SPtr > emds = m_fiffEmm->getModalityList();
+        std::vector< LaBP::WLEMD::SPtr > emds = m_fiffEmm->getModalityList();
         boost::shared_ptr< std::vector< std::vector< int > > > events = m_fiffEmm->getEventChannels();
 
         totalTimer.reset();
@@ -346,14 +346,14 @@ void WMEmMeasurement::streamData()
                             new LaBP::WLDataSetEMM( *m_fiffEmm ) );
 
             // clone each modality
-            for( std::vector< LaBP::WDataSetEMMEMD::SPtr >::const_iterator emd = emds.begin(); emd != emds.end(); ++emd )
+            for( std::vector< LaBP::WLEMD::SPtr >::const_iterator emd = emds.begin(); emd != emds.end(); ++emd )
             {
                 if( m_shutdownFlag() )
                 {
                     break;
                 }
 
-                boost::shared_ptr< LaBP::WDataSetEMMEMD > emdPacket = ( *emd )->clone();
+                boost::shared_ptr< LaBP::WLEMD > emdPacket = ( *emd )->clone();
                 boost::shared_ptr< std::vector< std::vector< double > > > data( new std::vector< std::vector< double > >() );
                 data->reserve( ( *emd )->getNrChans() );
 
@@ -741,8 +741,8 @@ void WMEmMeasurement::setAdditionalInformation( LaBP::WLDataSetEMM::SPtr emm )
 {
     if( m_isElcLoaded )
     {
-        std::vector< LaBP::WDataSetEMMEMD::SPtr > modalities = emm->getModalityList();
-        for( std::vector< LaBP::WDataSetEMMEMD::SPtr >::iterator it = modalities.begin(); it != modalities.end();
+        std::vector< LaBP::WLEMD::SPtr > modalities = emm->getModalityList();
+        for( std::vector< LaBP::WLEMD::SPtr >::iterator it = modalities.begin(); it != modalities.end();
                         ++it )
         {
             ( *it )->setChanNames( m_elcLabels ); // TODO m_elcLabels are specific for each modality

@@ -32,12 +32,12 @@
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
-#include "WDataSetEMMEMD.h"
+#include "core/data/emd/WLEMD.h"
 #include "WDataSetEMMEnumTypes.h"
 
 namespace LaBP
 {
-    class WDataSetEMMEEG: public LaBP::WDataSetEMMEMD
+    class WDataSetEMMEEG: public LaBP::WLEMD
     {
     public:
         /**
@@ -56,7 +56,7 @@ namespace LaBP
 
         virtual ~WDataSetEMMEEG();
 
-        virtual WDataSetEMMEMD::SPtr clone() const;
+        virtual WLEMD::SPtr clone() const;
 
         LaBP::WEPolarityType::Enum getPolarityType() const;
 

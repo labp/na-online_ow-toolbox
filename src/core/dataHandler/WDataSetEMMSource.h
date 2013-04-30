@@ -9,12 +9,12 @@
 
 #include "core/data/WLMatrixTypes.h"
 
-#include "WDataSetEMMEMD.h"
+#include "core/data/emd/WLEMD.h"
 
 namespace LaBP
 {
 
-    class WDataSetEMMSource: public LaBP::WDataSetEMMEMD
+    class WDataSetEMMSource: public LaBP::WLEMD
     {
     public:
         /**
@@ -33,11 +33,11 @@ namespace LaBP
 
         explicit WDataSetEMMSource( const WDataSetEMMSource& source );
 
-        explicit WDataSetEMMSource( const WDataSetEMMEMD& emd );
+        explicit WDataSetEMMSource( const WLEMD& emd );
 
         virtual ~WDataSetEMMSource();
 
-        virtual WDataSetEMMEMD::SPtr clone() const;
+        virtual WLEMD::SPtr clone() const;
 
         virtual DataT& getData() const;
 

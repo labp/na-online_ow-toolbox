@@ -35,7 +35,7 @@
 #include <core/common/WLogger.h>
 
 #include "core/data/WLMatrixTypes.h"
-#include "core/dataHandler/WDataSetEMMEMD.h"
+#include "core/data/emd/WLEMD.h"
 #include "core/dataHandler/WDataSetEMMSource.h"
 
 #include "core/util/WLTimeProfiler.h"
@@ -75,7 +75,7 @@ bool WSourceReconstructionCuda::calculateInverseSolution( const LaBP::MatrixT& n
     return m_inverseChanged;
 }
 
-LaBP::WDataSetEMMSource::SPtr WSourceReconstructionCuda::reconstruct( LaBP::WDataSetEMMEMD::ConstSPtr emd,
+LaBP::WDataSetEMMSource::SPtr WSourceReconstructionCuda::reconstruct( LaBP::WLEMD::ConstSPtr emd,
                 LaBP::WLTimeProfiler::SPtr profiler )
 {
     wlog::debug( CLASS ) << "reconstruct() called!";
@@ -110,7 +110,7 @@ LaBP::WDataSetEMMSource::SPtr WSourceReconstructionCuda::reconstruct( LaBP::WDat
 
     LaBP::WLTimeProfiler::SPtr avgProfiler( new LaBP::WLTimeProfiler( CLASS, "reconstruct_avgRef" ) );
     avgProfiler->start();
-    LaBP::WDataSetEMMEMD::DataT emdData;
+    LaBP::WLEMD::DataT emdData;
     WSourceReconstruction::averageReference( emdData, emd->getData() );
     avgProfiler->stopAndLog();
 

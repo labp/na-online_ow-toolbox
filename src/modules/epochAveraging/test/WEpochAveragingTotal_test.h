@@ -10,7 +10,7 @@
 #include "core/common/WLogger.h"
 
 #include "core/data/WLDataSetEMM.h"
-#include "core/dataHandler/WDataSetEMMEMD.h"
+#include "core/data/emd/WLEMD.h"
 #include "core/dataHandler/WDataSetEMMEEG.h"
 
 #include "../WEpochAveragingTotal.h"
@@ -32,9 +32,9 @@ public:
 
         boost::shared_ptr< WEpochAveragingTotal > averager( new WEpochAveragingTotal( 0 ) );
         boost::shared_ptr< LaBP::WLDataSetEMM > emm;
-        boost::shared_ptr< LaBP::WDataSetEMMEMD > emd;
+        boost::shared_ptr< LaBP::WLEMD > emd;
         boost::shared_ptr< LaBP::WLDataSetEMM > emmAverage;
-        boost::shared_ptr< LaBP::WDataSetEMMEMD > emdAverage;
+        boost::shared_ptr< LaBP::WLEMD > emdAverage;
 
         for( size_t i = 0; i < COUNT; ++i )
         {
@@ -66,9 +66,9 @@ public:
 protected:
 
 private:
-    boost::shared_ptr< LaBP::WDataSetEMMEMD > createEmd( size_t channels, size_t samples, int startValue = 0 )
+    boost::shared_ptr< LaBP::WLEMD > createEmd( size_t channels, size_t samples, int startValue = 0 )
     {
-        boost::shared_ptr< LaBP::WDataSetEMMEMD > emd( new LaBP::WDataSetEMMEEG() );
+        boost::shared_ptr< LaBP::WLEMD > emd( new LaBP::WDataSetEMMEEG() );
         boost::shared_ptr< std::vector< std::vector< double > > > data( new std::vector< std::vector< double > > );
 
         for( size_t chan = 0; chan < channels; ++chan )

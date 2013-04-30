@@ -36,7 +36,7 @@
 #include <core/gui/WCustomWidget.h>
 #include <core/graphicsEngine/WGEGroupNode.h>
 
-#include "core/dataHandler/WDataSetEMMEMD.h"
+#include "core/data/emd/WLEMD.h"
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"
 
 #include "WLEMDDrawable.h"
@@ -73,7 +73,7 @@ namespace LaBP
     {
     }
 
-    osg::ref_ptr< osg::Geode > WLEMDDrawable2D::drawChannel( const LaBP::WDataSetEMMEMD::ChannelT& channel, size_t iteration )
+    osg::ref_ptr< osg::Geode > WLEMDDrawable2D::drawChannel( const LaBP::WLEMD::ChannelT& channel, size_t iteration )
     {
         osg::ref_ptr< osg::DrawArrays > lineDrawer = new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, 0, channel.size() );
 

@@ -253,8 +253,8 @@ void WMFIRFilter::moduleMain()
             // Create output data
             emmOut.reset( new LaBP::WLDataSetEMM( *emmIn ) );
 
-            std::vector< LaBP::WDataSetEMMEMD::SPtr > emdsIn = emmIn->getModalityList();
-            for( std::vector< LaBP::WDataSetEMMEMD::SPtr >::const_iterator emdIn = emdsIn.begin(); emdIn != emdsIn.end();
+            std::vector< LaBP::WLEMD::SPtr > emdsIn = emmIn->getModalityList();
+            for( std::vector< LaBP::WLEMD::SPtr >::const_iterator emdIn = emdsIn.begin(); emdIn != emdsIn.end();
                             ++emdIn )
             {
                 debugLog() << "EMD type: " << ( *emdIn )->getModalityType();
@@ -265,14 +265,14 @@ void WMFIRFilter::moduleMain()
                 debugLog() << "EMD channels: " << nbChannels;
                 const size_t nbSamlesPerChan = nbChannels > 0 ? ( *emdIn )->getSamplesPerChan() : 0;
                 debugLog() << "EMD samples per channel: " << nbSamlesPerChan;
-                debugLog() << "Input pieces:\n" << LaBP::WDataSetEMMEMD::dataToString( ( *emdIn )->getData(), 5, 10 );
+                debugLog() << "Input pieces:\n" << LaBP::WLEMD::dataToString( ( *emdIn )->getData(), 5, 10 );
 #endif // DEBUG
-                LaBP::WDataSetEMMEMD::SPtr emdOut = m_firFilter->filter( ( *emdIn ), profiler );
+                LaBP::WLEMD::SPtr emdOut = m_firFilter->filter( ( *emdIn ), profiler );
                 emmOut->addModality( emdOut );
 
 #ifdef DEBUG
                 // Show some filtered pieces
-                debugLog() << "Filtered pieces:\n" << LaBP::WDataSetEMMEMD::dataToString( emdOut->getData(), 5, 10 );
+                debugLog() << "Filtered pieces:\n" << LaBP::WLEMD::dataToString( emdOut->getData(), 5, 10 );
 #endif // DEBUG
             }
             m_firFilter->doPostProcessing( emmOut, emmIn, profiler );

@@ -190,8 +190,8 @@ void WMPCA::moduleMain()
 //            {
             LaBP::WEModalityType::Enum mod = m_processModalitySelection->get().at( 0 )->getAs<
                             WItemSelectionItemTyped< LaBP::WEModalityType::Enum > >()->getValue();
-            boost::shared_ptr< LaBP::WDataSetEMMEMD > emdIn = emmIn->getModality( mod );
-            boost::shared_ptr< LaBP::WDataSetEMMEMD > emdOut = m_pca->processData( emdIn );
+            boost::shared_ptr< LaBP::WLEMD > emdIn = emmIn->getModality( mod );
+            boost::shared_ptr< LaBP::WLEMD > emdOut = m_pca->processData( emdIn );
 
             // emm object can create in the outer module
             emmOut->addModality( emdOut );

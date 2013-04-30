@@ -25,7 +25,7 @@
 #include <core/gui/WCustomWidget.h>
 
 #include "core/data/WLDataSetEMM.h"
-#include "core/dataHandler/WDataSetEMMEMD.h"
+#include "core/data/emd/WLEMD.h"
 
 #include "WLEMDDrawable2DSingleChannel.h"
 
@@ -53,7 +53,7 @@ namespace LaBP
         return m_emm.get() && m_emm->hasModality( m_modality );
     }
 
-    size_t WLEMDDrawable2DSingleChannel::maxChannels( const LaBP::WDataSetEMMEMD* emd ) const
+    size_t WLEMDDrawable2DSingleChannel::maxChannels( const LaBP::WLEMD* emd ) const
     {
         return emd->getNrChans();
     }
@@ -63,7 +63,7 @@ namespace LaBP
         m_draw = true;
     }
 
-    void WLEMDDrawable2DSingleChannel::osgAddChannels( const LaBP::WDataSetEMMEMD* emd )
+    void WLEMDDrawable2DSingleChannel::osgAddChannels( const LaBP::WLEMD* emd )
     {
         m_rootGroup->removeChild( m_channelGroup );
         m_channelGroup = new osg::Group;
@@ -79,7 +79,7 @@ namespace LaBP
         // TODO(pieloth): dynamic shift scale ... width / m_timeRange
         // TODO(pieloth): dynamic shift scale ... x_pos * width / m_timeRange,
         panTransform->setMatrix( osg::Matrix::translate( x_pos, y_pos, 0.0 ) );
-        const WDataSetEMMEMD::DataT& emdData = emd->getData();
+        const WLEMD::DataT& emdData = emd->getData();
         const size_t channels_begin = 0;
         const size_t channels_count = maxChannels( emd );
         wlog::debug( CLASS ) << "channels_count: " << channels_count;
@@ -130,7 +130,7 @@ namespace LaBP
         }
 
         LaBP::WLDataSetEMM::ConstSPtr emm = m_emm;
-        LaBP::WDataSetEMMEMD::ConstSPtr emd = emm->getModality( m_modality );
+        LaBP::WLEMD::ConstSPtr emd = emm->getModality( m_modality );
         osgAddChannels( emd.get() );
         osgAddMarkLine();
 

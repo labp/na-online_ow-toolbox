@@ -40,7 +40,7 @@ namespace LaBP
     protected:
         virtual void osgNodeCallback( osg::NodeVisitor* nv );
 
-        virtual void osgAddChannels( const LaBP::WDataSetEMMEMD* emd );
+        virtual void osgAddChannels( const LaBP::WLEMD* emd );
 
         LaBP::WLDataSetEMM::SPtr m_emm;
     };

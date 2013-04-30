@@ -170,7 +170,7 @@ private:
      *
      * \param emd Modality is used to retrieve block size.
      */
-    void setupBuffer( LaBP::WDataSetEMMEMD::ConstSPtr emd );
+    void setupBuffer( LaBP::WLEMD::ConstSPtr emd );
 
     /**
      * Creates a new EMM object and copies all past data starting from the given index (past to index).

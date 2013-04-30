@@ -37,7 +37,7 @@
 
 #include "core/util/WLTimeProfiler.h"
 
-#include "core/dataHandler/WDataSetEMMEMD.h"
+#include "core/data/emd/WLEMD.h"
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"
 #include "WLEMMSubject.h"
 
@@ -133,21 +133,21 @@ namespace LaBP
          *
          * \param modality modality to add to list
          */
-        void addModality( WDataSetEMMEMD::SPtr modality );
+        void addModality( WLEMD::SPtr modality );
 
         /**
          * getter for vector of modalities
          *
          * \return vector of modalities
          */
-        std::vector< WDataSetEMMEMD::SPtr > getModalityList();
+        std::vector< WLEMD::SPtr > getModalityList();
 
         /**
          * setter for Modality list
          *
          * \param list the new modality list
          */
-        void setModalityList( std::vector< WDataSetEMMEMD::SPtr > list );
+        void setModalityList( std::vector< WLEMD::SPtr > list );
 
         /**
          * Returns the number modalities.
@@ -157,22 +157,22 @@ namespace LaBP
         /**
          * Returns the modality or an empty shared pointer. Throws an exception if i >= size.
          */
-        WDataSetEMMEMD::SPtr getModality( size_t i );
+        WLEMD::SPtr getModality( size_t i );
 
         /**
          * Returns the modality or an empty shared pointer. Throws an exception if i >= size.
          */
-        WDataSetEMMEMD::ConstSPtr getModality( size_t i ) const;
+        WLEMD::ConstSPtr getModality( size_t i ) const;
 
         /**
          * Returns the first occurrence of EMMEMD  with the given type or an empty shared pointer. Throws an exception if requested type is not available.
          */
-        WDataSetEMMEMD::SPtr getModality( LaBP::WEModalityType::Enum type );
+        WLEMD::SPtr getModality( LaBP::WEModalityType::Enum type );
 
         /**
          * Returns the first occurrence of EMMEMD  with the given type or an empty shared pointer. Throws an exception if requested type is not available.
          */
-        WDataSetEMMEMD::ConstSPtr getModality( LaBP::WEModalityType::Enum type ) const;
+        WLEMD::ConstSPtr getModality( LaBP::WEModalityType::Enum type ) const;
 
         /**
          * Returns the first occurrence of EMMEMD  with the given type or an empty shared pointer. Throws an exception if requested type is not available.
@@ -180,7 +180,7 @@ namespace LaBP
         template< typename EMD >
         boost::shared_ptr< EMD > getModality( LaBP::WEModalityType::Enum type )
         {
-            WDataSetEMMEMD::SPtr emd = getModality( type );
+            WLEMD::SPtr emd = getModality( type );
             if( !emd )
             {
                 throw "Modality type not available!";
@@ -194,7 +194,7 @@ namespace LaBP
         template< typename EMD >
         boost::shared_ptr< const EMD > getModality( LaBP::WEModalityType::Enum type ) const
         {
-            WDataSetEMMEMD::ConstSPtr emd = getModality( type );
+            WLEMD::ConstSPtr emd = getModality( type );
             if( !emd )
             {
                 throw "Modality type not available!";
@@ -220,7 +220,7 @@ namespace LaBP
          *
          * \param modality modality to swap with
          */
-        WLDataSetEMM::SPtr newModalityData( WDataSetEMMEMD::SPtr modality );
+        WLDataSetEMM::SPtr newModalityData( WLEMD::SPtr modality );
 
         // -----------getter and setter-----------------------------------------------------------------------------
 
@@ -337,7 +337,7 @@ namespace LaBP
         /**
          * list with modality specific measurements \ref WDataSetEMMEMD
          */
-        std::vector< WDataSetEMMEMD::SPtr > m_modalityList;
+        std::vector< WLEMD::SPtr > m_modalityList;
 
         /**
          * subject information

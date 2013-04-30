@@ -31,7 +31,7 @@
 #include <boost/shared_ptr.hpp>
 #include <Eigen/Core>
 
-#include "core/dataHandler/WDataSetEMMEMD.h"
+#include "core/data/emd/WLEMD.h"
 #include "core/dataHandler/WDataSetEMMPCA.h"
 
 class WPCA
@@ -49,15 +49,15 @@ public:
 
     virtual ~WPCA();
 
-    boost::shared_ptr< LaBP::WDataSetEMMEMD > processData( LaBP::WDataSetEMMEMD::SPtr );
+    boost::shared_ptr< LaBP::WLEMD > processData( LaBP::WLEMD::SPtr );
 
 private:
     Eigen::MatrixXd getMeanCentered( Eigen::MatrixXd );
     Eigen::MatrixXd getCovarianceMatrix( Eigen::MatrixXd );
-    boost::shared_ptr< LaBP::WDataSetEMMEMD::DataT > computePCA( LaBP::WDataSetEMMEMD::DataT& );
+    boost::shared_ptr< LaBP::WLEMD::DataT > computePCA( LaBP::WLEMD::DataT& );
 
-    LaBP::WDataSetEMMEMD::SPtr convertPCAToModality( LaBP::WDataSetEMMPCA::SPtr pcaIn );
-    LaBP::WDataSetEMMPCA::SPtr createPCAContainer( LaBP::WDataSetEMMEMD::SPtr emdIn,
+    LaBP::WLEMD::SPtr convertPCAToModality( LaBP::WDataSetEMMPCA::SPtr pcaIn );
+    LaBP::WDataSetEMMPCA::SPtr createPCAContainer( LaBP::WLEMD::SPtr emdIn,
                     boost::shared_ptr< LaBP::WDataSetEMMPCA::DataT > pcaData );
 
     boost::shared_ptr< std::vector< std::vector< double > > > eigenMatrixTo2DVector( Eigen::MatrixXd& );

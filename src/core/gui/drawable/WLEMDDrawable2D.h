@@ -39,7 +39,7 @@
 #include <core/gui/WCustomWidget.h>
 
 #include "core/util/WLRingBuffer.h"
-#include "core/dataHandler/WDataSetEMMEMD.h"
+#include "core/data/emd/WLEMD.h"
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"
 
 #include "WLEMDDrawable.h"
@@ -130,12 +130,12 @@ namespace LaBP
         virtual std::pair< LaBP::WLDataSetEMM::SPtr, size_t > getSelectedData( ValueT pixel ) const = 0;
 
     protected:
-        osg::ref_ptr< osg::Geode > drawChannel( const LaBP::WDataSetEMMEMD::ChannelT& channel, size_t iteration = 0 );
+        osg::ref_ptr< osg::Geode > drawChannel( const LaBP::WLEMD::ChannelT& channel, size_t iteration = 0 );
 
         osg::ref_ptr< osg::Drawable > createMarkLinie( const WCustomWidget* widget );
         void osgAddMarkLine();
 
-        virtual size_t maxChannels( const LaBP::WDataSetEMMEMD* emd ) const = 0;
+        virtual size_t maxChannels( const LaBP::WLEMD* emd ) const = 0;
 
         osg::ref_ptr< osg::Group > m_channelGroup;
         osg::ref_ptr< osg::Geode > m_markerGeode;

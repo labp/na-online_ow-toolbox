@@ -30,12 +30,12 @@
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
-#include "WDataSetEMMEMD.h"
+#include "core/data/emd/WLEMD.h"
 #include "WDataSetEMMEnumTypes.h"
 
 namespace LaBP
 {
-    class WDataSetEMMMEG: public WDataSetEMMEMD
+    class WDataSetEMMMEG: public WLEMD
     {
     public:
         /**
@@ -54,7 +54,7 @@ namespace LaBP
 
         virtual ~WDataSetEMMMEG();
 
-        virtual WDataSetEMMEMD::SPtr clone() const;
+        virtual WLEMD::SPtr clone() const;
 
         virtual WEModalityType::Enum getModalityType() const;
 

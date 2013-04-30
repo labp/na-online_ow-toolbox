@@ -40,7 +40,7 @@
 
 // Input & output data
 #include "core/data/WLDataSetEMM.h"
-#include "core/dataHandler/WDataSetEMMEMD.h"
+#include "core/data/emd/WLEMD.h"
 #include "core/dataHandler/WDataSetEMMSource.h"
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"
 
@@ -167,7 +167,7 @@ void WMEmdWriter::moduleMain()
     std::string prefix;
     std::string suffix;
     std::string fname;
-    LaBP::WDataSetEMMEMD::ConstSPtr emd;
+    LaBP::WLEMD::ConstSPtr emd;
 
     while( !m_shutdownFlag() )
     {
@@ -258,7 +258,7 @@ void WMEmdWriter::moduleMain()
     }
 }
 
-bool WMEmdWriter::write( std::string fname, LaBP::WDataSetEMMEMD::ConstSPtr emd )
+bool WMEmdWriter::write( std::string fname, LaBP::WLEMD::ConstSPtr emd )
 {
     std::ofstream fstream;
     fstream.open( fname.c_str(), std::ofstream::binary );
@@ -281,7 +281,7 @@ bool WMEmdWriter::write( std::string fname, LaBP::WDataSetEMMEMD::ConstSPtr emd 
     }
     else
     {
-        LaBP::WDataSetEMMEMD::DataT& data = emd->getData();
+        LaBP::WLEMD::DataT& data = emd->getData();
         const size_t channels = emd->getNrChans();
         const size_t samples = emd->getSamplesPerChan();
 

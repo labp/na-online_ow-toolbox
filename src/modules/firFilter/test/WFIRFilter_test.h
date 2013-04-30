@@ -35,7 +35,7 @@
 #include <core/common/WLogger.h>
 
 #include "core/data/WLDataSetEMM.h"
-#include "core/dataHandler/WDataSetEMMEMD.h"
+#include "core/data/emd/WLEMD.h"
 #include "core/dataHandler/WDataSetEMMEEG.h"
 #include "core/util/WLTimeProfiler.h"
 
@@ -185,7 +185,7 @@ public:
         // Test set/get previous data size //
         // Create test EMD
         LaBP::WDataSetEMMEEG::SPtr eeg( new LaBP::WDataSetEMMEEG() );
-        boost::shared_ptr< LaBP::WDataSetEMMEMD::DataT > data( new LaBP::WDataSetEMMEMD::DataT() );
+        boost::shared_ptr< LaBP::WLEMD::DataT > data( new LaBP::WLEMD::DataT() );
         data->resize( channels );
         for( size_t chan = 0; chan < channels; ++chan )
         {
@@ -194,7 +194,7 @@ public:
         eeg->setData( data );
         // Do size() test
         filter.storePreviousData( eeg );
-        const LaBP::WDataSetEMMEMD::DataT& prevData = filter.getPreviousData( eeg );
+        const LaBP::WLEMD::DataT& prevData = filter.getPreviousData( eeg );
         TS_ASSERT_EQUALS( channels, prevData.size() );
         TS_ASSERT_EQUALS( filter.m_coeffitients.size(), prevData.front().size() );
     }
@@ -209,7 +209,7 @@ public:
         // Test correct data content //
         // Create test EMD
         LaBP::WDataSetEMMEEG::SPtr eeg( new LaBP::WDataSetEMMEEG() );
-        boost::shared_ptr< LaBP::WDataSetEMMEMD::DataT > data( new LaBP::WDataSetEMMEMD::DataT() );
+        boost::shared_ptr< LaBP::WLEMD::DataT > data( new LaBP::WLEMD::DataT() );
         data->resize( channels );
         for( size_t c = 0; c < channels; ++c )
         {
@@ -223,7 +223,7 @@ public:
 
         // Do test
         filter.storePreviousData( eeg );
-        const LaBP::WDataSetEMMEMD::DataT& prevData = filter.getPreviousData( eeg );
+        const LaBP::WLEMD::DataT& prevData = filter.getPreviousData( eeg );
         const size_t prevSamples = filter.m_coeffitients.size();
         size_t offset = samples - prevSamples;
         for( size_t c = 0; c < channels; ++c )

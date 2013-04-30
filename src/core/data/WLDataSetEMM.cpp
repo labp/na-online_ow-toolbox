@@ -36,8 +36,7 @@
 #include <core/common/WLogger.h>
 #include <core/dataHandler/WDataSet.h>
 
-#include "core/dataHandler/WDataSetEMMEEG.h"
-#include "core/dataHandler/WDataSetEMMEMD.h"
+#include "core/data/emd/WLEMD.h"
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"
 #include "WLEMMSubject.h"
 
@@ -115,7 +114,7 @@ boost::shared_ptr< WPrototyped > LaBP::WLDataSetEMM::getPrototype()
     return m_prototype;
 }
 
-boost::shared_ptr< LaBP::WLDataSetEMM > LaBP::WLDataSetEMM::newModalityData( boost::shared_ptr< LaBP::WDataSetEMMEMD > modality )
+boost::shared_ptr< LaBP::WLDataSetEMM > LaBP::WLDataSetEMM::newModalityData( boost::shared_ptr< LaBP::WLEMD > modality )
 {
     boost::shared_ptr< LaBP::WLDataSetEMM > emm = boost::shared_ptr< LaBP::WLDataSetEMM >( new LaBP::WLDataSetEMM( *this ) );
 
@@ -135,8 +134,8 @@ boost::shared_ptr< LaBP::WLDataSetEMM > LaBP::WLDataSetEMM::newModalityData( boo
     //    	}
     //	}
 
-    std::vector< boost::shared_ptr< LaBP::WDataSetEMMEMD > > *newModalityList = new std::vector<
-                    boost::shared_ptr< LaBP::WDataSetEMMEMD > >();
+    std::vector< boost::shared_ptr< LaBP::WLEMD > > *newModalityList = new std::vector<
+                    boost::shared_ptr< LaBP::WLEMD > >();
 
     for( uint i = 0; i < m_modalityList.size(); i++ )
     {
@@ -146,7 +145,7 @@ boost::shared_ptr< LaBP::WLDataSetEMM > LaBP::WLDataSetEMM::newModalityData( boo
         }
         else
         {
-            newModalityList->push_back( boost::shared_ptr< LaBP::WDataSetEMMEMD >( m_modalityList[i] ) );
+            newModalityList->push_back( boost::shared_ptr< LaBP::WLEMD >( m_modalityList[i] ) );
         }
     }
     emm->setModalityList( *newModalityList );
@@ -154,7 +153,7 @@ boost::shared_ptr< LaBP::WLDataSetEMM > LaBP::WLDataSetEMM::newModalityData( boo
     return emm;
 }
 
-void LaBP::WLDataSetEMM::addModality( boost::shared_ptr< LaBP::WDataSetEMMEMD > modality )
+void LaBP::WLDataSetEMM::addModality( boost::shared_ptr< LaBP::WLEMD > modality )
 {
     m_modalityList.push_back( modality );
 }
@@ -198,12 +197,12 @@ LaBP::WLEMMSubject::ConstSPtr LaBP::WLDataSetEMM::getSubject() const
     return m_subject;
 }
 
-std::vector< LaBP::WDataSetEMMEMD::SPtr > LaBP::WLDataSetEMM::getModalityList()
+std::vector< LaBP::WLEMD::SPtr > LaBP::WLDataSetEMM::getModalityList()
 {
     return m_modalityList;
 }
 
-void LaBP::WLDataSetEMM::setModalityList( std::vector< LaBP::WDataSetEMMEMD::SPtr > list )
+void LaBP::WLDataSetEMM::setModalityList( std::vector< LaBP::WLEMD::SPtr > list )
 {
     m_modalityList.clear();
     m_modalityList = list;
@@ -214,7 +213,7 @@ size_t LaBP::WLDataSetEMM::getModalityCount() const
     return m_modalityList.size();
 }
 
-LaBP::WDataSetEMMEMD::SPtr LaBP::WLDataSetEMM::getModality( size_t i )
+LaBP::WLEMD::SPtr LaBP::WLDataSetEMM::getModality( size_t i )
 {
     if( m_modalityList.size() )
     {
@@ -226,7 +225,7 @@ LaBP::WDataSetEMMEMD::SPtr LaBP::WLDataSetEMM::getModality( size_t i )
     }
 }
 
-LaBP::WDataSetEMMEMD::ConstSPtr LaBP::WLDataSetEMM::getModality( size_t i ) const
+LaBP::WLEMD::ConstSPtr LaBP::WLDataSetEMM::getModality( size_t i ) const
 {
     if( m_modalityList.size() )
     {
@@ -238,9 +237,9 @@ LaBP::WDataSetEMMEMD::ConstSPtr LaBP::WLDataSetEMM::getModality( size_t i ) cons
     }
 }
 
-LaBP::WDataSetEMMEMD::SPtr LaBP::WLDataSetEMM::getModality( LaBP::WEModalityType::Enum type )
+LaBP::WLEMD::SPtr LaBP::WLDataSetEMM::getModality( LaBP::WEModalityType::Enum type )
 {
-    for( std::vector< boost::shared_ptr< WDataSetEMMEMD > >::size_type i = 0; i < m_modalityList.size(); ++i )
+    for( std::vector< boost::shared_ptr< WLEMD > >::size_type i = 0; i < m_modalityList.size(); ++i )
     {
         if( m_modalityList.at( i )->getModalityType() == type )
         {
@@ -250,9 +249,9 @@ LaBP::WDataSetEMMEMD::SPtr LaBP::WLDataSetEMM::getModality( LaBP::WEModalityType
     throw "Modality type not available!";
 }
 
-LaBP::WDataSetEMMEMD::ConstSPtr LaBP::WLDataSetEMM::getModality( LaBP::WEModalityType::Enum type ) const
+LaBP::WLEMD::ConstSPtr LaBP::WLDataSetEMM::getModality( LaBP::WEModalityType::Enum type ) const
 {
-    for( std::vector< boost::shared_ptr< WDataSetEMMEMD > >::size_type i = 0; i < m_modalityList.size(); ++i )
+    for( std::vector< boost::shared_ptr< WLEMD > >::size_type i = 0; i < m_modalityList.size(); ++i )
     {
         if( m_modalityList.at( i )->getModalityType() == type )
         {
@@ -265,7 +264,7 @@ LaBP::WDataSetEMMEMD::ConstSPtr LaBP::WLDataSetEMM::getModality( LaBP::WEModalit
 std::set< LaBP::WEModalityType::Enum > LaBP::WLDataSetEMM::getModalityTypes() const
 {
     std::set< LaBP::WEModalityType::Enum > enums;
-    for( std::vector< boost::shared_ptr< WDataSetEMMEMD > >::size_type i = 0; i < m_modalityList.size(); ++i )
+    for( std::vector< boost::shared_ptr< WLEMD > >::size_type i = 0; i < m_modalityList.size(); ++i )
     {
         enums.insert( m_modalityList.at( i )->getModalityType() );
     }
@@ -274,7 +273,7 @@ std::set< LaBP::WEModalityType::Enum > LaBP::WLDataSetEMM::getModalityTypes() co
 
 bool LaBP::WLDataSetEMM::hasModality( LaBP::WEModalityType::Enum type ) const
 {
-    for( std::vector< boost::shared_ptr< WDataSetEMMEMD > >::size_type i = 0; i < m_modalityList.size(); ++i )
+    for( std::vector< boost::shared_ptr< WLEMD > >::size_type i = 0; i < m_modalityList.size(); ++i )
     {
         if( m_modalityList.at( i )->getModalityType() == type )
         {

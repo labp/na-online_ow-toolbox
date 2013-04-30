@@ -136,7 +136,7 @@ private:
     std::string getFileName( std::string folder, std::string prefix, std::string suffix, LaBP::WEModalityType::Enum emdType,
                     size_t channels, size_t samples, size_t count );
 
-    bool write( std::string fname, LaBP::WDataSetEMMEMD::ConstSPtr emd );
+    bool write( std::string fname, LaBP::WLEMD::ConstSPtr emd );
 
 };
 

@@ -64,7 +64,7 @@ namespace LaBP
         }
 
         LaBP::WLDataSetEMM::ConstSPtr emm = m_emm;
-        LaBP::WDataSetEMMEMD::ConstSPtr emd = emm->getModality( m_modality );
+        LaBP::WLEMD::ConstSPtr emd = emm->getModality( m_modality );
         osgAddLabels( emd.get() );
         osgAddChannels( emd.get() );
         osgAddMarkLine();
@@ -72,7 +72,7 @@ namespace LaBP
         m_draw = false;
     }
 
-    void WLEMDDrawable2DMultiStatic::osgAddChannels( const LaBP::WDataSetEMMEMD* emd )
+    void WLEMDDrawable2DMultiStatic::osgAddChannels( const LaBP::WLEMD* emd )
     {
         m_rootGroup->removeChild( m_channelGroup );
         m_channelGroup = new osg::Group;
@@ -88,7 +88,7 @@ namespace LaBP
         // TODO(pieloth): dynamic shift scale ... width / m_timeRange
         // TODO(pieloth): dynamic shift scale ... x_pos * width / m_timeRange,
         panTransform->setMatrix( osg::Matrix::translate( x_pos, y_pos, 0.0 ) );
-        const WDataSetEMMEMD::DataT& emdData = emd->getData();
+        const WLEMD::DataT& emdData = emd->getData();
         const size_t channels_begin = 0;
         const size_t channels_count = maxChannels( emd );
         wlog::debug( CLASS ) << "channels_count: " << channels_count;

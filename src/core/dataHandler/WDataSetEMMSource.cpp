@@ -9,6 +9,7 @@
 
 #include "core/data/WLMatrixTypes.h"
 
+#include "core/data/emd/WLEMD.h"
 #include "WDataSetEMMEnumTypes.h"
 #include "WDataSetEMMSource.h"
 
@@ -20,18 +21,18 @@ namespace LaBP
     const std::string WDataSetEMMSource::CLASS = "WDataSetEMMSource";
 
     WDataSetEMMSource::WDataSetEMMSource() :
-                    WDataSetEMMEMD()
+                    WLEMD()
     {
     }
 
     WDataSetEMMSource::WDataSetEMMSource( const WDataSetEMMSource& source ) :
-                    WDataSetEMMEMD( source )
+                    WLEMD( source )
     {
         m_originModalityType = source.m_originModalityType;
     }
 
-    WDataSetEMMSource::WDataSetEMMSource( const WDataSetEMMEMD& emd ) :
-                    WDataSetEMMEMD( emd )
+    WDataSetEMMSource::WDataSetEMMSource( const WLEMD& emd ) :
+                    WLEMD( emd )
     {
         // C++11 supports "delegating constructors". So default initialization could be moved to default constructor.
         m_chanNames.reset( new std::vector< std::string >() );
@@ -65,13 +66,13 @@ namespace LaBP
         return data;
     }
 
-    WDataSetEMMEMD::SPtr WDataSetEMMSource::clone() const
+    WLEMD::SPtr WDataSetEMMSource::clone() const
     {
         WDataSetEMMSource::SPtr emd( new WDataSetEMMSource( *this ) );
         return emd;
     }
 
-    WDataSetEMMEMD::DataT& WDataSetEMMSource::getData() const
+    WLEMD::DataT& WDataSetEMMSource::getData() const
     {
         wlog::warn( CLASS )
                         << "Do not use getData() to retrieve source reconstruction data! Due to performance issues, use getMatrix() instead.";

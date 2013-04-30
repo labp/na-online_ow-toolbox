@@ -40,7 +40,7 @@
 
 #include "core/data/WLDataSetEMM.h"
 #include "core/data/WLEMMSubject.h"
-#include "core/dataHandler/WDataSetEMMEMD.h"
+#include "core/data/emd/WLEMD.h"
 #include "core/dataHandler/WDataSetEMMEEG.h"
 #include "core/dataHandler/WDataSetEMMMEG.h"
 #include "core/dataHandler/WDataSetEMMEOG.h"
@@ -102,7 +102,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( LaBP::WLDataSetEMM::SPtr out 
     for( size_t i = 0; i < nBuffers_in; i++ )
         nBuffers_out += rawdatabuffers_in[i]->GetSize();
     nBuffers_out /= nChannels;
-    LaBP::WDataSetEMMEMD::DataT rawdatabuffers_out( nChannels );
+    LaBP::WLEMD::DataT rawdatabuffers_out( nChannels );
     for( int32_t i = 0; i < nChannels; i++ )
         rawdatabuffers_out[i].resize( nBuffers_out );
     int32_t current_channel = 0, current_buffer_out = 0;
@@ -139,8 +139,8 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( LaBP::WLDataSetEMM::SPtr out 
         }
     }
 
-    boost::shared_ptr< LaBP::WDataSetEMMEMD::DataT > rawdatabuffers_out_ptr(
-                    new LaBP::WDataSetEMMEMD::DataT( rawdatabuffers_out ) );
+    boost::shared_ptr< LaBP::WLEMD::DataT > rawdatabuffers_out_ptr(
+                    new LaBP::WLEMD::DataT( rawdatabuffers_out ) );
     dummy->setData( rawdatabuffers_out_ptr );
 
     // Collect available modalities and coils
@@ -156,7 +156,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( LaBP::WLDataSetEMM::SPtr out 
     {
         mod = *modalities.begin();
         modalities.erase( mod );
-        LaBP::WDataSetEMMEMD::SPtr emd;
+        LaBP::WLEMD::SPtr emd;
         // See FIFF PDF B.3 Channel Types
         switch( mod )
         {
@@ -183,7 +183,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( LaBP::WLDataSetEMM::SPtr out 
         }
 
         // Collect data: measurement, positions, base vectors
-        boost::shared_ptr< LaBP::WDataSetEMMEMD::DataT > data( new LaBP::WDataSetEMMEMD::DataT() );
+        boost::shared_ptr< LaBP::WLEMD::DataT > data( new LaBP::WLEMD::DataT() );
         boost::shared_ptr< std::vector< WPosition > > positions( new std::vector< WPosition >() );
         float* pos;
 

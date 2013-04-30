@@ -30,12 +30,12 @@
 
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
-#include "WDataSetEMMEMD.h"
+#include "core/data/emd/WLEMD.h"
 #include "WDataSetEMMEnumTypes.h"
 
 namespace LaBP
 {
-    class WDataSetEMMPCA: public LaBP::WDataSetEMMEMD
+    class WDataSetEMMPCA: public LaBP::WLEMD
     {
     public:
         /**
@@ -56,11 +56,11 @@ namespace LaBP
 
         explicit WDataSetEMMPCA( const WDataSetEMMPCA& pca );
 
-        explicit WDataSetEMMPCA( const WDataSetEMMEMD& emd );
+        explicit WDataSetEMMPCA( const WLEMD& emd );
 
         virtual ~WDataSetEMMPCA();
 
-        virtual LaBP::WDataSetEMMEMD::SPtr clone() const;
+        virtual LaBP::WLEMD::SPtr clone() const;
 
         virtual LaBP::WEModalityType::Enum getModalityType() const;
 
@@ -68,15 +68,15 @@ namespace LaBP
         MatrixT& getTransformationMatrix();
         void setChannelMeans( boost::shared_ptr< VectorT > );
         VectorT& getChannelMeans();
-        void setPreprocessedData( WDataSetEMMEMD::SPtr new_preprocessed_data );
-        WDataSetEMMEMD::SPtr getPreprocessedData();
+        void setPreprocessedData( WLEMD::SPtr new_preprocessed_data );
+        WLEMD::SPtr getPreprocessedData();
 
     private:
         boost::shared_ptr< MatrixT > m_transformation_matrix;
 
         boost::shared_ptr< VectorT > m_channel_means;
 
-        WDataSetEMMEMD::SPtr m_preprocessed_data;
+        WLEMD::SPtr m_preprocessed_data;
     };
 }
 #endif  // WDATASETEMMPCA_H

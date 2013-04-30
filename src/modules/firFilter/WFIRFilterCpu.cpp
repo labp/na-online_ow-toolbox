@@ -27,7 +27,7 @@
 
 #include <core/common/WLogger.h>
 
-#include "core/dataHandler/WDataSetEMMEMD.h"
+#include "core/data/emd/WLEMD.h"
 #include "core/util/WLTimeProfiler.h"
 
 #include "WFIRFilter.h"
@@ -46,8 +46,8 @@ WFIRFilterCpu::WFIRFilterCpu( const char *pathToFcf ) :
 {
 }
 
-void WFIRFilterCpu::filter( LaBP::WDataSetEMMEMD::DataT& out, const LaBP::WDataSetEMMEMD::DataT& in,
-                const LaBP::WDataSetEMMEMD::DataT& prevData, LaBP::WLTimeProfiler::SPtr profiler )
+void WFIRFilterCpu::filter( LaBP::WLEMD::DataT& out, const LaBP::WLEMD::DataT& in,
+                const LaBP::WLEMD::DataT& prevData, LaBP::WLTimeProfiler::SPtr profiler )
 {
     wlog::debug( CLASS ) << "filter() called!";
     LaBP::WLTimeProfiler::SPtr emdProfiler( new LaBP::WLTimeProfiler( CLASS, "filter_data" ) );
@@ -55,7 +55,7 @@ void WFIRFilterCpu::filter( LaBP::WDataSetEMMEMD::DataT& out, const LaBP::WDataS
 
     for( size_t i = 0; i < in.size(); ++i )
     {
-        LaBP::WDataSetEMMEMD::ChannelT outChan; // generate a new dimension for every channel
+        LaBP::WLEMD::ChannelT outChan; // generate a new dimension for every channel
         outChan.reserve( in[i].size() );
         out.push_back( outChan );
 
@@ -69,11 +69,11 @@ void WFIRFilterCpu::filter( LaBP::WDataSetEMMEMD::DataT& out, const LaBP::WDataS
     }
 }
 
-void WFIRFilterCpu::filterSingleChannel( LaBP::WDataSetEMMEMD::ChannelT& out, const LaBP::WDataSetEMMEMD::ChannelT& in,
-                const LaBP::WDataSetEMMEMD::ChannelT& prev )
+void WFIRFilterCpu::filterSingleChannel( LaBP::WLEMD::ChannelT& out, const LaBP::WLEMD::ChannelT& in,
+                const LaBP::WLEMD::ChannelT& prev )
 {
     // TODO(pieloth): check
-    LaBP::WDataSetEMMEMD::SampleT tmp = 0.0;
+    LaBP::WLEMD::SampleT tmp = 0.0;
 
     // CHANGE original: for( int n = 1; (uint) n < in.size(); n++ )
     const size_t nbCoeff = m_coeffitients.size();

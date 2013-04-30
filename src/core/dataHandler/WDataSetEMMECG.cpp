@@ -22,17 +22,17 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WDataSetEMMEMD.h"
+#include "core/data/emd/WLEMD.h"
 #include "WDataSetEMMECG.h"
 #include "WDataSetEMMEnumTypes.h"
 
 LaBP::WDataSetEMMECG::WDataSetEMMECG() :
-                WDataSetEMMEMD()
+                WLEMD()
 {
 }
 
 LaBP::WDataSetEMMECG::WDataSetEMMECG( const WDataSetEMMECG& ecg ) :
-                WDataSetEMMEMD( ecg )
+                WLEMD( ecg )
 {
     m_polarityType = ecg.getPolarityType();
 }
@@ -41,7 +41,7 @@ LaBP::WDataSetEMMECG::~WDataSetEMMECG()
 {
 }
 
-LaBP::WDataSetEMMEMD::SPtr LaBP::WDataSetEMMECG::clone() const
+LaBP::WLEMD::SPtr LaBP::WDataSetEMMECG::clone() const
 {
     LaBP::WDataSetEMMECG::SPtr ecg( new WDataSetEMMECG( *this ) );
     return ecg;

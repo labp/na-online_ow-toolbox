@@ -89,7 +89,7 @@ namespace LaBP
                 const WEModalityType::Enum modality = m_modality;
                 if( emm->hasModality( modality ) )
                 {
-                    const WDataSetEMMEMD* const emd = emm->getModality( modality ).get();
+                    const WLEMD* const emd = emm->getModality( modality ).get();
                     wlog::debug( CLASS ) << "osgNodeCallback() - samplesPerChan: " << emd->getSamplesPerChan();
                     wlog::debug( CLASS ) << "osgNodeCallback() - freq: " << emd->getSampFreq();
                     wlog::debug( CLASS ) << "osgNodeCallback() - secondsPerChan: " << emd->getLength();
@@ -114,7 +114,7 @@ namespace LaBP
             return osg::ref_ptr< WLAnimationSideScroll::EMMNode >();
         }
 
-        LaBP::WDataSetEMMEMD* emd = emm->getModality( modality ).get();
+        LaBP::WLEMD* emd = emm->getModality( modality ).get();
         m_blockLength = emd->getLength();
 
         const ValueT x_pos = m_widget->width();
@@ -132,7 +132,7 @@ namespace LaBP
         blockGroup->setDataVariance( osg::Object::DYNAMIC );
 
         // Every new packed come at the end of the widget!
-        const WDataSetEMMEMD::DataT& emdData = emd->getData();
+        const WLEMD::DataT& emdData = emd->getData();
         const size_t channels_begin = 0;
         const size_t channels_count = maxChannels( emd );
         wlog::debug( CLASS ) << "channels_count: " << channels_count;

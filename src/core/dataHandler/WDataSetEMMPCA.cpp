@@ -27,23 +27,23 @@
 
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
-#include "WDataSetEMMEMD.h"
+#include "core/data/emd/WLEMD.h"
 #include "WDataSetEMMPCA.h"
 #include "WDataSetEMMEnumTypes.h"
 
 LaBP::WDataSetEMMPCA::WDataSetEMMPCA() :
-                WDataSetEMMEMD()
+                WLEMD()
 {
     m_chanNames.reset( new std::vector< std::string >() );
 }
 
 LaBP::WDataSetEMMPCA::WDataSetEMMPCA( const WDataSetEMMPCA& pca ) :
-                WDataSetEMMEMD( pca )
+                WLEMD( pca )
 {
 }
 
-LaBP::WDataSetEMMPCA::WDataSetEMMPCA( const WDataSetEMMEMD& emd ) :
-                WDataSetEMMEMD( emd )
+LaBP::WDataSetEMMPCA::WDataSetEMMPCA( const WLEMD& emd ) :
+                WLEMD( emd )
 {
     // C++11 supports "delegating constructors". So default initialization could be moved to default constructor.
     m_chanNames.reset( new std::vector< std::string >() );
@@ -53,7 +53,7 @@ LaBP::WDataSetEMMPCA::~WDataSetEMMPCA()
 {
 }
 
-LaBP::WDataSetEMMEMD::SPtr LaBP::WDataSetEMMPCA::clone() const
+LaBP::WLEMD::SPtr LaBP::WDataSetEMMPCA::clone() const
 {
     LaBP::WDataSetEMMPCA::SPtr pca( new LaBP::WDataSetEMMPCA( *this ) );
     return pca;
@@ -84,12 +84,12 @@ LaBP::WDataSetEMMPCA::VectorT& LaBP::WDataSetEMMPCA::getChannelMeans()
     return *m_channel_means;
 }
 
-void LaBP::WDataSetEMMPCA::setPreprocessedData( WDataSetEMMEMD::SPtr new_preprocessed_data )
+void LaBP::WDataSetEMMPCA::setPreprocessedData( WLEMD::SPtr new_preprocessed_data )
 {
     m_preprocessed_data = new_preprocessed_data;
 }
 
-LaBP::WDataSetEMMEMD::SPtr LaBP::WDataSetEMMPCA::getPreprocessedData()
+LaBP::WLEMD::SPtr LaBP::WDataSetEMMPCA::getPreprocessedData()
 {
     return m_preprocessed_data;
 }
