@@ -32,7 +32,7 @@
 #include <cxxtest/TestSuite.h>
 
 #include "core/data/emd/WLEMD.h"
-#include "core/dataHandler/WDataSetEMMEEG.h"
+#include "core/data/emd/WLEMDEEG.h"
 
 #include "core/util/WLTimeProfiler.h"
 
@@ -84,7 +84,7 @@ public:
             }
             in->push_back( channel );
         }
-        LaBP::WLEMD::SPtr emdIn( new LaBP::WDataSetEMMEEG() );
+        LaBP::WLEMD::SPtr emdIn( new LaBP::WLEMDEEG() );
         emdIn->setData( in );
 
         LaBP::WLEMD::SPtr emdOut = filter->filter( emdIn, LaBP::WLTimeProfiler::SPtr() );
@@ -117,7 +117,7 @@ public:
             }
             in->push_back( channel );
         }
-        LaBP::WLEMD::SPtr emdIn( new LaBP::WDataSetEMMEEG() );
+        LaBP::WLEMD::SPtr emdIn( new LaBP::WLEMDEEG() );
         emdIn->setData( in );
 
         LaBP::WLEMD::SPtr emdOut = filter->filter( emdIn, LaBP::WLTimeProfiler::SPtr() );

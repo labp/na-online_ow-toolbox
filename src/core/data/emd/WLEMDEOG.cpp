@@ -26,31 +26,32 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "core/data/emd/WLEMD.h"
-#include "WDataSetEMMEOG.h"
-#include "WDataSetEMMEnumTypes.h"
+#include "core/dataHandler/WDataSetEMMEnumTypes.h"
 
-LaBP::WDataSetEMMEOG::WDataSetEMMEOG() :
-                WDataSetEMMEEG()
+#include "WLEMD.h"
+#include "WLEMDEOG.h"
+
+LaBP::WLEMDEOG::WLEMDEOG() :
+                WLEMDEEG()
 {
 }
 
-LaBP::WDataSetEMMEOG::WDataSetEMMEOG( const WDataSetEMMEOG& eog ) :
-                WDataSetEMMEEG( eog )
+LaBP::WLEMDEOG::WLEMDEOG( const WLEMDEOG& eog ) :
+                WLEMDEEG( eog )
 {
 }
 
-LaBP::WDataSetEMMEOG::~WDataSetEMMEOG()
+LaBP::WLEMDEOG::~WLEMDEOG()
 {
 }
 
-LaBP::WLEMD::SPtr LaBP::WDataSetEMMEOG::clone() const
+LaBP::WLEMD::SPtr LaBP::WLEMDEOG::clone() const
 {
-    LaBP::WDataSetEMMEOG::SPtr eog( new WDataSetEMMEOG( *this ) );
+    LaBP::WLEMDEOG::SPtr eog( new WLEMDEOG( *this ) );
     return eog;
 }
 
-LaBP::WEModalityType::Enum LaBP::WDataSetEMMEOG::getModalityType() const
+LaBP::WEModalityType::Enum LaBP::WLEMDEOG::getModalityType() const
 {
     return LaBP::WEModalityType::EOG;
 }

@@ -27,9 +27,10 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "core/data/emd/WLEMD.h"
-#include "WDataSetEMMEEG.h"
-#include "WDataSetEMMEnumTypes.h"
+#include "core/dataHandler/WDataSetEMMEnumTypes.h"
+
+#include "WLEMD.h"
+#include "WLEMDEEG.h"
 
 /**
  *
@@ -39,24 +40,24 @@ namespace LaBP
     /**
      *
      */
-    class WDataSetEMMEOG: public LaBP::WDataSetEMMEEG // TODO(kaehler): extends EEG oder (((Abstrakte klasse)))
+    class WLEMDEOG: public LaBP::WLEMDEEG // TODO(kaehler): extends EEG oder (((Abstrakte klasse)))
     {
     public:
         /**
          * Abbreviation for a shared pointer.
          */
-        typedef boost::shared_ptr< WDataSetEMMEOG > SPtr;
+        typedef boost::shared_ptr< WLEMDEOG > SPtr;
 
         /**
          * Abbreviation for const shared pointer.
          */
-        typedef boost::shared_ptr< const WDataSetEMMEOG > ConstSPtr;
+        typedef boost::shared_ptr< const WLEMDEOG > ConstSPtr;
 
-        WDataSetEMMEOG();
+        WLEMDEOG();
 
-        explicit WDataSetEMMEOG( const WDataSetEMMEOG& eog );
+        explicit WLEMDEOG( const WLEMDEOG& eog );
 
-        virtual ~WDataSetEMMEOG();
+        virtual ~WLEMDEOG();
 
         virtual WLEMD::SPtr clone() const;
 

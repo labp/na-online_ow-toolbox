@@ -254,10 +254,10 @@ bool WRtClient::readData( LaBP::WLDataSetEMM::SPtr emmIn )
     }
 }
 
-LaBP::WDataSetEMMEEG::SPtr WRtClient::readEEG( const Eigen::MatrixXf& rawData )
+LaBP::WLEMDEEG::SPtr WRtClient::readEEG( const Eigen::MatrixXf& rawData )
 {
     wlog::debug( CLASS ) << "readEEG() called!";
-    LaBP::WDataSetEMMEEG::SPtr eeg( new LaBP::WDataSetEMMEEG() );
+    LaBP::WLEMDEEG::SPtr eeg( new LaBP::WLEMDEEG() );
     readEmd( eeg.get(), m_picksEeg, rawData );
     // TODO(pieloth): setter
     eeg->setChanNames( m_chNamesEeg );

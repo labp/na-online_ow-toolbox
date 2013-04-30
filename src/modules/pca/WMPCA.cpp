@@ -36,7 +36,6 @@
 
 // Input & output data
 #include "core/data/WLDataSetEMM.h"
-#include "core/dataHandler/WDataSetEMMEEG.h"
 #include "core/util/WLTimeProfiler.h"
 
 #include "WMPCA.h"

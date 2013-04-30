@@ -12,7 +12,7 @@
 
 #include "core/data/WLDataSetEMM.h"
 #include "core/data/emd/WLEMD.h"
-#include "core/dataHandler/WDataSetEMMEEG.h"
+#include "core/data/emd/WLEMDEEG.h"
 
 #include "../WEpochSeparation.h"
 
@@ -406,7 +406,7 @@ protected:
 private:
     LaBP::WLEMD::SPtr createEmd( size_t channels, size_t samples, int startValue = 0 )
     {
-        LaBP::WLEMD::SPtr emd( new LaBP::WDataSetEMMEEG() );
+        LaBP::WLEMD::SPtr emd( new LaBP::WLEMDEEG() );
         boost::shared_ptr< LaBP::WLEMD::DataT > data( new LaBP::WLEMD::DataT() );
 
         for( size_t chan = 0; chan < channels; ++chan )

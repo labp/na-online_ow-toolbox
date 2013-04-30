@@ -47,7 +47,7 @@
 // TODO use OW class
 #include "core/module/WLModuleOutputDataCollectionable.h"
 #include "core/data/WLDataSetEMM.h"
-#include "core/dataHandler/WDataSetEMMEEG.h"
+#include "core/data/emd/WLEMDEEG.h"
 #include "core/dataHandler/WDataSetEMMMEG.h"
 #include "core/data/WLEMMSubject.h"
 #include "core/data/WLEMMSurface.h"
@@ -473,7 +473,7 @@ void WMEmMeasurement::generateData()
         }
 
         boost::shared_ptr< LaBP::WLDataSetEMM > emm = boost::shared_ptr< LaBP::WLDataSetEMM >( new LaBP::WLDataSetEMM() );
-        boost::shared_ptr< LaBP::WDataSetEMMEEG > eeg = boost::shared_ptr< LaBP::WDataSetEMMEEG >( new LaBP::WDataSetEMMEEG() );
+        boost::shared_ptr< LaBP::WLEMDEEG > eeg = boost::shared_ptr< LaBP::WLEMDEEG >( new LaBP::WLEMDEEG() );
 
         eeg->setSampFreq( m_generationFreq->get() );
 
@@ -545,7 +545,7 @@ bool WMEmMeasurement::readFiff( std::string fname )
         {
             if( m_fiffEmm->hasModality( LaBP::WEModalityType::EEG ) )
             {
-                LaBP::WDataSetEMMEEG::SPtr eeg = m_fiffEmm->getModality< LaBP::WDataSetEMMEEG >( LaBP::WEModalityType::EEG );
+                LaBP::WLEMDEEG::SPtr eeg = m_fiffEmm->getModality< LaBP::WLEMDEEG >( LaBP::WEModalityType::EEG );
                 if( eeg->getFaces().empty() )
                 {
                     warnLog() << "No faces found! Faces will be generated.";
@@ -748,7 +748,7 @@ void WMEmMeasurement::setAdditionalInformation( LaBP::WLDataSetEMM::SPtr emm )
             ( *it )->setChanNames( m_elcLabels ); // TODO m_elcLabels are specific for each modality
             if( ( *it )->getModalityType() == LaBP::WEModalityType::EEG )
             {
-                LaBP::WDataSetEMMEEG::SPtr eeg = ( *it )->getAs< LaBP::WDataSetEMMEEG >();
+                LaBP::WLEMDEEG::SPtr eeg = ( *it )->getAs< LaBP::WLEMDEEG >();
                 eeg->setFaces( m_elcFaces );
                 eeg->setChannelPositions3d( m_elcPositions3d );
             }
@@ -780,7 +780,7 @@ void WMEmMeasurement::align()
         {
             setAdditionalInformation( m_fiffEmm );
 
-            LaBP::WDataSetEMMEEG::SPtr eeg = m_fiffEmm->getModality< LaBP::WDataSetEMMEEG >( LaBP::WEModalityType::EEG );
+            LaBP::WLEMDEEG::SPtr eeg = m_fiffEmm->getModality< LaBP::WLEMDEEG >( LaBP::WEModalityType::EEG );
             boost::shared_ptr< std::vector< WPosition > > from = eeg->getChannelPositions3d();
 
             std::vector< LaBP::WLEMMBemBoundary::SPtr > bems = m_fiffEmm->getSubject()->getBemBoundaries();

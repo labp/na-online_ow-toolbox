@@ -32,29 +32,30 @@
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
-#include "core/data/emd/WLEMD.h"
-#include "WDataSetEMMEnumTypes.h"
+#include "core/dataHandler/WDataSetEMMEnumTypes.h"
+
+#include "WLEMD.h"
 
 namespace LaBP
 {
-    class WDataSetEMMEEG: public LaBP::WLEMD
+    class WLEMDEEG: public LaBP::WLEMD
     {
     public:
         /**
          * Abbreviation for a shared pointer.
          */
-        typedef boost::shared_ptr< WDataSetEMMEEG > SPtr;
+        typedef boost::shared_ptr< WLEMDEEG > SPtr;
 
         /**
          * Abbreviation for const shared pointer.
          */
-        typedef boost::shared_ptr< const WDataSetEMMEEG > ConstSPtr;
+        typedef boost::shared_ptr< const WLEMDEEG > ConstSPtr;
 
-        WDataSetEMMEEG();
+        WLEMDEEG();
 
-        explicit WDataSetEMMEEG( const WDataSetEMMEEG& eeg );
+        explicit WLEMDEEG( const WLEMDEEG& eeg );
 
-        virtual ~WDataSetEMMEEG();
+        virtual ~WLEMDEEG();
 
         virtual WLEMD::SPtr clone() const;
 

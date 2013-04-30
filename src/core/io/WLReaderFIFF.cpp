@@ -41,9 +41,9 @@
 #include "core/data/WLDataSetEMM.h"
 #include "core/data/WLEMMSubject.h"
 #include "core/data/emd/WLEMD.h"
-#include "core/dataHandler/WDataSetEMMEEG.h"
+#include "core/data/emd/WLEMDEEG.h"
 #include "core/dataHandler/WDataSetEMMMEG.h"
-#include "core/dataHandler/WDataSetEMMEOG.h"
+#include "core/data/emd/WLEMDEOG.h"
 #include "core/dataHandler/WDataSetEMMECG.h"
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"
 
@@ -74,7 +74,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( LaBP::WLDataSetEMM::SPtr out 
     out->setSubject( subject_out );
 
     // Create temporary EMMEMD
-    LaBP::WDataSetEMMEEG::SPtr dummy( new LaBP::WDataSetEMMEEG() );
+    LaBP::WLEMDEEG::SPtr dummy( new LaBP::WLEMDEEG() );
     LFMeasurementInfo& measinfo_in = data.GetLFMeasurement().GetLFMeasurementInfo();
     int32_t nChannels = measinfo_in.GetNumberOfChannels();
     wlog::debug( CLASS ) << "Channels: " << nChannels;
@@ -166,12 +166,12 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( LaBP::WLDataSetEMM::SPtr out 
                 break;
             case 2: // EEG channel
                 wlog::debug( CLASS ) << "Creating EEG modality ...";
-                emd.reset( new LaBP::WDataSetEMMEEG() );
+                emd.reset( new LaBP::WLEMDEEG() );
                 break;
 //            case 3: // Stimulus channel
             case 202: // EOG channel
                 wlog::debug( CLASS ) << "Creating EOG modality ...";
-                emd.reset( new LaBP::WDataSetEMMEOG() );
+                emd.reset( new LaBP::WLEMDEOG() );
                 break;
             case 402: // ECG channel
                 wlog::debug( CLASS ) << "Creating ECG modality ...";
@@ -236,7 +236,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( LaBP::WLDataSetEMM::SPtr out 
         {
             case LaBP::WEModalityType::EEG: // Set specific EEG data
             {
-                LaBP::WDataSetEMMEEG::SPtr eeg = boost::shared_dynamic_cast< LaBP::WDataSetEMMEEG >( emd );
+                LaBP::WLEMDEEG::SPtr eeg = boost::shared_dynamic_cast< LaBP::WLEMDEEG >( emd );
                 eeg->setChannelPositions3d( positions );
                 wlog::debug( CLASS ) << "EEG positions: " << positions->size();
                 break;

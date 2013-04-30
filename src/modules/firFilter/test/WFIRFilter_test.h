@@ -36,7 +36,7 @@
 
 #include "core/data/WLDataSetEMM.h"
 #include "core/data/emd/WLEMD.h"
-#include "core/dataHandler/WDataSetEMMEEG.h"
+#include "core/data/emd/WLEMDEEG.h"
 #include "core/util/WLTimeProfiler.h"
 
 #include "WFIRFilterTestHelper.h"
@@ -184,7 +184,7 @@ public:
 
         // Test set/get previous data size //
         // Create test EMD
-        LaBP::WDataSetEMMEEG::SPtr eeg( new LaBP::WDataSetEMMEEG() );
+        LaBP::WLEMDEEG::SPtr eeg( new LaBP::WLEMDEEG() );
         boost::shared_ptr< LaBP::WLEMD::DataT > data( new LaBP::WLEMD::DataT() );
         data->resize( channels );
         for( size_t chan = 0; chan < channels; ++chan )
@@ -208,7 +208,7 @@ public:
 
         // Test correct data content //
         // Create test EMD
-        LaBP::WDataSetEMMEEG::SPtr eeg( new LaBP::WDataSetEMMEEG() );
+        LaBP::WLEMDEEG::SPtr eeg( new LaBP::WLEMDEEG() );
         boost::shared_ptr< LaBP::WLEMD::DataT > data( new LaBP::WLEMD::DataT() );
         data->resize( channels );
         for( size_t c = 0; c < channels; ++c )

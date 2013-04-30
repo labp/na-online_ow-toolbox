@@ -11,7 +11,7 @@
 
 #include "core/data/WLDataSetEMM.h"
 #include "core/data/emd/WLEMD.h"
-#include "core/dataHandler/WDataSetEMMEEG.h"
+#include "core/data/emd/WLEMDEEG.h"
 
 #include "../WEpochAveragingTotal.h"
 
@@ -68,7 +68,7 @@ protected:
 private:
     boost::shared_ptr< LaBP::WLEMD > createEmd( size_t channels, size_t samples, int startValue = 0 )
     {
-        boost::shared_ptr< LaBP::WLEMD > emd( new LaBP::WDataSetEMMEEG() );
+        boost::shared_ptr< LaBP::WLEMD > emd( new LaBP::WLEMDEEG() );
         boost::shared_ptr< std::vector< std::vector< double > > > data( new std::vector< std::vector< double > > );
 
         for( size_t chan = 0; chan < channels; ++chan )

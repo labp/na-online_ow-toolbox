@@ -39,7 +39,7 @@
 
 #include "core/data/WLDataSetEMM.h"
 #include "core/data/emd/WLEMD.h"
-#include "core/dataHandler/WDataSetEMMEEG.h"
+#include "core/data/emd/WLEMDEEG.h"
 
 #include "WLEMDDrawable3D.h"
 #include "WLEMDDrawable3DEEG.h"
@@ -186,7 +186,7 @@ namespace LaBP
         }
 
         LaBP::WLDataSetEMM::ConstSPtr emm = m_emm;
-        LaBP::WDataSetEMMEEG::ConstSPtr emd = emm->getModality< const WDataSetEMMEEG >( WEModalityType::EEG );
+        LaBP::WLEMDEEG::ConstSPtr emd = emm->getModality< const WLEMDEEG >( WEModalityType::EEG );
 
         clearWidget();
 
