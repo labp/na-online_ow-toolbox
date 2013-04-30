@@ -42,8 +42,8 @@
 #include "core/data/WLEMMSubject.h"
 #include "core/data/emd/WLEMD.h"
 #include "core/data/emd/WLEMDEEG.h"
-#include "core/dataHandler/WDataSetEMMMEG.h"
 #include "core/data/emd/WLEMDEOG.h"
+#include "core/data/emd/WLEMDMEG.h"
 #include "core/dataHandler/WDataSetEMMECG.h"
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"
 
@@ -162,7 +162,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( LaBP::WLDataSetEMM::SPtr out 
         {
             case 1: // MEG channel
                 wlog::debug( CLASS ) << "Creating MEG modality ...";
-                emd.reset( new LaBP::WDataSetEMMMEG() );
+                emd.reset( new LaBP::WLEMDMEG() );
                 break;
             case 2: // EEG channel
                 wlog::debug( CLASS ) << "Creating EEG modality ...";
@@ -243,7 +243,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( LaBP::WLDataSetEMM::SPtr out 
             }
             case LaBP::WEModalityType::MEG: // Set specific MEG data
             {
-                LaBP::WDataSetEMMMEG::SPtr meg = boost::shared_dynamic_cast< LaBP::WDataSetEMMMEG >( emd );
+                LaBP::WLEMDMEG::SPtr meg = boost::shared_dynamic_cast< LaBP::WLEMDMEG >( emd );
                 meg->setChannelPositions3d( positions );
                 meg->setEx( eX );
                 meg->setEx( eY );

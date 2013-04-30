@@ -48,7 +48,7 @@
 #include "core/module/WLModuleOutputDataCollectionable.h"
 #include "core/data/WLDataSetEMM.h"
 #include "core/data/emd/WLEMDEEG.h"
-#include "core/dataHandler/WDataSetEMMMEG.h"
+#include "core/data/emd/WLEMDMEG.h"
 #include "core/data/WLEMMSubject.h"
 #include "core/data/WLEMMSurface.h"
 #include "core/data/WLEMMBemBoundary.h"

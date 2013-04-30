@@ -43,7 +43,7 @@
 #include "core/data/WLDataSetEMM.h"
 #include "core/data/emd/WLEMD.h"
 #include "core/data/emd/WLEMDEEG.h"
-#include "core/dataHandler/WDataSetEMMMEG.h"
+#include "core/data/emd/WLEMDMEG.h"
 
 class WRtClient
 {
@@ -97,7 +97,7 @@ private:
     qint32 m_clientId;
 
     LaBP::WLEMDEEG::SPtr readEEG( const Eigen::MatrixXf& rawData );
-    LaBP::WDataSetEMMMEG::SPtr readMEG( const Eigen::MatrixXf& rawData );
+    LaBP::WLEMDMEG::SPtr readMEG( const Eigen::MatrixXf& rawData );
     boost::shared_ptr< LaBP::WLDataSetEMM::EDataT > readEvents( const Eigen::MatrixXf& rawData );
     bool readEmd( LaBP::WLEMD* const emd, const Eigen::RowVectorXi& picks, const Eigen::MatrixXf& rawData );
 };

@@ -27,11 +27,12 @@
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
-#include "core/data/emd/WLEMD.h"
-#include "WDataSetEMMMEG.h"
-#include "WDataSetEMMEnumTypes.h"
+#include "core/dataHandler/WDataSetEMMEnumTypes.h"
 
-LaBP::WDataSetEMMMEG::WDataSetEMMMEG() :
+#include "WLEMD.h"
+#include "WLEMDMEG.h"
+
+LaBP::WLEMDMEG::WLEMDMEG() :
                 WLEMD()
 {
     m_chanPos3d = boost::shared_ptr< std::vector< WPosition > >( new std::vector< WPosition >() );
@@ -42,7 +43,7 @@ LaBP::WDataSetEMMMEG::WDataSetEMMMEG() :
     m_eZ.reset( new std::vector< WVector3f >() );
 }
 
-LaBP::WDataSetEMMMEG::WDataSetEMMMEG( const WDataSetEMMMEG& meg ) :
+LaBP::WLEMDMEG::WLEMDMEG( const WLEMDMEG& meg ) :
                 WLEMD( meg )
 {
     m_chanPos3d = meg.m_chanPos3d;
@@ -52,67 +53,67 @@ LaBP::WDataSetEMMMEG::WDataSetEMMMEG( const WDataSetEMMMEG& meg ) :
     m_eZ = meg.m_eZ;
 }
 
-LaBP::WDataSetEMMMEG::~WDataSetEMMMEG()
+LaBP::WLEMDMEG::~WLEMDMEG()
 {
 }
 
-LaBP::WLEMD::SPtr LaBP::WDataSetEMMMEG::clone() const
+LaBP::WLEMD::SPtr LaBP::WLEMDMEG::clone() const
 {
-    LaBP::WDataSetEMMMEG::SPtr meg( new WDataSetEMMMEG( *this ) );
+    LaBP::WLEMDMEG::SPtr meg( new WLEMDMEG( *this ) );
     return meg;
 }
 
-LaBP::WEModalityType::Enum LaBP::WDataSetEMMMEG::getModalityType() const
+LaBP::WEModalityType::Enum LaBP::WLEMDMEG::getModalityType() const
 {
     return LaBP::WEModalityType::MEG;
 }
 
-boost::shared_ptr< std::vector< WPosition > > LaBP::WDataSetEMMMEG::getChannelPositions3d() const
+boost::shared_ptr< std::vector< WPosition > > LaBP::WLEMDMEG::getChannelPositions3d() const
 {
     return m_chanPos3d;
 }
 
-void LaBP::WDataSetEMMMEG::setChannelPositions3d( boost::shared_ptr< std::vector< WPosition > > chanPos3d )
+void LaBP::WLEMDMEG::setChannelPositions3d( boost::shared_ptr< std::vector< WPosition > > chanPos3d )
 {
     this->m_chanPos3d = chanPos3d;
 }
 
-std::vector< WVector3i >& LaBP::WDataSetEMMMEG::getFaces() const
+std::vector< WVector3i >& LaBP::WLEMDMEG::getFaces() const
 {
     return *m_faces;
 }
 
-void LaBP::WDataSetEMMMEG::setFaces( boost::shared_ptr< std::vector< WVector3i > > faces )
+void LaBP::WLEMDMEG::setFaces( boost::shared_ptr< std::vector< WVector3i > > faces )
 {
     m_faces = faces;
 }
 
-std::vector< WVector3f >& LaBP::WDataSetEMMMEG::getEx() const
+std::vector< WVector3f >& LaBP::WLEMDMEG::getEx() const
 {
     return *m_eX;
 }
 
-void LaBP::WDataSetEMMMEG::setEx( boost::shared_ptr< std::vector< WVector3f > > vec )
+void LaBP::WLEMDMEG::setEx( boost::shared_ptr< std::vector< WVector3f > > vec )
 {
     m_eX = vec;
 }
 
-std::vector< WVector3f >& LaBP::WDataSetEMMMEG::getEy() const
+std::vector< WVector3f >& LaBP::WLEMDMEG::getEy() const
 {
     return *m_eY;
 }
 
-void LaBP::WDataSetEMMMEG::setEy( boost::shared_ptr< std::vector< WVector3f > > vec )
+void LaBP::WLEMDMEG::setEy( boost::shared_ptr< std::vector< WVector3f > > vec )
 {
     m_eY = vec;
 }
 
-std::vector< WVector3f >& LaBP::WDataSetEMMMEG::getEz() const
+std::vector< WVector3f >& LaBP::WLEMDMEG::getEz() const
 {
     return *m_eZ;
 }
 
-void LaBP::WDataSetEMMMEG::setEz( boost::shared_ptr< std::vector< WVector3f > > vec )
+void LaBP::WLEMDMEG::setEz( boost::shared_ptr< std::vector< WVector3f > > vec )
 {
     m_eZ = vec;
 }

@@ -266,10 +266,10 @@ LaBP::WLEMDEEG::SPtr WRtClient::readEEG( const Eigen::MatrixXf& rawData )
     return eeg;
 }
 
-LaBP::WDataSetEMMMEG::SPtr WRtClient::readMEG( const Eigen::MatrixXf& rawData )
+LaBP::WLEMDMEG::SPtr WRtClient::readMEG( const Eigen::MatrixXf& rawData )
 {
     wlog::debug( CLASS ) << "readMEG() called!";
-    LaBP::WDataSetEMMMEG::SPtr meg( new LaBP::WDataSetEMMMEG() );
+    LaBP::WLEMDMEG::SPtr meg( new LaBP::WLEMDMEG() );
     readEmd( meg.get(), m_picksMeg, rawData );
     // TODO(pieloth): setter
     meg->setChanNames( m_chNamesMeg );
