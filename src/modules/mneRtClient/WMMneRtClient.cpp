@@ -350,7 +350,7 @@ void WMMneRtClient::handleExperimentLoadChanged()
     bool rc = false;
     m_expLoadStatus->set( LOADING_DATA, true );
 
-    m_subject.reset( new LaBP::WDataSetEMMSubject() );
+    m_subject.reset( new LaBP::WLEMMSubject() );
 
     const string bemFile = m_expBemFilesSelection->get().at( 0 )->getAs< WItemSelectionItemTyped< string > >()->getValue();
     rc |= m_expReader->readBem( bemFile, m_subject );

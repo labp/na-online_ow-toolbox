@@ -33,9 +33,9 @@
 #include "core/common/math/linearAlgebra/WVectorFixed.h"
 #include "core/common/WPropertyTypes.h"
 #include "core/data/WLDataSetEMM.h"
-#include "core/dataHandler/WDataSetEMMSubject.h"
-#include "core/dataHandler/WDataSetEMMSurface.h"
-#include "core/dataHandler/WDataSetEMMBemBoundary.h"
+#include "core/data/WLEMMSubject.h"
+#include "core/data/WLEMMSurface.h"
+#include "core/data/WLEMMBemBoundary.h"
 
 #include "core/module/WLModuleDrawable.h"
 // TODO use OW class
@@ -217,7 +217,7 @@ private:
 
     WPropFilename m_dipFile;
 
-    boost::shared_ptr< LaBP::WDataSetEMMSurface > m_dipSurface;
+    boost::shared_ptr< LaBP::WLEMMSurface > m_dipSurface;
 
     WPropString m_dipFileStatus;
 
@@ -232,7 +232,7 @@ private:
 
     WPropFilename m_volFile;
 
-    boost::shared_ptr< std::vector< boost::shared_ptr< LaBP::WDataSetEMMBemBoundary > > > m_volBoundaries;
+    boost::shared_ptr< std::vector< boost::shared_ptr< LaBP::WLEMMBemBoundary > > > m_volBoundaries;
 
     WPropString m_volFileStatus;
 
@@ -252,7 +252,7 @@ private:
 
     // Experiment loader //
     WPropGroup m_propGrpExperiment;
-    LaBP::WDataSetEMMSubject::SPtr m_subject;
+    LaBP::WLEMMSubject::SPtr m_subject;
     bool m_isExpLoaded;
 
     void extractExpLoader( std::string fiffFile );

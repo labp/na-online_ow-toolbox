@@ -11,7 +11,7 @@
 
 #include <core/dataHandler/exceptions/WDHNoSuchFile.h>
 
-#include "core/dataHandler/WDataSetEMMSubject.h"
+#include "core/data/WLEMMSubject.h"
 
 class WLReaderExperiment
 {
@@ -35,17 +35,17 @@ public:
 
     // BEM Layer //
     std::set< std::string > findBems();
-    bool readBem( std::string fname, LaBP::WDataSetEMMSubject::SPtr subject ); // TODO evt return code
+    bool readBem( std::string fname, LaBP::WLEMMSubject::SPtr subject ); // TODO evt return code
 
     // Source Space //
     std::set< std::string > findSurfaceKinds(); // TODO evt. Enum als Rückgabe
-    bool readSourceSpace( std::string surfaceKind, LaBP::WDataSetEMMSubject::SPtr subject ); // TODO evt return code
+    bool readSourceSpace( std::string surfaceKind, LaBP::WLEMMSubject::SPtr subject ); // TODO evt return code
 
     // Leadfield //
     std::set< std::string > findLeadfieldTrials();
-    bool readLeadFields( std::string surface, std::string bemName, std::string trial, LaBP::WDataSetEMMSubject::SPtr subject );
+    bool readLeadFields( std::string surface, std::string bemName, std::string trial, LaBP::WLEMMSubject::SPtr subject );
     bool readLeadField( std::string surface, std::string bemName, std::string trial, std::string modality,
-                    LaBP::WDataSetEMMSubject::SPtr subject );
+                    LaBP::WLEMMSubject::SPtr subject );
 
 private:
     // Initial information //

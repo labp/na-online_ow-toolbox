@@ -39,7 +39,7 @@
 #include <core/common/WAssert.h>
 
 #include "core/data/WLDataSetEMM.h"
-#include "core/dataHandler/WDataSetEMMSubject.h"
+#include "core/data/WLEMMSubject.h"
 #include "core/dataHandler/WDataSetEMMEMD.h"
 #include "core/dataHandler/WDataSetEMMEEG.h"
 #include "core/dataHandler/WDataSetEMMMEG.h"
@@ -67,7 +67,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( LaBP::WLDataSetEMM::SPtr out 
         return getReturnCode( ret );
 
     // Set subject information
-    LaBP::WDataSetEMMSubject::SPtr subject_out( new LaBP::WDataSetEMMSubject() );
+    LaBP::WLEMMSubject::SPtr subject_out( new LaBP::WLEMMSubject() );
     ReturnCode::Enum rc = Read( subject_out );
     if( rc != ReturnCode::SUCCESS )
         return rc;
@@ -288,7 +288,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( LaBP::WLDataSetEMM::SPtr out 
     return getReturnCode( ret );
 }
 
-WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( LaBP::WDataSetEMMSubject::SPtr out )
+WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( LaBP::WLEMMSubject::SPtr out )
 {
     LFSubject data;
     returncode_t ret = LFInterface::fiffRead( data, m_fname.data() );

@@ -142,7 +142,7 @@ private:
     // Experiment loader //
     WPropGroup m_propGrpExperiment;
 
-    LaBP::WDataSetEMMSubject::SPtr m_subject;
+    LaBP::WLEMMSubject::SPtr m_subject;
 
     bool m_isExpLoaded;
     bool m_isFiffLoaded;

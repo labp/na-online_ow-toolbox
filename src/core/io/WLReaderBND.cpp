@@ -35,7 +35,7 @@
 #include <core/common/WLogger.h>
 #include <core/common/WStringUtils.h>
 
-#include "core/dataHandler/WDataSetEMMBemBoundary.h"
+#include "core/data/WLEMMBemBoundary.h"
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"
 
 #include "core/util/WLGeometry.h"
@@ -53,7 +53,7 @@ WLReaderBND::WLReaderBND( std::string fname ) :
     wlog::debug( CLASS ) << "file: " << fname;
 }
 
-WLReaderBND::ReturnCode::Enum WLReaderBND::read( boost::shared_ptr< WDataSetEMMBemBoundary > boundary )
+WLReaderBND::ReturnCode::Enum WLReaderBND::read( boost::shared_ptr< WLEMMBemBoundary > boundary )
 {
     ifstream ifs;
     ifs.open( m_fname.c_str(), ifstream::in );
@@ -119,7 +119,7 @@ WLReaderBND::ReturnCode::Enum WLReaderBND::read( boost::shared_ptr< WDataSetEMMB
     return rc;
 }
 
-WLReaderBND::ReturnCode::Enum WLReaderBND::readType( string& line, boost::shared_ptr< WDataSetEMMBemBoundary > boundary )
+WLReaderBND::ReturnCode::Enum WLReaderBND::readType( string& line, boost::shared_ptr< WLEMMBemBoundary > boundary )
 {
     vector< string > tokens = string_utils::tokenize( line );
     string type = tokens.at( 1 );
@@ -138,7 +138,7 @@ WLReaderBND::ReturnCode::Enum WLReaderBND::readType( string& line, boost::shared
     return ReturnCode::ERROR_UNKNOWN;
 }
 
-WLReaderBND::ReturnCode::Enum WLReaderBND::readUnit( string& line, boost::shared_ptr< WDataSetEMMBemBoundary > boundary )
+WLReaderBND::ReturnCode::Enum WLReaderBND::readUnit( string& line, boost::shared_ptr< WLEMMBemBoundary > boundary )
 {
     vector< string > tokens = string_utils::tokenize( line );
     string unit = tokens.at( 1 );
@@ -174,7 +174,7 @@ WLReaderBND::ReturnCode::Enum WLReaderBND::readNumPoly( string& line, size_t& co
 }
 
 WLReaderBND::ReturnCode::Enum WLReaderBND::readPositions( ifstream& ifs, size_t count,
-                boost::shared_ptr< WDataSetEMMBemBoundary > boundary )
+                boost::shared_ptr< WLEMMBemBoundary > boundary )
 {
 
     boost::shared_ptr< std::vector< WPosition > > pos( new vector< WPosition >() );
@@ -202,7 +202,7 @@ WLReaderBND::ReturnCode::Enum WLReaderBND::readPositions( ifstream& ifs, size_t 
 }
 
 WLReaderBND::ReturnCode::Enum WLReaderBND::readPolygons( ifstream& ifs, size_t count,
-                boost::shared_ptr< WDataSetEMMBemBoundary > surface )
+                boost::shared_ptr< WLEMMBemBoundary > surface )
 {
     boost::shared_ptr< std::vector< WVector3i > > faces( new vector< WVector3i >() );
     faces->reserve( count );

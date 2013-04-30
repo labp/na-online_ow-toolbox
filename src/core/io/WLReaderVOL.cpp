@@ -34,8 +34,8 @@
 #include <core/common/WLogger.h>
 #include <core/common/WStringUtils.h>
 
-#include "core/dataHandler/WDataSetEMMSubject.h"
-#include "core/dataHandler/WDataSetEMMBemBoundary.h"
+#include "core/data/WLEMMSubject.h"
+#include "core/data/WLEMMBemBoundary.h"
 
 #include "WLReaderBND.h"
 #include "WLReaderVOL.h"
@@ -52,7 +52,7 @@ WLReaderVOL::WLReaderVOL( std::string fname ) :
 }
 
 WLReaderVOL::ReturnCode::Enum WLReaderVOL::read(
-                boost::shared_ptr< std::vector< boost::shared_ptr< WDataSetEMMBemBoundary > > > boundaries )
+                boost::shared_ptr< std::vector< boost::shared_ptr< WLEMMBemBoundary > > > boundaries )
 {
     ifstream ifs;
     ifs.open( m_fname.c_str(), ifstream::in );
@@ -75,12 +75,12 @@ WLReaderVOL::ReturnCode::Enum WLReaderVOL::read(
                 rc = readNumBoundaries( line, countBnd );
                 if( !boundaries )
                 {
-                    boundaries.reset( new vector< boost::shared_ptr< WDataSetEMMBemBoundary > >() );
+                    boundaries.reset( new vector< boost::shared_ptr< WLEMMBemBoundary > >() );
                 }
                 boundaries->reserve( countBnd );
                 for( size_t i = 0; i < countBnd; ++i )
                 {
-                    boundaries->push_back( boost::shared_ptr< WDataSetEMMBemBoundary >( new WDataSetEMMBemBoundary() ) );
+                    boundaries->push_back( boost::shared_ptr< WLEMMBemBoundary >( new WLEMMBemBoundary() ) );
                 }
                 hasNumBnd = true;
             }
@@ -141,7 +141,7 @@ WLReaderVOL::ReturnCode::Enum WLReaderVOL::readConductUnit( std::string& line, W
 }
 
 WLReaderVOL::ReturnCode::Enum WLReaderVOL::readConductivities( std::ifstream& ifs,
-                std::vector< boost::shared_ptr< WDataSetEMMBemBoundary > >& boundaries )
+                std::vector< boost::shared_ptr< WLEMMBemBoundary > >& boundaries )
 {
     if( boundaries.size() == 0 )
     {
@@ -168,7 +168,7 @@ WLReaderVOL::ReturnCode::Enum WLReaderVOL::readConductivities( std::ifstream& if
 }
 
 WLReaderVOL::ReturnCode::Enum WLReaderVOL::readBndFiles( std::ifstream& ifs, string& line,
-                std::vector< boost::shared_ptr< WDataSetEMMBemBoundary > >& boundaries )
+                std::vector< boost::shared_ptr< WLEMMBemBoundary > >& boundaries )
 {
     if( boundaries.size() == 0 )
     {

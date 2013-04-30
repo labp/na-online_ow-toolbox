@@ -49,9 +49,9 @@
 #include "core/data/WLDataSetEMM.h"
 #include "core/dataHandler/WDataSetEMMEEG.h"
 #include "core/dataHandler/WDataSetEMMMEG.h"
-#include "core/dataHandler/WDataSetEMMSubject.h"
-#include "core/dataHandler/WDataSetEMMSurface.h"
-#include "core/dataHandler/WDataSetEMMBemBoundary.h"
+#include "core/data/WLEMMSubject.h"
+#include "core/data/WLEMMSurface.h"
+#include "core/data/WLEMMBemBoundary.h"
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"
 
 #include "core/io/WLReaderELC.h"
@@ -662,7 +662,7 @@ bool WMEmMeasurement::readDip( std::string fname )
         return false;
     }
 
-    m_dipSurface.reset( new LaBP::WDataSetEMMSurface() );
+    m_dipSurface.reset( new LaBP::WLEMMSurface() );
     if( reader->read( m_dipSurface ) == LaBP::WLReaderDIP::ReturnCode::SUCCESS )
     {
         m_dipPositionCount->set( m_dipSurface->getVertex()->size(), true );
@@ -719,7 +719,7 @@ bool WMEmMeasurement::readVol( std::string fname )
         return false;
     }
 
-    m_volBoundaries.reset( new std::vector< boost::shared_ptr< LaBP::WDataSetEMMBemBoundary > >() );
+    m_volBoundaries.reset( new std::vector< boost::shared_ptr< LaBP::WLEMMBemBoundary > >() );
     if( reader->read( m_volBoundaries ) == LaBP::WLReaderVOL::ReturnCode::SUCCESS )
     {
         m_volBoundaryCount->set( m_volBoundaries->size(), true );
@@ -783,9 +783,9 @@ void WMEmMeasurement::align()
             LaBP::WDataSetEMMEEG::SPtr eeg = m_fiffEmm->getModality< LaBP::WDataSetEMMEEG >( LaBP::WEModalityType::EEG );
             boost::shared_ptr< std::vector< WPosition > > from = eeg->getChannelPositions3d();
 
-            std::vector< LaBP::WDataSetEMMBemBoundary::SPtr > bems = m_fiffEmm->getSubject()->getBemBoundaries();
-            LaBP::WDataSetEMMBemBoundary::SPtr bemSkin;
-            for( std::vector< LaBP::WDataSetEMMBemBoundary::SPtr >::iterator it = bems.begin(); it != bems.end(); ++it )
+            std::vector< LaBP::WLEMMBemBoundary::SPtr > bems = m_fiffEmm->getSubject()->getBemBoundaries();
+            LaBP::WLEMMBemBoundary::SPtr bemSkin;
+            for( std::vector< LaBP::WLEMMBemBoundary::SPtr >::iterator it = bems.begin(); it != bems.end(); ++it )
             {
                 if( ( *it )->getBemType() == LaBP::WEBemType::SKIN || ( *it )->getBemType() == LaBP::WEBemType::OUTER_SKIN )
                 {
@@ -836,7 +836,7 @@ void WMEmMeasurement::handleExperimentLoadChanged()
     bool rc = false;
     m_expLoadStatus->set( LOADING_DATA, true );
 
-    m_subject.reset( new LaBP::WDataSetEMMSubject() );
+    m_subject.reset( new LaBP::WLEMMSubject() );
 
     const string bemFile = m_expBemFilesSelection->get().at( 0 )->getAs< WItemSelectionItemTyped< string > >()->getValue();
     rc |= m_expReader->readBem( bemFile, m_subject );

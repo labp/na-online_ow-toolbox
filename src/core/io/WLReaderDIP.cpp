@@ -35,7 +35,7 @@
 #include <core/common/WLogger.h>
 #include <core/common/WStringUtils.h>
 
-#include "core/dataHandler/WDataSetEMMSurface.h"
+#include "core/data/WLEMMSurface.h"
 
 #include "core/util/WLGeometry.h"
 
@@ -49,7 +49,7 @@ WLReaderDIP::WLReaderDIP( std::string fname ) :
 {
 }
 
-WLReaderDIP::ReturnCode::Enum WLReaderDIP::read( boost::shared_ptr< WDataSetEMMSurface > surface )
+WLReaderDIP::ReturnCode::Enum WLReaderDIP::read( boost::shared_ptr< WLEMMSurface > surface )
 {
     ifstream ifs;
     ifs.open( m_fname.c_str(), ifstream::in );
@@ -110,7 +110,7 @@ WLReaderDIP::ReturnCode::Enum WLReaderDIP::read( boost::shared_ptr< WDataSetEMMS
     return rc;
 }
 
-WLReaderDIP::ReturnCode::Enum WLReaderDIP::readUnit( string& line, boost::shared_ptr< WDataSetEMMSurface > surface )
+WLReaderDIP::ReturnCode::Enum WLReaderDIP::readUnit( string& line, boost::shared_ptr< WLEMMSurface > surface )
 {
     vector< string > tokens = string_utils::tokenize( line );
     string unit = tokens.at( 1 );
@@ -146,7 +146,7 @@ WLReaderDIP::ReturnCode::Enum WLReaderDIP::readNumPoly( string& line, size_t& co
 }
 
 WLReaderDIP::ReturnCode::Enum WLReaderDIP::readPositions( ifstream& ifs, size_t count,
-                boost::shared_ptr< WDataSetEMMSurface > surface )
+                boost::shared_ptr< WLEMMSurface > surface )
 {
 
     boost::shared_ptr< std::vector< WPosition > > pos( new vector< WPosition >() );
@@ -173,7 +173,7 @@ WLReaderDIP::ReturnCode::Enum WLReaderDIP::readPositions( ifstream& ifs, size_t 
 }
 
 WLReaderDIP::ReturnCode::Enum WLReaderDIP::readPolygons( ifstream& ifs, size_t count,
-                boost::shared_ptr< WDataSetEMMSurface > surface )
+                boost::shared_ptr< WLEMMSurface > surface )
 {
     boost::shared_ptr< std::vector< WVector3i > > faces( new vector< WVector3i >() );
     faces->reserve( count );

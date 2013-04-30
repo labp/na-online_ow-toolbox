@@ -1,7 +1,7 @@
 // TODO license
 
-#ifndef WDATASETEMMBEMBOUNDARY_H_
-#define WDATASETEMMBEMBOUNDARY_H_
+#ifndef WLEMMBEMBOUNDARY_H_
+#define WLEMMBEMBOUNDARY_H_
 
 #include <vector>
 
@@ -10,25 +10,25 @@
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
-#include "WDataSetEMMEnumTypes.h"
+#include "core/dataHandler/WDataSetEMMEnumTypes.h"
 
 namespace LaBP
 {
-    class WDataSetEMMBemBoundary
+    class WLEMMBemBoundary
     {
     public:
         /**
          * Abbreviation for a shared pointer.
          */
-        typedef boost::shared_ptr< WDataSetEMMBemBoundary > SPtr;
+        typedef boost::shared_ptr< WLEMMBemBoundary > SPtr;
 
         /**
          * Abbreviation for const shared pointer.
          */
-        typedef boost::shared_ptr< const WDataSetEMMBemBoundary > ConstSPtr;
+        typedef boost::shared_ptr< const WLEMMBemBoundary > ConstSPtr;
 
-        WDataSetEMMBemBoundary();
-        ~WDataSetEMMBemBoundary();
+        WLEMMBemBoundary();
+        ~WLEMMBemBoundary();
 
         std::vector< WPosition >& getVertex() const;
         void setVertex( boost::shared_ptr< std::vector< WPosition > > vertex );
@@ -65,4 +65,4 @@ namespace LaBP
     };
 }
 
-#endif /* WDATASETEMMBEMBOUNDARY_H_ */
+#endif /* WLEMMBEMBOUNDARY_H_ */

@@ -388,7 +388,7 @@ void WMSourceReconstruction::handleSnrChanged()
 bool WMSourceReconstruction::inverseSolutionFromSubject( LaBP::WLDataSetEMM::SPtr emm, LaBP::WEModalityType::Enum modality )
 {
     debugLog() << "inverseSolutionFromSubject() called!";
-    LaBP::WDataSetEMMSubject::SPtr subject = emm->getSubject();
+    LaBP::WLEMMSubject::SPtr subject = emm->getSubject();
     if( !subject )
     {
         m_leadfieldStatus->set( WMSourceReconstruction::NO_MATRIX_LOADED, true );

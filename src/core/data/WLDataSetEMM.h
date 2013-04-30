@@ -38,8 +38,8 @@
 #include "core/util/WLTimeProfiler.h"
 
 #include "core/dataHandler/WDataSetEMMEMD.h"
-#include "core/dataHandler/WDataSetEMMSubject.h"
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"
+#include "WLEMMSubject.h"
 
 /**
  * LaBP developed content
@@ -84,7 +84,7 @@ namespace LaBP
         /**
          * TODO(kaehler): Comments
          */
-        WLDataSetEMM( LaBP::WDataSetEMMSubject::SPtr subject );
+        WLDataSetEMM( LaBP::WLEMMSubject::SPtr subject );
 
         /**
          * TODO(kaehler): Comments
@@ -243,14 +243,14 @@ namespace LaBP
          *
          * \return Experimenter as string
          */
-        WDataSetEMMSubject::SPtr getSubject();
+        WLEMMSubject::SPtr getSubject();
 
         /**
          * getter for subject
          *
          * \return Experimenter as string
          */
-        WDataSetEMMSubject::ConstSPtr getSubject() const;
+        WLEMMSubject::ConstSPtr getSubject() const;
 
         /**
          * setter for experimenter
@@ -271,7 +271,7 @@ namespace LaBP
          *
          * \param subject Experimenter as string
          */
-        void setSubject( WDataSetEMMSubject::SPtr subject );
+        void setSubject( WLEMMSubject::SPtr subject );
 
         /**
          * Returns the event/stimuli channels.
@@ -342,7 +342,7 @@ namespace LaBP
         /**
          * subject information
          */
-        WDataSetEMMSubject::SPtr m_subject;
+        WLEMMSubject::SPtr m_subject;
 
         /**
          * Event/Stimuli channels

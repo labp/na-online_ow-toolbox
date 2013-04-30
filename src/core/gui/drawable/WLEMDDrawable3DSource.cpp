@@ -28,8 +28,9 @@
 #include <core/gui/WCustomWidget.h>
 
 #include "core/dataHandler/WDataSetEMMSource.h"
-#include "core/dataHandler/WDataSetEMMSubject.h"
-#include "core/dataHandler/WDataSetEMMSurface.h"
+#include "core/data/WLEMMSubject.h"
+#include "core/data/WLEMMSurface.h"
+
 #include "WLEMDDrawable3DSource.h"
 
 namespace LaBP
@@ -85,7 +86,7 @@ namespace LaBP
 
         LaBP::WLDataSetEMM::ConstSPtr emm = m_emm;
         LaBP::WDataSetEMMSource::ConstSPtr emd = emm->getModality< const WDataSetEMMSource >( WEModalityType::SOURCE );
-        LaBP::WDataSetEMMSubject::ConstSPtr subject = emm->getSubject();
+        LaBP::WLEMMSubject::ConstSPtr subject = emm->getSubject();
 
         clearWidget();
 
@@ -94,8 +95,8 @@ namespace LaBP
             m_state->setTextureAttributeAndModes( 0, m_colorMap->getAsTexture() );
         }
 
-        osgAddSurface( subject->getSurface( WDataSetEMMSurface::Hemisphere::BOTH ).getVertex().get(),
-                        subject->getSurface( WDataSetEMMSurface::Hemisphere::BOTH ).getFaces() );
+        osgAddSurface( subject->getSurface( WLEMMSurface::Hemisphere::BOTH ).getVertex().get(),
+                        subject->getSurface( WLEMMSurface::Hemisphere::BOTH ).getFaces() );
 
         osgUpdateSurfaceColor( emd->getMatrix() );
 

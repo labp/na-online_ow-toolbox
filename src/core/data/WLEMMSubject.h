@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WDATASETEMMSUBJECT_H
-#define WDATASETEMMSUBJECT_H
+#ifndef WLEMMSUBJECT_H
+#define WLEMMSUBJECT_H
 
 #include <map>
 #include <string>
@@ -38,9 +38,9 @@
 #include "core/data/WLMatrixTypes.h"
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"
 
-#include "WDataSetEMMEnumTypes.h"
-#include "WDataSetEMMSurface.h"
-#include "WDataSetEMMBemBoundary.h"
+#include "core/dataHandler/WDataSetEMMEnumTypes.h"
+#include "WLEMMSurface.h"
+#include "WLEMMBemBoundary.h"
 
 /**
  *
@@ -50,28 +50,28 @@ namespace LaBP
     /**
      *
      */
-    class WDataSetEMMSubject
+    class WLEMMSubject
     {
     public:
         /**
          * Abbreviation for a shared pointer.
          */
-        typedef boost::shared_ptr< WDataSetEMMSubject > SPtr;
+        typedef boost::shared_ptr< WLEMMSubject > SPtr;
 
         /**
          * Abbreviation for const shared pointer.
          */
-        typedef boost::shared_ptr< const WDataSetEMMSubject > ConstSPtr;
+        typedef boost::shared_ptr< const WLEMMSubject > ConstSPtr;
 
         /**
          *
          */
-        WDataSetEMMSubject();
+        WLEMMSubject();
 
         /**
          *
          */
-        virtual ~WDataSetEMMSubject();
+        virtual ~WLEMMSubject();
 
         std::string getName();
         void setName( std::string name );
@@ -99,11 +99,11 @@ namespace LaBP
         std::vector< WVector3f >& getIsotrak();
         void setIsotrak( boost::shared_ptr< std::vector< WVector3f > > isotrak );
 
-        WDataSetEMMSurface& getSurface( WDataSetEMMSurface::Hemisphere::Enum hemisphere ) const;
-        void setSurface( WDataSetEMMSurface::SPtr surface );
+        WLEMMSurface& getSurface( WLEMMSurface::Hemisphere::Enum hemisphere ) const;
+        void setSurface( WLEMMSurface::SPtr surface );
 
-        std::vector< WDataSetEMMBemBoundary::SPtr >& getBemBoundaries() const;
-        void setBemBoundaries( boost::shared_ptr< std::vector< WDataSetEMMBemBoundary::SPtr > > bemBoundaries );
+        std::vector< WLEMMBemBoundary::SPtr >& getBemBoundaries() const;
+        void setBemBoundaries( boost::shared_ptr< std::vector< WLEMMBemBoundary::SPtr > > bemBoundaries );
 
         MatrixT& getLeadfield( WEModalityType::Enum modality ) const;
         void setLeadfield( WEModalityType::Enum modality, MatrixSPtr leadfield );
@@ -152,11 +152,11 @@ namespace LaBP
          */
         std::string m_hisId;
 
-        std::map< WDataSetEMMSurface::Hemisphere::Enum, WDataSetEMMSurface::SPtr > m_surfaces;
+        std::map< WLEMMSurface::Hemisphere::Enum, WLEMMSurface::SPtr > m_surfaces;
 
         std::map< WEModalityType::Enum, MatrixSPtr > m_leadfields;
 
-        boost::shared_ptr< std::vector< WDataSetEMMBemBoundary::SPtr > > m_bemBoundaries;
+        boost::shared_ptr< std::vector< WLEMMBemBoundary::SPtr > > m_bemBoundaries;
 
         // TODO(fuchs): felder ergänzen
         //      leadfield
@@ -165,4 +165,4 @@ namespace LaBP
     };
 }
 
-#endif  // WDATASETEMMSUBJECT_H
+#endif  // WLEMMSUBJECT_H

@@ -11,12 +11,12 @@
 #include <core/common/WAssert.h>
 #include <core/common/WIOTools.h>
 #include <core/common/WLogger.h>
+#include <core/dataHandler/exceptions/WDHNoSuchFile.h>
 
-#include "core/dataHandler/exceptions/WDHNoSuchFile.h"
-#include "core/dataHandler/WDataSetEMMBemBoundary.h"
+#include "core/data/WLEMMBemBoundary.h"
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"
-#include "core/dataHandler/WDataSetEMMSubject.h"
-#include "core/dataHandler/WDataSetEMMSurface.h"
+#include "core/data/WLEMMSubject.h"
+#include "core/data/WLEMMSurface.h"
 
 #include "WLReaderDIP.h"
 #include "WLReaderMatMab.h"
@@ -176,7 +176,7 @@ std::set< std::string > WLReaderExperiment::findBems()
     return volFiles;
 }
 
-bool WLReaderExperiment::readBem( std::string fname, LaBP::WDataSetEMMSubject::SPtr subject )
+bool WLReaderExperiment::readBem( std::string fname, LaBP::WLEMMSubject::SPtr subject )
 {
     wlog::debug( CLASS ) << "readBem() called!";
     path path( m_PATH_EXPERIMENT );
@@ -185,7 +185,7 @@ bool WLReaderExperiment::readBem( std::string fname, LaBP::WDataSetEMMSubject::S
     path /= m_FOLDER_BEM;
     path /= fname;
 
-    boost::shared_ptr< vector< LaBP::WDataSetEMMBemBoundary::SPtr > > bems( new vector< LaBP::WDataSetEMMBemBoundary::SPtr >() );
+    boost::shared_ptr< vector< LaBP::WLEMMBemBoundary::SPtr > > bems( new vector< LaBP::WLEMMBemBoundary::SPtr >() );
     WLReaderVOL reader( path.string() );
     WLReaderVOL::ReturnCode::Enum rc = reader.read( bems );
     if( rc == WLReaderVOL::ReturnCode::SUCCESS )
@@ -238,7 +238,7 @@ std::set< std::string > WLReaderExperiment::findSurfaceKinds()
     return surfaces;
 }
 
-bool WLReaderExperiment::readSourceSpace( std::string surfaceKind, LaBP::WDataSetEMMSubject::SPtr subject )
+bool WLReaderExperiment::readSourceSpace( std::string surfaceKind, LaBP::WLEMMSubject::SPtr subject )
 {
     wlog::debug( CLASS ) << "readBem() called!";
     bool rc = true;
@@ -252,13 +252,13 @@ bool WLReaderExperiment::readSourceSpace( std::string surfaceKind, LaBP::WDataSe
     lhFile /= m_LH + "." + surfaceKind + m_DIP;
     wlog::info( CLASS ) << "Read file: " << lhFile.string();
 
-    WDataSetEMMSurface::SPtr lhSurface( new WDataSetEMMSurface() );
+    WLEMMSurface::SPtr lhSurface( new WLEMMSurface() );
     WLReaderDIP lhReader( lhFile.string() );
     WLReaderDIP::ReturnCode::Enum lhReturn = lhReader.read( lhSurface );
     if( lhReturn == WLReaderDIP::ReturnCode::SUCCESS )
     {
         wlog::info( CLASS ) << "Successfully read left surface!";
-        lhSurface->setHemisphere( WDataSetEMMSurface::Hemisphere::LEFT );
+        lhSurface->setHemisphere( WLEMMSurface::Hemisphere::LEFT );
         subject->setSurface( lhSurface );
     }
     else
@@ -271,13 +271,13 @@ bool WLReaderExperiment::readSourceSpace( std::string surfaceKind, LaBP::WDataSe
     rhFile /= m_RH + "." + surfaceKind + m_DIP;
     wlog::info( CLASS ) << "Read file: " << rhFile.string();
 
-    WDataSetEMMSurface::SPtr rhSurface( new WDataSetEMMSurface() );
+    WLEMMSurface::SPtr rhSurface( new WLEMMSurface() );
     WLReaderDIP rhReader( rhFile.string() );
     WLReaderDIP::ReturnCode::Enum rhReturn = rhReader.read( rhSurface );
     if( rhReturn == WLReaderDIP::ReturnCode::SUCCESS )
     {
         wlog::info( CLASS ) << "Successfully read right surface!";
-        rhSurface->setHemisphere( WDataSetEMMSurface::Hemisphere::RIGHT );
+        rhSurface->setHemisphere( WLEMMSurface::Hemisphere::RIGHT );
         subject->setSurface( rhSurface );
     }
     else
@@ -292,8 +292,8 @@ bool WLReaderExperiment::readSourceSpace( std::string surfaceKind, LaBP::WDataSe
         return rc;
     }
     wlog::info( CLASS ) << "Combine left and right surface to BOTH.";
-    WDataSetEMMSurface::SPtr bothSurface( new WDataSetEMMSurface( *rhSurface ) );
-    bothSurface->setHemisphere( WDataSetEMMSurface::Hemisphere::BOTH );
+    WLEMMSurface::SPtr bothSurface( new WLEMMSurface( *rhSurface ) );
+    bothSurface->setHemisphere( WLEMMSurface::Hemisphere::BOTH );
     boost::shared_ptr< std::vector< WPosition > > bVertex = bothSurface->getVertex();
     std::vector< WVector3i >& bFaces = bothSurface->getFaces();
 
@@ -356,7 +356,7 @@ std::set< std::string > WLReaderExperiment::findLeadfieldTrials()
 }
 
 bool WLReaderExperiment::readLeadFields( std::string surface, std::string bemName, std::string trial,
-                LaBP::WDataSetEMMSubject::SPtr subject )
+                LaBP::WLEMMSubject::SPtr subject )
 {
     bool rc = true;
     rc &= readLeadField( surface, bemName, trial, m_EEG, subject );
@@ -365,7 +365,7 @@ bool WLReaderExperiment::readLeadFields( std::string surface, std::string bemNam
 }
 
 bool WLReaderExperiment::readLeadField( std::string surface, std::string bemName, std::string trial, std::string modality,
-                LaBP::WDataSetEMMSubject::SPtr subject )
+                LaBP::WLEMMSubject::SPtr subject )
 {
     wlog::debug( CLASS ) << "readLeadField() called!";
     bool rc = true;

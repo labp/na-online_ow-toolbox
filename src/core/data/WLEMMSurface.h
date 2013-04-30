@@ -1,7 +1,7 @@
 // TODO license
 
-#ifndef WDATASETEMMSURFACE_H_
-#define WDATASETEMMSURFACE_H_
+#ifndef WLEMMSURFACE_H_
+#define WLEMMSURFACE_H_
 
 #include <vector>
 
@@ -10,22 +10,22 @@
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
-#include "WDataSetEMMEnumTypes.h"
+#include "core/dataHandler/WDataSetEMMEnumTypes.h"
 
 namespace LaBP
 {
-    class WDataSetEMMSurface
+    class WLEMMSurface
     {
     public:
         /**
          * Abbreviation for a shared pointer.
          */
-        typedef boost::shared_ptr< WDataSetEMMSurface > SPtr;
+        typedef boost::shared_ptr< WLEMMSurface > SPtr;
 
         /**
          * Abbreviation for const shared pointer.
          */
-        typedef boost::shared_ptr< const WDataSetEMMSurface > ConstSPtr;
+        typedef boost::shared_ptr< const WLEMMSurface > ConstSPtr;
 
         struct Hemisphere
         {
@@ -35,14 +35,14 @@ namespace LaBP
             };
         };
 
-        WDataSetEMMSurface();
-        WDataSetEMMSurface( boost::shared_ptr< std::vector< WPosition > > vertex, WEUnit::Enum vertexUnit,
+        WLEMMSurface();
+        WLEMMSurface( boost::shared_ptr< std::vector< WPosition > > vertex, WEUnit::Enum vertexUnit,
                         WEExponent::Enum vertexExponent, boost::shared_ptr< std::vector< WVector3i > > faces,
                         Hemisphere::Enum hemisphere );
 
-        WDataSetEMMSurface( const WDataSetEMMSurface& surface );
+        WLEMMSurface( const WLEMMSurface& surface );
 
-        ~WDataSetEMMSurface();
+        ~WLEMMSurface();
 
         boost::shared_ptr< std::vector< WPosition > >  getVertex() const;
         void setVertex( boost::shared_ptr< std::vector< WPosition > > vertex );
@@ -71,4 +71,4 @@ namespace LaBP
     };
 }
 
-#endif /* WDATASETEMMSURFACE_H_ */
+#endif  // WLEMMSURFACE_H_

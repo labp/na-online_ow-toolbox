@@ -32,97 +32,97 @@
 
 #include "core/data/WLMatrixTypes.h"
 
-#include "WDataSetEMMEnumTypes.h"
-#include "WDataSetEMMSurface.h"
-#include "WDataSetEMMBemBoundary.h"
+#include "core/dataHandler/WDataSetEMMEnumTypes.h"
+#include "WLEMMSurface.h"
+#include "WLEMMBemBoundary.h"
 
-#include "WDataSetEMMSubject.h"
+#include "WLEMMSubject.h"
 
-LaBP::WDataSetEMMSubject::WDataSetEMMSubject()
+LaBP::WLEMMSubject::WLEMMSubject()
 {
     m_isotrak.reset( new std::vector< WVector3f >() );
-    m_bemBoundaries.reset( new std::vector< WDataSetEMMBemBoundary::SPtr >() );
+    m_bemBoundaries.reset( new std::vector< WLEMMBemBoundary::SPtr >() );
 }
 
-LaBP::WDataSetEMMSubject::~WDataSetEMMSubject()
+LaBP::WLEMMSubject::~WLEMMSubject()
 {
     // TODO(kaehler): Auto-generated destructor stub
 }
 
-std::string LaBP::WDataSetEMMSubject::getName()
+std::string LaBP::WLEMMSubject::getName()
 {
     return m_name;
 }
-boost::shared_ptr< boost::gregorian::date > LaBP::WDataSetEMMSubject::getBirthday()
+boost::shared_ptr< boost::gregorian::date > LaBP::WLEMMSubject::getBirthday()
 {
     return m_birthday;
 }
-LaBP::WESex::Enum LaBP::WDataSetEMMSubject::getSex()
+LaBP::WESex::Enum LaBP::WLEMMSubject::getSex()
 {
     return m_sex;
 }
-LaBP::WEHand::Enum LaBP::WDataSetEMMSubject::getHand()
+LaBP::WEHand::Enum LaBP::WLEMMSubject::getHand()
 {
     return m_hand;
 }
-float LaBP::WDataSetEMMSubject::getHeight()
+float LaBP::WLEMMSubject::getHeight()
 {
     return m_height;
 }
-float LaBP::WDataSetEMMSubject::getWeight()
+float LaBP::WLEMMSubject::getWeight()
 {
     return m_weight;
 }
-std::string LaBP::WDataSetEMMSubject::getComment()
+std::string LaBP::WLEMMSubject::getComment()
 {
     return m_comment;
 }
-std::string LaBP::WDataSetEMMSubject::getHisId()
+std::string LaBP::WLEMMSubject::getHisId()
 {
     return m_hisId;
 }
 
-void LaBP::WDataSetEMMSubject::setHeight( float height )
+void LaBP::WLEMMSubject::setHeight( float height )
 {
     m_height = height;
 }
-void LaBP::WDataSetEMMSubject::setWeight( float weight )
+void LaBP::WLEMMSubject::setWeight( float weight )
 {
     m_weight = weight;
 }
-void LaBP::WDataSetEMMSubject::setComment( std::string comment )
+void LaBP::WLEMMSubject::setComment( std::string comment )
 {
     m_comment = comment;
 }
-void LaBP::WDataSetEMMSubject::setHisId( std::string hisId )
+void LaBP::WLEMMSubject::setHisId( std::string hisId )
 {
     m_hisId = hisId;
 }
 
-void LaBP::WDataSetEMMSubject::setSex( LaBP::WESex::Enum sex )
+void LaBP::WLEMMSubject::setSex( LaBP::WESex::Enum sex )
 {
     m_sex = sex;
 }
-void LaBP::WDataSetEMMSubject::setHand( LaBP::WEHand::Enum hand )
+void LaBP::WLEMMSubject::setHand( LaBP::WEHand::Enum hand )
 {
     m_hand = hand;
 }
-void LaBP::WDataSetEMMSubject::setName( std::string name )
+void LaBP::WLEMMSubject::setName( std::string name )
 {
     m_name = name;
 }
 
-std::vector< WVector3f >& LaBP::WDataSetEMMSubject::getIsotrak()
+std::vector< WVector3f >& LaBP::WLEMMSubject::getIsotrak()
 {
     return *m_isotrak;
 }
 
-void LaBP::WDataSetEMMSubject::setIsotrak( boost::shared_ptr< std::vector< WVector3f > > isotrak )
+void LaBP::WLEMMSubject::setIsotrak( boost::shared_ptr< std::vector< WVector3f > > isotrak )
 {
     m_isotrak = isotrak;
 }
 
-LaBP::WDataSetEMMSurface& LaBP::WDataSetEMMSubject::getSurface( WDataSetEMMSurface::Hemisphere::Enum hemisphere ) const
+LaBP::WLEMMSurface& LaBP::WLEMMSubject::getSurface( WLEMMSurface::Hemisphere::Enum hemisphere ) const
 {
     if( m_surfaces.find( hemisphere ) != m_surfaces.end() )
     {
@@ -134,12 +134,12 @@ LaBP::WDataSetEMMSurface& LaBP::WDataSetEMMSubject::getSurface( WDataSetEMMSurfa
     }
 }
 
-void LaBP::WDataSetEMMSubject::setSurface( boost::shared_ptr< WDataSetEMMSurface > surface )
+void LaBP::WLEMMSubject::setSurface( boost::shared_ptr< WLEMMSurface > surface )
 {
     m_surfaces[surface->getHemisphere()] = surface;
 }
 
-LaBP::MatrixT& LaBP::WDataSetEMMSubject::getLeadfield( WEModalityType::Enum modality ) const
+LaBP::MatrixT& LaBP::WLEMMSubject::getLeadfield( WEModalityType::Enum modality ) const
 {
     if( m_leadfields.find( modality ) != m_leadfields.end() )
     {
@@ -151,18 +151,18 @@ LaBP::MatrixT& LaBP::WDataSetEMMSubject::getLeadfield( WEModalityType::Enum moda
     }
 }
 
-void LaBP::WDataSetEMMSubject::setLeadfield( WEModalityType::Enum modality, MatrixSPtr leadfield )
+void LaBP::WLEMMSubject::setLeadfield( WEModalityType::Enum modality, MatrixSPtr leadfield )
 {
     m_leadfields[modality] = leadfield;
 }
 
-std::vector< LaBP::WDataSetEMMBemBoundary::SPtr >& LaBP::WDataSetEMMSubject::getBemBoundaries() const
+std::vector< LaBP::WLEMMBemBoundary::SPtr >& LaBP::WLEMMSubject::getBemBoundaries() const
 {
     return *m_bemBoundaries;
 }
 
-void LaBP::WDataSetEMMSubject::setBemBoundaries(
-                boost::shared_ptr< std::vector< boost::shared_ptr< LaBP::WDataSetEMMBemBoundary > > > bemBoundaries )
+void LaBP::WLEMMSubject::setBemBoundaries(
+                boost::shared_ptr< std::vector< boost::shared_ptr< LaBP::WLEMMBemBoundary > > > bemBoundaries )
 {
     m_bemBoundaries = bemBoundaries;
 }

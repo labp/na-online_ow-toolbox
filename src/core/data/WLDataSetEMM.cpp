@@ -39,7 +39,7 @@
 #include "core/dataHandler/WDataSetEMMEEG.h"
 #include "core/dataHandler/WDataSetEMMEMD.h"
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"
-#include "core/dataHandler/WDataSetEMMSubject.h"
+#include "WLEMMSubject.h"
 
 #include "WLDataSetEMM.h"
 
@@ -50,11 +50,11 @@ LaBP::WLDataSetEMM::WLDataSetEMM() :
                 WDataSet()
 {
     m_eventChannels.reset( new std::vector< std::vector< int > >() );
-    m_subject.reset( new LaBP::WDataSetEMMSubject() );
+    m_subject.reset( new LaBP::WLEMMSubject() );
     m_profiler.reset( new LaBP::WLTimeProfiler( getName(), "lifetime" ) );
 }
 
-LaBP::WLDataSetEMM::WLDataSetEMM( boost::shared_ptr< LaBP::WDataSetEMMSubject > subject ) :
+LaBP::WLDataSetEMM::WLDataSetEMM( boost::shared_ptr< LaBP::WLEMMSubject > subject ) :
                 WDataSet()
 {
     m_subject = subject;
@@ -188,12 +188,12 @@ std::string LaBP::WLDataSetEMM::getExpDescription() const
     return m_expDescription;
 }
 
-LaBP::WDataSetEMMSubject::SPtr LaBP::WLDataSetEMM::getSubject()
+LaBP::WLEMMSubject::SPtr LaBP::WLDataSetEMM::getSubject()
 {
     return m_subject;
 }
 
-LaBP::WDataSetEMMSubject::ConstSPtr LaBP::WLDataSetEMM::getSubject() const
+LaBP::WLEMMSubject::ConstSPtr LaBP::WLDataSetEMM::getSubject() const
 {
     return m_subject;
 }
@@ -294,7 +294,7 @@ void LaBP::WLDataSetEMM::setExpDescription( std::string expDescription )
     m_expDescription = expDescription;
 }
 
-void LaBP::WLDataSetEMM::setSubject( boost::shared_ptr< WDataSetEMMSubject > subject )
+void LaBP::WLDataSetEMM::setSubject( boost::shared_ptr< WLEMMSubject > subject )
 {
     m_subject = subject;
 }

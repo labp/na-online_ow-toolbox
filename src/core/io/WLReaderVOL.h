@@ -33,8 +33,8 @@
 
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
-#include "core/dataHandler/WDataSetEMMSubject.h"
-#include "core/dataHandler/WDataSetEMMBemBoundary.h"
+#include "core/data/WLEMMSubject.h"
+#include "core/data/WLEMMBemBoundary.h"
 #include "core/io/WLReader.h"
 
 namespace LaBP
@@ -54,15 +54,15 @@ namespace LaBP
         }
         ;
 
-        ReturnCode::Enum read( boost::shared_ptr< std::vector< boost::shared_ptr< WDataSetEMMBemBoundary > > > boundaries );
+        ReturnCode::Enum read( boost::shared_ptr< std::vector< boost::shared_ptr< WLEMMBemBoundary > > > boundaries );
 
     private:
         ReturnCode::Enum readNumBoundaries( std::string& line, size_t& count );
         ReturnCode::Enum readConductUnit( std::string& line, WEUnit::Enum& unit );
         ReturnCode::Enum readConductivities( std::ifstream& ifs,
-                        std::vector< boost::shared_ptr< WDataSetEMMBemBoundary > >& boundaries );
+                        std::vector< boost::shared_ptr< WLEMMBemBoundary > >& boundaries );
         ReturnCode::Enum readBndFiles( std::ifstream& ifs, std::string& line,
-                        std::vector< boost::shared_ptr< WDataSetEMMBemBoundary > >& boundaries );
+                        std::vector< boost::shared_ptr< WLEMMBemBoundary > >& boundaries );
     };
 }
 #endif /* WLREADERVOL_H_ */
