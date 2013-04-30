@@ -30,7 +30,7 @@
 
 #include "core/data/WLMatrixTypes.h"
 #include "core/data/emd/WLEMD.h"
-#include "core/dataHandler/WDataSetEMMSource.h"
+#include "core/data/emd/WLEMDSource.h"
 
 #include "core/util/WLTimeProfiler.h"
 
@@ -46,7 +46,7 @@ WSourceReconstructionCpu::~WSourceReconstructionCpu()
 {
 }
 
-LaBP::WDataSetEMMSource::SPtr WSourceReconstructionCpu::reconstruct( LaBP::WLEMD::ConstSPtr emd,
+LaBP::WLEMDSource::SPtr WSourceReconstructionCpu::reconstruct( LaBP::WLEMD::ConstSPtr emd,
                 LaBP::WLTimeProfiler::SPtr profiler )
 {
     if( !m_inverse )
@@ -84,7 +84,7 @@ LaBP::WDataSetEMMSource::SPtr WSourceReconstructionCpu::reconstruct( LaBP::WLEMD
     matMulProfiler->stopAndLog();
 
     // const LaBP::WDataSetEMMSource::SPtr emdOut = WSourceReconstruction::createEMDSource( emd, S );
-    const LaBP::WDataSetEMMSource::SPtr emdOut( new LaBP::WDataSetEMMSource( *emd ) );
+    const LaBP::WLEMDSource::SPtr emdOut( new LaBP::WLEMDSource( *emd ) );
     emdOut->setMatrix( S );
 
     if( profiler )

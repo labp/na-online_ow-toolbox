@@ -14,28 +14,28 @@
 namespace LaBP
 {
 
-    class WDataSetEMMSource: public LaBP::WLEMD
+    class WLEMDSource: public LaBP::WLEMD
     {
     public:
         /**
          * Abbreviation for a shared pointer.
          */
-        typedef boost::shared_ptr< WDataSetEMMSource > SPtr;
+        typedef boost::shared_ptr< WLEMDSource > SPtr;
 
         /**
          * Abbreviation for const shared pointer.
          */
-        typedef boost::shared_ptr< const WDataSetEMMSource > ConstSPtr;
+        typedef boost::shared_ptr< const WLEMDSource > ConstSPtr;
 
         static const std::string CLASS;
 
-        WDataSetEMMSource();
+        WLEMDSource();
 
-        explicit WDataSetEMMSource( const WDataSetEMMSource& source );
+        explicit WLEMDSource( const WLEMDSource& source );
 
-        explicit WDataSetEMMSource( const WLEMD& emd );
+        explicit WLEMDSource( const WLEMD& emd );
 
-        virtual ~WDataSetEMMSource();
+        virtual ~WLEMDSource();
 
         virtual WLEMD::SPtr clone() const;
 

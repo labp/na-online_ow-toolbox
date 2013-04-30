@@ -28,7 +28,7 @@
 #include "core/data/WLDataSetEMM.h"
 #include "core/data/emd/WLEMD.h"
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"
-#include "core/dataHandler/WDataSetEMMSource.h"
+#include "core/data/emd/WLEMDSource.h"
 
 #include "WLBoundCalculator.h"
 
@@ -49,7 +49,7 @@ namespace LaBP
         if( modality == LaBP::WEModalityType::SOURCE )
         {
             LaBP::WEModalityType::Enum origin_modality =
-                            emm->getModality< const LaBP::WDataSetEMMSource >( modality )->getOriginModalityType();
+                            emm->getModality< const LaBP::WLEMDSource >( modality )->getOriginModalityType();
 
             return getMax( emm->getModality( origin_modality )->getData() );
         }
@@ -64,7 +64,7 @@ namespace LaBP
     {
         if( modality == LaBP::WEModalityType::SOURCE )
         {
-            return getMax( emm->getModality< const LaBP::WDataSetEMMSource >( modality )->getMatrix() );
+            return getMax( emm->getModality< const LaBP::WLEMDSource >( modality )->getMatrix() );
         }
         else
         {

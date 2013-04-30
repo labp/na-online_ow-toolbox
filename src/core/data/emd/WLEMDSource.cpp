@@ -9,29 +9,27 @@
 
 #include "core/data/WLMatrixTypes.h"
 
-#include "core/data/emd/WLEMD.h"
-#include "WDataSetEMMEnumTypes.h"
-#include "WDataSetEMMSource.h"
-
-
+#include "core/dataHandler/WDataSetEMMEnumTypes.h"
+#include "WLEMD.h"
+#include "WLEMDSource.h"
 
 namespace LaBP
 {
 
-    const std::string WDataSetEMMSource::CLASS = "WDataSetEMMSource";
+    const std::string WLEMDSource::CLASS = "WDataSetEMMSource";
 
-    WDataSetEMMSource::WDataSetEMMSource() :
+    WLEMDSource::WLEMDSource() :
                     WLEMD()
     {
     }
 
-    WDataSetEMMSource::WDataSetEMMSource( const WDataSetEMMSource& source ) :
+    WLEMDSource::WLEMDSource( const WLEMDSource& source ) :
                     WLEMD( source )
     {
         m_originModalityType = source.m_originModalityType;
     }
 
-    WDataSetEMMSource::WDataSetEMMSource( const WLEMD& emd ) :
+    WLEMDSource::WLEMDSource( const WLEMD& emd ) :
                     WLEMD( emd )
     {
         // C++11 supports "delegating constructors". So default initialization could be moved to default constructor.
@@ -39,18 +37,18 @@ namespace LaBP
         m_originModalityType = emd.getModalityType();
     }
 
-    WDataSetEMMSource::~WDataSetEMMSource()
+    WLEMDSource::~WLEMDSource()
     {
     }
 
-    WEModalityType::Enum WDataSetEMMSource::getModalityType() const
+    WEModalityType::Enum WLEMDSource::getModalityType() const
     {
         return WEModalityType::SOURCE;
     }
 
-    boost::shared_ptr< WDataSetEMMSource::DataT > WDataSetEMMSource::convertMatrix( const MatrixT& matrix )
+    boost::shared_ptr< WLEMDSource::DataT > WLEMDSource::convertMatrix( const MatrixT& matrix )
     {
-        boost::shared_ptr< WDataSetEMMSource::DataT > data( new DataT() );
+        boost::shared_ptr< WLEMDSource::DataT > data( new DataT() );
         data->reserve( matrix.rows() );
         data->resize( matrix.rows() );
 
@@ -66,46 +64,46 @@ namespace LaBP
         return data;
     }
 
-    WLEMD::SPtr WDataSetEMMSource::clone() const
+    WLEMD::SPtr WLEMDSource::clone() const
     {
-        WDataSetEMMSource::SPtr emd( new WDataSetEMMSource( *this ) );
+        WLEMDSource::SPtr emd( new WLEMDSource( *this ) );
         return emd;
     }
 
-    WLEMD::DataT& WDataSetEMMSource::getData() const
+    WLEMD::DataT& WLEMDSource::getData() const
     {
         wlog::warn( CLASS )
                         << "Do not use getData() to retrieve source reconstruction data! Due to performance issues, use getMatrix() instead.";
         return *m_data;
     }
 
-    size_t WDataSetEMMSource::getNrChans() const
+    size_t WLEMDSource::getNrChans() const
     {
         return static_cast< size_t >( m_matrix->rows() );
     }
 
-    size_t WDataSetEMMSource::getSamplesPerChan() const
+    size_t WLEMDSource::getSamplesPerChan() const
     {
         return static_cast< size_t >( m_matrix->cols() );
     }
 
-    MatrixT& WDataSetEMMSource::getMatrix() const
+    MatrixT& WLEMDSource::getMatrix() const
     {
         return *m_matrix;
     }
 
-    void WDataSetEMMSource::setMatrix( boost::shared_ptr< MatrixT > matrix )
+    void WLEMDSource::setMatrix( boost::shared_ptr< MatrixT > matrix )
     {
         m_data.reset();
         m_matrix = matrix;
     }
 
-    LaBP::WEModalityType::Enum WDataSetEMMSource::getOriginModalityType() const
+    LaBP::WEModalityType::Enum WLEMDSource::getOriginModalityType() const
     {
         return m_originModalityType;
     }
 
-    void WDataSetEMMSource::setOriginModalityType( LaBP::WEModalityType::Enum modality )
+    void WLEMDSource::setOriginModalityType( LaBP::WEModalityType::Enum modality )
     {
         m_originModalityType = modality;
     }

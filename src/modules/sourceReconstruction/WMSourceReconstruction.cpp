@@ -36,7 +36,7 @@
 #include "core/data/WLDataSetEMM.h"
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"
 #include "core/data/emd/WLEMD.h"
-#include "core/dataHandler/WDataSetEMMSource.h"
+#include "core/data/emd/WLEMDSource.h"
 #include "core/data/WLMatrixTypes.h"
 
 // Input & output connectors
@@ -196,7 +196,7 @@ void WMSourceReconstruction::moduleMain()
 
     LaBP::WLDataSetEMM::SPtr emmIn;
     LaBP::WLDataSetEMM::SPtr emmOut;
-    LaBP::WDataSetEMMSource::SPtr sourceOut;
+    LaBP::WLEMDSource::SPtr sourceOut;
 
     ready(); // signal ready state
 

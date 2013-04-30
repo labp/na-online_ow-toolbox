@@ -31,7 +31,7 @@
 
 #include "core/data/WLDataSetEMM.h"
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"
-#include "core/dataHandler/WDataSetEMMSource.h"
+#include "core/data/emd/WLEMDSource.h"
 
 #include "WLEMDDrawable2DSingleChannel.h"
 #include "WLEMDDrawable2DSingleSource.h"
@@ -54,7 +54,7 @@ namespace LaBP
         bool success = false;
         if( emm->hasModality( WEModalityType::SOURCE ) )
         {
-            WDataSetEMMSource::ConstSPtr emd = emm->getModality< WDataSetEMMSource >( WEModalityType::SOURCE );
+            WLEMDSource::ConstSPtr emd = emm->getModality< WLEMDSource >( WEModalityType::SOURCE );
             if( emd )
             {
                 setModality( emd->getOriginModalityType() );

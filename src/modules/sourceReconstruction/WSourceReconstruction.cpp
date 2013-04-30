@@ -36,7 +36,7 @@
 #include <core/common/WLogger.h>
 
 #include "core/data/emd/WLEMD.h"
-#include "core/dataHandler/WDataSetEMMSource.h"
+#include "core/data/emd/WLEMDSource.h"
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"
 
 #include "WSourceReconstruction.h"
@@ -226,11 +226,11 @@ bool WSourceReconstruction::calculateInverseSolution( const LaBP::MatrixT& noise
     return true;
 }
 
-LaBP::WDataSetEMMSource::SPtr WSourceReconstruction::createEMDSource( LaBP::WLEMD::ConstSPtr emd,
+LaBP::WLEMDSource::SPtr WSourceReconstruction::createEMDSource( LaBP::WLEMD::ConstSPtr emd,
                 const LaBP::MatrixT matrix )
 {
-    boost::shared_ptr< LaBP::WLEMD::DataT > data = LaBP::WDataSetEMMSource::convertMatrix( matrix );
-    LaBP::WDataSetEMMSource::SPtr sourceEmd( new LaBP::WDataSetEMMSource( *emd ) );
+    boost::shared_ptr< LaBP::WLEMD::DataT > data = LaBP::WLEMDSource::convertMatrix( matrix );
+    LaBP::WLEMDSource::SPtr sourceEmd( new LaBP::WLEMDSource( *emd ) );
     sourceEmd->setData( data );
     return sourceEmd;
 }

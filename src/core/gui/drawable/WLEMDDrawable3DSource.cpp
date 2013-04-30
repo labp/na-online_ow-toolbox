@@ -27,9 +27,9 @@
 
 #include <core/gui/WCustomWidget.h>
 
-#include "core/dataHandler/WDataSetEMMSource.h"
 #include "core/data/WLEMMSubject.h"
 #include "core/data/WLEMMSurface.h"
+#include "core/data/emd/WLEMDSource.h"
 
 #include "WLEMDDrawable3DSource.h"
 
@@ -85,7 +85,7 @@ namespace LaBP
         }
 
         LaBP::WLDataSetEMM::ConstSPtr emm = m_emm;
-        LaBP::WDataSetEMMSource::ConstSPtr emd = emm->getModality< const WDataSetEMMSource >( WEModalityType::SOURCE );
+        LaBP::WLEMDSource::ConstSPtr emd = emm->getModality< const WLEMDSource >( WEModalityType::SOURCE );
         LaBP::WLEMMSubject::ConstSPtr subject = emm->getSubject();
 
         clearWidget();

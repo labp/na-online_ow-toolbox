@@ -31,7 +31,7 @@
 
 #include "core/data/WLMatrixTypes.h"
 #include "core/data/emd/WLEMD.h"
-#include "core/dataHandler/WDataSetEMMSource.h"
+#include "core/data/emd/WLEMDSource.h"
 
 #include "core/util/WLTimeProfiler.h"
 
@@ -57,7 +57,7 @@ public:
 
     virtual bool calculateInverseSolution( const LaBP::MatrixT& noiseCov, const LaBP::MatrixT& dataCov, double snr );
 
-    virtual LaBP::WDataSetEMMSource::SPtr reconstruct( LaBP::WLEMD::ConstSPtr emd, LaBP::WLTimeProfiler::SPtr profiler );
+    virtual LaBP::WLEMDSource::SPtr reconstruct( LaBP::WLEMD::ConstSPtr emd, LaBP::WLTimeProfiler::SPtr profiler );
 
 private:
     LaBP::MatrixElementT* m_A_dev;

@@ -41,7 +41,7 @@
 // Input & output data
 #include "core/data/WLDataSetEMM.h"
 #include "core/data/emd/WLEMD.h"
-#include "core/dataHandler/WDataSetEMMSource.h"
+#include "core/data/emd/WLEMDSource.h"
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"
 
 #include "core/util/WLTimeProfiler.h"
@@ -265,7 +265,7 @@ bool WMEmdWriter::write( std::string fname, LaBP::WLEMD::ConstSPtr emd )
 
     if( emd->getModalityType() == LaBP::WEModalityType::SOURCE )
     {
-        LaBP::MatrixT& data = emd->getAs< const LaBP::WDataSetEMMSource >()->getMatrix();
+        LaBP::MatrixT& data = emd->getAs< const LaBP::WLEMDSource >()->getMatrix();
         const LaBP::MatrixT::Index channels = data.rows();
         const LaBP::MatrixT::Index samples = data.cols();
         LaBP::MatrixT::Scalar value;

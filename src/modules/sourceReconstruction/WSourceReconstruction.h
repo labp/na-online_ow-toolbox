@@ -33,7 +33,7 @@
 
 #include "core/data/WLMatrixTypes.h"
 #include "core/data/emd/WLEMD.h"
-#include "core/dataHandler/WDataSetEMMSource.h"
+#include "core/data/emd/WLEMDSource.h"
 
 #include "core/util/WLTimeProfiler.h"
 
@@ -88,10 +88,10 @@ public:
 
     bool hasInverse() const;
 
-    virtual LaBP::WDataSetEMMSource::SPtr reconstruct( LaBP::WLEMD::ConstSPtr emd,
+    virtual LaBP::WLEMDSource::SPtr reconstruct( LaBP::WLEMD::ConstSPtr emd,
                     LaBP::WLTimeProfiler::SPtr profiler ) = 0;
 
-    static LaBP::WDataSetEMMSource::SPtr createEMDSource( LaBP::WLEMD::ConstSPtr emd, const LaBP::MatrixT matrix );
+    static LaBP::WLEMDSource::SPtr createEMDSource( LaBP::WLEMD::ConstSPtr emd, const LaBP::MatrixT matrix );
 
     static bool averageReference( LaBP::WLEMD::DataT& dataOut, const LaBP::WLEMD::DataT& dataIn );
 

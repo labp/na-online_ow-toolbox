@@ -36,7 +36,7 @@
 
 #include "core/data/WLMatrixTypes.h"
 #include "core/data/emd/WLEMD.h"
-#include "core/dataHandler/WDataSetEMMSource.h"
+#include "core/data/emd/WLEMDSource.h"
 
 #include "core/util/WLTimeProfiler.h"
 
@@ -75,7 +75,7 @@ bool WSourceReconstructionCuda::calculateInverseSolution( const LaBP::MatrixT& n
     return m_inverseChanged;
 }
 
-LaBP::WDataSetEMMSource::SPtr WSourceReconstructionCuda::reconstruct( LaBP::WLEMD::ConstSPtr emd,
+LaBP::WLEMDSource::SPtr WSourceReconstructionCuda::reconstruct( LaBP::WLEMD::ConstSPtr emd,
                 LaBP::WLTimeProfiler::SPtr profiler )
 {
     wlog::debug( CLASS ) << "reconstruct() called!";
@@ -197,7 +197,7 @@ LaBP::WDataSetEMMSource::SPtr WSourceReconstructionCuda::reconstruct( LaBP::WLEM
     // free( C_host ); TODO(pieloth): Do not free, because point of return value or copy out??? (depends on eigen impl. check!)
 
     // const LaBP::WDataSetEMMSource::SPtr emdOut = WSourceReconstruction::createEMDSource( emd, S );
-    const LaBP::WDataSetEMMSource::SPtr emdOut( new LaBP::WDataSetEMMSource( *emd ) ); // = WSourceReconstruction::createEMDSource( emd, S );
+    const LaBP::WLEMDSource::SPtr emdOut( new LaBP::WLEMDSource( *emd ) ); // = WSourceReconstruction::createEMDSource( emd, S );
     emdOut->setMatrix( S );
 
     if( profiler )
