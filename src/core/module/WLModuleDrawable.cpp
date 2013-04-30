@@ -43,7 +43,7 @@
 #include "core/gui/drawable/WLEMDDrawable2DMultiChannel.h"
 #include "core/gui/drawable/WLEMDDrawable3D.h"
 #include "core/gui/events/WLMarkTimePositionHandler.h"
-#include "core/graphicsEngine/WLColorMap.h"
+#include "core/gui/colorMap/WLColorMap.h"
 
 #include "WLModuleDrawable.h"
 

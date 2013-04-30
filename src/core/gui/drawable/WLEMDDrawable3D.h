@@ -39,7 +39,7 @@
 #include <core/gui/WCustomWidget.h>
 
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"
-#include "core/graphicsEngine/WLColorMap.h"
+#include "core/gui/colorMap/WLColorMap.h"
 
 #include "WLEMDDrawable.h"
 

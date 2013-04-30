@@ -44,7 +44,7 @@
 #include <core/graphicsEngine/WGEGeodeUtils.h>
 
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"
-#include "core/graphicsEngine/WLColorMap.h"
+#include "core/gui/colorMap/WLColorMap.h"
 
 #include "WLEMDDrawable.h"
 #include "WLEMDDrawable3DEEG.h"

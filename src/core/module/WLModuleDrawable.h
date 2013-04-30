@@ -38,7 +38,7 @@
 #include "core/gui/drawable/WLEMDDrawable3D.h"
 
 
-#include "core/graphicsEngine/WLColorMap.h"
+#include "core/gui/colorMap/WLColorMap.h"
 
 /**
  * Virtual Implementation of WModule to let our modules use a VIEW including just 4 lines! of code
