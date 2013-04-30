@@ -1,7 +1,7 @@
 // TODO doc & license
 
-#ifndef WDATASETEMMSOURCE_H_
-#define WDATASETEMMSOURCE_H_
+#ifndef WLEMDSOURCE_H_
+#define WLEMDSOURCE_H_
 
 #include <string>
 
@@ -63,4 +63,4 @@ namespace LaBP
     };
 
 } /* namespace LaBP */
-#endif /* WDATASETEMMSOURCE_H_ */
+#endif  // WLEMDSOURCE_H_

@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WDATASETEMMEEG_H
-#define WDATASETEMMEEG_H
+#ifndef WLEMDEEG_H
+#define WLEMDEEG_H
 
 #include <vector>
 
@@ -103,4 +103,4 @@ namespace LaBP
         LaBP::WEPolarityType::Enum m_polarityType;
     };
 }
-#endif  // WDATASETEMMEEG_H
+#endif  // WLEMDEEG_H

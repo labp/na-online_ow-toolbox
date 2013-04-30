@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WDATASETEMMECG_H
-#define WDATASETEMMECG_H
+#ifndef WLEMDECG_H
+#define WLEMDECG_H
 
 #include <boost/shared_ptr.hpp>
 
@@ -85,4 +85,4 @@ namespace LaBP
         LaBP::WEPolarityType::Enum m_polarityType;
     };
 }
-#endif  // WDATASETEMMECG_H
+#endif  // WLEMDECG_H

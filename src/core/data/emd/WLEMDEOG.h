@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WDATASETEMMEOG_H
-#define WDATASETEMMEOG_H
+#ifndef WLEMDEOG_H
+#define WLEMDEOG_H
 
 #include <boost/shared_ptr.hpp>
 
@@ -66,4 +66,4 @@ namespace LaBP
     };
 }
 
-#endif  // WDATASETEMMEOG_H
+#endif  // WLEMDEOG_H

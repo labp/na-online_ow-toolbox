@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WDATASETEMMPCA_H
-#define WDATASETEMMPCA_H
+#ifndef WLEMDPCA_H
+#define WLEMDPCA_H
 
 #include <boost/shared_ptr.hpp>
 #include <Eigen/Core>
@@ -80,4 +80,4 @@ namespace LaBP
         WLEMD::SPtr m_preprocessed_data;
     };
 }
-#endif  // WDATASETEMMPCA_H
+#endif  // WLEMDPCA_H
