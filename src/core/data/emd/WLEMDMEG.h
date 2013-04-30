@@ -30,8 +30,9 @@
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
-#include "core/data/emd/WLEMD.h"
-#include "core/dataHandler/WDataSetEMMEnumTypes.h"
+#include "core/data/WLEMMEnumTypes.h"
+
+#include "WLEMD.h"
 
 namespace LaBP
 {

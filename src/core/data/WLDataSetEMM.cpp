@@ -37,7 +37,7 @@
 #include <core/dataHandler/WDataSet.h>
 
 #include "core/data/emd/WLEMD.h"
-#include "core/dataHandler/WDataSetEMMEnumTypes.h"
+#include "WLEMMEnumTypes.h"
 #include "WLEMMSubject.h"
 
 #include "WLDataSetEMM.h"

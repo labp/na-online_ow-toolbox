@@ -35,7 +35,7 @@
 
 #include "core/data/WLMatrixTypes.h"
 #include "core/data/WLDataSetEMM.h"
-#include "core/dataHandler/WDataSetEMMEnumTypes.h"
+#include "core/data/WLEMMEnumTypes.h"
 
 #include "core/gui/drawable/WLEMDDrawable.h"
 #include "core/gui/drawable/WLEMDDrawable2D.h"

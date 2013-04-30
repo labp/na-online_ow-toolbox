@@ -40,12 +40,12 @@
 
 #include "core/data/WLDataSetEMM.h"
 #include "core/data/WLEMMSubject.h"
+#include "core/data/WLEMMEnumTypes.h"
 #include "core/data/emd/WLEMD.h"
 #include "core/data/emd/WLEMDECG.h"
 #include "core/data/emd/WLEMDEEG.h"
 #include "core/data/emd/WLEMDEOG.h"
 #include "core/data/emd/WLEMDMEG.h"
-#include "core/dataHandler/WDataSetEMMEnumTypes.h"
 
 #include "WLReaderFIFF.h"
 

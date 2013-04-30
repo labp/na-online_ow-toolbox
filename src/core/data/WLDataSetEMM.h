@@ -38,7 +38,7 @@
 #include "core/util/WLTimeProfiler.h"
 
 #include "core/data/emd/WLEMD.h"
-#include "core/dataHandler/WDataSetEMMEnumTypes.h"
+#include "WLEMMEnumTypes.h"
 #include "WLEMMSubject.h"
 
 /**

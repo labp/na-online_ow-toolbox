@@ -40,7 +40,7 @@
 
 #include "core/util/WLRingBuffer.h"
 #include "core/data/emd/WLEMD.h"
-#include "core/dataHandler/WDataSetEMMEnumTypes.h"
+#include "core/data/WLEMMEnumTypes.h"
 
 #include "WLEMDDrawable.h"
 

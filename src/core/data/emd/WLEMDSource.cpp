@@ -9,7 +9,7 @@
 
 #include "core/data/WLMatrixTypes.h"
 
-#include "core/dataHandler/WDataSetEMMEnumTypes.h"
+#include "core/data/WLEMMEnumTypes.h"
 #include "WLEMD.h"
 #include "WLEMDSource.h"
 

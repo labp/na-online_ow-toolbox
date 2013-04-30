@@ -43,7 +43,7 @@
 #include <core/graphicsEngine/WGEUtils.h>
 #include <core/graphicsEngine/WGEGeodeUtils.h>
 
-#include "core/dataHandler/WDataSetEMMEnumTypes.h"
+#include "core/data/WLEMMEnumTypes.h"
 #include "core/gui/colorMap/WLColorMap.h"
 
 #include "WLEMDDrawable.h"

@@ -7,7 +7,7 @@
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
-#include "core/dataHandler/WDataSetEMMEnumTypes.h"
+#include "WLEMMEnumTypes.h"
 #include "WLEMMSurface.h"
 
 LaBP::WLEMMSurface::WLEMMSurface()
@@ -41,7 +41,7 @@ LaBP::WLEMMSurface::~WLEMMSurface()
 {
 }
 
-boost::shared_ptr< std::vector< WPosition > >  LaBP::WLEMMSurface::getVertex() const
+boost::shared_ptr< std::vector< WPosition > > LaBP::WLEMMSurface::getVertex() const
 {
     return m_vertex;
 }

@@ -36,7 +36,7 @@
 #include <core/common/WLogger.h>
 #include <core/common/WStringUtils.h>
 
-#include "core/dataHandler/WDataSetEMMEnumTypes.h"
+#include "core/data/WLEMMEnumTypes.h"
 
 #include "core/util/WLGeometry.h"
 

@@ -35,9 +35,9 @@
 #include <core/common/WAssert.h>
 #include <core/common/WLogger.h>
 
+#include "core/data/WLEMMEnumTypes.h"
 #include "core/data/emd/WLEMD.h"
 #include "core/data/emd/WLEMDSource.h"
-#include "core/dataHandler/WDataSetEMMEnumTypes.h"
 
 #include "WSourceReconstruction.h"
 

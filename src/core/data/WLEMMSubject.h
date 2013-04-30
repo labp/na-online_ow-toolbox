@@ -35,10 +35,8 @@
 
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
-#include "core/data/WLMatrixTypes.h"
-#include "core/dataHandler/WDataSetEMMEnumTypes.h"
-
-#include "core/dataHandler/WDataSetEMMEnumTypes.h"
+#include "WLMatrixTypes.h"
+#include "WLEMMEnumTypes.h"
 #include "WLEMMSurface.h"
 #include "WLEMMBemBoundary.h"
 

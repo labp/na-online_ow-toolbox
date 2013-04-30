@@ -33,11 +33,11 @@
 #include <core/kernel/WModule.h>
 
 // Input & output data
+#include "core/data/WLMatrixTypes.h"
 #include "core/data/WLDataSetEMM.h"
-#include "core/dataHandler/WDataSetEMMEnumTypes.h"
+#include "core/data/WLEMMEnumTypes.h"
 #include "core/data/emd/WLEMD.h"
 #include "core/data/emd/WLEMDSource.h"
-#include "core/data/WLMatrixTypes.h"
 
 // Input & output connectors
 // TODO(pieloth): use OW classes

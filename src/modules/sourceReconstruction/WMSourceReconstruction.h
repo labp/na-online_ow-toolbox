@@ -34,7 +34,7 @@
 #include <core/kernel/WModule.h>
 
 #include "core/data/WLDataSetEMM.h"
-#include "core/dataHandler/WDataSetEMMEnumTypes.h"
+#include "core/data/WLEMMEnumTypes.h"
 
 #include "core/module/WLModuleDrawable.h"
 // TODO(pieloth): use OW classes

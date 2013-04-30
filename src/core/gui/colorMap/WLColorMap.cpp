@@ -33,7 +33,7 @@
 #include <core/common/WAssert.h>
 #include <core/common/WLogger.h>
 
-#include "core/dataHandler/WDataSetEMMEnumTypes.h"
+#include "core/data/WLEMMEnumTypes.h"
 
 #include "WLColorMap.h"
 #include "WLColorMapClassic.h"

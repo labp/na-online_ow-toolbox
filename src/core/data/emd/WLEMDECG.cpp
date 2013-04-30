@@ -22,7 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
-#include "core/dataHandler/WDataSetEMMEnumTypes.h"
+#include "core/data/WLEMMEnumTypes.h"
 
 #include "WLEMD.h"
 #include "WLEMDECG.h"

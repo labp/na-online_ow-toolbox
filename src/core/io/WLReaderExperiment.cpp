@@ -14,7 +14,7 @@
 #include <core/dataHandler/exceptions/WDHNoSuchFile.h>
 
 #include "core/data/WLEMMBemBoundary.h"
-#include "core/dataHandler/WDataSetEMMEnumTypes.h"
+#include "core/data/WLEMMEnumTypes.h"
 #include "core/data/WLEMMSubject.h"
 #include "core/data/WLEMMSurface.h"
 

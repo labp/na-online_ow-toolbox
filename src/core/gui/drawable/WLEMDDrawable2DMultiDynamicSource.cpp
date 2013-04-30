@@ -30,7 +30,7 @@
 #include <core/gui/WCustomWidget.h>
 
 #include "core/data/WLDataSetEMM.h"
-#include "core/dataHandler/WDataSetEMMEnumTypes.h"
+#include "core/data/WLEMMEnumTypes.h"
 #include "core/data/emd/WLEMDSource.h"
 
 #include "WLEMDDrawable2DMultiDynamicSource.h"

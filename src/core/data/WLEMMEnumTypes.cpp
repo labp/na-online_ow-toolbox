@@ -27,7 +27,7 @@
 
 #include <core/common/WAssert.h>
 
-#include "WDataSetEMMEnumTypes.h"
+#include "WLEMMEnumTypes.h"
 
 std::vector< LaBP::WEExponent::Enum > LaBP::WEExponent::values()
 {

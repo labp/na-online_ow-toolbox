@@ -34,7 +34,7 @@
 
 #include "core/data/WLDataSetEMM.h"
 #include "core/data/WLEMMSubject.h"
-#include "core/dataHandler/WDataSetEMMEnumTypes.h"
+#include "core/data/WLEMMEnumTypes.h"
 
 #include "core/io/WLReader.h"
 

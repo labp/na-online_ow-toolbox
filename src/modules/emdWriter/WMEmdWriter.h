@@ -33,11 +33,11 @@
 #include <core/kernel/WModule.h>
 
 #include "core/data/WLDataSetEMM.h"
+#include "core/data/WLEMMEnumTypes.h"
 #include "core/module/WLModuleDrawable.h"
 // TODO use OW classes
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
-#include "core/dataHandler/WDataSetEMMEnumTypes.h"
 
 /**
  * This module implements several onscreen status displays

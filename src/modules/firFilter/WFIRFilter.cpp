@@ -35,7 +35,6 @@
 
 #include "core/data/WLDataSetEMM.h"
 #include "core/data/emd/WLEMD.h"
-#include "core/dataHandler/WDataSetEMMEnumTypes.h"
 
 #include "core/util/WLTimeProfiler.h"
 

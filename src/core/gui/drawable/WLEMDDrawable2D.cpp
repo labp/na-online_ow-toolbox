@@ -37,7 +37,7 @@
 #include <core/graphicsEngine/WGEGroupNode.h>
 
 #include "core/data/emd/WLEMD.h"
-#include "core/dataHandler/WDataSetEMMEnumTypes.h"
+#include "core/data/WLEMMEnumTypes.h"
 
 #include "WLEMDDrawable.h"
 #include "WLEMDDrawable2D.h"

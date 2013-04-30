@@ -33,7 +33,7 @@
 #include <core/graphicsEngine/WGEGroupNode.h> // Error: forward declaration
 
 #include "core/data/WLDataSetEMM.h"
-#include "core/dataHandler/WDataSetEMMEnumTypes.h"
+#include "core/data/WLEMMEnumTypes.h"
 
 #include "WLEMDDrawable.h"
 
