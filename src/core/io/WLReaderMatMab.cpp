@@ -9,7 +9,7 @@
 #include <core/common/WStringUtils.h>
 #include <core/dataHandler/io/WReader.h>
 
-#include "core/common/math/WLMatrixTypes.h"
+#include "core/data/WLMatrixTypes.h"
 
 #include "WLReaderMatMab.h"
 

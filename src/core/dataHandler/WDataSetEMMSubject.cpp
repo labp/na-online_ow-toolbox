@@ -30,7 +30,7 @@
 
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
-#include "core/common/math/WLMatrixTypes.h"
+#include "core/data/WLMatrixTypes.h"
 
 #include "WDataSetEMMEnumTypes.h"
 #include "WDataSetEMMSurface.h"

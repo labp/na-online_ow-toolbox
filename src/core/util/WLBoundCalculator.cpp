@@ -24,7 +24,7 @@
 
 #include <vector>
 
-#include "core/common/math/WLMatrixTypes.h"
+#include "core/data/WLMatrixTypes.h"
 #include "core/dataHandler/WDataSetEMM.h"
 #include "core/dataHandler/WDataSetEMMEMD.h"
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"

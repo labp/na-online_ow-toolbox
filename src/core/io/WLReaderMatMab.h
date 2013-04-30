@@ -7,7 +7,7 @@
 #include <boost/shared_ptr.hpp>
 #include <Eigen/Core>
 
-#include "core/common/math/WLMatrixTypes.h"
+#include "core/data/WLMatrixTypes.h"
 #include "core/io/WLReader.h"
 
 class WLReaderMatMab: public WLReader

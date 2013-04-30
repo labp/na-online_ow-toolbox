@@ -29,7 +29,7 @@
 
 #include <core/gui/WCustomWidget.h>
 
-#include "core/common/math/WLMatrixTypes.h"
+#include "core/data/WLMatrixTypes.h"
 
 #include "WLEMDDrawable3D.h"
 

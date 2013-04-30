@@ -33,7 +33,7 @@
 #include <core/gui/WGUI.h>
 #include <core/kernel/WKernel.h>
 
-#include "core/common/math/WLMatrixTypes.h"
+#include "core/data/WLMatrixTypes.h"
 
 #include "core/dataHandler/WDataSetEMM.h"
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"
