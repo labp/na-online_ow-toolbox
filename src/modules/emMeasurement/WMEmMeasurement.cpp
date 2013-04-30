@@ -61,46 +61,46 @@
 #include "core/io/WLReaderExperiment.h"
 #include "core/util/WLGeometry.h"
 
-#include "WMemmMeasurement.h"
-#include "WMemmMeasurement.xpm"
+#include "WMEmMeasurement.h"
+#include "WMEmMeasurement.xpm"
 
 using namespace boost;
 using namespace std;
 
 // This line is needed by the module loader to actually find your module.
-W_LOADABLE_MODULE( WMemmMeasurement )
+W_LOADABLE_MODULE( WMEmMeasurement )
 
-WMemmMeasurement::WMemmMeasurement()
+WMEmMeasurement::WMEmMeasurement()
 {
     m_fiffEmm = boost::shared_ptr< LaBP::WDataSetEMM >( new LaBP::WDataSetEMM() );
 }
 
-WMemmMeasurement::~WMemmMeasurement()
+WMEmMeasurement::~WMEmMeasurement()
 {
 
 }
 
-boost::shared_ptr< WModule > WMemmMeasurement::factory() const
+boost::shared_ptr< WModule > WMEmMeasurement::factory() const
 {
-    return boost::shared_ptr< WModule >( new WMemmMeasurement() );
+    return boost::shared_ptr< WModule >( new WMEmMeasurement() );
 }
 
-const char** WMemmMeasurement::getXPMIcon() const
+const char** WMEmMeasurement::getXPMIcon() const
 {
-    return emmMeasurement_xpm;
+    return module_xpm;
 }
 
-const std::string WMemmMeasurement::getName() const
+const std::string WMEmMeasurement::getName() const
 {
-    return "EMM-Measurement";
+    return "EM-Measurement";
 }
 
-const std::string WMemmMeasurement::getDescription() const
+const std::string WMEmMeasurement::getDescription() const
 {
     return "Entry point for LaBP data processing.";
 }
 
-void WMemmMeasurement::connectors()
+void WMEmMeasurement::connectors()
 {
     // initialize connectors
     // TODO use OW class
@@ -112,7 +112,7 @@ void WMemmMeasurement::connectors()
     addConnector( m_output );
 }
 
-void WMemmMeasurement::properties()
+void WMEmMeasurement::properties()
 {
     LaBP::WModuleEMMView::properties();
 
@@ -231,7 +231,7 @@ void WMemmMeasurement::properties()
     m_regError->setPurpose( PV_PURPOSE_INFORMATION );
 }
 
-void WMemmMeasurement::initModule()
+void WMEmMeasurement::initModule()
 {
     infoLog() << "Initializing module ...";
     waitRestored();
@@ -245,7 +245,7 @@ void WMemmMeasurement::initModule()
     infoLog() << "Initializing module finished!";
 }
 
-void WMemmMeasurement::moduleMain()
+void WMEmMeasurement::moduleMain()
 {
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_propCondition );
@@ -307,7 +307,7 @@ void WMemmMeasurement::moduleMain()
     }
 }
 
-void WMemmMeasurement::streamData()
+void WMEmMeasurement::streamData()
 {
     resetView();
     if( m_isFiffLoaded )
@@ -444,7 +444,7 @@ void WMemmMeasurement::streamData()
     m_streamFiffTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, false );
 }
 
-void WMemmMeasurement::generateData()
+void WMEmMeasurement::generateData()
 {
     resetView();
     infoLog() << "Generation started ...";
@@ -533,7 +533,7 @@ void WMemmMeasurement::generateData()
     m_genDataTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, true );
 }
 
-bool WMemmMeasurement::readFiff( std::string fname )
+bool WMEmMeasurement::readFiff( std::string fname )
 {
     infoLog() << "Reading FIFF file: " << fname;
     m_fiffFileStatus->set( LOADING_FILE, true );
@@ -576,7 +576,7 @@ bool WMemmMeasurement::readFiff( std::string fname )
     }
 }
 
-bool WMemmMeasurement::readElc( std::string fname )
+bool WMEmMeasurement::readElc( std::string fname )
 {
     m_elcFileStatus->set( LOADING_FILE, true );
     m_elcLabels.reset( new std::vector< std::string >() );
@@ -645,7 +645,7 @@ bool WMemmMeasurement::readElc( std::string fname )
     }
 }
 
-bool WMemmMeasurement::readDip( std::string fname )
+bool WMEmMeasurement::readDip( std::string fname )
 {
     m_dipFileStatus->set( LOADING_FILE, true );
     m_dipSurface.reset();
@@ -702,7 +702,7 @@ bool WMemmMeasurement::readDip( std::string fname )
     }
 }
 
-bool WMemmMeasurement::readVol( std::string fname )
+bool WMEmMeasurement::readVol( std::string fname )
 {
     m_volFileStatus->set( LOADING_FILE, true );
     m_volBoundaries.reset();
@@ -737,7 +737,7 @@ bool WMemmMeasurement::readVol( std::string fname )
     }
 }
 
-void WMemmMeasurement::setAdditionalInformation( LaBP::WDataSetEMM::SPtr emm )
+void WMEmMeasurement::setAdditionalInformation( LaBP::WDataSetEMM::SPtr emm )
 {
     if( m_isElcLoaded )
     {
@@ -771,7 +771,7 @@ void WMemmMeasurement::setAdditionalInformation( LaBP::WDataSetEMM::SPtr emm )
     }
 }
 
-void WMemmMeasurement::align()
+void WMEmMeasurement::align()
 {
     infoLog() << "Start alignment for FIFF file and EEG only!";
     if( m_isFiffLoaded )
@@ -829,7 +829,7 @@ void WMemmMeasurement::align()
     m_regAlignTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, true );
 }
 
-void WMemmMeasurement::handleExperimentLoadChanged()
+void WMEmMeasurement::handleExperimentLoadChanged()
 {
     debugLog() << "handleExperimentLoadChanged() called!";
 
@@ -861,7 +861,7 @@ void WMemmMeasurement::handleExperimentLoadChanged()
     m_expLoadTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, true );
 }
 
-void WMemmMeasurement::extractExpLoader( std::string fName )
+void WMEmMeasurement::extractExpLoader( std::string fName )
 {
     boost::filesystem::path fiffFile( fName );
     boost::filesystem::path expRoot = WLReaderExperiment::getExperimentRootFromFiff( fiffFile );
@@ -916,12 +916,12 @@ void WMemmMeasurement::extractExpLoader( std::string fName )
     }
 }
 
-const std::string WMemmMeasurement::NO_DATA_LOADED = "No data loaded.";
-const std::string WMemmMeasurement::LOADING_DATA = "Loading data ...";
-const std::string WMemmMeasurement::DATA_LOADED = "Data successfully loaded.";
-const std::string WMemmMeasurement::DATA_ERROR = "Could not load data.";
+const std::string WMEmMeasurement::NO_DATA_LOADED = "No data loaded.";
+const std::string WMEmMeasurement::LOADING_DATA = "Loading data ...";
+const std::string WMEmMeasurement::DATA_LOADED = "Data successfully loaded.";
+const std::string WMEmMeasurement::DATA_ERROR = "Could not load data.";
 
-const std::string WMemmMeasurement::NO_FILE_LOADED = "No file loaded.";
-const std::string WMemmMeasurement::LOADING_FILE = "Loading file ...";
-const std::string WMemmMeasurement::FILE_LOADED = "File successfully loaded.";
-const std::string WMemmMeasurement::FILE_ERROR = "Could not load file.";
+const std::string WMEmMeasurement::NO_FILE_LOADED = "No file loaded.";
+const std::string WMEmMeasurement::LOADING_FILE = "Loading file ...";
+const std::string WMEmMeasurement::FILE_LOADED = "File successfully loaded.";
+const std::string WMEmMeasurement::FILE_ERROR = "Could not load file.";

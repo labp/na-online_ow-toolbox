@@ -52,18 +52,18 @@
  * is the display of information from picking, i.e. what is picked.
  * \ingroup modules
  */
-class WMemmMeasurement: public LaBP::WModuleEMMView
+class WMEmMeasurement: public LaBP::WModuleEMMView
 {
 public:
     /**
      * standard constructor
      */
-    WMemmMeasurement();
+    WMEmMeasurement();
 
     /**
      * destructor
      */
-    virtual ~WMemmMeasurement();
+    virtual ~WMEmMeasurement();
 
     /**
      * Returns the name of this module.

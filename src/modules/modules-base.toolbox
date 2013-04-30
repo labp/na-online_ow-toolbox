@@ -1,7 +1,7 @@
 # LaBP Toolbox
 
 ADD_MODULE( emdWriter )
-ADD_MODULE( emmMeasurement )
+ADD_MODULE( emMeasurement )
 ADD_MODULE( epochAveraging )
 ADD_MODULE( epochSeparation )
 ADD_MODULE( firFilter )
