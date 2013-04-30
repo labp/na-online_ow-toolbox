@@ -32,7 +32,7 @@
 
 #include "core/common/math/linearAlgebra/WVectorFixed.h"
 #include "core/common/WPropertyTypes.h"
-#include "core/dataHandler/WDataSetEMM.h"
+#include "core/data/WLDataSetEMM.h"
 #include "core/dataHandler/WDataSetEMMSubject.h"
 #include "core/dataHandler/WDataSetEMMSurface.h"
 #include "core/dataHandler/WDataSetEMMBemBoundary.h"
@@ -116,7 +116,7 @@ private:
     /**
      * The only output of this data module. TODO use OW class
      */
-    boost::shared_ptr< LaBP::WLModuleOutputDataCollectionable< LaBP::WDataSetEMM > > m_output;
+    boost::shared_ptr< LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM > > m_output;
 
     // FIFF file //
     void streamData();
@@ -135,7 +135,7 @@ private:
     /**
      * pointer to data out of read fiff file
      */
-    boost::shared_ptr< LaBP::WDataSetEMM > m_fiffEmm;
+    boost::shared_ptr< LaBP::WLDataSetEMM > m_fiffEmm;
 
     WPropString m_fiffFileStatus;
 
@@ -187,7 +187,7 @@ private:
     // Additional Settings //
     WPropGroup m_propGrpExtra;
 
-    void setAdditionalInformation( boost::shared_ptr< LaBP::WDataSetEMM > emm );
+    void setAdditionalInformation( boost::shared_ptr< LaBP::WLDataSetEMM > emm );
 
     // ELC Settings //
     bool readElc( std::string fname );

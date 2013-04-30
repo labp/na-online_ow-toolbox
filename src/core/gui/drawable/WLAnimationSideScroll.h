@@ -35,7 +35,7 @@
 
 #include <core/common/WRealtimeTimer.h>
 
-#include "core/dataHandler/WDataSetEMM.h"
+#include "core/data/WLDataSetEMM.h"
 
 namespace LaBP
 {
@@ -51,14 +51,14 @@ namespace LaBP
         class EMMNode: public osg::PositionAttitudeTransform
         {
         public:
-            EMMNode( WDataSetEMM::SPtr emm );
+            EMMNode( WLDataSetEMM::SPtr emm );
 
             ~EMMNode();
 
-            WDataSetEMM::SPtr getEmm();
+            WLDataSetEMM::SPtr getEmm();
 
         private:
-            WDataSetEMM::SPtr m_emm;
+            WLDataSetEMM::SPtr m_emm;
         };
 
         explicit WLAnimationSideScroll( osg::ref_ptr< osg::Group > groupPAT );

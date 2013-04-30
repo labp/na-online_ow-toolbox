@@ -9,7 +9,7 @@
 
 #include "core/common/WLogger.h"
 
-#include "core/dataHandler/WDataSetEMM.h"
+#include "core/data/WLDataSetEMM.h"
 #include "core/dataHandler/WDataSetEMMEMD.h"
 #include "core/dataHandler/WDataSetEMMEEG.h"
 
@@ -31,14 +31,14 @@ public:
         const size_t COUNT = 5;
 
         boost::shared_ptr< WEpochAveragingTotal > averager( new WEpochAveragingTotal( 0 ) );
-        boost::shared_ptr< LaBP::WDataSetEMM > emm;
+        boost::shared_ptr< LaBP::WLDataSetEMM > emm;
         boost::shared_ptr< LaBP::WDataSetEMMEMD > emd;
-        boost::shared_ptr< LaBP::WDataSetEMM > emmAverage;
+        boost::shared_ptr< LaBP::WLDataSetEMM > emmAverage;
         boost::shared_ptr< LaBP::WDataSetEMMEMD > emdAverage;
 
         for( size_t i = 0; i < COUNT; ++i )
         {
-            emm.reset( new LaBP::WDataSetEMM() );
+            emm.reset( new LaBP::WLDataSetEMM() );
             emm->addModality( createEmd( 21, SAMPLES, i * SAMPLES ) );
             emm->addModality( createEmd( 42, SAMPLES, ( i + 1 ) * SAMPLES ) );
 

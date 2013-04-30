@@ -31,18 +31,18 @@ namespace LaBP
         WLEMDDrawable2DMultiStatic( WCustomWidget::SPtr widget );
         virtual ~WLEMDDrawable2DMultiStatic();
 
-        virtual void draw( LaBP::WDataSetEMM::SPtr emm );
+        virtual void draw( LaBP::WLDataSetEMM::SPtr emm );
 
         virtual bool hasData() const;
 
-        virtual std::pair< LaBP::WDataSetEMM::SPtr, size_t > getSelectedData( ValueT pixel ) const;
+        virtual std::pair< LaBP::WLDataSetEMM::SPtr, size_t > getSelectedData( ValueT pixel ) const;
 
     protected:
         virtual void osgNodeCallback( osg::NodeVisitor* nv );
 
         virtual void osgAddChannels( const LaBP::WDataSetEMMEMD* emd );
 
-        LaBP::WDataSetEMM::SPtr m_emm;
+        LaBP::WLDataSetEMM::SPtr m_emm;
     };
 
 } /* namespace LaBP */

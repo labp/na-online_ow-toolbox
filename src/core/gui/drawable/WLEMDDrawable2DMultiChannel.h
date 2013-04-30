@@ -58,7 +58,7 @@ namespace LaBP
         explicit WLEMDDrawable2DMultiChannel( WCustomWidget::SPtr widget );
         virtual ~WLEMDDrawable2DMultiChannel();
 
-        virtual void draw( LaBP::WDataSetEMM::SPtr emm ) = 0;
+        virtual void draw( LaBP::WLDataSetEMM::SPtr emm ) = 0;
 
         virtual bool hasData() const = 0;
 
@@ -67,7 +67,7 @@ namespace LaBP
         virtual ValueT getChannelHeight() const;
         virtual void setChannelHeight( ValueT spacing );
 
-        virtual std::pair< LaBP::WDataSetEMM::SPtr, size_t > getSelectedData( ValueT pixel ) const = 0;
+        virtual std::pair< LaBP::WLDataSetEMM::SPtr, size_t > getSelectedData( ValueT pixel ) const = 0;
 
     protected:
         virtual void osgNodeCallback( osg::NodeVisitor* nv ) = 0;

@@ -24,7 +24,7 @@
 
 #include <core/gui/WCustomWidget.h>
 
-#include "core/dataHandler/WDataSetEMM.h"
+#include "core/data/WLDataSetEMM.h"
 #include "core/dataHandler/WDataSetEMMEMD.h"
 
 #include "WLEMDDrawable2DSingleChannel.h"
@@ -40,7 +40,7 @@ namespace LaBP
     {
     }
 
-    void WLEMDDrawable2DSingleChannel::draw( LaBP::WDataSetEMM::SPtr emm )
+    void WLEMDDrawable2DSingleChannel::draw( LaBP::WLDataSetEMM::SPtr emm )
     {
 
         m_emm = emm;
@@ -100,11 +100,11 @@ namespace LaBP
         m_rootGroup->addChild( m_channelGroup );
     }
 
-    std::pair< LaBP::WDataSetEMM::SPtr, size_t > WLEMDDrawable2DSingleChannel::getSelectedData( ValueT pixel ) const
+    std::pair< LaBP::WLDataSetEMM::SPtr, size_t > WLEMDDrawable2DSingleChannel::getSelectedData( ValueT pixel ) const
     {
         size_t sample = 0;
 
-        LaBP::WDataSetEMM::SPtr emm = m_emm;
+        LaBP::WLDataSetEMM::SPtr emm = m_emm;
 
         if( pixel > m_xOffset )
         {
@@ -129,7 +129,7 @@ namespace LaBP
             return;
         }
 
-        LaBP::WDataSetEMM::ConstSPtr emm = m_emm;
+        LaBP::WLDataSetEMM::ConstSPtr emm = m_emm;
         LaBP::WDataSetEMMEMD::ConstSPtr emd = emm->getModality( m_modality );
         osgAddChannels( emd.get() );
         osgAddMarkLine();

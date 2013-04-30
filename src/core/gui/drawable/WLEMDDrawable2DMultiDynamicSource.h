@@ -31,7 +31,7 @@
 
 #include <core/gui/WCustomWidget.h>
 
-#include "core/dataHandler/WDataSetEMM.h"
+#include "core/data/WLDataSetEMM.h"
 
 #include "WLEMDDrawable2DMultiDynamic.h"
 
@@ -55,7 +55,7 @@ namespace LaBP
         explicit WLEMDDrawable2DMultiDynamicSource( WCustomWidget::SPtr widget );
         virtual ~WLEMDDrawable2DMultiDynamicSource();
 
-        virtual void draw( LaBP::WDataSetEMM::SPtr emm );
+        virtual void draw( LaBP::WLDataSetEMM::SPtr emm );
     };
 } /* namespace LaBP */
 #endif  // WLEMDDRAWABLE2DDYNAMICSOURCE_H_

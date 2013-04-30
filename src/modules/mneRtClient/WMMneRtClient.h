@@ -29,7 +29,7 @@
 
 #include <core/common/WPropertyTypes.h>
 
-#include "core/dataHandler/WDataSetEMM.h"
+#include "core/data/WLDataSetEMM.h"
 
 #include "core/module/WLModuleDrawable.h"
 // TODO(pieloth): use OW class
@@ -106,7 +106,7 @@ private:
     /**
      * The only output of this data module. TODO use OW class
      */
-    LaBP::WLModuleOutputDataCollectionable< LaBP::WDataSetEMM >::SPtr m_output;
+    LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM >::SPtr m_output;
 
     /**
      * Property group for connection settings

@@ -36,16 +36,17 @@
 #include <core/common/WLogger.h>
 #include <core/dataHandler/WDataSet.h>
 
-#include "WDataSetEMM.h"
-#include "WDataSetEMMEEG.h"
-#include "WDataSetEMMEMD.h"
-#include "WDataSetEMMEnumTypes.h"
-#include "WDataSetEMMSubject.h"
+#include "core/dataHandler/WDataSetEMMEEG.h"
+#include "core/dataHandler/WDataSetEMMEMD.h"
+#include "core/dataHandler/WDataSetEMMEnumTypes.h"
+#include "core/dataHandler/WDataSetEMMSubject.h"
+
+#include "WLDataSetEMM.h"
 
 // prototype instance as singleton
-boost::shared_ptr< WPrototyped > LaBP::WDataSetEMM::m_prototype = boost::shared_ptr< WPrototyped >();
+boost::shared_ptr< WPrototyped > LaBP::WLDataSetEMM::m_prototype = boost::shared_ptr< WPrototyped >();
 
-LaBP::WDataSetEMM::WDataSetEMM() :
+LaBP::WLDataSetEMM::WLDataSetEMM() :
                 WDataSet()
 {
     m_eventChannels.reset( new std::vector< std::vector< int > >() );
@@ -53,7 +54,7 @@ LaBP::WDataSetEMM::WDataSetEMM() :
     m_profiler.reset( new LaBP::WLTimeProfiler( getName(), "lifetime" ) );
 }
 
-LaBP::WDataSetEMM::WDataSetEMM( boost::shared_ptr< LaBP::WDataSetEMMSubject > subject ) :
+LaBP::WLDataSetEMM::WLDataSetEMM( boost::shared_ptr< LaBP::WDataSetEMMSubject > subject ) :
                 WDataSet()
 {
     m_subject = subject;
@@ -61,7 +62,7 @@ LaBP::WDataSetEMM::WDataSetEMM( boost::shared_ptr< LaBP::WDataSetEMMSubject > su
     m_profiler.reset( new LaBP::WLTimeProfiler( getName(), "lifetime" ) );
 }
 
-LaBP::WDataSetEMM::WDataSetEMM( WPropBool dataUpdate ) :
+LaBP::WLDataSetEMM::WLDataSetEMM( WPropBool dataUpdate ) :
                 WDataSet()
 {
     m_dataUpdate = dataUpdate;
@@ -70,7 +71,7 @@ LaBP::WDataSetEMM::WDataSetEMM( WPropBool dataUpdate ) :
     m_profiler.reset( new LaBP::WLTimeProfiler( getName(), "lifetime" ) );
 }
 
-LaBP::WDataSetEMM::WDataSetEMM( const LaBP::WDataSetEMM& emm ) :
+LaBP::WLDataSetEMM::WLDataSetEMM( const LaBP::WLDataSetEMM& emm ) :
                 WDataSet()
 {
     m_eventChannels.reset( new std::vector< std::vector< int > >() );
@@ -83,40 +84,40 @@ LaBP::WDataSetEMM::WDataSetEMM( const LaBP::WDataSetEMM& emm ) :
     m_subject = emm.m_subject;
 }
 
-LaBP::WDataSetEMM::~WDataSetEMM()
+LaBP::WLDataSetEMM::~WLDataSetEMM()
 {
 
 }
 
-LaBP::WDataSetEMM::SPtr LaBP::WDataSetEMM::clone() const
+LaBP::WLDataSetEMM::SPtr LaBP::WLDataSetEMM::clone() const
 {
-    LaBP::WDataSetEMM::SPtr emm( new WDataSetEMM( *this ) );
+    LaBP::WLDataSetEMM::SPtr emm( new WLDataSetEMM( *this ) );
     return emm;
 }
 
-const std::string LaBP::WDataSetEMM::getName() const
+const std::string LaBP::WLDataSetEMM::getName() const
 {
     return "WDataSetEMM";
 }
 
-const std::string LaBP::WDataSetEMM::getDescription() const
+const std::string LaBP::WLDataSetEMM::getDescription() const
 {
     return "Contains WDataSetEMM data.";
 }
 
-boost::shared_ptr< WPrototyped > LaBP::WDataSetEMM::getPrototype()
+boost::shared_ptr< WPrototyped > LaBP::WLDataSetEMM::getPrototype()
 {
     if( !m_prototype )
     {
-        m_prototype = boost::shared_ptr< WPrototyped >( new WDataSetEMM() );
+        m_prototype = boost::shared_ptr< WPrototyped >( new WLDataSetEMM() );
     }
 
     return m_prototype;
 }
 
-boost::shared_ptr< LaBP::WDataSetEMM > LaBP::WDataSetEMM::newModalityData( boost::shared_ptr< LaBP::WDataSetEMMEMD > modality )
+boost::shared_ptr< LaBP::WLDataSetEMM > LaBP::WLDataSetEMM::newModalityData( boost::shared_ptr< LaBP::WDataSetEMMEMD > modality )
 {
-    boost::shared_ptr< LaBP::WDataSetEMM > emm = boost::shared_ptr< LaBP::WDataSetEMM >( new LaBP::WDataSetEMM( *this ) );
+    boost::shared_ptr< LaBP::WLDataSetEMM > emm = boost::shared_ptr< LaBP::WLDataSetEMM >( new LaBP::WLDataSetEMM( *this ) );
 
     //    for (std::vector< boost::shared_ptr< LaBP::WDataSetEMMEMD > >::iterator it = emm->getModalityList().begin(); it != emm->getModalityList().end(); ++it)
     //    {
@@ -153,12 +154,12 @@ boost::shared_ptr< LaBP::WDataSetEMM > LaBP::WDataSetEMM::newModalityData( boost
     return emm;
 }
 
-void LaBP::WDataSetEMM::addModality( boost::shared_ptr< LaBP::WDataSetEMMEMD > modality )
+void LaBP::WLDataSetEMM::addModality( boost::shared_ptr< LaBP::WDataSetEMMEMD > modality )
 {
     m_modalityList.push_back( modality );
 }
 
-void LaBP::WDataSetEMM::fireDataUpdateEvent()
+void LaBP::WLDataSetEMM::fireDataUpdateEvent()
 {
     // TODO(kaehler): Check if this works right
     m_dataUpdate->set( true, false );
@@ -177,43 +178,43 @@ void LaBP::WDataSetEMM::fireDataUpdateEvent()
 
 // -----------getter and setter-----------------------------------------------------------------------------
 
-std::string LaBP::WDataSetEMM::getExperimenter() const
+std::string LaBP::WLDataSetEMM::getExperimenter() const
 {
     return m_experimenter;
 }
 
-std::string LaBP::WDataSetEMM::getExpDescription() const
+std::string LaBP::WLDataSetEMM::getExpDescription() const
 {
     return m_expDescription;
 }
 
-LaBP::WDataSetEMMSubject::SPtr LaBP::WDataSetEMM::getSubject()
+LaBP::WDataSetEMMSubject::SPtr LaBP::WLDataSetEMM::getSubject()
 {
     return m_subject;
 }
 
-LaBP::WDataSetEMMSubject::ConstSPtr LaBP::WDataSetEMM::getSubject() const
+LaBP::WDataSetEMMSubject::ConstSPtr LaBP::WLDataSetEMM::getSubject() const
 {
     return m_subject;
 }
 
-std::vector< LaBP::WDataSetEMMEMD::SPtr > LaBP::WDataSetEMM::getModalityList()
+std::vector< LaBP::WDataSetEMMEMD::SPtr > LaBP::WLDataSetEMM::getModalityList()
 {
     return m_modalityList;
 }
 
-void LaBP::WDataSetEMM::setModalityList( std::vector< LaBP::WDataSetEMMEMD::SPtr > list )
+void LaBP::WLDataSetEMM::setModalityList( std::vector< LaBP::WDataSetEMMEMD::SPtr > list )
 {
     m_modalityList.clear();
     m_modalityList = list;
 }
 
-size_t LaBP::WDataSetEMM::getModalityCount() const
+size_t LaBP::WLDataSetEMM::getModalityCount() const
 {
     return m_modalityList.size();
 }
 
-LaBP::WDataSetEMMEMD::SPtr LaBP::WDataSetEMM::getModality( size_t i )
+LaBP::WDataSetEMMEMD::SPtr LaBP::WLDataSetEMM::getModality( size_t i )
 {
     if( m_modalityList.size() )
     {
@@ -225,7 +226,7 @@ LaBP::WDataSetEMMEMD::SPtr LaBP::WDataSetEMM::getModality( size_t i )
     }
 }
 
-LaBP::WDataSetEMMEMD::ConstSPtr LaBP::WDataSetEMM::getModality( size_t i ) const
+LaBP::WDataSetEMMEMD::ConstSPtr LaBP::WLDataSetEMM::getModality( size_t i ) const
 {
     if( m_modalityList.size() )
     {
@@ -237,7 +238,7 @@ LaBP::WDataSetEMMEMD::ConstSPtr LaBP::WDataSetEMM::getModality( size_t i ) const
     }
 }
 
-LaBP::WDataSetEMMEMD::SPtr LaBP::WDataSetEMM::getModality( LaBP::WEModalityType::Enum type )
+LaBP::WDataSetEMMEMD::SPtr LaBP::WLDataSetEMM::getModality( LaBP::WEModalityType::Enum type )
 {
     for( std::vector< boost::shared_ptr< WDataSetEMMEMD > >::size_type i = 0; i < m_modalityList.size(); ++i )
     {
@@ -249,7 +250,7 @@ LaBP::WDataSetEMMEMD::SPtr LaBP::WDataSetEMM::getModality( LaBP::WEModalityType:
     throw "Modality type not available!";
 }
 
-LaBP::WDataSetEMMEMD::ConstSPtr LaBP::WDataSetEMM::getModality( LaBP::WEModalityType::Enum type ) const
+LaBP::WDataSetEMMEMD::ConstSPtr LaBP::WLDataSetEMM::getModality( LaBP::WEModalityType::Enum type ) const
 {
     for( std::vector< boost::shared_ptr< WDataSetEMMEMD > >::size_type i = 0; i < m_modalityList.size(); ++i )
     {
@@ -261,7 +262,7 @@ LaBP::WDataSetEMMEMD::ConstSPtr LaBP::WDataSetEMM::getModality( LaBP::WEModality
     throw "Modality type not available!";
 }
 
-std::set< LaBP::WEModalityType::Enum > LaBP::WDataSetEMM::getModalityTypes() const
+std::set< LaBP::WEModalityType::Enum > LaBP::WLDataSetEMM::getModalityTypes() const
 {
     std::set< LaBP::WEModalityType::Enum > enums;
     for( std::vector< boost::shared_ptr< WDataSetEMMEMD > >::size_type i = 0; i < m_modalityList.size(); ++i )
@@ -271,7 +272,7 @@ std::set< LaBP::WEModalityType::Enum > LaBP::WDataSetEMM::getModalityTypes() con
     return enums;
 }
 
-bool LaBP::WDataSetEMM::hasModality( LaBP::WEModalityType::Enum type ) const
+bool LaBP::WLDataSetEMM::hasModality( LaBP::WEModalityType::Enum type ) const
 {
     for( std::vector< boost::shared_ptr< WDataSetEMMEMD > >::size_type i = 0; i < m_modalityList.size(); ++i )
     {
@@ -283,62 +284,62 @@ bool LaBP::WDataSetEMM::hasModality( LaBP::WEModalityType::Enum type ) const
     return false;
 }
 
-void LaBP::WDataSetEMM::setExperimenter( std::string experimenter )
+void LaBP::WLDataSetEMM::setExperimenter( std::string experimenter )
 {
     m_experimenter = experimenter;
 }
 
-void LaBP::WDataSetEMM::setExpDescription( std::string expDescription )
+void LaBP::WLDataSetEMM::setExpDescription( std::string expDescription )
 {
     m_expDescription = expDescription;
 }
 
-void LaBP::WDataSetEMM::setSubject( boost::shared_ptr< WDataSetEMMSubject > subject )
+void LaBP::WLDataSetEMM::setSubject( boost::shared_ptr< WDataSetEMMSubject > subject )
 {
     m_subject = subject;
 }
 
-boost::shared_ptr< std::vector< std::vector< int > > > LaBP::WDataSetEMM::getEventChannels() const
+boost::shared_ptr< std::vector< std::vector< int > > > LaBP::WLDataSetEMM::getEventChannels() const
 {
     return m_eventChannels;
 }
 
-void LaBP::WDataSetEMM::setEventChannels( boost::shared_ptr< EDataT > data )
+void LaBP::WLDataSetEMM::setEventChannels( boost::shared_ptr< EDataT > data )
 {
     m_eventChannels = data;
 }
 
-void LaBP::WDataSetEMM::addEventChannel( EChannelT& data )
+void LaBP::WLDataSetEMM::addEventChannel( EChannelT& data )
 {
     m_eventChannels->push_back( data );
 }
 
-LaBP::WDataSetEMM::EChannelT& LaBP::WDataSetEMM::getEventChannel( int i ) const
+LaBP::WLDataSetEMM::EChannelT& LaBP::WLDataSetEMM::getEventChannel( int i ) const
 {
     return m_eventChannels->at( i );
 }
 
-size_t LaBP::WDataSetEMM::getEventChannelCount() const
+size_t LaBP::WLDataSetEMM::getEventChannelCount() const
 {
     return m_eventChannels->size();
 }
 
-LaBP::WLTimeProfiler::SPtr LaBP::WDataSetEMM::getTimeProfiler()
+LaBP::WLTimeProfiler::SPtr LaBP::WLDataSetEMM::getTimeProfiler()
 {
     return m_profiler;
 }
 
-LaBP::WLTimeProfiler::ConstSPtr LaBP::WDataSetEMM::getTimeProfiler() const
+LaBP::WLTimeProfiler::ConstSPtr LaBP::WLDataSetEMM::getTimeProfiler() const
 {
     return m_profiler;
 }
 
-void LaBP::WDataSetEMM::setTimeProfiler( LaBP::WLTimeProfiler::SPtr profiler )
+void LaBP::WLDataSetEMM::setTimeProfiler( LaBP::WLTimeProfiler::SPtr profiler )
 {
     m_profiler = profiler;
 }
 
-LaBP::WLTimeProfiler::SPtr LaBP::WDataSetEMM::createAndAddProfiler( std::string clazz, std::string action )
+LaBP::WLTimeProfiler::SPtr LaBP::WLDataSetEMM::createAndAddProfiler( std::string clazz, std::string action )
 {
     WLTimeProfiler::SPtr profiler( new WLTimeProfiler( clazz, action ) );
     m_profiler->addChild( profiler );

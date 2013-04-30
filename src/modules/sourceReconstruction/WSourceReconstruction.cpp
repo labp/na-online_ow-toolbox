@@ -32,9 +32,9 @@
 #include <Eigen/Dense>
 #include <Eigen/SuperLUSupport>
 
-#include "core/common/WAssert.h"
-#include "core/common/math/WLMatrixTypes.h"
-#include "core/common/WLogger.h"
+#include <core/common/WAssert.h>
+#include <core/common/WLogger.h>
+
 #include "core/dataHandler/WDataSetEMMEMD.h"
 #include "core/dataHandler/WDataSetEMMSource.h"
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"

@@ -33,7 +33,7 @@
 #include <core/kernel/WModule.h>
 
 // Input & output data
-#include "core/dataHandler/WDataSetEMM.h"
+#include "core/data/WLDataSetEMM.h"
 
 // Input & output connectors
 // TODO use OW classes
@@ -79,13 +79,13 @@ const std::string WMProfilerLog::getDescription() const
 
 void WMProfilerLog::connectors()
 {
-    m_input = boost::shared_ptr< LaBP::WLModuleInputDataRingBuffer< LaBP::WDataSetEMM > >(
-                    new LaBP::WLModuleInputDataRingBuffer< LaBP::WDataSetEMM >( 8, shared_from_this(), "in",
+    m_input = boost::shared_ptr< LaBP::WLModuleInputDataRingBuffer< LaBP::WLDataSetEMM > >(
+                    new LaBP::WLModuleInputDataRingBuffer< LaBP::WLDataSetEMM >( 8, shared_from_this(), "in",
                                     "Expects a EMM-DataSet for filtering." ) );
     addConnector( m_input );
 
-    m_output = boost::shared_ptr< LaBP::WLModuleOutputDataCollectionable< LaBP::WDataSetEMM > >(
-                    new LaBP::WLModuleOutputDataCollectionable< LaBP::WDataSetEMM >( shared_from_this(), "out",
+    m_output = boost::shared_ptr< LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM > >(
+                    new LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM >( shared_from_this(), "out",
                                     "Provides a filtered EMM-DataSet" ) );
     addConnector( m_output );
 }
@@ -107,7 +107,7 @@ void WMProfilerLog::moduleMain()
     m_moduleState.add( m_input->getDataChangedCondition() ); // when inputdata changed
     m_moduleState.add( m_propCondition ); // when properties changed
 
-    LaBP::WDataSetEMM::SPtr emmIn;
+    LaBP::WLDataSetEMM::SPtr emmIn;
 
     ready(); // signal ready state
 
@@ -145,7 +145,7 @@ void WMProfilerLog::moduleMain()
     }
 }
 
-bool WMProfilerLog::write( std::string fname, LaBP::WDataSetEMM::SPtr emm )
+bool WMProfilerLog::write( std::string fname, LaBP::WLDataSetEMM::SPtr emm )
 {
     std::ofstream fstream;
     fstream.open( fname.c_str(), std::ofstream::app );

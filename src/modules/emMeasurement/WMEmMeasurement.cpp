@@ -46,7 +46,7 @@
 // Output connector and data
 // TODO use OW class
 #include "core/module/WLModuleOutputDataCollectionable.h"
-#include "core/dataHandler/WDataSetEMM.h"
+#include "core/data/WLDataSetEMM.h"
 #include "core/dataHandler/WDataSetEMMEEG.h"
 #include "core/dataHandler/WDataSetEMMMEG.h"
 #include "core/dataHandler/WDataSetEMMSubject.h"
@@ -72,7 +72,7 @@ W_LOADABLE_MODULE( WMEmMeasurement )
 
 WMEmMeasurement::WMEmMeasurement()
 {
-    m_fiffEmm = boost::shared_ptr< LaBP::WDataSetEMM >( new LaBP::WDataSetEMM() );
+    m_fiffEmm = boost::shared_ptr< LaBP::WLDataSetEMM >( new LaBP::WLDataSetEMM() );
 }
 
 WMEmMeasurement::~WMEmMeasurement()
@@ -104,8 +104,8 @@ void WMEmMeasurement::connectors()
 {
     // initialize connectors
     // TODO use OW class
-    m_output = boost::shared_ptr< LaBP::WLModuleOutputDataCollectionable< LaBP::WDataSetEMM > >(
-                    new LaBP::WLModuleOutputDataCollectionable< LaBP::WDataSetEMM >( shared_from_this(), "out",
+    m_output = boost::shared_ptr< LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM > >(
+                    new LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM >( shared_from_this(), "out",
                                     "A loaded dataset." ) );
 
     // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
@@ -342,8 +342,8 @@ void WMEmMeasurement::streamData()
 
             waitTimer.reset();
 
-            boost::shared_ptr< LaBP::WDataSetEMM > emmPacket = boost::shared_ptr< LaBP::WDataSetEMM >(
-                            new LaBP::WDataSetEMM( *m_fiffEmm ) );
+            boost::shared_ptr< LaBP::WLDataSetEMM > emmPacket = boost::shared_ptr< LaBP::WLDataSetEMM >(
+                            new LaBP::WLDataSetEMM( *m_fiffEmm ) );
 
             // clone each modality
             for( std::vector< LaBP::WDataSetEMMEMD::SPtr >::const_iterator emd = emds.begin(); emd != emds.end(); ++emd )
@@ -472,7 +472,7 @@ void WMEmMeasurement::generateData()
             break;
         }
 
-        boost::shared_ptr< LaBP::WDataSetEMM > emm = boost::shared_ptr< LaBP::WDataSetEMM >( new LaBP::WDataSetEMM() );
+        boost::shared_ptr< LaBP::WLDataSetEMM > emm = boost::shared_ptr< LaBP::WLDataSetEMM >( new LaBP::WLDataSetEMM() );
         boost::shared_ptr< LaBP::WDataSetEMMEEG > eeg = boost::shared_ptr< LaBP::WDataSetEMMEEG >( new LaBP::WDataSetEMMEEG() );
 
         eeg->setSampFreq( m_generationFreq->get() );
@@ -540,7 +540,7 @@ bool WMEmMeasurement::readFiff( std::string fname )
     if( boost::filesystem::exists( fname ) && boost::filesystem::is_regular_file( fname ) )
     {
         LaBP::WLReaderFIFF fiffReader( fname );
-        m_fiffEmm.reset( new LaBP::WDataSetEMM() );
+        m_fiffEmm.reset( new LaBP::WLDataSetEMM() );
         if( fiffReader.Read( m_fiffEmm ) == LaBP::WLReaderFIFF::ReturnCode::SUCCESS )
         {
             if( m_fiffEmm->hasModality( LaBP::WEModalityType::EEG ) )
@@ -737,7 +737,7 @@ bool WMEmMeasurement::readVol( std::string fname )
     }
 }
 
-void WMEmMeasurement::setAdditionalInformation( LaBP::WDataSetEMM::SPtr emm )
+void WMEmMeasurement::setAdditionalInformation( LaBP::WLDataSetEMM::SPtr emm )
 {
     if( m_isElcLoaded )
     {

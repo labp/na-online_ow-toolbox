@@ -97,7 +97,7 @@ namespace LaBP
         return drawable3D;
     }
 
-    void WLEMDDrawable3D::draw( LaBP::WDataSetEMM::SPtr emm )
+    void WLEMDDrawable3D::draw( LaBP::WLDataSetEMM::SPtr emm )
     {
 
         m_emm = emm;

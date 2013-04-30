@@ -31,7 +31,7 @@
 #include <string>
 #include <set>
 
-#include "core/dataHandler/WDataSetEMM.h"
+#include "core/data/WLDataSetEMM.h"
 #include "core/util/WLRingBuffer.h"
 
 /**
@@ -54,7 +54,7 @@ public:
 
     WEpochSeparation();
 
-    WEpochSeparation( size_t channel, std::set< LaBP::WDataSetEMM::EventT > triggerMask, size_t preSamples, size_t postSamples );
+    WEpochSeparation( size_t channel, std::set< LaBP::WLDataSetEMM::EventT > triggerMask, size_t preSamples, size_t postSamples );
 
     virtual ~WEpochSeparation();
 
@@ -73,12 +73,12 @@ public:
     /**
      * Returns the trigger mask to be tested.
      */
-    std::set< LaBP::WDataSetEMM::EventT > getTriggerMask() const;
+    std::set< LaBP::WLDataSetEMM::EventT > getTriggerMask() const;
 
     /**
      * Sets the trigger mask, which will be checked on the event channel.
      */
-    void setTriggerMask( std::set< LaBP::WDataSetEMM::EventT > triggerMask );
+    void setTriggerMask( std::set< LaBP::WLDataSetEMM::EventT > triggerMask );
 
     /**
      * Returns the samples to be stored before the trigger.
@@ -125,12 +125,12 @@ public:
      * Checks the passed in WDataSetEMM for an event with the trigger mask on the set up channel.
      * Returns Number of extracted epochs
      */
-    size_t extract( const LaBP::WDataSetEMM::SPtr emmIn ); // TODO(pieloth): ConstSPtr conflicts with WLRingBuffer
+    size_t extract( const LaBP::WLDataSetEMM::SPtr emmIn ); // TODO(pieloth): ConstSPtr conflicts with WLRingBuffer
 
     /**
      * Returns the extracted WDataSetEMM. This is a new object. (FIFO)
      */
-    LaBP::WDataSetEMM::SPtr getNextEpoch();
+    LaBP::WLDataSetEMM::SPtr getNextEpoch();
 
 private:
     /**
@@ -152,7 +152,7 @@ private:
         /**
          * EMM which is currently separated
          */
-        LaBP::WDataSetEMM::SPtr m_emm;
+        LaBP::WLDataSetEMM::SPtr m_emm;
 
         /**
          * Left samples which has to be collected from next packets.
@@ -189,16 +189,16 @@ private:
      *
      * \return true, if no samples left and EMM is complete.
      */
-    bool processPostSamples( LeftEpoch::SPtr leftEpoch, LaBP::WDataSetEMM::ConstSPtr emmIn );
+    bool processPostSamples( LeftEpoch::SPtr leftEpoch, LaBP::WLDataSetEMM::ConstSPtr emmIn );
 
     size_t m_channel;
-    std::set< LaBP::WDataSetEMM::EventT > m_triggerMask;
+    std::set< LaBP::WLDataSetEMM::EventT > m_triggerMask;
     size_t m_preSamples;
     size_t m_postSamples;
     size_t m_blockSize;
 
-    LaBP::WLRingBuffer< LaBP::WDataSetEMM >::SPtr m_buffer;
-    std::deque< LaBP::WDataSetEMM::SPtr > m_epochs;
+    LaBP::WLRingBuffer< LaBP::WLDataSetEMM >::SPtr m_buffer;
+    std::deque< LaBP::WLDataSetEMM::SPtr > m_epochs;
     std::list< LeftEpoch::SPtr > m_leftEpochs;
 
     /**

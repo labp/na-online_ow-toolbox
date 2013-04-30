@@ -107,7 +107,7 @@ namespace LaBP
          *
          * @param emm data to draw.
          */
-        virtual void draw( LaBP::WDataSetEMM::SPtr emm ) = 0;
+        virtual void draw( LaBP::WLDataSetEMM::SPtr emm ) = 0;
 
         virtual void redraw() = 0;
 
@@ -127,7 +127,7 @@ namespace LaBP
 
         virtual void clearWidget( bool force = false );
 
-        virtual std::pair< LaBP::WDataSetEMM::SPtr, size_t > getSelectedData( ValueT pixel ) const = 0;
+        virtual std::pair< LaBP::WLDataSetEMM::SPtr, size_t > getSelectedData( ValueT pixel ) const = 0;
 
     protected:
         osg::ref_ptr< osg::Geode > drawChannel( const LaBP::WDataSetEMMEMD::ChannelT& channel, size_t iteration = 0 );

@@ -36,7 +36,7 @@
 #include <core/kernel/WModule.h>
 
 // Input & output data
-#include "core/dataHandler/WDataSetEMM.h"
+#include "core/data/WLDataSetEMM.h"
 
 // Input & output connectors
 // TODO(pieloth) use OW classes
@@ -91,13 +91,13 @@ const std::string WMFIRFilter::getDescription() const
 void WMFIRFilter::connectors()
 {
     // TODO(pieloth) use OW classes
-    m_input = boost::shared_ptr< LaBP::WLModuleInputDataRingBuffer< LaBP::WDataSetEMM > >(
-                    new LaBP::WLModuleInputDataRingBuffer< LaBP::WDataSetEMM >( 8, shared_from_this(), "in",
+    m_input = boost::shared_ptr< LaBP::WLModuleInputDataRingBuffer< LaBP::WLDataSetEMM > >(
+                    new LaBP::WLModuleInputDataRingBuffer< LaBP::WLDataSetEMM >( 8, shared_from_this(), "in",
                                     "Expects a EMM-DataSet for filtering." ) );
     addConnector( m_input );
 
-    m_output = boost::shared_ptr< LaBP::WLModuleOutputDataCollectionable< LaBP::WDataSetEMM > >(
-                    new LaBP::WLModuleOutputDataCollectionable< LaBP::WDataSetEMM >( shared_from_this(), "out",
+    m_output = boost::shared_ptr< LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM > >(
+                    new LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM >( shared_from_this(), "out",
                                     "Provides a filtered EMM-DataSet" ) );
     addConnector( m_output );
 }
@@ -206,8 +206,8 @@ void WMFIRFilter::moduleMain()
     m_moduleState.add( m_input->getDataChangedCondition() ); // when inputdata changed
     m_moduleState.add( m_propCondition ); // when properties changed
 
-    LaBP::WDataSetEMM::SPtr emmIn;
-    LaBP::WDataSetEMM::SPtr emmOut;
+    LaBP::WLDataSetEMM::SPtr emmIn;
+    LaBP::WLDataSetEMM::SPtr emmOut;
 
     ready(); // signal ready state
 
@@ -251,7 +251,7 @@ void WMFIRFilter::moduleMain()
             profiler->start();
 
             // Create output data
-            emmOut.reset( new LaBP::WDataSetEMM( *emmIn ) );
+            emmOut.reset( new LaBP::WLDataSetEMM( *emmIn ) );
 
             std::vector< LaBP::WDataSetEMMEMD::SPtr > emdsIn = emmIn->getModalityList();
             for( std::vector< LaBP::WDataSetEMMEMD::SPtr >::const_iterator emdIn = emdsIn.begin(); emdIn != emdsIn.end();

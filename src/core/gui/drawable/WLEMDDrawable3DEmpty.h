@@ -31,7 +31,7 @@
 
 #include <core/gui/WCustomWidget.h>
 
-#include "core/dataHandler/WDataSetEMM.h"
+#include "core/data/WLDataSetEMM.h"
 
 #include "WLEMDDrawable3D.h"
 
@@ -53,7 +53,7 @@ namespace LaBP
         explicit WLEMDDrawable3DEmpty( WCustomWidget::SPtr widget );
         virtual ~WLEMDDrawable3DEmpty();
 
-        virtual void draw( LaBP::WDataSetEMM::SPtr emm );
+        virtual void draw( LaBP::WLDataSetEMM::SPtr emm );
 
         virtual void redraw();
 

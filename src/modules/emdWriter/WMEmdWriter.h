@@ -32,7 +32,7 @@
 
 #include <core/kernel/WModule.h>
 
-#include "core/dataHandler/WDataSetEMM.h"
+#include "core/data/WLDataSetEMM.h"
 #include "core/module/WLModuleDrawable.h"
 // TODO use OW classes
 #include "core/module/WLModuleInputDataRingBuffer.h"
@@ -107,12 +107,12 @@ private:
     /**
      * Input connector for a EMM dataset
      */
-    boost::shared_ptr< LaBP::WLModuleInputDataRingBuffer< LaBP::WDataSetEMM > > m_input;
+    boost::shared_ptr< LaBP::WLModuleInputDataRingBuffer< LaBP::WLDataSetEMM > > m_input;
 
     /**
      * Output connector for a EMM dataset
      */
-    boost::shared_ptr< LaBP::WLModuleOutputDataCollectionable< LaBP::WDataSetEMM > > m_output;
+    boost::shared_ptr< LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM > > m_output;
 
     /**
      * A condition used to notify about changes in several properties.

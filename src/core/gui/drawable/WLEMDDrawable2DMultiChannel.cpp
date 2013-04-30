@@ -36,7 +36,7 @@
 #include <core/common/WLogger.h>
 #include <core/gui/WCustomWidget.h>
 
-#include "core/dataHandler/WDataSetEMM.h"
+#include "core/data/WLDataSetEMM.h"
 #include "core/dataHandler/WDataSetEMMEMD.h"
 
 #include "WLEMDDrawable2DMultiChannel.h"

@@ -40,7 +40,7 @@
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
-#include "core/dataHandler/WDataSetEMM.h"
+#include "core/data/WLDataSetEMM.h"
 #include "core/dataHandler/WDataSetEMMEMD.h"
 #include "core/dataHandler/WDataSetEMMEEG.h"
 #include "core/dataHandler/WDataSetEMMMEG.h"
@@ -68,7 +68,7 @@ public:
 
     bool isStreaming();
 
-    bool readData( LaBP::WDataSetEMM::SPtr emmIn );
+    bool readData( LaBP::WLDataSetEMM::SPtr emmIn );
 
 private:
     bool m_isStreaming;
@@ -98,7 +98,7 @@ private:
 
     LaBP::WDataSetEMMEEG::SPtr readEEG( const Eigen::MatrixXf& rawData );
     LaBP::WDataSetEMMMEG::SPtr readMEG( const Eigen::MatrixXf& rawData );
-    boost::shared_ptr< LaBP::WDataSetEMM::EDataT > readEvents( const Eigen::MatrixXf& rawData );
+    boost::shared_ptr< LaBP::WLDataSetEMM::EDataT > readEvents( const Eigen::MatrixXf& rawData );
     bool readEmd( LaBP::WDataSetEMMEMD* const emd, const Eigen::RowVectorXi& picks, const Eigen::MatrixXf& rawData );
 };
 

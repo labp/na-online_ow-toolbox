@@ -29,7 +29,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "core/dataHandler/WDataSetEMM.h"
+#include "core/data/WLDataSetEMM.h"
 
 #include "WEpochAveraging.h"
 
@@ -57,7 +57,7 @@ public:
 
     virtual ~WEpochAveragingTotal();
 
-    LaBP::WDataSetEMM::SPtr getAverage( const LaBP::WDataSetEMM::ConstSPtr emm );
+    LaBP::WLDataSetEMM::SPtr getAverage( const LaBP::WLDataSetEMM::ConstSPtr emm );
 
     void reset();
 
@@ -65,18 +65,18 @@ private:
     /**
      * Running sum for division.
      */
-    LaBP::WDataSetEMM::SPtr m_emmSum;
+    LaBP::WLDataSetEMM::SPtr m_emmSum;
 
     /**
      * Sums the data of all modalities and channels to the corresponding data of the running sum.
      */
-    void addEmmSum( const LaBP::WDataSetEMM::ConstSPtr emm );
+    void addEmmSum( const LaBP::WLDataSetEMM::ConstSPtr emm );
 
     /**
      * Creates the WDataSetEMM object for the running sum, if this is not initialized.
      * The modality count, channel count and samples size of the passed in object is used for all future data.
      */
-    void checkEmmSum( const LaBP::WDataSetEMM::ConstSPtr emm );
+    void checkEmmSum( const LaBP::WLDataSetEMM::ConstSPtr emm );
 };
 
 #endif  // WEPOCHAVERAGINGTOTAL_H

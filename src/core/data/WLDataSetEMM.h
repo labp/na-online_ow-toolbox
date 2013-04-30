@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WDATASETEMM_H
-#define WDATASETEMM_H
+#ifndef WLDATASETEMM_H
+#define WLDATASETEMM_H
 
 #include <string>
 #include <utility>
@@ -37,9 +37,9 @@
 
 #include "core/util/WLTimeProfiler.h"
 
-#include "WDataSetEMMEMD.h"
-#include "WDataSetEMMSubject.h"
-#include "WDataSetEMMEnumTypes.h"
+#include "core/dataHandler/WDataSetEMMEMD.h"
+#include "core/dataHandler/WDataSetEMMSubject.h"
+#include "core/dataHandler/WDataSetEMMEnumTypes.h"
 
 /**
  * LaBP developed content
@@ -57,18 +57,18 @@ namespace LaBP
     /**
      * TODO(kaehler): Comments
      */
-    class WDataSetEMM: public WDataSet // NOLINT
+    class WLDataSetEMM: public WDataSet // NOLINT
     {
     public:
         /**
          * Abbreviation for a shared pointer.
          */
-        typedef boost::shared_ptr< WDataSetEMM > SPtr;
+        typedef boost::shared_ptr< WLDataSetEMM > SPtr;
 
         /**
          * Abbreviation for const shared pointer.
          */
-        typedef boost::shared_ptr< const WDataSetEMM > ConstSPtr;
+        typedef boost::shared_ptr< const WLDataSetEMM > ConstSPtr;
 
         typedef int EventT;
 
@@ -79,33 +79,33 @@ namespace LaBP
         /**
          * TODO(kaehler): Comments
          */
-        WDataSetEMM();
+        WLDataSetEMM();
 
         /**
          * TODO(kaehler): Comments
          */
-        WDataSetEMM( LaBP::WDataSetEMMSubject::SPtr subject );
+        WLDataSetEMM( LaBP::WDataSetEMMSubject::SPtr subject );
 
         /**
          * TODO(kaehler): Comments
          *
          * \param dataUpdate set this true to fire dataUpdate-event in subjectmodule
          */
-        explicit WDataSetEMM( WPropBool dataUpdate );
+        explicit WLDataSetEMM( WPropBool dataUpdate );
 
         /**
          * copy constructor, makes a shallow copy from object except the data vector
          *
          * \param m_WDataSetEMMObject the object to copy from
          */
-        WDataSetEMM( const WDataSetEMM& emm );
+        WLDataSetEMM( const WLDataSetEMM& emm );
 
-        WDataSetEMM::SPtr clone() const;
+        WLDataSetEMM::SPtr clone() const;
 
         /**
          * TODO(kaehler): Comments
          */
-        virtual ~WDataSetEMM();
+        virtual ~WLDataSetEMM();
 
         /**
          * Gets the name of this prototype.
@@ -220,7 +220,7 @@ namespace LaBP
          *
          * \param modality modality to swap with
          */
-        WDataSetEMM::SPtr newModalityData( WDataSetEMMEMD::SPtr modality );
+        WLDataSetEMM::SPtr newModalityData( WDataSetEMMEMD::SPtr modality );
 
         // -----------getter and setter-----------------------------------------------------------------------------
 
@@ -367,4 +367,4 @@ namespace LaBP
     };
 }
 
-#endif  // WDATASETEMM_H
+#endif  // WLDATASETEMM_H

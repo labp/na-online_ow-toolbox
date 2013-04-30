@@ -25,7 +25,7 @@
 #include <vector>
 
 #include "core/data/WLMatrixTypes.h"
-#include "core/dataHandler/WDataSetEMM.h"
+#include "core/data/WLDataSetEMM.h"
 #include "core/dataHandler/WDataSetEMMEMD.h"
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"
 #include "core/dataHandler/WDataSetEMMSource.h"
@@ -43,7 +43,7 @@ namespace LaBP
     {
     }
 
-    LaBP::WDataSetEMMEMD::SampleT WLBoundCalculator::getMax2D( LaBP::WDataSetEMM::ConstSPtr emm,
+    LaBP::WDataSetEMMEMD::SampleT WLBoundCalculator::getMax2D( LaBP::WLDataSetEMM::ConstSPtr emm,
                     LaBP::WEModalityType::Enum modality )
     {
         if( modality == LaBP::WEModalityType::SOURCE )
@@ -59,7 +59,7 @@ namespace LaBP
         }
     }
 
-    LaBP::WDataSetEMMEMD::SampleT WLBoundCalculator::getMax3D( LaBP::WDataSetEMM::ConstSPtr emm,
+    LaBP::WDataSetEMMEMD::SampleT WLBoundCalculator::getMax3D( LaBP::WLDataSetEMM::ConstSPtr emm,
                     LaBP::WEModalityType::Enum modality )
     {
         if( modality == LaBP::WEModalityType::SOURCE )

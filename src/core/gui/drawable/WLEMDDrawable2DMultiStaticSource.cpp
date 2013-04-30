@@ -29,7 +29,7 @@
 #include <core/common/WLogger.h>
 #include <core/gui/WCustomWidget.h>
 
-#include "core/dataHandler/WDataSetEMM.h"
+#include "core/data/WLDataSetEMM.h"
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"
 #include "core/dataHandler/WDataSetEMMSource.h"
 
@@ -49,7 +49,7 @@ namespace LaBP
     {
     }
 
-    void WLEMDDrawable2DMultiStaticSource::draw( LaBP::WDataSetEMM::SPtr emm )
+    void WLEMDDrawable2DMultiStaticSource::draw( LaBP::WLDataSetEMM::SPtr emm )
     {
         bool success = false;
         if( emm->hasModality( WEModalityType::SOURCE ) )

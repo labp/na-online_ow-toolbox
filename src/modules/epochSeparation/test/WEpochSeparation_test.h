@@ -10,7 +10,7 @@
 
 #include <core/common/WLogger.h>
 
-#include "core/dataHandler/WDataSetEMM.h"
+#include "core/data/WLDataSetEMM.h"
 #include "core/dataHandler/WDataSetEMMEMD.h"
 #include "core/dataHandler/WDataSetEMMEEG.h"
 
@@ -33,7 +33,7 @@ public:
         const size_t PRESAMPLES = 42;
         const size_t POSTSAMPLES = 23;
         const size_t ECHANNEL = 2;
-        set< LaBP::WDataSetEMM::EventT > triggers;
+        set< LaBP::WLDataSetEMM::EventT > triggers;
         triggers.insert( 50 );
 
         WEpochSeparation::SPtr separation( new WEpochSeparation( ECHANNEL, triggers, PRESAMPLES, POSTSAMPLES ) );
@@ -63,21 +63,21 @@ public:
     {
         TS_TRACE( "test_extractSinglePacketNoModalityNoEventChannel ..." );
 
-        LaBP::WDataSetEMM::SPtr emm( new LaBP::WDataSetEMM() );
+        LaBP::WLDataSetEMM::SPtr emm( new LaBP::WLDataSetEMM() );
         const size_t SAMPLES = 10;
         emm->addModality( createEmd( 21, SAMPLES, 0 * SAMPLES ) );
         emm->addModality( createEmd( 42, SAMPLES, 1 * SAMPLES ) );
 
         // Single packet must be bigger than (postSamles + preSamles + 1), because WEpochSeparation returns true only for a full collected packet
-        set< LaBP::WDataSetEMM::EventT > triggers;
+        set< LaBP::WLDataSetEMM::EventT > triggers;
         triggers.insert( 1 );
         WEpochSeparation::SPtr separation( new WEpochSeparation( 1, triggers, SAMPLES / 3, SAMPLES / 3 ) );
         // no event channel
         TS_ASSERT_EQUALS( separation->extract( emm ), 0 );
 
         separation.reset( new WEpochSeparation( 1, triggers, SAMPLES / 3, SAMPLES / 3 ) );
-        emm.reset( new LaBP::WDataSetEMM() );
-        LaBP::WDataSetEMM::EChannelT eChannel( SAMPLES, 1 );
+        emm.reset( new LaBP::WLDataSetEMM() );
+        LaBP::WLDataSetEMM::EChannelT eChannel( SAMPLES, 1 );
         emm->addEventChannel( eChannel );
         // no modality
         TS_ASSERT_EQUALS( separation->extract( emm ), 0 );
@@ -90,22 +90,22 @@ public:
         const size_t SAMPLES = 500;
         const size_t PRESAMPLES = SAMPLES / 3;
         const size_t POSTSAMPLES = SAMPLES / 3;
-        const LaBP::WDataSetEMM::EventT TRIGGER_MATCH = 4;
-        set< LaBP::WDataSetEMM::EventT > triggersMatch;
+        const LaBP::WLDataSetEMM::EventT TRIGGER_MATCH = 4;
+        set< LaBP::WLDataSetEMM::EventT > triggersMatch;
         triggersMatch.insert( TRIGGER_MATCH + 5 );
         triggersMatch.insert( TRIGGER_MATCH );
-        const LaBP::WDataSetEMM::EventT TRIGGER_NO_MATCH = 1;
-        set< LaBP::WDataSetEMM::EventT > triggersNoMatch;
+        const LaBP::WLDataSetEMM::EventT TRIGGER_NO_MATCH = 1;
+        set< LaBP::WLDataSetEMM::EventT > triggersNoMatch;
         triggersNoMatch.insert( TRIGGER_NO_MATCH );
         const size_t EINDEX = SAMPLES / 2;
 
-        LaBP::WDataSetEMM::SPtr emm( new LaBP::WDataSetEMM() );
+        LaBP::WLDataSetEMM::SPtr emm( new LaBP::WLDataSetEMM() );
         emm->addModality( createEmd( 21, SAMPLES, 0 * SAMPLES ) );
         emm->addModality( createEmd( 42, SAMPLES, 1 * SAMPLES ) );
 
-        LaBP::WDataSetEMM::EChannelT eChannel1( SAMPLES, TRIGGER_NO_MATCH );
+        LaBP::WLDataSetEMM::EChannelT eChannel1( SAMPLES, TRIGGER_NO_MATCH );
         emm->addEventChannel( eChannel1 );
-        LaBP::WDataSetEMM::EChannelT eChannel2( SAMPLES, 0 );
+        LaBP::WLDataSetEMM::EChannelT eChannel2( SAMPLES, 0 );
         eChannel2[EINDEX] = TRIGGER_MATCH;
         emm->addEventChannel( eChannel2 );
 
@@ -134,25 +134,25 @@ public:
         const size_t SAMPLES = 500;
         const size_t PRESAMPLES = SAMPLES / 3;
         const size_t POSTSAMPLES = SAMPLES / 3;
-        const LaBP::WDataSetEMM::EventT TRIGGER_MATCH = 4;
-        set< LaBP::WDataSetEMM::EventT > triggersMatch;
+        const LaBP::WLDataSetEMM::EventT TRIGGER_MATCH = 4;
+        set< LaBP::WLDataSetEMM::EventT > triggersMatch;
         triggersMatch.insert( TRIGGER_MATCH + 42 );
         triggersMatch.insert( TRIGGER_MATCH );
         const size_t EINDEX = SAMPLES / 2;
 
-        LaBP::WDataSetEMM::SPtr emm( new LaBP::WDataSetEMM() );
+        LaBP::WLDataSetEMM::SPtr emm( new LaBP::WLDataSetEMM() );
         emm->addModality( createEmd( 21, SAMPLES, 0 * SAMPLES ) );
         emm->addModality( createEmd( 42, SAMPLES, 1 * SAMPLES ) );
-        LaBP::WDataSetEMM::EChannelT eChannel1( SAMPLES, 1 );
+        LaBP::WLDataSetEMM::EChannelT eChannel1( SAMPLES, 1 );
         emm->addEventChannel( eChannel1 );
-        LaBP::WDataSetEMM::EChannelT eChannel2( SAMPLES, 0 );
+        LaBP::WLDataSetEMM::EChannelT eChannel2( SAMPLES, 0 );
         eChannel2[EINDEX] = TRIGGER_MATCH;
         emm->addEventChannel( eChannel2 );
 
         WEpochSeparation::SPtr separation( new WEpochSeparation( 1, triggersMatch, PRESAMPLES, POSTSAMPLES ) );
         TS_ASSERT( separation->extract( emm ) );
         // should match
-        LaBP::WDataSetEMM::SPtr emmEpoch = separation->getNextEpoch();
+        LaBP::WLDataSetEMM::SPtr emmEpoch = separation->getNextEpoch();
 
         // check sizes
         TS_ASSERT_EQUALS( emmEpoch->getModalityCount(), emm->getModalityCount() );
@@ -184,8 +184,8 @@ public:
 
         // check event channels
         TS_ASSERT_EQUALS( emmEpoch->getEventChannelCount(), emm->getEventChannelCount() );
-        LaBP::WDataSetEMM::EChannelT eChannel;
-        LaBP::WDataSetEMM::EChannelT eChannelOrg;
+        LaBP::WLDataSetEMM::EChannelT eChannel;
+        LaBP::WLDataSetEMM::EChannelT eChannelOrg;
         size_t startIndex = EINDEX - PRESAMPLES;
         for( size_t eChan = 0; eChan < emmEpoch->getEventChannelCount(); ++eChan )
         {
@@ -208,25 +208,25 @@ public:
         const size_t SAMPLES = BLOCKSIZE * 20;
         const size_t PRESAMPLES = 3 * BLOCKSIZE;
         const size_t POSTSAMPLES = 2 * BLOCKSIZE;
-        const LaBP::WDataSetEMM::EventT TRIGGER_MATCH = 4;
-        set< LaBP::WDataSetEMM::EventT > triggersMatch;
+        const LaBP::WLDataSetEMM::EventT TRIGGER_MATCH = 4;
+        set< LaBP::WLDataSetEMM::EventT > triggersMatch;
         triggersMatch.insert( TRIGGER_MATCH + 21 );
         triggersMatch.insert( TRIGGER_MATCH );
         const size_t EINDEX = SAMPLES - ( POSTSAMPLES + 1.5 * BLOCKSIZE );
 
-        LaBP::WDataSetEMM::SPtr emm( new LaBP::WDataSetEMM() );
+        LaBP::WLDataSetEMM::SPtr emm( new LaBP::WLDataSetEMM() );
         emm->addModality( createEmd( 21, SAMPLES, 0 * SAMPLES ) );
         emm->addModality( createEmd( 42, SAMPLES, 1 * SAMPLES ) );
-        LaBP::WDataSetEMM::EChannelT eChannel1( SAMPLES, 1 );
+        LaBP::WLDataSetEMM::EChannelT eChannel1( SAMPLES, 1 );
         emm->addEventChannel( eChannel1 );
-        LaBP::WDataSetEMM::EChannelT eChannel2( SAMPLES, 0 );
+        LaBP::WLDataSetEMM::EChannelT eChannel2( SAMPLES, 0 );
         eChannel2[EINDEX] = TRIGGER_MATCH;
         emm->addEventChannel( eChannel2 );
 
         WEpochSeparation::SPtr separation( new WEpochSeparation( 1, triggersMatch, PRESAMPLES, POSTSAMPLES ) );
 
-        LaBP::WDataSetEMM::SPtr emmEpoch;
-        LaBP::WDataSetEMM::SPtr emmPacket;
+        LaBP::WLDataSetEMM::SPtr emmEpoch;
+        LaBP::WLDataSetEMM::SPtr emmPacket;
         for( size_t smp = 0; smp < SAMPLES; smp += BLOCKSIZE )
         {
             emmPacket = splitToPacket( emm, smp, BLOCKSIZE );
@@ -267,8 +267,8 @@ public:
 
         // check event channels
         TS_ASSERT_EQUALS( emmEpoch->getEventChannelCount(), emm->getEventChannelCount() );
-        LaBP::WDataSetEMM::EChannelT eChannel;
-        LaBP::WDataSetEMM::EChannelT eChannelOrg;
+        LaBP::WLDataSetEMM::EChannelT eChannel;
+        LaBP::WLDataSetEMM::EChannelT eChannelOrg;
         size_t startIndex = EINDEX - PRESAMPLES;
         for( size_t eChan = 0; eChan < emmEpoch->getEventChannelCount(); ++eChan )
         {
@@ -293,18 +293,18 @@ public:
         const size_t PRESAMPLES = BLOCKSIZE / 2;
         const size_t POSTSAMPLES = BLOCKSIZE;
         const size_t EPOCHLENGTH = PRESAMPLES + POSTSAMPLES + 1;
-        const LaBP::WDataSetEMM::EventT TRIGGER_MATCH1 = 1;
-        const LaBP::WDataSetEMM::EventT TRIGGER_MATCH2 = 8;
-        const LaBP::WDataSetEMM::EventT TRIGGER_MATCH3 = 20;
-        set< LaBP::WDataSetEMM::EventT > triggersMatch;
+        const LaBP::WLDataSetEMM::EventT TRIGGER_MATCH1 = 1;
+        const LaBP::WLDataSetEMM::EventT TRIGGER_MATCH2 = 8;
+        const LaBP::WLDataSetEMM::EventT TRIGGER_MATCH3 = 20;
+        set< LaBP::WLDataSetEMM::EventT > triggersMatch;
         triggersMatch.insert( TRIGGER_MATCH1 );
         triggersMatch.insert( TRIGGER_MATCH2 );
         triggersMatch.insert( TRIGGER_MATCH3 );
 
         // Create test data
         std::list< size_t > eIndices;
-        LaBP::WDataSetEMM::EChannelT eChannel1( SAMPLES, 0 );
-        LaBP::WDataSetEMM::EventT trigger = TRIGGER_MATCH1;
+        LaBP::WLDataSetEMM::EChannelT eChannel1( SAMPLES, 0 );
+        LaBP::WLDataSetEMM::EventT trigger = TRIGGER_MATCH1;
         for( size_t pos = PRESAMPLES + 10; ( pos + POSTSAMPLES ) < SAMPLES; pos += PRESAMPLES )
         {
             eIndices.push_back( pos );
@@ -328,7 +328,7 @@ public:
                     }
         }
 
-        LaBP::WDataSetEMM::SPtr emm( new LaBP::WDataSetEMM() );
+        LaBP::WLDataSetEMM::SPtr emm( new LaBP::WLDataSetEMM() );
         emm->addEventChannel( eChannel1 );
         emm->addModality( createEmd( CHANNELS, SAMPLES, 0 * SAMPLES ) );
         emm->addModality( createEmd( CHANNELS, SAMPLES, 1 * SAMPLES ) );
@@ -336,8 +336,8 @@ public:
         // Call trigger  routines
         WEpochSeparation::SPtr separation( new WEpochSeparation( 0, triggersMatch, PRESAMPLES, POSTSAMPLES ) );
 
-        LaBP::WDataSetEMM::SPtr emmPacket;
-        std::list< LaBP::WDataSetEMM::ConstSPtr > epochs;
+        LaBP::WLDataSetEMM::SPtr emmPacket;
+        std::list< LaBP::WLDataSetEMM::ConstSPtr > epochs;
         for( size_t smp = 0; smp < SAMPLES; smp += BLOCKSIZE )
         {
             emmPacket = splitToPacket( emm, smp, BLOCKSIZE );
@@ -354,11 +354,11 @@ public:
         TS_ASSERT_EQUALS( eIndices.size(), epochs.size() );
 
         // Check data of epochs
-        std::list< LaBP::WDataSetEMM::ConstSPtr >::const_iterator epIt = epochs.begin();
+        std::list< LaBP::WLDataSetEMM::ConstSPtr >::const_iterator epIt = epochs.begin();
         std::list< size_t >::const_iterator evIt = eIndices.begin();
 
         LaBP::WDataSetEMMEMD::ConstSPtr emd;
-        LaBP::WDataSetEMM::ConstSPtr emmEpoch;
+        LaBP::WLDataSetEMM::ConstSPtr emmEpoch;
         LaBP::WDataSetEMMEMD::ConstSPtr emdEpoch;
 
         size_t event;
@@ -391,7 +391,7 @@ public:
             TS_ASSERT_EQUALS( emmEpoch->getEventChannelCount(), emm->getEventChannelCount() );
             for( size_t chan = 0; chan < emmEpoch->getEventChannelCount(); ++chan )
             {
-                LaBP::WDataSetEMM::EChannelT& evEpoch = emmEpoch->getEventChannel( chan );
+                LaBP::WLDataSetEMM::EChannelT& evEpoch = emmEpoch->getEventChannel( chan );
                 TS_ASSERT_EQUALS( evEpoch.size(), EPOCHLENGTH );
                 for( size_t smp = 0; smp < evEpoch.size(); ++smp )
                 {
@@ -423,9 +423,9 @@ private:
         return emd;
     }
 
-    LaBP::WDataSetEMM::SPtr splitToPacket( LaBP::WDataSetEMM::ConstSPtr emmIn, size_t start, size_t blockSize )
+    LaBP::WLDataSetEMM::SPtr splitToPacket( LaBP::WLDataSetEMM::ConstSPtr emmIn, size_t start, size_t blockSize )
     {
-        LaBP::WDataSetEMM::SPtr emmOut( new LaBP::WDataSetEMM( *emmIn ) );
+        LaBP::WLDataSetEMM::SPtr emmOut( new LaBP::WLDataSetEMM( *emmIn ) );
         LaBP::WDataSetEMMEMD::ConstSPtr emdIn;
         LaBP::WDataSetEMMEMD::SPtr emdOut;
 
@@ -448,10 +448,10 @@ private:
         }
 
         // copy event
-        boost::shared_ptr< LaBP::WDataSetEMM::EDataT > data( new LaBP::WDataSetEMM::EDataT() );
+        boost::shared_ptr< LaBP::WLDataSetEMM::EDataT > data( new LaBP::WLDataSetEMM::EDataT() );
         for( size_t chan = 0; chan < emmIn->getEventChannelCount(); ++chan )
         {
-            LaBP::WDataSetEMM::EChannelT channel( emmIn->getEventChannel( chan ).begin() + start,
+            LaBP::WLDataSetEMM::EChannelT channel( emmIn->getEventChannel( chan ).begin() + start,
                             start + blockSize <= emmIn->getEventChannel( chan ).size() ? emmIn->getEventChannel( chan ).begin()
                                             + start + blockSize :
                                             emmIn->getEventChannel( chan ).end() );

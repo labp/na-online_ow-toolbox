@@ -39,7 +39,7 @@
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
 // Input & output data
-#include "core/dataHandler/WDataSetEMM.h"
+#include "core/data/WLDataSetEMM.h"
 #include "core/dataHandler/WDataSetEMMEMD.h"
 #include "core/dataHandler/WDataSetEMMSource.h"
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"
@@ -83,13 +83,13 @@ const std::string WMEmdWriter::getDescription() const
 
 void WMEmdWriter::connectors()
 {
-    m_input = boost::shared_ptr< LaBP::WLModuleInputDataRingBuffer< LaBP::WDataSetEMM > >(
-                    new LaBP::WLModuleInputDataRingBuffer< LaBP::WDataSetEMM >( 8, shared_from_this(), "in",
+    m_input = boost::shared_ptr< LaBP::WLModuleInputDataRingBuffer< LaBP::WLDataSetEMM > >(
+                    new LaBP::WLModuleInputDataRingBuffer< LaBP::WLDataSetEMM >( 8, shared_from_this(), "in",
                                     "Expects a EMM-DataSet for filtering." ) );
     addConnector( m_input );
 
-    m_output = boost::shared_ptr< LaBP::WLModuleOutputDataCollectionable< LaBP::WDataSetEMM > >(
-                    new LaBP::WLModuleOutputDataCollectionable< LaBP::WDataSetEMM >( shared_from_this(), "out",
+    m_output = boost::shared_ptr< LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM > >(
+                    new LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM >( shared_from_this(), "out",
                                     "Provides a filtered EMM-DataSet" ) );
     addConnector( m_output );
 }
@@ -152,7 +152,7 @@ void WMEmdWriter::moduleMain()
     m_moduleState.add( m_input->getDataChangedCondition() ); // when inputdata changed
     m_moduleState.add( m_propCondition ); // when properties changed
 
-    LaBP::WDataSetEMM::SPtr emmIn;
+    LaBP::WLDataSetEMM::SPtr emmIn;
 
     ready(); // signal ready state
 

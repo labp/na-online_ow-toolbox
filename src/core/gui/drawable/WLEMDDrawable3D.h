@@ -85,7 +85,7 @@ namespace LaBP
          */
         virtual ~WLEMDDrawable3D();
 
-        virtual void draw( LaBP::WDataSetEMM::SPtr emm );
+        virtual void draw( LaBP::WLDataSetEMM::SPtr emm );
 
         virtual void redraw() = 0;
 
@@ -121,7 +121,7 @@ namespace LaBP
         virtual void setColorMap( LaBP::WLColorMap::SPtr colorMap );
 
     protected:
-        LaBP::WDataSetEMM::ConstSPtr m_emm;
+        LaBP::WLDataSetEMM::ConstSPtr m_emm;
         // TODO(pizarro) move this functions to children classes, following the concept: a class just need methods that
         // all their children need. MatrixT is required only by the Source modality.
 

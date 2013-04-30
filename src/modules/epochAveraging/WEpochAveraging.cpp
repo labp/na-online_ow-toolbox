@@ -28,7 +28,7 @@
 #include <vector>
 
 #include "core/common/WLogger.h"
-#include "core/dataHandler/WDataSetEMM.h"
+#include "core/data/WLDataSetEMM.h"
 #include "core/dataHandler/WDataSetEMMEMD.h"
 
 #include "WEpochAveraging.h"
@@ -70,11 +70,11 @@ void WEpochAveraging::setTBase( size_t tbase, bool reset )
     m_tbase = tbase;
 }
 
-LaBP::WDataSetEMM::SPtr WEpochAveraging::baseline( LaBP::WDataSetEMM::ConstSPtr emm )
+LaBP::WLDataSetEMM::SPtr WEpochAveraging::baseline( LaBP::WLDataSetEMM::ConstSPtr emm )
 {
     LaBP::WDataSetEMMEMD::ConstSPtr emd;
 
-    LaBP::WDataSetEMM::SPtr emmOut = emm->clone();
+    LaBP::WLDataSetEMM::SPtr emmOut = emm->clone();
     LaBP::WDataSetEMMEMD::SPtr emdOut;
 
     for( size_t mod = 0; mod < emm->getModalityCount(); ++mod )
@@ -113,8 +113,8 @@ LaBP::WDataSetEMM::SPtr WEpochAveraging::baseline( LaBP::WDataSetEMM::ConstSPtr 
         emmOut->addModality( emdOut );
     }
 
-    boost::shared_ptr< LaBP::WDataSetEMM::EDataT > events = emm->getEventChannels();
-    boost::shared_ptr< LaBP::WDataSetEMM::EDataT > eventsOut = emmOut->getEventChannels();
+    boost::shared_ptr< LaBP::WLDataSetEMM::EDataT > events = emm->getEventChannels();
+    boost::shared_ptr< LaBP::WLDataSetEMM::EDataT > eventsOut = emmOut->getEventChannels();
     eventsOut->assign( events->begin(), events->end() );
 
     return emmOut;

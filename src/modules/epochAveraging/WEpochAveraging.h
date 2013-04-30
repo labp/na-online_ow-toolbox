@@ -30,7 +30,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "core/dataHandler/WDataSetEMM.h"
+#include "core/data/WLDataSetEMM.h"
 
 /**
  * Abstract class for all average calculations on WDataSetEMM.
@@ -70,7 +70,7 @@ public:
      *
      * \return  A new WDataSetEMM object, which holds the averaged data. Attributes are cloned from passed in object.
      */
-    virtual LaBP::WDataSetEMM::SPtr getAverage( const LaBP::WDataSetEMM::ConstSPtr emm ) = 0;
+    virtual LaBP::WLDataSetEMM::SPtr getAverage( const LaBP::WLDataSetEMM::ConstSPtr emm ) = 0;
 
     /**
      * Resets all necessary attributes and objects to start a new calculation.
@@ -90,7 +90,7 @@ protected:
      *
      * \return new EMM instance with corrected data.
      */
-    LaBP::WDataSetEMM::SPtr baseline( LaBP::WDataSetEMM::ConstSPtr emm );
+    LaBP::WLDataSetEMM::SPtr baseline( LaBP::WLDataSetEMM::ConstSPtr emm );
 };
 
 #endif  // WEPOCHAVERAGING_H

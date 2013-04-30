@@ -32,7 +32,7 @@
 #include <core/gui/WCustomWidget.h>
 #include <core/graphicsEngine/WGEGroupNode.h> // Error: forward declaration
 
-#include "core/dataHandler/WDataSetEMM.h"
+#include "core/data/WLDataSetEMM.h"
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"
 
 #include "WLEMDDrawable.h"

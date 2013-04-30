@@ -34,8 +34,7 @@
 #include <core/kernel/WKernel.h>
 
 #include "core/data/WLMatrixTypes.h"
-
-#include "core/dataHandler/WDataSetEMM.h"
+#include "core/data/WLDataSetEMM.h"
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"
 
 #include "core/gui/drawable/WLEMDDrawable.h"
@@ -271,7 +270,7 @@ void LaBP::WLModuleDrawable::initView( LaBP::WLEMDDrawable2D::WEGraphType::Enum 
     resetView();
 }
 
-void LaBP::WLModuleDrawable::updateView( boost::shared_ptr< LaBP::WDataSetEMM > emm )
+void LaBP::WLModuleDrawable::updateView( boost::shared_ptr< LaBP::WLDataSetEMM > emm )
 {
     if( m_widget->getViewer()->isClosed() )
     {

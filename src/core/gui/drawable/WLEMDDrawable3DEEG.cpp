@@ -37,7 +37,7 @@
 #include <core/common/WAssert.h>
 #include <core/gui/WCustomWidget.h>
 
-#include "core/dataHandler/WDataSetEMM.h"
+#include "core/data/WLDataSetEMM.h"
 #include "core/dataHandler/WDataSetEMMEEG.h"
 #include "core/dataHandler/WDataSetEMMEMD.h"
 
@@ -185,7 +185,7 @@ namespace LaBP
             return;
         }
 
-        LaBP::WDataSetEMM::ConstSPtr emm = m_emm;
+        LaBP::WLDataSetEMM::ConstSPtr emm = m_emm;
         LaBP::WDataSetEMMEEG::ConstSPtr emd = emm->getModality< const WDataSetEMMEEG >( WEModalityType::EEG );
 
         clearWidget();

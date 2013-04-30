@@ -33,7 +33,7 @@
 #include <core/common/WAssert.h>
 #include <core/common/WLogger.h>
 
-#include "core/dataHandler/WDataSetEMM.h"
+#include "core/data/WLDataSetEMM.h"
 #include "core/dataHandler/WDataSetEMMEMD.h"
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"
 
@@ -89,19 +89,19 @@ LaBP::WDataSetEMMEMD::SPtr WFIRFilter::filter( const LaBP::WDataSetEMMEMD::Const
     return emdOut;
 }
 
-void WFIRFilter::doPostProcessing( LaBP::WDataSetEMM::SPtr emmOut, LaBP::WDataSetEMM::ConstSPtr emmIn,
+void WFIRFilter::doPostProcessing( LaBP::WLDataSetEMM::SPtr emmOut, LaBP::WLDataSetEMM::ConstSPtr emmIn,
                 LaBP::WLTimeProfiler::SPtr profiler )
 {
     LaBP::WLTimeProfiler::SPtr emmProfiler( new LaBP::WLTimeProfiler( CLASS, "doPostProcess" ) );
     emmProfiler->start();
 
-    boost::shared_ptr< LaBP::WDataSetEMM::EDataT > eventsIn = emmIn->getEventChannels();
+    boost::shared_ptr< LaBP::WLDataSetEMM::EDataT > eventsIn = emmIn->getEventChannels();
     if( !eventsIn || eventsIn->empty() )
     {
         return;
     }
 
-    boost::shared_ptr< LaBP::WDataSetEMM::EDataT > eventsOut( new LaBP::WDataSetEMM::EDataT() );
+    boost::shared_ptr< LaBP::WLDataSetEMM::EDataT > eventsOut( new LaBP::WLDataSetEMM::EDataT() );
     const size_t channels = eventsIn->size();
     const size_t samples = eventsIn->front().size();
     // TODO(pieloth): correct prevSize / shift?

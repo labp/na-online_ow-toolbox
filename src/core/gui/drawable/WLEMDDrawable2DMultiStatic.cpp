@@ -22,7 +22,7 @@ namespace LaBP
     {
     }
 
-    void WLEMDDrawable2DMultiStatic::draw( LaBP::WDataSetEMM::SPtr emm )
+    void WLEMDDrawable2DMultiStatic::draw( LaBP::WLDataSetEMM::SPtr emm )
     {
 
         m_emm = emm;
@@ -35,12 +35,12 @@ namespace LaBP
         return m_emm.get() && m_emm->hasModality( m_modality );
     }
 
-    std::pair< LaBP::WDataSetEMM::SPtr, size_t > WLEMDDrawable2DMultiStatic::getSelectedData( ValueT pixel ) const
+    std::pair< LaBP::WLDataSetEMM::SPtr, size_t > WLEMDDrawable2DMultiStatic::getSelectedData( ValueT pixel ) const
     {
         size_t sample = 0;
         const ValueT x_offset = m_xOffset + 2 * m_labelWidth;
 
-        LaBP::WDataSetEMM::SPtr emm = m_emm;
+        LaBP::WLDataSetEMM::SPtr emm = m_emm;
 
         if( pixel > x_offset )
         {
@@ -63,7 +63,7 @@ namespace LaBP
             return;
         }
 
-        LaBP::WDataSetEMM::ConstSPtr emm = m_emm;
+        LaBP::WLDataSetEMM::ConstSPtr emm = m_emm;
         LaBP::WDataSetEMMEMD::ConstSPtr emd = emm->getModality( m_modality );
         osgAddLabels( emd.get() );
         osgAddChannels( emd.get() );

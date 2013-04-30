@@ -56,7 +56,7 @@ namespace LaBP
          *
          * @param emm data to draw.
          */
-        virtual void draw( LaBP::WDataSetEMM::SPtr emm );
+        virtual void draw( LaBP::WLDataSetEMM::SPtr emm );
 
         /**
          * Checks whether data is available.
@@ -65,10 +65,10 @@ namespace LaBP
 
         void redraw();
 
-        virtual std::pair< LaBP::WDataSetEMM::SPtr, size_t > getSelectedData( ValueT pixel ) const;
+        virtual std::pair< LaBP::WLDataSetEMM::SPtr, size_t > getSelectedData( ValueT pixel ) const;
 
     protected:
-        LaBP::WDataSetEMM::SPtr m_emm;
+        LaBP::WLDataSetEMM::SPtr m_emm;
 
         virtual void osgNodeCallback( osg::NodeVisitor* nv );
 

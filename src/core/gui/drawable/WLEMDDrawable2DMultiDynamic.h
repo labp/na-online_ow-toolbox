@@ -52,18 +52,18 @@ namespace LaBP
         WLEMDDrawable2DMultiDynamic( WCustomWidget::SPtr widget );
         virtual ~WLEMDDrawable2DMultiDynamic();
 
-        virtual void draw( LaBP::WDataSetEMM::SPtr emm );
+        virtual void draw( LaBP::WLDataSetEMM::SPtr emm );
 
         virtual bool hasData() const;
 
         virtual void redraw();
 
-        virtual std::pair< LaBP::WDataSetEMM::SPtr, size_t > getSelectedData( ValueT pixel ) const;
+        virtual std::pair< LaBP::WLDataSetEMM::SPtr, size_t > getSelectedData( ValueT pixel ) const;
 
     protected:
         virtual void osgNodeCallback( osg::NodeVisitor* nv );
 
-        virtual osg::ref_ptr< WLAnimationSideScroll::EMMNode > createEmdNode( LaBP::WDataSetEMM::SPtr emd );
+        virtual osg::ref_ptr< WLAnimationSideScroll::EMMNode > createEmdNode( LaBP::WLDataSetEMM::SPtr emd );
 
     private:
         /**

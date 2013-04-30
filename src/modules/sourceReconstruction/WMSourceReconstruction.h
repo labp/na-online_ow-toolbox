@@ -33,8 +33,7 @@
 #include <core/common/WPropertyTypes.h>
 #include <core/kernel/WModule.h>
 
-#include "core/common/math/WLMatrixTypes.h"
-#include "core/dataHandler/WDataSetEMM.h"
+#include "core/data/WLDataSetEMM.h"
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"
 
 #include "core/module/WLModuleDrawable.h"
@@ -112,12 +111,12 @@ private:
     /**
      * Input connector for a EMM dataset
      */
-    boost::shared_ptr< LaBP::WLModuleInputDataRingBuffer< LaBP::WDataSetEMM > > m_input;
+    boost::shared_ptr< LaBP::WLModuleInputDataRingBuffer< LaBP::WLDataSetEMM > > m_input;
 
     /**
      * Output connector for a EMM dataset
      */
-    boost::shared_ptr< LaBP::WLModuleOutputDataCollectionable< LaBP::WDataSetEMM > > m_output;
+    boost::shared_ptr< LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM > > m_output;
 
     /**
      * A condition used to notify about changes in several properties.
@@ -155,7 +154,7 @@ private:
     WPropString m_inverseStatus;
     WPropInt m_inverseRows;
     WPropInt m_inverseCols;
-    bool inverseSolutionFromSubject( LaBP::WDataSetEMM::SPtr emm, LaBP::WEModalityType::Enum modality );
+    bool inverseSolutionFromSubject( LaBP::WLDataSetEMM::SPtr emm, LaBP::WEModalityType::Enum modality );
 
     // data and noise covariance matices //
     LaBP::MatrixSPtr m_nCovarianceMatrix;

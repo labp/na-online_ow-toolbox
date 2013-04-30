@@ -208,7 +208,7 @@ bool WRtClient::isStreaming()
     return m_isStreaming;
 }
 
-bool WRtClient::readData( LaBP::WDataSetEMM::SPtr emmIn )
+bool WRtClient::readData( LaBP::WLDataSetEMM::SPtr emmIn )
 {
     wlog::debug( CLASS ) << "readData() called!";
     if( !isConnected() )
@@ -238,7 +238,7 @@ bool WRtClient::readData( LaBP::WDataSetEMM::SPtr emmIn )
         }
         if( m_picksStim.size() > 0 )
         {
-            boost::shared_ptr< LaBP::WDataSetEMM::EDataT > events = readEvents( matRawBuffer );
+            boost::shared_ptr< LaBP::WLDataSetEMM::EDataT > events = readEvents( matRawBuffer );
             emmIn->setEventChannels( events );
         }
         return true;
@@ -308,11 +308,11 @@ bool WRtClient::readEmd( LaBP::WDataSetEMMEMD* const emd, const Eigen::RowVector
     return true;
 }
 
-boost::shared_ptr< LaBP::WDataSetEMM::EDataT > WRtClient::readEvents( const Eigen::MatrixXf& rawData )
+boost::shared_ptr< LaBP::WLDataSetEMM::EDataT > WRtClient::readEvents( const Eigen::MatrixXf& rawData )
 {
     wlog::debug( CLASS ) << "readStim() called!";
 
-    boost::shared_ptr< LaBP::WDataSetEMM::EDataT > events( new LaBP::WDataSetEMM::EDataT );
+    boost::shared_ptr< LaBP::WLDataSetEMM::EDataT > events( new LaBP::WLDataSetEMM::EDataT );
     if( m_picksStim.size() == 0 )
     {
         wlog::error( CLASS ) << "No channels to pick!";
@@ -329,11 +329,11 @@ boost::shared_ptr< LaBP::WDataSetEMM::EDataT > WRtClient::readEvents( const Eige
     for( Eigen::RowVectorXi::Index row = 0; row < rows; ++row )
     {
         WAssertDebug( m_picksStim[row] < rawData.rows(), "Selected channel index out of raw data boundary!" );
-        LaBP::WDataSetEMM::EChannelT eChannel;
+        LaBP::WLDataSetEMM::EChannelT eChannel;
         eChannel.reserve( cols );
         for( size_t col = 0; col < cols; ++col )
         {
-            eChannel.push_back( ( LaBP::WDataSetEMM::EventT )rawData( m_picksStim[row], col ) );
+            eChannel.push_back( ( LaBP::WLDataSetEMM::EventT )rawData( m_picksStim[row], col ) );
         }
         events->push_back( eChannel );
     }

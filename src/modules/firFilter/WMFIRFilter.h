@@ -29,7 +29,7 @@
 
 #include <core/kernel/WModule.h>
 
-#include "core/dataHandler/WDataSetEMM.h"
+#include "core/data/WLDataSetEMM.h"
 #include "core/module/WLModuleDrawable.h"
 // TODO(pieloth): use OW classes
 #include "core/module/WLModuleInputDataRingBuffer.h"
@@ -125,12 +125,12 @@ private:
     /**
      * Input connector for a WEEG2 dataset to get filtered
      */
-    boost::shared_ptr< LaBP::WLModuleInputDataRingBuffer< LaBP::WDataSetEMM > > m_input;
+    boost::shared_ptr< LaBP::WLModuleInputDataRingBuffer< LaBP::WLDataSetEMM > > m_input;
 
     /**
      * Output connector for a filtered WEEG2 dataset
      */
-    boost::shared_ptr< LaBP::WLModuleOutputDataCollectionable< LaBP::WDataSetEMM > > m_output;
+    boost::shared_ptr< LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM > > m_output;
 
     /**
      * A condition used to notify about changes in several properties.

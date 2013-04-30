@@ -36,7 +36,7 @@
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
-#include "core/dataHandler/WDataSetEMM.h"
+#include "core/data/WLDataSetEMM.h"
 
 /**
  * This module implements several onscreen status displays
@@ -104,12 +104,12 @@ private:
     /**
      * Input connector for a EMM dataset
      */
-    boost::shared_ptr< LaBP::WLModuleInputDataRingBuffer< LaBP::WDataSetEMM > > m_input;
+    boost::shared_ptr< LaBP::WLModuleInputDataRingBuffer< LaBP::WLDataSetEMM > > m_input;
 
     /**
      * Output connector for a EMM dataset
      */
-    boost::shared_ptr< LaBP::WLModuleOutputDataCollectionable< LaBP::WDataSetEMM > > m_output;
+    boost::shared_ptr< LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM > > m_output;
 
     /**
      * A condition used to notify about changes in several properties.
@@ -120,7 +120,7 @@ private:
 
     WPropString m_file;
 
-    bool write( std::string fname, LaBP::WDataSetEMM::SPtr emm );
+    bool write( std::string fname, LaBP::WLDataSetEMM::SPtr emm );
 
     void write( std::ofstream& fstream, LaBP::WLTimeProfiler::SPtr profiler, std::string prefix );
 

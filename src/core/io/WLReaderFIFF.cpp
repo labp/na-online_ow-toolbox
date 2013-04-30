@@ -38,7 +38,7 @@
 #include <core/common/WLogger.h>
 #include <core/common/WAssert.h>
 
-#include "core/dataHandler/WDataSetEMM.h"
+#include "core/data/WLDataSetEMM.h"
 #include "core/dataHandler/WDataSetEMMSubject.h"
 #include "core/dataHandler/WDataSetEMMEMD.h"
 #include "core/dataHandler/WDataSetEMMEEG.h"
@@ -59,7 +59,7 @@ WLReaderFIFF::WLReaderFIFF( std::string fname ) :
     wlog::debug( CLASS ) << "file: " << fname;
 }
 
-WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( LaBP::WDataSetEMM::SPtr out )
+WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( LaBP::WLDataSetEMM::SPtr out )
 {
     LFData data;
     returncode_t ret = LFInterface::fiffRead( data, m_fname.data() );
@@ -261,16 +261,16 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( LaBP::WDataSetEMM::SPtr out )
 
     // Create event/stimulus channel
     LFEvents events = measinfo_in.GetLFEvents();
-    LaBP::WDataSetEMM::EChannelT eventData_out;
+    LaBP::WLDataSetEMM::EChannelT eventData_out;
     std::vector< double > eventData_in;
     for( std::vector< int32_t >::iterator chan = events.GetEventChannels().begin(); chan != events.GetEventChannels().end();
                     ++chan )
     {
         wlog::debug( CLASS ) << "Event channel: " << *chan;
-        eventData_out = LaBP::WDataSetEMM::EChannelT();
+        eventData_out = LaBP::WLDataSetEMM::EChannelT();
         eventData_in = dummy->getData()[*chan - 1]; // TODO LFEvents counts from 1 ?
         for( size_t i = 0; i < eventData_in.size(); ++i )
-            eventData_out.push_back( ( LaBP::WDataSetEMM::EventT )eventData_in[i] );
+            eventData_out.push_back( ( LaBP::WLDataSetEMM::EventT )eventData_in[i] );
         out->addEventChannel( eventData_out );
     }
 

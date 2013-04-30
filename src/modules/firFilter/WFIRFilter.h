@@ -32,7 +32,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "core/dataHandler/WDataSetEMM.h"
+#include "core/data/WLDataSetEMM.h"
 #include "core/dataHandler/WDataSetEMMEMD.h"
 
 #include "core/util/WLTimeProfiler.h"
@@ -85,7 +85,7 @@ public:
 
     LaBP::WDataSetEMMEMD::SPtr filter( const LaBP::WDataSetEMMEMD::ConstSPtr emdIn, LaBP::WLTimeProfiler::SPtr profiler );
 
-    void doPostProcessing( LaBP::WDataSetEMM::SPtr emmOut, LaBP::WDataSetEMM::ConstSPtr emmIn,
+    void doPostProcessing( LaBP::WLDataSetEMM::SPtr emmOut, LaBP::WLDataSetEMM::ConstSPtr emmIn,
                     LaBP::WLTimeProfiler::SPtr profiler );
 
     void setFilterType( WEFilterType::Enum value, bool redesign = false );
@@ -128,7 +128,7 @@ private:
     void normalizeCoeff( std::vector< double >* pCoeff );
 
     std::map< LaBP::WEModalityType::Enum, LaBP::WDataSetEMMEMD::DataT > m_prevData;
-    LaBP::WDataSetEMM::EDataT m_prevEvents;
+    LaBP::WLDataSetEMM::EDataT m_prevEvents;
 };
 
 #endif  // WFIRFILTER_H
