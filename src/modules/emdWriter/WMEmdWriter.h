@@ -35,8 +35,8 @@
 #include "core/dataHandler/WDataSetEMM.h"
 #include "core/module/WLModuleDrawable.h"
 // TODO use OW classes
-#include "core/kernel/WLModuleInputDataRingBuffer.h"
-#include "core/kernel/WLModuleOutputDataCollectionable.h"
+#include "core/module/WLModuleInputDataRingBuffer.h"
+#include "core/module/WLModuleOutputDataCollectionable.h"
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"
 
 /**

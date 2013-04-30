@@ -33,8 +33,8 @@
 #include <core/kernel/WModule.h>
 
 // TODO use OW classes
-#include "core/kernel/WLModuleInputDataRingBuffer.h"
-#include "core/kernel/WLModuleOutputDataCollectionable.h"
+#include "core/module/WLModuleInputDataRingBuffer.h"
+#include "core/module/WLModuleOutputDataCollectionable.h"
 
 #include "core/dataHandler/WDataSetEMM.h"
 

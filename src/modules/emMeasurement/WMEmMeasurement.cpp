@@ -45,7 +45,7 @@
 
 // Output connector and data
 // TODO use OW class
-#include "core/kernel/WLModuleOutputDataCollectionable.h"
+#include "core/module/WLModuleOutputDataCollectionable.h"
 #include "core/dataHandler/WDataSetEMM.h"
 #include "core/dataHandler/WDataSetEMMEEG.h"
 #include "core/dataHandler/WDataSetEMMMEG.h"

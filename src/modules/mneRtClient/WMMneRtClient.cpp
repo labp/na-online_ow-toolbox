@@ -33,7 +33,7 @@
 
 // Output connector and data
 // TODO(pieloth): use OW class
-#include "core/kernel/WLModuleOutputDataCollectionable.h"
+#include "core/module/WLModuleOutputDataCollectionable.h"
 #include "core/dataHandler/WDataSetEMM.h"
 
 #include "WMMneRtClient.h"

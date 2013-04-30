@@ -39,7 +39,7 @@
 
 #include "core/module/WLModuleDrawable.h"
 // TODO use OW class
-#include "core/kernel/WLModuleOutputDataCollectionable.h"
+#include "core/module/WLModuleOutputDataCollectionable.h"
 
 #include "algorithms/WRegistration.h"
 #include "algorithms/WRegistrationICP.h"

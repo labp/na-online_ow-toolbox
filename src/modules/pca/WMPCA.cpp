@@ -31,8 +31,8 @@
 #include <core/kernel/WModule.h>
 
 // Input & output connectors
-#include "core/kernel/WLModuleInputDataRingBuffer.h"
-#include "core/kernel/WLModuleOutputDataCollectionable.h"
+#include "core/module/WLModuleInputDataRingBuffer.h"
+#include "core/module/WLModuleOutputDataCollectionable.h"
 
 // Input & output data
 #include "core/dataHandler/WDataSetEMM.h"

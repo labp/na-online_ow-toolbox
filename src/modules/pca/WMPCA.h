@@ -31,8 +31,8 @@
 
 #include "core/dataHandler/WDataSetEMM.h"
 #include "core/module/WLModuleDrawable.h"
-#include "core/kernel/WLModuleInputDataRingBuffer.h"
-#include "core/kernel/WLModuleOutputDataCollectionable.h"
+#include "core/module/WLModuleInputDataRingBuffer.h"
+#include "core/module/WLModuleOutputDataCollectionable.h"
 
 #include "WPCA.h"
 

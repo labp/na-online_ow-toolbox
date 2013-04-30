@@ -33,7 +33,7 @@
 
 #include "core/module/WLModuleDrawable.h"
 // TODO(pieloth): use OW class
-#include "core/kernel/WLModuleOutputDataCollectionable.h"
+#include "core/module/WLModuleOutputDataCollectionable.h"
 
 #include "core/io/WLReaderExperiment.h"
 #include "WRtClient.h"
