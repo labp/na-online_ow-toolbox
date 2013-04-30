@@ -22,61 +22,67 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WDATASETEMMPCA_H
-#define WDATASETEMMPCA_H
+#ifndef WDATASETEMMECG_H
+#define WDATASETEMMECG_H
 
 #include <boost/shared_ptr.hpp>
-#include <Eigen/Core>
 
-#include <core/common/math/linearAlgebra/WVectorFixed.h>
+#include "core/dataHandler/WDataSetEMMEnumTypes.h"
 
-#include "core/data/emd/WLEMD.h"
-#include "WDataSetEMMEnumTypes.h"
+#include "WLEMD.h"
 
 namespace LaBP
 {
-    class WDataSetEMMPCA: public LaBP::WLEMD
+    class WLEMDECG: public WLEMD
     {
     public:
         /**
          * Abbreviation for a shared pointer.
          */
-        typedef boost::shared_ptr< WDataSetEMMPCA > SPtr;
+        typedef boost::shared_ptr< WLEMDECG > SPtr;
 
         /**
          * Abbreviation for const shared pointer.
          */
-        typedef boost::shared_ptr< const WDataSetEMMPCA > ConstSPtr;
+        typedef boost::shared_ptr< const WLEMDECG > ConstSPtr;
 
-        typedef Eigen::MatrixXd MatrixT;
+        /**
+         * TODO(kaehler): Comments
+         */
+        WLEMDECG();
 
-        typedef Eigen::VectorXd VectorT;
+        explicit WLEMDECG( const WLEMDECG& ecg );
 
-        WDataSetEMMPCA();
-
-        explicit WDataSetEMMPCA( const WDataSetEMMPCA& pca );
-
-        explicit WDataSetEMMPCA( const WLEMD& emd );
-
-        virtual ~WDataSetEMMPCA();
+        /**
+         * TODO(kaehler): Comments
+         */
+        virtual ~WLEMDECG();
 
         virtual LaBP::WLEMD::SPtr clone() const;
 
-        virtual LaBP::WEModalityType::Enum getModalityType() const;
+        virtual WEModalityType::Enum getModalityType() const;
 
-        void setTransformationMatrix( boost::shared_ptr< MatrixT > );
-        MatrixT& getTransformationMatrix();
-        void setChannelMeans( boost::shared_ptr< VectorT > );
-        VectorT& getChannelMeans();
-        void setPreprocessedData( WLEMD::SPtr new_preprocessed_data );
-        WLEMD::SPtr getPreprocessedData();
+        LaBP::WEPolarityType::Enum getPolarityType() const;
+
+        void setPolarityType( LaBP::WEPolarityType::Enum polarityType );
 
     private:
-        boost::shared_ptr< MatrixT > m_transformation_matrix;
 
-        boost::shared_ptr< VectorT > m_channel_means;
-
-        WLEMD::SPtr m_preprocessed_data;
+        /**
+         * TODO(kaehler):
+         * one commen reference electrode for all channels
+         * member contains position for each channel (2d, 3d) the common reference position and the tesselation
+         */
+        // Unipolar m_unipoar;
+        /**
+         * TODO(kaehler):
+         * member contains a list of positions of electrode pairs
+         */
+        // Bipoler m_bipolar;
+        /**
+         * TODO(kaehler): doxygen \ref
+         */
+        LaBP::WEPolarityType::Enum m_polarityType;
     };
 }
-#endif  // WDATASETEMMPCA_H
+#endif  // WDATASETEMMECG_H

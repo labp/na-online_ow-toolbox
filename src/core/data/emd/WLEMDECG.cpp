@@ -22,42 +22,43 @@
 //
 //---------------------------------------------------------------------------
 
-#include "core/data/emd/WLEMD.h"
-#include "WDataSetEMMECG.h"
-#include "WDataSetEMMEnumTypes.h"
+#include "core/dataHandler/WDataSetEMMEnumTypes.h"
 
-LaBP::WDataSetEMMECG::WDataSetEMMECG() :
+#include "WLEMD.h"
+#include "WLEMDECG.h"
+
+LaBP::WLEMDECG::WLEMDECG() :
                 WLEMD()
 {
 }
 
-LaBP::WDataSetEMMECG::WDataSetEMMECG( const WDataSetEMMECG& ecg ) :
+LaBP::WLEMDECG::WLEMDECG( const WLEMDECG& ecg ) :
                 WLEMD( ecg )
 {
     m_polarityType = ecg.getPolarityType();
 }
 
-LaBP::WDataSetEMMECG::~WDataSetEMMECG()
+LaBP::WLEMDECG::~WLEMDECG()
 {
 }
 
-LaBP::WLEMD::SPtr LaBP::WDataSetEMMECG::clone() const
+LaBP::WLEMD::SPtr LaBP::WLEMDECG::clone() const
 {
-    LaBP::WDataSetEMMECG::SPtr ecg( new WDataSetEMMECG( *this ) );
+    LaBP::WLEMDECG::SPtr ecg( new WLEMDECG( *this ) );
     return ecg;
 }
 
-LaBP::WEModalityType::Enum LaBP::WDataSetEMMECG::getModalityType() const
+LaBP::WEModalityType::Enum LaBP::WLEMDECG::getModalityType() const
 {
     return LaBP::WEModalityType::ECG;
 }
 
-LaBP::WEPolarityType::Enum LaBP::WDataSetEMMECG::getPolarityType() const
+LaBP::WEPolarityType::Enum LaBP::WLEMDECG::getPolarityType() const
 {
     return m_polarityType;
 }
 
-void LaBP::WDataSetEMMECG::setPolarityType( LaBP::WEPolarityType::Enum polarityType )
+void LaBP::WLEMDECG::setPolarityType( LaBP::WEPolarityType::Enum polarityType )
 {
     m_polarityType = polarityType;
 }

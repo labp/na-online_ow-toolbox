@@ -27,69 +27,70 @@
 
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
-#include "core/data/emd/WLEMD.h"
-#include "WDataSetEMMPCA.h"
-#include "WDataSetEMMEnumTypes.h"
+#include "core/dataHandler/WDataSetEMMEnumTypes.h"
 
-LaBP::WDataSetEMMPCA::WDataSetEMMPCA() :
+#include "WLEMD.h"
+#include "WLEMDPCA.h"
+
+LaBP::WLEMDPCA::WLEMDPCA() :
                 WLEMD()
 {
     m_chanNames.reset( new std::vector< std::string >() );
 }
 
-LaBP::WDataSetEMMPCA::WDataSetEMMPCA( const WDataSetEMMPCA& pca ) :
+LaBP::WLEMDPCA::WLEMDPCA( const WLEMDPCA& pca ) :
                 WLEMD( pca )
 {
 }
 
-LaBP::WDataSetEMMPCA::WDataSetEMMPCA( const WLEMD& emd ) :
+LaBP::WLEMDPCA::WLEMDPCA( const WLEMD& emd ) :
                 WLEMD( emd )
 {
     // C++11 supports "delegating constructors". So default initialization could be moved to default constructor.
     m_chanNames.reset( new std::vector< std::string >() );
 }
 
-LaBP::WDataSetEMMPCA::~WDataSetEMMPCA()
+LaBP::WLEMDPCA::~WLEMDPCA()
 {
 }
 
-LaBP::WLEMD::SPtr LaBP::WDataSetEMMPCA::clone() const
+LaBP::WLEMD::SPtr LaBP::WLEMDPCA::clone() const
 {
-    LaBP::WDataSetEMMPCA::SPtr pca( new LaBP::WDataSetEMMPCA( *this ) );
+    LaBP::WLEMDPCA::SPtr pca( new LaBP::WLEMDPCA( *this ) );
     return pca;
 }
 
-LaBP::WEModalityType::Enum LaBP::WDataSetEMMPCA::getModalityType() const
+LaBP::WEModalityType::Enum LaBP::WLEMDPCA::getModalityType() const
 {
     return LaBP::WEModalityType::PCA;
 }
 
-void LaBP::WDataSetEMMPCA::setTransformationMatrix( boost::shared_ptr< MatrixT > new_trans )
+void LaBP::WLEMDPCA::setTransformationMatrix( boost::shared_ptr< MatrixT > new_trans )
 {
     m_transformation_matrix = new_trans;
 }
 
-LaBP::WDataSetEMMPCA::MatrixT& LaBP::WDataSetEMMPCA::getTransformationMatrix()
+LaBP::WLEMDPCA::MatrixT& LaBP::WLEMDPCA::getTransformationMatrix()
 {
     return *m_transformation_matrix;
 }
 
-void LaBP::WDataSetEMMPCA::setChannelMeans( boost::shared_ptr< VectorT > new_chan_means )
+void LaBP::WLEMDPCA::setChannelMeans( boost::shared_ptr< VectorT > new_chan_means )
 {
     m_channel_means = new_chan_means;
 }
 
-LaBP::WDataSetEMMPCA::VectorT& LaBP::WDataSetEMMPCA::getChannelMeans()
+LaBP::WLEMDPCA::VectorT& LaBP::WLEMDPCA::getChannelMeans()
 {
     return *m_channel_means;
 }
 
-void LaBP::WDataSetEMMPCA::setPreprocessedData( WLEMD::SPtr new_preprocessed_data )
+void LaBP::WLEMDPCA::setPreprocessedData( WLEMD::SPtr new_preprocessed_data )
 {
     m_preprocessed_data = new_preprocessed_data;
 }
 
-LaBP::WLEMD::SPtr LaBP::WDataSetEMMPCA::getPreprocessedData()
+LaBP::WLEMD::SPtr LaBP::WLEMDPCA::getPreprocessedData()
 {
     return m_preprocessed_data;
 }

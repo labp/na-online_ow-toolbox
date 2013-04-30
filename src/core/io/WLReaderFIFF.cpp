@@ -41,10 +41,10 @@
 #include "core/data/WLDataSetEMM.h"
 #include "core/data/WLEMMSubject.h"
 #include "core/data/emd/WLEMD.h"
+#include "core/data/emd/WLEMDECG.h"
 #include "core/data/emd/WLEMDEEG.h"
 #include "core/data/emd/WLEMDEOG.h"
 #include "core/data/emd/WLEMDMEG.h"
-#include "core/dataHandler/WDataSetEMMECG.h"
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"
 
 #include "WLReaderFIFF.h"
@@ -175,7 +175,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( LaBP::WLDataSetEMM::SPtr out 
                 break;
             case 402: // ECG channel
                 wlog::debug( CLASS ) << "Creating ECG modality ...";
-                emd.reset( new LaBP::WDataSetEMMECG() );
+                emd.reset( new LaBP::WLEMDECG() );
                 break;
             default:
                 wlog::debug( CLASS ) << "Skip modality type: " << mod;

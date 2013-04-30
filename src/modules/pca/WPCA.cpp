@@ -37,7 +37,7 @@
 
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"
 #include "core/data/emd/WLEMD.h"
-#include "core/dataHandler/WDataSetEMMPCA.h"
+#include "core/data/emd/WLEMDPCA.h"
 
 #include "WPCA.h"
 
@@ -113,7 +113,7 @@ boost::shared_ptr< LaBP::WLEMD > WPCA::processData( LaBP::WLEMD::SPtr emdIn )
         }
 #endif /* DEBUG */
 
-        boost::shared_ptr< LaBP::WDataSetEMMPCA::DataT > dataOut = computePCA( dataIn );
+        boost::shared_ptr< LaBP::WLEMDPCA::DataT > dataOut = computePCA( dataIn );
         wlog::debug( CLASS ) << "dataOut: " << dataOut->size() << " x " << dataOut->front().size();
 #ifdef DEBUG
         wlog::debug( CLASS ) << "dataOut (first channels and samples only):";
@@ -128,14 +128,14 @@ boost::shared_ptr< LaBP::WLEMD > WPCA::processData( LaBP::WLEMD::SPtr emdIn )
         }
 #endif /* DEBUG */
 
-        LaBP::WDataSetEMMPCA::SPtr pcaOut = createPCAContainer( emdIn, dataOut );
+        LaBP::WLEMDPCA::SPtr pcaOut = createPCAContainer( emdIn, dataOut );
         return pcaOut;
     }
     else
         if( m_reverse && emdIn->getModalityType() == LaBP::WEModalityType::PCA ) // PCA to EEG, MEG, ...
         {
             wlog::debug( CLASS ) << "PCA to EEG, MEG ...";
-            LaBP::WDataSetEMMPCA::SPtr pcaIn = emdIn->getAs< LaBP::WDataSetEMMPCA >();
+            LaBP::WLEMDPCA::SPtr pcaIn = emdIn->getAs< LaBP::WLEMDPCA >();
             LaBP::WLEMD::SPtr emdOut = WPCA::convertPCAToModality( pcaIn );
             return emdOut;
         }
@@ -147,7 +147,7 @@ boost::shared_ptr< LaBP::WLEMD > WPCA::processData( LaBP::WLEMD::SPtr emdIn )
         }
 }
 
-LaBP::WLEMD::SPtr WPCA::convertPCAToModality( LaBP::WDataSetEMMPCA::SPtr pcaIn )
+LaBP::WLEMD::SPtr WPCA::convertPCAToModality( LaBP::WLEMDPCA::SPtr pcaIn )
 {
     wlog::debug( CLASS ) << "convertPCAToModality() called!";
     std::vector< std::vector< double > >& oldPcaData = pcaIn->getData();
@@ -217,10 +217,10 @@ LaBP::WLEMD::SPtr WPCA::convertPCAToModality( LaBP::WDataSetEMMPCA::SPtr pcaIn )
     return emdOut;
 }
 
-LaBP::WDataSetEMMPCA::SPtr WPCA::createPCAContainer( LaBP::WLEMD::SPtr emdIn,
-                boost::shared_ptr< LaBP::WDataSetEMMPCA::DataT > pcaData )
+LaBP::WLEMDPCA::SPtr WPCA::createPCAContainer( LaBP::WLEMD::SPtr emdIn,
+                boost::shared_ptr< LaBP::WLEMDPCA::DataT > pcaData )
 {
-    LaBP::WDataSetEMMPCA::SPtr pcaOut( new LaBP::WDataSetEMMPCA( *emdIn ) );
+    LaBP::WLEMDPCA::SPtr pcaOut( new LaBP::WLEMDPCA( *emdIn ) );
     pcaOut->setData( pcaData );
     pcaOut->setPreprocessedData( emdIn );
     pcaOut->setChannelMeans( m_channelMeans );
