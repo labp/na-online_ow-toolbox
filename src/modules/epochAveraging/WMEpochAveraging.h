@@ -33,7 +33,7 @@
 
 #include "core/dataHandler/WDataSetEMM.h"
 
-#include "core/kernel/WModuleEMMView.h"
+#include "core/module/WLModuleDrawable.h"
 // TODO(pieloth): use OW classes
 #include "core/kernel/WLModuleInputDataRingBuffer.h"
 #include "core/kernel/WLModuleOutputDataCollectionable.h"
@@ -44,7 +44,7 @@
  * Module for epoch averaging.
  * \ingroup modules
  */
-class WMEpochAveraging: public LaBP::WModuleEMMView
+class WMEpochAveraging: public LaBP::WLModuleDrawable
 {
 public:
     /**

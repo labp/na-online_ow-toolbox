@@ -30,7 +30,7 @@
 #include <core/kernel/WModule.h>
 
 #include "core/dataHandler/WDataSetEMM.h"
-#include "core/kernel/WModuleEMMView.h"
+#include "core/module/WLModuleDrawable.h"
 // TODO(pieloth): use OW classes
 #include "core/kernel/WLModuleInputDataRingBuffer.h"
 #include "core/kernel/WLModuleOutputDataCollectionable.h"
@@ -41,7 +41,7 @@
  * Module to parameterize and process a FIR filter.
  * \ingroup modules
  */
-class WMFIRFilter: public LaBP::WModuleEMMView
+class WMFIRFilter: public LaBP::WLModuleDrawable
 {
 public:
     /**

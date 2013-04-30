@@ -33,7 +33,7 @@
 #include <core/kernel/WModule.h>
 
 #include "core/dataHandler/WDataSetEMM.h"
-#include "core/kernel/WModuleEMMView.h"
+#include "core/module/WLModuleDrawable.h"
 // TODO use OW classes
 #include "core/kernel/WLModuleInputDataRingBuffer.h"
 #include "core/kernel/WLModuleOutputDataCollectionable.h"
@@ -43,7 +43,7 @@
  * This module implements several onscreen status displays
  * \ingroup modules
  */
-class WMEmdWriter: public LaBP::WModuleEMMView
+class WMEmdWriter: public LaBP::WLModuleDrawable
 {
 public:
     /**

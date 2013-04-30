@@ -114,7 +114,7 @@ void WMEmMeasurement::connectors()
 
 void WMEmMeasurement::properties()
 {
-    LaBP::WModuleEMMView::properties();
+    LaBP::WLModuleDrawable::properties();
 
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 

@@ -95,8 +95,8 @@ void WMEpochSeparation::connectors()
 
 void WMEpochSeparation::properties()
 {
-    LaBP::WModuleEMMView::properties();
-    LaBP::WModuleEMMView::setTimerangeInformationOnly( true );
+    LaBP::WLModuleDrawable::properties();
+    LaBP::WLModuleDrawable::setTimerangeInformationOnly( true );
 
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
@@ -125,7 +125,7 @@ void WMEpochSeparation::initModule()
 
 void WMEpochSeparation::moduleMain()
 {
-    LaBP::WModuleEMMView::
+    LaBP::WLModuleDrawable::
     // init moduleState for using Events in mainLoop
     m_moduleState.setResetable( true, true ); // resetable, autoreset
     m_moduleState.add( m_input->getDataChangedCondition() ); // when inputdata changed

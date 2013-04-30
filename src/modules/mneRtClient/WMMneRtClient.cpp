@@ -86,7 +86,7 @@ void WMMneRtClient::connectors()
 
 void WMMneRtClient::properties()
 {
-    LaBP::WModuleEMMView::properties();
+    LaBP::WLModuleDrawable::properties();
 
     m_propCondition.reset( new WCondition() );
 

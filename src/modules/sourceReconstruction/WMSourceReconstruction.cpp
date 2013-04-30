@@ -102,7 +102,7 @@ void WMSourceReconstruction::connectors()
 
 void WMSourceReconstruction::properties()
 {
-    LaBP::WModuleEMMView::properties();
+    LaBP::WLModuleDrawable::properties();
     setTimerangeInformationOnly( true );
 
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );

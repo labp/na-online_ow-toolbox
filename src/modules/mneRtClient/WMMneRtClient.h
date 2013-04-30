@@ -31,7 +31,7 @@
 
 #include "core/dataHandler/WDataSetEMM.h"
 
-#include "core/kernel/WModuleEMMView.h"
+#include "core/module/WLModuleDrawable.h"
 // TODO(pieloth): use OW class
 #include "core/kernel/WLModuleOutputDataCollectionable.h"
 
@@ -42,7 +42,7 @@
  * TODO
  * \ingroup modules
  */
-class WMMneRtClient: public LaBP::WModuleEMMView
+class WMMneRtClient: public LaBP::WLModuleDrawable
 {
 public:
     /**

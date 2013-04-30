@@ -37,7 +37,7 @@
 #include "core/dataHandler/WDataSetEMMSurface.h"
 #include "core/dataHandler/WDataSetEMMBemBoundary.h"
 
-#include "core/kernel/WModuleEMMView.h"
+#include "core/module/WLModuleDrawable.h"
 // TODO use OW class
 #include "core/kernel/WLModuleOutputDataCollectionable.h"
 
@@ -52,7 +52,7 @@
  * is the display of information from picking, i.e. what is picked.
  * \ingroup modules
  */
-class WMEmMeasurement: public LaBP::WModuleEMMView
+class WMEmMeasurement: public LaBP::WLModuleDrawable
 {
 public:
     /**

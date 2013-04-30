@@ -30,7 +30,7 @@
 #include <core/kernel/WModule.h>
 
 #include "core/dataHandler/WDataSetEMM.h"
-#include "core/kernel/WModuleEMMView.h"
+#include "core/module/WLModuleDrawable.h"
 #include "core/kernel/WLModuleInputDataRingBuffer.h"
 #include "core/kernel/WLModuleOutputDataCollectionable.h"
 
@@ -40,7 +40,7 @@
  * This module implements several onscreen status displays
  * \ingroup modules
  */
-class WMPCA: public LaBP::WModuleEMMView
+class WMPCA: public LaBP::WLModuleDrawable
 {
 public:
     /**

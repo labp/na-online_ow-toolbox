@@ -37,7 +37,7 @@
 #include "core/dataHandler/WDataSetEMM.h"
 #include "core/dataHandler/WDataSetEMMEnumTypes.h"
 
-#include "core/kernel/WModuleEMMView.h"
+#include "core/module/WLModuleDrawable.h"
 // TODO(pieloth): use OW classes
 #include "core/kernel/WLModuleInputDataRingBuffer.h"
 #include "core/kernel/WLModuleOutputDataCollectionable.h"
@@ -48,7 +48,7 @@
  * This module implements several onscreen status displays
  * \ingroup modules
  */
-class WMSourceReconstruction: public LaBP::WModuleEMMView
+class WMSourceReconstruction: public LaBP::WLModuleDrawable
 {
 public:
     /**

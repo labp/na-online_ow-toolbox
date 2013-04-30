@@ -88,7 +88,7 @@ void WMPCA::connectors()
 
 void WMPCA::properties()
 {
-    LaBP::WModuleEMMView::properties();
+    LaBP::WLModuleDrawable::properties();
 
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 

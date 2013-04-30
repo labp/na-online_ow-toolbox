@@ -29,8 +29,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "core/dataHandler/WDataSetEMM.h"
-#include "core/kernel/WModule.h"
-#include "core/kernel/WModuleEMMView.h"
+#include "core/module/WLModuleDrawable.h"
 // TODO(pieloth): use OW classes
 #include "core/kernel/WLModuleInputDataRingBuffer.h"
 #include "core/kernel/WLModuleOutputDataCollectionable.h"
@@ -41,7 +40,7 @@
  * Module for epoch separation.
  * \ingroup modules
  */
-class WMEpochSeparation: public LaBP::WModuleEMMView
+class WMEpochSeparation: public LaBP::WLModuleDrawable
 {
 public:
     /**

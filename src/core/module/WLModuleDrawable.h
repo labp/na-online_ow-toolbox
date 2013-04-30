@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMODULEEMMVIEW_H
-#define WMODULEEMMVIEW_H
+#ifndef WLMODULEDRAWABLE_H
+#define WLMODULEDRAWABLE_H
 
 #include <list>
 
@@ -46,19 +46,19 @@
 
 namespace LaBP
 {
-    class WModuleEMMView: public WModule
+    class WLModuleDrawable: public WModule
     {
 
     public:
         /**
          * standard constructor
          */
-        WModuleEMMView();
+        WLModuleDrawable();
 
         /**
          * destructor
          */
-        virtual ~WModuleEMMView();
+        virtual ~WLModuleDrawable();
 
     protected:
         /**
@@ -269,4 +269,4 @@ namespace LaBP
     };
 }
 
-#endif  // WMODULEEMMVIEW_H
+#endif  // WLMODULEDRAWABLE_H

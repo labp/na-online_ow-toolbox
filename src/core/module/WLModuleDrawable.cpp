@@ -45,14 +45,14 @@
 #include "core/gui/events/WLMarkTimePositionHandler.h"
 #include "core/graphicsEngine/WLColorMap.h"
 
-#include "WModuleEMMView.h"
+#include "WLModuleDrawable.h"
 
 using std::min;
 using std::max;
 
-const int LaBP::WModuleEMMView::AUTO_SCALE_PACKETS = 8;
+const int LaBP::WLModuleDrawable::AUTO_SCALE_PACKETS = 8;
 
-LaBP::WModuleEMMView::WModuleEMMView()
+LaBP::WLModuleDrawable::WLModuleDrawable()
 {
     m_autoScaleCounter = AUTO_SCALE_PACKETS;
     m_positions_changed = true;
@@ -60,12 +60,12 @@ LaBP::WModuleEMMView::WModuleEMMView()
     m_calculator = boost::shared_ptr< WLBoundCalculator >( new WLBoundCalculator() );
 }
 
-LaBP::WModuleEMMView::~WModuleEMMView()
+LaBP::WLModuleDrawable::~WLModuleDrawable()
 {
     WKernel::getRunningKernel()->getGui()->closeCustomWidget( m_widget->getTitle() );
 }
 
-void LaBP::WModuleEMMView::properties()
+void LaBP::WLModuleDrawable::properties()
 {
     WModule::properties();
     m_runtimeName->setPurpose( PV_PURPOSE_INFORMATION );
@@ -73,7 +73,7 @@ void LaBP::WModuleEMMView::properties()
 
     // VIEWPROPERTIES ---------------------------------------------------------------------------------------
     m_channelHeight = m_propView->addProperty( "Channel height", "The distance between two curves of the graph in pixel.", 64.0,
-                    boost::bind( &LaBP::WModuleEMMView::handleChannelHeightChanged, this ), false );
+                    boost::bind( &LaBP::WLModuleDrawable::handleChannelHeightChanged, this ), false );
     m_channelHeight->setMin( 4.0 );
     m_channelHeight->setMax( 512.0 );
 
@@ -88,7 +88,7 @@ void LaBP::WModuleEMMView::properties()
     }
 
     m_selectionColorMode = m_propView->addProperty( "Color mode", "Select a mode", colorModeSelection->getSelectorFirst(),
-                    boost::bind( &LaBP::WModuleEMMView::handleColorModeChanged, this ) );
+                    boost::bind( &LaBP::WLModuleDrawable::handleColorModeChanged, this ) );
 
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_selectionColorMode );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_selectionColorMode );
@@ -104,7 +104,7 @@ void LaBP::WModuleEMMView::properties()
     }
 
     m_selectionColor = m_propView->addProperty( "Color map", "Select a color", colorMapSelection->getSelector( 2 ),
-                    boost::bind( &LaBP::WModuleEMMView::handleColorChanged, this ) );
+                    boost::bind( &LaBP::WLModuleDrawable::handleColorChanged, this ) );
 
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_selectionColor );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_selectionColor );
@@ -130,7 +130,7 @@ void LaBP::WModuleEMMView::properties()
     // we are not using it, also it will be hidden until a solution is found. Dynamic view divide the width into the amount
     // of blocks ( default 2 ), also timeRange is not longer required.
     m_timeRange = m_propView->addProperty( "Time Range", "Size of time windows in ???.", 1.0,
-                    boost::bind( &LaBP::WModuleEMMView::handleTimeRangeChanged, this ), true );
+                    boost::bind( &LaBP::WLModuleDrawable::handleTimeRangeChanged, this ), true );
     m_timeRange->setMin( 0.100 );
     m_timeRange->setMax( 4.0 );
 
@@ -146,40 +146,40 @@ void LaBP::WModuleEMMView::properties()
     }
 
     m_selectionView = m_propView->addProperty( "View modality", "Select a to visualize", viewSelection->getSelectorFirst(),
-                    boost::bind( &LaBP::WModuleEMMView::handleViewModalityChanged, this ) );
+                    boost::bind( &LaBP::WLModuleDrawable::handleViewModalityChanged, this ) );
 
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_selectionView );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_selectionView );
 
     m_autoSensitivity = m_propView->addProperty( "Sensitivity automatic", "Sensitivity automatic calculate.", true,
-                    boost::bind( &LaBP::WModuleEMMView::handleAutoSensitivityChanged, this ), false );
+                    boost::bind( &LaBP::WLModuleDrawable::handleAutoSensitivityChanged, this ), false );
 
     m_amplitudeScale = m_propView->addProperty( "Amplitude scale", "Scale of the amplitude / y-axis", 1.5e-9,
-                    boost::bind( &LaBP::WModuleEMMView::handleAmplitudeScaleChanged, this ), true );
+                    boost::bind( &LaBP::WLModuleDrawable::handleAmplitudeScaleChanged, this ), true );
     m_minSensitity3D = m_propView->addProperty( "Min 3D scale", "Minimum data value for color map.", -1.5e-9,
-                    boost::bind( &LaBP::WModuleEMMView::handleMin3DChanged, this ), true );
+                    boost::bind( &LaBP::WLModuleDrawable::handleMin3DChanged, this ), true );
     m_maxSensitity3D = m_propView->addProperty( "Max 3D scale", "Maximum data value for color map.", 1.5e-9,
-                    boost::bind( &LaBP::WModuleEMMView::handleMax3DChanged, this ), true );
+                    boost::bind( &LaBP::WLModuleDrawable::handleMax3DChanged, this ), true );
 }
 
-LaBP::WEModalityType::Enum LaBP::WModuleEMMView::getViewModality()
+LaBP::WEModalityType::Enum LaBP::WLModuleDrawable::getViewModality()
 {
     return m_selectionView->get().at( 0 )->getAs< WItemSelectionItemTyped< LaBP::WEModalityType::Enum > >()->getValue();
 }
 
-LaBP::WEModalityType::Enum LaBP::WModuleEMMView::getCalculateModality()
+LaBP::WEModalityType::Enum LaBP::WLModuleDrawable::getCalculateModality()
 {
     LaBP::WEModalityType::Enum modality;
     modality = m_selectionCalculate->get().at( 0 )->getAs< WItemSelectionItemTyped< LaBP::WEModalityType::Enum > >()->getValue();
     return modality;
 }
 
-void LaBP::WModuleEMMView::hideComputeModalitySelection( bool enable )
+void LaBP::WLModuleDrawable::hideComputeModalitySelection( bool enable )
 {
     m_selectionCalculate->setHidden( enable );
 }
 
-void LaBP::WModuleEMMView::handleAutoSensitivityChanged()
+void LaBP::WLModuleDrawable::handleAutoSensitivityChanged()
 {
     m_autoScaleCounter = AUTO_SCALE_PACKETS;
     m_amplitudeScale->setHidden( m_autoSensitivity->get() );
@@ -187,21 +187,21 @@ void LaBP::WModuleEMMView::handleAutoSensitivityChanged()
     m_maxSensitity3D->setHidden( m_autoSensitivity->get() );
 }
 
-void LaBP::WModuleEMMView::handleColorChanged()
+void LaBP::WLModuleDrawable::handleColorChanged()
 {
     createColorMap();
     m_drawable3D->setColorMap( m_colorMap );
     m_drawable3D->redraw();
 }
 
-void LaBP::WModuleEMMView::handleColorModeChanged()
+void LaBP::WLModuleDrawable::handleColorModeChanged()
 {
     createColorMap();
     m_drawable3D->setColorMap( m_colorMap );
     m_drawable3D->redraw();
 }
 
-void LaBP::WModuleEMMView::handleViewModalityChanged()
+void LaBP::WLModuleDrawable::handleViewModalityChanged()
 {
     m_drawable2D->clearWidget();
     m_drawable3D->clearWidget( true );
@@ -212,33 +212,33 @@ void LaBP::WModuleEMMView::handleViewModalityChanged()
     m_drawable3D->redraw();
 }
 
-void LaBP::WModuleEMMView::handleMin3DChanged()
+void LaBP::WLModuleDrawable::handleMin3DChanged()
 {
     createColorMap();
     m_drawable3D->setColorMap( m_colorMap );
     m_drawable3D->redraw();
 }
 
-void LaBP::WModuleEMMView::handleMax3DChanged()
+void LaBP::WLModuleDrawable::handleMax3DChanged()
 {
     createColorMap();
     m_drawable3D->setColorMap( m_colorMap );
     m_drawable3D->redraw();
 }
 
-void LaBP::WModuleEMMView::handleAmplitudeScaleChanged()
+void LaBP::WLModuleDrawable::handleAmplitudeScaleChanged()
 {
     m_drawable2D->setAmplitudeScale( m_amplitudeScale->get() );
     m_drawable2D->redraw();
 }
 
-void LaBP::WModuleEMMView::handleTimeRangeChanged()
+void LaBP::WLModuleDrawable::handleTimeRangeChanged()
 {
     m_drawable2D->setTimeRange( m_timeRange->get() );
 // TODO: Code definition
 }
 
-void LaBP::WModuleEMMView::handleChannelHeightChanged()
+void LaBP::WLModuleDrawable::handleChannelHeightChanged()
 {
     WLEMDDrawable2DMultiChannel::SPtr drawable = m_drawable2D->getAs< WLEMDDrawable2DMultiChannel >();
     if( drawable )
@@ -248,7 +248,7 @@ void LaBP::WModuleEMMView::handleChannelHeightChanged()
     }
 }
 
-void LaBP::WModuleEMMView::initView( LaBP::WLEMDDrawable2D::WEGraphType::Enum graphType )
+void LaBP::WLModuleDrawable::initView( LaBP::WLEMDDrawable2D::WEGraphType::Enum graphType )
 {
     waitRestored();
 
@@ -271,7 +271,7 @@ void LaBP::WModuleEMMView::initView( LaBP::WLEMDDrawable2D::WEGraphType::Enum gr
     resetView();
 }
 
-void LaBP::WModuleEMMView::updateView( boost::shared_ptr< LaBP::WDataSetEMM > emm )
+void LaBP::WLModuleDrawable::updateView( boost::shared_ptr< LaBP::WDataSetEMM > emm )
 {
     if( m_widget->getViewer()->isClosed() )
     {
@@ -300,7 +300,7 @@ void LaBP::WModuleEMMView::updateView( boost::shared_ptr< LaBP::WDataSetEMM > em
     m_drawable3D->draw( emm );
 }
 
-void LaBP::WModuleEMMView::resetView()
+void LaBP::WLModuleDrawable::resetView()
 {
     debugLog() << "reset() called!";
     m_eventHandler.clear();
@@ -326,19 +326,19 @@ void LaBP::WModuleEMMView::resetView()
     m_eventHandler.push_back( handler );
 }
 
-double LaBP::WModuleEMMView::getTimerange()
+double LaBP::WLModuleDrawable::getTimerange()
 {
     return m_timeRange->get();
 }
 
-void LaBP::WModuleEMMView::setTimerange( double value )
+void LaBP::WLModuleDrawable::setTimerange( double value )
 {
     value = max( value, m_timeRange->getMin()->getMin() );
     value = min( value, m_timeRange->getMax()->getMax() );
     m_timeRange->set( value );
 }
 
-void LaBP::WModuleEMMView::setTimerangeInformationOnly( bool enable )
+void LaBP::WLModuleDrawable::setTimerangeInformationOnly( bool enable )
 {
     if( enable == true )
     {
@@ -350,7 +350,7 @@ void LaBP::WModuleEMMView::setTimerangeInformationOnly( bool enable )
     }
 }
 
-void LaBP::WModuleEMMView::createColorMap()
+void LaBP::WLModuleDrawable::createColorMap()
 {
 // create color map
     const WEColorMap::Enum color_map =
