@@ -151,7 +151,7 @@ bool WRtClient::start()
     ( *m_rtCmdClient )["measinfo"].send();
 
     wlog::debug( CLASS ) << "Read measurement information.";
-    m_fiffInfo.reset( new FIFFLIB::FiffInfo( m_rtDataClient->readInfo() ) );
+    m_fiffInfo = m_rtDataClient->readInfo();
 
     m_picksMeg = m_fiffInfo->pick_types( true, false, false );
     wlog::debug( CLASS ) << "picks meg: " << m_picksMeg.size();
@@ -382,7 +382,7 @@ bool WRtClient::readChannelPositionsFaces()
 {
     wlog::debug( CLASS ) << "readChannelPositions() called!";
 
-    QList< FIFFLIB::FiffChInfo > chInfos = m_fiffInfo->chs;
+    QList < FIFFLIB::FiffChInfo > chInfos = m_fiffInfo->chs;
     // EEG
     const Eigen::RowVectorXi::Index eegSize = m_picksEeg.size();
     if( eegSize > 0 )
