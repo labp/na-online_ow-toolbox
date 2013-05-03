@@ -30,11 +30,8 @@
 #include <core/common/WPropertyTypes.h>
 
 #include "core/data/WLDataSetEMM.h"
-
 #include "core/module/WLModuleDrawable.h"
-// TODO(pieloth): use OW class
 #include "core/module/WLModuleOutputDataCollectionable.h"
-
 #include "core/io/WLReaderExperiment.h"
 #include "WRtClient.h"
 
@@ -134,6 +131,13 @@ private:
 
     WRtClient::SPtr m_rtClient;
     bool m_stopStreaming;
+
+    void handleTrgConnectorChanged();
+    WItemSelection::SPtr m_connectorItem;
+    WPropSelection m_connectorSelection;
+    static const int NO_CONNECTOR;
+
+    WPropString m_simFile;
 
     static const std::string STATUS_DATA_STREAMING;
     static const std::string STATUS_DATA_ERROR;

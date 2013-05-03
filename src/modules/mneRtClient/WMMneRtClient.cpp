@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <map>
 #include <set>
 #include <string>
 
@@ -41,6 +42,8 @@
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMMneRtClient )
+
+const int WMMneRtClient::NO_CONNECTOR = -1;
 
 WMMneRtClient::WMMneRtClient() :
                 m_stopStreaming( true )
@@ -137,6 +140,16 @@ void WMMneRtClient::properties()
                     m_propCondition );
     m_trgConDisconnect->setHidden( true );
 
+    m_connectorItem = WItemSelection::SPtr( new WItemSelection() );
+    m_connectorItem->addItem(
+                    WItemSelectionItemTyped< int >::SPtr( new WItemSelectionItemTyped< int >( NO_CONNECTOR, "none", "none" ) ) );
+    m_connectorSelection = m_propGrpConControl->addProperty( "Connectors", "Choose a server connector.",
+                    m_connectorItem->getSelectorFirst(), m_propCondition );
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_connectorSelection );
+
+    const std::string sim_file = "/opt/naonline/emm_data/intershift/rawdir/is05a/is05a1.fif";
+    m_simFile = m_propGrpConControl->addProperty( "Simulation File:", "Local path on server to simluation file.", sim_file );
+
     // Setup streaming //
     m_propDataStatus = m_propGrpConControl->addProperty( "Data status:", "Streaming status.", STATUS_DATA_NOT_STREAMING );
     m_propDataStatus->setPurpose( PV_PURPOSE_INFORMATION );
@@ -193,9 +206,13 @@ void WMMneRtClient::moduleMain()
         {
             handleExtractExpLoader( m_fiffFile->get().string() );
         }
-        if( ( m_expLoadTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED ) )
+        if( m_expLoadTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
             handleExperimentLoadChanged();
+        }
+        if( m_connectorSelection->changed( true ) )
+        {
+            handleTrgConnectorChanged();
         }
         // TODO(pieloth)
     }
@@ -210,6 +227,19 @@ void WMMneRtClient::handleTrgConConnect()
     m_rtClient->connect();
     if( m_rtClient->isConnected() )
     {
+
+        std::map< int, std::string > cMap;
+        const int selCon = m_rtClient->getConnectors( &cMap );
+        std::map< int, std::string >::const_iterator itMap = cMap.begin();
+        m_connectorItem->clear();
+        for( ; itMap != cMap.end(); ++itMap )
+        {
+            m_connectorItem->addItem(
+                            WItemSelectionItemTyped< int >::SPtr(
+                                            new WItemSelectionItemTyped< int >( itMap->first, itMap->second, itMap->second ) ) );
+        }
+        m_connectorSelection->set( m_connectorItem->getSelector( selCon - 1 ) );
+
         m_trgConConnect->setHidden( true );
         m_trgConDisconnect->setHidden( false );
         m_propConStatus->set( STATUS_CON_CONNECTED );
@@ -252,6 +282,7 @@ void WMMneRtClient::handleTrgDataStart()
 
     m_stopStreaming = false;
 
+    m_rtClient->setSimulationFile( m_simFile->get() );
     if( m_rtClient->start() )
     {
         m_propDataStatus->set( STATUS_DATA_STREAMING );
@@ -373,4 +404,19 @@ void WMMneRtClient::handleExperimentLoadChanged()
     }
 
     m_expLoadTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, true );
+}
+
+void WMMneRtClient::handleTrgConnectorChanged()
+{
+    debugLog() << "callbackTrgConnectorChanged() called!";
+
+    const int conId = m_connectorSelection->get().at( 0 )->getAs< WItemSelectionItemTyped< int > >()->getValue();
+    if( conId == NO_CONNECTOR )
+    {
+        return;
+    }
+    if( m_rtClient->setConnector( conId ) )
+    {
+        infoLog() << "set connector: " << m_connectorSelection->get().at( 0 )->getName();
+    }
 }

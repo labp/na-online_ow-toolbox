@@ -26,6 +26,7 @@
 #include <vector>
 
 #include <QtGlobal>
+#include <QMap>
 #include <QString>
 
 #include <fiff/fiff_ch_info.h>
@@ -62,6 +63,9 @@ bool WRtClient::connect()
     m_rtCmdClient->connectToHost( ip_address );
     if( m_rtCmdClient->waitForConnected( 300 ) )
     {
+        wlog::debug( CLASS ) << "Requesting commands.";
+        m_rtCmdClient->requestCommands();
+
         wlog::info( CLASS ) << "Command Client connected!";
     }
 
@@ -69,6 +73,13 @@ bool WRtClient::connect()
     m_rtDataClient->connectToHost( ip_address );
     if( m_rtDataClient->waitForConnected( 300 ) )
     {
+        const QString rtClientAlias = QString::fromStdString( m_alias );
+        m_rtDataClient->setClientAlias( rtClientAlias );
+        wlog::info( CLASS ) << "Using client alias " << m_alias;
+
+        m_clientId = m_rtDataClient->getClientId();
+        wlog::info( CLASS ) << "Using client id " << m_clientId;
+
         wlog::info( CLASS ) << "Data Client connected!";
     }
 
@@ -129,21 +140,6 @@ bool WRtClient::start()
     }
 
     wlog::info( CLASS ) << "Prepare streaming.";
-
-    const QString rtClientAlias = QString::fromStdString( m_alias );
-    m_rtDataClient->setClientAlias( rtClientAlias );
-    wlog::info( CLASS ) << "Using client alias " << m_alias;
-
-    m_clientId = m_rtDataClient->getClientId();
-    wlog::info( CLASS ) << "Using client id " << m_clientId;
-
-    wlog::debug( CLASS ) << "Requesting commands.";
-    m_rtCmdClient->requestCommands();
-
-    QString simFile = "/home/pieloth/EMM-Data_light/intershift/rawdir/is05a/is05a1.fif";
-    wlog::info( CLASS ) << "Set simulation file: " << simFile.toStdString();
-    ( *m_rtCmdClient )["simfile"].pValues()[0] = QVariant( simFile );
-    ( *m_rtCmdClient )["simfile"].send();
 
     // Request measurement information
     wlog::debug( CLASS ) << "Requesting measurement information.";
@@ -206,6 +202,57 @@ bool WRtClient::stop()
 bool WRtClient::isStreaming()
 {
     return m_isStreaming;
+}
+
+int WRtClient::getConnectors( std::map< int, std::string >* const conMap )
+{
+    if( !isConnected() )
+    {
+        wlog::error( CLASS ) << "Client not connected!";
+        return false;
+    }
+
+    QMap< qint32, QString > qMap;
+    const int selCon = m_rtCmdClient->requestConnectors( qMap );
+    QMapIterator< int, QString > itMap( qMap );
+    while( itMap.hasNext() )
+    {
+        itMap.next();
+        ( *conMap )[itMap.key()] = itMap.value().toStdString();
+    }
+
+    return selCon;
+}
+bool WRtClient::setConnector( int conId )
+{
+    if( !isConnected() )
+    {
+        wlog::error( CLASS ) << "Client not connected!";
+        return false;
+    }
+
+    ( *m_rtCmdClient )["selcon"].pValues()[0] = QVariant( conId );
+    ( *m_rtCmdClient )["selcon"].send();
+    // TODO check if connector is set
+    return true;
+}
+
+bool WRtClient::setSimulationFile( std::string fname )
+{
+    if( !isConnected() )
+    {
+        wlog::error( CLASS ) << "Client not connected!";
+        return false;
+    }
+
+//    QString simFile = "/home/pieloth/EMM-Data_light/intershift/rawdir/is05a/is05a1.fif";
+    QString simFile = QString::fromStdString( fname );
+    wlog::info( CLASS ) << "Set simulation file: " << simFile.toStdString();
+    ( *m_rtCmdClient )["simfile"].pValues()[0] = QVariant( simFile );
+    ( *m_rtCmdClient )["simfile"].send();
+
+    // TODO Check if file is set
+    return true;
 }
 
 bool WRtClient::readData( LaBP::WLDataSetEMM::SPtr emmIn )
@@ -382,7 +429,7 @@ bool WRtClient::readChannelPositionsFaces()
 {
     wlog::debug( CLASS ) << "readChannelPositions() called!";
 
-    QList < FIFFLIB::FiffChInfo > chInfos = m_fiffInfo->chs;
+    QList< FIFFLIB::FiffChInfo > chInfos = m_fiffInfo->chs;
     // EEG
     const Eigen::RowVectorXi::Index eegSize = m_picksEeg.size();
     if( eegSize > 0 )

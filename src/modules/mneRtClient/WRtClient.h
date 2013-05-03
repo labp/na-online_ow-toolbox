@@ -25,6 +25,7 @@
 #ifndef WRTCLIENT_H_
 #define WRTCLIENT_H_
 
+#include <map>
 #include <string>
 #include <vector>
 
@@ -67,6 +68,11 @@ public:
     bool stop();
 
     bool isStreaming();
+
+    int getConnectors( std::map< int, std::string >* const conMap);
+    bool setConnector(int conId);
+
+    bool setSimulationFile(std::string);
 
     bool readData( LaBP::WLDataSetEMM::SPtr emmIn );
 
