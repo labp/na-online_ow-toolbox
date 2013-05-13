@@ -73,7 +73,7 @@ namespace LaBP
     {
     }
 
-    osg::ref_ptr< osg::Geode > WLEMDDrawable2D::drawChannel( const LaBP::WLEMD::ChannelT& channel, size_t iteration )
+    osg::ref_ptr< osg::Geode > WLEMDDrawable2D::drawChannel( const LaBP::WLEMD::ChannelT& channel )
     {
         osg::ref_ptr< osg::DrawArrays > lineDrawer = new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, 0, channel.size() );
 
@@ -99,31 +99,26 @@ namespace LaBP
         return channelGeode;
     }
 
-    osg::ref_ptr< osg::Drawable > WLEMDDrawable2D::createMarkLinie( const WCustomWidget* widget )
-    {
-        // create geode to draw the event as line
-        osg::ref_ptr< osg::Geometry > geometry = new osg::Geometry;
-
-        osg::ref_ptr< osg::Vec2Array > vertices = new osg::Vec2Array();
-        vertices->reserve( 2 );
-        vertices->push_back( osg::Vec2( m_selectedPixel, 0.0f ) );
-        vertices->push_back( osg::Vec2( m_selectedPixel, widget->height() ) );
-
-        geometry->setVertexArray( vertices );
-        geometry->setColorArray( m_markerColors );
-        geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
-        geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINES, 0, 2 ) );
-
-        return geometry;
-    }
-
     void WLEMDDrawable2D::osgAddMarkLine()
     {
         if( m_selectedPixel > 0 )
         {
             m_rootGroup->removeChild( m_markerGeode );
             m_markerGeode = new osg::Geode;
-            m_markerGeode->addDrawable( createMarkLinie( m_widget.get() ) );
+
+            osg::ref_ptr< osg::Geometry > geometry = new osg::Geometry;
+
+            osg::ref_ptr< osg::Vec2Array > vertices = new osg::Vec2Array();
+            vertices->reserve( 2 );
+            vertices->push_back( osg::Vec2( m_selectedPixel, 0.0f ) );
+            vertices->push_back( osg::Vec2( m_selectedPixel, m_widget->height() ) );
+
+            geometry->setVertexArray( vertices );
+            geometry->setColorArray( m_markerColors );
+            geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+            geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINES, 0, 2 ) );
+
+            m_markerGeode->addDrawable( geometry );
             m_rootGroup->addChild( m_markerGeode );
         }
     }

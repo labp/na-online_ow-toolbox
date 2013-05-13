@@ -130,15 +130,16 @@ namespace LaBP
         virtual std::pair< LaBP::WLDataSetEMM::SPtr, size_t > getSelectedData( ValueT pixel ) const = 0;
 
     protected:
-        osg::ref_ptr< osg::Geode > drawChannel( const LaBP::WLEMD::ChannelT& channel, size_t iteration = 0 );
+        osg::ref_ptr< osg::Geode > drawChannel( const LaBP::WLEMD::ChannelT& channel );
 
-        osg::ref_ptr< osg::Drawable > createMarkLinie( const WCustomWidget* widget );
         void osgAddMarkLine();
+        void osgAddTimeGrid();
 
         virtual size_t maxChannels( const LaBP::WLEMD* emd ) const = 0;
 
         osg::ref_ptr< osg::Group > m_channelGroup;
         osg::ref_ptr< osg::Geode > m_markerGeode;
+        osg::ref_ptr< osg::Group > m_timeGridGroup;
 
         ValueT m_timeRange;
         bool m_timeRangeChanged;
