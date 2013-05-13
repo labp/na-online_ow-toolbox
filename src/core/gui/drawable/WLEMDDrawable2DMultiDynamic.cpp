@@ -47,7 +47,7 @@ namespace LaBP
 
         m_animation = new WLAnimationSideScroll( m_osgChannelBlocks );
         m_animation->setTime( 1 );
-        m_animation->setXTranslation( m_widget->width() - m_labelWidth - m_xOffset );
+        m_animation->setXTranslation( m_widget->width() - m_xOffset );
         m_animation->setStartPosition( osg::Vec2d( m_widget->width(), m_widget->height() ) );
     }
 
@@ -97,10 +97,8 @@ namespace LaBP
                 }
 
                 m_animation->append( emmNode );
-                m_dataChanged = false;
             }
-            osgAddMarkLine();
-            m_draw = false;
+            WLEMDDrawable2DMultiChannel::osgNodeCallback( nv );
         }
         m_animation->sweep();
     }
@@ -118,9 +116,9 @@ namespace LaBP
         m_blockLength = emd->getLength();
 
         const ValueT x_pos = m_widget->width();
-        const ValueT y_pos = m_widget->height() - m_yOffset - ( m_channelHeight / 2 );
+        const ValueT y_pos = m_widget->height() - m_yOffset;
         m_animation->setStartPosition( osg::Vec2d( x_pos, y_pos ) );
-        m_animation->setXTranslation( m_widget->width() - m_labelWidth - m_xOffset );
+        m_animation->setXTranslation( m_widget->width() - m_xOffset );
         wlog::debug( CLASS ) << "block length pixel: " << getPixelPerBlock( m_blockLength );
         m_animation->setXBlockLength( getPixelPerBlock( m_blockLength ) );
 
@@ -209,12 +207,12 @@ namespace LaBP
 
     WLEMDDrawable2DMultiDynamic::ValueT WLEMDDrawable2DMultiDynamic::getPixelPerBlock( const ValueT& blockLength ) const
     {
-        return ( m_widget->width() - m_xOffset - m_labelWidth ) / ( m_timeRange / blockLength );
+        return ( m_widget->width() - m_xOffset ) / ( m_timeRange / blockLength );
     }
 
     WLEMDDrawable2DMultiDynamic::ValueT WLEMDDrawable2DMultiDynamic::getPixelPerSeconds() const
     {
-        return ( m_widget->width() - m_xOffset - m_labelWidth ) / m_timeRange;
+        return ( m_widget->width() - m_xOffset ) / m_timeRange;
     }
 
 /* namespace LaBP */

@@ -120,7 +120,7 @@ namespace LaBP
 
     void WLEMDDrawable2DSingleChannel::osgNodeCallback( osg::NodeVisitor* nv )
     {
-        if( !m_draw )
+        if( !m_draw && !m_selectedPixelChanged )
         {
             return;
         }
@@ -132,9 +132,8 @@ namespace LaBP
         LaBP::WLDataSetEMM::ConstSPtr emm = m_emm;
         LaBP::WLEMD::ConstSPtr emd = emm->getModality( m_modality );
         osgAddChannels( emd.get() );
-        osgAddMarkLine();
 
-        m_draw = false;
+        WLEMDDrawable2D::osgNodeCallback( nv );
     }
 
 } /* namespace LaBP */

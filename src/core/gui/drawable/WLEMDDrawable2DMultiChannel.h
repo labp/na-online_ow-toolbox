@@ -70,7 +70,7 @@ namespace LaBP
         virtual std::pair< LaBP::WLDataSetEMM::SPtr, size_t > getSelectedData( ValueT pixel ) const = 0;
 
     protected:
-        virtual void osgNodeCallback( osg::NodeVisitor* nv ) = 0;
+        virtual void osgNodeCallback( osg::NodeVisitor* nv );
 
         void virtual osgAddLabels( const LaBP::WLEMD* emd );
 

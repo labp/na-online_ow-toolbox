@@ -48,7 +48,9 @@ namespace LaBP
     WLEMDDrawable2DMultiChannel::WLEMDDrawable2DMultiChannel( WCustomWidget::SPtr widget ) :
                     WLEMDDrawable2D( widget ), m_labelWidth( 32 )
     {
+        m_xOffset = m_labelWidth;
         m_channelHeight = 32;
+        m_yOffset = m_channelHeight /2;
         m_channelHeightChanged = true;
 
         m_draw = false;
@@ -75,6 +77,7 @@ namespace LaBP
         if( m_channelHeight != spacing )
         {
             m_channelHeight = spacing;
+            m_yOffset = m_channelHeight /2;
             m_channelHeightChanged = true;
         }
     }
@@ -89,6 +92,13 @@ namespace LaBP
     void WLEMDDrawable2DMultiChannel::redraw()
     {
         m_draw = true;
+    }
+
+    void WLEMDDrawable2DMultiChannel::osgNodeCallback( osg::NodeVisitor* nv )
+    {
+        WLEMDDrawable2D::osgNodeCallback( nv );
+
+        m_channelHeightChanged = false;
     }
 
     void WLEMDDrawable2DMultiChannel::osgAddLabels( const LaBP::WLEMD* emd )
@@ -107,8 +117,8 @@ namespace LaBP
             const ValueT z = -1.0f;
             bgVertices->push_back( osg::Vec3( 0.0, 0.0, z ) );
             bgVertices->push_back( osg::Vec3( 0.0f, m_widget->height(), z ) );
-            bgVertices->push_back( osg::Vec3( m_labelWidth + m_xOffset, m_widget->height(), z ) );
-            bgVertices->push_back( osg::Vec3( m_labelWidth + m_xOffset, 0.0f, z ) );
+            bgVertices->push_back( osg::Vec3( m_labelWidth, m_widget->height(), z ) );
+            bgVertices->push_back( osg::Vec3( m_labelWidth, 0.0f, z ) );
 
             osg::ref_ptr< osg::Vec4Array > bgColors = new osg::Vec4Array;
             bgColors->push_back( osg::Vec4( 1.0f, 1.0f, 1.0f, 1.0f ) );
@@ -128,8 +138,8 @@ namespace LaBP
             m_rootGroup->removeChild( m_labelsText );
             m_labelsText = new osg::PositionAttitudeTransform;
             m_labelsText->setPosition(
-                            osg::Vec3d( m_xOffset,
-                                            m_widget->height() - m_yOffset - ( m_channelHeight / 2 ) - ( m_labelWidth / 4 ),
+                            osg::Vec3d( 0,
+                                            m_widget->height() - ( m_channelHeight / 2 ) - ( m_labelWidth / 4 ),
                                             0.0 ) );
 
             osg::ref_ptr< osg::Geode > labelGeode;

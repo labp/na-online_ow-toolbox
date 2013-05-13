@@ -38,7 +38,7 @@ namespace LaBP
     std::pair< LaBP::WLDataSetEMM::SPtr, size_t > WLEMDDrawable2DMultiStatic::getSelectedData( ValueT pixel ) const
     {
         size_t sample = 0;
-        const ValueT x_offset = m_xOffset + 2 * m_labelWidth;
+        const ValueT x_offset = m_xOffset;
 
         LaBP::WLDataSetEMM::SPtr emm = m_emm;
 
@@ -56,7 +56,7 @@ namespace LaBP
 
     void WLEMDDrawable2DMultiStatic::osgNodeCallback( osg::NodeVisitor* nv )
     {
-        if( !m_draw )
+        if( !m_draw && !m_selectedPixelChanged )
             return;
         if( !hasData() )
         {
@@ -67,9 +67,8 @@ namespace LaBP
         LaBP::WLEMD::ConstSPtr emd = emm->getModality( m_modality );
         osgAddLabels( emd.get() );
         osgAddChannels( emd.get() );
-        osgAddMarkLine();
 
-        m_draw = false;
+        WLEMDDrawable2DMultiChannel::osgNodeCallback( nv );
     }
 
     void WLEMDDrawable2DMultiStatic::osgAddChannels( const LaBP::WLEMD* emd )
@@ -77,8 +76,8 @@ namespace LaBP
         m_rootGroup->removeChild( m_channelGroup );
         m_channelGroup = new osg::Group;
 
-        const ValueT x_pos = m_xOffset + m_labelWidth;
-        const ValueT y_pos = m_widget->height() - m_yOffset - ( m_channelHeight / 2 );
+        const ValueT x_pos = m_xOffset;
+        const ValueT y_pos = m_widget->height() - m_yOffset;
         const ValueT width = m_widget->width() - x_pos;
         const ValueT x_scale = width / emd->getSamplesPerChan();
         const ValueT y_scale = ( m_channelHeight / 2 ) / m_amplitudeScale;

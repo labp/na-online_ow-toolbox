@@ -130,6 +130,8 @@ namespace LaBP
         virtual std::pair< LaBP::WLDataSetEMM::SPtr, size_t > getSelectedData( ValueT pixel ) const = 0;
 
     protected:
+        virtual void osgNodeCallback( osg::NodeVisitor* nv );
+
         osg::ref_ptr< osg::Geode > drawChannel( const LaBP::WLEMD::ChannelT& channel );
 
         void osgAddMarkLine();
@@ -140,12 +142,20 @@ namespace LaBP
         osg::ref_ptr< osg::Group > m_channelGroup;
         osg::ref_ptr< osg::Geode > m_markerGeode;
         osg::ref_ptr< osg::Group > m_timeGridGroup;
+        ValueT m_timeGridWidth;
+        ValueT m_timeGridHight;
 
         ValueT m_timeRange;
         bool m_timeRangeChanged;
 
+        /**
+         * Time-axis offset for raw data visualization, e.g. for labels
+         */
         ValueT m_xOffset;
 
+        /**
+         * Channel or value offset for raw data visualization, e.g. for time scale
+         */
         ValueT m_yOffset;
 
         ValueT m_amplitudeScale;
@@ -157,6 +167,7 @@ namespace LaBP
     private:
         osg::ref_ptr< osg::Vec4Array > m_channelColors;
         osg::ref_ptr< osg::Vec4Array > m_markerColors;
+        osg::ref_ptr< osg::Vec4Array > m_timeGridColors;
     };
 
 } /* namespace LaBP */
