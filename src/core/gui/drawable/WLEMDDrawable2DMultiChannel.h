@@ -62,14 +62,14 @@ namespace LaBP
 
         virtual bool hasData() const = 0;
 
-        void redraw();
-
         virtual ValueT getChannelHeight() const;
         virtual void setChannelHeight( ValueT spacing );
 
         virtual std::pair< LaBP::WLDataSetEMM::SPtr, size_t > getSelectedData( ValueT pixel ) const = 0;
 
     protected:
+        virtual bool mustDraw() const;
+
         virtual void osgNodeCallback( osg::NodeVisitor* nv );
 
         void virtual osgAddLabels( const LaBP::WLEMD* emd );

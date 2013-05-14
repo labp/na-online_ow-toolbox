@@ -31,7 +31,6 @@
 
 #include <core/gui/WCustomWidget.h>
 #include <core/graphicsEngine/WGEGroupNode.h> // Error: forward declaration
-
 #include "core/data/WLDataSetEMM.h"
 #include "core/data/WLEMMEnumTypes.h"
 
@@ -60,6 +59,23 @@ namespace LaBP
     {
         m_rootGroup->removeUpdateCallback( m_callbackDelegator );
         m_widget->getScene()->remove( m_rootGroup );
+    }
+
+    void WLEMDDrawable::redraw()
+    {
+        m_draw = true;
+    }
+
+    bool WLEMDDrawable::mustDraw() const
+    {
+        return m_draw || m_dataChanged || m_modalityChanged;
+    }
+
+    void WLEMDDrawable::resetDrawFlags()
+    {
+        m_draw = false;
+        m_modalityChanged = false;
+        m_dataChanged = false;
     }
 
     LaBP::WEModalityType::Enum WLEMDDrawable::getModality() const

@@ -44,11 +44,6 @@ namespace LaBP
     {
     }
 
-    void WLEMDDrawable3DSource::redraw()
-    {
-        m_draw = true;
-    }
-
     void WLEMDDrawable3DSource::osgUpdateSurfaceColor( const MatrixT& data )
     {
         if( m_selectedSample >= 0 && ( m_dataChanged || m_colorMapChanged ) )
@@ -74,7 +69,7 @@ namespace LaBP
 
     void WLEMDDrawable3DSource::osgNodeCallback( osg::NodeVisitor* nv )
     {
-        if( !m_draw )
+        if( !mustDraw() )
         {
             return;
         }
@@ -100,10 +95,7 @@ namespace LaBP
 
         osgUpdateSurfaceColor( emd->getMatrix() );
 
-        updateWidget();
-
-        m_draw = false;
-        m_colorMapChanged = false;
+        WLEMDDrawable3D::osgNodeCallback( nv );
     }
 } /* namespace LaBP */
 

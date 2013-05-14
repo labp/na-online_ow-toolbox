@@ -52,8 +52,6 @@ namespace LaBP
 
         virtual ~WLEMDDrawable3DSource();
 
-        void redraw();
-
     protected:
         virtual void osgNodeCallback( osg::NodeVisitor* nv );
 

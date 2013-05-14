@@ -38,19 +38,9 @@ namespace LaBP
     {
     }
 
-    void WLEMDDrawable3DMEG::redraw()
-    {
-        if( !hasData() )
-        {
-            return;
-        }
-        clearWidget();
-        // TODO(pizarro): code here
-        updateWidget();
-    }
-
     void WLEMDDrawable3DMEG::osgNodeCallback( osg::NodeVisitor* nv )
     {
         // TODO(pizarro): modify scene graph here
+        WLEMDDrawable3D::osgNodeCallback( nv );
     }
 } /* namespace LaBP */

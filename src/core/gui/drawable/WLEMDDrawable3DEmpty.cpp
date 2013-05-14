@@ -46,14 +46,9 @@ namespace LaBP
         redraw();
     }
 
-    void WLEMDDrawable3DEmpty::redraw()
-    {
-        m_draw = true;
-    }
-
     void WLEMDDrawable3DEmpty::osgNodeCallback( osg::NodeVisitor* nv )
     {
-        if( !m_draw )
+        if( !mustDraw() )
         {
             return;
         }
@@ -81,7 +76,7 @@ namespace LaBP
         m_textGeode->addDrawable( textDrawable );
         m_rootGroup->addChild( m_textGeode );
 
-        m_draw = false;
+        WLEMDDrawable3D::osgNodeCallback( nv );
     }
 
 } /* namespace LaBP */

@@ -63,8 +63,6 @@ namespace LaBP
          */
         virtual bool hasData() const;
 
-        void redraw();
-
         virtual std::pair< LaBP::WLDataSetEMM::SPtr, size_t > getSelectedData( ValueT pixel ) const;
 
     protected:

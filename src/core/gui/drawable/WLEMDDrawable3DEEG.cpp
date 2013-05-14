@@ -50,6 +50,7 @@ namespace LaBP
                     WLEMDDrawable3D( widget )
     {
         m_labelsChanged = true;
+        m_labelsOn = true;
         m_electrodesChanged = true;
     }
 
@@ -57,14 +58,14 @@ namespace LaBP
     {
     }
 
-    void WLEMDDrawable3DEEG::redraw()
+    bool WLEMDDrawable3DEEG::mustDraw() const
     {
-        m_draw = true;
+        return WLEMDDrawable3D::mustDraw() || m_electrodesChanged || m_labelsChanged;
     }
 
     void WLEMDDrawable3DEEG::osgAddLabels( const std::vector< WPosition >* positions, const std::vector< std::string >& labels )
     {
-        if( m_labelsChanged )
+        if( m_labelsChanged && m_labelsOn )
         {
             m_rootGroup->removeChild( m_labesGeode );
             m_labesGeode = new osg::Geode;
@@ -94,12 +95,19 @@ namespace LaBP
             }
             m_rootGroup->addChild( m_labesGeode );
         }
+
+        if( m_labelsChanged && !m_labelsOn )
+        {
+            m_rootGroup->removeChild( m_labesGeode );
+        }
+        m_labelsChanged = false;
     }
 
     void WLEMDDrawable3DEEG::osgAddNodes( const std::vector< WPosition >* positions )
     {
         if( m_electrodesChanged )
         {
+            m_electrodesChanged = false;
             m_rootGroup->removeChild( m_electrodesGeode );
             const float sphere_size = 3.0f;
             m_electrodesGeode = new osg::Geode;
@@ -166,16 +174,9 @@ namespace LaBP
         }
     }
 
-    void WLEMDDrawable3DEEG::updateWidget()
-    {
-        m_labelsChanged = false;
-        m_electrodesChanged = false;
-        WLEMDDrawable3D::updateWidget();
-    }
-
     void WLEMDDrawable3DEEG::osgNodeCallback( osg::NodeVisitor* nv )
     {
-        if( !m_draw )
+        if( !mustDraw() )
         {
             return;
         }
@@ -203,9 +204,6 @@ namespace LaBP
         osgAddSurface( emd->getChannelPositions3d().get(), emd->getFaces() );
         osgUpdateSurfaceColor( emd->getData() );
 
-        updateWidget();
-
-        m_draw = false;
-        m_colorMapChanged = false;
+        WLEMDDrawable3D::osgNodeCallback( nv );
     }
 } /* namespace LaBP */

@@ -40,7 +40,6 @@ namespace LaBP
     WLEMDDrawable2DMultiDynamic::WLEMDDrawable2DMultiDynamic( WCustomWidget::SPtr widget ) :
                     WLEMDDrawable2DMultiChannel( widget )
     {
-        m_draw = false;
         m_osgChannelBlocks = new osg::MatrixTransform;
         m_rootGroup->addChild( m_osgChannelBlocks );
         m_blockLength = 0;
@@ -72,14 +71,9 @@ namespace LaBP
         return !m_animation->getNodes().empty();
     }
 
-    void WLEMDDrawable2DMultiDynamic::redraw()
-    {
-        m_draw = true;
-    }
-
     void WLEMDDrawable2DMultiDynamic::osgNodeCallback( osg::NodeVisitor* nv )
     {
-        if( m_draw )
+        if( mustDraw() )
         {
             if( m_dataChanged && !m_emmQueue.empty() )
             {

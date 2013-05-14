@@ -82,6 +82,11 @@ namespace LaBP
     {
     }
 
+    bool WLEMDDrawable2D::mustDraw() const
+    {
+        return WLEMDDrawable::mustDraw() || m_timeRangeChanged || m_amplitudeScaleChanged || m_selectedPixelChanged;
+    }
+
     osg::ref_ptr< osg::Geode > WLEMDDrawable2D::drawChannel( const LaBP::WLEMD::ChannelT& channel )
     {
         osg::ref_ptr< osg::DrawArrays > lineDrawer = new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, 0, channel.size() );
@@ -110,15 +115,17 @@ namespace LaBP
 
     void WLEMDDrawable2D::osgNodeCallback( osg::NodeVisitor* nv )
     {
-        osgAddMarkLine();
-        osgAddTimeGrid();
+        if( mustDraw() )
+        {
+            osgAddMarkLine();
+            osgAddTimeGrid();
+        }
 
         m_timeRangeChanged = false;
         m_amplitudeScaleChanged = false;
         m_selectedPixelChanged = false;
-        m_draw = false;
-        m_modalityChanged = false;
-        m_dataChanged = false;
+
+        WLEMDDrawable:resetDrawFlags();
     }
 
     void WLEMDDrawable2D::osgAddMarkLine()

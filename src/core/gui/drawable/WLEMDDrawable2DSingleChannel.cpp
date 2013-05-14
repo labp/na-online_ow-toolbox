@@ -66,11 +66,6 @@ namespace LaBP
         return emd->getNrChans();
     }
 
-    void WLEMDDrawable2DSingleChannel::redraw()
-    {
-        m_draw = true;
-    }
-
     void WLEMDDrawable2DSingleChannel::osgAddChannels( const LaBP::WLEMD* emd )
     {
         m_rootGroup->removeChild( m_channelGroup );
@@ -245,7 +240,7 @@ namespace LaBP
 
     void WLEMDDrawable2DSingleChannel::osgNodeCallback( osg::NodeVisitor* nv )
     {
-        if( !m_draw && !m_selectedPixelChanged )
+        if( !mustDraw() )
         {
             return;
         }

@@ -50,10 +50,9 @@ namespace LaBP
     {
         m_xOffset = m_labelWidth;
         m_channelHeight = 32;
-        m_yOffset = m_channelHeight /2;
+        m_yOffset = m_channelHeight / 2;
         m_channelHeightChanged = true;
 
-        m_draw = false;
         // Disable lightning and depth test due to enable opaque colors
         osg::ref_ptr< osg::StateSet > state = m_rootGroup->getOrCreateStateSet();
         state->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
@@ -67,6 +66,11 @@ namespace LaBP
     {
     }
 
+    bool WLEMDDrawable2DMultiChannel::mustDraw() const
+    {
+        return WLEMDDrawable2D::mustDraw() || m_channelHeightChanged;
+    }
+
     WLEMDDrawable::ValueT WLEMDDrawable2DMultiChannel::getChannelHeight() const
     {
         return m_channelHeight;
@@ -77,7 +81,7 @@ namespace LaBP
         if( m_channelHeight != spacing )
         {
             m_channelHeight = spacing;
-            m_yOffset = m_channelHeight /2;
+            m_yOffset = m_channelHeight / 2;
             m_channelHeightChanged = true;
         }
     }
@@ -87,11 +91,6 @@ namespace LaBP
         size_t channels = ( m_widget->height() / ( m_channelHeight ) );
         channels = channels < emd->getNrChans() ? channels : emd->getNrChans();
         return channels;
-    }
-
-    void WLEMDDrawable2DMultiChannel::redraw()
-    {
-        m_draw = true;
     }
 
     void WLEMDDrawable2DMultiChannel::osgNodeCallback( osg::NodeVisitor* nv )
@@ -137,10 +136,7 @@ namespace LaBP
             // Create labels //
             m_rootGroup->removeChild( m_labelsText );
             m_labelsText = new osg::PositionAttitudeTransform;
-            m_labelsText->setPosition(
-                            osg::Vec3d( 0,
-                                            m_widget->height() - ( m_channelHeight / 2 ) - ( m_labelWidth / 4 ),
-                                            0.0 ) );
+            m_labelsText->setPosition( osg::Vec3d( 0, m_widget->height() - ( m_channelHeight / 2 ), 0.0 ) );
 
             osg::ref_ptr< osg::Geode > labelGeode;
             osg::ref_ptr< osgText::Text > labelText;

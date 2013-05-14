@@ -55,8 +55,6 @@ namespace LaBP
 
         virtual void draw( LaBP::WLDataSetEMM::SPtr emm );
 
-        virtual void redraw();
-
     protected:
         virtual void osgNodeCallback( osg::NodeVisitor* nv );
 

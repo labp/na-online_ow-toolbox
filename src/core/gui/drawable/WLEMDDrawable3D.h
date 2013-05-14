@@ -87,8 +87,6 @@ namespace LaBP
 
         virtual void draw( LaBP::WLDataSetEMM::SPtr emm );
 
-        virtual void redraw() = 0;
-
         virtual bool hasData() const;
 
         /**
@@ -105,8 +103,6 @@ namespace LaBP
 
         virtual void clearWidget( bool force = false );
 
-        virtual void updateWidget();
-
         /**
          * Returns the color map for the surface.
          *
@@ -121,6 +117,10 @@ namespace LaBP
         virtual void setColorMap( LaBP::WLColorMap::SPtr colorMap );
 
     protected:
+        virtual bool mustDraw() const;
+
+        virtual void osgNodeCallback( osg::NodeVisitor* nv );
+
         LaBP::WLDataSetEMM::ConstSPtr m_emm;
         // TODO(pizarro) move this functions to children classes, following the concept: a class just need methods that
         // all their children need. MatrixT is required only by the Source modality.

@@ -56,17 +56,16 @@ namespace LaBP
         explicit WLEMDDrawable3DEEG( WCustomWidget::SPtr widget );
         virtual ~WLEMDDrawable3DEEG();
 
-        void redraw();
-
         void clearWidget( bool force = false );
 
-        void updateWidget();
-
     protected:
+        virtual bool mustDraw() const;
+
         virtual void osgNodeCallback( osg::NodeVisitor* nv );
 
     private:
         void osgAddLabels( const std::vector< WPosition >* positions, const std::vector< std::string >& labels );
+        bool m_labelsOn;
 
         void osgAddNodes( const std::vector< WPosition >* positions );
 

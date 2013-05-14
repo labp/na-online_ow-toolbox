@@ -56,7 +56,7 @@ namespace LaBP
 
     void WLEMDDrawable2DMultiStatic::osgNodeCallback( osg::NodeVisitor* nv )
     {
-        if( !m_draw && !m_selectedPixelChanged )
+        if( !mustDraw() )
             return;
         if( !hasData() )
         {

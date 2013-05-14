@@ -109,8 +109,6 @@ namespace LaBP
          */
         virtual void draw( LaBP::WLDataSetEMM::SPtr emm ) = 0;
 
-        virtual void redraw() = 0;
-
         /**
          * Checks whether data is available.
          */
@@ -131,6 +129,8 @@ namespace LaBP
 
     protected:
         virtual void osgNodeCallback( osg::NodeVisitor* nv );
+
+        virtual bool mustDraw() const;
 
         osg::ref_ptr< osg::Geode > drawChannel( const LaBP::WLEMD::ChannelT& channel );
 

@@ -49,8 +49,6 @@ namespace LaBP
         explicit WLEMDDrawable3DMEG( WCustomWidget::SPtr widget );
         virtual ~WLEMDDrawable3DMEG();
 
-        void redraw();
-
     protected:
         virtual void osgNodeCallback( osg::NodeVisitor* nv );
     };

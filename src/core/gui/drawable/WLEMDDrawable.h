@@ -119,7 +119,7 @@ namespace LaBP
         /**
          * Invokes a draw with the last data.
          */
-        virtual void redraw() = 0;
+        virtual void redraw();
 
         /**
          * Checks whether data is available.
@@ -160,10 +160,9 @@ namespace LaBP
          */
         virtual void osgNodeCallback( osg::NodeVisitor* nv ) = 0;
 
-        /**
-         * A flag to indicate osgNodeCallback() that the data should be draw.
-         */
-        bool m_draw;
+        virtual bool mustDraw() const;
+
+        virtual void resetDrawFlags();
 
         /**
          * Root node for all OSG objects which are added to the widget. osgNodeCallback() is applied to this node.
@@ -191,6 +190,11 @@ namespace LaBP
         const WCustomWidget::SPtr m_widget;
 
     private:
+        /**
+         * A flag to indicate osgNodeCallback() that the data should be draw.
+         */
+        bool m_draw;
+
         /**
          * A wrapper of WLEMDDrawable to register it as a callback for m_rootGroup.
          */

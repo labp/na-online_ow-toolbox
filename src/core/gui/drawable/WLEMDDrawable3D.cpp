@@ -97,12 +97,26 @@ namespace LaBP
         return drawable3D;
     }
 
+    bool WLEMDDrawable3D::mustDraw() const
+    {
+        return WLEMDDrawable::mustDraw() || m_colorMapChanged || m_selectedSampleChanged || m_surfaceChanged;
+    }
+
     void WLEMDDrawable3D::draw( LaBP::WLDataSetEMM::SPtr emm )
     {
 
         m_emm = emm;
         m_dataChanged = true;
         redraw();
+    }
+
+    void WLEMDDrawable3D::osgNodeCallback( osg::NodeVisitor* nv )
+    {
+        m_colorMapChanged = false;
+        m_selectedSampleChanged = false;
+        m_surfaceChanged = false;
+
+        WLEMDDrawable:resetDrawFlags();
     }
 
     bool WLEMDDrawable3D::hasData() const
@@ -188,17 +202,6 @@ namespace LaBP
         {
             //m_widget->getScene()->remove( m_rootGroup );
         }
-    }
-
-    void WLEMDDrawable3D::updateWidget()
-    {
-        if( m_surfaceChanged )
-        {
-            //m_widget->getScene()->insert( m_rootGroup );
-        }
-        m_surfaceChanged = false;
-        //m_timeChanged = false;
-        m_dataChanged = false;
     }
 
 } /* namespace LaBP */
