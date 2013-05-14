@@ -22,10 +22,17 @@
 //
 //---------------------------------------------------------------------------
 
+#include <sstream>
+#include <string>
+
+#include <boost/lexical_cast.hpp>
+#include <osgText/Text>
+
 #include <core/gui/WCustomWidget.h>
 
 #include "core/data/WLDataSetEMM.h"
 #include "core/data/emd/WLEMD.h"
+#include "core/util/WLBoundCalculator.h"
 
 #include "WLEMDDrawable2DSingleChannel.h"
 
@@ -34,6 +41,8 @@ namespace LaBP
     WLEMDDrawable2DSingleChannel::WLEMDDrawable2DSingleChannel( WCustomWidget::SPtr widget ) :
                     WLEMDDrawable2D( widget )
     {
+        m_valueGridWidth = -1;
+        m_valueGridHeight = -1;
     }
 
     WLEMDDrawable2DSingleChannel::~WLEMDDrawable2DSingleChannel()
@@ -42,7 +51,6 @@ namespace LaBP
 
     void WLEMDDrawable2DSingleChannel::draw( LaBP::WLDataSetEMM::SPtr emm )
     {
-
         m_emm = emm;
         m_dataChanged = true;
         redraw();
@@ -100,6 +108,123 @@ namespace LaBP
         m_rootGroup->addChild( m_channelGroup );
     }
 
+    void WLEMDDrawable2DSingleChannel::osgAddValueGrid( const LaBP::WLEMD* emd )
+    {
+        const ValueT height = m_widget->height();
+        const ValueT width = m_widget->width();
+        if( m_amplitudeScaleChanged || m_valueGridWidth != width || m_valueGridHeight != height )
+        {
+            m_valueGridWidth = width;
+            m_valueGridHeight = height;
+
+            m_rootGroup->removeChild( m_valueGridGroup );
+            m_valueGridGroup = new osg::Group;
+
+            // Draw 0 line and add text
+            osg::ref_ptr< osg::Geometry > line = new osg::Geometry;
+
+            osg::ref_ptr< osg::Vec2Array > vertices = new osg::Vec2Array();
+            vertices->reserve( 2 );
+            const ValueT y_zero_pos = height / 2;
+            vertices->push_back( osg::Vec2( m_xOffset, y_zero_pos ) );
+            vertices->push_back( osg::Vec2( width, y_zero_pos ) );
+
+            line->setVertexArray( vertices );
+            line->setColorArray( m_timeGridColors ); // TODO
+            line->setColorBinding( osg::Geometry::BIND_OVERALL );
+            line->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINES, 0, vertices->size() ) );
+
+            osg::ref_ptr< osg::Geode > lineGeode = new osg::Geode;
+            lineGeode->addDrawable( line );
+            m_valueGridGroup->addChild( lineGeode );
+
+            const float char_size = 16;
+
+            osg::ref_ptr< osgText::Text > zeroText = new osgText::Text;
+            zeroText->setText( "0.0" ); // related to deltaT
+            zeroText->setPosition( osg::Vec3( 0, y_zero_pos, 0.0 ) );
+            zeroText->setAlignment( osgText::Text::LEFT_BOTTOM_BASE_LINE );
+            zeroText->setAxisAlignment( osgText::Text::SCREEN );
+            zeroText->setCharacterSizeMode( osgText::Text::SCREEN_COORDS );
+            zeroText->setCharacterSize( char_size );
+            zeroText->setColor( ( *m_timeGridColors )[0] );
+            osg::ref_ptr< osg::Geode > zeroTextGeode = new osg::Geode;
+            zeroTextGeode->addDrawable( zeroText );
+            m_valueGridGroup->addChild( zeroTextGeode );
+
+            // Find maximum
+            LaBP::WLBoundCalculator bc;
+            LaBP::WLEMD::SampleT max = bc.getMax( emd->getData() );
+
+            const ValueT y_scale = ( ( m_widget->height() / 2 ) / m_amplitudeScale );
+            for( ValueT yPos = y_zero_pos + ( y_scale * max ); yPos > height * 0.9; yPos = y_zero_pos + ( y_scale * max ) )
+            {
+                max /= 2;
+            }
+
+            // Draw max and add text
+            ValueT yPos = y_zero_pos + ( y_scale * max );
+            osg::ref_ptr< osg::Vec2Array > vLinePosVec = new osg::Vec2Array();
+            vLinePosVec->reserve( 2 );
+            vLinePosVec->push_back( osg::Vec2( m_xOffset, yPos ) );
+            vLinePosVec->push_back( osg::Vec2( width, yPos ) );
+
+            osg::ref_ptr< osg::Geometry > vLinePos = new osg::Geometry;
+            vLinePos->setVertexArray( vLinePosVec );
+            vLinePos->setColorArray( m_timeGridColors );
+            vLinePos->setColorBinding( osg::Geometry::BIND_OVERALL );
+            vLinePos->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINES, 0, vLinePosVec->size() ) );
+
+            osg::ref_ptr< osgText::Text > maxText = new osgText::Text;
+            std::stringstream ssMax;
+            ssMax << std::setprecision( 2 ) << std::scientific << max;
+            maxText->setText( ssMax.str() );
+            maxText->setPosition( osg::Vec3( 0, yPos, 0.0 ) );
+            maxText->setAlignment( osgText::Text::LEFT_BOTTOM_BASE_LINE );
+            maxText->setAxisAlignment( osgText::Text::SCREEN );
+            maxText->setCharacterSizeMode( osgText::Text::SCREEN_COORDS );
+            maxText->setCharacterSize( char_size );
+            maxText->setColor( ( *m_timeGridColors )[0] );
+            osg::ref_ptr< osg::Geode > maxTextGeode = new osg::Geode;
+            zeroTextGeode->addDrawable( maxText );
+            m_valueGridGroup->addChild( maxTextGeode );
+
+            // Draw min and add text
+            yPos = y_zero_pos - ( y_scale * max );
+            osg::ref_ptr< osg::Vec2Array > vLineNegVec = new osg::Vec2Array();
+            vLineNegVec->reserve( 2 );
+            vLineNegVec->push_back( osg::Vec2( m_xOffset, yPos ) );
+            vLineNegVec->push_back( osg::Vec2( width, yPos ) );
+
+            osg::ref_ptr< osg::Geometry > vLineNeg = new osg::Geometry;
+            vLineNeg->setVertexArray( vLineNegVec );
+            vLineNeg->setColorArray( m_timeGridColors );
+            vLineNeg->setColorBinding( osg::Geometry::BIND_OVERALL );
+            vLineNeg->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINES, 0, vLineNegVec->size() ) );
+
+            osg::ref_ptr< osgText::Text > minText = new osgText::Text;
+            std::stringstream ssMin;
+            ssMin << std::setprecision( 2 ) << std::scientific << -max;
+            minText->setText( ssMin.str() );
+            minText->setPosition( osg::Vec3( 0, yPos, 0.0 ) );
+            minText->setAlignment( osgText::Text::LEFT_BOTTOM_BASE_LINE );
+            minText->setAxisAlignment( osgText::Text::SCREEN );
+            minText->setCharacterSizeMode( osgText::Text::SCREEN_COORDS );
+            minText->setCharacterSize( char_size );
+            minText->setColor( ( *m_timeGridColors )[0] );
+            osg::ref_ptr< osg::Geode > minTextGeode = new osg::Geode;
+            zeroTextGeode->addDrawable( minText );
+            m_valueGridGroup->addChild( minTextGeode );
+
+            osg::ref_ptr< osg::Geode > valueGeode = new osg::Geode;
+            valueGeode->addDrawable( vLinePos );
+            valueGeode->addDrawable( vLineNeg );
+            m_valueGridGroup->addChild( valueGeode );
+
+            m_rootGroup->addChild( m_valueGridGroup );
+        }
+    }
+
     std::pair< LaBP::WLDataSetEMM::SPtr, size_t > WLEMDDrawable2DSingleChannel::getSelectedData( ValueT pixel ) const
     {
         size_t sample = 0;
@@ -132,6 +257,7 @@ namespace LaBP
         LaBP::WLDataSetEMM::ConstSPtr emm = m_emm;
         LaBP::WLEMD::ConstSPtr emd = emm->getModality( m_modality );
         osgAddChannels( emd.get() );
+        osgAddValueGrid( emd.get() );
 
         WLEMDDrawable2D::osgNodeCallback( nv );
     }

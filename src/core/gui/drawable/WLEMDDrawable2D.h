@@ -164,10 +164,14 @@ namespace LaBP
         ValueT m_selectedPixel;
         bool m_selectedPixelChanged;
 
-    private:
         osg::ref_ptr< osg::Vec4Array > m_channelColors;
         osg::ref_ptr< osg::Vec4Array > m_markerColors;
         osg::ref_ptr< osg::Vec4Array > m_timeGridColors;
+
+//    private:
+//        osg::ref_ptr< osg::Vec4Array > m_channelColors;
+//        osg::ref_ptr< osg::Vec4Array > m_markerColors;
+//        osg::ref_ptr< osg::Vec4Array > m_timeGridColors;
     };
 
 } /* namespace LaBP */
