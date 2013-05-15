@@ -52,6 +52,8 @@ namespace LaBP
         m_channelHeight = 32;
         m_yOffset = m_channelHeight / 2;
         m_channelHeightChanged = true;
+        m_channelBegin = 0;
+        m_channelBeginChanged = true;
 
         // Disable lightning and depth test due to enable opaque colors
         osg::ref_ptr< osg::StateSet > state = m_rootGroup->getOrCreateStateSet();
@@ -66,9 +68,26 @@ namespace LaBP
     {
     }
 
+    size_t WLEMDDrawable2DMultiChannel::getChannelBegin() const
+    {
+        return m_channelBegin;
+    }
+
+    size_t WLEMDDrawable2DMultiChannel::setChannelBegin( size_t channelNr )
+    {
+        if( m_channelBegin != channelNr )
+        {
+            size_t old = m_channelBegin;
+            m_channelBegin = channelNr;
+            m_channelBeginChanged = true;
+            return old;
+        }
+        return m_channelBegin;
+    }
+
     bool WLEMDDrawable2DMultiChannel::mustDraw() const
     {
-        return WLEMDDrawable2D::mustDraw() || m_channelHeightChanged;
+        return WLEMDDrawable2D::mustDraw() || m_channelHeightChanged || m_channelBeginChanged;
     }
 
     WLEMDDrawable::ValueT WLEMDDrawable2DMultiChannel::getChannelHeight() const
@@ -86,6 +105,14 @@ namespace LaBP
         }
     }
 
+    size_t WLEMDDrawable2DMultiChannel::getChannelBegin( const LaBP::WLEMD* emd )
+    {
+        const size_t channels_emd = emd->getNrChans();
+        const size_t channels_max = maxChannels( emd );
+        m_channelBegin = m_channelBegin + channels_max < channels_emd ? m_channelBegin : channels_emd - channels_max;
+        return m_channelBegin;
+    }
+
     size_t WLEMDDrawable2DMultiChannel::maxChannels( const LaBP::WLEMD* emd ) const
     {
         size_t channels = ( m_widget->height() / ( m_channelHeight ) );
@@ -98,6 +125,7 @@ namespace LaBP
         WLEMDDrawable2D::osgNodeCallback( nv );
 
         m_channelHeightChanged = false;
+        m_channelBeginChanged = false;
     }
 
     void WLEMDDrawable2DMultiChannel::osgAddLabels( const LaBP::WLEMD* emd )
@@ -142,9 +170,9 @@ namespace LaBP
             osg::ref_ptr< osgText::Text > labelText;
             std::string labelName;
             const osg::Vec4 labelColor( 0.0, 0.0, 0.0, 1.0 );
-            const size_t channels_begin = 0;
+            const size_t channels_emd = emd->getNrChans();
             const size_t channels_count = maxChannels( emd );
-            for( size_t channel = channels_begin, channelPos = 0; channelPos < channels_count && channel < emd->getNrChans();
+            for( size_t channel = getChannelBegin( emd ), channelPos = 0; channelPos < channels_count && channel < channels_emd;
                             ++channel, ++channelPos )
             {
                 labelName = boost::lexical_cast< std::string >( channel );

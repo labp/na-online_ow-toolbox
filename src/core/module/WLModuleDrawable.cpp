@@ -43,6 +43,7 @@
 #include "core/gui/drawable/WLEMDDrawable3D.h"
 #include "core/gui/drawable/WLEMDDrawable3DEEG.h"
 #include "core/gui/events/WLMarkTimePositionHandler.h"
+#include "core/gui/events/WL2DChannelScrollHandler.h"
 #include "core/gui/colorMap/WLColorMap.h"
 #include "core/util/WLBoundCalculator.h"
 
@@ -321,6 +322,8 @@ void LaBP::WLModuleDrawable::resetView()
     if( drawable )
     {
         drawable->setChannelHeight( static_cast< WLEMDDrawable::ValueT >( m_channelHeight->get() ) );
+        WL2DChannelScrollHandler::SPtr handler( new WL2DChannelScrollHandler( drawable, drawable ) );
+        m_eventHandler.push_back( handler );
     }
     m_drawable2D->setTimeRange( m_timeRange->get() );
     // TODO (pieloth): m_drawable2D->setLabelWidth( m_labelsWidth->get() );

@@ -67,6 +67,9 @@ namespace LaBP
 
         virtual std::pair< LaBP::WLDataSetEMM::SPtr, size_t > getSelectedData( ValueT pixel ) const = 0;
 
+        virtual size_t getChannelBegin() const;
+        virtual size_t setChannelBegin( size_t channelNr );
+
     protected:
         virtual bool mustDraw() const;
 
@@ -75,11 +78,15 @@ namespace LaBP
         void virtual osgAddLabels( const LaBP::WLEMD* emd );
 
         virtual size_t maxChannels( const LaBP::WLEMD* emd ) const;
+        virtual size_t getChannelBegin( const LaBP::WLEMD* emd );
 
         const ValueT m_labelWidth;
 
         ValueT m_channelHeight;
         bool m_channelHeightChanged;
+
+        size_t m_channelBegin;
+        bool m_channelBeginChanged;
 
         osg::ref_ptr< osg::PositionAttitudeTransform > m_labelsText;
         osg::ref_ptr< osg::Geode > m_labelsBackground;

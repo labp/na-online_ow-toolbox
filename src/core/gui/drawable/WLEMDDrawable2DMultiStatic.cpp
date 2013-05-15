@@ -88,11 +88,10 @@ namespace LaBP
         // TODO(pieloth): dynamic shift scale ... x_pos * width / m_timeRange,
         panTransform->setMatrix( osg::Matrix::translate( x_pos, y_pos, 0.0 ) );
         const WLEMD::DataT& emdData = emd->getData();
-        const size_t channels_begin = 0;
+        const size_t channels_emd = emd->getNrChans();
         const size_t channels_count = maxChannels( emd );
-        wlog::debug( CLASS ) << "channels_count: " << channels_count;
         osg::ref_ptr< osg::Geode > channelGeode;
-        for( size_t channel = channels_begin, channelPos = 0; channelPos < channels_count && channel < emd->getNrChans();
+        for( size_t channel = getChannelBegin( emd ), channelPos = 0; channelPos < channels_count && channel < channels_emd;
                         ++channel, ++channelPos )
         {
             channelGeode = drawChannel( emdData[channel] );
