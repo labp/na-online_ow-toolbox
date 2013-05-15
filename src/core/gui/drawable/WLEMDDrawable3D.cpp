@@ -196,12 +196,4 @@ namespace LaBP
         }
     }
 
-    void WLEMDDrawable3D::clearWidget( bool force )
-    {
-        if( m_surfaceChanged || force )
-        {
-            //m_widget->getScene()->remove( m_rootGroup );
-        }
-    }
-
 } /* namespace LaBP */

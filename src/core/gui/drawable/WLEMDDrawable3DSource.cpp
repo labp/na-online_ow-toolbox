@@ -83,8 +83,6 @@ namespace LaBP
         LaBP::WLEMDSource::ConstSPtr emd = emm->getModality< const WLEMDSource >( WEModalityType::SOURCE );
         LaBP::WLEMMSubject::ConstSPtr subject = emm->getSubject();
 
-        clearWidget();
-
         if( m_colorMapChanged )
         {
             m_state->setTextureAttributeAndModes( 0, m_colorMap->getAsTexture() );

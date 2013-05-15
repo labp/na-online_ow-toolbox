@@ -166,14 +166,6 @@ namespace LaBP
         }
     }
 
-    void WLEMDDrawable3DEEG::clearWidget( bool force )
-    {
-        if( m_labelsChanged || m_electrodesChanged || force )
-        {
-            WLEMDDrawable3D::clearWidget( true );
-        }
-    }
-
     void WLEMDDrawable3DEEG::osgNodeCallback( osg::NodeVisitor* nv )
     {
         if( !mustDraw() )
@@ -188,8 +180,6 @@ namespace LaBP
 
         LaBP::WLDataSetEMM::ConstSPtr emm = m_emm;
         LaBP::WLEMDEEG::ConstSPtr emd = emm->getModality< const WLEMDEEG >( WEModalityType::EEG );
-
-        clearWidget();
 
         if( m_colorMapChanged )
         {

@@ -145,13 +145,6 @@ namespace LaBP
          */
         virtual WCustomWidget::SPtr getWidget() const;
 
-        /**
-         * Invokes a clear on the widget. Only The elements of this drawable should be removed.
-         *
-         * @param force
-         */
-        virtual void clearWidget( bool force = false ) = 0;
-
     protected:
         /**
          * Modifies and draws the scene graph.

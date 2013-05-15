@@ -101,8 +101,6 @@ namespace LaBP
          */
         virtual bool setSelectedSample( ptrdiff_t pixel );
 
-        virtual void clearWidget( bool force = false );
-
         /**
          * Returns the color map for the surface.
          *

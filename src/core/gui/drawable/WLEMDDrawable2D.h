@@ -123,8 +123,6 @@ namespace LaBP
         virtual ValueT getSelectedPixel() const;
         virtual bool setSelectedPixel( ValueT value );
 
-        virtual void clearWidget( bool force = false );
-
         virtual std::pair< LaBP::WLDataSetEMM::SPtr, size_t > getSelectedData( ValueT pixel ) const = 0;
 
     protected:

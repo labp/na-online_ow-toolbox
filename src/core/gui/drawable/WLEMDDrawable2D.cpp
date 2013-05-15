@@ -326,9 +326,4 @@ namespace LaBP
         return drawable2D;
     }
 
-    void WLEMDDrawable2D::clearWidget( bool force )
-    {
-        // TODO(pieloth) insert code to delete nodes from widget here!
-    }
-
 } /* namespace LaBP */

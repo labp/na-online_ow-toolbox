@@ -202,9 +202,6 @@ void LaBP::WLModuleDrawable::handleColorModeChanged()
 
 void LaBP::WLModuleDrawable::handleViewModalityChanged()
 {
-    m_drawable2D->clearWidget();
-    m_drawable3D->clearWidget( true );
-
     resetView();
 
     m_drawable2D->redraw();

@@ -56,8 +56,6 @@ namespace LaBP
         explicit WLEMDDrawable3DEEG( WCustomWidget::SPtr widget );
         virtual ~WLEMDDrawable3DEEG();
 
-        void clearWidget( bool force = false );
-
     protected:
         virtual bool mustDraw() const;
 
@@ -65,7 +63,6 @@ namespace LaBP
 
     private:
         void osgAddLabels( const std::vector< WPosition >* positions, const std::vector< std::string >& labels );
-        bool m_labelsOn;
 
         void osgAddNodes( const std::vector< WPosition >* positions );
 
@@ -80,6 +77,7 @@ namespace LaBP
         std::vector< osg::ref_ptr< osg::ShapeDrawable > > m_electrodesDrawables;
 
         bool m_labelsChanged;
+        bool m_labelsOn;
 
         osg::ref_ptr< osg::Geode > m_labesGeode;
 
