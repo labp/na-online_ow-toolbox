@@ -63,6 +63,15 @@ namespace LaBP
         return WLEMDDrawable3D::mustDraw() || m_electrodesChanged || m_labelsChanged;
     }
 
+    void WLEMDDrawable3DEEG::setLabels( bool labelsOn )
+    {
+        if( m_labelsOn != labelsOn )
+        {
+            m_labelsOn = labelsOn;
+            m_labelsChanged = true;
+        }
+    }
+
     void WLEMDDrawable3DEEG::osgAddLabels( const std::vector< WPosition >* positions, const std::vector< std::string >& labels )
     {
         if( m_labelsChanged && m_labelsOn )

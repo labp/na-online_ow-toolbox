@@ -31,12 +31,10 @@
 #include <core/kernel/WModule.h>
 
 #include "core/data/WLDataSetEMM.h"
-#include "core/util/WLBoundCalculator.h"
 #include "core/gui/WLEMDWidget.h"
 #include "core/gui/events/WLGUIEventHandler.h"
 #include "core/gui/drawable/WLEMDDrawable2D.h"
 #include "core/gui/drawable/WLEMDDrawable3D.h"
-
 
 #include "core/gui/colorMap/WLColorMap.h"
 
@@ -114,14 +112,6 @@ namespace LaBP
         void hideComputeModalitySelection( bool enable );
 
     private:
-//        /**
-//         * Add commentaries here:
-//         */
-//        void draw2D( boost::shared_ptr< LaBP::WDataSetEMM > emm, bool autoScale );
-//        /**
-//         * Add commentaries here:
-//         */
-//        void draw3D( boost::shared_ptr< LaBP::WDataSetEMM > emm, bool autoScale );
         /**
          * Add commentaries here:
          */
@@ -130,52 +120,49 @@ namespace LaBP
         /**
          * Add commentaries here:
          */
-        void handleTimeRangeChanged();
+        void callbackTimeRangeChanged();
 
         /**
          * Add commentaries here:
          */
-        void handleChannelHeightChanged();
+        void callbackChannelHeightChanged();
 
         /**
          * Add commentaries here:
          */
-        void handleColorChanged();
+        void callbackColorChanged();
 
         /**
          * Add commentaries here:
          */
-        void handleDrawUpdate();
+        void callbackColorModeChanged();
 
         /**
          * Add commentaries here:
          */
-        void handleColorModeChanged();
+        void callbackViewModalityChanged();
 
         /**
          * Add commentaries here:
          */
-        void handleViewModalityChanged();
+        void callbackMin3DChanged();
 
         /**
          * Add commentaries here:
          */
-        void handleMin3DChanged();
+        void callbackMax3DChanged();
 
         /**
          * Add commentaries here:
          */
-        void handleMax3DChanged();
+        void callbackAmplitudeScaleChanged();
 
         /**
          * Add commentaries here:
          */
-        void handleAmplitudeScaleChanged();
+        void callbackAutoSensitivityChanged();
 
-        /**
-         * Add commentaries here:
-         */
-        void handleAutoSensitivityChanged();
+        void callbackLabelsChanged();
 
         LaBP::WLEMDDrawable2D::WEGraphType::Enum m_graphType;
 
@@ -189,20 +176,11 @@ namespace LaBP
          */
         LaBP::WLEMDDrawable3D::SPtr m_drawable3D;
 
-        /**
-         * Group for cutting fiff-file for stream
-         */
         WPropGroup m_propView;
 
-        /**
-         * Group for cutting fiff-file for stream
-         */
         WPropBool m_autoSensitivity;
 
-        /**
-         * Add commentaries here:
-         */
-        bool m_positions_changed;
+        WPropBool m_labelsOn;
 
         /**
          * the width of the graph in seconds as property
@@ -264,8 +242,6 @@ namespace LaBP
         LaBP::WLColorMap::SPtr m_colorMap;
 
         std::list< WLGUIEventHandler::SPtr > m_eventHandler;
-
-        boost::shared_ptr< WLBoundCalculator > m_calculator;
     };
 }
 

@@ -41,8 +41,10 @@
 #include "core/gui/drawable/WLEMDDrawable2D.h"
 #include "core/gui/drawable/WLEMDDrawable2DMultiChannel.h"
 #include "core/gui/drawable/WLEMDDrawable3D.h"
+#include "core/gui/drawable/WLEMDDrawable3DEEG.h"
 #include "core/gui/events/WLMarkTimePositionHandler.h"
 #include "core/gui/colorMap/WLColorMap.h"
+#include "core/util/WLBoundCalculator.h"
 
 #include "WLModuleDrawable.h"
 
@@ -54,9 +56,7 @@ const int LaBP::WLModuleDrawable::AUTO_SCALE_PACKETS = 8;
 LaBP::WLModuleDrawable::WLModuleDrawable()
 {
     m_autoScaleCounter = AUTO_SCALE_PACKETS;
-    m_positions_changed = true;
     m_graphType = WLEMDDrawable2D::WEGraphType::MULTI;
-    m_calculator = boost::shared_ptr< WLBoundCalculator >( new WLBoundCalculator() );
 }
 
 LaBP::WLModuleDrawable::~WLModuleDrawable()
@@ -71,10 +71,13 @@ void LaBP::WLModuleDrawable::properties()
     m_propView = m_properties->addPropertyGroup( "View Properties", "Contains properties for the display module", false );
 
     // VIEWPROPERTIES ---------------------------------------------------------------------------------------
-    m_channelHeight = m_propView->addProperty( "Channel height", "The distance between two curves of the graph in pixel.", 64.0,
-                    boost::bind( &LaBP::WLModuleDrawable::handleChannelHeightChanged, this ), false );
+    m_channelHeight = m_propView->addProperty( "Channel height", "The distance between two curves of the graph in pixel.", 32.0,
+                    boost::bind( &LaBP::WLModuleDrawable::callbackChannelHeightChanged, this ), false );
     m_channelHeight->setMin( 4.0 );
     m_channelHeight->setMax( 512.0 );
+
+    m_labelsOn = m_propView->addProperty( "Labels on", "Switch channel labels on/off (3D).", true,
+                    boost::bind( &LaBP::WLModuleDrawable::callbackLabelsChanged, this ), false );
 
     WItemSelection::SPtr colorModeSelection( new WItemSelection() );
     std::vector< WEColorMapMode::Enum > colorModes = WEColorMapMode::values();
@@ -87,7 +90,7 @@ void LaBP::WLModuleDrawable::properties()
     }
 
     m_selectionColorMode = m_propView->addProperty( "Color mode", "Select a mode", colorModeSelection->getSelectorFirst(),
-                    boost::bind( &LaBP::WLModuleDrawable::handleColorModeChanged, this ) );
+                    boost::bind( &LaBP::WLModuleDrawable::callbackColorModeChanged, this ) );
 
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_selectionColorMode );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_selectionColorMode );
@@ -103,7 +106,7 @@ void LaBP::WLModuleDrawable::properties()
     }
 
     m_selectionColor = m_propView->addProperty( "Color map", "Select a color", colorMapSelection->getSelector( 2 ),
-                    boost::bind( &LaBP::WLModuleDrawable::handleColorChanged, this ) );
+                    boost::bind( &LaBP::WLModuleDrawable::callbackColorChanged, this ) );
 
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_selectionColor );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_selectionColor );
@@ -129,7 +132,7 @@ void LaBP::WLModuleDrawable::properties()
     // we are not using it, also it will be hidden until a solution is found. Dynamic view divide the width into the amount
     // of blocks ( default 2 ), also timeRange is not longer required.
     m_timeRange = m_propView->addProperty( "Time Range", "Size of time windows in ???.", 1.0,
-                    boost::bind( &LaBP::WLModuleDrawable::handleTimeRangeChanged, this ), true );
+                    boost::bind( &LaBP::WLModuleDrawable::callbackTimeRangeChanged, this ), true );
     m_timeRange->setMin( 0.100 );
     m_timeRange->setMax( 4.0 );
 
@@ -145,20 +148,20 @@ void LaBP::WLModuleDrawable::properties()
     }
 
     m_selectionView = m_propView->addProperty( "View modality", "Select a to visualize", viewSelection->getSelectorFirst(),
-                    boost::bind( &LaBP::WLModuleDrawable::handleViewModalityChanged, this ) );
+                    boost::bind( &LaBP::WLModuleDrawable::callbackViewModalityChanged, this ) );
 
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_selectionView );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_selectionView );
 
     m_autoSensitivity = m_propView->addProperty( "Sensitivity automatic", "Sensitivity automatic calculate.", true,
-                    boost::bind( &LaBP::WLModuleDrawable::handleAutoSensitivityChanged, this ), false );
+                    boost::bind( &LaBP::WLModuleDrawable::callbackAutoSensitivityChanged, this ), false );
 
     m_amplitudeScale = m_propView->addProperty( "Amplitude scale", "Scale of the amplitude / y-axis", 1.5e-9,
-                    boost::bind( &LaBP::WLModuleDrawable::handleAmplitudeScaleChanged, this ), true );
+                    boost::bind( &LaBP::WLModuleDrawable::callbackAmplitudeScaleChanged, this ), true );
     m_minSensitity3D = m_propView->addProperty( "Min 3D scale", "Minimum data value for color map.", -1.5e-9,
-                    boost::bind( &LaBP::WLModuleDrawable::handleMin3DChanged, this ), true );
+                    boost::bind( &LaBP::WLModuleDrawable::callbackMin3DChanged, this ), true );
     m_maxSensitity3D = m_propView->addProperty( "Max 3D scale", "Maximum data value for color map.", 1.5e-9,
-                    boost::bind( &LaBP::WLModuleDrawable::handleMax3DChanged, this ), true );
+                    boost::bind( &LaBP::WLModuleDrawable::callbackMax3DChanged, this ), true );
 }
 
 LaBP::WEModalityType::Enum LaBP::WLModuleDrawable::getViewModality()
@@ -178,7 +181,7 @@ void LaBP::WLModuleDrawable::hideComputeModalitySelection( bool enable )
     m_selectionCalculate->setHidden( enable );
 }
 
-void LaBP::WLModuleDrawable::handleAutoSensitivityChanged()
+void LaBP::WLModuleDrawable::callbackAutoSensitivityChanged()
 {
     m_autoScaleCounter = AUTO_SCALE_PACKETS;
     m_amplitudeScale->setHidden( m_autoSensitivity->get() );
@@ -186,21 +189,21 @@ void LaBP::WLModuleDrawable::handleAutoSensitivityChanged()
     m_maxSensitity3D->setHidden( m_autoSensitivity->get() );
 }
 
-void LaBP::WLModuleDrawable::handleColorChanged()
+void LaBP::WLModuleDrawable::callbackColorChanged()
 {
     createColorMap();
     m_drawable3D->setColorMap( m_colorMap );
     m_drawable3D->redraw();
 }
 
-void LaBP::WLModuleDrawable::handleColorModeChanged()
+void LaBP::WLModuleDrawable::callbackColorModeChanged()
 {
     createColorMap();
     m_drawable3D->setColorMap( m_colorMap );
     m_drawable3D->redraw();
 }
 
-void LaBP::WLModuleDrawable::handleViewModalityChanged()
+void LaBP::WLModuleDrawable::callbackViewModalityChanged()
 {
     resetView();
 
@@ -208,38 +211,48 @@ void LaBP::WLModuleDrawable::handleViewModalityChanged()
     m_drawable3D->redraw();
 }
 
-void LaBP::WLModuleDrawable::handleMin3DChanged()
+void LaBP::WLModuleDrawable::callbackMin3DChanged()
 {
     createColorMap();
     m_drawable3D->setColorMap( m_colorMap );
     m_drawable3D->redraw();
 }
 
-void LaBP::WLModuleDrawable::handleMax3DChanged()
+void LaBP::WLModuleDrawable::callbackMax3DChanged()
 {
     createColorMap();
     m_drawable3D->setColorMap( m_colorMap );
     m_drawable3D->redraw();
 }
 
-void LaBP::WLModuleDrawable::handleAmplitudeScaleChanged()
+void LaBP::WLModuleDrawable::callbackAmplitudeScaleChanged()
 {
     m_drawable2D->setAmplitudeScale( m_amplitudeScale->get() );
     m_drawable2D->redraw();
 }
 
-void LaBP::WLModuleDrawable::handleTimeRangeChanged()
+void LaBP::WLModuleDrawable::callbackTimeRangeChanged()
 {
     m_drawable2D->setTimeRange( m_timeRange->get() );
 // TODO: Code definition
 }
 
-void LaBP::WLModuleDrawable::handleChannelHeightChanged()
+void LaBP::WLModuleDrawable::callbackChannelHeightChanged()
 {
     WLEMDDrawable2DMultiChannel::SPtr drawable = m_drawable2D->getAs< WLEMDDrawable2DMultiChannel >();
     if( drawable )
     {
         drawable->setChannelHeight( static_cast< WLEMDDrawable::ValueT >( m_channelHeight->get() ) );
+        drawable->redraw();
+    }
+}
+
+void LaBP::WLModuleDrawable::callbackLabelsChanged()
+{
+    WLEMDDrawable3DEEG::SPtr drawable = m_drawable3D->getAs< WLEMDDrawable3DEEG >();
+    if( drawable )
+    {
+        drawable->setLabels( m_labelsOn->get() );
         drawable->redraw();
     }
 }
@@ -278,12 +291,13 @@ void LaBP::WLModuleDrawable::updateView( boost::shared_ptr< LaBP::WLDataSetEMM >
 
     if( autoScale )
     {
+        WLBoundCalculator calculator;
         --m_autoScaleCounter;
         // Scale 2D
-        const LaBP::WLEMD::SampleT amplitudeScale = m_calculator->getMax2D( emm, getViewModality() );
+        const LaBP::WLEMD::SampleT amplitudeScale = calculator.getMax2D( emm, getViewModality() );
         m_amplitudeScale->set( amplitudeScale );
         // Scale 3D
-        const LaBP::WLEMD::SampleT sens3dScale = m_calculator->getMax3D( emm, getViewModality() );
+        const LaBP::WLEMD::SampleT sens3dScale = calculator.getMax3D( emm, getViewModality() );
         m_maxSensitity3D->set( sens3dScale );
         m_minSensitity3D->set( -sens3dScale );
     }

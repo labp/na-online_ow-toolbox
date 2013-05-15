@@ -56,6 +56,8 @@ namespace LaBP
         explicit WLEMDDrawable3DEEG( WCustomWidget::SPtr widget );
         virtual ~WLEMDDrawable3DEEG();
 
+        void setLabels( bool labelOn );
+
     protected:
         virtual bool mustDraw() const;
 
