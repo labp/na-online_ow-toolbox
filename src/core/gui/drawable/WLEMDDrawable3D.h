@@ -29,9 +29,10 @@
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
-#include <osg/ref_ptr>
+#include <osg/Projection>
 #include <osg/Geometry>
-#include <osg/ShapeDrawable>
+#include <osg/Group>
+#include <osg/ref_ptr>
 #include <osg/StateSet>
 
 #include <core/common/math/linearAlgebra/WPosition.h>
@@ -125,6 +126,8 @@ namespace LaBP
 
         void osgAddSurface( const std::vector< WPosition >* positions, const std::vector< WVector3i >& faces );
 
+        void osgAddColorMap();
+
         bool m_colorMapChanged;
 
         /**
@@ -140,6 +143,8 @@ namespace LaBP
         LaBP::WLColorMap::SPtr m_colorMap;
 
         bool m_surfaceChanged;
+
+        osg::ref_ptr< osg::Projection > m_colorMapNode;
 
         osg::ref_ptr< osg::Geode > m_surfaceGeode;
 

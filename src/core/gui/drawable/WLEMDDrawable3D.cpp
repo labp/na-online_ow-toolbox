@@ -22,19 +22,19 @@
 //
 //---------------------------------------------------------------------------
 
+#include <sstream>
 #include <string>
 #include <vector>
 
-#include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
 #include <osg/Array>
 #include <osg/Geode>
 #include <osg/Group>
 #include <osg/LightModel>
 #include <osg/ref_ptr>
-#include <osg/ShapeDrawable>
 #include <osg/Drawable>
 #include <osg/Texture>
+#include <osgText/Text>
 
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
@@ -68,6 +68,8 @@ namespace LaBP
         osg::ref_ptr< osg::LightModel > lightModel = new osg::LightModel;
         lightModel->setTwoSided( true );
         m_state->setAttributeAndModes( lightModel );
+        m_state->setMode( GL_LIGHTING, osg::StateAttribute::ON );
+        m_state->setMode( GL_NORMALIZE, osg::StateAttribute::ON );
     }
 
     WLEMDDrawable3D::~WLEMDDrawable3D()
@@ -112,11 +114,13 @@ namespace LaBP
 
     void WLEMDDrawable3D::osgNodeCallback( osg::NodeVisitor* nv )
     {
+        osgAddColorMap();
+
         m_colorMapChanged = false;
         m_selectedSampleChanged = false;
         m_surfaceChanged = false;
 
-        WLEMDDrawable:resetDrawFlags();
+        WLEMDDrawable::resetDrawFlags();
     }
 
     bool WLEMDDrawable3D::hasData() const
@@ -193,6 +197,128 @@ namespace LaBP
             m_surfaceGeode = new osg::Geode;
             m_surfaceGeode->addDrawable( m_surfaceGeometry );
             m_rootGroup->addChild( m_surfaceGeode );
+        }
+    }
+
+    void WLEMDDrawable3D::osgAddColorMap()
+    {
+        if( m_colorMapChanged )
+        {
+            m_rootGroup->removeChild( m_colorMapNode );
+
+            const ValueT width = m_widget->width();
+            const ValueT height = m_widget->height();
+            const float cm_max = m_colorMap->getMax();
+            const float cm_min = m_colorMap->getMin();
+            const ValueT cm_width = 20;
+            const ValueT cm_height = height / 2;
+            const ValueT cm_x_offset = 10;
+            const ValueT cm_y_offset = cm_height / 2;
+
+            osg::ref_ptr< osg::MatrixTransform > cmModelViewMat;
+            osg::ref_ptr< osg::Geode > cmGeode;
+
+            // Prepare projection and matrix for fixed position and scale
+            {
+                m_colorMapNode = new osg::Projection;
+                m_colorMapNode->setMatrix( osg::Matrix::ortho2D( 0, width, 0, height ) );
+
+                // For the HUD model view matrix use an identity matrix:
+                cmModelViewMat = new osg::MatrixTransform;
+                cmModelViewMat->setMatrix( osg::Matrix::identity() );
+
+                // Make sure the model view matrix is not affected by any transforms
+                // above it in the scene graph:
+                cmModelViewMat->setReferenceFrame( osg::Transform::ABSOLUTE_RF );
+
+                cmModelViewMat->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+            }
+            // Add the HUD projection matrix as a child of the root node
+            // and the HUD model view matrix as a child of the projection matrix
+            // Anything under this node will be viewed using this projection matrix
+            // and positioned with this model view matrix.
+            m_colorMapNode->addChild( cmModelViewMat );
+
+            cmGeode = new osg::Geode;
+            cmModelViewMat->addChild( cmGeode );
+
+            // Draw Color Map Bar
+            {
+                osg::ref_ptr< osg::Geometry > quadGeom = new osg::Geometry;
+
+                // Coordinates Counter Clock Wise (CCW)
+                osg::ref_ptr< osg::Vec3Array > quadVerts = new osg::Vec3Array();
+                quadVerts->reserve( 4 );
+                quadVerts->push_back( osg::Vec3( cm_x_offset, cm_y_offset + cm_height, 0.0 ) );
+                quadVerts->push_back( osg::Vec3( cm_x_offset, cm_y_offset, 0.0 ) );
+                quadVerts->push_back( osg::Vec3( cm_x_offset + cm_width, cm_y_offset, 0.0 ) );
+                quadVerts->push_back( osg::Vec3( cm_x_offset + cm_width, cm_y_offset + cm_height, 0.0 ) );
+                quadGeom->setVertexArray( quadVerts );
+
+                osg::ref_ptr< osg::FloatArray > quadTexCoords = new osg::FloatArray;
+                quadTexCoords->assign( 4, 0.0 );
+                ( *quadTexCoords )[0] = m_colorMap->getTextureCoordinate( cm_max );
+                ( *quadTexCoords )[1] = m_colorMap->getTextureCoordinate( cm_min );
+                ( *quadTexCoords )[2] = m_colorMap->getTextureCoordinate( cm_min );
+                ( *quadTexCoords )[3] = m_colorMap->getTextureCoordinate( cm_max );
+                quadGeom->setTexCoordArray( 0, quadTexCoords );
+
+                quadGeom->getOrCreateStateSet()->setTextureAttributeAndModes( 0, m_colorMap->getAsTexture() );
+                quadGeom->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
+                quadGeom->addPrimitiveSet( new osg::DrawArrays( GL_QUADS, 0, quadVerts->size() ) );
+
+                cmGeode->addDrawable( quadGeom );
+            }
+
+            // Add captions to Color Map Bar
+            {
+                osg::ref_ptr< osgText::Text > text;
+                std::stringstream cmValueStream;
+                const ValueT cmt_x = cm_x_offset + cm_width + 5;
+                const osg::Vec4 cmt_color( 0.0, 0.0, 0.0, 1.0 );
+                const float cmt_char_size = 16;
+
+                cmValueStream.clear();
+                cmValueStream.str( "" );
+                cmValueStream << std::setprecision( 2 ) << std::scientific << cm_max;
+                text = new osgText::Text;
+                text->setText( cmValueStream.str() );
+                text->setPosition( osg::Vec3( cmt_x, cm_y_offset + cm_height, 0.0 ) );
+                text->setAlignment( osgText::Text::LEFT_CENTER );
+                text->setAxisAlignment( osgText::Text::SCREEN );
+                text->setCharacterSizeMode( osgText::Text::SCREEN_COORDS );
+                text->setCharacterSize( cmt_char_size );
+                text->setColor( cmt_color );
+                cmGeode->addDrawable( text );
+
+                cmValueStream.clear();
+                cmValueStream.str( "" );
+                cmValueStream << std::setprecision( 2 ) << cm_min + ( cm_max - cm_min ) / 2;
+                text = new osgText::Text;
+                text->setText( cmValueStream.str() );
+                text->setPosition( osg::Vec3( cmt_x, cm_y_offset + cm_height / 2, 0.0 ) );
+                text->setAlignment( osgText::Text::LEFT_CENTER );
+                text->setAxisAlignment( osgText::Text::SCREEN );
+                text->setCharacterSizeMode( osgText::Text::SCREEN_COORDS );
+                text->setCharacterSize( cmt_char_size );
+                text->setColor( cmt_color );
+                cmGeode->addDrawable( text );
+
+                cmValueStream.clear();
+                cmValueStream.str( "" );
+                cmValueStream << std::setprecision( 2 ) << std::scientific << cm_min;
+                text = new osgText::Text;
+                text->setText( cmValueStream.str() );
+                text->setPosition( osg::Vec3( cmt_x, cm_y_offset, 0.0 ) );
+                text->setAlignment( osgText::Text::LEFT_CENTER );
+                text->setAxisAlignment( osgText::Text::SCREEN );
+                text->setCharacterSizeMode( osgText::Text::SCREEN_COORDS );
+                text->setCharacterSize( cmt_char_size );
+                text->setColor( cmt_color );
+                cmGeode->addDrawable( text );
+            }
+
+            m_rootGroup->addChild( m_colorMapNode );
         }
     }
 

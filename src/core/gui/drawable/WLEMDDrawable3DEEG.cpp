@@ -132,6 +132,9 @@ namespace LaBP
                 m_electrodesDrawables.push_back( shape );
                 m_electrodesGeode->addDrawable( shape );
             }
+            m_electrodesGeode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::ON );
+            m_electrodesGeode->getOrCreateStateSet()->setMode( GL_NORMALIZE, osg::StateAttribute::ON );
+
             m_rootGroup->addChild( m_electrodesGeode );
         }
     }
