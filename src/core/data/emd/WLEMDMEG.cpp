@@ -24,6 +24,7 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <core/common/WAssert.h>
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
@@ -116,4 +117,19 @@ std::vector< WVector3f >& LaBP::WLEMDMEG::getEz() const
 void LaBP::WLEMDMEG::setEz( boost::shared_ptr< std::vector< WVector3f > > vec )
 {
     m_eZ = vec;
+}
+
+LaBP::WEGeneralCoilType::Enum LaBP::WLEMDMEG::getChannelType( size_t channelId ) const
+{
+    WAssert( channelId < m_data->size(), "Index out of bounds!" );
+    // Sequence: GGMGGMGGM ... 01 2 34 5
+    if( channelId > 1 && ( channelId - 2 ) % 3 == 0 )
+    {
+        return WEGeneralCoilType::MAGNETOMETER;
+    }
+    else
+    {
+        return WEGeneralCoilType::GRADIOMETER;
+
+    }
 }

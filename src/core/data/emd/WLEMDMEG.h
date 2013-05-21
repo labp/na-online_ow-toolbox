@@ -93,6 +93,8 @@ namespace LaBP
         std::vector< WVector3f >& getEz() const;
         void setEz( boost::shared_ptr< std::vector< WVector3f > > vec );
 
+        WEGeneralCoilType::Enum getChannelType( size_t channelId ) const;
+
     private:
         boost::shared_ptr< std::vector< WPosition > > m_chanPos3d;
 

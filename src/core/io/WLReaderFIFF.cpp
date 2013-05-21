@@ -139,8 +139,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( LaBP::WLDataSetEMM::SPtr out 
         }
     }
 
-    boost::shared_ptr< LaBP::WLEMD::DataT > rawdatabuffers_out_ptr(
-                    new LaBP::WLEMD::DataT( rawdatabuffers_out ) );
+    boost::shared_ptr< LaBP::WLEMD::DataT > rawdatabuffers_out_ptr( new LaBP::WLEMD::DataT( rawdatabuffers_out ) );
     dummy->setData( rawdatabuffers_out_ptr );
 
     // Collect available modalities and coils
@@ -209,6 +208,19 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( LaBP::WLDataSetEMM::SPtr out 
 
                     eVec = measinfo_in.GetLFChannelInfo()[chan]->GetEz();
                     eZ->push_back( WVector3f( eVec[0], eVec[1], eVec[2] ) );
+
+                    // Check sequence
+                    const int32_t coil_type = measinfo_in.GetLFChannelInfo()[chan]->GetCoilType();
+                    if( data->size() > 1 && ( data->size() - 2 ) % 3 == 0 )
+                    {
+                        WAssert( coil_type == 3021 || coil_type == 3022 || coil_type == 3024,
+                                        "Wrong order! Coil type should be magentometer!" );
+                    }
+                    else
+                    {
+                        WAssert( coil_type == 3012 || coil_type == 3013 || coil_type == 3014,
+                                        "Wrong order! Coil type should be gradiometer!" );
+                    }
                 }
                 // Collect positions for EEG and MEG
                 if( mod == 1 || mod == 2 )
@@ -217,6 +229,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( LaBP::WLDataSetEMM::SPtr out 
                     pos = measinfo_in.GetLFChannelInfo()[chan]->GetR0();
                     positions->push_back( WPosition( pos[0] * scale, pos[1] * scale, pos[2] * scale ) );
                 }
+
                 // Collect general data
                 data->push_back( dummy->getData()[chan] );
                 fiffUnit = measinfo_in.GetLFChannelInfo()[chan]->GetUnit();
