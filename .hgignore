@@ -54,5 +54,6 @@ syntax: regexp
 ^Debug$
 syntax: glob
 .settings
+.csettings
 syntax: glob
 Release
