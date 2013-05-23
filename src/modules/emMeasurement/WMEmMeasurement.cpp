@@ -44,7 +44,7 @@
 #include <core/common/WRealtimeTimer.h>
 
 #include "core/module/WLModuleOutputDataCollectionable.h"
-#include "core/data/WLDataSetEMM.h"
+#include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMDEEG.h"
 #include "core/data/emd/WLEMDMEG.h"
 #include "core/data/WLEMMSubject.h"
@@ -67,7 +67,7 @@ W_LOADABLE_MODULE( WMEmMeasurement )
 
 WMEmMeasurement::WMEmMeasurement()
 {
-    m_fiffEmm = LaBP::WLDataSetEMM::SPtr( new LaBP::WLDataSetEMM() );
+    m_fiffEmm = WLEMMeasurement::SPtr( new WLEMMeasurement() );
 }
 
 WMEmMeasurement::~WMEmMeasurement()
@@ -334,8 +334,7 @@ void WMEmMeasurement::streamData()
 
             waitTimer.reset();
 
-            boost::shared_ptr< LaBP::WLDataSetEMM > emmPacket = boost::shared_ptr< LaBP::WLDataSetEMM >(
-                            new LaBP::WLDataSetEMM( *m_fiffEmm ) );
+            WLEMMeasurement::SPtr emmPacket( new WLEMMeasurement( *m_fiffEmm ) );
 
             // clone each modality
             for( std::vector< LaBP::WLEMD::SPtr >::const_iterator emd = emds.begin(); emd != emds.end(); ++emd )
@@ -345,8 +344,8 @@ void WMEmMeasurement::streamData()
                     break;
                 }
 
-                boost::shared_ptr< LaBP::WLEMD > emdPacket = ( *emd )->clone();
-                boost::shared_ptr< std::vector< std::vector< double > > > data( new std::vector< std::vector< double > >() );
+                LaBP::WLEMD::SPtr emdPacket = ( *emd )->clone();
+                boost::shared_ptr< LaBP::WLEMD::DataT > data( new LaBP::WLEMD::DataT() );
                 data->reserve( ( *emd )->getNrChans() );
 
                 smplFrq = ( *emd )->getSampFreq();
@@ -357,7 +356,7 @@ void WMEmMeasurement::streamData()
                 // copy each channel
                 for( size_t chan = 0; chan < ( *emd )->getNrChans(); ++chan )
                 {
-                    std::vector< double > channel;
+                    LaBP::WLEMD::ChannelT channel;
                     channel.reserve( blockSize );
 
                     for( size_t sample = 0; sample < blockSize && ( blockOffset + sample ) < fiffData.at( chan ).size();
@@ -384,10 +383,9 @@ void WMEmMeasurement::streamData()
 
             // copy event channels
             blockOffset = blockCount * blockSize; // Using blockSize/samplFreq of last modality
-            for( std::vector< std::vector< int > >::const_iterator eChannel = events->begin(); eChannel != events->end();
-                            ++eChannel )
+            for( WLEMMeasurement::EDataT::const_iterator eChannel = events->begin(); eChannel != events->end(); ++eChannel )
             {
-                std::vector< int > data;
+                WLEMMeasurement::EChannelT data;
                 data.reserve( blockSize );
                 for( size_t event = 0; event < blockSize && ( blockOffset + event ) < ( *eChannel ).size(); ++event )
                 {
@@ -467,14 +465,14 @@ void WMEmMeasurement::generateData()
             break;
         }
 
-        boost::shared_ptr< LaBP::WLDataSetEMM > emm = boost::shared_ptr< LaBP::WLDataSetEMM >( new LaBP::WLDataSetEMM() );
-        boost::shared_ptr< LaBP::WLEMDEEG > eeg = boost::shared_ptr< LaBP::WLEMDEEG >( new LaBP::WLEMDEEG() );
+        WLEMMeasurement::SPtr emm( new WLEMMeasurement() );
+        LaBP::WLEMDEEG::SPtr eeg( new LaBP::WLEMDEEG() );
 
         eeg->setSampFreq( m_generationFreq->get() );
 
         for( int i = 0; i < m_generationNrChans->get(); i++ )
         {
-            std::vector< double > channel;
+            LaBP::WLEMD::ChannelT channel;
             for( int j = 0; j < m_generationFreq->get() * ( ( double )m_generationBlockSize->get() / 1000.0 ); j++ )
             {
                 channel.push_back( 30.0 * ( double )rand() / RAND_MAX - 15.0 );
@@ -538,7 +536,7 @@ bool WMEmMeasurement::readFiff( std::string fname )
     if( boost::filesystem::exists( fname ) && boost::filesystem::is_regular_file( fname ) )
     {
         LaBP::WLReaderFIFF fiffReader( fname );
-        m_fiffEmm.reset( new LaBP::WLDataSetEMM() );
+        m_fiffEmm.reset( new WLEMMeasurement() );
         if( fiffReader.Read( m_fiffEmm ) == LaBP::WLReaderFIFF::ReturnCode::SUCCESS )
         {
             if( m_fiffEmm->hasModality( LaBP::WEModalityType::EEG ) )
@@ -732,7 +730,7 @@ bool WMEmMeasurement::readVol( std::string fname )
     }
 }
 
-void WMEmMeasurement::setAdditionalInformation( LaBP::WLDataSetEMM::SPtr emm )
+void WMEmMeasurement::setAdditionalInformation( WLEMMeasurement::SPtr emm )
 {
     if( m_isElcLoaded )
     {
@@ -845,7 +843,7 @@ void WMEmMeasurement::handleExperimentLoadChanged()
         m_expLoadStatus->set( DATA_LOADED, true );
         m_isExpLoaded = true;
 
-        LaBP::WLDataSetEMM::SPtr emm( new LaBP::WLDataSetEMM( m_subject ) );
+        WLEMMeasurement::SPtr emm( new WLEMMeasurement( m_subject ) );
         WLEMMCommand::SPtr labp( new WLEMMCommand( WLEMMCommand::Command::INIT ) );
         labp->setEmm( emm );
         m_output->updateData( labp );

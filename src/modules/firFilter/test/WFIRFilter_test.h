@@ -34,7 +34,7 @@
 
 #include <core/common/WLogger.h>
 
-#include "core/data/WLDataSetEMM.h"
+#include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMD.h"
 #include "core/data/emd/WLEMDEEG.h"
 #include "core/util/WLTimeProfiler.h"
@@ -246,8 +246,8 @@ public:
         const size_t shift = filter.m_coeffitients.size() / 2;
 
         // Test correct data content //
-        LaBP::WLDataSetEMM::SPtr emmIn( new LaBP::WLDataSetEMM() );
-        boost::shared_ptr< LaBP::WLDataSetEMM::EDataT > eventsIn( new LaBP::WLDataSetEMM::EDataT() );
+        WLEMMeasurement::SPtr emmIn( new WLEMMeasurement() );
+        boost::shared_ptr< WLEMMeasurement::EDataT > eventsIn( new WLEMMeasurement::EDataT() );
         eventsIn->resize( eChannels );
         for( size_t c = 0; c < eChannels; ++c )
         {
@@ -259,19 +259,19 @@ public:
         }
         emmIn->setEventChannels( eventsIn );
 
-        boost::shared_ptr< LaBP::WLDataSetEMM::EDataT > eventsPrev( new LaBP::WLDataSetEMM::EDataT() );
+        boost::shared_ptr< WLEMMeasurement::EDataT > eventsPrev( new WLEMMeasurement::EDataT() );
         eventsPrev->resize( eChannels );
         for( size_t c = 0; c < eChannels; ++c )
         {
             eventsPrev->at( c ).resize( samples, 0 );
         }
-        LaBP::WLDataSetEMM::SPtr emmOut;
+        WLEMMeasurement::SPtr emmOut;
 
         // Do test //
-        emmOut.reset( new LaBP::WLDataSetEMM() );
+        emmOut.reset( new WLEMMeasurement() );
 
         filter.doPostProcessing( emmOut, emmIn, LaBP::WLTimeProfiler::SPtr() );
-        boost::shared_ptr< LaBP::WLDataSetEMM::EDataT > eventsOut = emmOut->getEventChannels();
+        boost::shared_ptr< WLEMMeasurement::EDataT > eventsOut = emmOut->getEventChannels();
         for( size_t c = 0; c < eChannels; ++c )
         {
             size_t s = 0;
@@ -288,7 +288,7 @@ public:
         eventsPrev = eventsIn;
         emmIn = emmOut;
         eventsIn = emmIn->getEventChannels();
-        emmOut.reset( new LaBP::WLDataSetEMM() );
+        emmOut.reset( new WLEMMeasurement() );
 
         filter.doPostProcessing( emmOut, emmIn, LaBP::WLTimeProfiler::SPtr() );
         eventsOut = emmOut->getEventChannels();

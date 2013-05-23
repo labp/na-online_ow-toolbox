@@ -34,7 +34,7 @@
 
 // Input & output data
 #include "core/data/WLMatrixTypes.h"
-#include "core/data/WLDataSetEMM.h"
+#include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMEnumTypes.h"
 #include "core/data/emd/WLEMD.h"
 #include "core/data/emd/WLEMDSource.h"
@@ -331,7 +331,7 @@ void WMSourceReconstruction::handleSnrChanged()
     }
 }
 
-bool WMSourceReconstruction::inverseSolutionFromSubject( LaBP::WLDataSetEMM::SPtr emm, LaBP::WEModalityType::Enum modality )
+bool WMSourceReconstruction::inverseSolutionFromSubject( WLEMMeasurement::SPtr emm, LaBP::WEModalityType::Enum modality )
 {
     debugLog() << "inverseSolutionFromSubject() called!";
     LaBP::WLEMMSubject::SPtr subject = emm->getSubject();
@@ -371,9 +371,9 @@ bool WMSourceReconstruction::inverseSolutionFromSubject( LaBP::WLDataSetEMM::SPt
     return m_sourceReconstruction->hasInverse();
 }
 
-bool WMSourceReconstruction::processCompute( LaBP::WLDataSetEMM::SPtr emmIn )
+bool WMSourceReconstruction::processCompute( WLEMMeasurement::SPtr emmIn )
 {
-    LaBP::WLDataSetEMM::SPtr emmOut;
+    WLEMMeasurement::SPtr emmOut;
     LaBP::WLEMDSource::SPtr sourceOut;
     // The data is valid and we received an update. The data is not NULL but may be the same as in previous loops.
     debugLog() << "received data";

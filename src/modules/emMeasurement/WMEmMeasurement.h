@@ -33,7 +33,7 @@
 #include "core/common/math/linearAlgebra/WVectorFixed.h"
 #include "core/common/WPropertyTypes.h"
 #include "core/data/WLEMMCommand.h"
-#include "core/data/WLDataSetEMM.h"
+#include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMSubject.h"
 #include "core/data/WLEMMSurface.h"
 #include "core/data/WLEMMBemBoundary.h"
@@ -132,7 +132,7 @@ private:
     /**
      * pointer to data out of read fiff file
      */
-    boost::shared_ptr< LaBP::WLDataSetEMM > m_fiffEmm;
+    WLEMMeasurement::SPtr m_fiffEmm;
 
     WPropString m_fiffFileStatus;
 
@@ -184,7 +184,7 @@ private:
     // Additional Settings //
     WPropGroup m_propGrpExtra;
 
-    void setAdditionalInformation( boost::shared_ptr< LaBP::WLDataSetEMM > emm );
+    void setAdditionalInformation( WLEMMeasurement::SPtr emm );
 
     // ELC Settings //
     bool readElc( std::string fname );

@@ -36,7 +36,7 @@
 #include <core/kernel/WModule.h>
 
 // Input & output data
-#include "core/data/WLDataSetEMM.h"
+#include "core/data/WLEMMeasurement.h"
 
 // Input & output connectors
 // TODO(pieloth) use OW classes
@@ -328,9 +328,9 @@ void WMFIRFilter::callbackFilterTypeChanged( void )
     }
 }
 
-bool WMFIRFilter::processCompute( LaBP::WLDataSetEMM::SPtr emmIn )
+bool WMFIRFilter::processCompute( WLEMMeasurement::SPtr emmIn )
 {
-    LaBP::WLDataSetEMM::SPtr emmOut;
+    WLEMMeasurement::SPtr emmOut;
 
     // The data is valid and we received an update. The data is not NULL but may be the same as in previous loops.
     debugLog() << "Data received ...";
@@ -340,7 +340,7 @@ bool WMFIRFilter::processCompute( LaBP::WLDataSetEMM::SPtr emmIn )
     profiler->start();
 
     // Create output data
-    emmOut.reset( new LaBP::WLDataSetEMM( *emmIn ) );
+    emmOut.reset( new WLEMMeasurement( *emmIn ) );
 
     std::vector< LaBP::WLEMD::SPtr > emdsIn = emmIn->getModalityList();
     for( std::vector< LaBP::WLEMD::SPtr >::const_iterator emdIn = emdsIn.begin(); emdIn != emdsIn.end(); ++emdIn )

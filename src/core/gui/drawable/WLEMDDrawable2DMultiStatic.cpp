@@ -1,4 +1,5 @@
 /*
+ * TODO(pieloth): license
  * WLEMDDrawable2DMultiStatic.cpp
  *
  *  Created on: 16.04.2013
@@ -6,6 +7,8 @@
  */
 
 #include <string>
+
+#include <osg/MatrixTransform>
 
 #include "WLEMDDrawable2DMultiStatic.h"
 
@@ -22,7 +25,7 @@ namespace LaBP
     {
     }
 
-    void WLEMDDrawable2DMultiStatic::draw( LaBP::WLDataSetEMM::SPtr emm )
+    void WLEMDDrawable2DMultiStatic::draw( WLEMMeasurement::SPtr emm )
     {
 
         m_emm = emm;
@@ -35,12 +38,12 @@ namespace LaBP
         return m_emm.get() && m_emm->hasModality( m_modality );
     }
 
-    std::pair< LaBP::WLDataSetEMM::SPtr, size_t > WLEMDDrawable2DMultiStatic::getSelectedData( ValueT pixel ) const
+    std::pair< WLEMMeasurement::SPtr, size_t > WLEMDDrawable2DMultiStatic::getSelectedData( ValueT pixel ) const
     {
         size_t sample = 0;
         const ValueT x_offset = m_xOffset;
 
-        LaBP::WLDataSetEMM::SPtr emm = m_emm;
+        WLEMMeasurement::SPtr emm = m_emm;
 
         if( pixel > x_offset )
         {
@@ -63,7 +66,7 @@ namespace LaBP
             return;
         }
 
-        LaBP::WLDataSetEMM::ConstSPtr emm = m_emm;
+        WLEMMeasurement::ConstSPtr emm = m_emm;
         LaBP::WLEMD::ConstSPtr emd = emm->getModality( m_modality );
         osgAddLabels( emd.get() );
         osgAddChannels( emd.get() );

@@ -26,11 +26,16 @@
 #include <string>
 
 #include <boost/lexical_cast.hpp>
+
+#include <osg/Array>
+#include <osg/Geode>
+#include <osg/Geometry>
+#include <osg/MatrixTransform>
 #include <osgText/Text>
 
 #include <core/gui/WCustomWidget.h>
 
-#include "core/data/WLDataSetEMM.h"
+#include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMD.h"
 #include "core/util/WLBoundCalculator.h"
 
@@ -49,7 +54,7 @@ namespace LaBP
     {
     }
 
-    void WLEMDDrawable2DSingleChannel::draw( LaBP::WLDataSetEMM::SPtr emm )
+    void WLEMDDrawable2DSingleChannel::draw( WLEMMeasurement::SPtr emm )
     {
         m_emm = emm;
         m_dataChanged = true;
@@ -220,11 +225,11 @@ namespace LaBP
         }
     }
 
-    std::pair< LaBP::WLDataSetEMM::SPtr, size_t > WLEMDDrawable2DSingleChannel::getSelectedData( ValueT pixel ) const
+    std::pair< WLEMMeasurement::SPtr, size_t > WLEMDDrawable2DSingleChannel::getSelectedData( ValueT pixel ) const
     {
         size_t sample = 0;
 
-        LaBP::WLDataSetEMM::SPtr emm = m_emm;
+        WLEMMeasurement::SPtr emm = m_emm;
 
         if( pixel > m_xOffset )
         {
@@ -249,7 +254,7 @@ namespace LaBP
             return;
         }
 
-        LaBP::WLDataSetEMM::ConstSPtr emm = m_emm;
+        WLEMMeasurement::ConstSPtr emm = m_emm;
         LaBP::WLEMD::ConstSPtr emd = emm->getModality( m_modality );
         osgAddChannels( emd.get() );
         osgAddValueGrid( emd.get() );

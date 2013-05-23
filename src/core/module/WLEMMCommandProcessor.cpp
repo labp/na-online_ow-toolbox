@@ -26,7 +26,7 @@
 
 #include "WLEMMCommandProcessor.h"
 
-const std::string WLEMMCommandProcessor::CLASS = "WLModuleChained";
+const std::string WLEMMCommandProcessor::CLASS = "WLEMMCommandProcessor";
 
 WLEMMCommandProcessor::~WLEMMCommandProcessor()
 {

@@ -31,7 +31,7 @@
 
 #include <core/common/WAssert.h>
 
-#include "core/data/WLDataSetEMM.h"
+#include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMD.h"
 
 #include "WEpochSeparation.h"
@@ -43,7 +43,7 @@ WEpochSeparation::WEpochSeparation()
     reset();
 }
 
-WEpochSeparation::WEpochSeparation( size_t channel, std::set< LaBP::WLDataSetEMM::EventT > triggerMask, size_t preSamples,
+WEpochSeparation::WEpochSeparation( size_t channel, std::set< WLEMMeasurement::EventT > triggerMask, size_t preSamples,
                 size_t postSamples ) :
                 m_channel( channel ), m_triggerMask( triggerMask ), m_preSamples( preSamples ), m_postSamples( postSamples ), m_blockSize(
                                 0 )
@@ -64,12 +64,12 @@ void WEpochSeparation::setChannel( size_t channel )
     m_channel = channel;
 }
 
-std::set< LaBP::WLDataSetEMM::EventT > WEpochSeparation::getTriggerMask() const
+std::set< WLEMMeasurement::EventT > WEpochSeparation::getTriggerMask() const
 {
     return m_triggerMask;
 }
 
-void WEpochSeparation::setTriggerMask( std::set< LaBP::WLDataSetEMM::EventT > triggerMask )
+void WEpochSeparation::setTriggerMask( std::set< WLEMMeasurement::EventT > triggerMask )
 {
     m_triggerMask = triggerMask;
 }
@@ -116,14 +116,14 @@ size_t WEpochSeparation::epochSize() const
     return m_epochs.size();
 }
 
-LaBP::WLDataSetEMM::SPtr WEpochSeparation::getNextEpoch()
+WLEMMeasurement::SPtr WEpochSeparation::getNextEpoch()
 {
-    LaBP::WLDataSetEMM::SPtr emm = m_epochs.front();
+    WLEMMeasurement::SPtr emm = m_epochs.front();
     m_epochs.pop_front();
     return emm;
 }
 
-size_t WEpochSeparation::extract( const LaBP::WLDataSetEMM::SPtr emmIn )
+size_t WEpochSeparation::extract( const WLEMMeasurement::SPtr emmIn )
 {
     size_t count = 0;
     if( emmIn->getModalityCount() < 1 || emmIn->getEventChannelCount() < m_channel + 1 )
@@ -137,12 +137,12 @@ size_t WEpochSeparation::extract( const LaBP::WLDataSetEMM::SPtr emmIn )
 
     // Find trigger matches //
     std::list< size_t > indices;
-    LaBP::WLDataSetEMM::EChannelT& events = emmIn->getEventChannel( m_channel );
+    WLEMMeasurement::EChannelT& events = emmIn->getEventChannel( m_channel );
 
-    LaBP::WLDataSetEMM::EventT prevEvent = 0;
+    WLEMMeasurement::EventT prevEvent = 0;
     for( size_t i = 0; i < events.size(); ++i )
     {
-        for( std::set< LaBP::WLDataSetEMM::EventT >::const_iterator mask = m_triggerMask.begin(); mask != m_triggerMask.end();
+        for( std::set< WLEMMeasurement::EventT >::const_iterator mask = m_triggerMask.begin(); mask != m_triggerMask.end();
                         ++mask )
         {
             if( ( events[i] == *mask ) && prevEvent != *mask )
@@ -209,7 +209,7 @@ void WEpochSeparation::setupBuffer( LaBP::WLEMD::ConstSPtr emd )
         // ... 5x EMM for preSamples and 1x EMM for current sample in current EMM
         m_blockSize = emd->getData()[0].size();
         size_t elements = ceil( ( float )( m_preSamples + m_blockSize ) / m_blockSize );
-        m_buffer.reset( new LaBP::WLRingBuffer< LaBP::WLDataSetEMM >( elements ) );
+        m_buffer.reset( new LaBP::WLRingBuffer< WLEMMeasurement >( elements ) );
         wlog::debug( CLASS ) << "BlockSize: " << m_blockSize;
         wlog::debug( CLASS ) << "Samples: " << m_preSamples + 1;
         wlog::debug( CLASS ) << "Space for EMM: " << elements;
@@ -224,10 +224,10 @@ WEpochSeparation::LeftEpoch::SPtr WEpochSeparation::processPreSamples( size_t eI
 
     leftEpoch->m_emm = m_buffer->getData()->clone();
     leftEpoch->m_leftSamples = m_preSamples + 1 + m_postSamples;
-    const LaBP::WLDataSetEMM::SPtr emmEpoch = leftEpoch->m_emm;
+    const WLEMMeasurement::SPtr emmEpoch = leftEpoch->m_emm;
 
     // Prepare modalities //
-    const LaBP::WLDataSetEMM::ConstSPtr emm = m_buffer->getData();
+    const WLEMMeasurement::ConstSPtr emm = m_buffer->getData();
     LaBP::WLEMD::ConstSPtr emd;
     LaBP::WLEMD::SPtr emdEpoch;
     const size_t modalities = emm->getModalityCount();
@@ -268,7 +268,7 @@ WEpochSeparation::LeftEpoch::SPtr WEpochSeparation::processPreSamples( size_t eI
         offset = std::min( m_blockSize - pStart, ( m_preSamples + 1 ) - samplesCopied );
 
         // Copy modalities //
-        const LaBP::WLDataSetEMM::ConstSPtr emm = m_buffer->getData( pIndex );
+        const WLEMMeasurement::ConstSPtr emm = m_buffer->getData( pIndex );
         WAssertDebug( emm, "m_buffer->getData(pIndex)" );
 
         const size_t modalities = emm->getModalityCount();
@@ -288,7 +288,7 @@ WEpochSeparation::LeftEpoch::SPtr WEpochSeparation::processPreSamples( size_t eI
         }
 
         // Copy event channels //
-        boost::shared_ptr< LaBP::WLDataSetEMM::EDataT > events = emmEpoch->getEventChannels();
+        boost::shared_ptr< WLEMMeasurement::EDataT > events = emmEpoch->getEventChannels();
         WAssertDebug( emm->getEventChannelCount() == emmEpoch->getEventChannelCount(), "Different event channel count!" );
         for( size_t chan = 0; chan < emmEpoch->getEventChannelCount(); ++chan )
         {
@@ -311,11 +311,11 @@ WEpochSeparation::LeftEpoch::SPtr WEpochSeparation::processPreSamples( size_t eI
     return leftEpoch;
 }
 
-bool WEpochSeparation::processPostSamples( LeftEpoch::SPtr leftEpoch, LaBP::WLDataSetEMM::ConstSPtr emm )
+bool WEpochSeparation::processPostSamples( LeftEpoch::SPtr leftEpoch, WLEMMeasurement::ConstSPtr emm )
 {
     wlog::debug( CLASS ) << "processPostSamples() called!";
 
-    LaBP::WLDataSetEMM::SPtr emmEpoch = leftEpoch->m_emm;
+    WLEMMeasurement::SPtr emmEpoch = leftEpoch->m_emm;
     size_t samplesLeft = leftEpoch->m_leftSamples;
     size_t pStart = leftEpoch->m_startIndex;
 
@@ -341,8 +341,8 @@ bool WEpochSeparation::processPostSamples( LeftEpoch::SPtr leftEpoch, LaBP::WLDa
         }
     }
 
-    boost::shared_ptr< LaBP::WLDataSetEMM::EDataT > events = emm->getEventChannels();
-    boost::shared_ptr< LaBP::WLDataSetEMM::EDataT > eventsEpoch = emmEpoch->getEventChannels();
+    boost::shared_ptr< WLEMMeasurement::EDataT > events = emm->getEventChannels();
+    boost::shared_ptr< WLEMMeasurement::EDataT > eventsEpoch = emmEpoch->getEventChannels();
     WAssertDebug( emm->getEventChannelCount() == emmEpoch->getEventChannelCount(), "Different event channel count!" );
     for( size_t chan = 0; chan < emmEpoch->getEventChannelCount(); ++chan )
     {

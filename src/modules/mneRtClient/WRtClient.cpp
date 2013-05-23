@@ -255,7 +255,7 @@ bool WRtClient::setSimulationFile( std::string fname )
     return true;
 }
 
-bool WRtClient::readData( LaBP::WLDataSetEMM::SPtr emmIn )
+bool WRtClient::readData( WLEMMeasurement::SPtr emmIn )
 {
     wlog::debug( CLASS ) << "readData() called!";
     if( !isConnected() )
@@ -285,7 +285,7 @@ bool WRtClient::readData( LaBP::WLDataSetEMM::SPtr emmIn )
         }
         if( m_picksStim.size() > 0 )
         {
-            boost::shared_ptr< LaBP::WLDataSetEMM::EDataT > events = readEvents( matRawBuffer );
+            boost::shared_ptr< WLEMMeasurement::EDataT > events = readEvents( matRawBuffer );
             emmIn->setEventChannels( events );
         }
         return true;
@@ -355,11 +355,11 @@ bool WRtClient::readEmd( LaBP::WLEMD* const emd, const Eigen::RowVectorXi& picks
     return true;
 }
 
-boost::shared_ptr< LaBP::WLDataSetEMM::EDataT > WRtClient::readEvents( const Eigen::MatrixXf& rawData )
+boost::shared_ptr< WLEMMeasurement::EDataT > WRtClient::readEvents( const Eigen::MatrixXf& rawData )
 {
     wlog::debug( CLASS ) << "readStim() called!";
 
-    boost::shared_ptr< LaBP::WLDataSetEMM::EDataT > events( new LaBP::WLDataSetEMM::EDataT );
+    boost::shared_ptr< WLEMMeasurement::EDataT > events( new WLEMMeasurement::EDataT );
     if( m_picksStim.size() == 0 )
     {
         wlog::error( CLASS ) << "No channels to pick!";
@@ -376,11 +376,11 @@ boost::shared_ptr< LaBP::WLDataSetEMM::EDataT > WRtClient::readEvents( const Eig
     for( Eigen::RowVectorXi::Index row = 0; row < rows; ++row )
     {
         WAssertDebug( m_picksStim[row] < rawData.rows(), "Selected channel index out of raw data boundary!" );
-        LaBP::WLDataSetEMM::EChannelT eChannel;
+        WLEMMeasurement::EChannelT eChannel;
         eChannel.reserve( cols );
         for( size_t col = 0; col < cols; ++col )
         {
-            eChannel.push_back( ( LaBP::WLDataSetEMM::EventT )rawData( m_picksStim[row], col ) );
+            eChannel.push_back( ( WLEMMeasurement::EventT )rawData( m_picksStim[row], col ) );
         }
         events->push_back( eChannel );
     }

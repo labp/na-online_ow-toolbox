@@ -37,7 +37,7 @@
 #include <core/common/WAssert.h>
 #include <core/gui/WCustomWidget.h>
 
-#include "core/data/WLDataSetEMM.h"
+#include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMD.h"
 #include "core/data/emd/WLEMDEEG.h"
 
@@ -190,7 +190,7 @@ namespace LaBP
             return;
         }
 
-        LaBP::WLDataSetEMM::ConstSPtr emm = m_emm;
+        WLEMMeasurement::ConstSPtr emm = m_emm;
         LaBP::WLEMDEEG::ConstSPtr emd = emm->getModality< const WLEMDEEG >( WEModalityType::EEG );
 
         if( m_colorMapChanged )

@@ -32,7 +32,7 @@
 #include <libfiffio/common/LFReturnCodes.h>
 #include <libfiffio/common/LFUnits.h>
 
-#include "core/data/WLDataSetEMM.h"
+#include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMSubject.h"
 #include "core/data/WLEMMEnumTypes.h"
 
@@ -56,7 +56,7 @@ namespace LaBP
         /**
          * Read the file and create a dataset out of it.
          */
-        ReturnCode::Enum Read( LaBP::WLDataSetEMM::SPtr out );
+        ReturnCode::Enum Read( WLEMMeasurement::SPtr out );
         /**
          * Reads subject data only.
          */

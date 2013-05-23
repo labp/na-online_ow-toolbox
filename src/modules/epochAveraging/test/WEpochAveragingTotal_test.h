@@ -9,7 +9,7 @@
 
 #include "core/common/WLogger.h"
 
-#include "core/data/WLDataSetEMM.h"
+#include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMD.h"
 #include "core/data/emd/WLEMDEEG.h"
 
@@ -30,15 +30,15 @@ public:
         const size_t SAMPLES = 100;
         const size_t COUNT = 5;
 
-        boost::shared_ptr< WEpochAveragingTotal > averager( new WEpochAveragingTotal( 0 ) );
-        boost::shared_ptr< LaBP::WLDataSetEMM > emm;
-        boost::shared_ptr< LaBP::WLEMD > emd;
-        boost::shared_ptr< LaBP::WLDataSetEMM > emmAverage;
-        boost::shared_ptr< LaBP::WLEMD > emdAverage;
+        WEpochAveragingTotal::SPtr averager( new WEpochAveragingTotal( 0 ) );
+        WLEMMeasurement::SPtr emm;
+        LaBP::WLEMD::SPtr emd;
+        WLEMMeasurement::SPtr emmAverage;
+        LaBP::WLEMD::SPtr emdAverage;
 
         for( size_t i = 0; i < COUNT; ++i )
         {
-            emm.reset( new LaBP::WLDataSetEMM() );
+            emm.reset( new WLEMMeasurement );
             emm->addModality( createEmd( 21, SAMPLES, i * SAMPLES ) );
             emm->addModality( createEmd( 42, SAMPLES, ( i + 1 ) * SAMPLES ) );
 
@@ -66,14 +66,14 @@ public:
 protected:
 
 private:
-    boost::shared_ptr< LaBP::WLEMD > createEmd( size_t channels, size_t samples, int startValue = 0 )
+    LaBP::WLEMD::SPtr createEmd( size_t channels, size_t samples, int startValue = 0 )
     {
-        boost::shared_ptr< LaBP::WLEMD > emd( new LaBP::WLEMDEEG() );
-        boost::shared_ptr< std::vector< std::vector< double > > > data( new std::vector< std::vector< double > > );
+        LaBP::WLEMD::SPtr emd( new LaBP::WLEMDEEG() );
+        boost::shared_ptr< LaBP::WLEMD::DataT > data( new LaBP::WLEMD::DataT );
 
         for( size_t chan = 0; chan < channels; ++chan )
         {
-            std::vector< double > channel;
+            LaBP::WLEMD::ChannelT channel;
             for( size_t smp = 0; smp < samples; ++smp )
             {
                 channel.push_back( startValue + smp );

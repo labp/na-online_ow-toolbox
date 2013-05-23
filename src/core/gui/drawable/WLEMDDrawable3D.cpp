@@ -104,7 +104,7 @@ namespace LaBP
         return WLEMDDrawable::mustDraw() || m_colorMapChanged || m_selectedSampleChanged || m_surfaceChanged;
     }
 
-    void WLEMDDrawable3D::draw( LaBP::WLDataSetEMM::SPtr emm )
+    void WLEMDDrawable3D::draw( WLEMMeasurement::SPtr emm )
     {
 
         m_emm = emm;

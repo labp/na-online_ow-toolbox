@@ -125,7 +125,7 @@ namespace LaBP
         m_amplitudeScaleChanged = false;
         m_selectedPixelChanged = false;
 
-        WLEMDDrawable:resetDrawFlags();
+        WLEMDDrawable::resetDrawFlags();
     }
 
     void WLEMDDrawable2D::osgAddMarkLine()

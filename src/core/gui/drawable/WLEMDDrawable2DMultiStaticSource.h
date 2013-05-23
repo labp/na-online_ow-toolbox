@@ -31,7 +31,7 @@
 
 #include <core/gui/WCustomWidget.h>
 
-#include "core/data/WLDataSetEMM.h"
+#include "core/data/WLEMMeasurement.h"
 
 #include "WLEMDDrawable2DMultiStatic.h"
 
@@ -55,7 +55,7 @@ namespace LaBP
         explicit WLEMDDrawable2DMultiStaticSource( WCustomWidget::SPtr widget );
         virtual ~WLEMDDrawable2DMultiStaticSource();
 
-        virtual void draw( LaBP::WLDataSetEMM::SPtr emm );
+        virtual void draw( WLEMMeasurement::SPtr emm );
     };
 } /* namespace LaBP */
 #endif  // WLEMDDRAWABLE2DMULTISOURCE_H_

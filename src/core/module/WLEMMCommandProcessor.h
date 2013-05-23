@@ -29,7 +29,7 @@
 
 #include <core/kernel/WModule.h>
 
-#include "core/data/WLDataSetEMM.h"
+#include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMCommand.h"
 
 class WLEMMCommandProcessor
@@ -42,7 +42,7 @@ public:
     bool process( WLEMMCommand::SPtr labp );
 
 protected:
-    virtual bool processCompute( LaBP::WLDataSetEMM::SPtr emm ) = 0;
+    virtual bool processCompute( WLEMMeasurement::SPtr emm ) = 0;
     virtual bool processInit( WLEMMCommand::SPtr labp ) = 0;
     virtual bool processMisc( WLEMMCommand::SPtr labp ) = 0;
     virtual bool processReset( WLEMMCommand::SPtr labp ) = 0;

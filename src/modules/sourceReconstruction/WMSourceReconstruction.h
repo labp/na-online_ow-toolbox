@@ -32,7 +32,7 @@
 #include <core/kernel/WModule.h>
 
 #include "core/data/WLEMMCommand.h"
-#include "core/data/WLDataSetEMM.h"
+#include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMEnumTypes.h"
 
 #include "core/module/WLEMMCommandProcessor.h"
@@ -109,7 +109,7 @@ protected:
     // ----------------------------
     // Methods from WLEMMCommandProcessor
     // ----------------------------
-    virtual bool processCompute( LaBP::WLDataSetEMM::SPtr emm );
+    virtual bool processCompute( WLEMMeasurement::SPtr emm );
     virtual bool processInit( WLEMMCommand::SPtr labp );
     virtual bool processMisc( WLEMMCommand::SPtr labp );
     virtual bool processReset( WLEMMCommand::SPtr labp );
@@ -162,7 +162,7 @@ private:
     WPropString m_inverseStatus;
     WPropInt m_inverseRows;
     WPropInt m_inverseCols;
-    bool inverseSolutionFromSubject( LaBP::WLDataSetEMM::SPtr emm, LaBP::WEModalityType::Enum modality );
+    bool inverseSolutionFromSubject( WLEMMeasurement::SPtr emm, LaBP::WEModalityType::Enum modality );
 
     double m_range;
 

@@ -31,7 +31,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "core/data/WLDataSetEMM.h"
+#include "core/data/WLEMMeasurement.h"
 
 #include "WEpochAveraging.h"
 
@@ -59,7 +59,7 @@ public:
 
     virtual ~WEpochAveragingMoving();
 
-    LaBP::WLDataSetEMM::SPtr getAverage( const LaBP::WLDataSetEMM::ConstSPtr emm );
+    WLEMMeasurement::SPtr getAverage( const WLEMMeasurement::ConstSPtr emm );
     void reset();
 
     size_t getCount() const;
@@ -83,12 +83,12 @@ private:
     /**
      * Adds a WDataSetEMM object to the buffer.
      */
-    void pushBuffer( const LaBP::WLDataSetEMM::ConstSPtr emm );
+    void pushBuffer( const WLEMMeasurement::ConstSPtr emm );
 
     /**
      * Circular, overriding buffer. Holds the last k WDataSetEMM objects to calculate the average of the last k objects.
      */
-    std::vector< LaBP::WLDataSetEMM::ConstSPtr > m_buffer;
+    std::vector< WLEMMeasurement::ConstSPtr > m_buffer;
 
     /**
      * Index for buffer.

@@ -32,7 +32,8 @@
 
 #include <core/kernel/WModule.h>
 
-#include "core/data/WLDataSetEMM.h"
+#include "core/data/WLEMMCommand.h"
+#include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMEnumTypes.h"
 #include "core/module/WLModuleDrawable.h"
 // TODO use OW classes
@@ -103,16 +104,15 @@ protected:
     virtual const char** getXPMIcon() const;
 
 private:
-    // TODO use OW classes
     /**
      * Input connector for a EMM dataset
      */
-    boost::shared_ptr< LaBP::WLModuleInputDataRingBuffer< LaBP::WLDataSetEMM > > m_input;
+    LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input;
 
     /**
      * Output connector for a EMM dataset
      */
-    boost::shared_ptr< LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM > > m_output;
+    LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output;
 
     /**
      * A condition used to notify about changes in several properties.

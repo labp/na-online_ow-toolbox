@@ -32,10 +32,9 @@
 #include <core/common/WPathHelper.h>
 #include <core/kernel/WModule.h>
 
-// Output connector and data
-// TODO(pieloth): use OW class
+#include "core/data/WLEMMCommand.h"
+#include "core/data/WLEMMeasurement.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
-#include "core/data/WLDataSetEMM.h"
 
 #include "WMMneRtClient.h"
 #include "WMMneRtClient.xpm"
@@ -80,7 +79,7 @@ void WMMneRtClient::connectors()
     // initialize connectors
     // TODO(pieloth) use OW class
     m_output.reset(
-                    new LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM >( shared_from_this(), "out",
+                    new LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >( shared_from_this(), "out",
                                     "A loaded dataset." ) );
 
     // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
@@ -291,7 +290,7 @@ void WMMneRtClient::handleTrgDataStart()
 
         while( !m_stopStreaming && !m_shutdownFlag() )
         {
-            LaBP::WLDataSetEMM::SPtr emm( new LaBP::WLDataSetEMM() );
+            WLEMMeasurement::SPtr emm( new WLEMMeasurement() );
             if( m_rtClient->readData( emm ) )
             {
                 if( m_isExpLoaded )
@@ -299,7 +298,9 @@ void WMMneRtClient::handleTrgDataStart()
                     emm->setSubject( m_subject );
                 }
                 updateView( emm );
-                m_output->updateData( emm );
+                WLEMMCommand::SPtr labp( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
+                labp->setEmm( emm );
+                m_output->updateData( labp );
             }
         }
         m_rtClient->stop();

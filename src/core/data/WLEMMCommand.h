@@ -32,7 +32,7 @@
 #include <core/dataHandler/WDataSet.h>
 #include <core/common/WPrototyped.h>
 
-#include "core/data/WLDataSetEMM.h"
+#include "core/data/WLEMMeasurement.h"
 
 /**
  * A container class to transfer data and commands between modules.
@@ -126,17 +126,17 @@ public:
     /**
      * Gets the EMM data object.
      */
-    LaBP::WLDataSetEMM::ConstSPtr getEmm() const;
+    WLEMMeasurement::ConstSPtr getEmm() const;
 
     /**
      * Gets the EMM data object.
      */
-    LaBP::WLDataSetEMM::SPtr getEmm();
+    WLEMMeasurement::SPtr getEmm();
 
     /**
      * Sets the EMM data object.
      */
-    void setEmm( LaBP::WLDataSetEMM::SPtr emm );
+    void setEmm( WLEMMeasurement::SPtr emm );
 
     /**
      * Checks if a EMM object is set.
@@ -150,7 +150,7 @@ private:
 
     MiscParamT m_miscParam;
 
-    LaBP::WLDataSetEMM::SPtr m_emm;
+    WLEMMeasurement::SPtr m_emm;
 };
 
 #endif  // WLEMMCOMMAND_H_

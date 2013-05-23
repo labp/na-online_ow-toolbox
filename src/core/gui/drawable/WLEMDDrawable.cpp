@@ -31,7 +31,7 @@
 
 #include <core/gui/WCustomWidget.h>
 #include <core/graphicsEngine/WGEGroupNode.h> // Error: forward declaration
-#include "core/data/WLDataSetEMM.h"
+#include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMEnumTypes.h"
 
 #include "WLEMDDrawable.h"

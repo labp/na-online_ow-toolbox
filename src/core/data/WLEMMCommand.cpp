@@ -90,17 +90,17 @@ void WLEMMCommand::setMiscParam( MiscParamT param )
     m_miscParam = param;
 }
 
-LaBP::WLDataSetEMM::ConstSPtr WLEMMCommand::getEmm() const
+WLEMMeasurement::ConstSPtr WLEMMCommand::getEmm() const
 {
     return m_emm;
 }
 
-LaBP::WLDataSetEMM::SPtr WLEMMCommand::getEmm()
+WLEMMeasurement::SPtr WLEMMCommand::getEmm()
 {
     return m_emm;
 }
 
-void WLEMMCommand::setEmm( LaBP::WLDataSetEMM::SPtr emm )
+void WLEMMCommand::setEmm( WLEMMeasurement::SPtr emm )
 {
     m_emm = emm;
 }

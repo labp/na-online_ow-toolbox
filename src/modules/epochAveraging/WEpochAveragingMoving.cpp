@@ -28,7 +28,7 @@
 #include <string>
 
 #include "core/util/WLTimeProfiler.h"
-#include "core/data/WLDataSetEMM.h"
+#include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMD.h"
 
 #include "WEpochAveraging.h"
@@ -56,7 +56,7 @@ size_t WEpochAveragingMoving::getCount() const
     return std::min( m_size, m_count );
 }
 
-LaBP::WLDataSetEMM::SPtr WEpochAveragingMoving::getAverage( LaBP::WLDataSetEMM::ConstSPtr emmIn )
+WLEMMeasurement::SPtr WEpochAveragingMoving::getAverage( WLEMMeasurement::ConstSPtr emmIn )
 {
     LaBP::WLTimeProfiler time( CLASS, "average" );
     time.start();
@@ -65,7 +65,7 @@ LaBP::WLDataSetEMM::SPtr WEpochAveragingMoving::getAverage( LaBP::WLDataSetEMM::
 
     pushBuffer( emmIn );
 
-    LaBP::WLDataSetEMM::SPtr emmOut( new LaBP::WLDataSetEMM( *emmIn ) );
+    WLEMMeasurement::SPtr emmOut( new WLEMMeasurement( *emmIn ) );
     LaBP::WLTimeProfiler::SPtr profiler( new LaBP::WLTimeProfiler( CLASS, "lifetime" ) );
     profiler->start();
     emmOut->setTimeProfiler( profiler );
@@ -138,7 +138,7 @@ void WEpochAveragingMoving::setSize( size_t size )
     }
 }
 
-void WEpochAveragingMoving::pushBuffer( const LaBP::WLDataSetEMM::ConstSPtr emm )
+void WEpochAveragingMoving::pushBuffer( const WLEMMeasurement::ConstSPtr emm )
 {
     ++m_count;
     m_buffer[m_ptr++] = emm;

@@ -35,7 +35,7 @@ namespace LaBP
             // TODO (pizarro) m_timePos->get() + ( x - labelsWidth ) * m_timeRange->get() / m_graphWidth->get() instead 0.5 as timePosition
             if( m_initiator->hasData() )
             {
-                std::pair< boost::shared_ptr< LaBP::WLDataSetEMM >, size_t > data =
+                std::pair< boost::shared_ptr< WLEMMeasurement >, size_t > data =
                                 m_initiator->getAs< LaBP::WLEMDDrawable2D >()->getSelectedData( ea.getX() );
                 wlog::debug( CLASS ) << "called handle with pixels: " << ea.getX() << " and time: " << data.second;
                 boost::dynamic_pointer_cast< LaBP::WLEMDDrawable2D >( m_initiator )->setSelectedPixel( ea.getX() );

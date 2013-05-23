@@ -39,7 +39,7 @@
 
 #include <core/gui/WCustomWidget.h>
 
-#include "core/data/WLDataSetEMM.h"
+#include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMEnumTypes.h"
 
 namespace LaBP
@@ -114,7 +114,7 @@ namespace LaBP
          *
          * @param emm data to draw.
          */
-        virtual void draw( LaBP::WLDataSetEMM::SPtr emm ) = 0;
+        virtual void draw( WLEMMeasurement::SPtr emm ) = 0;
 
         /**
          * Invokes a draw with the last data.

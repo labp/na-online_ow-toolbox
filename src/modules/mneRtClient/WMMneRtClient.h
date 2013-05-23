@@ -29,7 +29,7 @@
 
 #include <core/common/WPropertyTypes.h>
 
-#include "core/data/WLDataSetEMM.h"
+#include "core/data/WLEMMCommand.h"
 #include "core/module/WLModuleDrawable.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 #include "core/io/WLReaderExperiment.h"
@@ -103,7 +103,7 @@ private:
     /**
      * The only output of this data module. TODO use OW class
      */
-    LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM >::SPtr m_output;
+    LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output;
 
     /**
      * Property group for connection settings

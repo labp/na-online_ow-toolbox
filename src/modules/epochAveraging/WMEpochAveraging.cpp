@@ -32,9 +32,7 @@
 #include <core/common/WPropertyHelper.h>
 #include <core/kernel/WModule.h>
 
-// Input & output data
-#include "core/data/WLDataSetEMM.h"
-// TODO(pieloth): use OW classes
+#include "core/data/WLEMMeasurement.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
@@ -113,7 +111,7 @@ void WMEpochAveraging::properties()
     WEpochAveraging::SPtr avg;
 
     avg.reset( new WEpochAveragingTotal( tbase ) );
-    item.reset( new WItemSelectionItemTyped< boost::shared_ptr< WEpochAveraging > >( avg, "Total", "Computes total average." ) );
+    item.reset( new WItemSelectionItemTyped< WEpochAveraging::SPtr >( avg, "Total", "Computes total average." ) );
     m_averageType->addItem( item );
 
     avg.reset( new WEpochAveragingMoving( tbase, avgMovingSize ) );
@@ -229,10 +227,10 @@ void WMEpochAveraging::handleResetAveragePressed()
     m_resetAverage->set( WPVBaseTypes::PV_TRIGGER_READY, true );
 }
 
-bool WMEpochAveraging::processCompute( LaBP::WLDataSetEMM::SPtr emmIn )
+bool WMEpochAveraging::processCompute( WLEMMeasurement::SPtr emmIn )
 {
     // TODO(pieloth): profiler
-    LaBP::WLDataSetEMM::SPtr emmOut;
+    WLEMMeasurement::SPtr emmOut;
     double frequence;
 
     // The data is valid and we received an update. The data is not NULL but may be the same as in previous loops.

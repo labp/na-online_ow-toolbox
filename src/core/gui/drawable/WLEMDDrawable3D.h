@@ -86,7 +86,7 @@ namespace LaBP
          */
         virtual ~WLEMDDrawable3D();
 
-        virtual void draw( LaBP::WLDataSetEMM::SPtr emm );
+        virtual void draw( WLEMMeasurement::SPtr emm );
 
         virtual bool hasData() const;
 
@@ -120,7 +120,7 @@ namespace LaBP
 
         virtual void osgNodeCallback( osg::NodeVisitor* nv );
 
-        LaBP::WLDataSetEMM::ConstSPtr m_emm;
+        WLEMMeasurement::ConstSPtr m_emm;
         // TODO(pizarro) move this functions to children classes, following the concept: a class just need methods that
         // all their children need. MatrixT is required only by the Source modality.
 

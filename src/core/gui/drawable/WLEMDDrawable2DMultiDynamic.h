@@ -27,6 +27,8 @@
 
 #include <queue>
 
+#include <osg/MatrixTransform>
+
 #include "core/gui/drawable/WLAnimationSideScroll.h"
 #include "WLEMDDrawable2DMultiChannel.h"
 
@@ -47,21 +49,21 @@ namespace LaBP
          */
         typedef boost::shared_ptr< const WLEMDDrawable2DMultiDynamic > ConstSPtr;
 
-        static std::string CLASS;
+        static const  std::string CLASS;
 
         WLEMDDrawable2DMultiDynamic( WCustomWidget::SPtr widget );
         virtual ~WLEMDDrawable2DMultiDynamic();
 
-        virtual void draw( LaBP::WLDataSetEMM::SPtr emm );
+        virtual void draw( WLEMMeasurement::SPtr emm );
 
         virtual bool hasData() const;
 
-        virtual std::pair< LaBP::WLDataSetEMM::SPtr, size_t > getSelectedData( ValueT pixel ) const;
+        virtual std::pair< WLEMMeasurement::SPtr, size_t > getSelectedData( ValueT pixel ) const;
 
     protected:
         virtual void osgNodeCallback( osg::NodeVisitor* nv );
 
-        virtual osg::ref_ptr< WLAnimationSideScroll::EMMNode > createEmdNode( LaBP::WLDataSetEMM::SPtr emd );
+        virtual osg::ref_ptr< WLAnimationSideScroll::EMMNode > createEmdNode( WLEMMeasurement::SPtr emd );
 
     private:
         /**
@@ -102,4 +104,4 @@ namespace LaBP
     };
 
 } /* namespace LaBP */
-#endif /* WLEMDDRAWABLE2DMULTICHANNELDYNAMIC_H_ */
+#endif  // WLEMDDRAWABLE2DMULTICHANNELDYNAMIC_H_

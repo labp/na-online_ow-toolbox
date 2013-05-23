@@ -32,14 +32,10 @@
 #include <core/common/WPropertyHelper.h>
 #include <core/kernel/WModule.h>
 
-// Input & output data
-#include "core/data/WLDataSetEMM.h"
-
-// Input & output connectors
-// TODO use OW classes
+#include "core/data/WLEMMCommand.h"
+#include "core/data/WLEMMeasurement.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
-
 #include "core/util/WLTimeProfiler.h"
 
 #include "WMProfilerLog.h"
@@ -79,13 +75,13 @@ const std::string WMProfilerLog::getDescription() const
 
 void WMProfilerLog::connectors()
 {
-    m_input = boost::shared_ptr< LaBP::WLModuleInputDataRingBuffer< LaBP::WLDataSetEMM > >(
-                    new LaBP::WLModuleInputDataRingBuffer< LaBP::WLDataSetEMM >( 8, shared_from_this(), "in",
+    m_input = LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr(
+                    new LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >( 8, shared_from_this(), "in",
                                     "Expects a EMM-DataSet for filtering." ) );
     addConnector( m_input );
 
-    m_output = boost::shared_ptr< LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM > >(
-                    new LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM >( shared_from_this(), "out",
+    m_output = LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr(
+                    new LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >( shared_from_this(), "out",
                                     "Provides a filtered EMM-DataSet" ) );
     addConnector( m_output );
 }
@@ -107,7 +103,7 @@ void WMProfilerLog::moduleMain()
     m_moduleState.add( m_input->getDataChangedCondition() ); // when inputdata changed
     m_moduleState.add( m_propCondition ); // when properties changed
 
-    LaBP::WLDataSetEMM::SPtr emmIn;
+    WLEMMCommand::SPtr labpIn;
 
     ready(); // signal ready state
 
@@ -127,25 +123,25 @@ void WMProfilerLog::moduleMain()
             break; // break mainLoop on shutdown
         }
 
-        emmIn.reset();
+        labpIn.reset();
         if( !m_input->isEmpty() )
         {
-            emmIn = m_input->getData();
+            labpIn = m_input->getData();
         }
-        const bool dataValid = ( emmIn );
+        const bool dataValid = ( labpIn );
 
         // ---------- INPUTDATAUPDATEEVENT ----------
-        if( dataValid ) // If there was an update on the inputconnector
+        if( dataValid && labpIn->hasEmm() ) // If there was an update on the inputconnector
         {
             // The data is valid and we received an update. The data is not NULL but may be the same as in previous loops.
             debugLog() << "received data";
-            write( m_file->get( true ), emmIn );
-            m_output->updateData( emmIn );
+            write( m_file->get( true ), labpIn->getEmm() );
+            m_output->updateData( labpIn );
         }
     }
 }
 
-bool WMProfilerLog::write( std::string fname, LaBP::WLDataSetEMM::SPtr emm )
+bool WMProfilerLog::write( std::string fname, WLEMMeasurement::SPtr emm )
 {
     std::ofstream fstream;
     fstream.open( fname.c_str(), std::ofstream::app );

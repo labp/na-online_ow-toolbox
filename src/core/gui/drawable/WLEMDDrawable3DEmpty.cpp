@@ -41,7 +41,7 @@ namespace LaBP
     {
     }
 
-    void WLEMDDrawable3DEmpty::draw( LaBP::WLDataSetEMM::SPtr emm )
+    void WLEMDDrawable3DEmpty::draw( WLEMMeasurement::SPtr emm )
     {
         redraw();
     }

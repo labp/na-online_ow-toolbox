@@ -30,7 +30,7 @@
 #include <core/common/WProperties.h>
 #include <core/kernel/WModule.h>
 
-#include "core/data/WLDataSetEMM.h"
+#include "core/data/WLEMMeasurement.h"
 #include "core/gui/WLEMDWidget.h"
 #include "core/gui/events/WLGUIEventHandler.h"
 #include "core/gui/drawable/WLEMDDrawable2D.h"
@@ -67,7 +67,7 @@ namespace LaBP
         /**
          * Sets the new data to draw.
          */
-        void updateView( LaBP::WLDataSetEMM::SPtr emm );
+        void updateView( WLEMMeasurement::SPtr emm );
 
         /**
          * Set which elements of the view we want to see: info panels, channels and/or head. Called it after ready()!

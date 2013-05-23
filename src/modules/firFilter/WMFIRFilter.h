@@ -30,7 +30,7 @@
 #include <core/kernel/WModule.h>
 
 #include "core/data/WLEMMCommand.h"
-#include "core/data/WLDataSetEMM.h"
+#include "core/data/WLEMMeasurement.h"
 #include "core/module/WLModuleDrawable.h"
 // TODO(pieloth): use OW classes
 #include "core/module/WLEMMCommandProcessor.h"
@@ -105,7 +105,7 @@ protected:
     // ----------------------------
     // Methods from WLEMMCommandProcessor
     // ----------------------------
-    virtual bool processCompute( LaBP::WLDataSetEMM::SPtr emm );
+    virtual bool processCompute( WLEMMeasurement::SPtr emm );
     virtual bool processInit( WLEMMCommand::SPtr labp );
     virtual bool processMisc( WLEMMCommand::SPtr labp );
     virtual bool processReset( WLEMMCommand::SPtr labp );

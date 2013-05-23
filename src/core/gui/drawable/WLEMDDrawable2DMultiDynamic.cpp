@@ -35,7 +35,7 @@
 
 namespace LaBP
 {
-    std::string WLEMDDrawable2DMultiDynamic::CLASS = "WLEMDDrawable2DMultiDynamic";
+    const std::string WLEMDDrawable2DMultiDynamic::CLASS = "WLEMDDrawable2DMultiDynamic";
 
     WLEMDDrawable2DMultiDynamic::WLEMDDrawable2DMultiDynamic( WCustomWidget::SPtr widget ) :
                     WLEMDDrawable2DMultiChannel( widget )
@@ -55,7 +55,7 @@ namespace LaBP
         delete m_animation;
     }
 
-    void WLEMDDrawable2DMultiDynamic::draw( LaBP::WLDataSetEMM::SPtr emm )
+    void WLEMDDrawable2DMultiDynamic::draw( WLEMMeasurement::SPtr emm )
     {
         osg::ref_ptr< WLAnimationSideScroll::EMMNode > emdNode = createEmdNode( emm );
         if( emdNode.valid() )
@@ -79,7 +79,7 @@ namespace LaBP
             {
                 osg::ref_ptr< WLAnimationSideScroll::EMMNode > emmNode = m_emmQueue.front();
                 m_emmQueue.pop();
-                WLDataSetEMM::SPtr emm = emmNode->getEmm();
+                WLEMMeasurement::SPtr emm = emmNode->getEmm();
                 const WEModalityType::Enum modality = m_modality;
                 if( emm->hasModality( modality ) )
                 {
@@ -97,7 +97,7 @@ namespace LaBP
         m_animation->sweep();
     }
 
-    osg::ref_ptr< WLAnimationSideScroll::EMMNode > WLEMDDrawable2DMultiDynamic::createEmdNode( LaBP::WLDataSetEMM::SPtr emm )
+    osg::ref_ptr< WLAnimationSideScroll::EMMNode > WLEMDDrawable2DMultiDynamic::createEmdNode( WLEMMeasurement::SPtr emm )
     {
         const WEModalityType::Enum modality = m_modality;
         if( !emm->hasModality( modality ) )
@@ -149,7 +149,7 @@ namespace LaBP
         return pat;
     }
 
-    std::pair< LaBP::WLDataSetEMM::SPtr, size_t > WLEMDDrawable2DMultiDynamic::getSelectedData( ValueT pixel ) const
+    std::pair< WLEMMeasurement::SPtr, size_t > WLEMDDrawable2DMultiDynamic::getSelectedData( ValueT pixel ) const
     {
         m_animation->setPause( true );
 
@@ -158,7 +158,7 @@ namespace LaBP
         {
             wlog::error( CLASS ) << "getSelectedData() - No data to select!";
             m_animation->setPause( false );
-            return std::make_pair( LaBP::WLDataSetEMM::SPtr(), 0 );
+            return std::make_pair( WLEMMeasurement::SPtr(), 0 );
         }
 
         const ValueT pixelPerBlock = getPixelPerBlock( m_blockLength );
@@ -178,10 +178,10 @@ namespace LaBP
         {
             wlog::error( CLASS ) << "getSelectedData() - No data found for pixel: " << pixel;
             m_animation->setPause( false );
-            return std::make_pair( LaBP::WLDataSetEMM::SPtr(), 0 );
+            return std::make_pair( WLEMMeasurement::SPtr(), 0 );
         }
 
-        LaBP::WLDataSetEMM::SPtr emm = emmNode->getEmm();
+        WLEMMeasurement::SPtr emm = emmNode->getEmm();
 
         const ValueT xBlock = emmNode->getPosition().x();
         const ValueT xRelative = pixel - xBlock;

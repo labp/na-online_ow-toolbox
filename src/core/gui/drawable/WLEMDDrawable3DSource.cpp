@@ -79,7 +79,7 @@ namespace LaBP
             return;
         }
 
-        LaBP::WLDataSetEMM::ConstSPtr emm = m_emm;
+        WLEMMeasurement::ConstSPtr emm = m_emm;
         LaBP::WLEMDSource::ConstSPtr emd = emm->getModality< const WLEMDSource >( WEModalityType::SOURCE );
         LaBP::WLEMMSubject::ConstSPtr subject = emm->getSubject();
 

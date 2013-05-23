@@ -58,14 +58,14 @@ namespace LaBP
         explicit WLEMDDrawable2DMultiChannel( WCustomWidget::SPtr widget );
         virtual ~WLEMDDrawable2DMultiChannel();
 
-        virtual void draw( LaBP::WLDataSetEMM::SPtr emm ) = 0;
+        virtual void draw( WLEMMeasurement::SPtr emm ) = 0;
 
         virtual bool hasData() const = 0;
 
         virtual ValueT getChannelHeight() const;
         virtual void setChannelHeight( ValueT spacing );
 
-        virtual std::pair< LaBP::WLDataSetEMM::SPtr, size_t > getSelectedData( ValueT pixel ) const = 0;
+        virtual std::pair< WLEMMeasurement::SPtr, size_t > getSelectedData( ValueT pixel ) const = 0;
 
         virtual size_t getChannelBegin() const;
         virtual size_t setChannelBegin( size_t channelNr );

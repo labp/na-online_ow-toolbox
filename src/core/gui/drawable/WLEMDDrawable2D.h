@@ -107,7 +107,7 @@ namespace LaBP
          *
          * @param emm data to draw.
          */
-        virtual void draw( LaBP::WLDataSetEMM::SPtr emm ) = 0;
+        virtual void draw( WLEMMeasurement::SPtr emm ) = 0;
 
         /**
          * Checks whether data is available.
@@ -123,7 +123,7 @@ namespace LaBP
         virtual ValueT getSelectedPixel() const;
         virtual bool setSelectedPixel( ValueT value );
 
-        virtual std::pair< LaBP::WLDataSetEMM::SPtr, size_t > getSelectedData( ValueT pixel ) const = 0;
+        virtual std::pair< WLEMMeasurement::SPtr, size_t > getSelectedData( ValueT pixel ) const = 0;
 
     protected:
         virtual void osgNodeCallback( osg::NodeVisitor* nv );

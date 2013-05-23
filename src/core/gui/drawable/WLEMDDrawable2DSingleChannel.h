@@ -27,6 +27,8 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <osg/Group>
+
 #include <core/gui/WCustomWidget.h>
 
 #include "core/data/emd/WLEMD.h"
@@ -56,17 +58,17 @@ namespace LaBP
          *
          * @param emm data to draw.
          */
-        virtual void draw( LaBP::WLDataSetEMM::SPtr emm );
+        virtual void draw( WLEMMeasurement::SPtr emm );
 
         /**
          * Checks whether data is available.
          */
         virtual bool hasData() const;
 
-        virtual std::pair< LaBP::WLDataSetEMM::SPtr, size_t > getSelectedData( ValueT pixel ) const;
+        virtual std::pair< WLEMMeasurement::SPtr, size_t > getSelectedData( ValueT pixel ) const;
 
     protected:
-        LaBP::WLDataSetEMM::SPtr m_emm;
+        WLEMMeasurement::SPtr m_emm;
 
         virtual void osgNodeCallback( osg::NodeVisitor* nv );
 

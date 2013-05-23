@@ -1,4 +1,5 @@
 /*
+ * TODO(pieloth): license
  * WLEMDDrawable2DMultiStatic.h
  *
  *  Created on: 16.04.2013
@@ -31,18 +32,18 @@ namespace LaBP
         WLEMDDrawable2DMultiStatic( WCustomWidget::SPtr widget );
         virtual ~WLEMDDrawable2DMultiStatic();
 
-        virtual void draw( LaBP::WLDataSetEMM::SPtr emm );
+        virtual void draw( WLEMMeasurement::SPtr emm );
 
         virtual bool hasData() const;
 
-        virtual std::pair< LaBP::WLDataSetEMM::SPtr, size_t > getSelectedData( ValueT pixel ) const;
+        virtual std::pair< WLEMMeasurement::SPtr, size_t > getSelectedData( ValueT pixel ) const;
 
     protected:
         virtual void osgNodeCallback( osg::NodeVisitor* nv );
 
         virtual void osgAddChannels( const LaBP::WLEMD* emd );
 
-        LaBP::WLDataSetEMM::SPtr m_emm;
+        WLEMMeasurement::SPtr m_emm;
     };
 
 } /* namespace LaBP */

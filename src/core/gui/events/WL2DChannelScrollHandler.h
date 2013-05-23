@@ -1,4 +1,5 @@
 /*
+ * TODO(pieloth): license
  * WL2DChannelScrollHandler.h
  *
  *  Created on: 15.05.2013

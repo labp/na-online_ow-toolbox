@@ -32,14 +32,9 @@
 #include <core/common/WPropertyHelper.h>
 #include <core/kernel/WModule.h>
 
-// Input & output data
-#include "core/data/WLDataSetEMM.h"
-
-// Input & output connectors
-// TODO(pieloth): use OW classes
+#include "core/data/WLEMMeasurement.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
-
 #include "core/util/WLTimeProfiler.h"
 
 #include "WEpochSeparation.h"
@@ -131,7 +126,6 @@ void WMEpochSeparation::moduleMain()
     m_moduleState.add( m_input->getDataChangedCondition() ); // when inputdata changed
     m_moduleState.add( m_propCondition ); // when properties changed
 
-    LaBP::WLDataSetEMM::SPtr emmIn;
     WLEMMCommand::SPtr labpIn;
     LaBP::WLTimeProfiler::SPtr profiler( new LaBP::WLTimeProfiler( getName(), "process" ) );
 
@@ -188,11 +182,11 @@ void WMEpochSeparation::handleResetTriggerPressed()
     infoLog() << "Set new trigger values!";
 }
 
-bool WMEpochSeparation::processCompute( LaBP::WLDataSetEMM::SPtr emmIn )
+bool WMEpochSeparation::processCompute( WLEMMeasurement::SPtr emmIn )
 {
     // TODO(pieloth): profiler
 
-    LaBP::WLDataSetEMM::SPtr emmOut;
+    WLEMMeasurement::SPtr emmOut;
 //    LaBP::WLTimeProfiler::SPtr profilerIn;
     double frequence;
     // The data is valid and we received an update. The data is not NULL but may be the same as in previous loops.
@@ -269,8 +263,8 @@ bool WMEpochSeparation::processReset( WLEMMCommand::SPtr labp )
     size_t next = -1;
     const std::string strTriggers = m_triggers->get();
     std::string strTrigger;
-    LaBP::WLDataSetEMM::EventT trigger;
-    std::set< LaBP::WLDataSetEMM::EventT > triggers;
+    WLEMMeasurement::EventT trigger;
+    std::set< WLEMMeasurement::EventT > triggers;
     do
     {
         current = next + 1;
