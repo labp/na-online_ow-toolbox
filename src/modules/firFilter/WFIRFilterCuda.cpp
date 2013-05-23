@@ -46,8 +46,8 @@ WFIRFilterCuda::WFIRFilterCuda( const char *pathToFcf ) :
 {
 }
 
-void WFIRFilterCuda::filter( LaBP::WLEMD::DataT& out, const LaBP::WLEMD::DataT& in,
-                const LaBP::WLEMD::DataT& prev, LaBP::WLTimeProfiler::SPtr profiler )
+void WFIRFilterCuda::filter( WLEMData::DataT& out, const WLEMData::DataT& in,
+                const WLEMData::DataT& prev, LaBP::WLTimeProfiler::SPtr profiler )
 {
     wlog::debug( CLASS ) << "filter() called!";
     LaBP::WLTimeProfiler::SPtr emdProfiler( new LaBP::WLTimeProfiler( CLASS, "filter_data" ) );
@@ -87,7 +87,7 @@ void WFIRFilterCuda::filter( LaBP::WLEMD::DataT& out, const LaBP::WLEMD::DataT& 
 
     for( size_t i = 0; i < in.size(); ++i )
     {
-        LaBP::WLEMD::ChannelT outChan; // generate a new dimension for every channel
+        WLEMData::ChannelT outChan; // generate a new dimension for every channel
         outChan.reserve( samples );
         // CHANGED to *.assign
 //        for( size_t j = 0; j < samples; ++j )

@@ -32,6 +32,7 @@
 #include <set>
 
 #include "core/data/WLEMMeasurement.h"
+#include "core/data/emd/WLEMData.h"
 #include "core/util/WLRingBuffer.h"
 
 /**
@@ -170,7 +171,7 @@ private:
      *
      * \param emd Modality is used to retrieve block size.
      */
-    void setupBuffer( LaBP::WLEMD::ConstSPtr emd );
+    void setupBuffer( WLEMData::ConstSPtr emd );
 
     /**
      * Creates a new EMM object and copies all past data starting from the given index (past to index).

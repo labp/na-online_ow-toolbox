@@ -30,7 +30,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "core/data/WLMatrixTypes.h"
-#include "core/data/emd/WLEMD.h"
+#include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDSource.h"
 
 #include "core/util/WLTimeProfiler.h"
@@ -57,7 +57,7 @@ public:
 
     virtual bool calculateInverseSolution( const LaBP::MatrixT& noiseCov, const LaBP::MatrixT& dataCov, double snr );
 
-    virtual LaBP::WLEMDSource::SPtr reconstruct( LaBP::WLEMD::ConstSPtr emd, LaBP::WLTimeProfiler::SPtr profiler );
+    virtual WLEMDSource::SPtr reconstruct( WLEMData::ConstSPtr emd, LaBP::WLTimeProfiler::SPtr profiler );
 
 private:
     LaBP::MatrixElementT* m_A_dev;

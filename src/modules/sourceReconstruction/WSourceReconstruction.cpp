@@ -36,7 +36,7 @@
 #include <core/common/WLogger.h>
 
 #include "core/data/WLEMMEnumTypes.h"
-#include "core/data/emd/WLEMD.h"
+#include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDSource.h"
 
 #include "WSourceReconstruction.h"
@@ -226,25 +226,25 @@ bool WSourceReconstruction::calculateInverseSolution( const LaBP::MatrixT& noise
     return true;
 }
 
-LaBP::WLEMDSource::SPtr WSourceReconstruction::createEMDSource( LaBP::WLEMD::ConstSPtr emd,
+WLEMDSource::SPtr WSourceReconstruction::createEMDSource( WLEMData::ConstSPtr emd,
                 const LaBP::MatrixT matrix )
 {
-    boost::shared_ptr< LaBP::WLEMD::DataT > data = LaBP::WLEMDSource::convertMatrix( matrix );
-    LaBP::WLEMDSource::SPtr sourceEmd( new LaBP::WLEMDSource( *emd ) );
+    boost::shared_ptr< WLEMData::DataT > data = WLEMDSource::convertMatrix( matrix );
+    WLEMDSource::SPtr sourceEmd( new WLEMDSource( *emd ) );
     sourceEmd->setData( data );
     return sourceEmd;
 }
 
-bool WSourceReconstruction::averageReference( LaBP::WLEMD::DataT& dataOut, const LaBP::WLEMD::DataT& dataIn )
+bool WSourceReconstruction::averageReference( WLEMData::DataT& dataOut, const WLEMData::DataT& dataIn )
 {
     wlog::debug( CLASS ) << "averageReference() called!";
-    LaBP::WLEMD::ChannelT dataSum( dataIn.front().size(), 0 );
+    WLEMData::ChannelT dataSum( dataIn.front().size(), 0 );
 
     // calculate sum
     for( size_t chan = 0; chan < dataIn.size(); ++chan )
     {
         std::transform( dataIn[chan].begin(), dataIn[chan].end(), dataSum.begin(), dataSum.begin(),
-                        std::plus< LaBP::WLEMD::SampleT >() );
+                        std::plus< WLEMData::SampleT >() );
     }
 
     // calculate average
@@ -259,7 +259,7 @@ bool WSourceReconstruction::averageReference( LaBP::WLEMD::DataT& dataOut, const
         dataOut[chan].resize( dataSum.size() );
 
         std::transform( dataIn[chan].begin(), dataIn[chan].end(), dataSum.begin(), dataOut[chan].begin(),
-                        std::minus< LaBP::WLEMD::SampleT >() );
+                        std::minus< WLEMData::SampleT >() );
     }
 
     return true;

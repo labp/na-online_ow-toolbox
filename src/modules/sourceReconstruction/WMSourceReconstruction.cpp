@@ -36,7 +36,7 @@
 #include "core/data/WLMatrixTypes.h"
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMEnumTypes.h"
-#include "core/data/emd/WLEMD.h"
+#include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDSource.h"
 
 // Input & output connectors
@@ -374,7 +374,7 @@ bool WMSourceReconstruction::inverseSolutionFromSubject( WLEMMeasurement::SPtr e
 bool WMSourceReconstruction::processCompute( WLEMMeasurement::SPtr emmIn )
 {
     WLEMMeasurement::SPtr emmOut;
-    LaBP::WLEMDSource::SPtr sourceOut;
+    WLEMDSource::SPtr sourceOut;
     // The data is valid and we received an update. The data is not NULL but may be the same as in previous loops.
     debugLog() << "received data";
     LaBP::WLTimeProfiler::SPtr profiler = emmIn->createAndAddProfiler( getName(), "process" );
@@ -386,7 +386,7 @@ bool WMSourceReconstruction::processCompute( WLEMMeasurement::SPtr emmIn )
     {
         if( emmIn->hasModality( modality ) )
         {
-            const LaBP::WLEMD::ConstSPtr emd = emmIn->getModality( modality );
+            const WLEMData::ConstSPtr emd = emmIn->getModality( modality );
             const float frequence = emd->getSampFreq();
             const double samples = static_cast< double >( emd->getSamplesPerChan() );
             m_range = samples / frequence;

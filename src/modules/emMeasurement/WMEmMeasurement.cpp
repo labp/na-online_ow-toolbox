@@ -317,7 +317,7 @@ void WMEmMeasurement::streamData()
         int smplFrq;
         std::vector< std::vector< double > > fiffData;
         bool hasData;
-        std::vector< LaBP::WLEMD::SPtr > emds = m_fiffEmm->getModalityList();
+        std::vector< WLEMData::SPtr > emds = m_fiffEmm->getModalityList();
         boost::shared_ptr< std::vector< std::vector< int > > > events = m_fiffEmm->getEventChannels();
 
         totalTimer.reset();
@@ -337,15 +337,15 @@ void WMEmMeasurement::streamData()
             WLEMMeasurement::SPtr emmPacket( new WLEMMeasurement( *m_fiffEmm ) );
 
             // clone each modality
-            for( std::vector< LaBP::WLEMD::SPtr >::const_iterator emd = emds.begin(); emd != emds.end(); ++emd )
+            for( std::vector< WLEMData::SPtr >::const_iterator emd = emds.begin(); emd != emds.end(); ++emd )
             {
                 if( m_shutdownFlag() )
                 {
                     break;
                 }
 
-                LaBP::WLEMD::SPtr emdPacket = ( *emd )->clone();
-                boost::shared_ptr< LaBP::WLEMD::DataT > data( new LaBP::WLEMD::DataT() );
+                WLEMData::SPtr emdPacket = ( *emd )->clone();
+                boost::shared_ptr< WLEMData::DataT > data( new WLEMData::DataT() );
                 data->reserve( ( *emd )->getNrChans() );
 
                 smplFrq = ( *emd )->getSampFreq();
@@ -356,7 +356,7 @@ void WMEmMeasurement::streamData()
                 // copy each channel
                 for( size_t chan = 0; chan < ( *emd )->getNrChans(); ++chan )
                 {
-                    LaBP::WLEMD::ChannelT channel;
+                    WLEMData::ChannelT channel;
                     channel.reserve( blockSize );
 
                     for( size_t sample = 0; sample < blockSize && ( blockOffset + sample ) < fiffData.at( chan ).size();
@@ -466,13 +466,13 @@ void WMEmMeasurement::generateData()
         }
 
         WLEMMeasurement::SPtr emm( new WLEMMeasurement() );
-        LaBP::WLEMDEEG::SPtr eeg( new LaBP::WLEMDEEG() );
+        WLEMDEEG::SPtr eeg( new WLEMDEEG() );
 
         eeg->setSampFreq( m_generationFreq->get() );
 
         for( int i = 0; i < m_generationNrChans->get(); i++ )
         {
-            LaBP::WLEMD::ChannelT channel;
+            WLEMData::ChannelT channel;
             for( int j = 0; j < m_generationFreq->get() * ( ( double )m_generationBlockSize->get() / 1000.0 ); j++ )
             {
                 channel.push_back( 30.0 * ( double )rand() / RAND_MAX - 15.0 );
@@ -541,7 +541,7 @@ bool WMEmMeasurement::readFiff( std::string fname )
         {
             if( m_fiffEmm->hasModality( LaBP::WEModalityType::EEG ) )
             {
-                LaBP::WLEMDEEG::SPtr eeg = m_fiffEmm->getModality< LaBP::WLEMDEEG >( LaBP::WEModalityType::EEG );
+                WLEMDEEG::SPtr eeg = m_fiffEmm->getModality< WLEMDEEG >( LaBP::WEModalityType::EEG );
                 if( eeg->getFaces().empty() )
                 {
                     warnLog() << "No faces found! Faces will be generated.";
@@ -734,13 +734,13 @@ void WMEmMeasurement::setAdditionalInformation( WLEMMeasurement::SPtr emm )
 {
     if( m_isElcLoaded )
     {
-        std::vector< LaBP::WLEMD::SPtr > modalities = emm->getModalityList();
-        for( std::vector< LaBP::WLEMD::SPtr >::iterator it = modalities.begin(); it != modalities.end(); ++it )
+        std::vector< WLEMData::SPtr > modalities = emm->getModalityList();
+        for( std::vector< WLEMData::SPtr >::iterator it = modalities.begin(); it != modalities.end(); ++it )
         {
             ( *it )->setChanNames( m_elcLabels ); // TODO(pieloth) m_elcLabels are specific for each modality
             if( ( *it )->getModalityType() == LaBP::WEModalityType::EEG )
             {
-                LaBP::WLEMDEEG::SPtr eeg = ( *it )->getAs< LaBP::WLEMDEEG >();
+                WLEMDEEG::SPtr eeg = ( *it )->getAs< WLEMDEEG >();
                 eeg->setFaces( m_elcFaces );
                 eeg->setChannelPositions3d( m_elcPositions3d );
             }
@@ -772,7 +772,7 @@ void WMEmMeasurement::align()
         {
             setAdditionalInformation( m_fiffEmm );
 
-            LaBP::WLEMDEEG::SPtr eeg = m_fiffEmm->getModality< LaBP::WLEMDEEG >( LaBP::WEModalityType::EEG );
+            WLEMDEEG::SPtr eeg = m_fiffEmm->getModality< WLEMDEEG >( LaBP::WEModalityType::EEG );
             boost::shared_ptr< std::vector< WPosition > > from = eeg->getChannelPositions3d();
 
             std::vector< LaBP::WLEMMBemBoundary::SPtr > bems = m_fiffEmm->getSubject()->getBemBoundaries();

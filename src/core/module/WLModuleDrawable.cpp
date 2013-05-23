@@ -33,10 +33,10 @@
 #include <core/gui/WGUI.h>
 #include <core/kernel/WKernel.h>
 
+#include "core/data/emd/WLEMData.h"
 #include "core/data/WLMatrixTypes.h"
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMEnumTypes.h"
-
 #include "core/gui/drawable/WLEMDDrawable.h"
 #include "core/gui/drawable/WLEMDDrawable2D.h"
 #include "core/gui/drawable/WLEMDDrawable2DMultiChannel.h"
@@ -295,10 +295,10 @@ void LaBP::WLModuleDrawable::updateView( WLEMMeasurement::SPtr emm )
         WLBoundCalculator calculator;
         --m_autoScaleCounter;
         // Scale 2D
-        const LaBP::WLEMD::SampleT amplitudeScale = calculator.getMax2D( emm, getViewModality() );
+        const WLEMData::SampleT amplitudeScale = calculator.getMax2D( emm, getViewModality() );
         m_amplitudeScale->set( amplitudeScale );
         // Scale 3D
-        const LaBP::WLEMD::SampleT sens3dScale = calculator.getMax3D( emm, getViewModality() );
+        const WLEMData::SampleT sens3dScale = calculator.getMax3D( emm, getViewModality() );
         m_maxSensitity3D->set( sens3dScale );
         m_minSensitity3D->set( -sens3dScale );
     }

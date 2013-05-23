@@ -32,7 +32,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "core/data/WLMatrixTypes.h"
-#include "core/data/emd/WLEMD.h"
+#include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDSource.h"
 
 #include "core/util/WLTimeProfiler.h"
@@ -88,12 +88,12 @@ public:
 
     bool hasInverse() const;
 
-    virtual LaBP::WLEMDSource::SPtr reconstruct( LaBP::WLEMD::ConstSPtr emd,
+    virtual WLEMDSource::SPtr reconstruct( WLEMData::ConstSPtr emd,
                     LaBP::WLTimeProfiler::SPtr profiler ) = 0;
 
-    static LaBP::WLEMDSource::SPtr createEMDSource( LaBP::WLEMD::ConstSPtr emd, const LaBP::MatrixT matrix );
+    static WLEMDSource::SPtr createEMDSource( WLEMData::ConstSPtr emd, const LaBP::MatrixT matrix );
 
-    static bool averageReference( LaBP::WLEMD::DataT& dataOut, const LaBP::WLEMD::DataT& dataIn );
+    static bool averageReference( WLEMData::DataT& dataOut, const WLEMData::DataT& dataIn );
 
 protected:
     LaBP::MatrixSPtr m_leadfield;

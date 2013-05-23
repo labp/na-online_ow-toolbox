@@ -10,7 +10,7 @@
 #include "core/common/WLogger.h"
 
 #include "core/data/WLEMMeasurement.h"
-#include "core/data/emd/WLEMD.h"
+#include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDEEG.h"
 
 #include "../WEpochAveragingTotal.h"
@@ -32,9 +32,9 @@ public:
 
         WEpochAveragingTotal::SPtr averager( new WEpochAveragingTotal( 0 ) );
         WLEMMeasurement::SPtr emm;
-        LaBP::WLEMD::SPtr emd;
+        WLEMData::SPtr emd;
         WLEMMeasurement::SPtr emmAverage;
-        LaBP::WLEMD::SPtr emdAverage;
+        WLEMData::SPtr emdAverage;
 
         for( size_t i = 0; i < COUNT; ++i )
         {
@@ -66,14 +66,14 @@ public:
 protected:
 
 private:
-    LaBP::WLEMD::SPtr createEmd( size_t channels, size_t samples, int startValue = 0 )
+    WLEMData::SPtr createEmd( size_t channels, size_t samples, int startValue = 0 )
     {
-        LaBP::WLEMD::SPtr emd( new LaBP::WLEMDEEG() );
-        boost::shared_ptr< LaBP::WLEMD::DataT > data( new LaBP::WLEMD::DataT );
+        WLEMData::SPtr emd( new WLEMDEEG() );
+        boost::shared_ptr< WLEMData::DataT > data( new WLEMData::DataT );
 
         for( size_t chan = 0; chan < channels; ++chan )
         {
-            LaBP::WLEMD::ChannelT channel;
+            WLEMData::ChannelT channel;
             for( size_t smp = 0; smp < samples; ++smp )
             {
                 channel.push_back( startValue + smp );

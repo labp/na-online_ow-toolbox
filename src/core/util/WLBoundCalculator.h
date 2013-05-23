@@ -28,22 +28,22 @@
 #include "core/data/WLMatrixTypes.h"
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMEnumTypes.h"
-#include "core/data/emd/WLEMD.h"
+#include "core/data/emd/WLEMData.h"
 
 namespace LaBP
 {
     class WLBoundCalculator
     {
     public:
-        explicit WLBoundCalculator( LaBP::WLEMD::SampleT alpha = 1.5 );
-        LaBP::WLEMD::SampleT getMax2D( WLEMMeasurement::ConstSPtr emm, LaBP::WEModalityType::Enum modality );
-        LaBP::WLEMD::SampleT getMax3D( WLEMMeasurement::ConstSPtr emm, LaBP::WEModalityType::Enum modality );
-        LaBP::WLEMD::SampleT getMax( const MatrixT& matrix );
-        LaBP::WLEMD::SampleT getMax( const LaBP::WLEMD::DataT& data );
+        explicit WLBoundCalculator( WLEMData::SampleT alpha = 1.5 );
+        WLEMData::SampleT getMax2D( WLEMMeasurement::ConstSPtr emm, LaBP::WEModalityType::Enum modality );
+        WLEMData::SampleT getMax3D( WLEMMeasurement::ConstSPtr emm, LaBP::WEModalityType::Enum modality );
+        WLEMData::SampleT getMax( const MatrixT& matrix );
+        WLEMData::SampleT getMax( const WLEMData::DataT& data );
         virtual ~WLBoundCalculator();
 
     private:
-        LaBP::WLEMD::SampleT m_alpha;
+        WLEMData::SampleT m_alpha;
     };
 
 } /* namespace LaBP */

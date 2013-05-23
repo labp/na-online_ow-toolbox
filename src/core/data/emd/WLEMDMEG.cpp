@@ -30,11 +30,11 @@
 
 #include "core/data/WLEMMEnumTypes.h"
 
-#include "WLEMD.h"
+#include "WLEMData.h"
 #include "WLEMDMEG.h"
 
-LaBP::WLEMDMEG::WLEMDMEG() :
-                WLEMD()
+WLEMDMEG::WLEMDMEG() :
+                WLEMData()
 {
     m_chanPos3d = boost::shared_ptr< std::vector< WPosition > >( new std::vector< WPosition >() );
     m_faces = boost::shared_ptr< std::vector< WVector3i > >( new std::vector< WVector3i >() );
@@ -44,8 +44,8 @@ LaBP::WLEMDMEG::WLEMDMEG() :
     m_eZ.reset( new std::vector< WVector3f >() );
 }
 
-LaBP::WLEMDMEG::WLEMDMEG( const WLEMDMEG& meg ) :
-                WLEMD( meg )
+WLEMDMEG::WLEMDMEG( const WLEMDMEG& meg ) :
+                WLEMData( meg )
 {
     m_chanPos3d = meg.m_chanPos3d;
     m_faces = meg.m_faces;
@@ -54,82 +54,82 @@ LaBP::WLEMDMEG::WLEMDMEG( const WLEMDMEG& meg ) :
     m_eZ = meg.m_eZ;
 }
 
-LaBP::WLEMDMEG::~WLEMDMEG()
+WLEMDMEG::~WLEMDMEG()
 {
 }
 
-LaBP::WLEMD::SPtr LaBP::WLEMDMEG::clone() const
+WLEMData::SPtr WLEMDMEG::clone() const
 {
-    LaBP::WLEMDMEG::SPtr meg( new WLEMDMEG( *this ) );
+    WLEMDMEG::SPtr meg( new WLEMDMEG( *this ) );
     return meg;
 }
 
-LaBP::WEModalityType::Enum LaBP::WLEMDMEG::getModalityType() const
+LaBP::WEModalityType::Enum WLEMDMEG::getModalityType() const
 {
     return LaBP::WEModalityType::MEG;
 }
 
-boost::shared_ptr< std::vector< WPosition > > LaBP::WLEMDMEG::getChannelPositions3d() const
+boost::shared_ptr< std::vector< WPosition > > WLEMDMEG::getChannelPositions3d() const
 {
     return m_chanPos3d;
 }
 
-void LaBP::WLEMDMEG::setChannelPositions3d( boost::shared_ptr< std::vector< WPosition > > chanPos3d )
+void WLEMDMEG::setChannelPositions3d( boost::shared_ptr< std::vector< WPosition > > chanPos3d )
 {
     this->m_chanPos3d = chanPos3d;
 }
 
-std::vector< WVector3i >& LaBP::WLEMDMEG::getFaces() const
+std::vector< WVector3i >& WLEMDMEG::getFaces() const
 {
     return *m_faces;
 }
 
-void LaBP::WLEMDMEG::setFaces( boost::shared_ptr< std::vector< WVector3i > > faces )
+void WLEMDMEG::setFaces( boost::shared_ptr< std::vector< WVector3i > > faces )
 {
     m_faces = faces;
 }
 
-std::vector< WVector3f >& LaBP::WLEMDMEG::getEx() const
+std::vector< WVector3f >& WLEMDMEG::getEx() const
 {
     return *m_eX;
 }
 
-void LaBP::WLEMDMEG::setEx( boost::shared_ptr< std::vector< WVector3f > > vec )
+void WLEMDMEG::setEx( boost::shared_ptr< std::vector< WVector3f > > vec )
 {
     m_eX = vec;
 }
 
-std::vector< WVector3f >& LaBP::WLEMDMEG::getEy() const
+std::vector< WVector3f >& WLEMDMEG::getEy() const
 {
     return *m_eY;
 }
 
-void LaBP::WLEMDMEG::setEy( boost::shared_ptr< std::vector< WVector3f > > vec )
+void WLEMDMEG::setEy( boost::shared_ptr< std::vector< WVector3f > > vec )
 {
     m_eY = vec;
 }
 
-std::vector< WVector3f >& LaBP::WLEMDMEG::getEz() const
+std::vector< WVector3f >& WLEMDMEG::getEz() const
 {
     return *m_eZ;
 }
 
-void LaBP::WLEMDMEG::setEz( boost::shared_ptr< std::vector< WVector3f > > vec )
+void WLEMDMEG::setEz( boost::shared_ptr< std::vector< WVector3f > > vec )
 {
     m_eZ = vec;
 }
 
-LaBP::WEGeneralCoilType::Enum LaBP::WLEMDMEG::getChannelType( size_t channelId ) const
+LaBP::WEGeneralCoilType::Enum WLEMDMEG::getChannelType( size_t channelId ) const
 {
     WAssert( channelId < m_data->size(), "Index out of bounds!" );
     // Sequence: GGMGGMGGM ... 01 2 34 5
     if( channelId > 1 && ( channelId - 2 ) % 3 == 0 )
     {
-        return WEGeneralCoilType::MAGNETOMETER;
+        return LaBP::WEGeneralCoilType::MAGNETOMETER;
     }
     else
     {
-        return WEGeneralCoilType::GRADIOMETER;
+        return LaBP::WEGeneralCoilType::GRADIOMETER;
 
     }
 }

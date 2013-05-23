@@ -27,14 +27,14 @@
 #include "core/data/WLMatrixTypes.h"
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMEnumTypes.h"
-#include "core/data/emd/WLEMD.h"
+#include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDSource.h"
 
 #include "WLBoundCalculator.h"
 
 namespace LaBP
 {
-    WLBoundCalculator::WLBoundCalculator( LaBP::WLEMD::SampleT alpha ) :
+    WLBoundCalculator::WLBoundCalculator( WLEMData::SampleT alpha ) :
                     m_alpha( alpha )
     {
     }
@@ -43,13 +43,13 @@ namespace LaBP
     {
     }
 
-    LaBP::WLEMD::SampleT WLBoundCalculator::getMax2D( WLEMMeasurement::ConstSPtr emm,
+    WLEMData::SampleT WLBoundCalculator::getMax2D( WLEMMeasurement::ConstSPtr emm,
                     LaBP::WEModalityType::Enum modality )
     {
         if( modality == LaBP::WEModalityType::SOURCE )
         {
             LaBP::WEModalityType::Enum origin_modality =
-                            emm->getModality< const LaBP::WLEMDSource >( modality )->getOriginModalityType();
+                            emm->getModality< const WLEMDSource >( modality )->getOriginModalityType();
 
             return getMax( emm->getModality( origin_modality )->getData() );
         }
@@ -59,12 +59,12 @@ namespace LaBP
         }
     }
 
-    LaBP::WLEMD::SampleT WLBoundCalculator::getMax3D( WLEMMeasurement::ConstSPtr emm,
+    WLEMData::SampleT WLBoundCalculator::getMax3D( WLEMMeasurement::ConstSPtr emm,
                     LaBP::WEModalityType::Enum modality )
     {
         if( modality == LaBP::WEModalityType::SOURCE )
         {
-            return getMax( emm->getModality< const LaBP::WLEMDSource >( modality )->getMatrix() );
+            return getMax( emm->getModality< const WLEMDSource >( modality )->getMatrix() );
         }
         else
         {
@@ -72,12 +72,12 @@ namespace LaBP
         }
     }
 
-    LaBP::WLEMD::SampleT WLBoundCalculator::getMax( const MatrixT& matrix )
+    WLEMData::SampleT WLBoundCalculator::getMax( const MatrixT& matrix )
     {
-        std::vector< LaBP::WLEMD::SampleT > average;
+        std::vector< WLEMData::SampleT > average;
         for( MatrixT::Index r = 0; r < matrix.rows(); ++r )
         {
-            LaBP::WLEMD::SampleT sum = 0;
+            WLEMData::SampleT sum = 0;
             for( MatrixT::Index c = 0; c < matrix.cols(); ++c )
             {
                 sum += matrix( r, c );
@@ -85,10 +85,10 @@ namespace LaBP
             average.push_back( sum / matrix.cols() );
         }
 
-        LaBP::WLEMD::SampleT maxValue = 0;
+        WLEMData::SampleT maxValue = 0;
         for( MatrixT::Index r = 0; r < matrix.rows(); ++r )
         {
-            LaBP::WLEMD::SampleT value = 0;
+            WLEMData::SampleT value = 0;
             for( MatrixT::Index c = 0; c < matrix.cols(); ++c )
             {
                 value += ( matrix( r, c ) - average[r] ) * ( matrix( r, c ) - average[r] );
@@ -102,13 +102,13 @@ namespace LaBP
         return maxValue;
     }
 
-    LaBP::WLEMD::SampleT WLBoundCalculator::getMax( const LaBP::WLEMD::DataT& data )
+    WLEMData::SampleT WLBoundCalculator::getMax( const WLEMData::DataT& data )
     {
-        std::vector< LaBP::WLEMD::SampleT > average;
+        std::vector< WLEMData::SampleT > average;
         const size_t channels = data.size();
         for( size_t chan = 0; chan < channels; ++chan )
         {
-            LaBP::WLEMD::SampleT sum = 0;
+            WLEMData::SampleT sum = 0;
             const size_t samples = data[chan].size();
             for( size_t smp = 0; smp < samples; ++smp )
             {
@@ -117,10 +117,10 @@ namespace LaBP
             average.push_back( sum / samples );
         }
 
-        LaBP::WLEMD::SampleT maxValue = 0;
+        WLEMData::SampleT maxValue = 0;
         for( size_t chan = 0; chan < channels; ++chan )
         {
-            LaBP::WLEMD::SampleT value = 0;
+            WLEMData::SampleT value = 0;
             const size_t samples = data[chan].size();
             for( size_t smp = 0; smp < samples; ++smp )
             {

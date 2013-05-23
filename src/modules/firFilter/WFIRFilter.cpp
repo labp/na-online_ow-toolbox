@@ -34,7 +34,7 @@
 #include <core/common/WLogger.h>
 
 #include "core/data/WLEMMeasurement.h"
-#include "core/data/emd/WLEMD.h"
+#include "core/data/emd/WLEMData.h"
 
 #include "core/util/WLTimeProfiler.h"
 
@@ -65,19 +65,19 @@ WFIRFilter::~WFIRFilter()
     //free( m_coeffArray );
 }
 
-LaBP::WLEMD::SPtr WFIRFilter::filter( const LaBP::WLEMD::ConstSPtr emdIn, LaBP::WLTimeProfiler::SPtr profiler )
+WLEMData::SPtr WFIRFilter::filter( const WLEMData::ConstSPtr emdIn, LaBP::WLTimeProfiler::SPtr profiler )
 {
     LaBP::WLTimeProfiler::SPtr emdProfiler( new LaBP::WLTimeProfiler( CLASS, "filter_emd" ) );
     emdProfiler->start();
-    LaBP::WLEMD::DataT in = emdIn->getData();
-    boost::shared_ptr< LaBP::WLEMD::DataT > out( new LaBP::WLEMD::DataT() );
+    WLEMData::DataT in = emdIn->getData();
+    boost::shared_ptr< WLEMData::DataT > out( new WLEMData::DataT() );
     out->reserve( in.size() );
 
-    const LaBP::WLEMD::DataT& prevData = getPreviousData( emdIn );
+    const WLEMData::DataT& prevData = getPreviousData( emdIn );
     filter( *out, in, prevData, emdProfiler );
     storePreviousData( emdIn );
 
-    LaBP::WLEMD::SPtr emdOut = emdIn->clone();
+    WLEMData::SPtr emdOut = emdIn->clone();
     emdOut->setData( out );
 
     emdProfiler->stopAndLog();
@@ -493,7 +493,7 @@ std::string WFIRFilter::WEWindowsType::name( WFIRFilter::WEWindowsType::Enum val
     }
 }
 
-const LaBP::WLEMD::DataT& WFIRFilter::getPreviousData( LaBP::WLEMD::ConstSPtr emd )
+const WLEMData::DataT& WFIRFilter::getPreviousData( WLEMData::ConstSPtr emd )
 {
     if( m_prevData.count( emd->getModalityType() ) > 0 )
     {
@@ -502,7 +502,7 @@ const LaBP::WLEMD::DataT& WFIRFilter::getPreviousData( LaBP::WLEMD::ConstSPtr em
     else
     {
         wlog::debug( CLASS ) << "getPreviousData() generate zero data!";
-        LaBP::WLEMD::DataT data;
+        WLEMData::DataT data;
         data.resize( emd->getNrChans() );
         for( size_t i = 0; i < data.size(); ++i )
         {
@@ -514,12 +514,12 @@ const LaBP::WLEMD::DataT& WFIRFilter::getPreviousData( LaBP::WLEMD::ConstSPtr em
     }
 }
 
-void WFIRFilter::storePreviousData( LaBP::WLEMD::ConstSPtr emd )
+void WFIRFilter::storePreviousData( WLEMData::ConstSPtr emd )
 {
-    const LaBP::WLEMD::DataT& dataIn = emd->getData();
+    const WLEMData::DataT& dataIn = emd->getData();
     WAssert( m_coeffitients.size() <= emd->getSamplesPerChan(), "More coefficients than samples per channel!" );
 
-    LaBP::WLEMD::DataT data;
+    WLEMData::DataT data;
     data.resize( emd->getNrChans() );
     for( size_t i = 0; i < data.size(); ++i )
     {

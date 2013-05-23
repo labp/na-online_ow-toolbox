@@ -38,7 +38,6 @@
 #include <core/gui/WCustomWidget.h>
 
 #include "core/data/WLEMMeasurement.h"
-#include "core/data/emd/WLEMD.h"
 #include "core/data/emd/WLEMDEEG.h"
 
 #include "WLEMDDrawable3D.h"
@@ -139,7 +138,7 @@ namespace LaBP
         }
     }
 
-    void WLEMDDrawable3DEEG::osgUpdateSurfaceColor( const LaBP::WLEMD::DataT& data )
+    void WLEMDDrawable3DEEG::osgUpdateSurfaceColor( const WLEMData::DataT& data )
     {
         if( m_selectedSample >= 0 && ( m_dataChanged || m_colorMapChanged ) )
         {
@@ -162,7 +161,7 @@ namespace LaBP
         }
     }
 
-    void WLEMDDrawable3DEEG::osgUpdateNodesColor( const LaBP::WLEMD::DataT& data )
+    void WLEMDDrawable3DEEG::osgUpdateNodesColor( const WLEMData::DataT& data )
     {
         if( m_selectedSample >= 0 && ( m_dataChanged || m_colorMapChanged ) )
         {
@@ -191,7 +190,7 @@ namespace LaBP
         }
 
         WLEMMeasurement::ConstSPtr emm = m_emm;
-        LaBP::WLEMDEEG::ConstSPtr emd = emm->getModality< const WLEMDEEG >( WEModalityType::EEG );
+        WLEMDEEG::ConstSPtr emd = emm->getModality< const WLEMDEEG >( WEModalityType::EEG );
 
         if( m_colorMapChanged )
         {

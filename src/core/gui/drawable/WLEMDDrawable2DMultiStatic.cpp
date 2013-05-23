@@ -67,14 +67,14 @@ namespace LaBP
         }
 
         WLEMMeasurement::ConstSPtr emm = m_emm;
-        LaBP::WLEMD::ConstSPtr emd = emm->getModality( m_modality );
+        WLEMData::ConstSPtr emd = emm->getModality( m_modality );
         osgAddLabels( emd.get() );
         osgAddChannels( emd.get() );
 
         WLEMDDrawable2DMultiChannel::osgNodeCallback( nv );
     }
 
-    void WLEMDDrawable2DMultiStatic::osgAddChannels( const LaBP::WLEMD* emd )
+    void WLEMDDrawable2DMultiStatic::osgAddChannels( const WLEMData* emd )
     {
         m_rootGroup->removeChild( m_channelGroup );
         m_channelGroup = new osg::Group;
@@ -90,7 +90,7 @@ namespace LaBP
         // TODO(pieloth): dynamic shift scale ... width / m_timeRange
         // TODO(pieloth): dynamic shift scale ... x_pos * width / m_timeRange,
         panTransform->setMatrix( osg::Matrix::translate( x_pos, y_pos, 0.0 ) );
-        const WLEMD::DataT& emdData = emd->getData();
+        const WLEMData::DataT& emdData = emd->getData();
         const size_t channels_emd = emd->getNrChans();
         const size_t channels_count = maxChannels( emd );
         osg::ref_ptr< osg::Geode > channelGeode;

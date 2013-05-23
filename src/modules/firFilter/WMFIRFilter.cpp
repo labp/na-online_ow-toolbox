@@ -35,14 +35,10 @@
 #include <core/common/WPropertyHelper.h>
 #include <core/kernel/WModule.h>
 
-// Input & output data
 #include "core/data/WLEMMeasurement.h"
-
-// Input & output connectors
-// TODO(pieloth) use OW classes
+#include "core/data/emd/WLEMData.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
-
 #include "core/util/WLTimeProfiler.h"
 
 // FIR filter implementations
@@ -342,8 +338,8 @@ bool WMFIRFilter::processCompute( WLEMMeasurement::SPtr emmIn )
     // Create output data
     emmOut.reset( new WLEMMeasurement( *emmIn ) );
 
-    std::vector< LaBP::WLEMD::SPtr > emdsIn = emmIn->getModalityList();
-    for( std::vector< LaBP::WLEMD::SPtr >::const_iterator emdIn = emdsIn.begin(); emdIn != emdsIn.end(); ++emdIn )
+    std::vector< WLEMData::SPtr > emdsIn = emmIn->getModalityList();
+    for( std::vector< WLEMData::SPtr >::const_iterator emdIn = emdsIn.begin(); emdIn != emdsIn.end(); ++emdIn )
     {
         debugLog() << "EMD type: " << ( *emdIn )->getModalityType();
 
@@ -353,14 +349,14 @@ bool WMFIRFilter::processCompute( WLEMMeasurement::SPtr emmIn )
         debugLog() << "EMD channels: " << nbChannels;
         const size_t nbSamlesPerChan = nbChannels > 0 ? ( *emdIn )->getSamplesPerChan() : 0;
         debugLog() << "EMD samples per channel: " << nbSamlesPerChan;
-        debugLog() << "Input pieces:\n" << LaBP::WLEMD::dataToString( ( *emdIn )->getData(), 5, 10 );
+        debugLog() << "Input pieces:\n" << WLEMData::dataToString( ( *emdIn )->getData(), 5, 10 );
 #endif // DEBUG
-        LaBP::WLEMD::SPtr emdOut = m_firFilter->filter( ( *emdIn ), profiler );
+        WLEMData::SPtr emdOut = m_firFilter->filter( ( *emdIn ), profiler );
         emmOut->addModality( emdOut );
 
 #ifdef DEBUG
         // Show some filtered pieces
-        debugLog() << "Filtered pieces:\n" << LaBP::WLEMD::dataToString( emdOut->getData(), 5, 10 );
+        debugLog() << "Filtered pieces:\n" << WLEMData::dataToString( emdOut->getData(), 5, 10 );
 #endif // DEBUG
     }
     m_firFilter->doPostProcessing( emmOut, emmIn, profiler );

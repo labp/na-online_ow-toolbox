@@ -33,7 +33,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "core/data/WLEMMeasurement.h"
-#include "core/data/emd/WLEMD.h"
+#include "core/data/emd/WLEMData.h"
 
 #include "core/util/WLTimeProfiler.h"
 
@@ -83,7 +83,7 @@ public:
 
     virtual ~WFIRFilter();
 
-    LaBP::WLEMD::SPtr filter( const LaBP::WLEMD::ConstSPtr emdIn, LaBP::WLTimeProfiler::SPtr profiler );
+    WLEMData::SPtr filter( const WLEMData::ConstSPtr emdIn, LaBP::WLTimeProfiler::SPtr profiler );
 
     void doPostProcessing( WLEMMeasurement::SPtr emmOut, WLEMMeasurement::ConstSPtr emmIn,
                     LaBP::WLTimeProfiler::SPtr profiler );
@@ -104,8 +104,8 @@ public:
                     double cFreq2 );
 
 protected:
-    virtual void filter( LaBP::WLEMD::DataT& out, const LaBP::WLEMD::DataT& in,
-                    const LaBP::WLEMD::DataT& prev, LaBP::WLTimeProfiler::SPtr profiler ) = 0;
+    virtual void filter( WLEMData::DataT& out, const WLEMData::DataT& in,
+                    const WLEMData::DataT& prev, LaBP::WLTimeProfiler::SPtr profiler ) = 0;
 
     std::vector< double > m_coeffitients;
     WEWindowsType::Enum m_window;
@@ -116,8 +116,8 @@ protected:
     size_t m_order;
     std::vector< double > m_allPass;
 
-    const LaBP::WLEMD::DataT& getPreviousData( LaBP::WLEMD::ConstSPtr emd );
-    void storePreviousData( LaBP::WLEMD::ConstSPtr emd );
+    const WLEMData::DataT& getPreviousData( WLEMData::ConstSPtr emd );
+    void storePreviousData( WLEMData::ConstSPtr emd );
 
 private:
     void designLowpass( std::vector< double >* pCoeff, size_t order, double cFreq1, double sFreq, WEWindowsType::Enum windowtype );
@@ -127,7 +127,7 @@ private:
 
     void normalizeCoeff( std::vector< double >* pCoeff );
 
-    std::map< LaBP::WEModalityType::Enum, LaBP::WLEMD::DataT > m_prevData;
+    std::map< LaBP::WEModalityType::Enum, WLEMData::DataT > m_prevData;
     WLEMMeasurement::EDataT m_prevEvents;
 };
 

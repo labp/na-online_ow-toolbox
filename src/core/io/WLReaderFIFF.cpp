@@ -41,7 +41,7 @@
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMSubject.h"
 #include "core/data/WLEMMEnumTypes.h"
-#include "core/data/emd/WLEMD.h"
+#include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDECG.h"
 #include "core/data/emd/WLEMDEEG.h"
 #include "core/data/emd/WLEMDEOG.h"
@@ -74,7 +74,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
     out->setSubject( subject_out );
 
     // Create temporary EMMEMD
-    LaBP::WLEMDEEG::SPtr dummy( new LaBP::WLEMDEEG() );
+    WLEMDEEG::SPtr dummy( new WLEMDEEG() );
     LFMeasurementInfo& measinfo_in = data.GetLFMeasurement().GetLFMeasurementInfo();
     int32_t nChannels = measinfo_in.GetNumberOfChannels();
     wlog::debug( CLASS ) << "Channels: " << nChannels;
@@ -102,7 +102,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
     for( size_t i = 0; i < nBuffers_in; i++ )
         nBuffers_out += rawdatabuffers_in[i]->GetSize();
     nBuffers_out /= nChannels;
-    LaBP::WLEMD::DataT rawdatabuffers_out( nChannels );
+    WLEMData::DataT rawdatabuffers_out( nChannels );
     for( int32_t i = 0; i < nChannels; i++ )
         rawdatabuffers_out[i].resize( nBuffers_out );
     int32_t current_channel = 0, current_buffer_out = 0;
@@ -139,7 +139,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
         }
     }
 
-    boost::shared_ptr< LaBP::WLEMD::DataT > rawdatabuffers_out_ptr( new LaBP::WLEMD::DataT( rawdatabuffers_out ) );
+    boost::shared_ptr< WLEMData::DataT > rawdatabuffers_out_ptr( new WLEMData::DataT( rawdatabuffers_out ) );
     dummy->setData( rawdatabuffers_out_ptr );
 
     // Collect available modalities and coils
@@ -155,26 +155,26 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
     {
         mod = *modalities.begin();
         modalities.erase( mod );
-        LaBP::WLEMD::SPtr emd;
+        WLEMData::SPtr emd;
         // See FIFF PDF B.3 Channel Types
         switch( mod )
         {
             case 1: // MEG channel
                 wlog::debug( CLASS ) << "Creating MEG modality ...";
-                emd.reset( new LaBP::WLEMDMEG() );
+                emd.reset( new WLEMDMEG() );
                 break;
             case 2: // EEG channel
                 wlog::debug( CLASS ) << "Creating EEG modality ...";
-                emd.reset( new LaBP::WLEMDEEG() );
+                emd.reset( new WLEMDEEG() );
                 break;
 //            case 3: // Stimulus channel
             case 202: // EOG channel
                 wlog::debug( CLASS ) << "Creating EOG modality ...";
-                emd.reset( new LaBP::WLEMDEOG() );
+                emd.reset( new WLEMDEOG() );
                 break;
             case 402: // ECG channel
                 wlog::debug( CLASS ) << "Creating ECG modality ...";
-                emd.reset( new LaBP::WLEMDECG() );
+                emd.reset( new WLEMDECG() );
                 break;
             default:
                 wlog::debug( CLASS ) << "Skip modality type: " << mod;
@@ -182,7 +182,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
         }
 
         // Collect data: measurement, positions, base vectors
-        boost::shared_ptr< LaBP::WLEMD::DataT > data( new LaBP::WLEMD::DataT() );
+        boost::shared_ptr< WLEMData::DataT > data( new WLEMData::DataT() );
         boost::shared_ptr< std::vector< WPosition > > positions( new std::vector< WPosition >() );
         float* pos;
 
@@ -249,14 +249,14 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
         {
             case LaBP::WEModalityType::EEG: // Set specific EEG data
             {
-                LaBP::WLEMDEEG::SPtr eeg = boost::shared_dynamic_cast< LaBP::WLEMDEEG >( emd );
+                WLEMDEEG::SPtr eeg = emd->getAs< WLEMDEEG >();
                 eeg->setChannelPositions3d( positions );
                 wlog::debug( CLASS ) << "EEG positions: " << positions->size();
                 break;
             }
             case LaBP::WEModalityType::MEG: // Set specific MEG data
             {
-                LaBP::WLEMDMEG::SPtr meg = boost::shared_dynamic_cast< LaBP::WLEMDMEG >( emd );
+                WLEMDMEG::SPtr meg = emd->getAs< WLEMDMEG >();
                 meg->setChannelPositions3d( positions );
                 meg->setEx( eX );
                 meg->setEx( eY );

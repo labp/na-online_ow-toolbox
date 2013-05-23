@@ -35,8 +35,8 @@
 #include "core/data/WLEMMCommand.h"
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMEnumTypes.h"
+#include "core/data/emd/WLEMData.h"
 #include "core/module/WLModuleDrawable.h"
-// TODO use OW classes
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
@@ -136,7 +136,7 @@ private:
     std::string getFileName( std::string folder, std::string prefix, std::string suffix, LaBP::WEModalityType::Enum emdType,
                     size_t channels, size_t samples, size_t count );
 
-    bool write( std::string fname, LaBP::WLEMD::ConstSPtr emd );
+    bool write( std::string fname, WLEMData::ConstSPtr emd );
 
 };
 

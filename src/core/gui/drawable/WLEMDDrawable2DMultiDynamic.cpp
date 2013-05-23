@@ -31,6 +31,8 @@
 
 #include <core/common/WRealtimeTimer.h>
 
+#include "core/data/emd/WLEMData.h"
+
 #include "WLEMDDrawable2DMultiDynamic.h"
 
 namespace LaBP
@@ -83,7 +85,7 @@ namespace LaBP
                 const WEModalityType::Enum modality = m_modality;
                 if( emm->hasModality( modality ) )
                 {
-                    const WLEMD* const emd = emm->getModality( modality ).get();
+                    const WLEMData* const emd = emm->getModality( modality ).get();
                     wlog::debug( CLASS ) << "osgNodeCallback() - samplesPerChan: " << emd->getSamplesPerChan();
                     wlog::debug( CLASS ) << "osgNodeCallback() - freq: " << emd->getSampFreq();
                     wlog::debug( CLASS ) << "osgNodeCallback() - secondsPerChan: " << emd->getLength();
@@ -106,7 +108,7 @@ namespace LaBP
             return osg::ref_ptr< WLAnimationSideScroll::EMMNode >();
         }
 
-        LaBP::WLEMD* emd = emm->getModality( modality ).get();
+        WLEMData* emd = emm->getModality( modality ).get();
         m_blockLength = emd->getLength();
 
         const ValueT x_pos = m_widget->width();
@@ -124,7 +126,7 @@ namespace LaBP
         blockGroup->setDataVariance( osg::Object::DYNAMIC );
 
         // Every new packed come at the end of the widget!
-        const WLEMD::DataT& emdData = emd->getData();
+        const WLEMData::DataT& emdData = emd->getData();
         const size_t channels_emd = emd->getNrChans();
         const size_t channels_count = maxChannels( emd );
         wlog::debug( CLASS ) << "channels_count: " << channels_count;

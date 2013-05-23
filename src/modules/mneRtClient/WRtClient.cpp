@@ -272,7 +272,7 @@ bool WRtClient::readData( WLEMMeasurement::SPtr emmIn )
     {
         wlog::debug( CLASS ) << "matRawBuffer: " << matRawBuffer.rows() << "x" << matRawBuffer.cols();
 
-        LaBP::WLEMD::SPtr emd;
+        WLEMData::SPtr emd;
         if( m_picksEeg.size() > 0 )
         {
             emd = readEEG( matRawBuffer );
@@ -301,10 +301,10 @@ bool WRtClient::readData( WLEMMeasurement::SPtr emmIn )
     }
 }
 
-LaBP::WLEMDEEG::SPtr WRtClient::readEEG( const Eigen::MatrixXf& rawData )
+WLEMDEEG::SPtr WRtClient::readEEG( const Eigen::MatrixXf& rawData )
 {
     wlog::debug( CLASS ) << "readEEG() called!";
-    LaBP::WLEMDEEG::SPtr eeg( new LaBP::WLEMDEEG() );
+    WLEMDEEG::SPtr eeg( new WLEMDEEG() );
     readEmd( eeg.get(), m_picksEeg, rawData );
     // TODO(pieloth): setter
     eeg->setChanNames( m_chNamesEeg );
@@ -313,17 +313,17 @@ LaBP::WLEMDEEG::SPtr WRtClient::readEEG( const Eigen::MatrixXf& rawData )
     return eeg;
 }
 
-LaBP::WLEMDMEG::SPtr WRtClient::readMEG( const Eigen::MatrixXf& rawData )
+WLEMDMEG::SPtr WRtClient::readMEG( const Eigen::MatrixXf& rawData )
 {
     wlog::debug( CLASS ) << "readMEG() called!";
-    LaBP::WLEMDMEG::SPtr meg( new LaBP::WLEMDMEG() );
+    WLEMDMEG::SPtr meg( new WLEMDMEG() );
     readEmd( meg.get(), m_picksMeg, rawData );
     // TODO(pieloth): setter
     meg->setChanNames( m_chNamesMeg );
     return meg;
 }
 
-bool WRtClient::readEmd( LaBP::WLEMD* const emd, const Eigen::RowVectorXi& picks, const Eigen::MatrixXf& rawData )
+bool WRtClient::readEmd( WLEMData* const emd, const Eigen::RowVectorXi& picks, const Eigen::MatrixXf& rawData )
 {
     if( picks.size() == 0 )
     {
@@ -334,7 +334,7 @@ bool WRtClient::readEmd( LaBP::WLEMD* const emd, const Eigen::RowVectorXi& picks
     const Eigen::RowVectorXi::Index rows = picks.size();
     const Eigen::MatrixXf::Index cols = rawData.cols();
 
-    LaBP::WLEMD::DataT& emdData = emd->getData();
+    WLEMData::DataT& emdData = emd->getData();
     emdData.clear();
     emdData.reserve( rows );
     WAssertDebug( rows <= rawData.rows(), "More selected channels than in raw data!" );
@@ -342,11 +342,11 @@ bool WRtClient::readEmd( LaBP::WLEMD* const emd, const Eigen::RowVectorXi& picks
     for( Eigen::RowVectorXi::Index row = 0; row < rows; ++row )
     {
         WAssertDebug( picks[row] < rawData.rows(), "Selected channel index out of raw data boundary!" );
-        LaBP::WLEMD::ChannelT emdChannel;
+        WLEMData::ChannelT emdChannel;
         emdChannel.reserve( cols );
         for( size_t col = 0; col < cols; ++col )
         {
-            emdChannel.push_back( ( LaBP::WLEMD::SampleT )rawData( picks[row], col ) );
+            emdChannel.push_back( ( WLEMData::SampleT )rawData( picks[row], col ) );
         }
         emdData.push_back( emdChannel );
     }

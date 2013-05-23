@@ -31,7 +31,7 @@
 
 #include <cxxtest/TestSuite.h>
 
-#include "core/data/emd/WLEMD.h"
+#include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDEEG.h"
 
 #include "core/util/WLTimeProfiler.h"
@@ -84,10 +84,10 @@ public:
             }
             in->push_back( channel );
         }
-        LaBP::WLEMD::SPtr emdIn( new LaBP::WLEMDEEG() );
+        WLEMData::SPtr emdIn( new WLEMDEEG() );
         emdIn->setData( in );
 
-        LaBP::WLEMD::SPtr emdOut = filter->filter( emdIn, LaBP::WLTimeProfiler::SPtr() );
+        WLEMData::SPtr emdOut = filter->filter( emdIn, LaBP::WLTimeProfiler::SPtr() );
 
         std::vector< double > outExpected = filter->getCoefficients();
         std::vector< std::vector< double > > out = emdOut->getData();
@@ -117,10 +117,10 @@ public:
             }
             in->push_back( channel );
         }
-        LaBP::WLEMD::SPtr emdIn( new LaBP::WLEMDEEG() );
+        WLEMData::SPtr emdIn( new WLEMDEEG() );
         emdIn->setData( in );
 
-        LaBP::WLEMD::SPtr emdOut = filter->filter( emdIn, LaBP::WLTimeProfiler::SPtr() );
+        WLEMData::SPtr emdOut = filter->filter( emdIn, LaBP::WLTimeProfiler::SPtr() );
 
         double firSum = 0;
         for( size_t i = 0; i < coefficients; ++i )

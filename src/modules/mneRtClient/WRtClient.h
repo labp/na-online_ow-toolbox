@@ -42,7 +42,7 @@
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
 #include "core/data/WLEMMeasurement.h"
-#include "core/data/emd/WLEMD.h"
+#include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDEEG.h"
 #include "core/data/emd/WLEMDMEG.h"
 
@@ -102,10 +102,10 @@ private:
     const std::string m_alias;
     qint32 m_clientId;
 
-    LaBP::WLEMDEEG::SPtr readEEG( const Eigen::MatrixXf& rawData );
-    LaBP::WLEMDMEG::SPtr readMEG( const Eigen::MatrixXf& rawData );
+    WLEMDEEG::SPtr readEEG( const Eigen::MatrixXf& rawData );
+    WLEMDMEG::SPtr readMEG( const Eigen::MatrixXf& rawData );
     boost::shared_ptr< WLEMMeasurement::EDataT > readEvents( const Eigen::MatrixXf& rawData );
-    bool readEmd( LaBP::WLEMD* const emd, const Eigen::RowVectorXi& picks, const Eigen::MatrixXf& rawData );
+    bool readEmd( WLEMData* const emd, const Eigen::RowVectorXi& picks, const Eigen::MatrixXf& rawData );
 };
 
 #endif  // WRTCLIENT_H_

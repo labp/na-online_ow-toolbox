@@ -11,7 +11,7 @@
 #include <core/common/WLogger.h>
 
 #include "core/data/WLEMMeasurement.h"
-#include "core/data/emd/WLEMD.h"
+#include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDEEG.h"
 
 #include "../WEpochSeparation.h"
@@ -167,7 +167,7 @@ public:
         }
 
         // check data
-        LaBP::WLEMD::SPtr emdEpoch;
+        WLEMData::SPtr emdEpoch;
         double startValue;
         for( size_t mod = 0; mod < emmEpoch->getModalityCount(); ++mod )
         {
@@ -250,7 +250,7 @@ public:
         }
 
         // check data
-        LaBP::WLEMD::SPtr emd;
+        WLEMData::SPtr emd;
         double startValue;
         for( size_t mod = 0; mod < emmEpoch->getModalityCount(); ++mod )
         {
@@ -357,9 +357,9 @@ public:
         std::list< WLEMMeasurement::ConstSPtr >::const_iterator epIt = epochs.begin();
         std::list< size_t >::const_iterator evIt = eIndices.begin();
 
-        LaBP::WLEMD::ConstSPtr emd;
+        WLEMData::ConstSPtr emd;
         WLEMMeasurement::ConstSPtr emmEpoch;
-        LaBP::WLEMD::ConstSPtr emdEpoch;
+        WLEMData::ConstSPtr emdEpoch;
 
         size_t event;
 
@@ -373,10 +373,10 @@ public:
             {
                 emd = emm->getModality( mod );
                 emdEpoch = emmEpoch->getModality( mod );
-                LaBP::WLEMD::DataT& data = emd->getData();
+                WLEMData::DataT& data = emd->getData();
 
                 // Compare data
-                LaBP::WLEMD::DataT& resData = emdEpoch->getData();
+                WLEMData::DataT& resData = emdEpoch->getData();
                 for( size_t chan = 0; chan < emdEpoch->getNrChans(); ++chan )
                 {
                     TS_ASSERT_EQUALS( resData[chan].size(), EPOCHLENGTH );
@@ -404,14 +404,14 @@ public:
 protected:
 
 private:
-    LaBP::WLEMD::SPtr createEmd( size_t channels, size_t samples, int startValue = 0 )
+    WLEMData::SPtr createEmd( size_t channels, size_t samples, int startValue = 0 )
     {
-        LaBP::WLEMD::SPtr emd( new LaBP::WLEMDEEG() );
-        boost::shared_ptr< LaBP::WLEMD::DataT > data( new LaBP::WLEMD::DataT() );
+        WLEMData::SPtr emd( new WLEMDEEG() );
+        boost::shared_ptr< WLEMData::DataT > data( new WLEMData::DataT() );
 
         for( size_t chan = 0; chan < channels; ++chan )
         {
-            LaBP::WLEMD::ChannelT channel;
+            WLEMData::ChannelT channel;
             for( size_t smp = 0; smp < samples; ++smp )
             {
                 channel.push_back( startValue + smp );
@@ -426,18 +426,18 @@ private:
     WLEMMeasurement::SPtr splitToPacket( WLEMMeasurement::ConstSPtr emmIn, size_t start, size_t blockSize )
     {
         WLEMMeasurement::SPtr emmOut( new WLEMMeasurement( *emmIn ) );
-        LaBP::WLEMD::ConstSPtr emdIn;
-        LaBP::WLEMD::SPtr emdOut;
+        WLEMData::ConstSPtr emdIn;
+        WLEMData::SPtr emdOut;
 
         // copy modality
         for( size_t mod = 0; mod < emmIn->getModalityCount(); ++mod )
         {
             emdIn = emmIn->getModality( mod );
             emdOut = emdIn->clone();
-            boost::shared_ptr< LaBP::WLEMD::DataT > data( new LaBP::WLEMD::DataT() );
+            boost::shared_ptr< WLEMData::DataT > data( new WLEMData::DataT() );
             for( size_t chan = 0; chan < emdIn->getData().size(); ++chan )
             {
-                LaBP::WLEMD::ChannelT channel( emdIn->getData()[chan].begin() + start,
+                WLEMData::ChannelT channel( emdIn->getData()[chan].begin() + start,
                                 start + blockSize <= emdIn->getData()[chan].size() ? emdIn->getData()[chan].begin() + start
                                                 + blockSize :
                                                 emdIn->getData()[chan].end() );

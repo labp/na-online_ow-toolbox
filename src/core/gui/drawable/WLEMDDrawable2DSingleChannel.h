@@ -31,7 +31,7 @@
 
 #include <core/gui/WCustomWidget.h>
 
-#include "core/data/emd/WLEMD.h"
+#include "core/data/emd/WLEMData.h"
 
 #include "WLEMDDrawable2D.h"
 
@@ -72,16 +72,16 @@ namespace LaBP
 
         virtual void osgNodeCallback( osg::NodeVisitor* nv );
 
-        void osgAddValueGrid( const LaBP::WLEMD* emd );
+        void osgAddValueGrid( const WLEMData* emd );
 
         ValueT m_valueGridHeight;
         ValueT m_valueGridWidth;
         osg::ref_ptr< osg::Group > m_valueGridGroup;
 
-        virtual size_t maxChannels( const LaBP::WLEMD* emd ) const;
+        virtual size_t maxChannels( const WLEMData* emd ) const;
 
     private:
-        void osgAddChannels( const LaBP::WLEMD* emd );
+        void osgAddChannels( const WLEMData* emd );
     };
 
 } /* namespace LaBP */

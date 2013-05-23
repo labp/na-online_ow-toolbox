@@ -9,58 +9,54 @@
 
 #include "core/data/WLMatrixTypes.h"
 
-#include "core/data/emd/WLEMD.h"
+#include "core/data/emd/WLEMData.h"
 
-namespace LaBP
+class WLEMDSource: public WLEMData
 {
+public:
+    /**
+     * Abbreviation for a shared pointer.
+     */
+    typedef boost::shared_ptr< WLEMDSource > SPtr;
 
-    class WLEMDSource: public LaBP::WLEMD
-    {
-    public:
-        /**
-         * Abbreviation for a shared pointer.
-         */
-        typedef boost::shared_ptr< WLEMDSource > SPtr;
+    /**
+     * Abbreviation for const shared pointer.
+     */
+    typedef boost::shared_ptr< const WLEMDSource > ConstSPtr;
 
-        /**
-         * Abbreviation for const shared pointer.
-         */
-        typedef boost::shared_ptr< const WLEMDSource > ConstSPtr;
+    static const std::string CLASS;
 
-        static const std::string CLASS;
+    WLEMDSource();
 
-        WLEMDSource();
+    explicit WLEMDSource( const WLEMDSource& source );
 
-        explicit WLEMDSource( const WLEMDSource& source );
+    explicit WLEMDSource( const WLEMData& emd );
 
-        explicit WLEMDSource( const WLEMD& emd );
+    virtual ~WLEMDSource();
 
-        virtual ~WLEMDSource();
+    virtual WLEMData::SPtr clone() const;
 
-        virtual WLEMD::SPtr clone() const;
+    virtual DataT& getData() const;
 
-        virtual DataT& getData() const;
+    virtual size_t getNrChans() const;
 
-        virtual size_t getNrChans() const;
+    virtual size_t getSamplesPerChan() const;
 
-        virtual size_t getSamplesPerChan() const;
+    virtual LaBP::WEModalityType::Enum getModalityType() const;
 
-        virtual LaBP::WEModalityType::Enum getModalityType() const;
+    LaBP::WEModalityType::Enum getOriginModalityType() const;
 
-        LaBP::WEModalityType::Enum getOriginModalityType() const;
+    void setOriginModalityType( LaBP::WEModalityType::Enum modality );
 
-        void setOriginModalityType( LaBP::WEModalityType::Enum modality );
+    LaBP::MatrixT& getMatrix() const;
 
-        MatrixT& getMatrix() const;
+    void setMatrix( boost::shared_ptr< LaBP::MatrixT > matrix );
 
-        void setMatrix( boost::shared_ptr< MatrixT > matrix );
+    static boost::shared_ptr< DataT > convertMatrix( const LaBP::MatrixT& matrix );
 
-        static boost::shared_ptr< DataT > convertMatrix( const MatrixT& matrix );
+private:
+    LaBP::WEModalityType::Enum m_originModalityType;
+    boost::shared_ptr< LaBP::MatrixT > m_matrix;
+};
 
-    private:
-        LaBP::WEModalityType::Enum m_originModalityType;
-        boost::shared_ptr< MatrixT > m_matrix;
-    };
-
-} /* namespace LaBP */
 #endif  // WLEMDSOURCE_H_

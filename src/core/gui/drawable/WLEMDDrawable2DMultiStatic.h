@@ -41,7 +41,7 @@ namespace LaBP
     protected:
         virtual void osgNodeCallback( osg::NodeVisitor* nv );
 
-        virtual void osgAddChannels( const LaBP::WLEMD* emd );
+        virtual void osgAddChannels( const WLEMData* emd );
 
         WLEMMeasurement::SPtr m_emm;
     };

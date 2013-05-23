@@ -36,7 +36,7 @@
 #include <core/gui/WCustomWidget.h>
 
 #include "core/data/WLEMMeasurement.h"
-#include "core/data/emd/WLEMD.h"
+#include "core/data/emd/WLEMData.h"
 #include "core/util/WLBoundCalculator.h"
 
 #include "WLEMDDrawable2DSingleChannel.h"
@@ -66,12 +66,12 @@ namespace LaBP
         return m_emm.get() && m_emm->hasModality( m_modality );
     }
 
-    size_t WLEMDDrawable2DSingleChannel::maxChannels( const LaBP::WLEMD* emd ) const
+    size_t WLEMDDrawable2DSingleChannel::maxChannels( const WLEMData* emd ) const
     {
         return emd->getNrChans();
     }
 
-    void WLEMDDrawable2DSingleChannel::osgAddChannels( const LaBP::WLEMD* emd )
+    void WLEMDDrawable2DSingleChannel::osgAddChannels( const WLEMData* emd )
     {
         m_rootGroup->removeChild( m_channelGroup );
         m_channelGroup = new osg::Group;
@@ -87,7 +87,7 @@ namespace LaBP
         // TODO(pieloth): dynamic shift scale ... width / m_timeRange
         // TODO(pieloth): dynamic shift scale ... x_pos * width / m_timeRange,
         panTransform->setMatrix( osg::Matrix::translate( x_pos, y_pos, 0.0 ) );
-        const WLEMD::DataT& emdData = emd->getData();
+        const WLEMData::DataT& emdData = emd->getData();
         const size_t channels_begin = 0;
         const size_t channels_count = maxChannels( emd );
         wlog::debug( CLASS ) << "channels_count: " << channels_count;
@@ -108,7 +108,7 @@ namespace LaBP
         m_rootGroup->addChild( m_channelGroup );
     }
 
-    void WLEMDDrawable2DSingleChannel::osgAddValueGrid( const LaBP::WLEMD* emd )
+    void WLEMDDrawable2DSingleChannel::osgAddValueGrid( const WLEMData* emd )
     {
         const ValueT height = m_widget->height();
         const ValueT width = m_widget->width();
@@ -154,7 +154,7 @@ namespace LaBP
 
             // Find maximum
             LaBP::WLBoundCalculator bc;
-            LaBP::WLEMD::SampleT max = bc.getMax( emd->getData() );
+            WLEMData::SampleT max = bc.getMax( emd->getData() );
 
             const ValueT y_scale = ( ( m_widget->height() / 2 ) / m_amplitudeScale );
             for( ValueT yPos = y_zero_pos + ( y_scale * max ); yPos > height * 0.9; yPos = y_zero_pos + ( y_scale * max ) )
@@ -255,7 +255,7 @@ namespace LaBP
         }
 
         WLEMMeasurement::ConstSPtr emm = m_emm;
-        LaBP::WLEMD::ConstSPtr emd = emm->getModality( m_modality );
+        WLEMData::ConstSPtr emd = emm->getModality( m_modality );
         osgAddChannels( emd.get() );
         osgAddValueGrid( emd.get() );
 

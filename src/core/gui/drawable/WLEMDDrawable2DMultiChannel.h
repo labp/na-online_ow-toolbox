@@ -34,7 +34,7 @@
 
 #include <core/gui/WCustomWidget.h>
 
-#include "core/data/emd/WLEMD.h"
+#include "core/data/emd/WLEMData.h"
 
 #include "WLEMDDrawable2D.h"
 
@@ -75,10 +75,10 @@ namespace LaBP
 
         virtual void osgNodeCallback( osg::NodeVisitor* nv );
 
-        void virtual osgAddLabels( const LaBP::WLEMD* emd );
+        void virtual osgAddLabels( const WLEMData* emd );
 
-        virtual size_t maxChannels( const LaBP::WLEMD* emd ) const;
-        virtual size_t getChannelBegin( const LaBP::WLEMD* emd );
+        virtual size_t maxChannels( const WLEMData* emd ) const;
+        virtual size_t getChannelBegin( const WLEMData* emd );
 
         const ValueT m_labelWidth;
 

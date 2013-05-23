@@ -31,17 +31,16 @@
 
 #include <core/common/WLogger.h>
 
-#include "WLEMD.h"
+#include "WLEMData.h"
 
-float LaBP::WLEMD::m_lineFreq;
 
-LaBP::WLEMD::WLEMD()
+WLEMData::WLEMData()
 {
     m_data.reset( new DataT() );
     m_chanNames.reset( new std::vector< std::string >() );
 }
 
-LaBP::WLEMD::WLEMD( const WLEMD& emd )
+WLEMData::WLEMData( const WLEMData& emd )
 {
     // C++11 supports "delegating constructors". So default initialization could be moved to default constructor.
     m_data.reset( new DataT() );
@@ -67,7 +66,7 @@ LaBP::WLEMD::WLEMD( const WLEMD& emd )
     m_dataOffsetIdx = emd.getDataOffsetIdx();
 }
 
-LaBP::WLEMD::~WLEMD()
+WLEMData::~WLEMData()
 {
 }
 
@@ -84,79 +83,79 @@ LaBP::WLEMD::~WLEMD()
 //    return boost::dynamic_pointer_cast< const EMD >( emd );
 //}
 
-LaBP::WLEMD::DataT& LaBP::WLEMD::getData() const
+WLEMData::DataT& WLEMData::getData() const
 {
     return *m_data;
 }
 
-void LaBP::WLEMD::setData( boost::shared_ptr< DataT > data )
+void WLEMData::setData( boost::shared_ptr< DataT > data )
 {
     m_data = data;
 }
 
-void LaBP::WLEMD::addSample( double value )
+void WLEMData::addSample( double value )
 {
     std::vector< double > channel;
     channel.push_back( value );
     m_data->push_back( channel );
 }
 
-float LaBP::WLEMD::getAnalogHighPass() const
+float WLEMData::getAnalogHighPass() const
 {
     return m_analogHighPass;
 }
 
-float LaBP::WLEMD::getAnalogLowPass() const
+float WLEMData::getAnalogLowPass() const
 {
     return m_analogLowPass;
 }
 
-std::vector< std::string >& LaBP::WLEMD::getChanNames() const
+std::vector< std::string >& WLEMData::getChanNames() const
 {
     return *m_chanNames;
 }
 
-LaBP::WEUnit::Enum LaBP::WLEMD::getChanUnit() const
+LaBP::WEUnit::Enum WLEMData::getChanUnit() const
 {
     return m_chanUnit;
 }
 
-LaBP::WEExponent::Enum LaBP::WLEMD::getChanUnitExp() const
+LaBP::WEExponent::Enum WLEMData::getChanUnitExp() const
 {
     return m_chanUnitExp;
 }
 
-LaBP::WECoordSystemName::Enum LaBP::WLEMD::getCoordSystem() const
+LaBP::WECoordSystemName::Enum WLEMData::getCoordSystem() const
 {
     return m_CoordSystem;
 }
 
-uint32_t LaBP::WLEMD::getDataBuffSizePerChan() const
+uint32_t WLEMData::getDataBuffSizePerChan() const
 {
     return m_dataBuffSizePerChan;
 }
 
-uint32_t LaBP::WLEMD::getDataOffsetIdx() const
+uint32_t WLEMData::getDataOffsetIdx() const
 {
     return m_dataOffsetIdx;
 }
 
-float LaBP::WLEMD::getLineFreq()
+float WLEMData::getLineFreq()
 {
     return m_lineFreq;
 }
 
-std::string LaBP::WLEMD::getMeasurementDeviceName() const
+std::string WLEMData::getMeasurementDeviceName() const
 {
     return m_measurementDeviceName;
 }
 
-size_t LaBP::WLEMD::getNrChans() const
+size_t WLEMData::getNrChans() const
 {
     return m_data->size();
 }
 
-size_t LaBP::WLEMD::getSamplesPerChan() const
+size_t WLEMData::getSamplesPerChan() const
 {
     if( m_data && m_data->size() > 0 )
     {
@@ -165,82 +164,82 @@ size_t LaBP::WLEMD::getSamplesPerChan() const
     return 0;
 }
 
-uint16_t *LaBP::WLEMD::getOrigIdx() const
+uint16_t *WLEMData::getOrigIdx() const
 {
     return m_origIdx;
 }
 
-float LaBP::WLEMD::getSampFreq() const
+float WLEMData::getSampFreq() const
 {
     return m_sampFreq;
 }
 
-float LaBP::WLEMD::getLength() const
+float WLEMData::getLength() const
 {
     return getSamplesPerChan() / m_sampFreq;
 }
 
-void LaBP::WLEMD::setAnalogHighPass( float analogHighPass )
+void WLEMData::setAnalogHighPass( float analogHighPass )
 {
     m_analogHighPass = analogHighPass;
 }
 
-void LaBP::WLEMD::setAnalogLowPass( float analogLowPass )
+void WLEMData::setAnalogLowPass( float analogLowPass )
 {
     m_analogLowPass = analogLowPass;
 }
 
-void LaBP::WLEMD::setChanNames( boost::shared_ptr< std::vector< std::string > > chanNames )
+void WLEMData::setChanNames( boost::shared_ptr< std::vector< std::string > > chanNames )
 {
     m_chanNames = chanNames;
 }
 
-void LaBP::WLEMD::setChanUnit( LaBP::WEUnit::Enum chanUnit )
+void WLEMData::setChanUnit( LaBP::WEUnit::Enum chanUnit )
 {
     m_chanUnit = chanUnit;
 }
 
-void LaBP::WLEMD::setChanUnitExp( LaBP::WEExponent::Enum chanUnitExp )
+void WLEMData::setChanUnitExp( LaBP::WEExponent::Enum chanUnitExp )
 {
     m_chanUnitExp = chanUnitExp;
 }
 
-void LaBP::WLEMD::setCoordSystem( LaBP::WECoordSystemName::Enum coordSystem )
+void WLEMData::setCoordSystem( LaBP::WECoordSystemName::Enum coordSystem )
 {
     m_CoordSystem = coordSystem;
 }
 
-void LaBP::WLEMD::setDataBuffSizePerChan( uint32_t dataBuffSizePerChan )
+void WLEMData::setDataBuffSizePerChan( uint32_t dataBuffSizePerChan )
 {
     m_dataBuffSizePerChan = dataBuffSizePerChan;
 }
 
-void LaBP::WLEMD::setDataOffsetIdx( uint32_t dataOffsetIdx )
+void WLEMData::setDataOffsetIdx( uint32_t dataOffsetIdx )
 {
     m_dataOffsetIdx = dataOffsetIdx;
 }
 
-void LaBP::WLEMD::setLineFreq( float lineFreq )
+void WLEMData::setLineFreq( float lineFreq )
 {
     m_lineFreq = lineFreq;
 }
 
-void LaBP::WLEMD::setMeasurementDeviceName( std::string measurementDeviceName )
+void WLEMData::setMeasurementDeviceName( std::string measurementDeviceName )
 {
     m_measurementDeviceName = measurementDeviceName;
 }
 
-void LaBP::WLEMD::setOrigIdx( uint16_t *origIdx )
+void WLEMData::setOrigIdx( uint16_t *origIdx )
 {
     m_origIdx = origIdx;
 }
 
-void LaBP::WLEMD::setSampFreq( float sampFreq )
+void WLEMData::setSampFreq( float sampFreq )
 {
     m_sampFreq = sampFreq;
 }
 
-std::string LaBP::WLEMD::channelToString( const ChannelT& data, size_t maxSamples )
+std::string WLEMData::channelToString( const ChannelT& data, size_t maxSamples )
 {
     const size_t nbSmp = data.size();
     std::stringstream ss;
@@ -251,7 +250,7 @@ std::string LaBP::WLEMD::channelToString( const ChannelT& data, size_t maxSample
     return ss.str();
 }
 
-std::string LaBP::WLEMD::dataToString( const DataT& data, size_t maxChannels, size_t maxSamples )
+std::string WLEMData::dataToString( const DataT& data, size_t maxChannels, size_t maxSamples )
 {
     const size_t nbChan = data.size();
 

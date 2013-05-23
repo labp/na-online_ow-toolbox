@@ -32,7 +32,7 @@
 #include <core/common/WAssert.h>
 
 #include "core/data/WLEMMeasurement.h"
-#include "core/data/emd/WLEMD.h"
+#include "core/data/emd/WLEMData.h"
 
 #include "WEpochSeparation.h"
 
@@ -199,7 +199,7 @@ inline size_t WEpochSeparation::nmod( ptrdiff_t a, size_t n )
     }
 }
 
-void WEpochSeparation::setupBuffer( LaBP::WLEMD::ConstSPtr emd )
+void WEpochSeparation::setupBuffer( WLEMData::ConstSPtr emd )
 {
     if( !m_buffer || m_blockSize == 0 )
     {
@@ -228,8 +228,8 @@ WEpochSeparation::LeftEpoch::SPtr WEpochSeparation::processPreSamples( size_t eI
 
     // Prepare modalities //
     const WLEMMeasurement::ConstSPtr emm = m_buffer->getData();
-    LaBP::WLEMD::ConstSPtr emd;
-    LaBP::WLEMD::SPtr emdEpoch;
+    WLEMData::ConstSPtr emd;
+    WLEMData::SPtr emdEpoch;
     const size_t modalities = emm->getModalityCount();
     for( size_t mod = 0; mod < modalities; ++mod )
     {
@@ -277,7 +277,7 @@ WEpochSeparation::LeftEpoch::SPtr WEpochSeparation::processPreSamples( size_t eI
         {
             emd = emm->getModality( mod );
             emdEpoch = emmEpoch->getModality( mod );
-            LaBP::WLEMD::DataT& data = emdEpoch->getData();
+            WLEMData::DataT& data = emdEpoch->getData();
 
             WAssertDebug( emd->getData().size() == emdEpoch->getData().size(), "Different channel count!" );
             for( size_t chan = 0; chan < emdEpoch->getData().size(); ++chan )
@@ -319,8 +319,8 @@ bool WEpochSeparation::processPostSamples( LeftEpoch::SPtr leftEpoch, WLEMMeasur
     size_t samplesLeft = leftEpoch->m_leftSamples;
     size_t pStart = leftEpoch->m_startIndex;
 
-    LaBP::WLEMD::ConstSPtr emd;
-    LaBP::WLEMD::SPtr emdEpoch;
+    WLEMData::ConstSPtr emd;
+    WLEMData::SPtr emdEpoch;
 
     size_t offset = std::min( samplesLeft, m_blockSize - pStart );
     WAssertDebug( pStart + offset <= m_blockSize, "pStart + offset <= blockSize" );
@@ -332,7 +332,7 @@ bool WEpochSeparation::processPostSamples( LeftEpoch::SPtr leftEpoch, WLEMMeasur
         emd = emm->getModality( mod );
         emdEpoch = emmEpoch->getModality( mod );
 
-        LaBP::WLEMD::DataT& data = emdEpoch->getData();
+        WLEMData::DataT& data = emdEpoch->getData();
         WAssertDebug( emd->getData().size() == emdEpoch->getData().size(), "Different channel count!" );
         for( size_t chan = 0; chan < emdEpoch->getData().size(); ++chan )
         {

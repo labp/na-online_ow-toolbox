@@ -30,7 +30,7 @@
 #include <core/common/WLogger.h>
 
 #include "core/data/WLEMMeasurement.h"
-#include "core/data/emd/WLEMD.h"
+#include "core/data/emd/WLEMData.h"
 
 #include "WEpochAveraging.h"
 #include "WEpochAveragingTotal.h"
@@ -62,8 +62,8 @@ WLEMMeasurement::SPtr WEpochAveragingTotal::getAverage( WLEMMeasurement::ConstSP
     profiler->start();
     emmOut->setTimeProfiler( profiler );
 
-    LaBP::WLEMD::SPtr emdSum;
-    LaBP::WLEMD::SPtr emdOut;
+    WLEMData::SPtr emdSum;
+    WLEMData::SPtr emdOut;
     size_t channels;
     size_t samples;
     for( size_t mod = 0; mod < m_emmSum->getModalityCount(); ++mod )
@@ -90,8 +90,8 @@ WLEMMeasurement::SPtr WEpochAveragingTotal::getAverage( WLEMMeasurement::ConstSP
 void WEpochAveragingTotal::addEmmSum( const WLEMMeasurement::ConstSPtr emm )
 {
     ++m_count;
-    LaBP::WLEMD::ConstSPtr emdIn;
-    LaBP::WLEMD::SPtr emdSum;
+    WLEMData::ConstSPtr emdIn;
+    WLEMData::SPtr emdSum;
     size_t channels;
 
     for( size_t mod = 0; mod < emm->getModalityCount(); ++mod )
@@ -117,8 +117,8 @@ void WEpochAveragingTotal::checkEmmSum( const WLEMMeasurement::ConstSPtr emm )
     wlog::debug( CLASS ) << "Creating new emmSum";
     m_emmSum.reset( new WLEMMeasurement( *emm ) );
 
-    LaBP::WLEMD::ConstSPtr emd;
-    LaBP::WLEMD::SPtr emdSum;
+    WLEMData::ConstSPtr emd;
+    WLEMData::SPtr emdSum;
     size_t channels;
     size_t samples;
     for( size_t mod = 0; mod < emm->getModalityCount(); ++mod )

@@ -31,60 +31,60 @@
 
 #include "core/data/WLEMMEnumTypes.h"
 
-#include "WLEMD.h"
+#include "WLEMData.h"
 #include "WLEMDEEG.h"
 
-LaBP::WLEMDEEG::WLEMDEEG() :
-                WLEMD()
+WLEMDEEG::WLEMDEEG() :
+                WLEMData()
 {
     m_chanPos3d = boost::shared_ptr< std::vector< WPosition > >( new std::vector< WPosition >() );
     m_faces = boost::shared_ptr< std::vector< WVector3i > >( new std::vector< WVector3i >() );
 }
 
-LaBP::WLEMDEEG::WLEMDEEG( const WLEMDEEG& eeg ) :
-                WLEMD( eeg )
+WLEMDEEG::WLEMDEEG( const WLEMDEEG& eeg ) :
+                WLEMData( eeg )
 {
     m_chanPos3d = eeg.m_chanPos3d;
     m_faces = eeg.m_faces;
     m_polarityType = eeg.getPolarityType();
 }
 
-LaBP::WLEMDEEG::~WLEMDEEG()
+WLEMDEEG::~WLEMDEEG()
 {
 }
 
-LaBP::WLEMD::SPtr LaBP::WLEMDEEG::clone() const
+WLEMData::SPtr WLEMDEEG::clone() const
 {
-    LaBP::WLEMDEEG::SPtr eeg( new LaBP::WLEMDEEG( *this ) );
+    WLEMDEEG::SPtr eeg( new WLEMDEEG( *this ) );
     return eeg;
 }
 
-LaBP::WEPolarityType::Enum LaBP::WLEMDEEG::getPolarityType() const
+LaBP::WEPolarityType::Enum WLEMDEEG::getPolarityType() const
 {
     return m_polarityType;
 }
 
-LaBP::WEModalityType::Enum LaBP::WLEMDEEG::getModalityType() const
+LaBP::WEModalityType::Enum WLEMDEEG::getModalityType() const
 {
     return LaBP::WEModalityType::EEG;
 }
 
-boost::shared_ptr< std::vector< WPosition > > LaBP::WLEMDEEG::getChannelPositions3d() const
+boost::shared_ptr< std::vector< WPosition > > WLEMDEEG::getChannelPositions3d() const
 {
     return m_chanPos3d;
 }
 
-void LaBP::WLEMDEEG::setChannelPositions3d( boost::shared_ptr< std::vector< WPosition > > chanPos3d )
+void WLEMDEEG::setChannelPositions3d( boost::shared_ptr< std::vector< WPosition > > chanPos3d )
 {
     m_chanPos3d = chanPos3d;
 }
 
-std::vector< WVector3i >& LaBP::WLEMDEEG::getFaces() const
+std::vector< WVector3i >& WLEMDEEG::getFaces() const
 {
     return *m_faces;
 }
 
-void LaBP::WLEMDEEG::setFaces( boost::shared_ptr< std::vector< WVector3i > > faces )
+void WLEMDEEG::setFaces( boost::shared_ptr< std::vector< WVector3i > > faces )
 {
     m_faces = faces;
 }

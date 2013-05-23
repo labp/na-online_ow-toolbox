@@ -29,41 +29,32 @@
 
 #include "core/data/WLEMMEnumTypes.h"
 
-#include "WLEMD.h"
+#include "WLEMData.h"
 #include "WLEMDEEG.h"
 
-/**
- *
- */
-namespace LaBP
+class WLEMDEOG: public WLEMDEEG // TODO(kaehler): extends EEG oder (((Abstrakte klasse)))
 {
+public:
     /**
-     *
+     * Abbreviation for a shared pointer.
      */
-    class WLEMDEOG: public LaBP::WLEMDEEG // TODO(kaehler): extends EEG oder (((Abstrakte klasse)))
-    {
-    public:
-        /**
-         * Abbreviation for a shared pointer.
-         */
-        typedef boost::shared_ptr< WLEMDEOG > SPtr;
+    typedef boost::shared_ptr< WLEMDEOG > SPtr;
 
-        /**
-         * Abbreviation for const shared pointer.
-         */
-        typedef boost::shared_ptr< const WLEMDEOG > ConstSPtr;
+    /**
+     * Abbreviation for const shared pointer.
+     */
+    typedef boost::shared_ptr< const WLEMDEOG > ConstSPtr;
 
-        WLEMDEOG();
+    WLEMDEOG();
 
-        explicit WLEMDEOG( const WLEMDEOG& eog );
+    explicit WLEMDEOG( const WLEMDEOG& eog );
 
-        virtual ~WLEMDEOG();
+    virtual ~WLEMDEOG();
 
-        virtual WLEMD::SPtr clone() const;
+    virtual WLEMData::SPtr clone() const;
 
-        virtual LaBP::WEModalityType::Enum getModalityType() const;
+    virtual LaBP::WEModalityType::Enum getModalityType() const;
 
-    };
-}
+};
 
 #endif  // WLEMDEOG_H

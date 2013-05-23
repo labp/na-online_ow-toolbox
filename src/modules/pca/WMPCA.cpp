@@ -30,13 +30,11 @@
 #include <core/common/WItemSelectionItemTyped.h>
 #include <core/kernel/WModule.h>
 
-// Input & output connectors
+#include "core/data/WLEMMCommand.h"
+#include "core/data/emd/WLEMData.h"
+#include "core/data/WLEMMeasurement.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
-
-// Input & output data
-#include "core/data/WLEMMCommand.h"
-#include "core/data/WLEMMeasurement.h"
 #include "core/util/WLTimeProfiler.h"
 
 #include "WMPCA.h"
@@ -191,8 +189,8 @@ void WMPCA::moduleMain()
 //            {
             LaBP::WEModalityType::Enum mod = m_processModalitySelection->get().at( 0 )->getAs<
                             WItemSelectionItemTyped< LaBP::WEModalityType::Enum > >()->getValue();
-            boost::shared_ptr< LaBP::WLEMD > emdIn = emmIn->getModality( mod );
-            boost::shared_ptr< LaBP::WLEMD > emdOut = m_pca->processData( emdIn );
+            WLEMData::SPtr emdIn = emmIn->getModality( mod );
+            WLEMData::SPtr emdOut = m_pca->processData( emdIn );
 
             // emm object can create in the outer module
             emmOut->addModality( emdOut );

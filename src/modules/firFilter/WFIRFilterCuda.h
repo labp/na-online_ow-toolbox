@@ -29,6 +29,8 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include "core/data/emd/WLEMData.h"
+
 #include "WFIRFilter.h"
 
 class WFIRFilterCuda: public WFIRFilter
@@ -51,7 +53,7 @@ public:
     explicit WFIRFilterCuda( const char *pathToFcf );
 
 protected:
-    void filter( LaBP::WLEMD::DataT& out, const LaBP::WLEMD::DataT& in, const LaBP::WLEMD::DataT& prev,
+    void filter( WLEMData::DataT& out, const WLEMData::DataT& in, const WLEMData::DataT& prev,
                     LaBP::WLTimeProfiler::SPtr profiler );
 };
 

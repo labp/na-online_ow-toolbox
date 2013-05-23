@@ -36,7 +36,7 @@
 #include "core/data/WLEMMCommand.h"
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMEnumTypes.h"
-#include "core/data/emd/WLEMD.h"
+#include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDSource.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
@@ -163,7 +163,7 @@ void WMEmdWriter::moduleMain()
     std::string prefix;
     std::string suffix;
     std::string fname;
-    LaBP::WLEMD::ConstSPtr emd;
+    WLEMData::ConstSPtr emd;
 
     while( !m_shutdownFlag() )
     {
@@ -256,14 +256,14 @@ void WMEmdWriter::moduleMain()
     }
 }
 
-bool WMEmdWriter::write( std::string fname, LaBP::WLEMD::ConstSPtr emd )
+bool WMEmdWriter::write( std::string fname, WLEMData::ConstSPtr emd )
 {
     std::ofstream fstream;
     fstream.open( fname.c_str(), std::ofstream::binary );
 
     if( emd->getModalityType() == LaBP::WEModalityType::SOURCE )
     {
-        LaBP::MatrixT& data = emd->getAs< const LaBP::WLEMDSource >()->getMatrix();
+        LaBP::MatrixT& data = emd->getAs< const WLEMDSource >()->getMatrix();
         const LaBP::MatrixT::Index channels = data.rows();
         const LaBP::MatrixT::Index samples = data.cols();
         LaBP::MatrixT::Scalar value;
@@ -279,7 +279,7 @@ bool WMEmdWriter::write( std::string fname, LaBP::WLEMD::ConstSPtr emd )
     }
     else
     {
-        LaBP::WLEMD::DataT& data = emd->getData();
+        WLEMData::DataT& data = emd->getData();
         const size_t channels = emd->getNrChans();
         const size_t samples = emd->getSamplesPerChan();
 

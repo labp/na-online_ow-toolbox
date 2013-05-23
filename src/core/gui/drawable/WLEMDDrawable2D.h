@@ -39,7 +39,7 @@
 #include <core/gui/WCustomWidget.h>
 
 #include "core/util/WLRingBuffer.h"
-#include "core/data/emd/WLEMD.h"
+#include "core/data/emd/WLEMData.h"
 #include "core/data/WLEMMEnumTypes.h"
 
 #include "WLEMDDrawable.h"
@@ -130,12 +130,12 @@ namespace LaBP
 
         virtual bool mustDraw() const;
 
-        osg::ref_ptr< osg::Geode > drawChannel( const LaBP::WLEMD::ChannelT& channel );
+        osg::ref_ptr< osg::Geode > drawChannel( const WLEMData::ChannelT& channel );
 
         void osgAddMarkLine();
         void osgAddTimeGrid();
 
-        virtual size_t maxChannels( const LaBP::WLEMD* emd ) const = 0;
+        virtual size_t maxChannels( const WLEMData* emd ) const = 0;
 
         osg::ref_ptr< osg::Group > m_channelGroup;
         osg::ref_ptr< osg::Geode > m_markerGeode;

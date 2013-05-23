@@ -29,7 +29,7 @@
 
 #include "core/util/WLTimeProfiler.h"
 #include "core/data/WLEMMeasurement.h"
-#include "core/data/emd/WLEMD.h"
+#include "core/data/emd/WLEMData.h"
 
 #include "WEpochAveraging.h"
 #include "WEpochAveragingMoving.h"
@@ -70,8 +70,8 @@ WLEMMeasurement::SPtr WEpochAveragingMoving::getAverage( WLEMMeasurement::ConstS
     profiler->start();
     emmOut->setTimeProfiler( profiler );
 
-    LaBP::WLEMD::ConstSPtr emdIn;
-    LaBP::WLEMD::SPtr emdOut;
+    WLEMData::ConstSPtr emdIn;
+    WLEMData::SPtr emdOut;
 
     // Create output EMM
     size_t channels;
