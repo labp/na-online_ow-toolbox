@@ -45,6 +45,16 @@ namespace LaBP
     {
     public:
         /**
+         * Shared pointer to this class.
+         */
+        typedef boost::shared_ptr< WLModuleInputDataCollection > SPtr;
+
+        /**
+         * Const shared pointer to this class.
+         */
+        typedef boost::shared_ptr< const WLModuleInputDataCollection > ConstSPtr;
+
+        /**
          * Constructor.
          *
          * \param module the module which is owner of this connector.

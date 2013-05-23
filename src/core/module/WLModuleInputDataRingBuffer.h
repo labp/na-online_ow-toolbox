@@ -46,6 +46,16 @@ namespace LaBP
     class WLModuleInputDataRingBuffer: public WLModuleInputDataCollection< T >
     {
     public:
+        /**
+         * Shared pointer to this class.
+         */
+        typedef boost::shared_ptr< WLModuleInputDataRingBuffer > SPtr;
+
+        /**
+         * Const shared pointer to this class.
+         */
+        typedef boost::shared_ptr< const WLModuleInputDataRingBuffer > ConstSPtr;
+
         static const std::string CLASS;
 
         static const size_t MIN_BUFFER_SIZE;
@@ -156,7 +166,7 @@ LaBP::WLModuleInputDataRingBuffer< T >::WLModuleInputDataRingBuffer( size_t capa
 template< typename T >
 LaBP::WLModuleInputDataRingBuffer< T >::~WLModuleInputDataRingBuffer()
 {
-    boost::unique_lock < boost::shared_mutex > exLock( m_clearLock );
+    boost::unique_lock< boost::shared_mutex > exLock( m_clearLock );
 
     for( size_t i = 0; i < m_capacity; ++i )
     {
@@ -180,7 +190,7 @@ size_t LaBP::WLModuleInputDataRingBuffer< T >::capacity()
 template< typename T >
 size_t LaBP::WLModuleInputDataRingBuffer< T >::size()
 {
-    boost::unique_lock < boost::shared_mutex > exLock( m_clearLock );
+    boost::unique_lock< boost::shared_mutex > exLock( m_clearLock );
     size_t read = m_read;
     size_t write = m_write;
     ptrdiff_t count = write - read;
@@ -201,7 +211,7 @@ const boost::shared_ptr< T > LaBP::WLModuleInputDataRingBuffer< T >::getData( bo
         WLModuleInputDataCollection< T >::handledUpdate();
     }
 
-    boost::shared_lock < boost::shared_mutex > shLock( m_clearLock );
+    boost::shared_lock< boost::shared_mutex > shLock( m_clearLock );
     if( m_read == m_write )
     {
         wlog::debug( CLASS ) << "getData(): m_read == m_write";
@@ -226,7 +236,7 @@ bool LaBP::WLModuleInputDataRingBuffer< T >::addData( boost::shared_ptr< T > val
 #ifdef DEBUG
     wlog::debug( CLASS ) << "addData() called!";
 #endif // DEBUG
-    boost::shared_lock < boost::shared_mutex > shLock( m_clearLock );
+    boost::shared_lock< boost::shared_mutex > shLock( m_clearLock );
     size_t nextElement = ( m_write + 1 ) % m_capacity;
     if( nextElement != m_read )
     {
@@ -249,7 +259,7 @@ template< typename T >
 void LaBP::WLModuleInputDataRingBuffer< T >::clear()
 {
     wlog::debug( CLASS ) << "clear() called!";
-    boost::unique_lock < boost::shared_mutex > exLock( m_clearLock );
+    boost::unique_lock< boost::shared_mutex > exLock( m_clearLock );
 
     for( size_t i = 0; i < m_capacity; ++i )
     {
@@ -260,7 +270,7 @@ void LaBP::WLModuleInputDataRingBuffer< T >::clear()
     }
 
     free( m_data );
-    m_data = ( boost::shared_ptr< T >* )calloc( m_capacity, sizeof( boost::shared_ptr< T > ) );
+    m_data = ( boost::shared_ptr< T >* )calloc( m_capacity, sizeof(boost::shared_ptr< T >) );
     assert( m_data );
 
     m_read = 0;
