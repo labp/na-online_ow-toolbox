@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMEMMMEASUREMENT_H
-#define WMEMMMEASUREMENT_H
+#ifndef WMEMMEASUREMENT_H
+#define WMEMMEASUREMENT_H
 
 #include <string>
 #include <vector>
@@ -32,13 +32,13 @@
 
 #include "core/common/math/linearAlgebra/WVectorFixed.h"
 #include "core/common/WPropertyTypes.h"
+#include "core/data/WLEMMCommand.h"
 #include "core/data/WLDataSetEMM.h"
 #include "core/data/WLEMMSubject.h"
 #include "core/data/WLEMMSurface.h"
 #include "core/data/WLEMMBemBoundary.h"
 
 #include "core/module/WLModuleDrawable.h"
-// TODO use OW class
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
 #include "algorithms/WRegistration.h"
@@ -113,10 +113,7 @@ private:
     //! a condition for the matrix selection
     boost::shared_ptr< WCondition > m_propCondition;
 
-    /**
-     * The only output of this data module. TODO use OW class
-     */
-    boost::shared_ptr< LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM > > m_output;
+    LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output;
 
     // FIFF file //
     void streamData();
@@ -290,7 +287,6 @@ private:
     static const std::string FILE_LOADED;
 
     static const std::string FILE_ERROR;
-
 };
 
-#endif  // WMEMMMEASUREMENT_H
+#endif  // WMEMMEASUREMENT_H

@@ -29,9 +29,11 @@
 
 #include <core/kernel/WModule.h>
 
+#include "core/data/WLEMMCommand.h"
 #include "core/data/WLDataSetEMM.h"
 #include "core/module/WLModuleDrawable.h"
 // TODO(pieloth): use OW classes
+#include "core/module/WLEMMCommandProcessor.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
@@ -41,7 +43,7 @@
  * Module to parameterize and process a FIR filter.
  * \ingroup modules
  */
-class WMFIRFilter: public LaBP::WLModuleDrawable
+class WMFIRFilter: public LaBP::WLModuleDrawable, WLEMMCommandProcessor
 {
 public:
     /**
@@ -100,6 +102,14 @@ protected:
      */
     virtual const char** getXPMIcon() const;
 
+    // ----------------------------
+    // Methods from WLEMMCommandProcessor
+    // ----------------------------
+    virtual bool processCompute( LaBP::WLDataSetEMM::SPtr emm );
+    virtual bool processInit( WLEMMCommand::SPtr labp );
+    virtual bool processMisc( WLEMMCommand::SPtr labp );
+    virtual bool processReset( WLEMMCommand::SPtr labp );
+
 private:
     // GUI event handler
     void callbackDesignButtonPressed();
@@ -125,12 +135,12 @@ private:
     /**
      * Input connector for a WEEG2 dataset to get filtered
      */
-    boost::shared_ptr< LaBP::WLModuleInputDataRingBuffer< LaBP::WLDataSetEMM > > m_input;
+    LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input;
 
     /**
      * Output connector for a filtered WEEG2 dataset
      */
-    boost::shared_ptr< LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM > > m_output;
+    LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output;
 
     /**
      * A condition used to notify about changes in several properties.

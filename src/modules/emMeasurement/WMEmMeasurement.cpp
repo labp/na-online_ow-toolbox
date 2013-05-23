@@ -43,8 +43,6 @@
 #include <core/common/WPropertyTypes.h>
 #include <core/common/WRealtimeTimer.h>
 
-// Output connector and data
-// TODO use OW class
 #include "core/module/WLModuleOutputDataCollectionable.h"
 #include "core/data/WLDataSetEMM.h"
 #include "core/data/emd/WLEMDEEG.h"
@@ -64,20 +62,16 @@
 #include "WMEmMeasurement.h"
 #include "WMEmMeasurement.xpm"
 
-using namespace boost;
-using namespace std;
-
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMEmMeasurement )
 
 WMEmMeasurement::WMEmMeasurement()
 {
-    m_fiffEmm = boost::shared_ptr< LaBP::WLDataSetEMM >( new LaBP::WLDataSetEMM() );
+    m_fiffEmm = LaBP::WLDataSetEMM::SPtr( new LaBP::WLDataSetEMM() );
 }
 
 WMEmMeasurement::~WMEmMeasurement()
 {
-
 }
 
 boost::shared_ptr< WModule > WMEmMeasurement::factory() const
@@ -102,10 +96,8 @@ const std::string WMEmMeasurement::getDescription() const
 
 void WMEmMeasurement::connectors()
 {
-    // initialize connectors
-    // TODO use OW class
-    m_output = boost::shared_ptr< LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM > >(
-                    new LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM >( shared_from_this(), "out",
+    m_output = LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr(
+                    new LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >( shared_from_this(), "out",
                                     "A loaded dataset." ) );
 
     // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
@@ -413,7 +405,10 @@ void WMEmMeasurement::streamData()
 
             emmPacket->getTimeProfiler()->start();
             updateView( emmPacket ); // update view
-            m_output->updateData( emmPacket ); // update connected modules
+            WLEMMCommand::SPtr labp( new WLEMMCommand() );
+            labp->setCommand( WLEMMCommand::Command::COMPUTE );
+            labp->setEmm( emmPacket );
+            m_output->updateData( labp ); // update connected modules
 
             ++blockCount;
             infoLog() << "Streamed emmPacket #" << blockCount;
@@ -503,7 +498,10 @@ void WMEmMeasurement::generateData()
         emm->getTimeProfiler()->start();
         updateView( emm );
 
-        m_output->updateData( emm );
+        WLEMMCommand::SPtr labp = WLEMMCommand::SPtr( new WLEMMCommand() );
+        labp->setCommand( WLEMMCommand::Command::COMPUTE );
+        labp->setEmm( emm );
+        m_output->updateData( labp );
         debugLog() << "m_output->updateData() called!";
 
         debugLog() << "inserted block " << k + 1 << "/"
@@ -588,7 +586,7 @@ bool WMEmMeasurement::readElc( std::string fname )
     {
         elcReader = new LaBP::WLReaderELC( fname );
     }
-    catch( std::exception& e )
+    catch( const std::exception& e )
     {
         errorLog() << e.what();
         m_elcFileStatus->set( FILE_ERROR, true );
@@ -616,7 +614,6 @@ bool WMEmMeasurement::readElc( std::string fname )
         stream << "ELC labels: ";
         for( size_t i = 0; i < 5 && i < m_elcLabels->size(); ++i )
         {
-
             stream << m_elcLabels->at( i ) << " ";
         }
         debugLog() << stream.str();
@@ -626,7 +623,6 @@ bool WMEmMeasurement::readElc( std::string fname )
         stream << "ELC faces: ";
         for( size_t i = 0; i < 5 && i < m_elcFaces->size(); ++i )
         {
-
             stream << m_elcFaces->at( i ) << " ";
         }
         debugLog() << stream.str();
@@ -655,7 +651,7 @@ bool WMEmMeasurement::readDip( std::string fname )
     {
         reader = new LaBP::WLReaderDIP( fname );
     }
-    catch( std::exception& e )
+    catch( const std::exception& e )
     {
         errorLog() << e.what();
         m_dipFileStatus->set( FILE_ERROR, true );
@@ -683,7 +679,6 @@ bool WMEmMeasurement::readDip( std::string fname )
         stream << "DIP faces: ";
         for( size_t i = 0; i < 5 && i < m_dipSurface->getFaces().size(); ++i )
         {
-
             stream << m_dipSurface->getFaces().at( i ) << " ";
         }
         debugLog() << stream.str();
@@ -712,7 +707,7 @@ bool WMEmMeasurement::readVol( std::string fname )
     {
         reader = new LaBP::WLReaderVOL( fname );
     }
-    catch( std::exception& e )
+    catch( const std::exception& e )
     {
         errorLog() << e.what();
         m_volFileStatus->set( FILE_ERROR, true );
@@ -742,10 +737,9 @@ void WMEmMeasurement::setAdditionalInformation( LaBP::WLDataSetEMM::SPtr emm )
     if( m_isElcLoaded )
     {
         std::vector< LaBP::WLEMD::SPtr > modalities = emm->getModalityList();
-        for( std::vector< LaBP::WLEMD::SPtr >::iterator it = modalities.begin(); it != modalities.end();
-                        ++it )
+        for( std::vector< LaBP::WLEMD::SPtr >::iterator it = modalities.begin(); it != modalities.end(); ++it )
         {
-            ( *it )->setChanNames( m_elcLabels ); // TODO m_elcLabels are specific for each modality
+            ( *it )->setChanNames( m_elcLabels ); // TODO(pieloth) m_elcLabels are specific for each modality
             if( ( *it )->getModalityType() == LaBP::WEModalityType::EEG )
             {
                 LaBP::WLEMDEEG::SPtr eeg = ( *it )->getAs< LaBP::WLEMDEEG >();
@@ -796,7 +790,7 @@ void WMEmMeasurement::align()
             if( bemSkin )
             {
                 std::vector< WPosition > to = bemSkin->getVertex();
-                // TODO check unit!
+                // TODO(pieloth): check unit!
                 double error = m_regNaive.compute( *from, to );
                 infoLog() << WRegistrationNaive::CLASS << " error: " << error;
 
@@ -812,7 +806,6 @@ void WMEmMeasurement::align()
                 errorLog() << "No BEM skin layer found. Alignment is canceled!";
                 m_regError->set( -1.0, true );
             }
-
         }
         else
         {
@@ -851,6 +844,11 @@ void WMEmMeasurement::handleExperimentLoadChanged()
     {
         m_expLoadStatus->set( DATA_LOADED, true );
         m_isExpLoaded = true;
+
+        LaBP::WLDataSetEMM::SPtr emm( new LaBP::WLDataSetEMM( m_subject ) );
+        WLEMMCommand::SPtr labp( new WLEMMCommand( WLEMMCommand::Command::INIT ) );
+        labp->setEmm( emm );
+        m_output->updateData( labp );
     }
     else
     {

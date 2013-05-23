@@ -80,13 +80,13 @@ const std::string WMEpochAveraging::getDescription() const
 
 void WMEpochAveraging::connectors()
 {
-    m_input = boost::shared_ptr< LaBP::WLModuleInputDataRingBuffer< LaBP::WLDataSetEMM > >(
-                    new LaBP::WLModuleInputDataRingBuffer< LaBP::WLDataSetEMM >( 8, shared_from_this(), "in",
+    m_input = LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr(
+                    new LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >( 8, shared_from_this(), "in",
                                     "Expects a EMM-DataSet for filtering." ) );
     addConnector( m_input );
 
-    m_output = boost::shared_ptr< LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM > >(
-                    new LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM >( shared_from_this(), "out",
+    m_output = LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr(
+                    new LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >( shared_from_this(), "out",
                                     "Provides a filtered EMM-DataSet" ) );
     addConnector( m_output );
 }
@@ -158,9 +158,7 @@ void WMEpochAveraging::moduleMain()
     m_moduleState.add( m_input->getDataChangedCondition() ); // when inputdata changed
     m_moduleState.add( m_propCondition ); // when properties changed
 
-    LaBP::WLDataSetEMM::SPtr emmIn;
-    LaBP::WLDataSetEMM::SPtr emmOut;
-    double frequence;
+    WLEMMCommand::SPtr labpIn;
     LaBP::WLTimeProfiler::SPtr profiler( new LaBP::WLTimeProfiler( getName(), "process" ) );
     LaBP::WLTimeProfiler::SPtr profilerIn;
 
@@ -190,68 +188,17 @@ void WMEpochAveraging::moduleMain()
             handleResetAveragePressed();
         }
 
-        emmIn.reset();
+        labpIn.reset();
         if( !m_input->isEmpty() )
         {
-            emmIn = m_input->getData();
+            labpIn = m_input->getData();
         }
-        const bool dataValid = ( emmIn );
+        const bool dataValid = ( labpIn );
 
         // ---------- INPUTDATAUPDATEEVENT ----------
         if( dataValid ) // If there was an update on the inputconnector
         {
-            // The data is valid and we received an update. The data is not NULL but may be the same as in previous loops.
-            debugLog() << "received data";
-
-            if( emmIn->hasModality( this->getViewModality() ) )
-            {
-                frequence = emmIn->getModality( this->getViewModality() )->getSampFreq();
-                if( frequence != m_frequence )
-                {
-                    m_frequence = frequence;
-                    double samples = emmIn->getModality( this->getViewModality() )->getSamplesPerChan();
-                    this->setTimerange( samples / m_frequence );
-                }
-            }
-
-            profilerIn = emmIn->getTimeProfiler()->clone();
-            profilerIn->stop();
-            profiler->addChild( profilerIn );
-            if( !profiler->isStarted() )
-            {
-                profiler->start();
-            }
-
-            LaBP::WLTimeProfiler::SPtr avgProfiler = profiler->createAndAdd( WEpochAveraging::CLASS, "averaging" );
-            avgProfiler->start();
-            emmOut = m_averaging->getAverage( emmIn );
-            avgProfiler->stopAndLog();
-            const size_t count = m_averaging->getCount();
-            debugLog() << "Averaging count: " << count;
-            m_epochCount->set( count, true );
-
-#ifdef DEBUG
-            debugLog() << "Average pieces of first modality: ";
-            size_t channels = emmOut->getModality( 0 )->getData().size();
-            size_t samples = emmOut->getModality( 0 )->getData().front().size();
-            for( size_t i = 0; i < 5 && i < channels; ++i )
-            {
-                std::stringstream ss;
-                ss << "Channel " << i << ": ";
-                for( size_t j = 0; j < 10 && j < samples; ++j )
-                {
-                    ss << emmOut->getModality( 0 )->getData()[i][j] << " ";
-                }
-                debugLog() << ss.str();
-            }
-#endif // DEBUG
-            emmOut->getTimeProfiler()->addChild( profiler );
-            updateView( emmOut );
-            profiler->stopAndLog();
-
-            m_output->updateData( emmOut );
-
-            profiler.reset( new LaBP::WLTimeProfiler( getName(), "process" ) );
+            process( labpIn );
         }
     }
 }
@@ -276,6 +223,91 @@ void WMEpochAveraging::handleResetAveragePressed()
 {
     debugLog() << "handleResetAveragePressed() called!";
 
+    WLEMMCommand::SPtr labp( new WLEMMCommand( WLEMMCommand::Command::RESET ) );
+    processReset( labp );
+
+    m_resetAverage->set( WPVBaseTypes::PV_TRIGGER_READY, true );
+}
+
+bool WMEpochAveraging::processCompute( LaBP::WLDataSetEMM::SPtr emmIn )
+{
+    // TODO(pieloth): profiler
+    LaBP::WLDataSetEMM::SPtr emmOut;
+    double frequence;
+
+    // The data is valid and we received an update. The data is not NULL but may be the same as in previous loops.
+    debugLog() << "received data";
+
+    if( emmIn->hasModality( this->getViewModality() ) )
+    {
+        frequence = emmIn->getModality( this->getViewModality() )->getSampFreq();
+        if( frequence != m_frequence )
+        {
+            m_frequence = frequence;
+            double samples = emmIn->getModality( this->getViewModality() )->getSamplesPerChan();
+            this->setTimerange( samples / m_frequence );
+        }
+    }
+
+//    profilerIn = emmIn->getTimeProfiler()->clone();
+//    profilerIn->stop();
+//    profiler->addChild( profilerIn );
+//    if( !profiler->isStarted() )
+//    {
+//        profiler->start();
+//    }
+
+//    LaBP::WLTimeProfiler::SPtr avgProfiler = profiler->createAndAdd( WEpochAveraging::CLASS, "averaging" );
+//    avgProfiler->start();
+    emmOut = m_averaging->getAverage( emmIn );
+//    avgProfiler->stopAndLog();
+    const size_t count = m_averaging->getCount();
+    debugLog() << "Averaging count: " << count;
+    m_epochCount->set( count, true );
+
+#ifdef DEBUG
+    debugLog() << "Average pieces of first modality: ";
+    size_t channels = emmOut->getModality( 0 )->getData().size();
+    size_t samples = emmOut->getModality( 0 )->getData().front().size();
+    for( size_t i = 0; i < 5 && i < channels; ++i )
+    {
+        std::stringstream ss;
+        ss << "Channel " << i << ": ";
+        for( size_t j = 0; j < 10 && j < samples; ++j )
+        {
+            ss << emmOut->getModality( 0 )->getData()[i][j] << " ";
+        }
+        debugLog() << ss.str();
+    }
+#endif // DEBUG
+//    emmOut->getTimeProfiler()->addChild( profiler );
+    updateView( emmOut );
+//    profiler->stopAndLog();
+
+    WLEMMCommand::SPtr labp( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
+    labp->setEmm( emmOut );
+    m_output->updateData( labp );
+
+//    profiler.reset( new LaBP::WLTimeProfiler( getName(), "process" ) );
+    return true;
+}
+
+bool WMEpochAveraging::processInit( WLEMMCommand::SPtr labp )
+{
+    // TODO(pieloth)
+    m_output->updateData( labp );
+    return false;
+}
+
+bool WMEpochAveraging::processMisc( WLEMMCommand::SPtr labp )
+{
+    // TODO(pieloth)
+    m_output->updateData( labp );
+    return false;
+}
+
+bool WMEpochAveraging::processReset( WLEMMCommand::SPtr labp )
+{
     resetView();
     m_averaging->reset();
     m_epochCount->set( m_averaging->getCount(), true );
@@ -290,5 +322,6 @@ void WMEpochAveraging::handleResetAveragePressed()
         infoLog() << "Set moving average size to " << avgMov->getSize();
     }
 
-    m_resetAverage->set( WPVBaseTypes::PV_TRIGGER_READY, true );
+    m_output->updateData( labp );
+    return false;
 }

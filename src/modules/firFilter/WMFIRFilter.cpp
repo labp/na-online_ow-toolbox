@@ -45,7 +45,6 @@
 
 #include "core/util/WLTimeProfiler.h"
 
-
 // FIR filter implementations
 #include "WFIRFilter.h"
 #ifdef FOUND_CUDA
@@ -91,13 +90,13 @@ const std::string WMFIRFilter::getDescription() const
 void WMFIRFilter::connectors()
 {
     // TODO(pieloth) use OW classes
-    m_input = boost::shared_ptr< LaBP::WLModuleInputDataRingBuffer< LaBP::WLDataSetEMM > >(
-                    new LaBP::WLModuleInputDataRingBuffer< LaBP::WLDataSetEMM >( 8, shared_from_this(), "in",
+    m_input = LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr(
+                    new LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >( 8, shared_from_this(), "in",
                                     "Expects a EMM-DataSet for filtering." ) );
     addConnector( m_input );
 
-    m_output = boost::shared_ptr< LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM > >(
-                    new LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM >( shared_from_this(), "out",
+    m_output = LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr(
+                    new LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >( shared_from_this(), "out",
                                     "Provides a filtered EMM-DataSet" ) );
     addConnector( m_output );
 }
@@ -206,8 +205,7 @@ void WMFIRFilter::moduleMain()
     m_moduleState.add( m_input->getDataChangedCondition() ); // when inputdata changed
     m_moduleState.add( m_propCondition ); // when properties changed
 
-    LaBP::WLDataSetEMM::SPtr emmIn;
-    LaBP::WLDataSetEMM::SPtr emmOut;
+    WLEMMCommand::SPtr labpIn;
 
     ready(); // signal ready state
 
@@ -233,54 +231,17 @@ void WMFIRFilter::moduleMain()
             handleImplementationChanged();
         }
 
-        emmIn.reset();
+        labpIn.reset();
         if( !m_input->isEmpty() )
         {
-            emmIn = m_input->getData();
+            labpIn = m_input->getData();
         }
-        const bool dataValid = ( emmIn );
+        const bool dataValid = ( labpIn );
 
         // ---------- INPUTDATAUPDATEEVENT ----------
         if( dataValid ) // If there was an update on the inputconnector
         {
-            // The data is valid and we received an update. The data is not NULL but may be the same as in previous loops.
-            debugLog() << "Data received ...";
-            debugLog() << "EMM modalities: " << emmIn->getModalityCount();
-
-            LaBP::WLTimeProfiler::SPtr profiler = emmIn->createAndAddProfiler( getName(), "process" );
-            profiler->start();
-
-            // Create output data
-            emmOut.reset( new LaBP::WLDataSetEMM( *emmIn ) );
-
-            std::vector< LaBP::WLEMD::SPtr > emdsIn = emmIn->getModalityList();
-            for( std::vector< LaBP::WLEMD::SPtr >::const_iterator emdIn = emdsIn.begin(); emdIn != emdsIn.end();
-                            ++emdIn )
-            {
-                debugLog() << "EMD type: " << ( *emdIn )->getModalityType();
-
-#ifdef DEBUG
-                // Show some input pieces
-                const size_t nbChannels = ( *emdIn )->getNrChans();
-                debugLog() << "EMD channels: " << nbChannels;
-                const size_t nbSamlesPerChan = nbChannels > 0 ? ( *emdIn )->getSamplesPerChan() : 0;
-                debugLog() << "EMD samples per channel: " << nbSamlesPerChan;
-                debugLog() << "Input pieces:\n" << LaBP::WLEMD::dataToString( ( *emdIn )->getData(), 5, 10 );
-#endif // DEBUG
-                LaBP::WLEMD::SPtr emdOut = m_firFilter->filter( ( *emdIn ), profiler );
-                emmOut->addModality( emdOut );
-
-#ifdef DEBUG
-                // Show some filtered pieces
-                debugLog() << "Filtered pieces:\n" << LaBP::WLEMD::dataToString( emdOut->getData(), 5, 10 );
-#endif // DEBUG
-            }
-            m_firFilter->doPostProcessing( emmOut, emmIn, profiler );
-
-            updateView( emmOut );
-
-            profiler->stopAndLog();
-            m_output->updateData( emmOut );
+            process( labpIn );
         }
     }
 }
@@ -366,3 +327,72 @@ void WMFIRFilter::callbackFilterTypeChanged( void )
         m_cFreq2->setHidden( true );
     }
 }
+
+bool WMFIRFilter::processCompute( LaBP::WLDataSetEMM::SPtr emmIn )
+{
+    LaBP::WLDataSetEMM::SPtr emmOut;
+
+    // The data is valid and we received an update. The data is not NULL but may be the same as in previous loops.
+    debugLog() << "Data received ...";
+    debugLog() << "EMM modalities: " << emmIn->getModalityCount();
+
+    LaBP::WLTimeProfiler::SPtr profiler = emmIn->createAndAddProfiler( getName(), "process" );
+    profiler->start();
+
+    // Create output data
+    emmOut.reset( new LaBP::WLDataSetEMM( *emmIn ) );
+
+    std::vector< LaBP::WLEMD::SPtr > emdsIn = emmIn->getModalityList();
+    for( std::vector< LaBP::WLEMD::SPtr >::const_iterator emdIn = emdsIn.begin(); emdIn != emdsIn.end(); ++emdIn )
+    {
+        debugLog() << "EMD type: " << ( *emdIn )->getModalityType();
+
+#ifdef DEBUG
+        // Show some input pieces
+        const size_t nbChannels = ( *emdIn )->getNrChans();
+        debugLog() << "EMD channels: " << nbChannels;
+        const size_t nbSamlesPerChan = nbChannels > 0 ? ( *emdIn )->getSamplesPerChan() : 0;
+        debugLog() << "EMD samples per channel: " << nbSamlesPerChan;
+        debugLog() << "Input pieces:\n" << LaBP::WLEMD::dataToString( ( *emdIn )->getData(), 5, 10 );
+#endif // DEBUG
+        LaBP::WLEMD::SPtr emdOut = m_firFilter->filter( ( *emdIn ), profiler );
+        emmOut->addModality( emdOut );
+
+#ifdef DEBUG
+        // Show some filtered pieces
+        debugLog() << "Filtered pieces:\n" << LaBP::WLEMD::dataToString( emdOut->getData(), 5, 10 );
+#endif // DEBUG
+    }
+    m_firFilter->doPostProcessing( emmOut, emmIn, profiler );
+
+    updateView( emmOut );
+
+    profiler->stopAndLog();
+    WLEMMCommand::SPtr labp( new WLEMMCommand() );
+    labp->setCommand( WLEMMCommand::Command::COMPUTE );
+    labp->setEmm( emmOut );
+    m_output->updateData( labp );
+    return true;
+}
+
+bool WMFIRFilter::processInit( WLEMMCommand::SPtr labp )
+{
+    // TODO(pieloth)
+    m_output->updateData( labp );
+    return false;
+}
+
+bool WMFIRFilter::processMisc( WLEMMCommand::SPtr labp )
+{
+    // TODO(pieloth)
+    m_output->updateData( labp );
+    return true;
+}
+
+bool WMFIRFilter::processReset( WLEMMCommand::SPtr labp )
+{
+    // TODO(pieloth)
+    m_output->updateData( labp );
+    return false;
+}
+

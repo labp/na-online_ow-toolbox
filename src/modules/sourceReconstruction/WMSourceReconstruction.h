@@ -27,15 +27,15 @@
 
 #include <string>
 
-#include <boost/shared_ptr.hpp>
-
 #include <core/common/WItemSelection.h>
 #include <core/common/WPropertyTypes.h>
 #include <core/kernel/WModule.h>
 
+#include "core/data/WLEMMCommand.h"
 #include "core/data/WLDataSetEMM.h"
 #include "core/data/WLEMMEnumTypes.h"
 
+#include "core/module/WLEMMCommandProcessor.h"
 #include "core/module/WLModuleDrawable.h"
 // TODO(pieloth): use OW classes
 #include "core/module/WLModuleInputDataRingBuffer.h"
@@ -47,7 +47,7 @@
  * This module implements several onscreen status displays
  * \ingroup modules
  */
-class WMSourceReconstruction: public LaBP::WLModuleDrawable
+class WMSourceReconstruction: public LaBP::WLModuleDrawable, WLEMMCommandProcessor
 {
 public:
     /**
@@ -106,17 +106,25 @@ protected:
      */
     virtual const char** getXPMIcon() const;
 
+    // ----------------------------
+    // Methods from WLEMMCommandProcessor
+    // ----------------------------
+    virtual bool processCompute( LaBP::WLDataSetEMM::SPtr emm );
+    virtual bool processInit( WLEMMCommand::SPtr labp );
+    virtual bool processMisc( WLEMMCommand::SPtr labp );
+    virtual bool processReset( WLEMMCommand::SPtr labp );
+
 private:
     // TODO(pieloth): use OW classes
     /**
      * Input connector for a EMM dataset
      */
-    boost::shared_ptr< LaBP::WLModuleInputDataRingBuffer< LaBP::WLDataSetEMM > > m_input;
+    LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input;
 
     /**
      * Output connector for a EMM dataset
      */
-    boost::shared_ptr< LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM > > m_output;
+    LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output;
 
     /**
      * A condition used to notify about changes in several properties.
@@ -155,6 +163,8 @@ private:
     WPropInt m_inverseRows;
     WPropInt m_inverseCols;
     bool inverseSolutionFromSubject( LaBP::WLDataSetEMM::SPtr emm, LaBP::WEModalityType::Enum modality );
+
+    double m_range;
 
     // data and noise covariance matices //
     LaBP::MatrixSPtr m_nCovarianceMatrix;
