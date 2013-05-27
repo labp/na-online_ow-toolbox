@@ -27,7 +27,6 @@
 
 #include <string>
 #include <utility>  // pair.make_pair
-
 #include <boost/shared_ptr.hpp>
 
 #include <osg/Array>
@@ -59,6 +58,8 @@ namespace LaBP
          * Abbreviation for a const shared pointer on a instance of this class.
          */
         typedef boost::shared_ptr< const WLEMDDrawable2D > ConstSPtr;
+
+        typedef osg::Vec4Array WLColorArray;
 
         /**
          * Class name for logs.
@@ -164,9 +165,9 @@ namespace LaBP
         ValueT m_selectedPixel;
         bool m_selectedPixelChanged;
 
-        osg::ref_ptr< osg::Vec4Array > m_channelColors;
-        osg::ref_ptr< osg::Vec4Array > m_markerColors;
-        osg::ref_ptr< osg::Vec4Array > m_timeGridColors;
+        osg::ref_ptr< WLColorArray > m_channelColors;
+        osg::ref_ptr< WLColorArray > m_markerColors;
+        osg::ref_ptr< WLColorArray > m_gridColors;
     };
 
 } /* namespace LaBP */

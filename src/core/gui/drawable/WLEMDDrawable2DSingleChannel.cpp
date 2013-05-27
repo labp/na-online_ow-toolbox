@@ -132,7 +132,7 @@ namespace LaBP
             vertices->push_back( osg::Vec2( width, y_zero_pos ) );
 
             line->setVertexArray( vertices );
-            line->setColorArray( m_timeGridColors ); // TODO(pieloth): define color for grid
+            line->setColorArray( m_gridColors ); // TODO(pieloth): define color for grid
             line->setColorBinding( osg::Geometry::BIND_OVERALL );
             line->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINES, 0, vertices->size() ) );
 
@@ -149,7 +149,7 @@ namespace LaBP
             zeroText->setAxisAlignment( osgText::Text::SCREEN );
             zeroText->setCharacterSizeMode( osgText::Text::SCREEN_COORDS );
             zeroText->setCharacterSize( char_size );
-            zeroText->setColor( ( *m_timeGridColors )[0] );
+            zeroText->setColor( ( *m_gridColors )[0] );
             osg::ref_ptr< osg::Geode > zeroTextGeode = new osg::Geode;
             zeroTextGeode->addDrawable( zeroText );
             m_valueGridGroup->addChild( zeroTextGeode );
@@ -173,7 +173,7 @@ namespace LaBP
 
             osg::ref_ptr< osg::Geometry > vLinePos = new osg::Geometry;
             vLinePos->setVertexArray( vLinePosVec );
-            vLinePos->setColorArray( m_timeGridColors );
+            vLinePos->setColorArray( m_gridColors );
             vLinePos->setColorBinding( osg::Geometry::BIND_OVERALL );
             vLinePos->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINES, 0, vLinePosVec->size() ) );
 
@@ -186,7 +186,7 @@ namespace LaBP
             maxText->setAxisAlignment( osgText::Text::SCREEN );
             maxText->setCharacterSizeMode( osgText::Text::SCREEN_COORDS );
             maxText->setCharacterSize( char_size );
-            maxText->setColor( ( *m_timeGridColors )[0] );
+            maxText->setColor( ( *m_gridColors )[0] );
             osg::ref_ptr< osg::Geode > maxTextGeode = new osg::Geode;
             zeroTextGeode->addDrawable( maxText );
             m_valueGridGroup->addChild( maxTextGeode );
@@ -200,7 +200,7 @@ namespace LaBP
 
             osg::ref_ptr< osg::Geometry > vLineNeg = new osg::Geometry;
             vLineNeg->setVertexArray( vLineNegVec );
-            vLineNeg->setColorArray( m_timeGridColors );
+            vLineNeg->setColorArray( m_gridColors );
             vLineNeg->setColorBinding( osg::Geometry::BIND_OVERALL );
             vLineNeg->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINES, 0, vLineNegVec->size() ) );
 
@@ -213,7 +213,7 @@ namespace LaBP
             minText->setAxisAlignment( osgText::Text::SCREEN );
             minText->setCharacterSizeMode( osgText::Text::SCREEN_COORDS );
             minText->setCharacterSize( char_size );
-            minText->setColor( ( *m_timeGridColors )[0] );
+            minText->setColor( ( *m_gridColors )[0] );
             osg::ref_ptr< osg::Geode > minTextGeode = new osg::Geode;
             zeroTextGeode->addDrawable( minText );
             m_valueGridGroup->addChild( minTextGeode );

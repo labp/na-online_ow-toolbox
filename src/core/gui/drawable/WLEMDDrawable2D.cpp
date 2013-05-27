@@ -35,6 +35,7 @@
 #include <osgText/Text>
 
 #include <core/common/WAssert.h>
+#include <core/common/WColor.h>
 #include <core/gui/WCustomWidget.h>
 #include <core/graphicsEngine/WGEGroupNode.h>
 
@@ -63,12 +64,12 @@ namespace LaBP
         m_timeRangeChanged = true;
         m_amplitudeScale = 1.5e-9;
         m_amplitudeScaleChanged = true;
-        m_channelColors = new osg::Vec4Array;
-        m_channelColors->push_back( osg::Vec4( 0.0, 0.0, 0.0, 1.0 ) );
-        m_markerColors = new osg::Vec4Array;
-        m_markerColors->push_back( osg::Vec4( 0.75f, 0.0f, 0.0f, 1.0f ) );
-        m_timeGridColors = new osg::Vec4Array;
-        m_timeGridColors->push_back( osg::Vec4( 0.72f, 0.53f, 0.04f, 1.0f ) );
+        m_channelColors = new WLColorArray;
+        m_channelColors->push_back( defaultColor::BLACK );
+        m_markerColors = new WLColorArray;
+        m_markerColors->push_back( defaultColor::DARKRED );
+        m_gridColors = new WLColorArray;
+        m_gridColors->push_back( defaultColor::ORANGE );
         m_selectedPixel = -1;
         m_selectedPixelChanged = false;
         m_timeGridWidth = -1.0f;
@@ -182,7 +183,7 @@ namespace LaBP
                 vertices->push_back( osg::Vec2( xPos, height ) );
 
                 line->setVertexArray( vertices );
-                line->setColorArray( m_timeGridColors );
+                line->setColorArray( m_gridColors );
                 line->setColorBinding( osg::Geometry::BIND_OVERALL );
                 line->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINES, 0, vertices->size() ) );
 
@@ -206,8 +207,8 @@ namespace LaBP
             bgVertices->push_back( osg::Vec3( m_xOffset + 50, height, z ) );
             bgVertices->push_back( osg::Vec3( m_xOffset + 50, height - 16, z ) );
 
-            osg::ref_ptr< osg::Vec4Array > bgColors = new osg::Vec4Array;
-            bgColors->push_back( osg::Vec4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+            osg::ref_ptr< WLColorArray > bgColors = new WLColorArray;
+            bgColors->push_back( defaultColor::WHITE );
 
             osg::ref_ptr< osg::Geometry > background = new osg::Geometry;
             background->setVertexArray( bgVertices );
@@ -226,7 +227,7 @@ namespace LaBP
             text->setAxisAlignment( osgText::Text::SCREEN );
             text->setCharacterSizeMode( osgText::Text::SCREEN_COORDS );
             text->setCharacterSize( 16 );
-            text->setColor( ( *m_timeGridColors )[0] );
+            text->setColor( ( *m_gridColors )[0] );
             osg::ref_ptr< osg::Geode > textGeode = new osg::Geode;
             textGeode->addDrawable( text );
             m_timeGridGroup->addChild( textGeode );

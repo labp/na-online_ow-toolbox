@@ -147,8 +147,8 @@ namespace LaBP
             bgVertices->push_back( osg::Vec3( m_labelWidth, m_widget->height(), z ) );
             bgVertices->push_back( osg::Vec3( m_labelWidth, 0.0f, z ) );
 
-            osg::ref_ptr< osg::Vec4Array > bgColors = new osg::Vec4Array;
-            bgColors->push_back( osg::Vec4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+            osg::ref_ptr< WLColorArray > bgColors = new WLColorArray;
+            bgColors->push_back( defaultColor::WHITE );
 
             osg::ref_ptr< osg::Geometry > background = new osg::Geometry;
             background->setVertexArray( bgVertices );
@@ -169,7 +169,6 @@ namespace LaBP
             osg::ref_ptr< osg::Geode > labelGeode;
             osg::ref_ptr< osgText::Text > labelText;
             std::string labelName;
-            const osg::Vec4 labelColor( 0.0, 0.0, 0.0, 1.0 );
             const size_t channels_emd = emd->getNrChans();
             const size_t channels_count = maxChannels( emd );
             for( size_t channel = getChannelBegin( emd ), channelPos = 0; channelPos < channels_count && channel < channels_emd;
@@ -187,7 +186,7 @@ namespace LaBP
                 labelText->setAxisAlignment( osgText::Text::SCREEN );
                 labelText->setCharacterSizeMode( osgText::Text::SCREEN_COORDS );
                 labelText->setCharacterSize( m_labelWidth / 2 );
-                labelText->setColor( labelColor );
+                labelText->setColor( defaultColor::BLACK );
 
                 labelGeode = new osg::Geode;
                 labelGeode->addDrawable( labelText );
