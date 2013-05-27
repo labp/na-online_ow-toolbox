@@ -22,31 +22,35 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLEMMCOMMANDPROCESSOR_H_
-#define WLEMMCOMMANDPROCESSOR_H_
+#ifndef WLGUIMOUSEEVENTLISTENER_H_
+#define WLGUIMOUSEEVENTLISTENER_H_
 
-#include <string>
+#include <boost/shared_ptr.hpp>
 
-#include <core/kernel/WModule.h>
+class WLGUIMouseEvent;
 
-#include "core/data/WLEMMeasurement.h"
-#include "core/data/WLEMMCommand.h"
-
-class WLEMMCommandProcessor
+/**
+ * A listener for mouse events or receiver for mouse notifications aka observer pattern.
+ */
+class WLGUIMouseEventListener
 {
 public:
-    static const std::string CLASS;
+    /**
+     * Abbreviation for a shared pointer.
+     */
+    typedef boost::shared_ptr< WLGUIMouseEventListener > SPtr;
 
-    virtual ~WLEMMCommandProcessor();
+    /**
+     * Abbreviation for const shared pointer.
+     */
+    typedef boost::shared_ptr< const WLGUIMouseEventListener > ConstSPtr;
 
-    bool process( WLEMMCommand::SPtr labp );
+    virtual ~WLGUIMouseEventListener();
 
-protected:
-    virtual bool processCompute( WLEMMeasurement::SPtr emm ) = 0;
-    virtual bool processInit( WLEMMCommand::SPtr labp ) = 0;
-    virtual bool processMisc( WLEMMCommand::SPtr labp ) = 0;
-    virtual bool processTime( WLEMMCommand::SPtr labp ) = 0;
-    virtual bool processReset( WLEMMCommand::SPtr labp ) = 0;
+    /**
+     * Implementation of the action. Is called by a GUI element.
+     */
+    virtual void mouseEventOccurred( const WLGUIMouseEvent& e ) = 0;
 };
 
-#endif  // WLEMMCOMMANDPROCESSOR_H_
+#endif  // WLGUIMOUSEEVENTLISTENER_H_

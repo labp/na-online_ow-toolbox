@@ -33,7 +33,6 @@
 #include "core/module/WLEMMCommandProcessor.h"
 #include "core/module/WLModuleDrawable.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
-#include "core/module/WLModuleOutputDataCollectionable.h"
 
 #include "WEpochSeparation.h"
 
@@ -41,7 +40,7 @@
  * Module for epoch separation.
  * \ingroup modules
  */
-class WMEpochSeparation: public LaBP::WLModuleDrawable, WLEMMCommandProcessor
+class WMEpochSeparation: public LaBP::WLModuleDrawable
 {
 public:
     /**
@@ -105,7 +104,6 @@ protected:
     // ----------------------------
     virtual bool processCompute( WLEMMeasurement::SPtr emm );
     virtual bool processInit( WLEMMCommand::SPtr labp );
-    virtual bool processMisc( WLEMMCommand::SPtr labp );
     virtual bool processReset( WLEMMCommand::SPtr labp );
 
 private:
@@ -114,11 +112,6 @@ private:
      * Input connector for a EMM dataset
      */
     LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input;
-
-    /**
-     * Output connector for a EMM dataset
-     */
-    LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output;
 
     /**
      * A condition used to notify about changes in several properties.

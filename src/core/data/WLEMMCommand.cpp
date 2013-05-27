@@ -80,14 +80,14 @@ void WLEMMCommand::setCommand( Command::Enum command )
     m_command = command;
 }
 
-WLEMMCommand::MiscParamT WLEMMCommand::getMiscParam() const
+WLEMMCommand::MiscCommandT WLEMMCommand::getMiscCommand() const
 {
-    return m_miscParam;
+    return m_miscCommand;
 }
 
-void WLEMMCommand::setMiscParam( MiscParamT param )
+void WLEMMCommand::setMiscCommand( MiscCommandT param )
 {
-    m_miscParam = param;
+    m_miscCommand = param;
 }
 
 WLEMMeasurement::ConstSPtr WLEMMCommand::getEmm() const
@@ -108,4 +108,14 @@ void WLEMMCommand::setEmm( WLEMMeasurement::SPtr emm )
 bool WLEMMCommand::hasEmm() const
 {
     return m_emm;
+}
+
+const WLEMMCommand::ParamT& WLEMMCommand::getParameter() const
+{
+    return m_param;
+}
+
+void WLEMMCommand::setParameter( ParamT param )
+{
+    m_param = param;
 }

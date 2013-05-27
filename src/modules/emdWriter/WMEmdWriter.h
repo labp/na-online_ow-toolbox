@@ -38,7 +38,6 @@
 #include "core/data/emd/WLEMData.h"
 #include "core/module/WLModuleDrawable.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
-#include "core/module/WLModuleOutputDataCollectionable.h"
 
 /**
  * This module implements several onscreen status displays
@@ -72,6 +71,13 @@ public:
     virtual const std::string getDescription() const;
 
 protected:
+    // ---------------------------------
+    // Methods for WLEMMCommandProcessor
+    // ---------------------------------
+    virtual bool processCompute( WLEMMeasurement::SPtr emm );
+    virtual bool processInit( WLEMMCommand::SPtr labp );
+    virtual bool processReset( WLEMMCommand::SPtr labp );
+
     virtual void initModule();
 
     /**
@@ -108,11 +114,6 @@ private:
      * Input connector for a EMM dataset
      */
     LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input;
-
-    /**
-     * Output connector for a EMM dataset
-     */
-    LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output;
 
     /**
      * A condition used to notify about changes in several properties.

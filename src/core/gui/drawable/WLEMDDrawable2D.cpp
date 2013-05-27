@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <cmath>    // fabs
 #include <string>
 
 #include <osg/Array>
@@ -273,13 +274,28 @@ namespace LaBP
 
     bool WLEMDDrawable2D::setSelectedPixel( ValueT value )
     {
-        if( value != m_selectedPixel )
+        if( fabs( value - m_selectedPixel ) >= 1.0 )
         {
             m_selectedPixel = value;
             m_selectedPixelChanged = true;
             return true;
         }
         return false;
+    }
+
+    float WLEMDDrawable2D::getSelectedTime() const
+    {
+        return ( m_selectedPixel - m_xOffset ) / ( m_widget->width() - m_xOffset );
+    }
+
+    bool WLEMDDrawable2D::setSelectedTime( float relative )
+    {
+        if( relative < 0 )
+        {
+            return false;
+        }
+        const float pos = relative * ( m_widget->width() - m_xOffset ) + m_xOffset;
+        return setSelectedPixel( pos );
     }
 
     WLEMDDrawable2D::SPtr WLEMDDrawable2D::getInstance( WCustomWidget::SPtr widget, LaBP::WEModalityType::Enum modality,

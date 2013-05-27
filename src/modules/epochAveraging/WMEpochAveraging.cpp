@@ -297,13 +297,6 @@ bool WMEpochAveraging::processInit( WLEMMCommand::SPtr labp )
     return false;
 }
 
-bool WMEpochAveraging::processMisc( WLEMMCommand::SPtr labp )
-{
-    // TODO(pieloth)
-    m_output->updateData( labp );
-    return false;
-}
-
 bool WMEpochAveraging::processReset( WLEMMCommand::SPtr labp )
 {
     resetView();

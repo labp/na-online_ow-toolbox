@@ -22,31 +22,43 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLEMMCOMMANDPROCESSOR_H_
-#define WLEMMCOMMANDPROCESSOR_H_
+#include "WLGUIEvent.h"
 
-#include <string>
-
-#include <core/kernel/WModule.h>
-
-#include "core/data/WLEMMeasurement.h"
-#include "core/data/WLEMMCommand.h"
-
-class WLEMMCommandProcessor
+WLGUIEvent::WLGUIEvent( EventType::Enum eventType, const osgGA::GUIEventAdapter& ea ) :
+                m_eventType( eventType ), m_eventAdapter( ea )
 {
-public:
-    static const std::string CLASS;
+}
 
-    virtual ~WLEMMCommandProcessor();
+WLGUIEvent::~WLGUIEvent()
+{
+}
 
-    bool process( WLEMMCommand::SPtr labp );
+WLGUIEvent::EventType::Enum WLGUIEvent::getEventType() const
+{
+    return m_eventType;
+}
 
-protected:
-    virtual bool processCompute( WLEMMeasurement::SPtr emm ) = 0;
-    virtual bool processInit( WLEMMCommand::SPtr labp ) = 0;
-    virtual bool processMisc( WLEMMCommand::SPtr labp ) = 0;
-    virtual bool processTime( WLEMMCommand::SPtr labp ) = 0;
-    virtual bool processReset( WLEMMCommand::SPtr labp ) = 0;
-};
+void WLGUIEvent::setMiscType( MiscTypeT name )
+{
+    m_miscType = name;
+}
 
-#endif  // WLEMMCOMMANDPROCESSOR_H_
+WLGUIEvent::MiscTypeT WLGUIEvent::getMiscType() const
+{
+    return m_miscType;
+}
+
+const osgGA::GUIEventAdapter& WLGUIEvent::getOsgEventAdapter() const
+{
+    return m_eventAdapter;
+}
+
+const WLGUIEvent::ParamT& WLGUIEvent::getParameter() const
+{
+    return m_param;
+}
+
+void WLGUIEvent::setParameter( ParamT param )
+{
+    m_param = param;
+}

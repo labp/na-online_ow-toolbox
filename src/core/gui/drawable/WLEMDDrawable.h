@@ -25,7 +25,6 @@
 #ifndef WLEMDDRAWABLE_H_
 #define WLEMDDRAWABLE_H_
 
-#include <cstddef>
 #include <string>
 
 #include <boost/enable_shared_from_this.hpp>
@@ -36,11 +35,15 @@
 #include <osg/NodeCallback>
 #include <osg/NodeVisitor>
 #include <osg/ref_ptr>
+#include <osgGA/GUIEventHandler>
+#include <osgGA/GUIEventAdapter>
+#include <osgGA/GUIActionAdapter>
 
 #include <core/gui/WCustomWidget.h>
 
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMEnumTypes.h"
+#include "core/gui/events/WLGUIEventManager.h"
 
 namespace LaBP
 {
@@ -52,7 +55,9 @@ namespace LaBP
      * All functions which access and modify the OSG tree must have the prefix osg and must be called from osgNodeCallback()!
      * Otherwise OSG could produce a segmentation fault.
      */
-    class WLEMDDrawable: public boost::enable_shared_from_this< WLEMDDrawable >
+    class WLEMDDrawable: public boost::enable_shared_from_this< WLEMDDrawable >,
+                    public WLGUIEventManager,
+                    public osgGA::GUIEventHandler
     {
     public:
         /**
@@ -145,6 +150,10 @@ namespace LaBP
          */
         virtual WCustomWidget::SPtr getWidget() const;
 
+        virtual float getSelectedTime() const = 0;
+
+        virtual bool setSelectedTime( float relative ) = 0;
+
     protected:
         /**
          * Modifies and draws the scene graph.
@@ -199,7 +208,7 @@ namespace LaBP
              *
              * @param drawable Object to delegate the callback to.
              */
-            WLEMDDrawableCallbackDelegator( WLEMDDrawable* drawable );
+            explicit WLEMDDrawableCallbackDelegator( WLEMDDrawable* drawable );
 
             /**
              * Destructor.
@@ -225,6 +234,26 @@ namespace LaBP
          * Wrapper to register an instance of this class as a callback.
          */
         WLEMDDrawableCallbackDelegator* m_callbackDelegator;
+
+        /**
+         * Event delegator class to prevent double destructor call of WLGUIEventHandler.
+         */
+        class WLEMDDrawableEventHandlerDelegator: public osgGA::GUIEventHandler
+        {
+        public:
+            explicit WLEMDDrawableEventHandlerDelegator( WLGUIEventManager* handler );
+            virtual ~WLEMDDrawableEventHandlerDelegator();
+
+            virtual bool handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa );
+
+        private:
+            WLGUIEventManager* const m_handler;
+        };
+
+        /**
+         * This handler is registered to the viewer instead of this-pointer. Otherwise the destructor is called twice!
+         */
+        WLEMDDrawableEventHandlerDelegator* m_handlerDelegator;
     };
 } /* namespace LaBP */
 #endif  // WLEMDDRAWABLE_H_

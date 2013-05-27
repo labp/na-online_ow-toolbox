@@ -24,7 +24,7 @@
 
 #include <sstream>
 #include <string>
-
+#include <utility>  // for pair<>
 #include <boost/lexical_cast.hpp>
 
 #include <osg/Array>
@@ -33,6 +33,7 @@
 #include <osg/MatrixTransform>
 #include <osgText/Text>
 
+#include <core/common/WLogger.h>
 #include <core/gui/WCustomWidget.h>
 
 #include "core/data/WLEMMeasurement.h"
@@ -43,6 +44,8 @@
 
 namespace LaBP
 {
+    const std::string WLEMDDrawable2DSingleChannel::CLASS = "WLEMDDrawable2DSingleChannel";
+
     WLEMDDrawable2DSingleChannel::WLEMDDrawable2DSingleChannel( WCustomWidget::SPtr widget ) :
                     WLEMDDrawable2D( widget )
     {
@@ -90,7 +93,6 @@ namespace LaBP
         const WLEMData::DataT& emdData = emd->getData();
         const size_t channels_begin = 0;
         const size_t channels_count = maxChannels( emd );
-        wlog::debug( CLASS ) << "channels_count: " << channels_count;
         osg::ref_ptr< osg::Geode > channelGeode;
         for( size_t channel = channels_begin, channelPos = 0; channelPos < channels_count && channel < emd->getNrChans();
                         ++channel, ++channelPos )
@@ -130,7 +132,7 @@ namespace LaBP
             vertices->push_back( osg::Vec2( width, y_zero_pos ) );
 
             line->setVertexArray( vertices );
-            line->setColorArray( m_timeGridColors ); // TODO
+            line->setColorArray( m_timeGridColors ); // TODO(pieloth): define color for grid
             line->setColorBinding( osg::Geometry::BIND_OVERALL );
             line->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINES, 0, vertices->size() ) );
 

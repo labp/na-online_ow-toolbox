@@ -23,12 +23,16 @@
 //---------------------------------------------------------------------------
 
 #include <cmath>
+#include <list>
+#include <string>
+#include <utility>  // for pair<>
 
 #include <osgGA/Export>
 #include <osgGA/GUIEventHandler>
 #include <osgGA/GUIEventAdapter>
 #include <osgGA/GUIActionAdapter>
 
+#include <core/common/WLogger.h>
 #include <core/common/WRealtimeTimer.h>
 
 #include "core/data/emd/WLEMData.h"
@@ -86,9 +90,11 @@ namespace LaBP
                 if( emm->hasModality( modality ) )
                 {
                     const WLEMData* const emd = emm->getModality( modality ).get();
+#ifdef DEBUG
                     wlog::debug( CLASS ) << "osgNodeCallback() - samplesPerChan: " << emd->getSamplesPerChan();
                     wlog::debug( CLASS ) << "osgNodeCallback() - freq: " << emd->getSampFreq();
                     wlog::debug( CLASS ) << "osgNodeCallback() - secondsPerChan: " << emd->getLength();
+#endif // DEBUG
                     osgAddLabels( emd );
                 }
 

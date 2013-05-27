@@ -43,7 +43,7 @@
 
 namespace LaBP
 {
-    std::string WLEMDDrawable2DMultiChannel::CLASS = "WLEMDDrawable2DMultiChannel";
+    const std::string WLEMDDrawable2DMultiChannel::CLASS = "WLEMDDrawable2DMultiChannel";
 
     WLEMDDrawable2DMultiChannel::WLEMDDrawable2DMultiChannel( WCustomWidget::SPtr widget ) :
                     WLEMDDrawable2D( widget ), m_labelWidth( 32 )

@@ -22,8 +22,11 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLEMDDRAWABLE2DOVERLAYCHANNEL_H_
-#define WLEMDDRAWABLE2DOVERLAYCHANNEL_H_
+#ifndef WLEMDDRAWABLE2DSINGLECHANNEL_H
+#define WLEMDDRAWABLE2DSINGLECHANNEL_H
+
+#include <string>
+#include <utility>  // for pair<>
 
 #include <boost/shared_ptr.hpp>
 
@@ -49,6 +52,8 @@ namespace LaBP
          * Abbreviation for a const shared pointer on a instance of this class.
          */
         typedef boost::shared_ptr< const WLEMDDrawable2DSingleChannel > ConstSPtr;
+
+        static const std::string CLASS;
 
         explicit WLEMDDrawable2DSingleChannel( WCustomWidget::SPtr widget );
         virtual ~WLEMDDrawable2DSingleChannel();
@@ -85,4 +90,4 @@ namespace LaBP
     };
 
 } /* namespace LaBP */
-#endif  // WLEMDDRAWABLE2DOVERLAYCHANNEL_H_
+#endif  // WLEMDDRAWABLE2DSINGLECHANNEL_H

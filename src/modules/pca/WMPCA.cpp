@@ -216,3 +216,24 @@ void WMPCA::callbackProcessModalityChanged( void )
 {
     debugLog() << "handleProcessModalityChanged() called!";
 }
+
+bool WMPCA::processCompute( WLEMMeasurement::SPtr emm )
+{
+    // TODO(pieloth): use method for computation
+    WLEMMCommand::SPtr labp( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
+    labp->setEmm( emm );
+    m_output->updateData( labp );
+    return true;
+}
+
+bool WMPCA::processInit( WLEMMCommand::SPtr labp )
+{
+    m_output->updateData( labp );
+    return true;
+}
+
+bool WMPCA::processReset( WLEMMCommand::SPtr labp )
+{
+    m_output->updateData( labp );
+    return true;
+}

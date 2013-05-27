@@ -140,7 +140,7 @@ namespace LaBP
 
     void WLEMDDrawable3DEEG::osgUpdateSurfaceColor( const WLEMData::DataT& data )
     {
-        if( m_selectedSample >= 0 && ( m_dataChanged || m_colorMapChanged ) )
+        if( m_selectedSample >= 0 && ( m_selectedSampleChanged || m_dataChanged || m_colorMapChanged ) )
         {
             osg::ref_ptr< osg::FloatArray > texCoords =
                             static_cast< osg::FloatArray* >( m_surfaceGeometry->getTexCoordArray( 0 ) );

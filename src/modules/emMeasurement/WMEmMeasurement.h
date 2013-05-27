@@ -39,7 +39,6 @@
 #include "core/data/WLEMMBemBoundary.h"
 
 #include "core/module/WLModuleDrawable.h"
-#include "core/module/WLModuleOutputDataCollectionable.h"
 
 #include "algorithms/WRegistration.h"
 #include "algorithms/WRegistrationICP.h"
@@ -78,6 +77,13 @@ public:
     virtual const std::string getDescription() const;
 
 protected:
+    // ---------------------------------
+    // Methods for WLEMMCommandProcessor
+    // ---------------------------------
+    virtual bool processCompute( WLEMMeasurement::SPtr emm );
+    virtual bool processInit( WLEMMCommand::SPtr labp );
+    virtual bool processReset( WLEMMCommand::SPtr labp );
+
     virtual void initModule();
 
     /**
@@ -112,8 +118,6 @@ protected:
 private:
     //! a condition for the matrix selection
     boost::shared_ptr< WCondition > m_propCondition;
-
-    LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output;
 
     // FIFF file //
     void streamData();

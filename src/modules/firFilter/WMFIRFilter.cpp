@@ -378,13 +378,6 @@ bool WMFIRFilter::processInit( WLEMMCommand::SPtr labp )
     return false;
 }
 
-bool WMFIRFilter::processMisc( WLEMMCommand::SPtr labp )
-{
-    // TODO(pieloth)
-    m_output->updateData( labp );
-    return true;
-}
-
 bool WMFIRFilter::processReset( WLEMMCommand::SPtr labp )
 {
     // TODO(pieloth)

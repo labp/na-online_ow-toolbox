@@ -36,6 +36,7 @@
 #include <osg/Texture>
 #include <osgText/Text>
 
+#include <core/common/WLogger.h>
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 #include <core/dataHandler/exceptions/WDHException.h>
@@ -106,7 +107,6 @@ namespace LaBP
 
     void WLEMDDrawable3D::draw( WLEMMeasurement::SPtr emm )
     {
-
         m_emm = emm;
         m_dataChanged = true;
         redraw();
@@ -142,6 +142,37 @@ namespace LaBP
             return true;
         }
         return false;
+    }
+
+    float WLEMDDrawable3D::getSelectedTime() const
+    {
+        if( m_emm && m_emm->hasModality( m_modality ) )
+        {
+            const size_t size = m_emm->getModality( m_modality )->getSamplesPerChan();
+            return ( float )m_selectedSample / ( float )size;
+        }
+        else
+        {
+            return -1.0;
+        }
+    }
+
+    bool WLEMDDrawable3D::setSelectedTime( float relative )
+    {
+        if( relative < 0 )
+        {
+            return false;
+        }
+        if( m_emm && m_emm->hasModality( m_modality ) )
+        {
+            const float pos = relative * m_emm->getModality( m_modality )->getSamplesPerChan();
+            wlog::debug( CLASS ) << "setSelectedTime(): " << pos;
+            return setSelectedSample( pos );
+        }
+        else
+        {
+            return false;
+        }
     }
 
     LaBP::WLColorMap::SPtr WLEMDDrawable3D::getColorMap() const

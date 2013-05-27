@@ -25,20 +25,18 @@
 #ifndef WLEMDDRAWABLE2D_H_
 #define WLEMDDRAWABLE2D_H_
 
-#include <cstddef>
 #include <string>
+#include <utility>  // pair.make_pair
 
 #include <boost/shared_ptr.hpp>
 
 #include <osg/Array>
-#include <osg/Drawable>
 #include <osg/Geode>
 #include <osg/Group>
 #include <osg/ref_ptr>
 
 #include <core/gui/WCustomWidget.h>
 
-#include "core/util/WLRingBuffer.h"
 #include "core/data/emd/WLEMData.h"
 #include "core/data/WLEMMEnumTypes.h"
 
@@ -123,6 +121,10 @@ namespace LaBP
         virtual ValueT getSelectedPixel() const;
         virtual bool setSelectedPixel( ValueT value );
 
+        virtual float getSelectedTime() const;
+
+        virtual bool setSelectedTime( float relative );
+
         virtual std::pair< WLEMMeasurement::SPtr, size_t > getSelectedData( ValueT pixel ) const = 0;
 
     protected:
@@ -165,11 +167,6 @@ namespace LaBP
         osg::ref_ptr< osg::Vec4Array > m_channelColors;
         osg::ref_ptr< osg::Vec4Array > m_markerColors;
         osg::ref_ptr< osg::Vec4Array > m_timeGridColors;
-
-//    private:
-//        osg::ref_ptr< osg::Vec4Array > m_channelColors;
-//        osg::ref_ptr< osg::Vec4Array > m_markerColors;
-//        osg::ref_ptr< osg::Vec4Array > m_timeGridColors;
     };
 
 } /* namespace LaBP */

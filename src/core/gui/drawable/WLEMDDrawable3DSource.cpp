@@ -46,7 +46,7 @@ namespace LaBP
 
     void WLEMDDrawable3DSource::osgUpdateSurfaceColor( const MatrixT& data )
     {
-        if( m_selectedSample >= 0 && ( m_dataChanged || m_colorMapChanged ) )
+        if( m_selectedSample >= 0 && ( m_selectedSampleChanged || m_dataChanged || m_colorMapChanged ) )
         {
             float color;
             osg::ref_ptr< osg::FloatArray > texCoords =

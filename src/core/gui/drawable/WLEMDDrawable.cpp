@@ -25,14 +25,8 @@
 #include <string>
 
 #include <osg/Group>
-#include <osg/Node>
-#include <osg/NodeCallback>
-#include <osg/NodeVisitor>
 
-#include <core/gui/WCustomWidget.h>
-#include <core/graphicsEngine/WGEGroupNode.h> // Error: forward declaration
-#include "core/data/WLEMMeasurement.h"
-#include "core/data/WLEMMEnumTypes.h"
+#include <core/graphicsEngine/WGEGroupNode.h> // m_widget->getScene
 
 #include "WLEMDDrawable.h"
 
@@ -52,6 +46,9 @@ namespace LaBP
         m_rootGroup->addUpdateCallback( m_callbackDelegator );
         m_widget->getScene()->insert( m_rootGroup );
 
+        m_handlerDelegator = new WLEMDDrawableEventHandlerDelegator( this );
+        m_widget->getViewer()->getView()->addEventHandler( m_handlerDelegator );
+
         m_draw = false;
     }
 
@@ -59,6 +56,7 @@ namespace LaBP
     {
         m_rootGroup->removeUpdateCallback( m_callbackDelegator );
         m_widget->getScene()->remove( m_rootGroup );
+        m_widget->getViewer()->getView()->removeEventHandler( m_handlerDelegator );
     }
 
     void WLEMDDrawable::redraw()
@@ -111,6 +109,21 @@ namespace LaBP
     void WLEMDDrawable::WLEMDDrawableCallbackDelegator::operator()( osg::Node* node, osg::NodeVisitor* nv )
     {
         m_drawable->osgNodeCallback( nv );
+    }
+
+    WLEMDDrawable::WLEMDDrawableEventHandlerDelegator::WLEMDDrawableEventHandlerDelegator( WLGUIEventManager* handler ) :
+                    m_handler( handler )
+    {
+    }
+
+    WLEMDDrawable::WLEMDDrawableEventHandlerDelegator::~WLEMDDrawableEventHandlerDelegator()
+    {
+    }
+
+    bool WLEMDDrawable::WLEMDDrawableEventHandlerDelegator::handle( const osgGA::GUIEventAdapter& ea,
+                    osgGA::GUIActionAdapter& aa )
+    {
+        return m_handler->dispatchEvent( ea );
     }
 
 } /* namespace LaBP */

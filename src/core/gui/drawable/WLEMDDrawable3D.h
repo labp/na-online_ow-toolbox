@@ -100,7 +100,11 @@ namespace LaBP
         /**
          * Set selected sample/index to mark, draw or else.
          */
-        virtual bool setSelectedSample( ptrdiff_t pixel );
+        virtual bool setSelectedSample( ptrdiff_t pixe );
+
+        virtual float getSelectedTime() const;
+
+        virtual bool setSelectedTime( float relative );
 
         /**
          * Returns the color map for the surface.

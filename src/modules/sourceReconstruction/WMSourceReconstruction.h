@@ -39,7 +39,6 @@
 #include "core/module/WLModuleDrawable.h"
 // TODO(pieloth): use OW classes
 #include "core/module/WLModuleInputDataRingBuffer.h"
-#include "core/module/WLModuleOutputDataCollectionable.h"
 
 #include "WSourceReconstruction.h"
 
@@ -47,7 +46,7 @@
  * This module implements several onscreen status displays
  * \ingroup modules
  */
-class WMSourceReconstruction: public LaBP::WLModuleDrawable, WLEMMCommandProcessor
+class WMSourceReconstruction: public LaBP::WLModuleDrawable
 {
 public:
     /**
@@ -111,7 +110,6 @@ protected:
     // ----------------------------
     virtual bool processCompute( WLEMMeasurement::SPtr emm );
     virtual bool processInit( WLEMMCommand::SPtr labp );
-    virtual bool processMisc( WLEMMCommand::SPtr labp );
     virtual bool processReset( WLEMMCommand::SPtr labp );
 
 private:
@@ -120,11 +118,6 @@ private:
      * Input connector for a EMM dataset
      */
     LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input;
-
-    /**
-     * Output connector for a EMM dataset
-     */
-    LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output;
 
     /**
      * A condition used to notify about changes in several properties.

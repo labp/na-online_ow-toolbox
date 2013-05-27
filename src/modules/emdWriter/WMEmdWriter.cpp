@@ -308,3 +308,23 @@ std::string WMEmdWriter::getFileName( std::string folder, std::string prefix, st
     fname.append( suffix );
     return fname;
 }
+
+bool WMEmdWriter::processCompute( WLEMMeasurement::SPtr emm )
+{
+    WLEMMCommand::SPtr labp( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
+    labp->setEmm( emm );
+    m_output->updateData( labp );
+    return true;
+}
+
+bool WMEmdWriter::processInit( WLEMMCommand::SPtr labp )
+{
+    m_output->updateData( labp );
+    return true;
+}
+
+bool WMEmdWriter::processReset( WLEMMCommand::SPtr labp )
+{
+    m_output->updateData( labp );
+    return true;
+}

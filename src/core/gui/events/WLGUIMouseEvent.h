@@ -22,31 +22,52 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLEMMCOMMANDPROCESSOR_H_
-#define WLEMMCOMMANDPROCESSOR_H_
+#ifndef WLGUIMOUSEEVENT_H_
+#define WLGUIMOUSEEVENT_H_
 
 #include <string>
 
-#include <core/kernel/WModule.h>
+#include <boost/shared_ptr.hpp>
 
-#include "core/data/WLEMMeasurement.h"
-#include "core/data/WLEMMCommand.h"
+#include "WLGUIEvent.h"
 
-class WLEMMCommandProcessor
+/**
+ * Class for mouse event notifications.
+ */
+class WLGUIMouseEvent: public WLGUIEvent
 {
 public:
-    static const std::string CLASS;
+    /**
+     * Abbreviation for a shared pointer.
+     */
+    typedef boost::shared_ptr< WLGUIMouseEvent > SPtr;
 
-    virtual ~WLEMMCommandProcessor();
+    /**
+     * Abbreviation for const shared pointer.
+     */
+    typedef boost::shared_ptr< const WLGUIMouseEvent > ConstSPtr;
 
-    bool process( WLEMMCommand::SPtr labp );
+    struct Event
+    {
+        enum Enum
+        {
+            CLICK_LEFT, CLICK_MIDDLE, CLICK_CENTER, SCROLL_UP, SCROLL_DOWN, MISC
+        };
+    };
 
-protected:
-    virtual bool processCompute( WLEMMeasurement::SPtr emm ) = 0;
-    virtual bool processInit( WLEMMCommand::SPtr labp ) = 0;
-    virtual bool processMisc( WLEMMCommand::SPtr labp ) = 0;
-    virtual bool processTime( WLEMMCommand::SPtr labp ) = 0;
-    virtual bool processReset( WLEMMCommand::SPtr labp ) = 0;
+    WLGUIMouseEvent( Event::Enum event, const osgGA::GUIEventAdapter& ea );
+    virtual ~WLGUIMouseEvent();
+
+    Event::Enum getEvent() const;
+
+    void setMiscEvent( std::string miscEvent );
+
+    std::string getMiscEvent() const;
+
+private:
+    const Event::Enum m_event;
+
+    std::string m_miscEvent;
 };
 
-#endif  // WLEMMCOMMANDPROCESSOR_H_
+#endif  // WLGUIMOUSEEVENT_H_

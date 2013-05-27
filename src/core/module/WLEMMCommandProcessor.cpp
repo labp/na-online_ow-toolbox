@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include <core/common/WLogger.h>
 
 #include "WLEMMCommandProcessor.h"
@@ -48,6 +50,10 @@ bool WLEMMCommandProcessor::process( WLEMMCommand::SPtr labp )
         case WLEMMCommand::Command::MISC:
             wlog::debug( CLASS ) << "Processing Command::MISC";
             succes = processMisc( labp );
+            break;
+        case WLEMMCommand::Command::TIME_UPDATE:
+            wlog::debug( CLASS ) << "Processing Command::TIME_UPDATE";
+            succes = processTime( labp );
             break;
         case WLEMMCommand::Command::RESET:
             wlog::debug( CLASS ) << "Processing Command::RESET";

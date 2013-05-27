@@ -22,31 +22,30 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLEMMCOMMANDPROCESSOR_H_
-#define WLEMMCOMMANDPROCESSOR_H_
-
 #include <string>
 
-#include <core/kernel/WModule.h>
+#include "WLGUIMouseEvent.h"
 
-#include "core/data/WLEMMeasurement.h"
-#include "core/data/WLEMMCommand.h"
-
-class WLEMMCommandProcessor
+WLGUIMouseEvent::WLGUIMouseEvent( Event::Enum event, const osgGA::GUIEventAdapter& ea ) :
+                WLGUIEvent( WLGUIEvent::EventType::MOUSE, ea ), m_event( event )
 {
-public:
-    static const std::string CLASS;
+}
 
-    virtual ~WLEMMCommandProcessor();
+WLGUIMouseEvent::~WLGUIMouseEvent()
+{
+}
 
-    bool process( WLEMMCommand::SPtr labp );
+WLGUIMouseEvent::Event::Enum WLGUIMouseEvent::getEvent() const
+{
+    return m_event;
+}
 
-protected:
-    virtual bool processCompute( WLEMMeasurement::SPtr emm ) = 0;
-    virtual bool processInit( WLEMMCommand::SPtr labp ) = 0;
-    virtual bool processMisc( WLEMMCommand::SPtr labp ) = 0;
-    virtual bool processTime( WLEMMCommand::SPtr labp ) = 0;
-    virtual bool processReset( WLEMMCommand::SPtr labp ) = 0;
-};
+void WLGUIMouseEvent::setMiscEvent( std::string miscEvent )
+{
+    m_miscEvent = miscEvent;
+}
 
-#endif  // WLEMMCOMMANDPROCESSOR_H_
+std::string WLGUIMouseEvent::getMiscEvent() const
+{
+    return m_miscEvent;
+}

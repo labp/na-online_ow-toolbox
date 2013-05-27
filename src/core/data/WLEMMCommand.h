@@ -27,6 +27,7 @@
 
 #include <string>
 
+#include <boost/any.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include <core/dataHandler/WDataSet.h>
@@ -50,7 +51,15 @@ public:
      */
     typedef boost::shared_ptr< const WLEMMCommand > ConstSPtr;
 
-    typedef std::string MiscParamT;
+    /**
+     * Definition for the Command.MISC identifier.
+     */
+    typedef std::string MiscCommandT;
+
+    /**
+     * Definition for an optional Parameter.
+     */
+    typedef boost::any ParamT;
 
     struct Command
     {
@@ -62,6 +71,7 @@ public:
             COMPUTE, //!< Compute EMM data.
             INIT, //!< Initialize the module and algorithm.
             MISC, //!< Free for custom commands which can be used with MiscParam.
+            TIME_UPDATE, //!< Indicates a time point update in the view.
             RESET //!< Resets the module and algorithm.
         };
     };
@@ -98,7 +108,7 @@ public:
     static boost::shared_ptr< WPrototyped > getPrototype();
 
     // -------------------------
-    // Methods for WLDataSetLaBP
+    // Methods for WLEMMCommand
     // -------------------------
 
     /**
@@ -114,14 +124,14 @@ public:
     void setCommand( Command::Enum command );
 
     /**
-     * Gets the parameter for MISC command.
+     * Gets the identifier for MISC command.
      */
-    MiscParamT getMiscParam() const;
+    MiscCommandT getMiscCommand() const;
 
     /**
-     * Sets a parameter for MISC command.
+     * Sets a identifier for MISC command.
      */
-    void setMiscParam( MiscParamT param );
+    void setMiscCommand( MiscCommandT param );
 
     /**
      * Gets the EMM data object.
@@ -145,12 +155,46 @@ public:
      */
     bool hasEmm() const;
 
+    /**
+     * Gets the optional parameter.
+     */
+    const ParamT& getParameter() const;
+
+    /**
+     * Sets a optional generic parameter, like a union.
+     *
+     * \param param Parameter to set.
+     */
+    void setParameter( ParamT param );
+
+    /**
+     * Tries to cast a parameter to type T or throws an exception.
+     */
+    template< typename T >
+    static T castParameter( const ParamT& param );
+
+    /**
+     * Tries to cast the parameter to type T or throws an exception.
+     */
+    template< typename T >
+    T getParameterAs() const
+    {
+        return boost::any_cast< T >( m_param );
+    }
+
 private:
     Command::Enum m_command;
+    MiscCommandT m_miscCommand;
 
-    MiscParamT m_miscParam;
+    ParamT m_param;
 
     WLEMMeasurement::SPtr m_emm;
 };
+
+template< typename T >
+T WLEMMCommand::castParameter( const ParamT& param )
+{
+    return boost::any_cast< T >( param );
+}
 
 #endif  // WLEMMCOMMAND_H_

@@ -421,3 +421,23 @@ void WMMneRtClient::handleTrgConnectorChanged()
         infoLog() << "set connector: " << m_connectorSelection->get().at( 0 )->getName();
     }
 }
+
+bool WMMneRtClient::processCompute( WLEMMeasurement::SPtr emm )
+{
+    WLEMMCommand::SPtr labp( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
+    labp->setEmm( emm );
+    m_output->updateData( labp );
+    return true;
+}
+
+bool WMMneRtClient::processInit( WLEMMCommand::SPtr labp )
+{
+    m_output->updateData( labp );
+    return true;
+}
+
+bool WMMneRtClient::processReset( WLEMMCommand::SPtr labp )
+{
+    m_output->updateData( labp );
+    return true;
+}

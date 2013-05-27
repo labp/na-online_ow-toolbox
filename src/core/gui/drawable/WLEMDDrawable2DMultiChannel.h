@@ -26,6 +26,7 @@
 #define WLEMDDRAWABLE2DMULTICHANNEL_H_
 
 #include <string>
+#include <utility>  // for pair<>
 
 #include <boost/shared_ptr.hpp>
 
@@ -53,7 +54,7 @@ namespace LaBP
          */
         typedef boost::shared_ptr< const WLEMDDrawable2DMultiChannel > ConstSPtr;
 
-        static std::string CLASS;
+        static const std::string CLASS;
 
         explicit WLEMDDrawable2DMultiChannel( WCustomWidget::SPtr widget );
         virtual ~WLEMDDrawable2DMultiChannel();

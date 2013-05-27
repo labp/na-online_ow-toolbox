@@ -22,31 +22,29 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLEMMCOMMANDPROCESSOR_H_
-#define WLEMMCOMMANDPROCESSOR_H_
+#ifndef WLGUIEVENTLISTENER_H_
+#define WLGUIEVENTLISTENER_H_
 
-#include <string>
+#include <boost/shared_ptr.hpp>
 
-#include <core/kernel/WModule.h>
+class WLGUIEvent;
 
-#include "core/data/WLEMMeasurement.h"
-#include "core/data/WLEMMCommand.h"
-
-class WLEMMCommandProcessor
+class WLGUIEventListener
 {
 public:
-    static const std::string CLASS;
+    /**
+     * Abbreviation for a shared pointer.
+     */
+    typedef boost::shared_ptr< WLGUIEventListener > SPtr;
 
-    virtual ~WLEMMCommandProcessor();
+    /**
+     * Abbreviation for const shared pointer.
+     */
+    typedef boost::shared_ptr< const WLGUIEventListener > ConstSPtr;
 
-    bool process( WLEMMCommand::SPtr labp );
+    virtual ~WLGUIEventListener();
 
-protected:
-    virtual bool processCompute( WLEMMeasurement::SPtr emm ) = 0;
-    virtual bool processInit( WLEMMCommand::SPtr labp ) = 0;
-    virtual bool processMisc( WLEMMCommand::SPtr labp ) = 0;
-    virtual bool processTime( WLEMMCommand::SPtr labp ) = 0;
-    virtual bool processReset( WLEMMCommand::SPtr labp ) = 0;
+    virtual void eventOccurred( const WLGUIEvent& e ) = 0;
 };
 
-#endif  // WLEMMCOMMANDPROCESSOR_H_
+#endif  // WLGUIEVENTLISTENER_H_

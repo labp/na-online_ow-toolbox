@@ -912,6 +912,26 @@ void WMEmMeasurement::extractExpLoader( std::string fName )
     }
 }
 
+bool WMEmMeasurement::processCompute( WLEMMeasurement::SPtr emm )
+{
+    WLEMMCommand::SPtr labp( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
+    labp->setEmm( emm );
+    m_output->updateData( labp );
+    return true;
+}
+
+bool WMEmMeasurement::processInit( WLEMMCommand::SPtr labp )
+{
+    m_output->updateData( labp );
+    return true;
+}
+
+bool WMEmMeasurement::processReset( WLEMMCommand::SPtr labp )
+{
+    m_output->updateData( labp );
+    return true;
+}
+
 const std::string WMEmMeasurement::NO_DATA_LOADED = "No data loaded.";
 const std::string WMEmMeasurement::LOADING_DATA = "Loading data ...";
 const std::string WMEmMeasurement::DATA_LOADED = "Data successfully loaded.";

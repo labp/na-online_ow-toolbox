@@ -431,13 +431,6 @@ bool WMSourceReconstruction::processInit( WLEMMCommand::SPtr labp )
     return false;
 }
 
-bool WMSourceReconstruction::processMisc( WLEMMCommand::SPtr labp )
-{
-    // TODO(pieloth)
-    m_output->updateData( labp );
-    return false;
-}
-
 bool WMSourceReconstruction::processReset( WLEMMCommand::SPtr labp )
 {
     resetView();

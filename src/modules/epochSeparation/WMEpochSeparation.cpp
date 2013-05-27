@@ -239,13 +239,6 @@ bool WMEpochSeparation::processInit( WLEMMCommand::SPtr labp )
     return false;
 }
 
-bool WMEpochSeparation::processMisc( WLEMMCommand::SPtr labp )
-{
-    // TODO(pieloth)
-    m_output->updateData( labp );
-    return false;
-}
-
 bool WMEpochSeparation::processReset( WLEMMCommand::SPtr labp )
 {
     resetView();

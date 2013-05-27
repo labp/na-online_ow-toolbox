@@ -22,31 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLEMMCOMMANDPROCESSOR_H_
-#define WLEMMCOMMANDPROCESSOR_H_
+#include "WLGUIMouseEventListener.h"
 
-#include <string>
-
-#include <core/kernel/WModule.h>
-
-#include "core/data/WLEMMeasurement.h"
-#include "core/data/WLEMMCommand.h"
-
-class WLEMMCommandProcessor
+WLGUIMouseEventListener::~WLGUIMouseEventListener()
 {
-public:
-    static const std::string CLASS;
+}
 
-    virtual ~WLEMMCommandProcessor();
-
-    bool process( WLEMMCommand::SPtr labp );
-
-protected:
-    virtual bool processCompute( WLEMMeasurement::SPtr emm ) = 0;
-    virtual bool processInit( WLEMMCommand::SPtr labp ) = 0;
-    virtual bool processMisc( WLEMMCommand::SPtr labp ) = 0;
-    virtual bool processTime( WLEMMCommand::SPtr labp ) = 0;
-    virtual bool processReset( WLEMMCommand::SPtr labp ) = 0;
-};
-
-#endif  // WLEMMCOMMANDPROCESSOR_H_
