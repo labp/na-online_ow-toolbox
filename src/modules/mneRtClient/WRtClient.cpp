@@ -141,6 +141,12 @@ bool WRtClient::start()
 
     wlog::info( CLASS ) << "Prepare streaming.";
 
+    // Set buffer size
+    // TODO(pieloth): set variable block size.
+    wlog::debug( CLASS ) << "Set buffer size.";
+    ( *m_rtCmdClient )["bufsize"].pValues()[0] = QVariant( 500 );
+    ( *m_rtCmdClient )["bufsize"].send();
+
     // Request measurement information
     wlog::debug( CLASS ) << "Requesting measurement information.";
     ( *m_rtCmdClient )["measinfo"].pValues()[0] = QVariant( m_clientId );
@@ -148,19 +154,28 @@ bool WRtClient::start()
 
     wlog::debug( CLASS ) << "Read measurement information.";
     m_fiffInfo = m_rtDataClient->readInfo();
+    wlog::info( CLASS ) << "Measurement information received.";
 
     m_picksMeg = m_fiffInfo->pick_types( true, false, false );
     wlog::debug( CLASS ) << "picks meg: " << m_picksMeg.size();
-    wlog::debug( CLASS ) << "values: " << m_picksMeg[0] << ", " << m_picksMeg[1] << ", " << m_picksMeg[2] << " ...";
+    if( m_picksMeg.size() > 2 )
+    {
+        wlog::debug( CLASS ) << "values: " << m_picksMeg[0] << ", " << m_picksMeg[1] << ", " << m_picksMeg[2] << " ...";
+    }
 
     m_picksEeg = m_fiffInfo->pick_types( false, true, false );
-    wlog::debug( CLASS ) << "picks eeg: " << m_picksMeg.size();
-    wlog::debug( CLASS ) << "values: " << m_picksEeg[0] << ", " << m_picksEeg[1] << ", " << m_picksEeg[2] << " ...";
+    wlog::debug( CLASS ) << "picks eeg: " << m_picksEeg.size();
+    if( m_picksEeg.size() > 2 )
+    {
+        wlog::debug( CLASS ) << "values: " << m_picksEeg[0] << ", " << m_picksEeg[1] << ", " << m_picksEeg[2] << " ...";
+    }
 
     m_picksStim = m_fiffInfo->pick_types( false, false, true );
     wlog::debug( CLASS ) << "picks stim: " << m_picksStim.size();
-    wlog::debug( CLASS ) << "values: " << m_picksStim[0] << ", " << m_picksStim[1] << ", " << m_picksStim[2] << " ...";
-
+    if( m_picksStim.size() > 2 )
+    {
+        wlog::debug( CLASS ) << "values: " << m_picksStim[0] << ", " << m_picksStim[1] << ", " << m_picksStim[2] << " ...";
+    }
     readChannelNames();
     readChannelPositionsFaces();
 

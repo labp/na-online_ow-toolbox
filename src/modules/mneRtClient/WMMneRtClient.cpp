@@ -129,7 +129,7 @@ void WMMneRtClient::properties()
                     false );
 
 //    const std::string con_ip_address = "127.0.0.1";
-    const std::string con_ip_address = "141.57.41.164";
+    const std::string con_ip_address = "192.168.100.1";
     m_propConIp = m_propGrpConControl->addProperty( "IP:", "IP Address of MNE server.", con_ip_address );
     m_propConStatus = m_propGrpConControl->addProperty( "Connection status:", "Shows connection status.",
                     STATUS_CON_DISCONNECTED );
