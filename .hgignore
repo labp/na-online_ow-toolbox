@@ -47,13 +47,16 @@ syntax: regexp
 # user toolboxes are not versioned
 ^src/modules/modules-user.toolbox$
 
+# IDE settings
 syntax: glob
+nbproject
 .project
 .cproject
-syntax: regexp
-^Debug$
-syntax: glob
 .settings
 .csettings
+
+syntax: regexp
+^Debug$
+
 syntax: glob
 Release
