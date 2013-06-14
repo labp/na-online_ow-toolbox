@@ -73,7 +73,7 @@ public:
     virtual const std::string getDescription() const;
 
 protected:
-    virtual void initModule();
+    virtual void moduleInit();
 
     /**
      * \par Description

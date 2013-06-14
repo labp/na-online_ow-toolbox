@@ -159,7 +159,7 @@ void WMMneRtClient::properties()
     m_trgDataStop->setHidden( true );
 }
 
-void WMMneRtClient::initModule()
+void WMMneRtClient::moduleInit()
 {
     infoLog() << "Initializing module ...";
     waitRestored();
@@ -179,7 +179,7 @@ void WMMneRtClient::moduleMain()
 
     ready();
 
-    initModule();
+    moduleInit();
 
     while( !m_shutdownFlag() )
     {

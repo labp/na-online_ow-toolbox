@@ -78,7 +78,7 @@ protected:
     virtual bool processInit( WLEMMCommand::SPtr labp );
     virtual bool processReset( WLEMMCommand::SPtr labp );
 
-    virtual void initModule();
+    virtual void moduleInit();
 
     /**
      * \par Description

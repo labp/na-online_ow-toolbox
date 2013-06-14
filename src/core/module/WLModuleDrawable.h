@@ -104,7 +104,7 @@ namespace LaBP
         /**
          * Initializes the underlying algorithm with the values of WProperties. Called it after ready()!
          */
-        virtual void initModule() = 0;
+        virtual void moduleInit() = 0;
 
         /**
          * Add commentaries here:

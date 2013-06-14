@@ -71,7 +71,7 @@ protected:
     virtual bool processInit( WLEMMCommand::SPtr labp );
     virtual bool processReset( WLEMMCommand::SPtr labp );
 
-    virtual void initModule();
+    virtual void moduleInit();
 
     /**
      * Entry point after loading the module. Runs in separate thread.

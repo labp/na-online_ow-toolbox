@@ -129,7 +129,7 @@ void WMPCA::properties()
     WPropertyHelper::PC_NOTEMPTY::addTo( m_processModalitySelection );
 }
 
-void WMPCA::initModule()
+void WMPCA::moduleInit()
 {
     infoLog() << "Initializing module ...";
     waitRestored();
@@ -151,7 +151,7 @@ void WMPCA::moduleMain()
 
     ready(); // signal ready state
 
-    initModule();
+    moduleInit();
 
     debugLog() << "Entering main loop";
     while( !m_shutdownFlag() )

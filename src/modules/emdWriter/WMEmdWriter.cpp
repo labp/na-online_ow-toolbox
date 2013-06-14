@@ -133,7 +133,7 @@ void WMEmdWriter::properties()
     m_fSuffix = m_propGrpModule->addProperty( "File suffix:", "File suffix ...", suffix ); // TODO
 }
 
-void WMEmdWriter::initModule()
+void WMEmdWriter::moduleInit()
 {
     infoLog() << "Initializing module ...";
     waitRestored();
@@ -152,7 +152,7 @@ void WMEmdWriter::moduleMain()
 
     ready(); // signal ready state
 
-    initModule();
+    moduleInit();
 
     debugLog() << "Entering main loop";
 

@@ -177,7 +177,7 @@ void WMSourceReconstruction::properties()
     m_inverseCols->setPurpose( PV_PURPOSE_INFORMATION );
 }
 
-void WMSourceReconstruction::initModule()
+void WMSourceReconstruction::moduleInit()
 {
     infoLog() << "Initializing module ...";
     waitRestored();
@@ -199,7 +199,7 @@ void WMSourceReconstruction::moduleMain()
 
     ready(); // signal ready state
 
-    initModule();
+    moduleInit();
 
     debugLog() << "Entering main loop";
     while( !m_shutdownFlag() )

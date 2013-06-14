@@ -137,7 +137,7 @@ void WMEpochAveraging::properties()
     m_frequence = 1000;
 }
 
-void WMEpochAveraging::initModule()
+void WMEpochAveraging::moduleInit()
 {
     infoLog() << "Initializing module ...";
     waitRestored();
@@ -162,7 +162,7 @@ void WMEpochAveraging::moduleMain()
 
     ready(); // signal ready state
 
-    initModule();
+    moduleInit();
 
     debugLog() << "Entering main loop";
 

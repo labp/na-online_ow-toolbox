@@ -174,7 +174,7 @@ void WMFIRFilter::properties()
                     boost::bind( &WMFIRFilter::callbackDesignButtonPressed, this ) );
 }
 
-void WMFIRFilter::initModule()
+void WMFIRFilter::moduleInit()
 {
     infoLog() << "Initializing module ...";
 
@@ -205,7 +205,7 @@ void WMFIRFilter::moduleMain()
 
     ready(); // signal ready state
 
-    initModule();
+    moduleInit();
 
     debugLog() << "Entering main loop";
     while( !m_shutdownFlag() )

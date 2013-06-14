@@ -108,7 +108,7 @@ void WMEpochSeparation::properties()
     m_resetTrigger = m_propGrpTrigger->addProperty( "(Re)set", "(Re)set", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
 }
 
-void WMEpochSeparation::initModule()
+void WMEpochSeparation::moduleInit()
 {
     infoLog() << "Initializing module ...";
     waitRestored();
@@ -131,7 +131,7 @@ void WMEpochSeparation::moduleMain()
 
     ready(); // signal ready state
 
-    initModule();
+    moduleInit();
 
     debugLog() << "Entering main loop";
 

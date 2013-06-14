@@ -223,7 +223,7 @@ void WMEmMeasurement::properties()
     m_regError->setPurpose( PV_PURPOSE_INFORMATION );
 }
 
-void WMEmMeasurement::initModule()
+void WMEmMeasurement::moduleInit()
 {
     infoLog() << "Initializing module ...";
     waitRestored();
@@ -246,7 +246,7 @@ void WMEmMeasurement::moduleMain()
 
     ready();
 
-    initModule();
+    moduleInit();
 
     while( !m_shutdownFlag() )
     {
