@@ -29,11 +29,11 @@
 #include <boost/shared_ptr.hpp>
 
 #include <core/common/WProperties.h>
+#include <core/gui/WLEMDWidget.h>
 #include <core/kernel/WModule.h>
 
 #include "core/data/WLEMMCommand.h"
 #include "core/data/WLEMMeasurement.h"
-#include "core/gui/WLEMDWidget.h"
 #include "core/gui/colorMap/WLColorMap.h"
 #include "core/gui/drawable/WLEMDDrawable2D.h"
 #include "core/gui/drawable/WLEMDDrawable3D.h"
