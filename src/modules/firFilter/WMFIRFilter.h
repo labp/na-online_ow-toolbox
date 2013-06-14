@@ -110,7 +110,7 @@ protected:
 
 private:
     // GUI event handler
-    void callbackDesignButtonPressed();
+    void handleDesignButtonPressed();
     void callbackFilterTypeChanged();
     void callbackCoeffFileChanged();
     void handleImplementationChanged();

@@ -61,8 +61,6 @@ WFIRFilter::WFIRFilter( const char *pathToFcf )
 
 WFIRFilter::~WFIRFilter()
 {
-    //free( m_allPass );
-    //free( m_coeffArray );
 }
 
 WLEMData::SPtr WFIRFilter::filter( const WLEMData::ConstSPtr emdIn, LaBP::WLTimeProfiler::SPtr profiler )
@@ -284,10 +282,15 @@ std::vector< double > WFIRFilter::getCoefficients()
     return m_coeffitients;
 }
 
-void WFIRFilter::design()
+void WFIRFilter::reset()
 {
     m_prevData.clear();
     m_prevEvents.clear();
+}
+
+void WFIRFilter::design()
+{
+    this->reset();
 
     // prepare allPass for other filtertypes
     m_allPass.resize( m_order + 1, 0 );

@@ -171,7 +171,7 @@ void WMFIRFilter::properties()
 
     // button for starting design
     m_designTrigger = m_propGrpFirFilter->addProperty( "Filter:", "Calculate Filtercoeffitients", WPVBaseTypes::PV_TRIGGER_READY,
-                    boost::bind( &WMFIRFilter::callbackDesignButtonPressed, this ) );
+                    m_propCondition );
 }
 
 void WMFIRFilter::moduleInit()
@@ -227,6 +227,11 @@ void WMFIRFilter::moduleMain()
             handleImplementationChanged();
         }
 
+        if( m_designTrigger->changed( true ) )
+        {
+            handleDesignButtonPressed();
+        }
+
         labpIn.reset();
         if( !m_input->isEmpty() )
         {
@@ -280,16 +285,19 @@ void WMFIRFilter::handleImplementationChanged( void )
                         new WFIRFilterCpu( fType, wType, m_order->get(), m_samplingFreq->get(), m_cFreq1->get(),
                                         m_cFreq2->get() ) );
     }
+
+    WLEMMCommand::SPtr labp( new WLEMMCommand( WLEMMCommand::Command::RESET ) );
+    processReset( labp );
 }
 
-void WMFIRFilter::callbackDesignButtonPressed( void )
+void WMFIRFilter::handleDesignButtonPressed( void )
 {
     debugLog() << "handleDesignButtonPressed() called!";
-    if( m_designTrigger->get() == WPVBaseTypes::PV_TRIGGER_READY )
-    {
-        // suppress double execution
-        return;
-    }
+//    if( m_designTrigger->get() == WPVBaseTypes::PV_TRIGGER_READY )
+//    {
+//        // suppress double execution
+//        return;
+//    }
 
     m_firFilter->setFilterType(
                     m_filterTypeSelection->get().at( 0 )->getAs< WItemSelectionItemTyped< WFIRFilter::WEFilterType::Enum > >()->getValue() );
@@ -303,14 +311,17 @@ void WMFIRFilter::callbackDesignButtonPressed( void )
     m_firFilter->design();
 
     m_designTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, true );
-    m_designTrigger->changed( true );
+//    m_designTrigger->changed( true );
 
     infoLog() << "New filter designed!";
+
+    WLEMMCommand::SPtr labp( new WLEMMCommand( WLEMMCommand::Command::RESET ) );
+    processReset( labp );
 }
 
 void WMFIRFilter::callbackFilterTypeChanged( void )
 {
-    debugLog() << "handleFilterTypeChanged() called!";
+    debugLog() << "callbackFilterTypeChanged() called!";
     if( ( WFIRFilter::WEFilterType::name( WFIRFilter::WEFilterType::BANDPASS ).compare(
                     m_filterTypeSelection->get().at( 0 )->getName() ) == 0
                     || WFIRFilter::WEFilterType::name( WFIRFilter::WEFilterType::BANDSTOP ).compare(
@@ -373,15 +384,15 @@ bool WMFIRFilter::processCompute( WLEMMeasurement::SPtr emmIn )
 
 bool WMFIRFilter::processInit( WLEMMCommand::SPtr labp )
 {
-    // TODO(pieloth)
+    // Nothing to do
     m_output->updateData( labp );
-    return false;
+    return true;
 }
 
 bool WMFIRFilter::processReset( WLEMMCommand::SPtr labp )
 {
-    // TODO(pieloth)
+    m_firFilter->reset();
     m_output->updateData( labp );
-    return false;
+    return true;
 }
 

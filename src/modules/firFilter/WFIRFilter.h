@@ -103,6 +103,8 @@ public:
     void design( WEFilterType::Enum filtertype, WEWindowsType::Enum windowtype, size_t order, double sFreq, double cFreq1,
                     double cFreq2 );
 
+    void reset();
+
 protected:
     virtual void filter( WLEMData::DataT& out, const WLEMData::DataT& in,
                     const WLEMData::DataT& prev, LaBP::WLTimeProfiler::SPtr profiler ) = 0;
