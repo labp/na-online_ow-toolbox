@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <algorithm>    // std::max
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -153,17 +154,17 @@ void WMFIRFilter::properties()
     // the frequencies
     m_samplingFreq = m_propGrpFirFilter->addProperty( "Sampling Frequency",
                     "Samplingfrequency comes from data. Do only change this for down- or upsampling", 500.0 );
-    m_samplingFreq->setMin( 0.0 );
-    m_samplingFreq->setMax( 48000.0 );
+    m_samplingFreq->setMin( 1.0 );
+    m_samplingFreq->setMax( 16000.0 );
 
     m_cFreq1 = m_propGrpFirFilter->addProperty( "Cutoff frequency 1", "Frequency for filterdesign", 1.0 );
     m_cFreq1->setMin( 0.0 );
-    m_cFreq1->setMax( 48000.0 );
+    m_cFreq1->setMax( 2000.0 );
 
     m_cFreq2 = m_propGrpFirFilter->addProperty( "Cutoff frequency 2",
                     "Frequency for filterdesign. Second frequency is needed for bandpass and bandstop", 20.0 );
     m_cFreq2->setMin( 0.0 );
-    m_cFreq2->setMax( 48000.0 );
+    m_cFreq2->setMax( 2000.0 );
     m_cFreq2->setHidden( true );
 
     m_order = m_propGrpFirFilter->addProperty( "Order:", "The number of coeffitients depends on the order", 200 );
@@ -384,7 +385,46 @@ bool WMFIRFilter::processCompute( WLEMMeasurement::SPtr emmIn )
 
 bool WMFIRFilter::processInit( WLEMMCommand::SPtr labp )
 {
-    // Nothing to do
+    if( labp->hasEmm() )
+    {
+        WLEMMeasurement::ConstSPtr emm = labp->getEmm();
+        WLEMData::ConstSPtr emd;
+
+        float samplFreqEeg = 0.0;
+        if( emm->hasModality( LaBP::WEModalityType::EEG ) )
+        {
+            emd = emm->getModality( LaBP::WEModalityType::EEG );
+            samplFreqEeg = emd->getSampFreq();
+        }
+
+        float samplFreqMeg = 0.0;
+        if( emm->hasModality( LaBP::WEModalityType::MEG ) )
+        {
+            emd = emm->getModality( LaBP::WEModalityType::MEG );
+            samplFreqMeg = emd->getSampFreq();
+        }
+
+        float samplFreq = 0.0;
+        if( samplFreqEeg == samplFreqMeg && samplFreqEeg > 0.0 )
+        {
+            samplFreq = samplFreqEeg;
+        }
+        else
+            if( samplFreqEeg < 0.1 || samplFreqMeg < 0.1 )
+            {
+                samplFreq = std::max( samplFreqEeg, samplFreqMeg );
+            }
+        if( samplFreq > 0.0 )
+        {
+            infoLog() << "Init filter with new sampling rate: " << samplFreq;
+            m_samplingFreq->set( samplFreq, true );
+            handleDesignButtonPressed();
+        }
+        else
+        {
+            infoLog() << "No sampling rate to initialize!";
+        }
+    }
     m_output->updateData( labp );
     return true;
 }
