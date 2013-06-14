@@ -294,11 +294,6 @@ void WMFIRFilter::handleImplementationChanged( void )
 void WMFIRFilter::handleDesignButtonPressed( void )
 {
     debugLog() << "handleDesignButtonPressed() called!";
-//    if( m_designTrigger->get() == WPVBaseTypes::PV_TRIGGER_READY )
-//    {
-//        // suppress double execution
-//        return;
-//    }
 
     m_firFilter->setFilterType(
                     m_filterTypeSelection->get().at( 0 )->getAs< WItemSelectionItemTyped< WFIRFilter::WEFilterType::Enum > >()->getValue() );
@@ -308,11 +303,9 @@ void WMFIRFilter::handleDesignButtonPressed( void )
     m_firFilter->setSamplingFrequency( m_samplingFreq->get() );
     m_firFilter->setCutOffFrequency1( m_cFreq1->get() );
     m_firFilter->setCutOffFrequency2( m_cFreq2->get() );
-
     m_firFilter->design();
 
     m_designTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, true );
-//    m_designTrigger->changed( true );
 
     infoLog() << "New filter designed!";
 
