@@ -30,6 +30,7 @@
 #include "core/common/WLogger.h"
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMData.h"
+#include "core/util/WLTimeProfiler.h"
 
 #include "WEpochAveraging.h"
 
@@ -72,6 +73,7 @@ void WEpochAveraging::setTBase( size_t tbase, bool reset )
 
 WLEMMeasurement::SPtr WEpochAveraging::baseline( WLEMMeasurement::ConstSPtr emm )
 {
+    LaBP::WLTimeProfiler tp(CLASS, "baseline");
     WLEMData::ConstSPtr emd;
 
     WLEMMeasurement::SPtr emmOut = emm->clone();

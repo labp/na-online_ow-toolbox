@@ -31,6 +31,7 @@
 
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMData.h"
+#include "core/util/WLTimeProfiler.h"
 
 #include "WEpochAveraging.h"
 #include "WEpochAveragingTotal.h"
@@ -48,8 +49,7 @@ WEpochAveragingTotal::~WEpochAveragingTotal()
 
 WLEMMeasurement::SPtr WEpochAveragingTotal::getAverage( WLEMMeasurement::ConstSPtr emm )
 {
-    LaBP::WLTimeProfiler time( CLASS, "average" );
-    time.start();
+    LaBP::WLTimeProfiler tp( CLASS, "getAverage" );
 
     emm = WEpochAveraging::baseline( emm );
 
@@ -58,6 +58,7 @@ WLEMMeasurement::SPtr WEpochAveragingTotal::getAverage( WLEMMeasurement::ConstSP
 
     // Create output emm and divide data by count
     WLEMMeasurement::SPtr emmOut( new WLEMMeasurement( *m_emmSum ) );
+    // TODO(pieloth): new profiler
     LaBP::WLTimeProfiler::SPtr profiler( new LaBP::WLTimeProfiler( CLASS, "lifetime" ) );
     profiler->start();
     emmOut->setTimeProfiler( profiler );
@@ -83,12 +84,12 @@ WLEMMeasurement::SPtr WEpochAveragingTotal::getAverage( WLEMMeasurement::ConstSP
         emmOut->addModality( emdOut );
     }
 
-    time.stopAndLog();
     return emmOut;
 }
 
 void WEpochAveragingTotal::addEmmSum( const WLEMMeasurement::ConstSPtr emm )
 {
+    LaBP::WLTimeProfiler tp(CLASS, "addEmmSum");
     ++m_count;
     WLEMData::ConstSPtr emdIn;
     WLEMData::SPtr emdSum;

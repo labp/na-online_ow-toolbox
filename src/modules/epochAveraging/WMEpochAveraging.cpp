@@ -157,8 +157,6 @@ void WMEpochAveraging::moduleMain()
     m_moduleState.add( m_propCondition ); // when properties changed
 
     WLEMMCommand::SPtr labpIn;
-    LaBP::WLTimeProfiler::SPtr profiler( new LaBP::WLTimeProfiler( getName(), "process" ) );
-    LaBP::WLTimeProfiler::SPtr profilerIn;
 
     ready(); // signal ready state
 
@@ -229,7 +227,7 @@ void WMEpochAveraging::handleResetAveragePressed()
 
 bool WMEpochAveraging::processCompute( WLEMMeasurement::SPtr emmIn )
 {
-    // TODO(pieloth): profiler
+    LaBP::WLTimeProfiler tp("WMEpochAveraging", "processCompute");
     WLEMMeasurement::SPtr emmOut;
     double frequence;
 
@@ -247,18 +245,8 @@ bool WMEpochAveraging::processCompute( WLEMMeasurement::SPtr emmIn )
         }
     }
 
-//    profilerIn = emmIn->getTimeProfiler()->clone();
-//    profilerIn->stop();
-//    profiler->addChild( profilerIn );
-//    if( !profiler->isStarted() )
-//    {
-//        profiler->start();
-//    }
-
-//    LaBP::WLTimeProfiler::SPtr avgProfiler = profiler->createAndAdd( WEpochAveraging::CLASS, "averaging" );
-//    avgProfiler->start();
     emmOut = m_averaging->getAverage( emmIn );
-//    avgProfiler->stopAndLog();
+
     const size_t count = m_averaging->getCount();
     debugLog() << "Averaging count: " << count;
     m_epochCount->set( count, true );
@@ -278,15 +266,12 @@ bool WMEpochAveraging::processCompute( WLEMMeasurement::SPtr emmIn )
         debugLog() << ss.str();
     }
 #endif // DEBUG
-//    emmOut->getTimeProfiler()->addChild( profiler );
     updateView( emmOut );
-//    profiler->stopAndLog();
 
     WLEMMCommand::SPtr labp( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
     labp->setEmm( emmOut );
     m_output->updateData( labp );
 
-//    profiler.reset( new LaBP::WLTimeProfiler( getName(), "process" ) );
     return true;
 }
 
