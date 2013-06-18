@@ -28,12 +28,24 @@
 #include <ostream>
 #include <string>
 
+#include <boost/shared_ptr.hpp>
+
 /**
  * Base class for profiler measurements.
  */
 class WLProfiler
 {
 public:
+    /**
+     * Abbreviation for a shared pointer.
+     */
+    typedef boost::shared_ptr< WLProfiler > SPtr;
+
+    /**
+     * Abbreviation for const shared pointer.
+     */
+    typedef boost::shared_ptr< const WLProfiler > ConstSPtr;
+
     /**
      * Constructor.
      *
