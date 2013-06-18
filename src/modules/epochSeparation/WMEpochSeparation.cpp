@@ -127,7 +127,6 @@ void WMEpochSeparation::moduleMain()
     m_moduleState.add( m_propCondition ); // when properties changed
 
     WLEMMCommand::SPtr labpIn;
-    LaBP::WLTimeProfiler::SPtr profiler( new LaBP::WLTimeProfiler( getName(), "process" ) );
 
     ready(); // signal ready state
 
@@ -184,10 +183,9 @@ void WMEpochSeparation::handleResetTriggerPressed()
 
 bool WMEpochSeparation::processCompute( WLEMMeasurement::SPtr emmIn )
 {
-    // TODO(pieloth): profiler
+    LaBP::WLTimeProfiler tp( "WMEpochSeparation", "processCompute" );
 
     WLEMMeasurement::SPtr emmOut;
-//    LaBP::WLTimeProfiler::SPtr profilerIn;
     double frequence;
     // The data is valid and we received an update. The data is not NULL but may be the same as in previous loops.
     debugLog() << "received data";
@@ -203,31 +201,22 @@ bool WMEpochSeparation::processCompute( WLEMMeasurement::SPtr emmIn )
         }
     }
 
-//    profilerIn = emmIn->getTimeProfiler()->clone();
-//    profilerIn->stop();
-//    profiler->addChild( profilerIn );
-//    if( !profiler->isStarted() )
-//    {
-//        profiler->start();
-//    }
-
-//    LaBP::WLTimeProfiler::SPtr trgProfiler = profiler->createAndAdd( WEpochSeparation::CLASS, "extract" );
-//    trgProfiler->start();
     m_separation->extract( emmIn );
-//    trgProfiler->stopAndLog();
 
     while( m_separation->hasEpochs() )
     {
         emmOut = m_separation->getNextEpoch();
-        //emmOut->getTimeProfiler()->addChild( profiler );
-        updateView( emmOut );
-        //profiler->stopAndLog();
+        // Only update the view for the last epoch.
 
         WLEMMCommand::SPtr labp( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
         labp->setEmm( emmOut );
         m_output->updateData( labp );
+    }
 
-        //profiler.reset( new LaBP::WLTimeProfiler( getName(), "process" ) );
+    // Because updates are to fast to recognize changes, update the last EMM only.
+    if( emmOut )
+    {
+        updateView( emmOut );
     }
     return true;
 }
