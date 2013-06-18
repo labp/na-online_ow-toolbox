@@ -40,16 +40,15 @@ namespace LaBP
     const double WLTimeProfiler::NO_TIME = -1.0;
 
     WLTimeProfiler::WLTimeProfiler( string clazz, string action ) :
-                    m_class( clazz ), m_action( action ), m_isStarted( false ), m_isStopped( false ), m_start( 0 ), m_stop( 0 )
+                    WLProfiler( clazz, action ), m_isStarted( false ), m_isStopped( false ), m_start( 0 ), m_stop( 0 )
     {
         m_timer.reset( new WRealtimeTimer );
+        this->start();
     }
 
-    WLTimeProfiler::WLTimeProfiler( const WLTimeProfiler& profiler )
+    WLTimeProfiler::WLTimeProfiler( const WLTimeProfiler& profiler ) :
+                    WLProfiler( profiler.m_source, profiler.m_action )
     {
-        m_class = profiler.m_class;
-        m_action = profiler.m_action;
-
         m_start = profiler.m_start;
         m_isStarted = profiler.m_isStarted;
 
@@ -65,9 +64,19 @@ namespace LaBP
     {
     }
 
+    std::ostream& WLTimeProfiler::write( std::ostream& strm ) const
+    {
+        return strm << m_source << "::" << m_action << ": " << getMilliseconds() << " ms";
+    }
+
+    std::string WLTimeProfiler::getName() const
+    {
+        return WLTimeProfiler::CLASS;
+    }
+
     string WLTimeProfiler::getClass() const
     {
-        return m_class;
+        return getSource();
     }
 
     void WLTimeProfiler::addChild( WLTimeProfiler::SPtr profiler )
@@ -145,7 +154,7 @@ namespace LaBP
 
     void WLTimeProfiler::log()
     {
-        wlog::info( WLTimeProfiler::CLASS ) << m_class << "::" << m_action << ": " << getMilliseconds() << " ms";
+        wlog::info( WLTimeProfiler::CLASS ) << m_source << "::" << m_action << ": " << getMilliseconds() << " ms";
     }
 
     void WLTimeProfiler::stopAndLog()

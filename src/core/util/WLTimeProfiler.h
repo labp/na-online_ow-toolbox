@@ -32,6 +32,8 @@
 
 #include <core/common/WTimer.h>
 
+#include "WLProfiler.h"
+
 using std::string;
 using std::list;
 
@@ -40,7 +42,7 @@ namespace LaBP
     /**
      * Explicit time measurement with start and stop method. An instance relates to a class and an action.
      */
-    class WLTimeProfiler
+    class WLTimeProfiler : public WLProfiler
     {
     public:
         /**
@@ -70,6 +72,10 @@ namespace LaBP
         WLTimeProfiler( const WLTimeProfiler& profiler );
 
         virtual ~WLTimeProfiler();
+
+        virtual std::ostream& write( std::ostream& strm ) const;
+
+        virtual std::string getName() const;
 
         /**
          * Returns the class.
@@ -184,9 +190,6 @@ namespace LaBP
         list< WLTimeProfiler::SPtr > m_profilers;
 
         WTimer::SPtr m_timer;
-
-        string m_class;
-        string m_action;
 
         TimeT m_start;
         bool m_isStarted;
