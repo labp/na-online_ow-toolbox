@@ -37,7 +37,7 @@
 #include "core/data/WLMatrixTypes.h"
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDSource.h"
-
+#include "core/util/WLProfilerLogger.h"
 #include "core/util/WLTimeProfiler.h"
 
 #include "WSourceReconstructionCuda.h"
@@ -75,8 +75,7 @@ bool WSourceReconstructionCuda::calculateInverseSolution( const LaBP::MatrixT& n
     return m_inverseChanged;
 }
 
-WLEMDSource::SPtr WSourceReconstructionCuda::reconstruct( WLEMData::ConstSPtr emd,
-                LaBP::WLTimeProfiler::SPtr profiler )
+WLEMDSource::SPtr WSourceReconstructionCuda::reconstruct( WLEMData::ConstSPtr emd )
 {
     wlog::debug( CLASS ) << "reconstruct() called!";
     if( !m_inverse )
@@ -85,8 +84,7 @@ WLEMDSource::SPtr WSourceReconstructionCuda::reconstruct( WLEMData::ConstSPtr em
         wlog::error( CLASS ) << "No inverse matrix set!";
     }
 
-    LaBP::WLTimeProfiler::SPtr allProfiler( new LaBP::WLTimeProfiler( CLASS, "reconstruct_all" ) );
-    allProfiler->start();
+    LaBP::WLTimeProfiler tp( CLASS, "reconstruct" );
 
     float elapsedTime;
     cudaEvent_t startCalc, stopCalc; // computation time
@@ -108,15 +106,12 @@ WLEMDSource::SPtr WSourceReconstructionCuda::reconstruct( WLEMData::ConstSPtr em
         wlog::error( CLASS ) << "Could not allocate memory for EMD data!";
     }
 
-    LaBP::WLTimeProfiler::SPtr avgProfiler( new LaBP::WLTimeProfiler( CLASS, "reconstruct_avgRef" ) );
-    avgProfiler->start();
     WLEMData::DataT emdData;
     WSourceReconstruction::averageReference( emdData, emd->getData() );
-    avgProfiler->stopAndLog();
 
     // convert from row-major order to column-major order
-    LaBP::WLTimeProfiler::SPtr toMatProfiler( new LaBP::WLTimeProfiler( CLASS, "reconstruct_toMat" ) );
-    toMatProfiler->start();
+    LaBP::WLTimeProfiler prfToMatrix( CLASS, "reconstruct_toMat", false );
+    prfToMatrix.start();
     size_t i = 0;
     for( size_t col = 0; col != COLS_B; ++col )
     {
@@ -126,7 +121,8 @@ WLEMDSource::SPtr WSourceReconstructionCuda::reconstruct( WLEMData::ConstSPtr em
             B_host[i++] = emdData[row][col];
         }
     }
-    toMatProfiler->stopAndLog();
+    prfToMatrix.stop();
+    wlprofiler::log() << prfToMatrix;
 
     const size_t ROWS_C = ROWS_A;
     const size_t COLS_C = COLS_B;
@@ -175,14 +171,15 @@ WLEMDSource::SPtr WSourceReconstructionCuda::reconstruct( WLEMData::ConstSPtr em
     cudaEventRecord( stopCalc, 0 );
     cudaEventSynchronize( stopCalc );
     cudaEventElapsedTime( &elapsedTime, startCalc, stopCalc );
-    LaBP::WLTimeProfiler::SPtr matMulProfiler( new LaBP::WLTimeProfiler( CLASS, "reconstruct_matMul" ) );
-    matMulProfiler->setMilliseconds( elapsedTime );
-    matMulProfiler->log();
+    LaBP::WLTimeProfiler prfMatMul( CLASS, "reconstruct_matMul", false );
+    prfMatMul.setMilliseconds( elapsedTime );
+    wlprofiler::log() << prfMatMul;
 
-    LaBP::WLTimeProfiler::SPtr cpOutProfiler( new LaBP::WLTimeProfiler( CLASS, "reconstruct_copyOut" ) );
-    cpOutProfiler->start();
+    LaBP::WLTimeProfiler prfCopyOut( CLASS, "reconstruct_copyOut", false );
+    prfCopyOut.start();
     CublasSafeCall( cublasGetMatrix( ROWS_C, COLS_C, sizeof( LaBP::MatrixElementT ), C_dev, ROWS_C, C_host, ROWS_C ) );
-    cpOutProfiler->stopAndLog();
+    prfCopyOut.stop();
+    wlprofiler::log() << prfCopyOut;
 
     CublasSafeCall( cublasFree( B_dev ) );
     CublasSafeCall( cublasFree( C_dev ) );
@@ -199,16 +196,6 @@ WLEMDSource::SPtr WSourceReconstructionCuda::reconstruct( WLEMData::ConstSPtr em
     // const LaBP::WDataSetEMMSource::SPtr emdOut = WSourceReconstruction::createEMDSource( emd, S );
     const WLEMDSource::SPtr emdOut( new WLEMDSource( *emd ) ); // = WSourceReconstruction::createEMDSource( emd, S );
     emdOut->setMatrix( S );
-
-    if( profiler )
-    {
-        allProfiler->stopAndLog();
-        profiler->addChild( allProfiler );
-        profiler->addChild( avgProfiler );
-        profiler->addChild( toMatProfiler );
-        profiler->addChild( matMulProfiler );
-        profiler->addChild( cpOutProfiler );
-    }
 
     return emdOut;
 }

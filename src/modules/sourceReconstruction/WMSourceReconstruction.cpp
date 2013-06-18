@@ -373,12 +373,12 @@ bool WMSourceReconstruction::inverseSolutionFromSubject( WLEMMeasurement::SPtr e
 
 bool WMSourceReconstruction::processCompute( WLEMMeasurement::SPtr emmIn )
 {
+    LaBP::WLTimeProfiler tp("WMSourceReconstruction", "processCompute");
+
     WLEMMeasurement::SPtr emmOut;
     WLEMDSource::SPtr sourceOut;
     // The data is valid and we received an update. The data is not NULL but may be the same as in previous loops.
     debugLog() << "received data";
-    LaBP::WLTimeProfiler::SPtr profiler = emmIn->createAndAddProfiler( getName(), "process" );
-    profiler->start();
 
     // TODO(pieloth) choose correct EMD
     LaBP::WEModalityType::Enum modality = LaBP::WEModalityType::EEG;
@@ -399,7 +399,7 @@ bool WMSourceReconstruction::processCompute( WLEMMeasurement::SPtr emmIn )
         inverseSolutionFromSubject( emmIn, modality );
     }
 
-    sourceOut = m_sourceReconstruction->reconstruct( emmIn->getModality( modality ), profiler );
+    sourceOut = m_sourceReconstruction->reconstruct( emmIn->getModality( modality ) );
     infoLog() << "Matrix: " << sourceOut->getMatrix().rows() << " x " << sourceOut->getMatrix().cols();
     // Create output
     emmOut = emmIn->clone();
@@ -410,7 +410,6 @@ bool WMSourceReconstruction::processCompute( WLEMMeasurement::SPtr emmIn )
     emmOut->addModality( sourceOut );
 
     updateView( emmOut );
-    profiler->stopAndLog();
 
     WLEMMCommand::SPtr labp( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
     labp->setEmm( emmOut );

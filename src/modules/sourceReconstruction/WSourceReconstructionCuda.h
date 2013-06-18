@@ -33,8 +33,6 @@
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDSource.h"
 
-#include "core/util/WLTimeProfiler.h"
-
 #include "WSourceReconstruction.h"
 
 class WSourceReconstructionCuda: public WSourceReconstruction
@@ -57,7 +55,7 @@ public:
 
     virtual bool calculateInverseSolution( const LaBP::MatrixT& noiseCov, const LaBP::MatrixT& dataCov, double snr );
 
-    virtual WLEMDSource::SPtr reconstruct( WLEMData::ConstSPtr emd, LaBP::WLTimeProfiler::SPtr profiler );
+    virtual WLEMDSource::SPtr reconstruct( WLEMData::ConstSPtr emd );
 
 private:
     LaBP::MatrixElementT* m_A_dev;

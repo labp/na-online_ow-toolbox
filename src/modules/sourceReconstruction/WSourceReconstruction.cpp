@@ -38,6 +38,7 @@
 #include "core/data/WLEMMEnumTypes.h"
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDSource.h"
+#include "core/util/WLTimeProfiler.h"
 
 #include "WSourceReconstruction.h"
 
@@ -85,6 +86,8 @@ bool WSourceReconstruction::hasLeadfield() const
 
 bool WSourceReconstruction::calculateWeightningMatrix( WSourceReconstruction::WEWeightingCalculation::Enum type )
 {
+    LaBP::WLTimeProfiler tp(CLASS, "calculateWeightningMatrix");
+
     if( !m_leadfield )
     {
         wlog::error( CLASS ) << "No leadfield matrix available!";
@@ -161,6 +164,8 @@ bool WSourceReconstruction::hasInverse() const
 bool WSourceReconstruction::calculateInverseSolution( const LaBP::MatrixT& noiseCov, const LaBP::MatrixT& dataCov, double snr )
 {
     wlog::debug( CLASS ) << "calculateInverseSolution() called!";
+    LaBP::WLTimeProfiler tp(CLASS, "calculateInverseSolution");
+
     if( !m_leadfield )
     {
         wlog::error( CLASS ) << "No leadfield matrix set!";
@@ -238,6 +243,8 @@ WLEMDSource::SPtr WSourceReconstruction::createEMDSource( WLEMData::ConstSPtr em
 bool WSourceReconstruction::averageReference( WLEMData::DataT& dataOut, const WLEMData::DataT& dataIn )
 {
     wlog::debug( CLASS ) << "averageReference() called!";
+    LaBP::WLTimeProfiler tp(CLASS, "averageReference");
+
     WLEMData::ChannelT dataSum( dataIn.front().size(), 0 );
 
     // calculate sum

@@ -35,8 +35,6 @@
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDSource.h"
 
-#include "core/util/WLTimeProfiler.h"
-
 class WSourceReconstruction
 {
 public:
@@ -88,8 +86,7 @@ public:
 
     bool hasInverse() const;
 
-    virtual WLEMDSource::SPtr reconstruct( WLEMData::ConstSPtr emd,
-                    LaBP::WLTimeProfiler::SPtr profiler ) = 0;
+    virtual WLEMDSource::SPtr reconstruct( WLEMData::ConstSPtr emd ) = 0;
 
     static WLEMDSource::SPtr createEMDSource( WLEMData::ConstSPtr emd, const LaBP::MatrixT matrix );
 
