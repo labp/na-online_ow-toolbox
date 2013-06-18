@@ -52,7 +52,11 @@ public:
      * \param source Class or source which is measured.
      * \param action A action or method which is measured.
      */
-    WLProfiler( std::string source, std::string action );
+    WLProfiler( std::string source, std::string action, bool autoLog = true );
+
+    /**
+     * The destructor should do an log to WLProfilerLogger, if isAutoLog is true!
+     */
     virtual ~WLProfiler();
 
     /**
@@ -83,6 +87,13 @@ public:
      */
     std::string getAction() const;
 
+    /**
+     * Gets  the autoLog flag.
+     *
+     * \return true if autoLog is on.
+     */
+    bool isAutoLog() const;
+
 protected:
     /**
      * Class or source which is measured.
@@ -93,6 +104,11 @@ protected:
      * A action or method which is measured.
      */
     std::string m_action;
+
+    /**
+     * Indicates if the profiler should log the result in destructor.
+     */
+    bool m_autoLog;
 };
 
 /**

@@ -67,7 +67,7 @@ namespace LaBP
          * \param clazz Class to measure
          * \param action Action or method to measure
          */
-        WLTimeProfiler( string clazz, string action );
+        WLTimeProfiler( string clazz, string action, bool autoLog = true );
 
         WLTimeProfiler( const WLTimeProfiler& profiler );
 

@@ -26,8 +26,8 @@
 
 #include "WLProfiler.h"
 
-WLProfiler::WLProfiler( std::string source, std::string action ) :
-                m_source( source ), m_action( action )
+WLProfiler::WLProfiler( std::string source, std::string action, bool autoLog ) :
+                m_source( source ), m_action( action ), m_autoLog( autoLog )
 {
 }
 
@@ -48,4 +48,9 @@ std::string WLProfiler::getSource() const
 std::string WLProfiler::getAction() const
 {
     return m_action;
+}
+
+bool WLProfiler::isAutoLog() const
+{
+    return m_autoLog;
 }

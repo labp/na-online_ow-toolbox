@@ -28,6 +28,7 @@
 #include <core/common/WLogger.h>
 #include <core/common/WRealtimeTimer.h>
 
+#include "WLProfilerLogger.h"
 #include "WLTimeProfiler.h"
 
 using std::string;
@@ -39,8 +40,8 @@ namespace LaBP
 
     const double WLTimeProfiler::NO_TIME = -1.0;
 
-    WLTimeProfiler::WLTimeProfiler( string clazz, string action ) :
-                    WLProfiler( clazz, action ), m_isStarted( false ), m_isStopped( false ), m_start( 0 ), m_stop( 0 )
+    WLTimeProfiler::WLTimeProfiler( string clazz, string action, bool autoLog ) :
+                    WLProfiler( clazz, action, autoLog), m_isStarted( false ), m_isStopped( false ), m_start( 0 ), m_stop( 0 )
     {
         m_timer.reset( new WRealtimeTimer );
         this->start();
@@ -62,6 +63,11 @@ namespace LaBP
 
     WLTimeProfiler::~WLTimeProfiler()
     {
+        if( isAutoLog() && isStarted() )
+        {
+            stop();
+            wlprofiler::log() << *this;
+        }
     }
 
     std::ostream& WLTimeProfiler::write( std::ostream& strm ) const
