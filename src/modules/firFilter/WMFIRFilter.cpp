@@ -331,14 +331,13 @@ void WMFIRFilter::callbackFilterTypeChanged( void )
 
 bool WMFIRFilter::processCompute( WLEMMeasurement::SPtr emmIn )
 {
+    LaBP::WLTimeProfiler tp( "WMFIRFilter", "processCompute" );
+
     WLEMMeasurement::SPtr emmOut;
 
     // The data is valid and we received an update. The data is not NULL but may be the same as in previous loops.
     debugLog() << "Data received ...";
     debugLog() << "EMM modalities: " << emmIn->getModalityCount();
-
-    LaBP::WLTimeProfiler::SPtr profiler = emmIn->createAndAddProfiler( getName(), "process" );
-    profiler->start();
 
     // Create output data
     emmOut.reset( new WLEMMeasurement( *emmIn ) );
@@ -356,7 +355,7 @@ bool WMFIRFilter::processCompute( WLEMMeasurement::SPtr emmIn )
         debugLog() << "EMD samples per channel: " << nbSamlesPerChan;
         debugLog() << "Input pieces:\n" << WLEMData::dataToString( ( *emdIn )->getData(), 5, 10 );
 #endif // DEBUG
-        WLEMData::SPtr emdOut = m_firFilter->filter( ( *emdIn ), profiler );
+        WLEMData::SPtr emdOut = m_firFilter->filter( ( *emdIn ) );
         emmOut->addModality( emdOut );
 
 #ifdef DEBUG
@@ -364,15 +363,15 @@ bool WMFIRFilter::processCompute( WLEMMeasurement::SPtr emmIn )
         debugLog() << "Filtered pieces:\n" << WLEMData::dataToString( emdOut->getData(), 5, 10 );
 #endif // DEBUG
     }
-    m_firFilter->doPostProcessing( emmOut, emmIn, profiler );
+    m_firFilter->doPostProcessing( emmOut, emmIn );
 
     updateView( emmOut );
 
-    profiler->stopAndLog();
     WLEMMCommand::SPtr labp( new WLEMMCommand() );
     labp->setCommand( WLEMMCommand::Command::COMPUTE );
     labp->setEmm( emmOut );
     m_output->updateData( labp );
+
     return true;
 }
 

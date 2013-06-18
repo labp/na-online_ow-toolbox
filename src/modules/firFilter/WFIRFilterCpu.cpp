@@ -47,11 +47,10 @@ WFIRFilterCpu::WFIRFilterCpu( const char *pathToFcf ) :
 }
 
 void WFIRFilterCpu::filter( WLEMData::DataT& out, const WLEMData::DataT& in,
-                const WLEMData::DataT& prevData, LaBP::WLTimeProfiler::SPtr profiler )
+                const WLEMData::DataT& prevData )
 {
     wlog::debug( CLASS ) << "filter() called!";
-    LaBP::WLTimeProfiler::SPtr emdProfiler( new LaBP::WLTimeProfiler( CLASS, "filter_data" ) );
-    emdProfiler->start();
+    LaBP::WLTimeProfiler prfTime( CLASS, "filter" );
 
     for( size_t i = 0; i < in.size(); ++i )
     {
@@ -60,12 +59,6 @@ void WFIRFilterCpu::filter( WLEMData::DataT& out, const WLEMData::DataT& in,
         out.push_back( outChan );
 
         filterSingleChannel( out[i], in[i], prevData[i] );
-    }
-
-    emdProfiler->stopAndLog();
-    if( profiler )
-    {
-        profiler->addChild( emdProfiler );
     }
 }
 

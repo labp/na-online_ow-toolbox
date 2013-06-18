@@ -37,7 +37,6 @@
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDEEG.h"
-#include "core/util/WLTimeProfiler.h"
 
 #include "WFIRFilterTestHelper.h"
 
@@ -270,7 +269,7 @@ public:
         // Do test //
         emmOut.reset( new WLEMMeasurement() );
 
-        filter.doPostProcessing( emmOut, emmIn, LaBP::WLTimeProfiler::SPtr() );
+        filter.doPostProcessing( emmOut, emmIn );
         boost::shared_ptr< WLEMMeasurement::EDataT > eventsOut = emmOut->getEventChannels();
         for( size_t c = 0; c < eChannels; ++c )
         {
@@ -290,7 +289,7 @@ public:
         eventsIn = emmIn->getEventChannels();
         emmOut.reset( new WLEMMeasurement() );
 
-        filter.doPostProcessing( emmOut, emmIn, LaBP::WLTimeProfiler::SPtr() );
+        filter.doPostProcessing( emmOut, emmIn );
         eventsOut = emmOut->getEventChannels();
         for( size_t c = 0; c < eChannels; ++c )
         {

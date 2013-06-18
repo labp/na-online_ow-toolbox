@@ -27,6 +27,7 @@
 
 #include <core/common/WLogger.h>
 
+#include "core/util/WLProfilerLogger.h"
 #include "core/util/WLTimeProfiler.h"
 
 #include "WFIRFilter.h"
@@ -47,11 +48,10 @@ WFIRFilterCuda::WFIRFilterCuda( const char *pathToFcf ) :
 }
 
 void WFIRFilterCuda::filter( WLEMData::DataT& out, const WLEMData::DataT& in,
-                const WLEMData::DataT& prev, LaBP::WLTimeProfiler::SPtr profiler )
+                const WLEMData::DataT& prev )
 {
     wlog::debug( CLASS ) << "filter() called!";
-    LaBP::WLTimeProfiler::SPtr emdProfiler( new LaBP::WLTimeProfiler( CLASS, "filter_data" ) );
-    emdProfiler->start();
+    LaBP::WLTimeProfiler prfTime( CLASS, "filter" );
 
     const size_t samples = in[0].size();
 
@@ -104,13 +104,7 @@ void WFIRFilterCuda::filter( WLEMData::DataT& out, const WLEMData::DataT& in,
     free( previous );
     free( coeffs );
 
-    LaBP::WLTimeProfiler::SPtr kernelProfiler( new LaBP::WLTimeProfiler( CLASS, "filter_kernel" ) );
-    kernelProfiler->setMilliseconds( time );
-    kernelProfiler->log();
-    emdProfiler->stopAndLog();
-    if( profiler )
-    {
-        profiler->addChild( kernelProfiler );
-        profiler->addChild( emdProfiler );
-    }
+    LaBP::WLTimeProfiler prfTimeKernel( CLASS, "filter_kernel", false );
+    prfTimeKernel.setMilliseconds( time );
+    wlprofiler::log() << prfTimeKernel;
 }

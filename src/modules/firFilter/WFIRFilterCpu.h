@@ -55,7 +55,7 @@ public:
 
 protected:
     void filter( WLEMData::DataT& out, const WLEMData::DataT& in,
-                    const WLEMData::DataT& prevData, LaBP::WLTimeProfiler::SPtr profiler );
+                    const WLEMData::DataT& prevData );
 
 private:
     void filterSingleChannel( WLEMData::ChannelT& out, const WLEMData::ChannelT& in,

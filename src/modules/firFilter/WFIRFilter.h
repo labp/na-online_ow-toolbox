@@ -35,8 +35,6 @@
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMData.h"
 
-#include "core/util/WLTimeProfiler.h"
-
 class WFIRFilter
 {
     friend class WFIRFilterTest;
@@ -83,10 +81,9 @@ public:
 
     virtual ~WFIRFilter();
 
-    WLEMData::SPtr filter( const WLEMData::ConstSPtr emdIn, LaBP::WLTimeProfiler::SPtr profiler );
+    WLEMData::SPtr filter( const WLEMData::ConstSPtr emdIn );
 
-    void doPostProcessing( WLEMMeasurement::SPtr emmOut, WLEMMeasurement::ConstSPtr emmIn,
-                    LaBP::WLTimeProfiler::SPtr profiler );
+    void doPostProcessing( WLEMMeasurement::SPtr emmOut, WLEMMeasurement::ConstSPtr emmIn );
 
     void setFilterType( WEFilterType::Enum value, bool redesign = false );
     void setWindowsType( WEWindowsType::Enum value, bool redesign = false );
@@ -106,8 +103,7 @@ public:
     void reset();
 
 protected:
-    virtual void filter( WLEMData::DataT& out, const WLEMData::DataT& in,
-                    const WLEMData::DataT& prev, LaBP::WLTimeProfiler::SPtr profiler ) = 0;
+    virtual void filter( WLEMData::DataT& out, const WLEMData::DataT& in, const WLEMData::DataT& prev ) = 0;
 
     std::vector< double > m_coeffitients;
     WEWindowsType::Enum m_window;
@@ -122,7 +118,8 @@ protected:
     void storePreviousData( WLEMData::ConstSPtr emd );
 
 private:
-    void designLowpass( std::vector< double >* pCoeff, size_t order, double cFreq1, double sFreq, WEWindowsType::Enum windowtype );
+    void designLowpass( std::vector< double >* pCoeff, size_t order, double cFreq1, double sFreq,
+                    WEWindowsType::Enum windowtype );
     void designHighpass( void );
     void designBandpass( void );
     void designBandstop( void );

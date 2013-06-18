@@ -34,8 +34,6 @@
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDEEG.h"
 
-#include "core/util/WLTimeProfiler.h"
-
 #include "../WFIRFilter.h"
 
 #define EPS 0.0000001
@@ -87,7 +85,7 @@ public:
         WLEMData::SPtr emdIn( new WLEMDEEG() );
         emdIn->setData( in );
 
-        WLEMData::SPtr emdOut = filter->filter( emdIn, LaBP::WLTimeProfiler::SPtr() );
+        WLEMData::SPtr emdOut = filter->filter( emdIn );
 
         std::vector< double > outExpected = filter->getCoefficients();
         std::vector< std::vector< double > > out = emdOut->getData();
@@ -120,7 +118,7 @@ public:
         WLEMData::SPtr emdIn( new WLEMDEEG() );
         emdIn->setData( in );
 
-        WLEMData::SPtr emdOut = filter->filter( emdIn, LaBP::WLTimeProfiler::SPtr() );
+        WLEMData::SPtr emdOut = filter->filter( emdIn );
 
         double firSum = 0;
         for( size_t i = 0; i < coefficients; ++i )

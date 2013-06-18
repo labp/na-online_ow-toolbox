@@ -63,34 +63,27 @@ WFIRFilter::~WFIRFilter()
 {
 }
 
-WLEMData::SPtr WFIRFilter::filter( const WLEMData::ConstSPtr emdIn, LaBP::WLTimeProfiler::SPtr profiler )
+WLEMData::SPtr WFIRFilter::filter( const WLEMData::ConstSPtr emdIn )
 {
-    LaBP::WLTimeProfiler::SPtr emdProfiler( new LaBP::WLTimeProfiler( CLASS, "filter_emd" ) );
-    emdProfiler->start();
+    LaBP::WLTimeProfiler prfTime( CLASS, "filter" );
+
     WLEMData::DataT in = emdIn->getData();
     boost::shared_ptr< WLEMData::DataT > out( new WLEMData::DataT() );
     out->reserve( in.size() );
 
     const WLEMData::DataT& prevData = getPreviousData( emdIn );
-    filter( *out, in, prevData, emdProfiler );
+    filter( *out, in, prevData );
     storePreviousData( emdIn );
 
     WLEMData::SPtr emdOut = emdIn->clone();
     emdOut->setData( out );
 
-    emdProfiler->stopAndLog();
-    if( profiler )
-    {
-        profiler->addChild( emdProfiler );
-    }
     return emdOut;
 }
 
-void WFIRFilter::doPostProcessing( WLEMMeasurement::SPtr emmOut, WLEMMeasurement::ConstSPtr emmIn,
-                LaBP::WLTimeProfiler::SPtr profiler )
+void WFIRFilter::doPostProcessing( WLEMMeasurement::SPtr emmOut, WLEMMeasurement::ConstSPtr emmIn )
 {
-    LaBP::WLTimeProfiler::SPtr emmProfiler( new LaBP::WLTimeProfiler( CLASS, "doPostProcess" ) );
-    emmProfiler->start();
+    LaBP::WLTimeProfiler prfTime( CLASS, "doPostProcess" );
 
     boost::shared_ptr< WLEMMeasurement::EDataT > eventsIn = emmIn->getEventChannels();
     if( !eventsIn || eventsIn->empty() )
@@ -133,12 +126,6 @@ void WFIRFilter::doPostProcessing( WLEMMeasurement::SPtr emmOut, WLEMMeasurement
     }
 
     emmOut->setEventChannels( eventsOut );
-
-    emmProfiler->stopAndLog();
-    if( profiler )
-    {
-        profiler->addChild( emmProfiler );
-    }
 }
 
 void WFIRFilter::setFilterType( WFIRFilter::WEFilterType::Enum value, bool redesign )
