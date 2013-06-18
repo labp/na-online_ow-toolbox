@@ -47,7 +47,7 @@ public:
     typedef boost::shared_ptr< const WLProfiler > ConstSPtr;
 
     /**
-     * Constructor.
+     * Constructor. If autoLog is true, the implementation must start the measurement in constructor and must stop and log the result in destructor.
      *
      * \param source Class or source which is measured.
      * \param action A action or method which is measured.
