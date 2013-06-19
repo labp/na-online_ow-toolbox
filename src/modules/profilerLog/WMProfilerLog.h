@@ -36,6 +36,7 @@
 #include "core/data/WLEMMeasurement.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
+#include "core/util/WLLifetimeProfiler.h"
 
 /**
  * This module implements several onscreen status displays
@@ -121,7 +122,7 @@ private:
 
     bool write( std::string fname, WLEMMeasurement::SPtr emm );
 
-    void write( std::ofstream& fstream, WLTimeProfiler::SPtr profiler, std::string prefix );
+    void write( std::ofstream& fstream, WLLifetimeProfiler::SPtr profiler, std::string prefix );
 
 };
 

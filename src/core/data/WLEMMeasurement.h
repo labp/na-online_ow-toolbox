@@ -32,7 +32,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "core/util/WLTimeProfiler.h"
+#include "core/util/WLLifetimeProfiler.h"
 
 #include "core/data/emd/WLEMData.h"
 #include "WLEMMEnumTypes.h"
@@ -255,12 +255,11 @@ public:
      */
     size_t getEventChannelCount() const;
 
-    WLTimeProfiler::SPtr getTimeProfiler();
-    WLTimeProfiler::ConstSPtr getTimeProfiler() const;
-    void setTimeProfiler( WLTimeProfiler::SPtr profiler );
+    WLLifetimeProfiler::SPtr getProfiler();
+    WLLifetimeProfiler::ConstSPtr getProfiler() const;
 
 private:
-    WLTimeProfiler::SPtr m_profiler;
+    WLLifetimeProfiler::SPtr m_profiler;
 
     /**
      * experiment supervisor

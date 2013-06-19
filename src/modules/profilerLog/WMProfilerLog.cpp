@@ -36,7 +36,7 @@
 #include "core/data/WLEMMeasurement.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
-#include "core/util/WLTimeProfiler.h"
+#include "core/util/WLLifetimeProfiler.h"
 
 #include "WMProfilerLog.h"
 #include "WMProfilerLog.xpm"
@@ -148,19 +148,21 @@ bool WMProfilerLog::write( std::string fname, WLEMMeasurement::SPtr emm )
     if( !fstream.is_open() )
         return false;
 
-    WLTimeProfiler::SPtr profiler = emm->getTimeProfiler();
-    profiler->stop();
+    // TODO(pieloth): Use new profiling structure.
+    WLLifetimeProfiler::SPtr profiler = emm->getProfiler();
+    profiler->pause();
     write( fstream, profiler, "" );
 
     fstream.close();
     return true;
 }
 
-void WMProfilerLog::write( std::ofstream& fstream, WLTimeProfiler::SPtr profiler, std::string prefix )
+void WMProfilerLog::write( std::ofstream& fstream, WLLifetimeProfiler::SPtr profiler, std::string prefix )
 {
-    fstream << prefix << profiler->getSource() << "::" << profiler->getAction() << ": " << profiler->getMilliseconds()
-                    << std::endl;
-    prefix.append( "\t" );
+    // TODO(pieloth): Use new profiling structure.
+//    fstream << prefix << profiler->getSource() << "::" << profiler->getAction() << ": " << profiler->getMilliseconds()
+//                    << std::endl;
+//    prefix.append( "\t" );
     // TODO(pieloth): Use new profiling structure.
 //    std::list< WLTimeProfiler::SPtr >& profilers = profiler->getProfilers();
 //    for( std::list< WLTimeProfiler::SPtr >::iterator it = profilers.begin(); it != profilers.end(); ++it )

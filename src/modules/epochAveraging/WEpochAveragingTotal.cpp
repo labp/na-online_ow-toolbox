@@ -59,9 +59,9 @@ WLEMMeasurement::SPtr WEpochAveragingTotal::getAverage( WLEMMeasurement::ConstSP
     // Create output emm and divide data by count
     WLEMMeasurement::SPtr emmOut( new WLEMMeasurement( *m_emmSum ) );
     // TODO(pieloth): new profiler
-    WLTimeProfiler::SPtr profiler( new WLTimeProfiler( CLASS, "lifetime" ) );
-    profiler->start();
-    emmOut->setTimeProfiler( profiler );
+//    WLTimeProfiler::SPtr profiler( new WLTimeProfiler( CLASS, "lifetime" ) );
+//    profiler->start();
+//    emmOut->setTimeProfiler( profiler );
 
     WLEMData::SPtr emdSum;
     WLEMData::SPtr emdOut;

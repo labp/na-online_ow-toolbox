@@ -401,7 +401,6 @@ void WMEmMeasurement::streamData()
             debugLog() << "emmPacket modalities: " << emmPacket->getModalityCount();
             debugLog() << "emmPacket events: " << emmPacket->getEventChannelCount();
 
-            emmPacket->getTimeProfiler()->start();
             updateView( emmPacket ); // update view
             WLEMMCommand::SPtr labp( new WLEMMCommand() );
             labp->setCommand( WLEMMCommand::Command::COMPUTE );
@@ -493,7 +492,6 @@ void WMEmMeasurement::generateData()
         emm->addModality( eeg );
         setAdditionalInformation( emm );
 
-        emm->getTimeProfiler()->start();
         updateView( emm );
 
         WLEMMCommand::SPtr labp = WLEMMCommand::SPtr( new WLEMMCommand() );

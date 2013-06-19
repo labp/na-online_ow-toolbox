@@ -66,9 +66,9 @@ WLEMMeasurement::SPtr WEpochAveragingMoving::getAverage( WLEMMeasurement::ConstS
 
     WLEMMeasurement::SPtr emmOut( new WLEMMeasurement( *emmIn ) );
     // TODO(pieloth): new profiler
-    WLTimeProfiler::SPtr profiler( new WLTimeProfiler( CLASS, "lifetime" ) );
-    profiler->start();
-    emmOut->setTimeProfiler( profiler );
+//    WLTimeProfiler::SPtr profiler( new WLTimeProfiler( CLASS, "lifetime" ) );
+//    profiler->start();
+//    emmOut->setTimeProfiler( profiler );
 
     WLEMData::ConstSPtr emdIn;
     WLEMData::SPtr emdOut;
