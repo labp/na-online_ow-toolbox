@@ -25,17 +25,15 @@
 #ifndef WLTIMEPROFILER_H_
 #define WLTIMEPROFILER_H_
 
-#include <list>
 #include <string>
 
 #include <boost/shared_ptr.hpp>
 
-#include <core/common/WTimer.h>
+#include <core/common/WRealtimeTimer.h>
 
 #include "WLProfiler.h"
 
 using std::string;
-using std::list;
 
 /**
  * Explicit time measurement with start and stop method. An instance relates to a class and an action.
@@ -88,30 +86,6 @@ public:
      * \return action name
      */
     string getAction() const;
-
-    /**
-     * Adds a time profiler to this object, i.e. to store previous measurements.
-     *
-     * \param profiler Measurement to add
-     */
-    void addChild( WLTimeProfiler::SPtr profiler );
-
-    /**
-     * Creates a new measurement object and add it to children list.
-     *
-     * \param clazz Class to measure
-     * \param action Action or method to measure
-     *
-     * \return Create object
-     */
-    WLTimeProfiler::SPtr createAndAdd( string clazz, string action );
-
-    /**
-     * Returns the children profiler.
-     *
-     * \return list of profiler
-     */
-    list< WLTimeProfiler::SPtr >& getProfilers();
 
     /**
      * Returns the start time.
@@ -168,16 +142,6 @@ public:
     bool isStopped();
 
     /**
-     * Logs the status as info: <clazz>::<action>: <milliseconds> ms
-     */
-    void log();
-
-    /**
-     * Stops the measurement and logs the status as info.
-     */
-    void stopAndLog();
-
-    /**
      * Creates a shallow copy: no children
      *
      * \return new profiler instance
@@ -185,9 +149,7 @@ public:
     WLTimeProfiler::SPtr clone() const;
 
 private:
-    list< WLTimeProfiler::SPtr > m_profilers;
-
-    WTimer::SPtr m_timer;
+    WRealtimeTimer m_timer;
 
     TimeT m_start;
     bool m_isStarted;

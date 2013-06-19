@@ -264,10 +264,3 @@ void WLEMMeasurement::setTimeProfiler( WLTimeProfiler::SPtr profiler )
 {
     m_profiler = profiler;
 }
-
-WLTimeProfiler::SPtr WLEMMeasurement::createAndAddProfiler( std::string clazz, std::string action )
-{
-    WLTimeProfiler::SPtr profiler( new WLTimeProfiler( clazz, action ) );
-    m_profiler->addChild( profiler );
-    return profiler;
-}

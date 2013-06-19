@@ -22,7 +22,6 @@
 //
 //---------------------------------------------------------------------------
 
-#include <list>
 #include <string>
 
 #include <core/common/WLogger.h>
@@ -41,7 +40,7 @@ const double WLTimeProfiler::NO_TIME = -1.0;
 WLTimeProfiler::WLTimeProfiler( string clazz, string action, bool autoLog ) :
                 WLProfiler( clazz, action, autoLog ), m_isStarted( false ), m_isStopped( false ), m_start( 0 ), m_stop( 0 )
 {
-    m_timer.reset( new WRealtimeTimer );
+    m_timer.reset();
     this->start();
 }
 
@@ -54,9 +53,7 @@ WLTimeProfiler::WLTimeProfiler( const WLTimeProfiler& profiler ) :
     m_stop = profiler.m_stop;
     m_isStopped = profiler.m_isStopped;
 
-    m_profilers = profiler.m_profilers;
-
-    m_timer.reset( new WRealtimeTimer );
+    m_timer.reset();
 }
 
 WLTimeProfiler::~WLTimeProfiler()
@@ -83,26 +80,9 @@ string WLTimeProfiler::getClass() const
     return getSource();
 }
 
-void WLTimeProfiler::addChild( WLTimeProfiler::SPtr profiler )
-{
-    m_profilers.push_back( profiler );
-}
-
-WLTimeProfiler::SPtr WLTimeProfiler::createAndAdd( string clazz, string action )
-{
-    WLTimeProfiler::SPtr profiler( new WLTimeProfiler( clazz, action ) );
-    m_profilers.push_back( profiler );
-    return profiler;
-}
-
 string WLTimeProfiler::getAction() const
 {
     return m_action;
-}
-
-list< WLTimeProfiler::SPtr >& WLTimeProfiler::getProfilers()
-{
-    return m_profilers;
 }
 
 WLTimeProfiler::TimeT WLTimeProfiler::getStart() const
@@ -134,7 +114,7 @@ void WLTimeProfiler::setMilliseconds( double ms )
 WLTimeProfiler::TimeT WLTimeProfiler::start()
 {
     m_start = 0;
-    m_timer->reset();
+    m_timer.reset();
     m_isStarted = true;
     return m_start;
 }
@@ -146,7 +126,7 @@ bool WLTimeProfiler::isStarted()
 
 WLTimeProfiler::TimeT WLTimeProfiler::stop()
 {
-    m_stop = m_timer->elapsed() * 1000;
+    m_stop = m_timer.elapsed() * 1000;
     m_isStopped = true;
     return m_stop;
 }
@@ -154,17 +134,6 @@ WLTimeProfiler::TimeT WLTimeProfiler::stop()
 bool WLTimeProfiler::isStopped()
 {
     return m_isStopped;
-}
-
-void WLTimeProfiler::log()
-{
-    wlog::info( WLTimeProfiler::CLASS ) << m_source << "::" << m_action << ": " << getMilliseconds() << " ms";
-}
-
-void WLTimeProfiler::stopAndLog()
-{
-    stop();
-    log();
 }
 
 WLTimeProfiler::SPtr WLTimeProfiler::clone() const

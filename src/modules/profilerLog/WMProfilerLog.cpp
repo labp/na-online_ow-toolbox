@@ -161,9 +161,10 @@ void WMProfilerLog::write( std::ofstream& fstream, WLTimeProfiler::SPtr profiler
     fstream << prefix << profiler->getClass() << "::" << profiler->getAction() << ": " << profiler->getMilliseconds()
                     << std::endl;
     prefix.append( "\t" );
-    std::list< WLTimeProfiler::SPtr >& profilers = profiler->getProfilers();
-    for( std::list< WLTimeProfiler::SPtr >::iterator it = profilers.begin(); it != profilers.end(); ++it )
-    {
-        write( fstream, ( *it ), prefix );
-    }
+    // TODO(pieloth): Use new profiling structure.
+//    std::list< WLTimeProfiler::SPtr >& profilers = profiler->getProfilers();
+//    for( std::list< WLTimeProfiler::SPtr >::iterator it = profilers.begin(); it != profilers.end(); ++it )
+//    {
+//        write( fstream, ( *it ), prefix );
+//    }
 }

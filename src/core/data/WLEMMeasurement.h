@@ -258,7 +258,6 @@ public:
     WLTimeProfiler::SPtr getTimeProfiler();
     WLTimeProfiler::ConstSPtr getTimeProfiler() const;
     void setTimeProfiler( WLTimeProfiler::SPtr profiler );
-    WLTimeProfiler::SPtr createAndAddProfiler( std::string clazz, std::string action );
 
 private:
     WLTimeProfiler::SPtr m_profiler;

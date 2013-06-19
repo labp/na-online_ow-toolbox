@@ -179,8 +179,7 @@ void WMPCA::moduleMain()
         {
             WLEMMeasurement::SPtr emmIn;
             debugLog() << "received data";
-            WLTimeProfiler::SPtr profiler = emmIn->createAndAddProfiler( getName(), "process" );
-            profiler->start();
+            // TODO(pieloth): new profiler
 
             //m_pca->setParams( m_finalDimensions->get(), m_reverse->get() );
             WLEMMeasurement::SPtr emmOut( new WLEMMeasurement( *emmIn ) );
@@ -200,8 +199,6 @@ void WMPCA::moduleMain()
             labp->setEmm( emmOut );
             m_output->updateData( labp );
             updateView( emmOut );
-
-            profiler->stopAndLog();
         }
     }
 }
