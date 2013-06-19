@@ -29,7 +29,7 @@
 
 #include "../WLTimeProfiler.h"
 
-class WLTimeProfilreTest: public CxxTest::TestSuite
+class WLTimeProfilerTest: public CxxTest::TestSuite
 {
 public:
     void test_isStartedStopped()
