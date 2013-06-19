@@ -57,7 +57,8 @@ WLEMMeasurement::SPtr WEpochAveragingTotal::getAverage( WLEMMeasurement::ConstSP
     addEmmSum( emm );
 
     // Create output emm and divide data by count
-    WLEMMeasurement::SPtr emmOut( new WLEMMeasurement( *m_emmSum ) );
+    WLEMMeasurement::SPtr emmOut( new WLEMMeasurement( *emm ) );
+
     // TODO(pieloth): new profiler
 //    WLTimeProfiler::SPtr profiler( new WLTimeProfiler( CLASS, "lifetime" ) );
 //    profiler->start();
@@ -89,7 +90,7 @@ WLEMMeasurement::SPtr WEpochAveragingTotal::getAverage( WLEMMeasurement::ConstSP
 
 void WEpochAveragingTotal::addEmmSum( const WLEMMeasurement::ConstSPtr emm )
 {
-    WLTimeProfiler tp(CLASS, "addEmmSum");
+    WLTimeProfiler tp( CLASS, "addEmmSum" );
     ++m_count;
     WLEMData::ConstSPtr emdIn;
     WLEMData::SPtr emdSum;

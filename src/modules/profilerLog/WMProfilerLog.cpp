@@ -37,6 +37,7 @@
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 #include "core/util/WLLifetimeProfiler.h"
+#include "core/util/WLProfilerLogger.h"
 
 #include "WMProfilerLog.h"
 #include "WMProfilerLog.xpm"
@@ -154,6 +155,8 @@ bool WMProfilerLog::write( std::string fname, WLEMMeasurement::SPtr emm )
     write( fstream, profiler, "" );
 
     fstream.close();
+
+    wlprofiler::log() << *(emm->getProfiler());
     return true;
 }
 

@@ -259,3 +259,8 @@ WLLifetimeProfiler::ConstSPtr WLEMMeasurement::getProfiler() const
 {
     return m_profiler;
 }
+
+void WLEMMeasurement::setProfiler( const WLLifetimeProfiler& profiler )
+{
+    m_profiler.reset( new WLLifetimeProfiler( profiler ) );
+}

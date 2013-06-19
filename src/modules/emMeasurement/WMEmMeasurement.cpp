@@ -401,11 +401,7 @@ void WMEmMeasurement::streamData()
             debugLog() << "emmPacket modalities: " << emmPacket->getModalityCount();
             debugLog() << "emmPacket events: " << emmPacket->getEventChannelCount();
 
-            updateView( emmPacket ); // update view
-            WLEMMCommand::SPtr labp( new WLEMMCommand() );
-            labp->setCommand( WLEMMCommand::Command::COMPUTE );
-            labp->setEmm( emmPacket );
-            m_output->updateData( labp ); // update connected modules
+            processCompute( emmPacket );
 
             ++blockCount;
             infoLog() << "Streamed emmPacket #" << blockCount;
@@ -492,13 +488,7 @@ void WMEmMeasurement::generateData()
         emm->addModality( eeg );
         setAdditionalInformation( emm );
 
-        updateView( emm );
-
-        WLEMMCommand::SPtr labp = WLEMMCommand::SPtr( new WLEMMCommand() );
-        labp->setCommand( WLEMMCommand::Command::COMPUTE );
-        labp->setEmm( emm );
-        m_output->updateData( labp );
-        debugLog() << "m_output->updateData() called!";
+        processCompute( emm );
 
         debugLog() << "inserted block " << k + 1 << "/"
                         << ( ( double )m_generationDuration->get() * 1000 ) / ( double )m_generationBlockSize->get() << " with "
@@ -912,8 +902,11 @@ void WMEmMeasurement::extractExpLoader( std::string fName )
 
 bool WMEmMeasurement::processCompute( WLEMMeasurement::SPtr emm )
 {
+    emm->setProfiler( WLLifetimeProfiler( WLEMMeasurement::CLASS, "lifetime" ) );
+
     WLEMMCommand::SPtr labp( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
     labp->setEmm( emm );
+    updateView( emm );
     m_output->updateData( labp );
     return true;
 }
