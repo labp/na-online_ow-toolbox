@@ -74,20 +74,6 @@ public:
     virtual std::string getName() const;
 
     /**
-     * Returns the class.
-     *
-     * \return class name
-     */
-    string getClass() const;
-
-    /**
-     * Returns the action name.
-     *
-     * \return action name
-     */
-    string getAction() const;
-
-    /**
      * Returns the start time.
      *
      * \return start time

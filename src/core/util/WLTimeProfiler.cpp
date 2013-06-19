@@ -40,7 +40,6 @@ const double WLTimeProfiler::NO_TIME = -1.0;
 WLTimeProfiler::WLTimeProfiler( string clazz, string action, bool autoLog ) :
                 WLProfiler( clazz, action, autoLog ), m_isStarted( false ), m_isStopped( false ), m_start( 0 ), m_stop( 0 )
 {
-    m_timer.reset();
     this->start();
 }
 
@@ -73,16 +72,6 @@ std::ostream& WLTimeProfiler::write( std::ostream& strm ) const
 std::string WLTimeProfiler::getName() const
 {
     return WLTimeProfiler::CLASS;
-}
-
-string WLTimeProfiler::getClass() const
-{
-    return getSource();
-}
-
-string WLTimeProfiler::getAction() const
-{
-    return m_action;
 }
 
 WLTimeProfiler::TimeT WLTimeProfiler::getStart() const

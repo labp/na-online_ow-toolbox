@@ -158,7 +158,7 @@ bool WMProfilerLog::write( std::string fname, WLEMMeasurement::SPtr emm )
 
 void WMProfilerLog::write( std::ofstream& fstream, WLTimeProfiler::SPtr profiler, std::string prefix )
 {
-    fstream << prefix << profiler->getClass() << "::" << profiler->getAction() << ": " << profiler->getMilliseconds()
+    fstream << prefix << profiler->getSource() << "::" << profiler->getAction() << ": " << profiler->getMilliseconds()
                     << std::endl;
     prefix.append( "\t" );
     // TODO(pieloth): Use new profiling structure.
