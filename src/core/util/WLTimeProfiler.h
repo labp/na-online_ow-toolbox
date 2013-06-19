@@ -55,8 +55,6 @@ public:
 
     static const string CLASS;
 
-    static const double NO_TIME;
-
     /**
      * Constructor to measure an action or method of a class.
      *
@@ -104,7 +102,7 @@ public:
      *
      * \return time stamp when the measurement was started.
      */
-    TimeT start();
+    TimeT start( bool reset = true);
 
     /**
      * Indicates if the measurement is started.
@@ -137,11 +135,10 @@ public:
 private:
     WRealtimeTimer m_timer;
 
-    TimeT m_start;
     bool m_isStarted;
-
-    TimeT m_stop;
     bool m_isStopped;
+
+    TimeT m_elapsed;
 };
 
 #endif  // WLTIMEPROFILER_H_

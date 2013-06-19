@@ -35,23 +35,21 @@ using std::list;
 
 const string WLTimeProfiler::CLASS = "WLTimeProfiler";
 
-const double WLTimeProfiler::NO_TIME = -1.0;
-
 WLTimeProfiler::WLTimeProfiler( string clazz, string action, bool autoLog ) :
-                WLProfiler( clazz, action, autoLog ), m_isStarted( false ), m_isStopped( false ), m_start( 0 ), m_stop( 0 )
+                WLProfiler( clazz, action, autoLog ), m_isStarted( false ), m_isStopped( false ), m_elapsed( 0 )
 {
-    this->start();
+    if( autoLog )
+    {
+        this->start();
+    }
 }
 
 WLTimeProfiler::WLTimeProfiler( const WLTimeProfiler& profiler ) :
-                WLProfiler( profiler.m_source, profiler.m_action )
+                WLProfiler( profiler.m_source, profiler.m_action, profiler.m_autoLog )
 {
-    m_start = profiler.m_start;
     m_isStarted = profiler.m_isStarted;
-
-    m_stop = profiler.m_stop;
     m_isStopped = profiler.m_isStopped;
-
+    m_elapsed = profiler.getMilliseconds();
     m_timer.reset();
 }
 
@@ -74,38 +72,40 @@ std::string WLTimeProfiler::getName() const
     return WLTimeProfiler::CLASS;
 }
 
-WLTimeProfiler::TimeT WLTimeProfiler::getStart() const
-{
-    return m_start;
-}
-
-WLTimeProfiler::TimeT WLTimeProfiler::getStop() const
-{
-    return m_stop;
-}
-
 double WLTimeProfiler::getMilliseconds() const
 {
-    if( m_isStarted == false || m_isStopped == false )
-        return NO_TIME;
-    return ( m_stop - m_start );
+    // Measurement is running
+    if( m_isStarted == true && m_isStopped == false )
+    {
+        return m_elapsed + m_timer.elapsed() * 1000;
+    }
+    // Measurement is stopped
+    if( m_isStarted == false && m_isStopped == true )
+    {
+        return m_elapsed;
+    }
+    // Measurement was not started, but maybe a time is set
+    return m_elapsed;
 }
 
 void WLTimeProfiler::setMilliseconds( double ms )
 {
-    m_start = 0;
-    m_stop = ms;
+    m_elapsed = ms;
 
-    m_isStarted = true;
+    m_isStarted = false;
     m_isStopped = true;
 }
 
-WLTimeProfiler::TimeT WLTimeProfiler::start()
+WLTimeProfiler::TimeT WLTimeProfiler::start( bool reset )
 {
-    m_start = 0;
+    if( reset )
+    {
+        m_elapsed = 0;
+    }
     m_timer.reset();
     m_isStarted = true;
-    return m_start;
+    m_isStopped = false;
+    return m_elapsed;
 }
 
 bool WLTimeProfiler::isStarted()
@@ -115,9 +115,13 @@ bool WLTimeProfiler::isStarted()
 
 WLTimeProfiler::TimeT WLTimeProfiler::stop()
 {
-    m_stop = m_timer.elapsed() * 1000;
+    if( m_isStarted )
+    {
+        m_elapsed += m_timer.elapsed() * 1000;
+    }
+    m_isStarted = false;
     m_isStopped = true;
-    return m_stop;
+    return m_elapsed;
 }
 
 bool WLTimeProfiler::isStopped()
