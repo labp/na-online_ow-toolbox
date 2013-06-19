@@ -42,12 +42,12 @@ public:
     /**
      * Abbreviation for a shared pointer.
      */
-    typedef boost::shared_ptr< WLProfiler > SPtr;
+    typedef boost::shared_ptr< WLLifetimeProfiler > SPtr;
 
     /**
      * Abbreviation for const shared pointer.
      */
-    typedef boost::shared_ptr< const WLProfiler > ConstSPtr;
+    typedef boost::shared_ptr< const WLLifetimeProfiler > ConstSPtr;
 
     static const std::string CLASS;
 
