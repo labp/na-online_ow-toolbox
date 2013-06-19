@@ -373,7 +373,7 @@ bool WMSourceReconstruction::inverseSolutionFromSubject( WLEMMeasurement::SPtr e
 
 bool WMSourceReconstruction::processCompute( WLEMMeasurement::SPtr emmIn )
 {
-    LaBP::WLTimeProfiler tp("WMSourceReconstruction", "processCompute");
+    WLTimeProfiler tp("WMSourceReconstruction", "processCompute");
 
     WLEMMeasurement::SPtr emmOut;
     WLEMDSource::SPtr sourceOut;

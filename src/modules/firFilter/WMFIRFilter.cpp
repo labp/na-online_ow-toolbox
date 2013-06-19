@@ -331,7 +331,7 @@ void WMFIRFilter::callbackFilterTypeChanged( void )
 
 bool WMFIRFilter::processCompute( WLEMMeasurement::SPtr emmIn )
 {
-    LaBP::WLTimeProfiler tp( "WMFIRFilter", "processCompute" );
+    WLTimeProfiler tp( "WMFIRFilter", "processCompute" );
 
     WLEMMeasurement::SPtr emmOut;
 

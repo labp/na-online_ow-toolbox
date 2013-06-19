@@ -121,7 +121,7 @@ private:
 
     bool write( std::string fname, WLEMMeasurement::SPtr emm );
 
-    void write( std::ofstream& fstream, LaBP::WLTimeProfiler::SPtr profiler, std::string prefix );
+    void write( std::ofstream& fstream, WLTimeProfiler::SPtr profiler, std::string prefix );
 
 };
 

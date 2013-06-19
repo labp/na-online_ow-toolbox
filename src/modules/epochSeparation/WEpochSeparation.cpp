@@ -127,7 +127,7 @@ WLEMMeasurement::SPtr WEpochSeparation::getNextEpoch()
 size_t WEpochSeparation::extract( const WLEMMeasurement::SPtr emmIn )
 {
     // TODO(pieloth): "kill" emmIn to log lifetime.
-    LaBP::WLTimeProfiler tp(CLASS, "extract");
+    WLTimeProfiler tp(CLASS, "extract");
     size_t count = 0;
     if( emmIn->getModalityCount() < 1 || emmIn->getEventChannelCount() < m_channel + 1 )
     {
@@ -223,7 +223,7 @@ void WEpochSeparation::setupBuffer( WLEMData::ConstSPtr emd )
 WEpochSeparation::LeftEpoch::SPtr WEpochSeparation::processPreSamples( size_t eIndex )
 {
     wlog::debug( CLASS ) << "processPreSamples() called!";
-    LaBP::WLTimeProfiler tp( CLASS, "processPreSamples" );
+    WLTimeProfiler tp( CLASS, "processPreSamples" );
     LeftEpoch::SPtr leftEpoch( new LeftEpoch() );
 
     leftEpoch->m_emm = m_buffer->getData()->clone();
@@ -318,7 +318,7 @@ WEpochSeparation::LeftEpoch::SPtr WEpochSeparation::processPreSamples( size_t eI
 bool WEpochSeparation::processPostSamples( LeftEpoch::SPtr leftEpoch, WLEMMeasurement::ConstSPtr emm )
 {
     wlog::debug( CLASS ) << "processPostSamples() called!";
-    LaBP::WLTimeProfiler tp(CLASS, "processPostSamples");
+    WLTimeProfiler tp(CLASS, "processPostSamples");
 
     WLEMMeasurement::SPtr emmEpoch = leftEpoch->m_emm;
     size_t samplesLeft = leftEpoch->m_leftSamples;

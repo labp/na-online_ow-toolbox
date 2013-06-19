@@ -179,7 +179,7 @@ void WMPCA::moduleMain()
         {
             WLEMMeasurement::SPtr emmIn;
             debugLog() << "received data";
-            LaBP::WLTimeProfiler::SPtr profiler = emmIn->createAndAddProfiler( getName(), "process" );
+            WLTimeProfiler::SPtr profiler = emmIn->createAndAddProfiler( getName(), "process" );
             profiler->start();
 
             //m_pca->setParams( m_finalDimensions->get(), m_reverse->get() );

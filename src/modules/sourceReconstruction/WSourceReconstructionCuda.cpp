@@ -84,7 +84,7 @@ WLEMDSource::SPtr WSourceReconstructionCuda::reconstruct( WLEMData::ConstSPtr em
         wlog::error( CLASS ) << "No inverse matrix set!";
     }
 
-    LaBP::WLTimeProfiler tp( CLASS, "reconstruct" );
+    WLTimeProfiler tp( CLASS, "reconstruct" );
 
     float elapsedTime;
     cudaEvent_t startCalc, stopCalc; // computation time
@@ -110,7 +110,7 @@ WLEMDSource::SPtr WSourceReconstructionCuda::reconstruct( WLEMData::ConstSPtr em
     WSourceReconstruction::averageReference( emdData, emd->getData() );
 
     // convert from row-major order to column-major order
-    LaBP::WLTimeProfiler prfToMatrix( CLASS, "reconstruct_toMat", false );
+    WLTimeProfiler prfToMatrix( CLASS, "reconstruct_toMat", false );
     prfToMatrix.start();
     size_t i = 0;
     for( size_t col = 0; col != COLS_B; ++col )
@@ -171,11 +171,11 @@ WLEMDSource::SPtr WSourceReconstructionCuda::reconstruct( WLEMData::ConstSPtr em
     cudaEventRecord( stopCalc, 0 );
     cudaEventSynchronize( stopCalc );
     cudaEventElapsedTime( &elapsedTime, startCalc, stopCalc );
-    LaBP::WLTimeProfiler prfMatMul( CLASS, "reconstruct_matMul", false );
+    WLTimeProfiler prfMatMul( CLASS, "reconstruct_matMul", false );
     prfMatMul.setMilliseconds( elapsedTime );
     wlprofiler::log() << prfMatMul;
 
-    LaBP::WLTimeProfiler prfCopyOut( CLASS, "reconstruct_copyOut", false );
+    WLTimeProfiler prfCopyOut( CLASS, "reconstruct_copyOut", false );
     prfCopyOut.start();
     CublasSafeCall( cublasGetMatrix( ROWS_C, COLS_C, sizeof( LaBP::MatrixElementT ), C_dev, ROWS_C, C_host, ROWS_C ) );
     prfCopyOut.stop();

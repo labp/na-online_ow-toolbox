@@ -65,7 +65,7 @@ WFIRFilter::~WFIRFilter()
 
 WLEMData::SPtr WFIRFilter::filter( const WLEMData::ConstSPtr emdIn )
 {
-    LaBP::WLTimeProfiler prfTime( CLASS, "filter" );
+    WLTimeProfiler prfTime( CLASS, "filter" );
 
     WLEMData::DataT in = emdIn->getData();
     boost::shared_ptr< WLEMData::DataT > out( new WLEMData::DataT() );
@@ -83,7 +83,7 @@ WLEMData::SPtr WFIRFilter::filter( const WLEMData::ConstSPtr emdIn )
 
 void WFIRFilter::doPostProcessing( WLEMMeasurement::SPtr emmOut, WLEMMeasurement::ConstSPtr emmIn )
 {
-    LaBP::WLTimeProfiler prfTime( CLASS, "doPostProcess" );
+    WLTimeProfiler prfTime( CLASS, "doPostProcess" );
 
     boost::shared_ptr< WLEMMeasurement::EDataT > eventsIn = emmIn->getEventChannels();
     if( !eventsIn || eventsIn->empty() )

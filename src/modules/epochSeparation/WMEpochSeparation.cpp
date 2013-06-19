@@ -183,7 +183,7 @@ void WMEpochSeparation::handleResetTriggerPressed()
 
 bool WMEpochSeparation::processCompute( WLEMMeasurement::SPtr emmIn )
 {
-    LaBP::WLTimeProfiler tp( "WMEpochSeparation", "processCompute" );
+    WLTimeProfiler tp( "WMEpochSeparation", "processCompute" );
 
     WLEMMeasurement::SPtr emmOut;
     double frequence;

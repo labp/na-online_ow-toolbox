@@ -54,12 +54,12 @@ WLEMDSource::SPtr WSourceReconstructionCpu::reconstruct( WLEMData::ConstSPtr emd
         // TODO(pieloth): return code
         wlog::error( CLASS ) << "No inverse matrix set!";
     }
-    LaBP::WLTimeProfiler tp(CLASS, "reconstruct");
+   WLTimeProfiler tp(CLASS, "reconstruct");
 
     WLEMData::DataT emdData;
     WSourceReconstruction::averageReference( emdData, emd->getData() );
 
-    LaBP::WLTimeProfiler prfToMatrix( CLASS, "reconstruct_toMat", false );
+    WLTimeProfiler prfToMatrix( CLASS, "reconstruct_toMat", false );
     prfToMatrix.start();
     size_t rows = emdData.size();
     size_t cols = emdData.front().size();
@@ -74,7 +74,7 @@ WLEMDSource::SPtr WSourceReconstructionCpu::reconstruct( WLEMData::ConstSPtr emd
     prfToMatrix.stop();
     wlprofiler::log() << prfToMatrix;
 
-    LaBP::WLTimeProfiler prfMatMul( CLASS, "reconstruct_matMul", false );
+    WLTimeProfiler prfMatMul( CLASS, "reconstruct_matMul", false );
     prfMatMul.start();
     // LaBP::MatrixT S = *m_inverse * data;
     boost::shared_ptr< LaBP::MatrixT > S( new LaBP::MatrixT( *m_inverse * data ) );

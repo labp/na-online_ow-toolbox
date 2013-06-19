@@ -44,21 +44,21 @@ WLEMMeasurement::WLEMMeasurement()
 {
     m_eventChannels.reset( new EDataT() );
     m_subject.reset( new LaBP::WLEMMSubject() );
-    m_profiler.reset( new LaBP::WLTimeProfiler( CLASS, "lifetime" ) );
+    m_profiler.reset( new WLTimeProfiler( CLASS, "lifetime" ) );
 }
 
 WLEMMeasurement::WLEMMeasurement( LaBP::WLEMMSubject::SPtr subject )
 {
     m_subject = subject;
     m_eventChannels.reset( new EDataT() );
-    m_profiler.reset( new LaBP::WLTimeProfiler( CLASS, "lifetime" ) );
+    m_profiler.reset( new WLTimeProfiler( CLASS, "lifetime" ) );
 }
 
 WLEMMeasurement::WLEMMeasurement( const WLEMMeasurement& emm )
 {
     m_eventChannels.reset( new EDataT() );
 
-    m_profiler.reset( new LaBP::WLTimeProfiler( *emm.m_profiler ) );
+    m_profiler.reset( new WLTimeProfiler( *emm.m_profiler ) );
 
     m_expDescription = emm.m_expDescription;
     m_experimenter = emm.m_experimenter;
@@ -250,24 +250,24 @@ size_t WLEMMeasurement::getEventChannelCount() const
     return m_eventChannels->size();
 }
 
-LaBP::WLTimeProfiler::SPtr WLEMMeasurement::getTimeProfiler()
+WLTimeProfiler::SPtr WLEMMeasurement::getTimeProfiler()
 {
     return m_profiler;
 }
 
-LaBP::WLTimeProfiler::ConstSPtr WLEMMeasurement::getTimeProfiler() const
+WLTimeProfiler::ConstSPtr WLEMMeasurement::getTimeProfiler() const
 {
     return m_profiler;
 }
 
-void WLEMMeasurement::setTimeProfiler( LaBP::WLTimeProfiler::SPtr profiler )
+void WLEMMeasurement::setTimeProfiler( WLTimeProfiler::SPtr profiler )
 {
     m_profiler = profiler;
 }
 
-LaBP::WLTimeProfiler::SPtr WLEMMeasurement::createAndAddProfiler( std::string clazz, std::string action )
+WLTimeProfiler::SPtr WLEMMeasurement::createAndAddProfiler( std::string clazz, std::string action )
 {
-    LaBP::WLTimeProfiler::SPtr profiler( new LaBP::WLTimeProfiler( clazz, action ) );
+    WLTimeProfiler::SPtr profiler( new WLTimeProfiler( clazz, action ) );
     m_profiler->addChild( profiler );
     return profiler;
 }

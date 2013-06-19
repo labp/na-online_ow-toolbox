@@ -86,7 +86,7 @@ bool WSourceReconstruction::hasLeadfield() const
 
 bool WSourceReconstruction::calculateWeightningMatrix( WSourceReconstruction::WEWeightingCalculation::Enum type )
 {
-    LaBP::WLTimeProfiler tp(CLASS, "calculateWeightningMatrix");
+    WLTimeProfiler tp(CLASS, "calculateWeightningMatrix");
 
     if( !m_leadfield )
     {
@@ -164,7 +164,7 @@ bool WSourceReconstruction::hasInverse() const
 bool WSourceReconstruction::calculateInverseSolution( const LaBP::MatrixT& noiseCov, const LaBP::MatrixT& dataCov, double snr )
 {
     wlog::debug( CLASS ) << "calculateInverseSolution() called!";
-    LaBP::WLTimeProfiler tp(CLASS, "calculateInverseSolution");
+    WLTimeProfiler tp(CLASS, "calculateInverseSolution");
 
     if( !m_leadfield )
     {
@@ -243,7 +243,7 @@ WLEMDSource::SPtr WSourceReconstruction::createEMDSource( WLEMData::ConstSPtr em
 bool WSourceReconstruction::averageReference( WLEMData::DataT& dataOut, const WLEMData::DataT& dataIn )
 {
     wlog::debug( CLASS ) << "averageReference() called!";
-    LaBP::WLTimeProfiler tp(CLASS, "averageReference");
+    WLTimeProfiler tp(CLASS, "averageReference");
 
     WLEMData::ChannelT dataSum( dataIn.front().size(), 0 );
 

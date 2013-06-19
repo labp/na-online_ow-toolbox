@@ -73,7 +73,7 @@ void WEpochAveraging::setTBase( size_t tbase, bool reset )
 
 WLEMMeasurement::SPtr WEpochAveraging::baseline( WLEMMeasurement::ConstSPtr emm )
 {
-    LaBP::WLTimeProfiler tp(CLASS, "baseline");
+    WLTimeProfiler tp(CLASS, "baseline");
     WLEMData::ConstSPtr emd;
 
     WLEMMeasurement::SPtr emmOut = emm->clone();

@@ -227,7 +227,7 @@ void WMEpochAveraging::handleResetAveragePressed()
 
 bool WMEpochAveraging::processCompute( WLEMMeasurement::SPtr emmIn )
 {
-    LaBP::WLTimeProfiler tp("WMEpochAveraging", "processCompute");
+    WLTimeProfiler tp("WMEpochAveraging", "processCompute");
     WLEMMeasurement::SPtr emmOut;
     double frequence;
 

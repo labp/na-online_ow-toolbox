@@ -37,166 +37,163 @@
 using std::string;
 using std::list;
 
-namespace LaBP
+/**
+ * Explicit time measurement with start and stop method. An instance relates to a class and an action.
+ */
+class WLTimeProfiler: public WLProfiler
 {
+public:
     /**
-     * Explicit time measurement with start and stop method. An instance relates to a class and an action.
+     * Abbreviation for a shared pointer.
      */
-    class WLTimeProfiler : public WLProfiler
-    {
-    public:
-        /**
-         * Abbreviation for a shared pointer.
-         */
-        typedef boost::shared_ptr< WLTimeProfiler > SPtr;
+    typedef boost::shared_ptr< WLTimeProfiler > SPtr;
 
-        /**
-         * Abbreviation for const shared pointer.
-         */
-        typedef boost::shared_ptr< const WLTimeProfiler > ConstSPtr;
+    /**
+     * Abbreviation for const shared pointer.
+     */
+    typedef boost::shared_ptr< const WLTimeProfiler > ConstSPtr;
 
-        typedef double TimeT;
+    typedef double TimeT;
 
-        static const string CLASS;
+    static const string CLASS;
 
-        static const double NO_TIME;
+    static const double NO_TIME;
 
-        /**
-         * Constructor to measure an action or method of a class.
-         *
-         * \param clazz Class to measure
-         * \param action Action or method to measure
-         */
-        WLTimeProfiler( string clazz, string action, bool autoLog = true );
+    /**
+     * Constructor to measure an action or method of a class.
+     *
+     * \param clazz Class to measure
+     * \param action Action or method to measure
+     */
+    WLTimeProfiler( string clazz, string action, bool autoLog = true );
 
-        WLTimeProfiler( const WLTimeProfiler& profiler );
+    WLTimeProfiler( const WLTimeProfiler& profiler );
 
-        virtual ~WLTimeProfiler();
+    virtual ~WLTimeProfiler();
 
-        virtual std::ostream& write( std::ostream& strm ) const;
+    virtual std::ostream& write( std::ostream& strm ) const;
 
-        virtual std::string getName() const;
+    virtual std::string getName() const;
 
-        /**
-         * Returns the class.
-         *
-         * \return class name
-         */
-        string getClass() const;
+    /**
+     * Returns the class.
+     *
+     * \return class name
+     */
+    string getClass() const;
 
-        /**
-         * Returns the action name.
-         *
-         * \return action name
-         */
-        string getAction() const;
+    /**
+     * Returns the action name.
+     *
+     * \return action name
+     */
+    string getAction() const;
 
-        /**
-         * Adds a time profiler to this object, i.e. to store previous measurements.
-         *
-         * \param profiler Measurement to add
-         */
-        void addChild( WLTimeProfiler::SPtr profiler );
+    /**
+     * Adds a time profiler to this object, i.e. to store previous measurements.
+     *
+     * \param profiler Measurement to add
+     */
+    void addChild( WLTimeProfiler::SPtr profiler );
 
-        /**
-         * Creates a new measurement object and add it to children list.
-         *
-         * \param clazz Class to measure
-         * \param action Action or method to measure
-         *
-         * \return Create object
-         */
-        WLTimeProfiler::SPtr createAndAdd( string clazz, string action );
+    /**
+     * Creates a new measurement object and add it to children list.
+     *
+     * \param clazz Class to measure
+     * \param action Action or method to measure
+     *
+     * \return Create object
+     */
+    WLTimeProfiler::SPtr createAndAdd( string clazz, string action );
 
-        /**
-         * Returns the children profiler.
-         *
-         * \return list of profiler
-         */
-        list< WLTimeProfiler::SPtr >& getProfilers();
+    /**
+     * Returns the children profiler.
+     *
+     * \return list of profiler
+     */
+    list< WLTimeProfiler::SPtr >& getProfilers();
 
-        /**
-         * Returns the start time.
-         *
-         * \return start time
-         */
-        TimeT getStart() const;
+    /**
+     * Returns the start time.
+     *
+     * \return start time
+     */
+    TimeT getStart() const;
 
-        /**
-         * Returns the stop time.
-         *
-         * \return stop time
-         */
-        TimeT getStop() const;
+    /**
+     * Returns the stop time.
+     *
+     * \return stop time
+     */
+    TimeT getStop() const;
 
-        /**
-         * Returns the time difference between start and stop in milliseconds or NO_TIME.
-         *
-         * \return difference between start/stop or NO_TIME if measurement is not started or stopped.
-         */
-        double getMilliseconds() const;
+    /**
+     * Returns the time difference between start and stop in milliseconds or NO_TIME.
+     *
+     * \return difference between start/stop or NO_TIME if measurement is not started or stopped.
+     */
+    double getMilliseconds() const;
 
-        /**
-         * Sets a user defined time in milliseconds.
-         */
-        void setMilliseconds( double ms );
+    /**
+     * Sets a user defined time in milliseconds.
+     */
+    void setMilliseconds( double ms );
 
-        /**
-         * Starts a measurement.
-         *
-         * \return time stamp when the measurement was started.
-         */
-        TimeT start();
+    /**
+     * Starts a measurement.
+     *
+     * \return time stamp when the measurement was started.
+     */
+    TimeT start();
 
-        /**
-         * Indicates if the measurement is started.
-         *
-         * \return true if measurement is started.
-         */
-        bool isStarted();
+    /**
+     * Indicates if the measurement is started.
+     *
+     * \return true if measurement is started.
+     */
+    bool isStarted();
 
-        /**
-         * Stops a measurement.
-         *
-         * \return time stamp when the measurement was stopped.
-         */
-        TimeT stop();
+    /**
+     * Stops a measurement.
+     *
+     * \return time stamp when the measurement was stopped.
+     */
+    TimeT stop();
 
-        /**
-         * Indicates if the measurement is stopped.
-         *
-         * \return true if measurement is stopped.
-         */
-        bool isStopped();
+    /**
+     * Indicates if the measurement is stopped.
+     *
+     * \return true if measurement is stopped.
+     */
+    bool isStopped();
 
-        /**
-         * Logs the status as info: <clazz>::<action>: <milliseconds> ms
-         */
-        void log();
+    /**
+     * Logs the status as info: <clazz>::<action>: <milliseconds> ms
+     */
+    void log();
 
-        /**
-         * Stops the measurement and logs the status as info.
-         */
-        void stopAndLog();
+    /**
+     * Stops the measurement and logs the status as info.
+     */
+    void stopAndLog();
 
-        /**
-         * Creates a shallow copy: no children
-         *
-         * \return new profiler instance
-         */
-        WLTimeProfiler::SPtr clone() const;
+    /**
+     * Creates a shallow copy: no children
+     *
+     * \return new profiler instance
+     */
+    WLTimeProfiler::SPtr clone() const;
 
-    private:
-        list< WLTimeProfiler::SPtr > m_profilers;
+private:
+    list< WLTimeProfiler::SPtr > m_profilers;
 
-        WTimer::SPtr m_timer;
+    WTimer::SPtr m_timer;
 
-        TimeT m_start;
-        bool m_isStarted;
+    TimeT m_start;
+    bool m_isStarted;
 
-        TimeT m_stop;
-        bool m_isStopped;
-    };
+    TimeT m_stop;
+    bool m_isStopped;
+};
 
-} // namespace LaBP
 #endif  // WLTIMEPROFILER_H_

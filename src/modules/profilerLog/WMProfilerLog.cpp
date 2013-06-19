@@ -148,7 +148,7 @@ bool WMProfilerLog::write( std::string fname, WLEMMeasurement::SPtr emm )
     if( !fstream.is_open() )
         return false;
 
-    LaBP::WLTimeProfiler::SPtr profiler = emm->getTimeProfiler();
+    WLTimeProfiler::SPtr profiler = emm->getTimeProfiler();
     profiler->stop();
     write( fstream, profiler, "" );
 
@@ -156,13 +156,13 @@ bool WMProfilerLog::write( std::string fname, WLEMMeasurement::SPtr emm )
     return true;
 }
 
-void WMProfilerLog::write( std::ofstream& fstream, LaBP::WLTimeProfiler::SPtr profiler, std::string prefix )
+void WMProfilerLog::write( std::ofstream& fstream, WLTimeProfiler::SPtr profiler, std::string prefix )
 {
     fstream << prefix << profiler->getClass() << "::" << profiler->getAction() << ": " << profiler->getMilliseconds()
                     << std::endl;
     prefix.append( "\t" );
-    std::list< LaBP::WLTimeProfiler::SPtr >& profilers = profiler->getProfilers();
-    for( std::list< LaBP::WLTimeProfiler::SPtr >::iterator it = profilers.begin(); it != profilers.end(); ++it )
+    std::list< WLTimeProfiler::SPtr >& profilers = profiler->getProfilers();
+    for( std::list< WLTimeProfiler::SPtr >::iterator it = profilers.begin(); it != profilers.end(); ++it )
     {
         write( fstream, ( *it ), prefix );
     }

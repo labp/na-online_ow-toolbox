@@ -255,13 +255,13 @@ public:
      */
     size_t getEventChannelCount() const;
 
-    LaBP::WLTimeProfiler::SPtr getTimeProfiler();
-    LaBP::WLTimeProfiler::ConstSPtr getTimeProfiler() const;
-    void setTimeProfiler( LaBP::WLTimeProfiler::SPtr profiler );
-    LaBP::WLTimeProfiler::SPtr createAndAddProfiler( std::string clazz, std::string action );
+    WLTimeProfiler::SPtr getTimeProfiler();
+    WLTimeProfiler::ConstSPtr getTimeProfiler() const;
+    void setTimeProfiler( WLTimeProfiler::SPtr profiler );
+    WLTimeProfiler::SPtr createAndAddProfiler( std::string clazz, std::string action );
 
 private:
-    LaBP::WLTimeProfiler::SPtr m_profiler;
+    WLTimeProfiler::SPtr m_profiler;
 
     /**
      * experiment supervisor

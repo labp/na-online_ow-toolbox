@@ -51,7 +51,7 @@ void WFIRFilterCuda::filter( WLEMData::DataT& out, const WLEMData::DataT& in,
                 const WLEMData::DataT& prev )
 {
     wlog::debug( CLASS ) << "filter() called!";
-    LaBP::WLTimeProfiler prfTime( CLASS, "filter" );
+    WLTimeProfiler prfTime( CLASS, "filter" );
 
     const size_t samples = in[0].size();
 
@@ -104,7 +104,7 @@ void WFIRFilterCuda::filter( WLEMData::DataT& out, const WLEMData::DataT& in,
     free( previous );
     free( coeffs );
 
-    LaBP::WLTimeProfiler prfTimeKernel( CLASS, "filter_kernel", false );
+    WLTimeProfiler prfTimeKernel( CLASS, "filter_kernel", false );
     prfTimeKernel.setMilliseconds( time );
     wlprofiler::log() << prfTimeKernel;
 }

@@ -58,7 +58,7 @@ size_t WEpochAveragingMoving::getCount() const
 
 WLEMMeasurement::SPtr WEpochAveragingMoving::getAverage( WLEMMeasurement::ConstSPtr emmIn )
 {
-    LaBP::WLTimeProfiler tp( CLASS, "getAverage" );
+    WLTimeProfiler tp( CLASS, "getAverage" );
 
     emmIn = WEpochAveraging::baseline( emmIn );
 
@@ -66,7 +66,7 @@ WLEMMeasurement::SPtr WEpochAveragingMoving::getAverage( WLEMMeasurement::ConstS
 
     WLEMMeasurement::SPtr emmOut( new WLEMMeasurement( *emmIn ) );
     // TODO(pieloth): new profiler
-    LaBP::WLTimeProfiler::SPtr profiler( new LaBP::WLTimeProfiler( CLASS, "lifetime" ) );
+    WLTimeProfiler::SPtr profiler( new WLTimeProfiler( CLASS, "lifetime" ) );
     profiler->start();
     emmOut->setTimeProfiler( profiler );
 

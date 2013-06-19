@@ -50,7 +50,7 @@ void WFIRFilterCpu::filter( WLEMData::DataT& out, const WLEMData::DataT& in,
                 const WLEMData::DataT& prevData )
 {
     wlog::debug( CLASS ) << "filter() called!";
-    LaBP::WLTimeProfiler prfTime( CLASS, "filter" );
+    WLTimeProfiler prfTime( CLASS, "filter" );
 
     for( size_t i = 0; i < in.size(); ++i )
     {
