@@ -40,6 +40,12 @@ WLEMMCommand::~WLEMMCommand()
 {
 }
 
+WLEMMCommand::SPtr WLEMMCommand::instance( Command::Enum command )
+{
+    WLEMMCommand::SPtr instance( new WLEMMCommand( command ) );
+    return instance;
+}
+
 const std::string WLEMMCommand::getName() const
 {
     return "WLEMMCommand";

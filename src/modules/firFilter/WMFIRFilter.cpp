@@ -309,7 +309,7 @@ void WMFIRFilter::handleDesignButtonPressed( void )
 
     infoLog() << "New filter designed!";
 
-    WLEMMCommand::SPtr labp( new WLEMMCommand( WLEMMCommand::Command::RESET ) );
+    WLEMMCommand::SPtr labp = WLEMMCommand::instance( WLEMMCommand::Command::RESET );
     processReset( labp );
 }
 
@@ -367,8 +367,7 @@ bool WMFIRFilter::processCompute( WLEMMeasurement::SPtr emmIn )
 
     updateView( emmOut );
 
-    WLEMMCommand::SPtr labp( new WLEMMCommand() );
-    labp->setCommand( WLEMMCommand::Command::COMPUTE );
+    WLEMMCommand::SPtr labp = WLEMMCommand::instance( WLEMMCommand::Command::COMPUTE );
     labp->setEmm( emmOut );
     m_output->updateData( labp );
 

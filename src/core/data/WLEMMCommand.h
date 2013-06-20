@@ -82,6 +82,8 @@ public:
 
     virtual ~WLEMMCommand();
 
+    static WLEMMCommand::SPtr instance( Command::Enum command = Command::MISC );
+
     // ---------------------
     // Methods from WDataSet
     // ---------------------

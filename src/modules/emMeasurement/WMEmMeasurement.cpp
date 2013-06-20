@@ -832,7 +832,7 @@ void WMEmMeasurement::handleExperimentLoadChanged()
         m_isExpLoaded = true;
 
         WLEMMeasurement::SPtr emm( new WLEMMeasurement( m_subject ) );
-        WLEMMCommand::SPtr labp( new WLEMMCommand( WLEMMCommand::Command::INIT ) );
+        WLEMMCommand::SPtr labp = WLEMMCommand::instance( WLEMMCommand::Command::INIT );
         labp->setEmm( emm );
         m_output->updateData( labp );
     }
@@ -905,7 +905,7 @@ bool WMEmMeasurement::processCompute( WLEMMeasurement::SPtr emm )
     // Set a new profiler for the new EMM
     emm->setProfiler( WLLifetimeProfiler::instance( WLEMMeasurement::CLASS, "lifetime" ) );
 
-    WLEMMCommand::SPtr labp( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
+    WLEMMCommand::SPtr labp = WLEMMCommand::instance( WLEMMCommand::Command::COMPUTE );
     labp->setEmm( emm );
     updateView( emm );
     m_output->updateData( labp );

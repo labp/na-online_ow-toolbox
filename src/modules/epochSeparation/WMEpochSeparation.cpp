@@ -173,7 +173,7 @@ void WMEpochSeparation::handleResetTriggerPressed()
 {
     debugLog() << "handleResetTriggerPressed() called!";
 
-    WLEMMCommand::SPtr labp( new WLEMMCommand( WLEMMCommand::Command::RESET ) );
+    WLEMMCommand::SPtr labp = WLEMMCommand::instance( WLEMMCommand::Command::RESET );
     processReset( labp );
 
     m_resetTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, true );
@@ -208,7 +208,7 @@ bool WMEpochSeparation::processCompute( WLEMMeasurement::SPtr emmIn )
         emmOut = m_separation->getNextEpoch();
         // Only update the view for the last epoch.
 
-        WLEMMCommand::SPtr labp( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
+        WLEMMCommand::SPtr labp = WLEMMCommand::instance( WLEMMCommand::Command::COMPUTE );
         labp->setEmm( emmOut );
         m_output->updateData( labp );
     }

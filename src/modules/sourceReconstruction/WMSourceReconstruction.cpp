@@ -411,7 +411,7 @@ bool WMSourceReconstruction::processCompute( WLEMMeasurement::SPtr emmIn )
 
     updateView( emmOut );
 
-    WLEMMCommand::SPtr labp( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
+    WLEMMCommand::SPtr labp = WLEMMCommand::instance( WLEMMCommand::Command::COMPUTE );
     labp->setEmm( emmOut );
     m_output->updateData( labp );
     return true;
