@@ -902,7 +902,8 @@ void WMEmMeasurement::extractExpLoader( std::string fName )
 
 bool WMEmMeasurement::processCompute( WLEMMeasurement::SPtr emm )
 {
-    emm->setProfiler( WLLifetimeProfiler( WLEMMeasurement::CLASS, "lifetime" ) );
+    // Set a new profiler for the new EMM
+    emm->setProfiler( WLLifetimeProfiler::instance( WLEMMeasurement::CLASS, "lifetime" ) );
 
     WLEMMCommand::SPtr labp( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
     labp->setEmm( emm );

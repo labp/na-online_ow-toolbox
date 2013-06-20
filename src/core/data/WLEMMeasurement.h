@@ -257,7 +257,7 @@ public:
 
     WLLifetimeProfiler::SPtr getProfiler();
     WLLifetimeProfiler::ConstSPtr getProfiler() const;
-    void setProfiler( const WLLifetimeProfiler& profiler );
+    void setProfiler( WLLifetimeProfiler::SPtr profiler );
 
 private:
     WLLifetimeProfiler::SPtr m_profiler;
