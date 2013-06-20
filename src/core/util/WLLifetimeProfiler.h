@@ -55,9 +55,18 @@ public:
 
     WLLifetimeProfiler( std::string source, std::string action );
 
+    /**
+     * Creates a copy and increments the clone counter by 1
+     *
+     * \param Instance to copy.
+     */
     WLLifetimeProfiler( const WLLifetimeProfiler& o );
 
     virtual ~WLLifetimeProfiler();
+
+    WLLifetimeProfiler::SPtr clone() const;
+
+    static WLLifetimeProfiler::SPtr instance( std::string source, std::string action );
 
     /**
      * Method to log or store the result.

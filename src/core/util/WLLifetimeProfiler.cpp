@@ -47,6 +47,18 @@ WLLifetimeProfiler::~WLLifetimeProfiler()
     // TODO(pieloth): destructor
 }
 
+WLLifetimeProfiler::SPtr WLLifetimeProfiler::clone() const
+{
+    WLLifetimeProfiler::SPtr cloned( new WLLifetimeProfiler( *this ) );
+    return cloned;
+}
+
+WLLifetimeProfiler::SPtr WLLifetimeProfiler::instance( std::string source, std::string action )
+{
+    WLLifetimeProfiler::SPtr instance( new WLLifetimeProfiler( source, action ) );
+    return instance;
+}
+
 std::ostream& WLLifetimeProfiler::write( std::ostream& strm ) const
 {
     return strm << m_source << "::" << m_action << ": age=" << m_timeProfiler->getMilliseconds() << " ms - clones=" << m_clones;
