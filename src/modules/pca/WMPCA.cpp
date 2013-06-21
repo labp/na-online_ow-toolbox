@@ -156,9 +156,9 @@ void WMPCA::moduleMain()
     debugLog() << "Entering main loop";
     while( !m_shutdownFlag() )
     {
-        debugLog() << "Waiting for Events";
         if( m_input->isEmpty() )
         {
+            debugLog() << "Waiting for Events";
             m_moduleState.wait(); // wait for events like inputdata or properties changed
         }
         // ---------- SHUTDOWNEVENT ----------

@@ -136,9 +136,9 @@ void WMEpochSeparation::moduleMain()
 
     while( !m_shutdownFlag() )
     {
-        debugLog() << "Waiting for Events";
         if( m_input->isEmpty() ) // continue processing if data is available
         {
+            debugLog() << "Waiting for Events";
             m_moduleState.wait(); // wait for events like inputdata or properties changed
         }
 
