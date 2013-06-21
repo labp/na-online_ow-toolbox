@@ -22,14 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#include <fstream>
-#include <list>
 #include <string>
 
-#include <boost/shared_ptr.hpp>
-
-#include <core/common/WPathHelper.h>
-#include <core/common/WPropertyHelper.h>
 #include <core/kernel/WModule.h>
 
 #include "core/data/WLEMMCommand.h"
@@ -54,9 +48,9 @@ WMProfilerLog::~WMProfilerLog()
 
 }
 
-boost::shared_ptr< WModule > WMProfilerLog::factory() const
+WModule::SPtr WMProfilerLog::factory() const
 {
-    return boost::shared_ptr< WModule >( new WMProfilerLog() );
+    return WModule::SPtr( new WMProfilerLog() );
 }
 
 const char** WMProfilerLog::getXPMIcon() const
@@ -71,7 +65,7 @@ const std::string WMProfilerLog::getName() const
 
 const std::string WMProfilerLog::getDescription() const
 {
-    return "Profile Logger. Module supports LaBP data types only!";
+    return "Just prints the LifetimeProfiler. (LaBP data types only)";
 }
 
 void WMProfilerLog::connectors()
@@ -89,12 +83,6 @@ void WMProfilerLog::connectors()
 
 void WMProfilerLog::properties()
 {
-    m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
-
-    m_propGrpModule = m_properties->addPropertyGroup( "Profile Logger", "Profile Logger", false );
-
-    const std::string file( "/tmp/ow_profiler.log" );
-    m_file = m_propGrpModule->addProperty( "File:", "File incl. path to store log.", file );
 }
 
 void WMProfilerLog::moduleMain()
@@ -102,7 +90,6 @@ void WMProfilerLog::moduleMain()
     // init moduleState for using Events in mainLoop
     m_moduleState.setResetable( true, true ); // resetable, autoreset
     m_moduleState.add( m_input->getDataChangedCondition() ); // when inputdata changed
-    m_moduleState.add( m_propCondition ); // when properties changed
 
     WLEMMCommand::SPtr labpIn;
 
@@ -112,9 +99,9 @@ void WMProfilerLog::moduleMain()
 
     while( !m_shutdownFlag() )
     {
-        debugLog() << "Waiting for Events";
         if( m_input->isEmpty() ) // continue processing if data is available
         {
+            debugLog() << "Waiting for Events";
             m_moduleState.wait(); // wait for events like inputdata or properties changed
         }
 
@@ -134,42 +121,9 @@ void WMProfilerLog::moduleMain()
         // ---------- INPUTDATAUPDATEEVENT ----------
         if( dataValid && labpIn->hasEmm() ) // If there was an update on the inputconnector
         {
-            // The data is valid and we received an update. The data is not NULL but may be the same as in previous loops.
-            debugLog() << "received data";
-            write( m_file->get( true ), labpIn->getEmm() );
+            wlprofiler::log() << *( labpIn->getEmm()->getProfiler() );
+
             m_output->updateData( labpIn );
         }
     }
-}
-
-bool WMProfilerLog::write( std::string fname, WLEMMeasurement::SPtr emm )
-{
-    std::ofstream fstream;
-    fstream.open( fname.c_str(), std::ofstream::app );
-    if( !fstream.is_open() )
-        return false;
-
-    // TODO(pieloth): Use new profiling structure.
-    WLLifetimeProfiler::SPtr profiler = emm->getProfiler();
-    profiler->pause();
-    write( fstream, profiler, "" );
-
-    fstream.close();
-
-    wlprofiler::log() << *(emm->getProfiler());
-    return true;
-}
-
-void WMProfilerLog::write( std::ofstream& fstream, WLLifetimeProfiler::SPtr profiler, std::string prefix )
-{
-    // TODO(pieloth): Use new profiling structure.
-//    fstream << prefix << profiler->getSource() << "::" << profiler->getAction() << ": " << profiler->getMilliseconds()
-//                    << std::endl;
-//    prefix.append( "\t" );
-    // TODO(pieloth): Use new profiling structure.
-//    std::list< WLTimeProfiler::SPtr >& profilers = profiler->getProfilers();
-//    for( std::list< WLTimeProfiler::SPtr >::iterator it = profilers.begin(); it != profilers.end(); ++it )
-//    {
-//        write( fstream, ( *it ), prefix );
-//    }
 }
