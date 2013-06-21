@@ -44,7 +44,7 @@ namespace LaBP
 {
 
     WLColorMap::WLColorMap( ValueT min, ValueT max, WEColorMapMode::Enum mode ) :
-                    osgSim::ScalarsToColors( min, max ), m_mode( mode )
+                    osgSim::ScalarsToColors( mode == WEColorMapMode::ABSOLUTE && min < 0 ? 0 : min, max ), m_mode( mode )
     {
         if( mode == WEColorMapMode::ABSOLUTE && min < 0 )
         {
