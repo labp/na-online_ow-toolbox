@@ -33,7 +33,7 @@
 
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMData.h"
-#include "core/util/WLTimeProfiler.h"
+#include "core/util/profiler/WLTimeProfiler.h"
 
 #include "WEpochSeparation.h"
 

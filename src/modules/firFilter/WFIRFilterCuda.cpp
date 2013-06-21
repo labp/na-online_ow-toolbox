@@ -27,8 +27,8 @@
 
 #include <core/common/WLogger.h>
 
-#include "core/util/WLProfilerLogger.h"
-#include "core/util/WLTimeProfiler.h"
+#include "core/util/profiler/WLProfilerLogger.h"
+#include "core/util/profiler/WLTimeProfiler.h"
 
 #include "WFIRFilter.h"
 #include "WFIRFilterCuda.h"

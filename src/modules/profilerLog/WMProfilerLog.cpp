@@ -30,8 +30,8 @@
 #include "core/data/WLEMMeasurement.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
-#include "core/util/WLLifetimeProfiler.h"
-#include "core/util/WLProfilerLogger.h"
+#include "core/util/profiler/WLLifetimeProfiler.h"
+#include "core/util/profiler/WLProfilerLogger.h"
 
 #include "WMProfilerLog.h"
 #include "WMProfilerLog.xpm"

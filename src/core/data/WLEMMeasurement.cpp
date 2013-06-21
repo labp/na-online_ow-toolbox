@@ -97,7 +97,7 @@ WLEMMeasurement::SPtr WLEMMeasurement::newModalityData( WLEMData::SPtr modality 
     return emm;
 }
 
-void WLEMMeasurement::addModality( boost::shared_ptr< WLEMData > modality )
+void WLEMMeasurement::addModality( WLEMData::SPtr modality )
 {
     m_modalityList.push_back( modality );
 }
@@ -200,7 +200,7 @@ std::set< LaBP::WEModalityType::Enum > WLEMMeasurement::getModalityTypes() const
 
 bool WLEMMeasurement::hasModality( LaBP::WEModalityType::Enum type ) const
 {
-    for( std::vector< boost::shared_ptr< WLEMData > >::size_type i = 0; i < m_modalityList.size(); ++i )
+    for( std::vector< WLEMData::SPtr >::size_type i = 0; i < m_modalityList.size(); ++i )
     {
         if( m_modalityList.at( i )->getModalityType() == type )
         {

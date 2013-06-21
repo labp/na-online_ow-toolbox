@@ -28,7 +28,7 @@
 #include <core/common/WLogger.h>
 
 #include "core/data/emd/WLEMData.h"
-#include "core/util/WLTimeProfiler.h"
+#include "core/util/profiler/WLTimeProfiler.h"
 
 #include "WFIRFilter.h"
 #include "WFIRFilterCpu.h"

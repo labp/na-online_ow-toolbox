@@ -37,8 +37,8 @@
 #include "core/data/WLMatrixTypes.h"
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDSource.h"
-#include "core/util/WLProfilerLogger.h"
-#include "core/util/WLTimeProfiler.h"
+#include "core/util/profiler/WLProfilerLogger.h"
+#include "core/util/profiler/WLTimeProfiler.h"
 
 #include "WSourceReconstructionCuda.h"
 

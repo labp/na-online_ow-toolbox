@@ -35,7 +35,7 @@
 #include "core/data/WLEMMeasurement.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
-#include "core/util/WLTimeProfiler.h"
+#include "core/util/profiler/WLTimeProfiler.h"
 
 #include "WMPCA.h"
 #include "WMPCA.xpm"

@@ -32,7 +32,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "core/util/WLLifetimeProfiler.h"
+#include "core/util/profiler/WLLifetimeProfiler.h"
 
 #include "core/data/emd/WLEMData.h"
 #include "WLEMMEnumTypes.h"

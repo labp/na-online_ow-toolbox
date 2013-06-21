@@ -40,7 +40,7 @@
 #include "core/data/emd/WLEMData.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
-#include "core/util/WLTimeProfiler.h"
+#include "core/util/profiler/WLTimeProfiler.h"
 
 // FIR filter implementations
 #include "WFIRFilter.h"

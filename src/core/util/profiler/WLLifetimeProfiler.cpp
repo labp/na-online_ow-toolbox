@@ -24,6 +24,7 @@
 
 #include <string>
 
+#include "WLProfilerLogger.h"
 #include "WLLifetimeProfiler.h"
 
 const std::string WLLifetimeProfiler::CLASS = "WLLifetimeProfiler";
@@ -44,7 +45,10 @@ WLLifetimeProfiler::WLLifetimeProfiler( const WLLifetimeProfiler& o ) :
 
 WLLifetimeProfiler::~WLLifetimeProfiler()
 {
-    // TODO(pieloth): destructor
+    if( isAutoLog() )
+    {
+        wlprofiler::log() << *this;
+    }
 }
 
 WLLifetimeProfiler::SPtr WLLifetimeProfiler::clone() const
