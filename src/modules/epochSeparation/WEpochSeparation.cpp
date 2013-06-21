@@ -126,7 +126,6 @@ WLEMMeasurement::SPtr WEpochSeparation::getNextEpoch()
 
 size_t WEpochSeparation::extract( const WLEMMeasurement::SPtr emmIn )
 {
-    // TODO(pieloth): "kill" emmIn to log lifetime.
     WLTimeProfiler tp( CLASS, "extract" );
     size_t count = 0;
     if( emmIn->getModalityCount() < 1 || emmIn->getEventChannelCount() < m_channel + 1 )
