@@ -204,8 +204,8 @@ namespace LaBP
             const ValueT z = -1.0f;
             bgVertices->push_back( osg::Vec3( m_xOffset, height - 16, z ) );
             bgVertices->push_back( osg::Vec3( m_xOffset, height, z ) );
-            bgVertices->push_back( osg::Vec3( m_xOffset + 50, height, z ) );
-            bgVertices->push_back( osg::Vec3( m_xOffset + 50, height - 16, z ) );
+            bgVertices->push_back( osg::Vec3( m_xOffset + 95, height, z ) );
+            bgVertices->push_back( osg::Vec3( m_xOffset + 95, height - 16, z ) );
 
             osg::ref_ptr< WLColorArray > bgColors = new WLColorArray;
             bgColors->push_back( defaultColor::WHITE );
@@ -221,7 +221,7 @@ namespace LaBP
 
             // Create time scale text.
             osg::ref_ptr< osgText::Text > text = new osgText::Text;
-            text->setText( "50ms" ); // related to deltaT
+            text->setText( "50ms/DIV" ); // related to deltaT
             text->setPosition( osg::Vec3( m_xOffset, height, 0.0 ) );
             text->setAlignment( osgText::Text::LEFT_TOP );
             text->setAxisAlignment( osgText::Text::SCREEN );
