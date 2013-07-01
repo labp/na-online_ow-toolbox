@@ -33,7 +33,12 @@
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/shared_ptr.hpp>
 
+#include <Eigen/Core>
+
 #include "core/data/WLEMMEnumTypes.h"
+
+using Eigen::MatrixXd;
+using Eigen::RowVectorXd;
 
 /**
  * Class for general modality. Saves information which are present for all modalities.
@@ -51,11 +56,15 @@ public:
      */
     typedef boost::shared_ptr< const WLEMData > ConstSPtr;
 
-    typedef double SampleT;
+    typedef MatrixXd DataT;
 
-    typedef std::vector< SampleT > ChannelT;
+    typedef RowVectorXd ChannelT;
 
-    typedef std::vector< ChannelT > DataT;
+    typedef DataT::Scalar SampleT;
+
+    typedef boost::shared_ptr< DataT > DataSPtr;
+
+    typedef boost::shared_ptr< const DataT > DataConstSPtr;
 
     /**
      * TODO(kaehler): Comments
@@ -91,10 +100,10 @@ public:
         return boost::dynamic_pointer_cast< EMD >( shared_from_this() );
     }
 
-    /**
-     * TODO(kaehler): Comments
-     */
-    void addSample( double value );
+//    /**
+//     * TODO(kaehler): Comments
+//     */
+//    void addSample( double value );
 
     /**
      * TODO(kaehler): Comments
@@ -109,7 +118,7 @@ public:
     /**
      * TODO(kaehler): Comments
      */
-    virtual void setData( boost::shared_ptr< DataT > data );
+    virtual void setData( DataSPtr data );
 
     /**
      * TODO(kaehler): Comments
@@ -329,7 +338,7 @@ protected:
     /**
      * TODO(kaehler): size in constructor malloc [nrChans][m_dataBuffSizePerChan] evtl. als vector oder resize
      */
-    boost::shared_ptr< DataT > m_data;
+    DataSPtr m_data;
 
     // TODO(fuchs): snr estimate or/and noise covariance matrix for source localisation
 };

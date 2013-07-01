@@ -209,7 +209,7 @@ void WEpochSeparation::setupBuffer( WLEMData::ConstSPtr emd )
         // have to save preSamples + 1 (current)
         // e.g. preSample = 500; blockSize = 100; elements = (500 + 100) / 100 = 6
         // ... 5x EMM for preSamples and 1x EMM for current sample in current EMM
-        m_blockSize = emd->getData()[0].size();
+        m_blockSize = emd->getSamplesPerChan();
         size_t elements = ceil( ( float )( m_preSamples + m_blockSize ) / m_blockSize );
         m_buffer.reset( new LaBP::WLRingBuffer< WLEMMeasurement >( elements ) );
         wlog::debug( CLASS ) << "BlockSize: " << m_blockSize;
@@ -238,12 +238,7 @@ WEpochSeparation::LeftEpoch::SPtr WEpochSeparation::processPreSamples( size_t eI
     {
         emd = emm->getModality( mod );
         emdEpoch = emd->clone();
-        emdEpoch->getData().resize( emd->getData().size() );
-        for( size_t chan = 0; chan < emdEpoch->getData().size(); ++chan )
-        {
-            emdEpoch->getData()[chan].reserve( m_preSamples + 1 + m_postSamples );
-            WAssertDebug( emdEpoch->getData()[chan].size() == 0, "emdEpoch->getData()[chan].size() == 0" );
-        }
+        emdEpoch->getData().resize( emd->getNrChans(), m_preSamples + 1 + m_postSamples );
         emmEpoch->addModality( emdEpoch );
     }
 
@@ -282,12 +277,10 @@ WEpochSeparation::LeftEpoch::SPtr WEpochSeparation::processPreSamples( size_t eI
             emdEpoch = emmEpoch->getModality( mod );
             WLEMData::DataT& data = emdEpoch->getData();
 
-            WAssertDebug( emd->getData().size() == emdEpoch->getData().size(), "Different channel count!" );
-            for( size_t chan = 0; chan < emdEpoch->getData().size(); ++chan )
-            {
-                data[chan].insert( data[chan].end(), emd->getData()[chan].begin() + pStart,
-                                emd->getData()[chan].begin() + pStart + offset );
-            }
+            WAssertDebug( emd->getNrChans() == emdEpoch->getNrChans(), "Different channel count!" );
+            const WLEMData::DataT::Index channels = data.rows();
+            const WLEMData::DataT& dataIn = emd->getData();
+            data.block( 0, samplesCopied, channels, offset ) = dataIn.block( 0, pStart, channels, offset );
         }
 
         // Copy event channels //
@@ -337,12 +330,10 @@ bool WEpochSeparation::processPostSamples( LeftEpoch::SPtr leftEpoch, WLEMMeasur
         emdEpoch = emmEpoch->getModality( mod );
 
         WLEMData::DataT& data = emdEpoch->getData();
-        WAssertDebug( emd->getData().size() == emdEpoch->getData().size(), "Different channel count!" );
-        for( size_t chan = 0; chan < emdEpoch->getData().size(); ++chan )
-        {
-            data[chan].insert( data[chan].end(), emd->getData()[chan].begin() + pStart,
-                            emd->getData()[chan].begin() + pStart + offset );
-        }
+        WAssertDebug( emd->getNrChans() == emdEpoch->getNrChans(), "Different channel count!" );
+        const WLEMData::DataT::Index channels = data.rows();
+        const WLEMData::DataT& dataIn = emd->getData();
+        data.block( 0, data.cols() - samplesLeft, channels, offset ) = dataIn.block( 0, pStart, channels, offset );
     }
 
     boost::shared_ptr< WLEMMeasurement::EDataT > events = emm->getEventChannels();

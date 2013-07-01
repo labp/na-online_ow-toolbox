@@ -25,7 +25,6 @@
 #ifndef WLBOUNDCALCULATOR_H_
 #define WLBOUNDCALCULATOR_H_
 
-#include "core/data/WLMatrixTypes.h"
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMEnumTypes.h"
 #include "core/data/emd/WLEMData.h"
@@ -38,7 +37,6 @@ namespace LaBP
         explicit WLBoundCalculator( WLEMData::SampleT alpha = 1.5 );
         WLEMData::SampleT getMax2D( WLEMMeasurement::ConstSPtr emm, LaBP::WEModalityType::Enum modality );
         WLEMData::SampleT getMax3D( WLEMMeasurement::ConstSPtr emm, LaBP::WEModalityType::Enum modality );
-        WLEMData::SampleT getMax( const MatrixT& matrix );
         WLEMData::SampleT getMax( const WLEMData::DataT& data );
         virtual ~WLBoundCalculator();
 

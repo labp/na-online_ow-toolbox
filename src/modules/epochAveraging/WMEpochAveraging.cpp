@@ -227,7 +227,7 @@ void WMEpochAveraging::handleResetAveragePressed()
 
 bool WMEpochAveraging::processCompute( WLEMMeasurement::SPtr emmIn )
 {
-    WLTimeProfiler tp("WMEpochAveraging", "processCompute");
+    WLTimeProfiler tp( "WMEpochAveraging", "processCompute" );
     WLEMMeasurement::SPtr emmOut;
     double frequence;
 
@@ -253,15 +253,15 @@ bool WMEpochAveraging::processCompute( WLEMMeasurement::SPtr emmIn )
 
 #ifdef DEBUG
     debugLog() << "Average pieces of first modality: ";
-    size_t channels = emmOut->getModality( 0 )->getData().size();
-    size_t samples = emmOut->getModality( 0 )->getData().front().size();
+    size_t channels = emmOut->getModality( 0 )->getNrChans();
+    size_t samples = emmOut->getModality( 0 )->getSamplesPerChan();
     for( size_t i = 0; i < 5 && i < channels; ++i )
     {
         std::stringstream ss;
         ss << "Channel " << i << ": ";
         for( size_t j = 0; j < 10 && j < samples; ++j )
         {
-            ss << emmOut->getModality( 0 )->getData()[i][j] << " ";
+            ss << emmOut->getModality( 0 )->getData()( i, j ) << " ";
         }
         debugLog() << ss.str();
     }

@@ -145,12 +145,12 @@ namespace LaBP
             osg::ref_ptr< osg::FloatArray > texCoords =
                             static_cast< osg::FloatArray* >( m_surfaceGeometry->getTexCoordArray( 0 ) );
 
-            WAssertDebug( data.size() == texCoords->size(), "data.size() == texCoords->size()" );
-            WAssertDebug( 0 <= m_selectedSample && m_selectedSample < data.front().size(),
-                            "0 <= m_selectedSample && m_selectedSample < data.front().size()" );
+            WAssertDebug( data.rows() == texCoords->size(), "data.rows() == texCoords->size()" );
+            WAssertDebug( 0 <= m_selectedSample && m_selectedSample < data.cols(),
+                            "0 <= m_selectedSample && m_selectedSample < data.cols()" );
             for( std::size_t vertexID = 0; vertexID < texCoords->size(); ++vertexID )
             {
-                float color = data.at( vertexID ).at( m_selectedSample );
+                float color = data( vertexID, m_selectedSample );
                 ( *texCoords )[vertexID] = m_colorMap->getTextureCoordinate( color );
             }
             m_surfaceGeometry->setTexCoordArray( 0, texCoords );
@@ -166,12 +166,12 @@ namespace LaBP
         if( m_selectedSample >= 0 && ( m_dataChanged || m_colorMapChanged ) )
         {
             float color;
-            WAssertDebug( data.size() == m_electrodesDrawables.size(), "data.size() == m_electrodesDrawables.size()" );
-            WAssertDebug( 0 <= m_selectedSample && m_selectedSample < data.front().size(),
+            WAssertDebug( data.rows() == m_electrodesDrawables.size(), "data.rows() == m_electrodesDrawables.size()" );
+            WAssertDebug( 0 <= m_selectedSample && m_selectedSample < data.cols(),
                             "0 <= m_selectedSample && m_selectedSample < data.front().size()" );
             for( size_t channelID = 0; channelID < m_electrodesDrawables.size(); ++channelID )
             {
-                color = data.at( channelID ).at( m_selectedSample );
+                color = data( channelID, m_selectedSample );
                 m_electrodesDrawables.at( channelID )->setColor( m_colorMap->getColor( color ) );
             }
         }

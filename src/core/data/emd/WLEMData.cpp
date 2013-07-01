@@ -24,6 +24,7 @@
 
 #include <sstream>
 #include <string>
+#include <ostream> // std::endl
 #include <vector>
 
 #include <boost/lexical_cast.hpp>
@@ -32,7 +33,6 @@
 #include <core/common/WLogger.h>
 
 #include "WLEMData.h"
-
 
 WLEMData::WLEMData()
 {
@@ -88,17 +88,17 @@ WLEMData::DataT& WLEMData::getData() const
     return *m_data;
 }
 
-void WLEMData::setData( boost::shared_ptr< DataT > data )
+void WLEMData::setData( DataSPtr data )
 {
     m_data = data;
 }
 
-void WLEMData::addSample( double value )
-{
-    std::vector< double > channel;
-    channel.push_back( value );
-    m_data->push_back( channel );
-}
+//void WLEMData::addSample( double value )
+//{
+//    std::vector< double > channel;
+//    channel.push_back( value );
+//    m_data->push_back( channel );
+//}
 
 float WLEMData::getAnalogHighPass() const
 {
@@ -152,14 +152,18 @@ std::string WLEMData::getMeasurementDeviceName() const
 
 size_t WLEMData::getNrChans() const
 {
-    return m_data->size();
+    if( m_data )
+    {
+        return m_data->rows();
+    }
+    return 0;
 }
 
 size_t WLEMData::getSamplesPerChan() const
 {
-    if( m_data && m_data->size() > 0 )
+    if( m_data )
     {
-        return m_data->front().size();
+        return m_data->cols();
     }
     return 0;
 }
@@ -245,19 +249,19 @@ std::string WLEMData::channelToString( const ChannelT& data, size_t maxSamples )
     std::stringstream ss;
     for( size_t j = 0; j < maxSamples && j < nbSmp; ++j )
     {
-        ss << data[j] << " ";
+        ss << data( j ) << " ";
     }
     return ss.str();
 }
 
 std::string WLEMData::dataToString( const DataT& data, size_t maxChannels, size_t maxSamples )
 {
-    const size_t nbChan = data.size();
+    const size_t nbChan = data.rows();
 
     std::stringstream ss;
     for( size_t i = 0; i < maxChannels && i < nbChan; ++i )
     {
-        ss << "Channel " << i << ": " << channelToString( data[i], maxSamples ) << std::endl;
+        ss << "Channel " << i << ": " << channelToString( data.row( i ), maxSamples ) << std::endl;
     }
     return ss.str();
 }

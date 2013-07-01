@@ -97,7 +97,7 @@ namespace LaBP
         for( size_t channel = channels_begin, channelPos = 0; channelPos < channels_count && channel < emd->getNrChans();
                         ++channel, ++channelPos )
         {
-            channelGeode = drawChannel( emdData[channel] );
+            channelGeode = drawChannel( emdData.row( channel ) );
             osg::ref_ptr< osg::MatrixTransform > scaleSpacingTransform = new osg::MatrixTransform;
             scaleSpacingTransform->setMatrix( osg::Matrix::scale( x_scale, y_scale, 1.0 ) );
             scaleSpacingTransform->setDataVariance( osg::Object::DYNAMIC );

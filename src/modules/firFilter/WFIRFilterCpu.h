@@ -48,18 +48,15 @@ public:
 
     static const std::string CLASS;
 
-    WFIRFilterCpu( WFIRFilter::WEFilterType::Enum filtertype, WFIRFilter::WEWindowsType::Enum windowtype, int order, double sFreq,
-                    double cFreq1, double cFreq2 );
+    WFIRFilterCpu( WFIRFilter::WEFilterType::Enum filtertype, WFIRFilter::WEWindowsType::Enum windowtype, int order, ScalarT sFreq,
+                    ScalarT cFreq1, ScalarT cFreq2 );
     explicit WFIRFilterCpu( const char *pathToFcf );
-    //virtual ~WMFIRFilterCpu();
+
+    virtual ~WFIRFilterCpu();
 
 protected:
-    void filter( WLEMData::DataT& out, const WLEMData::DataT& in,
-                    const WLEMData::DataT& prevData );
+    virtual void filter( WLEMData::DataT& out, const WLEMData::DataT& in, const WLEMData::DataT& prevData );
 
-private:
-    void filterSingleChannel( WLEMData::ChannelT& out, const WLEMData::ChannelT& in,
-                    const WLEMData::ChannelT& prev );
 };
 
 #endif  // WFIRFILTERCPU_H

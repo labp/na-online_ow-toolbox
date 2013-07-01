@@ -49,6 +49,8 @@ public:
      */
     typedef boost::shared_ptr< const WFIRFilter > ConstSPtr;
 
+    typedef WLEMData::SampleT ScalarT;
+
     static const std::string CLASS;
 
     struct WEFilterType
@@ -75,8 +77,9 @@ public:
         static std::string name( Enum value );
     };
 
-    WFIRFilter( WEFilterType::Enum filtertype, WEWindowsType::Enum windowtype, int order, double sFreq, double cFreq1,
-                    double cFreq2 );
+    WFIRFilter( WEFilterType::Enum filtertype, WEWindowsType::Enum windowtype, int order, ScalarT sFreq, ScalarT cFreq1,
+                    ScalarT cFreq2 );
+
     explicit WFIRFilter( const char *pathToFcf );
 
     virtual ~WFIRFilter();
@@ -88,43 +91,43 @@ public:
     void setFilterType( WEFilterType::Enum value, bool redesign = false );
     void setWindowsType( WEWindowsType::Enum value, bool redesign = false );
     void setOrder( size_t value, bool redesign = false );
-    void setSamplingFrequency( double value, bool redesign = false );
-    void setCutOffFrequency1( double value, bool redesign = false );
-    void setCutOffFrequency2( double value, bool redesign = false );
-    void setCoefficients( std::vector< double > values, bool redesign = false );
+    void setSamplingFrequency( ScalarT value, bool redesign = false );
+    void setCutOffFrequency1( ScalarT value, bool redesign = false );
+    void setCutOffFrequency2( ScalarT value, bool redesign = false );
+    void setCoefficients( std::vector< ScalarT > values, bool redesign = false );
     bool setCoefficients( const char *pathToFcf, bool redesign = false );
 
-    std::vector< double > getCoefficients();
+    std::vector< ScalarT > getCoefficients();
 
     void design();
-    void design( WEFilterType::Enum filtertype, WEWindowsType::Enum windowtype, size_t order, double sFreq, double cFreq1,
-                    double cFreq2 );
+    void design( WEFilterType::Enum filtertype, WEWindowsType::Enum windowtype, size_t order, ScalarT sFreq, ScalarT cFreq1,
+                    ScalarT cFreq2 );
 
     void reset();
 
 protected:
     virtual void filter( WLEMData::DataT& out, const WLEMData::DataT& in, const WLEMData::DataT& prev ) = 0;
 
-    std::vector< double > m_coeffitients;
+    std::vector< ScalarT > m_coeffitients;
     WEWindowsType::Enum m_window;
     WEFilterType::Enum m_type;
-    double m_sFreq;
-    double m_cFreq1;
-    double m_cFreq2;
+    ScalarT m_sFreq;
+    ScalarT m_cFreq1;
+    ScalarT m_cFreq2;
     size_t m_order;
-    std::vector< double > m_allPass;
+    std::vector< ScalarT > m_allPass;
 
     const WLEMData::DataT& getPreviousData( WLEMData::ConstSPtr emd );
     void storePreviousData( WLEMData::ConstSPtr emd );
 
 private:
-    void designLowpass( std::vector< double >* pCoeff, size_t order, double cFreq1, double sFreq,
+    void designLowpass( std::vector< ScalarT >* pCoeff, size_t order, ScalarT cFreq1, ScalarT sFreq,
                     WEWindowsType::Enum windowtype );
     void designHighpass( void );
     void designBandpass( void );
     void designBandstop( void );
 
-    void normalizeCoeff( std::vector< double >* pCoeff );
+    void normalizeCoeff( std::vector< ScalarT >* pCoeff );
 
     std::map< LaBP::WEModalityType::Enum, WLEMData::DataT > m_prevData;
     WLEMMeasurement::EDataT m_prevEvents;

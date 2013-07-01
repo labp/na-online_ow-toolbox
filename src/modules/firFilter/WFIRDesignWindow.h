@@ -33,7 +33,7 @@ public:
     WFIRDesignWindow();
     virtual ~WFIRDesignWindow();
 
-    static double getFactor( WFIRFilter::WEWindowsType::Enum windowtype, int order, int n );
+    static WFIRFilter::ScalarT getFactor( WFIRFilter::WEWindowsType::Enum windowtype, int order, int n );
 };
 
 #endif  // WFIRDESIGNWINDOW_H

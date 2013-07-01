@@ -67,9 +67,9 @@ WMSourceReconstruction::~WMSourceReconstruction()
 {
 }
 
-boost::shared_ptr< WModule > WMSourceReconstruction::factory() const
+WModule::SPtr WMSourceReconstruction::factory() const
 {
-    return boost::shared_ptr< WModule >( new WMSourceReconstruction() );
+    return WModule::SPtr( new WMSourceReconstruction() );
 }
 
 const char** WMSourceReconstruction::getXPMIcon() const
@@ -342,10 +342,13 @@ bool WMSourceReconstruction::inverseSolutionFromSubject( WLEMMeasurement::SPtr e
         return false;
     }
 
-    LaBP::MatrixSPtr leadfield;
+    WSourceReconstruction::MatrixSPtr leadfield;
     try
     {
-        leadfield.reset( new LaBP::MatrixT( subject->getLeadfield( modality ) ) );
+        // TODO(pieloth)
+        leadfield.reset(
+                        new WSourceReconstruction::MatrixT(
+                                        subject->getLeadfield( modality ).cast< WSourceReconstruction::ScalarT >() ) );
     }
     catch( const WException& ex )
     {
@@ -359,10 +362,10 @@ bool WMSourceReconstruction::inverseSolutionFromSubject( WLEMMeasurement::SPtr e
     m_leadfieldCols->set( leadfield->cols(), true );
     m_leadfieldStatus->set( WMSourceReconstruction::MATRIX_LOADED, true );
 
-    m_dCovarianceMatrix.reset( new LaBP::MatrixT( leadfield->rows(), leadfield->rows() ) );
+    m_dCovarianceMatrix.reset( new WSourceReconstruction::MatrixT( leadfield->rows(), leadfield->rows() ) );
     m_dCovarianceMatrix->setIdentity();
 
-    m_nCovarianceMatrix.reset( new LaBP::MatrixT( leadfield->rows(), leadfield->rows() ) );
+    m_nCovarianceMatrix.reset( new WSourceReconstruction::MatrixT( leadfield->rows(), leadfield->rows() ) );
     m_nCovarianceMatrix->setIdentity();
 
     handleWeightingTypeChanged();
@@ -373,7 +376,7 @@ bool WMSourceReconstruction::inverseSolutionFromSubject( WLEMMeasurement::SPtr e
 
 bool WMSourceReconstruction::processCompute( WLEMMeasurement::SPtr emmIn )
 {
-    WLTimeProfiler tp("WMSourceReconstruction", "processCompute");
+    WLTimeProfiler tp( "WMSourceReconstruction", "processCompute" );
 
     WLEMMeasurement::SPtr emmOut;
     WLEMDSource::SPtr sourceOut;
@@ -400,7 +403,7 @@ bool WMSourceReconstruction::processCompute( WLEMMeasurement::SPtr emmIn )
     }
 
     sourceOut = m_sourceReconstruction->reconstruct( emmIn->getModality( modality ) );
-    infoLog() << "Matrix: " << sourceOut->getMatrix().rows() << " x " << sourceOut->getMatrix().cols();
+    infoLog() << "Matrix: " << sourceOut->getNrChans() << " x " << sourceOut->getSamplesPerChan();
     // Create output
     emmOut = emmIn->clone();
     for( size_t i = 0; i < emmIn->getModalityCount(); ++i )

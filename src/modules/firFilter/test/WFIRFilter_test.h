@@ -61,16 +61,16 @@ public:
     void test_setGetCoefficientsVector( void )
     {
         WFIRFilterCpu filter( WFIRFilter::WEFilterType::BANDPASS, WFIRFilter::WEWindowsType::HAMMING, ORDER, SFREQ, C1FREQ,
-                        C2FREQ );
+        C2FREQ );
 
-        std::vector< double > coeffs;
+        std::vector< WFIRFilter::ScalarT > coeffs;
         for( size_t i = 0; i < ORDER + 1; ++i )
         {
             coeffs.push_back( i );
         }
         filter.setCoefficients( coeffs );
 
-        std::vector< double > tmp = filter.getCoefficients();
+        std::vector< WFIRFilter::ScalarT > tmp = filter.getCoefficients();
         WFIRFilterTestHelper::isEqual( coeffs, tmp );
     }
 
@@ -78,7 +78,7 @@ public:
     {
         std::string fileName = W_FIXTURE_PATH + "22coeff.fcf";
 
-        std::vector< double > coeffs;
+        std::vector< WFIRFilter::ScalarT > coeffs;
         coeffs.push_back( -0.000284684171276985325052533148948441521 );
         coeffs.push_back( -0.000054211287529328173236814469859723431 );
         coeffs.push_back( 0.001562379810392586394762748369657856529 );
@@ -103,119 +103,112 @@ public:
         coeffs.push_back( -0.000284684171276985325052533148948441521 );
 
         WFIRFilterCpu filter( WFIRFilter::WEFilterType::BANDPASS, WFIRFilter::WEWindowsType::HAMMING, ORDER, SFREQ, C1FREQ,
-                        C2FREQ );
+        C2FREQ );
         filter.setCoefficients( fileName.c_str() );
 
-        std::vector< double > tmp = filter.getCoefficients();
+        std::vector< WFIRFilter::ScalarT > tmp = filter.getCoefficients();
         WFIRFilterTestHelper::isEqual( coeffs, tmp );
     }
 
     void test_designLowpass( void )
     {
         WFIRFilterCpu filter( WFIRFilter::WEFilterType::LOWPASS, WFIRFilter::WEWindowsType::HAMMING, ORDER, SFREQ, C1FREQ,
-                        C2FREQ );
+        C2FREQ );
 
-        std::vector< double > coeffs;
+        std::vector< WFIRFilter::ScalarT > coeffs;
         for( size_t i = 0; i < ORDER + 1; ++i )
         {
             // TODO (pieloth) set correct coefficients
             coeffs.push_back( i );
         }
 
-        std::vector< double > tmp = filter.getCoefficients();
+        std::vector< WFIRFilter::ScalarT > tmp = filter.getCoefficients();
         WFIRFilterTestHelper::isEqual( coeffs, tmp );
     }
 
     void test_designHighpass( void )
     {
         WFIRFilterCpu filter( WFIRFilter::WEFilterType::HIGHPASS, WFIRFilter::WEWindowsType::HAMMING, ORDER, SFREQ, C1FREQ,
-                        C2FREQ );
+        C2FREQ );
 
-        std::vector< double > coeffs;
+        std::vector< WFIRFilter::ScalarT > coeffs;
         for( size_t i = 0; i < ORDER + 1; ++i )
         {
             // TODO (pieloth) set correct coefficients
             coeffs.push_back( i );
         }
 
-        std::vector< double > tmp = filter.getCoefficients();
+        std::vector< WFIRFilter::ScalarT > tmp = filter.getCoefficients();
         WFIRFilterTestHelper::isEqual( coeffs, tmp );
     }
 
     void test_designBandpass( void )
     {
         WFIRFilterCpu filter( WFIRFilter::WEFilterType::BANDPASS, WFIRFilter::WEWindowsType::HAMMING, ORDER, SFREQ, C1FREQ,
-                        C2FREQ );
+        C2FREQ );
 
-        std::vector< double > coeffs;
+        std::vector< WFIRFilter::ScalarT > coeffs;
         for( size_t i = 0; i < ORDER + 1; ++i )
         {
             // TODO (pieloth) set correct coefficients
             coeffs.push_back( i );
         }
 
-        std::vector< double > tmp = filter.getCoefficients();
+        std::vector< WFIRFilter::ScalarT > tmp = filter.getCoefficients();
         WFIRFilterTestHelper::isEqual( coeffs, tmp );
     }
 
     void test_designBandstop( void )
     {
         WFIRFilterCpu filter( WFIRFilter::WEFilterType::BANDSTOP, WFIRFilter::WEWindowsType::HAMMING, ORDER, SFREQ, C1FREQ,
-                        C2FREQ );
+        C2FREQ );
 
-        std::vector< double > coeffs;
+        std::vector< WFIRFilter::ScalarT > coeffs;
         for( size_t i = 0; i < ORDER + 1; ++i )
         {
             // TODO (pieloth) set correct coefficients
             coeffs.push_back( i );
         }
 
-        std::vector< double > tmp = filter.getCoefficients();
+        std::vector< WFIRFilter::ScalarT > tmp = filter.getCoefficients();
         WFIRFilterTestHelper::isEqual( coeffs, tmp );
     }
 
     void test_previousDataSize( void )
     {
         WFIRFilterCpu filter( WFIRFilter::WEFilterType::BANDSTOP, WFIRFilter::WEWindowsType::HAMMING, ORDER, SFREQ, C1FREQ,
-                        C2FREQ );
+        C2FREQ );
         const size_t channels = 42;
         const size_t samples = 666;
 
         // Test set/get previous data size //
         // Create test EMD
         WLEMDEEG::SPtr eeg( new WLEMDEEG() );
-        boost::shared_ptr< WLEMData::DataT > data( new WLEMData::DataT() );
-        data->resize( channels );
-        for( size_t chan = 0; chan < channels; ++chan )
-        {
-            data->at( chan ).resize( samples );
-        }
+        WLEMData::DataSPtr data( new WLEMData::DataT( channels, samples ) );
         eeg->setData( data );
         // Do size() test
         filter.storePreviousData( eeg );
         const WLEMData::DataT& prevData = filter.getPreviousData( eeg );
-        TS_ASSERT_EQUALS( channels, prevData.size() );
-        TS_ASSERT_EQUALS( filter.m_coeffitients.size(), prevData.front().size() );
+        TS_ASSERT_EQUALS( channels, prevData.rows() );
+        TS_ASSERT_EQUALS( filter.m_coeffitients.size(), prevData.cols() );
     }
 
     void test_previousDataContent( void )
     {
         WFIRFilterCpu filter( WFIRFilter::WEFilterType::BANDSTOP, WFIRFilter::WEWindowsType::HAMMING, ORDER, SFREQ, C1FREQ,
-                        C2FREQ );
+        C2FREQ );
         const size_t channels = 42;
         const size_t samples = 666;
 
         // Test correct data content //
         // Create test EMD
         WLEMDEEG::SPtr eeg( new WLEMDEEG() );
-        boost::shared_ptr< WLEMData::DataT > data( new WLEMData::DataT() );
-        data->resize( channels );
+        WLEMData::DataSPtr data( new WLEMData::DataT( channels, samples ) );
         for( size_t c = 0; c < channels; ++c )
         {
-            data->at( c ).reserve( samples );
             for( size_t s = 0; s < samples; ++s )
             {
-                data->at( c ).push_back( c + s );
+                ( *data )( c, s ) = c + s;
             }
         }
         eeg->setData( data );
@@ -229,7 +222,7 @@ public:
         {
             for( size_t s = 0; s < prevSamples; ++s )
             {
-                TS_ASSERT_EQUALS( prevData[c][s], (*data)[c][s+offset] );
+                TS_ASSERT_EQUALS( prevData( c, s ), ( *data )( c, s + offset ) );
             }
         }
     }
@@ -237,7 +230,7 @@ public:
     void test_doPostProcessing( void )
     {
         WFIRFilterCpu filter( WFIRFilter::WEFilterType::BANDSTOP, WFIRFilter::WEWindowsType::HAMMING, ORDER, SFREQ, C1FREQ,
-                        C2FREQ );
+        C2FREQ );
         const size_t eChannels = 3;
         const size_t samples = 666;
         const size_t eSteps = 23;
@@ -276,7 +269,7 @@ public:
             size_t s = 0;
             for( ; s < shift; ++s )
             {
-                TS_ASSERT_EQUALS( (*eventsOut)[c][s], ( *eventsPrev )[c][samples - shift + s] );
+                TS_ASSERT_EQUALS( ( *eventsOut )[c][s], ( *eventsPrev )[c][samples - shift + s] );
             }
             for( ; s < samples; ++s )
             {
@@ -296,7 +289,7 @@ public:
             size_t s = 0;
             for( ; s < shift; ++s )
             {
-                TS_ASSERT_EQUALS( (*eventsOut)[c][s], ( *eventsPrev )[c][samples - shift + s] );
+                TS_ASSERT_EQUALS( ( *eventsOut )[c][s], ( *eventsPrev )[c][samples - shift + s] );
             }
             for( ; s < samples; ++s )
             {

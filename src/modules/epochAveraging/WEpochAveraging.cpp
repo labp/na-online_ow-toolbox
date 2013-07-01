@@ -73,7 +73,7 @@ void WEpochAveraging::setTBase( size_t tbase, bool reset )
 
 WLEMMeasurement::SPtr WEpochAveraging::baseline( WLEMMeasurement::ConstSPtr emm )
 {
-    WLTimeProfiler tp(CLASS, "baseline");
+    WLTimeProfiler tp( CLASS, "baseline" );
     WLEMData::ConstSPtr emd;
 
     WLEMMeasurement::SPtr emmOut = emm->clone();
@@ -81,37 +81,29 @@ WLEMMeasurement::SPtr WEpochAveraging::baseline( WLEMMeasurement::ConstSPtr emm 
 
     for( size_t mod = 0; mod < emm->getModalityCount(); ++mod )
     {
-        std::vector< double > means;
-
         emd = emm->getModality( mod );
         WLEMData::DataT& data = emd->getData();
-
         emdOut = emd->clone();
         WLEMData::DataT& dataOut = emdOut->getData();
-        dataOut.assign( data.begin(), data.end() );
+        dataOut = data;
 
         const size_t channels = emd->getNrChans();
         const size_t tbase = std::min( m_tbase, emd->getSamplesPerChan() );
+
+        WLEMData::ChannelT means( channels );
         for( size_t chan = 0; chan < channels; ++chan )
         {
-            double mean = 0;
+            WLEMData::SampleT mean = 0;
             for( size_t smp = 0; smp < tbase; ++smp )
             {
-                mean += data[chan][smp];
+                mean += data( chan, smp );
             }
             mean = tbase > 0 ? ( mean / tbase ) : 0;
-            means.push_back( mean );
+            means( chan ) = mean;
         }
 
-        const size_t smpPerChan = emdOut->getSamplesPerChan();
-        for( size_t chan = 0; chan < channels; ++chan )
-        {
-            double mean = means[chan];
-            for( size_t smp = 0; smp < smpPerChan; ++smp )
-            {
-                dataOut[chan][smp] -= mean;
-            }
-        }
+        dataOut.colwise() -= means.transpose();
+
         emmOut->addModality( emdOut );
     }
 

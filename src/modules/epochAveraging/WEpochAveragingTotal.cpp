@@ -22,9 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
-#include <algorithm> // transform
 #include <cstddef>
-#include <functional> // plus, divide, bind
 #include <string>
 
 #include <core/common/WLogger.h>
@@ -59,29 +57,17 @@ WLEMMeasurement::SPtr WEpochAveragingTotal::getAverage( WLEMMeasurement::ConstSP
     // Create output emm and divide data by count
     WLEMMeasurement::SPtr emmOut( new WLEMMeasurement( *emm ) );
 
-    // TODO(pieloth): new profiler
-//    WLTimeProfiler::SPtr profiler( new WLTimeProfiler( CLASS, "lifetime" ) );
-//    profiler->start();
-//    emmOut->setTimeProfiler( profiler );
-
-    WLEMData::SPtr emdSum;
+    WLEMData::ConstSPtr emdSum;
     WLEMData::SPtr emdOut;
-    size_t channels;
-    size_t samples;
     for( size_t mod = 0; mod < m_emmSum->getModalityCount(); ++mod )
     {
         emdSum = m_emmSum->getModality( mod );
         emdOut = emdSum->clone();
-        channels = emdSum->getData().size();
-        emdOut->getData().resize( channels );
 
-        samples = emdSum->getData().front().size();
-        for( size_t chan = 0; chan < channels; ++chan )
-        {
-            emdOut->getData()[chan].resize( samples );
-            std::transform( emdSum->getData()[chan].begin(), emdSum->getData()[chan].end(), emdOut->getData()[chan].begin(),
-                            std::bind2nd( std::divides< double >(), m_count ) );
-        }
+        const WLEMData::DataT& dataIn = emdSum->getData();
+        WLEMData::DataT& dataOut = emdOut->getData();
+        dataOut = ( 1.0 / m_count ) * dataIn;
+
         emmOut->addModality( emdOut );
     }
 
@@ -94,18 +80,14 @@ void WEpochAveragingTotal::addEmmSum( const WLEMMeasurement::ConstSPtr emm )
     ++m_count;
     WLEMData::ConstSPtr emdIn;
     WLEMData::SPtr emdSum;
-    size_t channels;
 
     for( size_t mod = 0; mod < emm->getModalityCount(); ++mod )
     {
         emdIn = emm->getModality( mod );
         emdSum = m_emmSum->getModality( mod );
-        channels = emdIn->getData().size();
-        for( size_t chan = 0; chan < channels; ++chan )
-        {
-            std::transform( emdIn->getData()[chan].begin(), emdIn->getData()[chan].end(), emdSum->getData()[chan].begin(),
-                            emdSum->getData()[chan].begin(), std::plus< double >() );
-        }
+        const WLEMData::DataT& dataIn = emdIn->getData();
+        WLEMData::DataT& dataSum = emdSum->getData();
+        dataSum += dataIn;
     }
 }
 
@@ -121,19 +103,14 @@ void WEpochAveragingTotal::checkEmmSum( const WLEMMeasurement::ConstSPtr emm )
 
     WLEMData::ConstSPtr emd;
     WLEMData::SPtr emdSum;
-    size_t channels;
-    size_t samples;
     for( size_t mod = 0; mod < emm->getModalityCount(); ++mod )
     {
         emd = emm->getModality( mod );
         emdSum = emd->clone();
-        channels = emd->getData().size();
-        emdSum->getData().resize( channels );
-        samples = emd->getData().front().size();
-        for( size_t chan = 0; chan < channels; ++chan )
-        {
-            emdSum->getData()[chan].resize( samples, 0 );
-        }
+        const size_t channels = emd->getNrChans();
+        const size_t samples = emd->getSamplesPerChan();
+        emdSum->getData().setZero( channels, samples );
+
         m_emmSum->addModality( emdSum );
     }
 }

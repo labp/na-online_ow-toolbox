@@ -43,8 +43,7 @@ namespace LaBP
     {
     }
 
-    WLEMData::SampleT WLBoundCalculator::getMax2D( WLEMMeasurement::ConstSPtr emm,
-                    LaBP::WEModalityType::Enum modality )
+    WLEMData::SampleT WLBoundCalculator::getMax2D( WLEMMeasurement::ConstSPtr emm, LaBP::WEModalityType::Enum modality )
     {
         if( modality == LaBP::WEModalityType::SOURCE )
         {
@@ -59,74 +58,66 @@ namespace LaBP
         }
     }
 
-    WLEMData::SampleT WLBoundCalculator::getMax3D( WLEMMeasurement::ConstSPtr emm,
-                    LaBP::WEModalityType::Enum modality )
+    WLEMData::SampleT WLBoundCalculator::getMax3D( WLEMMeasurement::ConstSPtr emm, LaBP::WEModalityType::Enum modality )
     {
-        if( modality == LaBP::WEModalityType::SOURCE )
-        {
-            return getMax( emm->getModality< const WLEMDSource >( modality )->getMatrix() );
-        }
-        else
-        {
             return getMax( emm->getModality( modality )->getData() );
-        }
     }
 
-    WLEMData::SampleT WLBoundCalculator::getMax( const MatrixT& matrix )
-    {
-        std::vector< WLEMData::SampleT > average;
-        for( MatrixT::Index r = 0; r < matrix.rows(); ++r )
-        {
-            WLEMData::SampleT sum = 0;
-            for( MatrixT::Index c = 0; c < matrix.cols(); ++c )
-            {
-                sum += matrix( r, c );
-            }
-            average.push_back( sum / matrix.cols() );
-        }
-
-        WLEMData::SampleT maxValue = 0;
-        for( MatrixT::Index r = 0; r < matrix.rows(); ++r )
-        {
-            WLEMData::SampleT value = 0;
-            for( MatrixT::Index c = 0; c < matrix.cols(); ++c )
-            {
-                value += ( matrix( r, c ) - average[r] ) * ( matrix( r, c ) - average[r] );
-            }
-            value = sqrt( value / matrix.cols() ) * m_alpha + average[r];
-            if( value > maxValue )
-            {
-                maxValue = value;
-            }
-        }
-        return maxValue;
-    }
+//    WLEMData::SampleT WLBoundCalculator::getMax( const MatrixT& matrix )
+//    {
+//        std::vector< WLEMData::SampleT > average;
+//        for( MatrixT::Index r = 0; r < matrix.rows(); ++r )
+//        {
+//            WLEMData::SampleT sum = 0;
+//            for( MatrixT::Index c = 0; c < matrix.cols(); ++c )
+//            {
+//                sum += matrix( r, c );
+//            }
+//            average.push_back( sum / matrix.cols() );
+//        }
+//
+//        WLEMData::SampleT maxValue = 0;
+//        for( MatrixT::Index r = 0; r < matrix.rows(); ++r )
+//        {
+//            WLEMData::SampleT value = 0;
+//            for( MatrixT::Index c = 0; c < matrix.cols(); ++c )
+//            {
+//                value += ( matrix( r, c ) - average[r] ) * ( matrix( r, c ) - average[r] );
+//            }
+//            value = sqrt( value / matrix.cols() ) * m_alpha + average[r];
+//            if( value > maxValue )
+//            {
+//                maxValue = value;
+//            }
+//        }
+//        return maxValue;
+//    }
 
     WLEMData::SampleT WLBoundCalculator::getMax( const WLEMData::DataT& data )
     {
-        std::vector< WLEMData::SampleT > average;
-        const size_t channels = data.size();
+        const size_t channels = data.rows();
+        WLEMData::ChannelT average( channels );
         for( size_t chan = 0; chan < channels; ++chan )
         {
             WLEMData::SampleT sum = 0;
-            const size_t samples = data[chan].size();
+            const size_t samples = data.row( chan ).size();
             for( size_t smp = 0; smp < samples; ++smp )
             {
-                sum += data[chan][smp];
+                sum += data( chan, smp );
             }
-            average.push_back( sum / samples );
+            average( chan ) = ( sum / samples );
         }
 
         WLEMData::SampleT maxValue = 0;
         for( size_t chan = 0; chan < channels; ++chan )
         {
             WLEMData::SampleT value = 0;
-            const size_t samples = data[chan].size();
+            const size_t samples = data.row( chan ).size();
             for( size_t smp = 0; smp < samples; ++smp )
             {
-                value += ( data[chan][smp] - average[chan] ) * ( data[chan][smp] - average[chan] );
+                value += ( data( chan, smp ) - average( chan ) ) * ( data( chan, smp ) - average( chan ) );
             }
-            value = sqrt( value / samples ) * m_alpha + average[chan];
+            value = sqrt( value / samples ) * m_alpha + average( chan );
             if( value > maxValue )
             {
                 maxValue = value;

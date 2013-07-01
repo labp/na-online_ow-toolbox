@@ -53,12 +53,12 @@ public:
     WSourceReconstructionCuda();
     virtual ~WSourceReconstructionCuda();
 
-    virtual bool calculateInverseSolution( const LaBP::MatrixT& noiseCov, const LaBP::MatrixT& dataCov, double snr );
+    virtual bool calculateInverseSolution( const MatrixT& noiseCov, const MatrixT& dataCov, double snr );
 
     virtual WLEMDSource::SPtr reconstruct( WLEMData::ConstSPtr emd );
 
 private:
-    LaBP::MatrixElementT* m_A_dev;
+    ScalarT* m_A_dev;
     bool m_inverseChanged;
 };
 

@@ -102,7 +102,7 @@ void WMFIRFilter::properties()
 {
     LaBP::WLModuleDrawable::properties();
 
-    m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+    m_propCondition = WCondition::SPtr( new WCondition() );
 
     m_propGrpFirFilter = m_properties->addPropertyGroup( "FIR Filter", "Contains properties for FIR Filter.", false );
 
@@ -133,7 +133,7 @@ void WMFIRFilter::properties()
     WPropertyHelper::PC_NOTEMPTY::addTo( m_filterTypeSelection );
 
     // same with windows
-    m_windows = boost::shared_ptr< WItemSelection >( new WItemSelection() );
+    m_windows = WItemSelection::SPtr( new WItemSelection() );
     std::vector< WFIRFilter::WEWindowsType::Enum > wEnums = WFIRFilter::WEWindowsType::values();
     for( std::vector< WFIRFilter::WEWindowsType::Enum >::iterator it = wEnums.begin(); it != wEnums.end(); ++it )
     {

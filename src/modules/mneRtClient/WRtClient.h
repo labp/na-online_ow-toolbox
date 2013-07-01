@@ -69,10 +69,10 @@ public:
 
     bool isStreaming();
 
-    int getConnectors( std::map< int, std::string >* const conMap);
-    bool setConnector(int conId);
+    int getConnectors( std::map< int, std::string >* const conMap );
+    bool setConnector( int conId );
 
-    bool setSimulationFile(std::string);
+    bool setSimulationFile( std::string simFile );
 
     bool readData( WLEMMeasurement::SPtr emmIn );
 

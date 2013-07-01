@@ -98,7 +98,7 @@ namespace LaBP
         const size_t samples_end = channel.size();
         for( std::size_t sample = samples_begin; sample < samples_end; ++sample )
         {
-            samplesDots->push_back( osg::Vec2( sample, channel[sample] ) );
+            samplesDots->push_back( osg::Vec2( sample, channel( sample ) ) );
         }
 
         // Create geometry to draw 2D Points

@@ -24,7 +24,6 @@
 
 #include <string>
 #include <utility>  // for pair<>
-
 #include <osg/MatrixTransform>
 
 #include <core/common/WLogger.h>
@@ -115,7 +114,7 @@ namespace LaBP
         for( size_t channel = getChannelBegin( emd ), channelPos = 0; channelPos < channels_count && channel < channels_emd;
                         ++channel, ++channelPos )
         {
-            channelGeode = drawChannel( emdData[channel] );
+            channelGeode = drawChannel( emdData.row( channel ) );
             osg::ref_ptr< osg::MatrixTransform > scaleSpacingTransform = new osg::MatrixTransform;
             scaleSpacingTransform->setMatrix(
                             osg::Matrix::scale( x_scale, y_scale, 1.0 )

@@ -138,7 +138,7 @@ private:
     /**
      * A condition used to notify about changes in several properties.
      */
-    boost::shared_ptr< WCondition > m_propCondition;
+    WCondition::SPtr m_propCondition;
 
     /**
      * Exported MatLAB File with coefficients

@@ -59,31 +59,32 @@ WLEMDSource::SPtr WSourceReconstructionCpu::reconstruct( WLEMData::ConstSPtr emd
     WLEMData::DataT emdData;
     WSourceReconstruction::averageReference( emdData, emd->getData() );
 
-    WLTimeProfiler prfToMatrix( CLASS, "reconstruct_toMat", false );
-    prfToMatrix.start();
-    size_t rows = emdData.size();
-    size_t cols = emdData.front().size();
-    LaBP::MatrixT data( rows, cols );
-    for( size_t r = 0; r < rows; ++r )
-    {
-        for( size_t c = 0; c < cols; ++c )
-        {
-            data( r, c ) = emdData[r][c];
-        }
-    }
-    prfToMatrix.stop();
-    wlprofiler::log() << prfToMatrix;
+//    WLTimeProfiler prfToMatrix( CLASS, "reconstruct_toMat", false );
+//    prfToMatrix.start();
+//    size_t rows = emd->getNrChans();
+//    size_t cols = emd->getSamplesPerChan();
+//    LaBP::MatrixT data( rows, cols );
+//    for( size_t r = 0; r < rows; ++r )
+//    {
+//        for( size_t c = 0; c < cols; ++c )
+//        {
+//            data( r, c ) = emdData[r][c];
+//        }
+//    }
+//    prfToMatrix.stop();
+//    wlprofiler::log() << prfToMatrix;
 
     WLTimeProfiler prfMatMul( CLASS, "reconstruct_matMul", false );
     prfMatMul.start();
     // LaBP::MatrixT S = *m_inverse * data;
-    boost::shared_ptr< LaBP::MatrixT > S( new LaBP::MatrixT( *m_inverse * data ) );
+    WLEMData::DataSPtr S( new WLEMData::DataT( *m_inverse * emdData ) );
     prfMatMul.stop();
     wlprofiler::log() << prfMatMul;
 
     // const LaBP::WDataSetEMMSource::SPtr emdOut = WSourceReconstruction::createEMDSource( emd, S );
     const WLEMDSource::SPtr emdOut( new WLEMDSource( *emd ) );
-    emdOut->setMatrix( S );
+//    emdOut->setMatrix( S );
+    emdOut->setData( S );
 
     return emdOut;
 }

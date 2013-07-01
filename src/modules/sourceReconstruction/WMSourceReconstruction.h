@@ -160,8 +160,8 @@ private:
     double m_range;
 
     // data and noise covariance matices //
-    LaBP::MatrixSPtr m_nCovarianceMatrix;
-    LaBP::MatrixSPtr m_dCovarianceMatrix;
+    WSourceReconstruction::MatrixSPtr m_nCovarianceMatrix;
+    WSourceReconstruction::MatrixSPtr m_dCovarianceMatrix;
 
     // File status string //
     static const std::string NO_MATRIX_LOADED;

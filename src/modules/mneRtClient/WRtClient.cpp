@@ -350,20 +350,16 @@ bool WRtClient::readEmd( WLEMData* const emd, const Eigen::RowVectorXi& picks, c
     const Eigen::MatrixXf::Index cols = rawData.cols();
 
     WLEMData::DataT& emdData = emd->getData();
-    emdData.clear();
-    emdData.reserve( rows );
+    emdData.resize( rows, cols );
     WAssertDebug( rows <= rawData.rows(), "More selected channels than in raw data!" );
 
     for( Eigen::RowVectorXi::Index row = 0; row < rows; ++row )
     {
         WAssertDebug( picks[row] < rawData.rows(), "Selected channel index out of raw data boundary!" );
-        WLEMData::ChannelT emdChannel;
-        emdChannel.reserve( cols );
-        for( size_t col = 0; col < cols; ++col )
+        for( Eigen::RowVectorXi::Index col = 0; col < cols; ++col )
         {
-            emdChannel.push_back( ( WLEMData::SampleT )rawData( picks[row], col ) );
+            emdData( row, col ) = ( WLEMData::SampleT )rawData( picks[row], col );
         }
-        emdData.push_back( emdChannel );
     }
 
     emd->setSampFreq( m_fiffInfo->sfreq );
@@ -393,7 +389,7 @@ boost::shared_ptr< WLEMMeasurement::EDataT > WRtClient::readEvents( const Eigen:
         WAssertDebug( m_picksStim[row] < rawData.rows(), "Selected channel index out of raw data boundary!" );
         WLEMMeasurement::EChannelT eChannel;
         eChannel.reserve( cols );
-        for( size_t col = 0; col < cols; ++col )
+        for( Eigen::RowVectorXi::Index col = 0; col < cols; ++col )
         {
             eChannel.push_back( ( WLEMMeasurement::EventT )rawData( m_picksStim[row], col ) );
         }

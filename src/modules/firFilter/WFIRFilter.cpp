@@ -43,18 +43,13 @@
 const std::string WFIRFilter::CLASS = "WFIRFilter";
 
 WFIRFilter::WFIRFilter( WFIRFilter::WEFilterType::Enum filtertype, WFIRFilter::WEWindowsType::Enum windowtype, int order,
-                double sFreq, double cFreq1, double cFreq2 )
+                ScalarT sFreq, ScalarT cFreq1, ScalarT cFreq2 )
 {
-    m_coeffitients = std::vector< double >();
-    m_allPass = std::vector< double >();
-
     design( filtertype, windowtype, order, sFreq, cFreq1, cFreq2 );
 }
 
 WFIRFilter::WFIRFilter( const char *pathToFcf )
 {
-    m_coeffitients = std::vector< double >();
-    m_allPass = std::vector< double >();
     setCoefficients( pathToFcf );
 }
 
@@ -67,8 +62,7 @@ WLEMData::SPtr WFIRFilter::filter( const WLEMData::ConstSPtr emdIn )
     WLTimeProfiler prfTime( CLASS, "filter" );
 
     WLEMData::DataT in = emdIn->getData();
-    boost::shared_ptr< WLEMData::DataT > out( new WLEMData::DataT() );
-    out->reserve( in.size() );
+    WLEMData::DataSPtr out( new WLEMData::DataT( in.rows(), in.cols() ) );
 
     const WLEMData::DataT& prevData = getPreviousData( emdIn );
     filter( *out, in, prevData );
@@ -154,7 +148,7 @@ void WFIRFilter::setOrder( size_t value, bool redesign )
     }
 }
 
-void WFIRFilter::setSamplingFrequency( double value, bool redesign )
+void WFIRFilter::setSamplingFrequency( ScalarT value, bool redesign )
 {
     m_sFreq = value;
     if( redesign )
@@ -163,7 +157,7 @@ void WFIRFilter::setSamplingFrequency( double value, bool redesign )
     }
 }
 
-void WFIRFilter::setCutOffFrequency1( double value, bool redesign )
+void WFIRFilter::setCutOffFrequency1( ScalarT value, bool redesign )
 {
     m_cFreq1 = value;
     if( redesign )
@@ -172,7 +166,7 @@ void WFIRFilter::setCutOffFrequency1( double value, bool redesign )
     }
 }
 
-void WFIRFilter::setCutOffFrequency2( double value, bool redesign )
+void WFIRFilter::setCutOffFrequency2( ScalarT value, bool redesign )
 {
     m_cFreq2 = value;
     if( redesign )
@@ -181,7 +175,7 @@ void WFIRFilter::setCutOffFrequency2( double value, bool redesign )
     }
 }
 
-void WFIRFilter::setCoefficients( std::vector< double > values, bool redesign )
+void WFIRFilter::setCoefficients( std::vector< ScalarT > values, bool redesign )
 {
     m_coeffitients = values;
     if( redesign )
@@ -263,7 +257,7 @@ bool WFIRFilter::setCoefficients( const char *pathToFcf, bool redesign )
     return true;
 }
 
-std::vector< double > WFIRFilter::getCoefficients()
+std::vector< WFIRFilter::ScalarT > WFIRFilter::getCoefficients()
 {
     return m_coeffitients;
 }
@@ -320,7 +314,7 @@ void WFIRFilter::design()
 }
 
 void WFIRFilter::design( WFIRFilter::WEFilterType::Enum filtertype, WFIRFilter::WEWindowsType::Enum windowtype, size_t order,
-                double sFreq, double cFreq1, double cFreq2 )
+                ScalarT sFreq, ScalarT cFreq1, ScalarT cFreq2 )
 {
     m_type = filtertype;
     m_window = windowtype;
@@ -332,17 +326,17 @@ void WFIRFilter::design( WFIRFilter::WEFilterType::Enum filtertype, WFIRFilter::
     design();
 }
 
-void WFIRFilter::designLowpass( std::vector< double >* pCoeff, size_t order, double cFreq, double sFreq,
+void WFIRFilter::designLowpass( std::vector< ScalarT >* pCoeff, size_t order, ScalarT cFreq, ScalarT sFreq,
                 WFIRFilter::WEWindowsType::Enum windowtype )
 {
     WAssert( pCoeff, "pCoeff is NULL!" );
-    std::vector< double >& coeff = *pCoeff;
+    std::vector< ScalarT >& coeff = *pCoeff;
     WAssert( cFreq != 0, "cFreq != 0" );
     WAssert( sFreq != 0, "sFreq != 0" );
     WAssert( coeff.size() == order + 1, "coeff.size() == order + 1" );
 
-    double a = 0.0;
-    double b = 0.0;
+    ScalarT a = 0.0;
+    ScalarT b = 0.0;
 
     for( size_t i = 0; i < order + 1; ++i )
     {
@@ -379,7 +373,7 @@ void WFIRFilter::designHighpass( void )
 
 void WFIRFilter::designBandpass( void )
 {
-    std::vector< double > tmpCoeff( m_coeffitients.size(), 0 );
+    std::vector< ScalarT > tmpCoeff( m_coeffitients.size(), 0 );
 
     designLowpass( &m_coeffitients, m_order, m_cFreq1, m_sFreq, m_window );
     designLowpass( &tmpCoeff, m_order, m_cFreq2, m_sFreq, m_window );
@@ -406,10 +400,10 @@ void WFIRFilter::designBandstop( void )
     }
 }
 
-void WFIRFilter::normalizeCoeff( std::vector< double >* pCoeff )
+void WFIRFilter::normalizeCoeff( std::vector< ScalarT >* pCoeff )
 {
     WAssert( pCoeff, "pCoeff is NULL!" );
-    std::vector< double >& coeff = *pCoeff;
+    std::vector< ScalarT >& coeff = *pCoeff;
     double sum = 0;
 
     for( size_t i = 0; i < coeff.size(); ++i )
@@ -491,13 +485,8 @@ const WLEMData::DataT& WFIRFilter::getPreviousData( WLEMData::ConstSPtr emd )
     else
     {
         wlog::debug( CLASS ) << "getPreviousData() generate zero data!";
-        WLEMData::DataT data;
-        data.resize( emd->getNrChans() );
-        for( size_t i = 0; i < data.size(); ++i )
-        {
-            // TODO(pieloth): correct previous size / shift?
-            data[i].resize( m_coeffitients.size(), 0 );
-        }
+        WLEMData::DataT data( emd->getNrChans(), m_coeffitients.size() );
+        data.setZero();
         m_prevData[emd->getModalityType()] = data;
         return getPreviousData( emd );
     }
@@ -508,14 +497,10 @@ void WFIRFilter::storePreviousData( WLEMData::ConstSPtr emd )
     const WLEMData::DataT& dataIn = emd->getData();
     WAssert( m_coeffitients.size() <= emd->getSamplesPerChan(), "More coefficients than samples per channel!" );
 
-    WLEMData::DataT data;
-    data.resize( emd->getNrChans() );
-    for( size_t i = 0; i < data.size(); ++i )
-    {
-        // TODO(pieloth): correct previous size / shift?
-        data.reserve( m_coeffitients.size() );
-        data[i].assign( dataIn[i].end() - m_coeffitients.size(), dataIn[i].end() );
-        WAssertDebug( data[i].size() == m_coeffitients.size(), "storePreviousData: data[i].size() == m_coeffitients.size()" );
-    }
+    WLEMData::DataT data = dataIn.block( 0, dataIn.cols() - m_coeffitients.size(), dataIn.rows(), m_coeffitients.size() );
+    // TODO(pieloth): correct previous size / shift?
+
+    WAssertDebug( data.cols() == m_coeffitients.size(), "storePreviousData: data.cols() == m_coeffitients.size()" );
+
     m_prevData[emd->getModalityType()] = data;
 }

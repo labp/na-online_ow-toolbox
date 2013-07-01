@@ -159,9 +159,9 @@ public:
         // check modality count
         for( size_t mod = 0; mod < emm->getModalityCount(); ++mod )
         {
-            TS_ASSERT_EQUALS( emmEpoch->getModality( mod )->getData().size(), emm->getModality( mod )->getData().size() );
+            TS_ASSERT_EQUALS( emmEpoch->getModality( mod )->getNrChans(), emm->getModality( mod )->getNrChans() );
             // check channel size
-            TS_ASSERT_EQUALS( emmEpoch->getModality( mod )->getData().front().size(),
+            TS_ASSERT_EQUALS( emmEpoch->getModality( mod )->getSamplesPerChan(),
                             separation->getPreSamples() + separation->getPostSamples() + 1 );
             // check samples size: post + pre + 1
         }
@@ -173,11 +173,11 @@ public:
         {
             emdEpoch = emmEpoch->getModality( mod );
             startValue = mod * SAMPLES + ( EINDEX - PRESAMPLES );
-            for( size_t chan = 0; chan < emdEpoch->getData().size(); ++chan )
+            for( size_t chan = 0; chan < emdEpoch->getNrChans(); ++chan )
             {
                 for( size_t smp = 0; smp < ( PRESAMPLES + POSTSAMPLES + 1 ); ++smp )
                 {
-                    TS_ASSERT_EQUALS( emdEpoch->getData()[chan][smp], startValue + smp );
+                    TS_ASSERT_EQUALS( emdEpoch->getData()( chan, smp ), startValue + smp );
                 }
             }
         }
@@ -242,9 +242,9 @@ public:
         // check modality count
         for( size_t mod = 0; mod < emm->getModalityCount(); ++mod )
         {
-            TS_ASSERT_EQUALS( emmEpoch->getModality( mod )->getData().size(), emm->getModality( mod )->getData().size() );
+            TS_ASSERT_EQUALS( emmEpoch->getModality( mod )->getNrChans(), emm->getModality( mod )->getNrChans() );
             // check channel size
-            TS_ASSERT_EQUALS( emmEpoch->getModality( mod )->getData().front().size(),
+            TS_ASSERT_EQUALS( emmEpoch->getModality( mod )->getSamplesPerChan(),
                             separation->getPreSamples() + separation->getPostSamples() + 1 );
             // check samples size: post + pre + 1
         }
@@ -256,11 +256,11 @@ public:
         {
             emd = emmEpoch->getModality( mod );
             startValue = mod * SAMPLES + ( EINDEX - PRESAMPLES );
-            for( size_t chan = 0; chan < emd->getData().size(); ++chan )
+            for( size_t chan = 0; chan < emd->getNrChans(); ++chan )
             {
                 for( size_t smp = 0; smp < ( PRESAMPLES + POSTSAMPLES + 1 ); ++smp )
                 {
-                    TS_ASSERT_EQUALS( emd->getData()[chan][smp], startValue + smp );
+                    TS_ASSERT_EQUALS( emd->getData()( chan, smp ), startValue + smp );
                 }
             }
         }
@@ -373,16 +373,16 @@ public:
             {
                 emd = emm->getModality( mod );
                 emdEpoch = emmEpoch->getModality( mod );
-                WLEMData::DataT& data = emd->getData();
+                const WLEMData::DataT& data = emd->getData();
 
                 // Compare data
-                WLEMData::DataT& resData = emdEpoch->getData();
+                const WLEMData::DataT& resData = emdEpoch->getData();
                 for( size_t chan = 0; chan < emdEpoch->getNrChans(); ++chan )
                 {
-                    TS_ASSERT_EQUALS( resData[chan].size(), EPOCHLENGTH );
-                    for( size_t smp = 0; smp < resData[chan].size(); ++smp )
+                    TS_ASSERT_EQUALS( resData.cols(), EPOCHLENGTH );
+                    for( size_t smp = 0; smp < resData.cols(); ++smp )
                     {
-                        TS_ASSERT_EQUALS( resData[chan][smp], data[chan][event - PRESAMPLES + smp] );
+                        TS_ASSERT_EQUALS( resData( chan, smp ), data( chan, event - PRESAMPLES + smp ) );
                     }
                 }
             }
@@ -407,16 +407,14 @@ private:
     WLEMData::SPtr createEmd( size_t channels, size_t samples, int startValue = 0 )
     {
         WLEMData::SPtr emd( new WLEMDEEG() );
-        boost::shared_ptr< WLEMData::DataT > data( new WLEMData::DataT() );
+        WLEMData::DataSPtr data( new WLEMData::DataT( channels, samples ) );
 
         for( size_t chan = 0; chan < channels; ++chan )
         {
-            WLEMData::ChannelT channel;
             for( size_t smp = 0; smp < samples; ++smp )
             {
-                channel.push_back( startValue + smp );
+                ( *data )( chan, smp ) = startValue + smp;
             }
-            data->push_back( channel );
         }
         emd->setData( data );
 
@@ -434,15 +432,18 @@ private:
         {
             emdIn = emmIn->getModality( mod );
             emdOut = emdIn->clone();
-            boost::shared_ptr< WLEMData::DataT > data( new WLEMData::DataT() );
-            for( size_t chan = 0; chan < emdIn->getData().size(); ++chan )
-            {
-                WLEMData::ChannelT channel( emdIn->getData()[chan].begin() + start,
-                                start + blockSize <= emdIn->getData()[chan].size() ? emdIn->getData()[chan].begin() + start
-                                                + blockSize :
-                                                emdIn->getData()[chan].end() );
-                data->push_back( channel );
-            }
+            blockSize = start + blockSize <= emdIn->getSamplesPerChan() ? blockSize : emdIn->getSamplesPerChan();
+            WLEMData::DataSPtr data( new WLEMData::DataT( emdIn->getNrChans(), blockSize ) );
+            const WLEMData::DataT& dataIn = emdIn->getData();
+            ( *data ) = dataIn.block( 0, start, emdIn->getNrChans(), blockSize );
+//            for( size_t chan = 0; chan < emdIn->getNrChans(); ++chan )
+//            {
+//                WLEMData::ChannelT channel( emdIn->getData()[chan].begin() + start,
+//                                start + blockSize <= emdIn->getData()[chan].size() ? emdIn->getData()[chan].begin() + start
+//                                                + blockSize :
+//                                                emdIn->getData()[chan].end() );
+//                data->push_back( channel );
+//            }
             emdOut->setData( data );
             emmOut->addModality( emdOut );
         }

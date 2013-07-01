@@ -74,9 +74,9 @@ WMEmMeasurement::~WMEmMeasurement()
 {
 }
 
-boost::shared_ptr< WModule > WMEmMeasurement::factory() const
+WModule::SPtr WMEmMeasurement::factory() const
 {
-    return boost::shared_ptr< WModule >( new WMEmMeasurement() );
+    return WModule::SPtr( new WMEmMeasurement() );
 }
 
 const char** WMEmMeasurement::getXPMIcon() const
@@ -108,7 +108,7 @@ void WMEmMeasurement::properties()
 {
     LaBP::WLModuleDrawable::properties();
 
-    m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+    m_propCondition = WCondition::SPtr( new WCondition() );
 
     // Experiment loader - Fiff properties //
 //    m_propGrpFiffStreaming = m_properties->addPropertyGroup( "FIFF streaming properties",
@@ -315,7 +315,7 @@ void WMEmMeasurement::streamData()
         size_t blockOffset = 0; // start index for current block
         size_t blockCount = 0;
         int smplFrq;
-        std::vector< std::vector< double > > fiffData;
+        WLEMData::DataT fiffData;
         bool hasData;
         std::vector< WLEMData::SPtr > emds = m_fiffEmm->getModalityList();
         boost::shared_ptr< std::vector< std::vector< int > > > events = m_fiffEmm->getEventChannels();
@@ -344,28 +344,20 @@ void WMEmMeasurement::streamData()
                     break;
                 }
 
-                WLEMData::SPtr emdPacket = ( *emd )->clone();
-                boost::shared_ptr< WLEMData::DataT > data( new WLEMData::DataT() );
-                data->reserve( ( *emd )->getNrChans() );
-
                 smplFrq = ( *emd )->getSampFreq();
                 blockSize = smplFrq * SEC_PER_BLOCK;
                 blockOffset = blockCount * blockSize;
+                WLEMData::SPtr emdPacket = ( *emd )->clone();
+                WLEMData::DataSPtr data( new WLEMData::DataT( ( *emd )->getNrChans(), blockSize ) );
                 fiffData = ( *emd )->getData();
 
                 // copy each channel
                 for( size_t chan = 0; chan < ( *emd )->getNrChans(); ++chan )
                 {
-                    WLEMData::ChannelT channel;
-                    channel.reserve( blockSize );
-
-                    for( size_t sample = 0; sample < blockSize && ( blockOffset + sample ) < fiffData.at( chan ).size();
-                                    ++sample )
+                    for( size_t sample = 0; sample < blockSize && ( blockOffset + sample ) < fiffData.cols(); ++sample )
                     {
-                        channel.push_back( fiffData[chan][blockOffset + sample] );
+                        ( *data )( chan, sample ) = fiffData(chan, blockOffset + sample);
                     }
-
-                    data->push_back( channel );
                 }
 
                 emdPacket->setData( data );
@@ -373,11 +365,10 @@ void WMEmMeasurement::streamData()
 
                 if( ( *emd )->getNrChans() > 0 )
                 {
-                    debugLog() << "emdPacket type: " << emdPacket->getModalityType() << " size: "
-                                    << emdPacket->getData().front().size();
+                    debugLog() << "emdPacket type: " << emdPacket->getModalityType() << " size: " << emdPacket->getData().cols();
 
                     // set termination condition
-                    hasData = hasData || blockOffset + blockSize < fiffData[0].size();
+                    hasData = hasData || blockOffset + blockSize < fiffData.cols();
                 }
             }
 
@@ -434,87 +425,87 @@ void WMEmMeasurement::streamData()
 
 void WMEmMeasurement::generateData()
 {
-    resetView();
-    infoLog() << "Generation started ...";
-    m_genDataTrigger->setHidden( true );
-    m_genDataTriggerEnd->setHidden( false );
-
-    WRealtimeTimer totalTimer;
-    WRealtimeTimer waitTimer;
-
-    totalTimer.reset();
-
-    for( int k = 0; k < ( ( double )m_generationDuration->get() * 1000 ) / ( double )m_generationBlockSize->get(); k++ )
-    {
-        if( m_shutdownFlag() )
-        {
-            break;
-        }
-
-        waitTimer.reset();
-
-        if( ( m_genDataTriggerEnd->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED ) )
-        {
-            m_genDataTriggerEnd->set( WPVBaseTypes::PV_TRIGGER_READY, true );
-            infoLog() << "Generation stopped ...";
-            break;
-        }
-
-        WLEMMeasurement::SPtr emm( new WLEMMeasurement() );
-        WLEMDEEG::SPtr eeg( new WLEMDEEG() );
-
-        eeg->setSampFreq( m_generationFreq->get() );
-
-        for( int i = 0; i < m_generationNrChans->get(); i++ )
-        {
-            WLEMData::ChannelT channel;
-            for( int j = 0; j < m_generationFreq->get() * ( ( double )m_generationBlockSize->get() / 1000.0 ); j++ )
-            {
-                channel.push_back( 30.0 * ( double )rand() / RAND_MAX - 15.0 );
-            }
-            double a = ( double )rand() / RAND_MAX - 0.5;
-            double b = ( double )rand() / RAND_MAX - 0.5;
-            double c = ( double )rand() / RAND_MAX - 0.5;
-            double m = sqrt( a * a + b * b + c * c );
-            double r = 100;
-            a *= r / m;
-            b *= r / m;
-            c *= r / m;
-            //WPosition point = new ;
-            eeg->getChannelPositions3d()->push_back( WPosition( a, b, abs( c ) ) );
-            eeg->getData().push_back( channel );
-        }
-
-        emm->addModality( eeg );
-        setAdditionalInformation( emm );
-
-        processCompute( emm );
-
-        debugLog() << "inserted block " << k + 1 << "/"
-                        << ( ( double )m_generationDuration->get() * 1000 ) / ( double )m_generationBlockSize->get() << " with "
-                        << m_generationFreq->get() * ( double )m_generationBlockSize->get() / 1000.0 << " Samples";
-
-        const double tuSleep = m_generationBlockSize->get() * 1000 - ( waitTimer.elapsed() * 1000000 );
-        if( tuSleep > 0 )
-        {
-            boost::this_thread::sleep( boost::posix_time::microseconds( tuSleep ) );
-            debugLog() << "Slept for " << tuSleep << " microseconds.";
-        }
-        else
-        {
-            warnLog() << "Generation took " << abs( tuSleep ) << " microseconds to long!";
-        }
-    }
-
-    const double total = totalTimer.elapsed() * 1000;
-
-    infoLog() << "Generation finished!";
-    debugLog() << "Generation time: " << total << " ms";
-
-    m_genDataTriggerEnd->setHidden( true );
-    m_genDataTrigger->setHidden( false );
-
-    m_genDataTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, true );
+//    resetView();
+//    infoLog() << "Generation started ...";
+//    m_genDataTrigger->setHidden( true );
+//    m_genDataTriggerEnd->setHidden( false );
+//
+//    WRealtimeTimer totalTimer;
+//    WRealtimeTimer waitTimer;
+//
+//    totalTimer.reset();
+//
+//    for( int k = 0; k < ( ( double )m_generationDuration->get() * 1000 ) / ( double )m_generationBlockSize->get(); k++ )
+//    {
+//        if( m_shutdownFlag() )
+//        {
+//            break;
+//        }
+//
+//        waitTimer.reset();
+//
+//        if( ( m_genDataTriggerEnd->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED ) )
+//        {
+//            m_genDataTriggerEnd->set( WPVBaseTypes::PV_TRIGGER_READY, true );
+//            infoLog() << "Generation stopped ...";
+//            break;
+//        }
+//
+//        WLEMMeasurement::SPtr emm( new WLEMMeasurement() );
+//        WLEMDEEG::SPtr eeg( new WLEMDEEG() );
+//
+//        eeg->setSampFreq( m_generationFreq->get() );
+//
+//        for( int i = 0; i < m_generationNrChans->get(); i++ )
+//        {
+//            WLEMData::ChannelT channel;
+//            for( int j = 0; j < m_generationFreq->get() * ( ( double )m_generationBlockSize->get() / 1000.0 ); j++ )
+//            {
+//                channel.push_back( 30.0 * ( double )rand() / RAND_MAX - 15.0 );
+//            }
+//            double a = ( double )rand() / RAND_MAX - 0.5;
+//            double b = ( double )rand() / RAND_MAX - 0.5;
+//            double c = ( double )rand() / RAND_MAX - 0.5;
+//            double m = sqrt( a * a + b * b + c * c );
+//            double r = 100;
+//            a *= r / m;
+//            b *= r / m;
+//            c *= r / m;
+//            //WPosition point = new ;
+//            eeg->getChannelPositions3d()->push_back( WPosition( a, b, abs( c ) ) );
+//            eeg->getData().push_back( channel );
+//        }
+//
+//        emm->addModality( eeg );
+//        setAdditionalInformation( emm );
+//
+//        processCompute( emm );
+//
+//        debugLog() << "inserted block " << k + 1 << "/"
+//                        << ( ( double )m_generationDuration->get() * 1000 ) / ( double )m_generationBlockSize->get() << " with "
+//                        << m_generationFreq->get() * ( double )m_generationBlockSize->get() / 1000.0 << " Samples";
+//
+//        const double tuSleep = m_generationBlockSize->get() * 1000 - ( waitTimer.elapsed() * 1000000 );
+//        if( tuSleep > 0 )
+//        {
+//            boost::this_thread::sleep( boost::posix_time::microseconds( tuSleep ) );
+//            debugLog() << "Slept for " << tuSleep << " microseconds.";
+//        }
+//        else
+//        {
+//            warnLog() << "Generation took " << abs( tuSleep ) << " microseconds to long!";
+//        }
+//    }
+//
+//    const double total = totalTimer.elapsed() * 1000;
+//
+//    infoLog() << "Generation finished!";
+//    debugLog() << "Generation time: " << total << " ms";
+//
+//    m_genDataTriggerEnd->setHidden( true );
+//    m_genDataTrigger->setHidden( false );
+//
+//    m_genDataTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, true );
 }
 
 bool WMEmMeasurement::readFiff( std::string fname )
@@ -558,6 +549,7 @@ bool WMEmMeasurement::readFiff( std::string fname )
         m_fiffFileStatus->set( FILE_ERROR, true );
         return false;
     }
+    return false;
 }
 
 bool WMEmMeasurement::readElc( std::string fname )

@@ -44,7 +44,7 @@ namespace LaBP
     {
     }
 
-    void WLEMDDrawable3DSource::osgUpdateSurfaceColor( const MatrixT& data )
+    void WLEMDDrawable3DSource::osgUpdateSurfaceColor( const WLEMData::DataT& data )
     {
         if( m_selectedSample >= 0 && ( m_selectedSampleChanged || m_dataChanged || m_colorMapChanged ) )
         {
@@ -91,7 +91,7 @@ namespace LaBP
         osgAddSurface( subject->getSurface( WLEMMSurface::Hemisphere::BOTH ).getVertex().get(),
                         subject->getSurface( WLEMMSurface::Hemisphere::BOTH ).getFaces() );
 
-        osgUpdateSurfaceColor( emd->getMatrix() );
+        osgUpdateSurfaceColor( emd->getData() );
 
         WLEMDDrawable3D::osgNodeCallback( nv );
     }

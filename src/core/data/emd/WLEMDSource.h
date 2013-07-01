@@ -36,27 +36,14 @@ public:
 
     virtual WLEMData::SPtr clone() const;
 
-    virtual DataT& getData() const;
-
-    virtual size_t getNrChans() const;
-
-    virtual size_t getSamplesPerChan() const;
-
     virtual LaBP::WEModalityType::Enum getModalityType() const;
 
     LaBP::WEModalityType::Enum getOriginModalityType() const;
 
     void setOriginModalityType( LaBP::WEModalityType::Enum modality );
 
-    LaBP::MatrixT& getMatrix() const;
-
-    void setMatrix( boost::shared_ptr< LaBP::MatrixT > matrix );
-
-    static boost::shared_ptr< DataT > convertMatrix( const LaBP::MatrixT& matrix );
-
 private:
     LaBP::WEModalityType::Enum m_originModalityType;
-    boost::shared_ptr< LaBP::MatrixT > m_matrix;
 };
 
 #endif  // WLEMDSOURCE_H_

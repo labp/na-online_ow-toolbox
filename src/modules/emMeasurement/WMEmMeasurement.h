@@ -107,7 +107,7 @@ protected:
      *
      * \return the prototype used to create every module in OpenWalnut.
      */
-    virtual boost::shared_ptr< WModule > factory() const;
+    virtual WModule::SPtr factory() const;
 
     /**
      * Get the icon for this module in XPM format.
@@ -117,7 +117,7 @@ protected:
 
 private:
     //! a condition for the matrix selection
-    boost::shared_ptr< WCondition > m_propCondition;
+    WCondition::SPtr m_propCondition;
 
     // FIFF file //
     void streamData();
@@ -218,7 +218,7 @@ private:
 
     WPropFilename m_dipFile;
 
-    boost::shared_ptr< LaBP::WLEMMSurface > m_dipSurface;
+    LaBP::WLEMMSurface::SPtr m_dipSurface;
 
     WPropString m_dipFileStatus;
 
@@ -233,7 +233,7 @@ private:
 
     WPropFilename m_volFile;
 
-    boost::shared_ptr< std::vector< boost::shared_ptr< LaBP::WLEMMBemBoundary > > > m_volBoundaries;
+    boost::shared_ptr< std::vector< LaBP::WLEMMBemBoundary::SPtr > > m_volBoundaries;
 
     WPropString m_volFileStatus;
 
@@ -259,10 +259,10 @@ private:
     void extractExpLoader( std::string fiffFile );
     WPropString m_expSubject;
 
-    boost::shared_ptr< WItemSelection > m_expBemFiles;
+    WItemSelection::SPtr m_expBemFiles;
     WPropSelection m_expBemFilesSelection;
 
-    boost::shared_ptr< WItemSelection > m_expSurfaces;
+    WItemSelection::SPtr m_expSurfaces;
     WPropSelection m_expSurfacesSelection;
 
     WPropString m_expTrial;

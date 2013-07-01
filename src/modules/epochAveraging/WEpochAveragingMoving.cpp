@@ -22,9 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
-#include <algorithm> // transform
 #include <cstddef>
-#include <functional> // divides, plus, bind
 #include <string>
 
 #include "core/data/WLEMMeasurement.h"
@@ -65,28 +63,18 @@ WLEMMeasurement::SPtr WEpochAveragingMoving::getAverage( WLEMMeasurement::ConstS
     pushBuffer( emmIn );
 
     WLEMMeasurement::SPtr emmOut( new WLEMMeasurement( *emmIn ) );
-    // TODO(pieloth): new profiler
-//    WLTimeProfiler::SPtr profiler( new WLTimeProfiler( CLASS, "lifetime" ) );
-//    profiler->start();
-//    emmOut->setTimeProfiler( profiler );
 
     WLEMData::ConstSPtr emdIn;
     WLEMData::SPtr emdOut;
 
     // Create output EMM
-    size_t channels;
-    size_t samples;
     for( size_t mod = 0; mod < emmIn->getModalityCount(); ++mod )
     {
         emdIn = emmIn->getModality( mod );
         emdOut = emdIn->clone();
-        channels = emdIn->getData().size();
-        emdOut->getData().resize( channels );
-        samples = emdIn->getData().front().size();
-        for( size_t chan = 0; chan < channels; ++chan )
-        {
-            emdOut->getData()[chan].resize( samples, 0 );
-        }
+        const size_t channels = emdIn->getNrChans();
+        const size_t samples = emdIn->getSamplesPerChan();
+        emdOut->getData().setZero( channels, samples );
         emmOut->addModality( emdOut );
     }
 
@@ -99,26 +87,22 @@ WLEMMeasurement::SPtr WEpochAveragingMoving::getAverage( WLEMMeasurement::ConstS
         {
             emdIn = emmIn->getModality( mod );
             emdOut = emmOut->getModality( mod );
-            channels = emdIn->getData().size();
-            WAssertDebug( channels == emdOut->getData().size(), "channels == emdOut->getData().size()" );
-            for( size_t chan = 0; chan < channels; ++chan )
-            {
-                std::transform( emdIn->getData()[chan].begin(), emdIn->getData()[chan].end(), emdOut->getData()[chan].begin(),
-                                emdOut->getData()[chan].begin(), std::plus< double >() );
-            }
+            WAssertDebug( emdIn->getNrChans() == emdOut->getNrChans(), "emdIn->getNrChans() == emdOut->getNrChans()" );
+
+            const WLEMData::DataT& dataIn = emdIn->getData();
+            WLEMData::DataT& dataOut = emdOut->getData();
+            dataOut += dataIn;
         }
     }
 
     // divide
+    WLEMData::SampleT divFactor;
     for( size_t mod = 0; mod < emmOut->getModalityCount(); ++mod )
     {
         emdOut = emmOut->getModality( mod );
-        channels = emdOut->getData().size();
-        for( size_t chan = 0; chan < channels; ++chan )
-        {
-            std::transform( emdOut->getData()[chan].begin(), emdOut->getData()[chan].end(), emdOut->getData()[chan].begin(),
-                            std::bind2nd( std::divides< double >(), std::min( m_size, m_count ) ) );
-        }
+        WLEMData::DataT& dataOut = emdOut->getData();
+        divFactor = 1.0 / std::min( m_size, m_count );
+        dataOut *= divFactor;
     }
 
     return emmOut;

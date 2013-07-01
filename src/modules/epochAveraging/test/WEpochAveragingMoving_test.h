@@ -63,15 +63,15 @@ public:
             {
                 emd = emm->getModality( mod );
                 emdAverage = emmAverage->getModality( mod );
-                TS_ASSERT_EQUALS( emdAverage->getData().size(), emd->getData().size() )
-                for( size_t chan = 0; chan < emdAverage->getData().size(); ++chan )
+                TS_ASSERT_EQUALS( emdAverage->getNrChans(), emd->getNrChans() );
+                TS_ASSERT_EQUALS( emdAverage->getSamplesPerChan(), emd->getSamplesPerChan() );
+                for( size_t chan = 0; chan < emdAverage->getNrChans(); ++chan )
                 {
-                    TS_ASSERT_EQUALS( emdAverage->getData()[chan].size(), emd->getData()[chan].size() );
-                    for( size_t smp = 0; smp < emdAverage->getData()[chan].size(); ++smp )
+                    for( size_t smp = 0; smp < emdAverage->getSamplesPerChan(); ++smp )
                     {
-                        TS_ASSERT_DELTA( emdAverage->getData()[chan][smp],
-                                        getSum( std::min( i, averager->getSize() - 1 ), ( i + mod ) * SAMPLES + smp, SAMPLES ) / std::min( i + 1, averager->getSize() ),
-                                        EPS );
+                        TS_ASSERT_DELTA( emdAverage->getData()( chan, smp ),
+                                        getSum( std::min( i, averager->getSize() - 1 ), ( i + mod ) * SAMPLES + smp, SAMPLES )
+                                                        / std::min( i + 1, averager->getSize() ), EPS );
                     }
                 }
             }
@@ -93,15 +93,15 @@ public:
             {
                 emd = emm->getModality( mod );
                 emdAverage = emmAverage->getModality( mod );
-                TS_ASSERT_EQUALS( emdAverage->getData().size(), emd->getData().size() )
-                for( size_t chan = 0; chan < emdAverage->getData().size(); ++chan )
+                TS_ASSERT_EQUALS( emdAverage->getNrChans(), emd->getNrChans() );
+                TS_ASSERT_EQUALS( emdAverage->getSamplesPerChan(), emd->getSamplesPerChan() );
+                for( size_t chan = 0; chan < emdAverage->getNrChans(); ++chan )
                 {
-                    TS_ASSERT_EQUALS( emdAverage->getData()[chan].size(), emd->getData()[chan].size() );
-                    for( size_t smp = 0; smp < emdAverage->getData()[chan].size(); ++smp )
+                    for( size_t smp = 0; smp < emdAverage->getSamplesPerChan(); ++smp )
                     {
-                        TS_ASSERT_DELTA( emdAverage->getData()[chan][smp],
-                                        getSum( std::min( i, averager->getSize() - 1 ), ( i + mod ) * SAMPLES + smp, SAMPLES ) / std::min( i + 1, averager->getSize() ),
-                                        EPS );
+                        TS_ASSERT_DELTA( emdAverage->getData()( chan, smp ),
+                                        getSum( std::min( i, averager->getSize() - 1 ), ( i + mod ) * SAMPLES + smp, SAMPLES )
+                                                        / std::min( i + 1, averager->getSize() ), EPS );
                     }
                 }
             }
@@ -114,25 +114,23 @@ private:
     WLEMData::SPtr createEmd( size_t channels, size_t samples, int startValue = 0 )
     {
         WLEMData::SPtr emd( new WLEMDEEG() );
-        boost::shared_ptr< WLEMData::DataT > data( new WLEMData::DataT );
+        WLEMData::DataSPtr data( new WLEMData::DataT( channels, samples ) );
 
         for( size_t chan = 0; chan < channels; ++chan )
         {
-            WLEMData::ChannelT channel;
             for( size_t smp = 0; smp < samples; ++smp )
             {
-                channel.push_back( startValue + smp );
+                ( *data )( chan, smp ) = startValue + smp;
             }
-            data->push_back( channel );
         }
         emd->setData( data );
 
         return emd;
     }
 
-    double getSum( size_t i, size_t smp, size_t offset )
+    WLEMData::SampleT getSum( size_t i, size_t smp, size_t offset )
     {
-        double result = 0;
+        WLEMData::SampleT result = 0;
         result += smp;
         for( size_t ii = i; 0 < ii; --ii )
         {

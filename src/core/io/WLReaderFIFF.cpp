@@ -85,7 +85,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
 
     // Read Isotrak
     LFIsotrak& isotrak = measinfo_in.GetLFIsotrak();
-    LFArrayPtr< LFDigitisationPoint >& digPoints = isotrak.GetLFDigitisationPoint();
+    LFArrayPtr< LFDigitisationPoint > &digPoints = isotrak.GetLFDigitisationPoint();
     boost::shared_ptr< std::vector< WVector3f > > itPos( new std::vector< WVector3f >() );
     for( LFArrayPtr< LFDigitisationPoint >::size_type i = 0; i < digPoints.size(); ++i )
     {
@@ -96,17 +96,18 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
 
     // Read raw data
     LFRawData& rawdata_in = data.GetLFMeasurement().GetLFRawData();
-    LFArrayPtr< LFDataBuffer >& rawdatabuffers_in = rawdata_in.GetLFDataBuffer();
+    LFArrayPtr< LFDataBuffer > &rawdatabuffers_in = rawdata_in.GetLFDataBuffer();
     size_t nBuffers_in = rawdatabuffers_in.size();
     size_t nBuffers_out = 0;
     for( size_t i = 0; i < nBuffers_in; i++ )
         nBuffers_out += rawdatabuffers_in[i]->GetSize();
     nBuffers_out /= nChannels;
-    WLEMData::DataT rawdatabuffers_out( nChannels );
-    for( int32_t i = 0; i < nChannels; i++ )
-        rawdatabuffers_out[i].resize( nBuffers_out );
+    WLEMData::DataT rawdatabuffers_out( nChannels, nBuffers_out );
+//    Change from vec<vec> to eigen matrix
+//    for( int32_t i = 0; i < nChannels; i++ )
+//        rawdatabuffers_out[i].resize( nBuffers_out );
     int32_t current_channel = 0, current_buffer_out = 0;
-    LFArrayPtr< LFChannelInfo >& channelInfos = measinfo_in.GetLFChannelInfo();
+    LFArrayPtr< LFChannelInfo > &channelInfos = measinfo_in.GetLFChannelInfo();
     double scaleFactor;
     for( size_t i = 0; i < nBuffers_in; i++ )
     {
@@ -118,13 +119,13 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
             switch( pBuf->GetDataType() )
             {
                 case LFDataBuffer::dt_int16:
-                    rawdatabuffers_out[current_channel][current_buffer_out] = pBuf->GetBufferInt16()->at( j ) * scaleFactor;
+                    rawdatabuffers_out( current_channel, current_buffer_out ) = pBuf->GetBufferInt16()->at( j ) * scaleFactor;
                     break;
                 case LFDataBuffer::dt_int32:
-                    rawdatabuffers_out[current_channel][current_buffer_out] = pBuf->GetBufferInt32()->at( j ) * scaleFactor;
+                    rawdatabuffers_out( current_channel, current_buffer_out ) = pBuf->GetBufferInt32()->at( j ) * scaleFactor;
                     break;
                 case LFDataBuffer::dt_float:
-                    rawdatabuffers_out[current_channel][current_buffer_out] = pBuf->GetBufferFloat()->at( j ) * scaleFactor;
+                    rawdatabuffers_out( current_channel, current_buffer_out ) = pBuf->GetBufferFloat()->at( j ) * scaleFactor;
                     break;
                 default:
                     // LFDataBuffer::dt_unknown
@@ -139,7 +140,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
         }
     }
 
-    boost::shared_ptr< WLEMData::DataT > rawdatabuffers_out_ptr( new WLEMData::DataT( rawdatabuffers_out ) );
+    WLEMData::DataSPtr rawdatabuffers_out_ptr( new WLEMData::DataT( rawdatabuffers_out ) );
     dummy->setData( rawdatabuffers_out_ptr );
 
     // Collect available modalities and coils
@@ -182,7 +183,8 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
         }
 
         // Collect data: measurement, positions, base vectors
-        boost::shared_ptr< WLEMData::DataT > data( new WLEMData::DataT() );
+        // TODO(pieloth): set channels size
+
         boost::shared_ptr< std::vector< WPosition > > positions( new std::vector< WPosition >() );
         float* pos;
 
@@ -193,6 +195,8 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
 
         fiffunits_t fiffUnit;
 
+        size_t modChan = 0;
+        WLEMData::DataT dataTmp( rawdatabuffers_out_ptr->rows(), rawdatabuffers_out_ptr->cols() );
         for( size_t chan = 0; chan < dummy->getNrChans(); ++chan )
         {
             if( measinfo_in.GetLFChannelInfo()[chan]->GetKind() == mod )
@@ -211,7 +215,8 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
 
                     // Check sequence
                     const int32_t coil_type = measinfo_in.GetLFChannelInfo()[chan]->GetCoilType();
-                    if( data->size() > 1 && ( data->size() - 2 ) % 3 == 0 )
+                    // TODO(pieloth): check meg coil order
+                    if( modChan > 1 && ( modChan - 2 ) % 3 == 0 )
                     {
                         WAssert( coil_type == 3021 || coil_type == 3022 || coil_type == 3024,
                                         "Wrong order! Coil type should be magentometer!" );
@@ -231,10 +236,13 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
                 }
 
                 // Collect general data
-                data->push_back( dummy->getData()[chan] );
+//                data->push_back( dummy->getData().row(chan) );
+                dataTmp.row( modChan++ ) = ( dummy->getData().row( chan ) );
                 fiffUnit = measinfo_in.GetLFChannelInfo()[chan]->GetUnit();
             }
         }
+
+        WLEMData::DataSPtr data( new WLEMData::DataT( dataTmp.block( 0, 0, modChan, dataTmp.cols() ) ) );
 
         // Set general data
         emd->setSampFreq( dummy->getSampFreq() );
@@ -275,15 +283,16 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
     // Create event/stimulus channel
     LFEvents events = measinfo_in.GetLFEvents();
     WLEMMeasurement::EChannelT eventData_out;
-    std::vector< double > eventData_in;
+//    std::vector< double > eventData_in;
+    WLEMData::ChannelT eventData_in;
     for( std::vector< int32_t >::iterator chan = events.GetEventChannels().begin(); chan != events.GetEventChannels().end();
                     ++chan )
     {
         wlog::debug( CLASS ) << "Event channel: " << *chan;
         eventData_out = WLEMMeasurement::EChannelT();
-        eventData_in = dummy->getData()[*chan - 1]; // TODO LFEvents counts from 1 ?
+        eventData_in = dummy->getData().row( *chan - 1 ); // TODO LFEvents counts from 1 ?
         for( size_t i = 0; i < eventData_in.size(); ++i )
-            eventData_out.push_back( ( WLEMMeasurement::EventT )eventData_in[i] );
+            eventData_out.push_back( ( WLEMMeasurement::EventT )eventData_in( i ) );
         out->addEventChannel( eventData_out );
     }
 
@@ -346,7 +355,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( std::vector< std::vector< dou
     returncode_t ret = LFInterface::fiffRead( data, m_fname.data() );
     if( ret != rc_normal )
         return getReturnCode( ret );
-    LFArrayPtr< LFDataBuffer >& rawdatabuffers_in = data.GetLFDataBuffer();
+    LFArrayPtr< LFDataBuffer > &rawdatabuffers_in = data.GetLFDataBuffer();
     size_t nBuffers_in = rawdatabuffers_in.size();
     out.resize( nBuffers_in );
     for( size_t i = 0; i < nBuffers_in; i++ )

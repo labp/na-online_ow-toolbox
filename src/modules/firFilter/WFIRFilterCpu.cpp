@@ -36,7 +36,7 @@
 const std::string WFIRFilterCpu::CLASS = "WFIRFilterCpu";
 
 WFIRFilterCpu::WFIRFilterCpu( WFIRFilter::WEFilterType::Enum filtertype, WFIRFilter::WEWindowsType::Enum windowtype, int order,
-                double sFreq, double cFreq1, double cFreq2 ) :
+                ScalarT sFreq, ScalarT cFreq1, ScalarT cFreq2 ) :
                 WFIRFilter( filtertype, windowtype, order, sFreq, cFreq1, cFreq2 )
 {
 }
@@ -46,46 +46,32 @@ WFIRFilterCpu::WFIRFilterCpu( const char *pathToFcf ) :
 {
 }
 
-void WFIRFilterCpu::filter( WLEMData::DataT& out, const WLEMData::DataT& in,
-                const WLEMData::DataT& prevData )
+WFIRFilterCpu::~WFIRFilterCpu()
+{
+}
+
+void WFIRFilterCpu::filter( WLEMData::DataT& out, const WLEMData::DataT& in, const WLEMData::DataT& prevData )
 {
     wlog::debug( CLASS ) << "filter() called!";
     WLTimeProfiler prfTime( CLASS, "filter" );
 
-    for( size_t i = 0; i < in.size(); ++i )
-    {
-        WLEMData::ChannelT outChan; // generate a new dimension for every channel
-        outChan.reserve( in[i].size() );
-        out.push_back( outChan );
-
-        filterSingleChannel( out[i], in[i], prevData[i] );
-    }
-}
-
-void WFIRFilterCpu::filterSingleChannel( WLEMData::ChannelT& out, const WLEMData::ChannelT& in,
-                const WLEMData::ChannelT& prev )
-{
-    // TODO(pieloth): check
-    WLEMData::SampleT tmp = 0.0;
-
     // CHANGE original: for( int n = 1; (uint) n < in.size(); n++ )
     const size_t nbCoeff = m_coeffitients.size();
-    for( size_t n = 0; n < in.size(); ++n )
+    out.setZero();
+    for( WLEMData::ChannelT::Index n = 0; n < in.cols(); ++n )
     {
-        tmp = 0.0;
         for( size_t k = 0; k < nbCoeff; ++k )
         {
             // CHANGE from ( long int )( n - k ) >= 0 ? m_coeffitients[k] * in[n - k] : 0;
-            //tmp += ( n >= k ) ? m_coeffitients[k] * in[n - k] : 0;
+            // tmp += ( n >= k ) ? m_coeffitients[k] * in[n - k] : 0;
             if( n >= k )
             {
-                tmp += m_coeffitients[k] * in[n - k];
+                out.col( n ) += m_coeffitients[k] * in.col( n - k );
             }
             else
             {
-                tmp += m_coeffitients[k] * prev[nbCoeff - ( k - n )];
+                out.col( n ) += m_coeffitients[k] * prevData.col( nbCoeff - ( k - n ) );
             }
         }
-        out.push_back( tmp );
     }
 }
