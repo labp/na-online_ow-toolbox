@@ -290,10 +290,10 @@ void LaBP::WLModuleDrawable::updateView( WLEMMeasurement::SPtr emm )
         WLBoundCalculator calculator;
         --m_autoScaleCounter;
         // Scale 2D
-        const WLEMData::SampleT amplitudeScale = calculator.getMax2D( emm, getViewModality() );
+        const WLEMData::ScalarT amplitudeScale = calculator.getMax2D( emm, getViewModality() );
         m_amplitudeScale->set( amplitudeScale );
         // Scale 3D
-        const WLEMData::SampleT sens3dScale = calculator.getMax3D( emm, getViewModality() );
+        const WLEMData::ScalarT sens3dScale = calculator.getMax3D( emm, getViewModality() );
         m_maxSensitity3D->set( sens3dScale );
         m_minSensitity3D->set( -sens3dScale );
     }

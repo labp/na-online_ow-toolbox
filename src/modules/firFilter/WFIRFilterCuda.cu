@@ -59,11 +59,11 @@ inline void __cudaSafeCall( cudaError_t err, const char *file, const int line )
 // This implementation (faster):
 // One thread calculates one element of a channel.
 // All threads are working on the same channel at the same time.
-__global__ void dev_cudaFirFilter( SampleT* const out, const SampleT* const in, const SampleT* const prev, size_t channels,
-                size_t samples, const SampleT* const coeff, size_t coeffSize, size_t pitchOut, size_t pitchIn, size_t pitchPrev )
+__global__ void dev_cudaFirFilter( CuScalarT* const out, const CuScalarT* const in, const CuScalarT* const prev, size_t channels,
+                size_t samples, const CuScalarT* const coeff, size_t coeffSize, size_t pitchOut, size_t pitchIn, size_t pitchPrev )
 {
     // Collect coefficients to shared memory
-    extern __shared__ SampleT coeffShared[];
+    extern __shared__ CuScalarT coeffShared[];
     for( size_t i = threadIdx.x; i < coeffSize; i += blockDim.x )
     {
         coeffShared[i] = coeff[i];
@@ -76,15 +76,15 @@ __global__ void dev_cudaFirFilter( SampleT* const out, const SampleT* const in, 
         return;
 
     // Init values for first channel
-    SampleT tmp = 0.0;
-    const SampleT* rowIn = in;
-    const SampleT* rowPrev = prev;
-    SampleT* rowOut = out;
+    CuScalarT tmp = 0.0;
+    const CuScalarT* rowIn = in;
+    const CuScalarT* rowPrev = prev;
+    CuScalarT* rowOut = out;
 
     // Convert pitch in bytes to pitch in elements (width)
-    pitchIn = pitchIn / sizeof( SampleT );
-    pitchPrev = pitchPrev / sizeof( SampleT );
-    pitchOut = pitchOut / sizeof( SampleT );
+    pitchIn = pitchIn / sizeof( CuScalarT );
+    pitchPrev = pitchPrev / sizeof( CuScalarT );
+    pitchOut = pitchOut / sizeof( CuScalarT );
 
     for( size_t chan = 0; chan < channels; ++chan )
     {
@@ -110,34 +110,34 @@ __global__ void dev_cudaFirFilter( SampleT* const out, const SampleT* const in, 
     }
 }
 
-float cudaFirFilter( SampleT* const output, const SampleT* const input, const SampleT* const previous, size_t channels,
-                size_t samples, const SampleT* const coeffs, size_t coeffSize )
+float cudaFirFilter( CuScalarT* const output, const CuScalarT* const input, const CuScalarT* const previous, size_t channels,
+                size_t samples, const CuScalarT* const coeffs, size_t coeffSize )
 {
     // CudaSafeCall (cudaSetDevice(0));
 
-    SampleT *dev_in = NULL;
+    CuScalarT *dev_in = NULL;
     size_t pitchIn;
 
-    SampleT *dev_prev = NULL;
+    CuScalarT *dev_prev = NULL;
     size_t pitchPrev;
 
-    SampleT *dev_out = NULL;
+    CuScalarT *dev_out = NULL;
     size_t pitchOut;
 
-    SampleT *dev_co = NULL;
+    CuScalarT *dev_co = NULL;
 
-    CudaSafeCall( cudaMallocPitch( &dev_in, &pitchIn, samples * sizeof( SampleT ), channels ) );
+    CudaSafeCall( cudaMallocPitch( &dev_in, &pitchIn, samples * sizeof( CuScalarT ), channels ) );
     CudaSafeCall(
-                    cudaMemcpy2D( dev_in, pitchIn, input, samples * sizeof( SampleT ), samples * sizeof( SampleT ), channels, cudaMemcpyHostToDevice ) );
+                    cudaMemcpy2D( dev_in, pitchIn, input, samples * sizeof( CuScalarT ), samples * sizeof( CuScalarT ), channels, cudaMemcpyHostToDevice ) );
 
-    CudaSafeCall( cudaMallocPitch( &dev_prev, &pitchPrev, coeffSize * sizeof( SampleT ), channels ) );
+    CudaSafeCall( cudaMallocPitch( &dev_prev, &pitchPrev, coeffSize * sizeof( CuScalarT ), channels ) );
     CudaSafeCall(
-                    cudaMemcpy2D( dev_prev, pitchPrev, previous, coeffSize * sizeof( SampleT ), coeffSize * sizeof( SampleT ), channels, cudaMemcpyHostToDevice ) );
+                    cudaMemcpy2D( dev_prev, pitchPrev, previous, coeffSize * sizeof( CuScalarT ), coeffSize * sizeof( CuScalarT ), channels, cudaMemcpyHostToDevice ) );
 
-    CudaSafeCall( cudaMallocPitch( &dev_out, &pitchOut, samples * sizeof( SampleT ), channels ) );
+    CudaSafeCall( cudaMallocPitch( &dev_out, &pitchOut, samples * sizeof( CuScalarT ), channels ) );
 
-    CudaSafeCall( cudaMalloc( &dev_co, coeffSize * sizeof( SampleT ) ) );
-    CudaSafeCall( cudaMemcpy( dev_co, coeffs, coeffSize * sizeof( SampleT ), cudaMemcpyHostToDevice ) );
+    CudaSafeCall( cudaMalloc( &dev_co, coeffSize * sizeof( CuScalarT ) ) );
+    CudaSafeCall( cudaMemcpy( dev_co, coeffs, coeffSize * sizeof( CuScalarT ), cudaMemcpyHostToDevice ) );
 
     size_t threadsPerBlock = 32;
     size_t blocksPerGrid = ( samples + threadsPerBlock - 1 ) / threadsPerBlock;
@@ -147,7 +147,7 @@ float cudaFirFilter( SampleT* const output, const SampleT* const input, const Sa
     cudaEventCreate( &stop );
 
     cudaEventRecord( start, 0 );
-    dev_cudaFirFilter CUDA_KERNEL_DIM( blocksPerGrid, threadsPerBlock, coeffSize * sizeof( SampleT ) ) ( dev_out, dev_in, dev_prev, channels, samples, dev_co, coeffSize, pitchOut, pitchIn, pitchPrev );
+    dev_cudaFirFilter CUDA_KERNEL_DIM( blocksPerGrid, threadsPerBlock, coeffSize * sizeof( CuScalarT ) ) ( dev_out, dev_in, dev_prev, channels, samples, dev_co, coeffSize, pitchOut, pitchIn, pitchPrev );
 
     cudaEventRecord( stop, 0 );
     cudaEventSynchronize( stop );
@@ -162,7 +162,7 @@ float cudaFirFilter( SampleT* const output, const SampleT* const input, const Sa
     }
 
     CudaSafeCall(
-                    cudaMemcpy2D( output, samples * sizeof( SampleT ), dev_out, pitchOut, samples * sizeof( SampleT ), channels, cudaMemcpyDeviceToHost ) );
+                    cudaMemcpy2D( output, samples * sizeof( CuScalarT ), dev_out, pitchOut, samples * sizeof( CuScalarT ), channels, cudaMemcpyDeviceToHost ) );
 
     CudaSafeCall( cudaFree( ( void* )dev_in ) );
     CudaSafeCall( cudaFree( ( void* )dev_prev ) );

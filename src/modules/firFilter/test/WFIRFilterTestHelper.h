@@ -128,7 +128,7 @@ public:
 
         WLEMData::SPtr emdOut = filter->filter( emdIn );
 
-        WLEMData::SampleT firSum = 0;
+        WLEMData::ScalarT firSum = 0;
         for( size_t i = 0; i < coefficients; ++i )
         {
             firSum += filter->getCoefficients()[i];

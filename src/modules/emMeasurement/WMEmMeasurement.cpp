@@ -469,7 +469,7 @@ void WMEmMeasurement::generateData()
             WLEMData::ChannelT channel( samples );
             for( size_t smp = 0; smp < samples; ++smp )
             {
-                channel( smp ) = ( 30.0 * ( WLEMData::SampleT )rand() / RAND_MAX - 15.0 );
+                channel( smp ) = ( 30.0 * ( WLEMData::ScalarT )rand() / RAND_MAX - 15.0 );
             }
             WPosition::ValueType a = ( WPosition::ValueType )rand() / RAND_MAX - 0.5;
             WPosition::ValueType b = ( WPosition::ValueType )rand() / RAND_MAX - 0.5;

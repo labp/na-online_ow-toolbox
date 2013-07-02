@@ -116,15 +116,15 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
             switch( pBuf->GetDataType() )
             {
                 case LFDataBuffer::dt_int16:
-                    rawdatabuffers_out( current_channel, current_buffer_out ) = ( WLEMData::SampleT )pBuf->GetBufferInt16()->at(
+                    rawdatabuffers_out( current_channel, current_buffer_out ) = ( WLEMData::ScalarT )pBuf->GetBufferInt16()->at(
                                     j ) * scaleFactor;
                     break;
                 case LFDataBuffer::dt_int32:
-                    rawdatabuffers_out( current_channel, current_buffer_out ) = ( WLEMData::SampleT )pBuf->GetBufferInt32()->at(
+                    rawdatabuffers_out( current_channel, current_buffer_out ) = ( WLEMData::ScalarT )pBuf->GetBufferInt32()->at(
                                     j ) * scaleFactor;
                     break;
                 case LFDataBuffer::dt_float:
-                    rawdatabuffers_out( current_channel, current_buffer_out ) = ( WLEMData::SampleT )pBuf->GetBufferFloat()->at(
+                    rawdatabuffers_out( current_channel, current_buffer_out ) = ( WLEMData::ScalarT )pBuf->GetBufferFloat()->at(
                                     j ) * scaleFactor;
                     break;
                 default:

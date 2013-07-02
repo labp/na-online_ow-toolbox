@@ -358,7 +358,7 @@ bool WRtClient::readEmd( WLEMData* const emd, const Eigen::RowVectorXi& picks, c
         WAssertDebug( picks[row] < rawData.rows(), "Selected channel index out of raw data boundary!" );
         for( Eigen::RowVectorXi::Index col = 0; col < cols; ++col )
         {
-            emdData( row, col ) = ( WLEMData::SampleT )rawData( picks[row], col );
+            emdData( row, col ) = ( WLEMData::ScalarT )rawData( picks[row], col );
         }
     }
 

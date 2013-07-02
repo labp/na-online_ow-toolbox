@@ -156,7 +156,7 @@ namespace LaBP
 
             // Find maximum
             LaBP::WLBoundCalculator bc;
-            WLEMData::SampleT max = bc.getMax( emd->getData() );
+            WLEMData::ScalarT max = bc.getMax( emd->getData() );
 
             const ValueT y_scale = ( ( m_widget->height() / 2 ) / m_amplitudeScale );
             for( ValueT yPos = y_zero_pos + ( y_scale * max ); yPos > height * 0.9; yPos = y_zero_pos + ( y_scale * max ) )

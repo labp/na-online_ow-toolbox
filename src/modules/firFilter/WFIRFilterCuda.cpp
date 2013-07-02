@@ -25,7 +25,7 @@
 #include <cstddef>
 #include <string>
 
-#include <Eigen/Dense>
+#include <Eigen/Core>
 
 #include <core/common/WLogger.h>
 
@@ -58,19 +58,19 @@ void WFIRFilterCuda::filter( WLEMData::DataT& out, const WLEMData::DataT& in, co
     const WLEMData::DataT::Index samples = in.cols();
     const WLEMData::DataT::Index prevSamples = static_cast< WLEMData::DataT::Index >( m_coeffitients.size() );
 
-    SampleT *coeffs = ( SampleT* )malloc( prevSamples * sizeof(SampleT) );
-    SampleT *input = ( SampleT* )malloc( channels * samples * sizeof(SampleT) );
-    SampleT *previous = ( SampleT* )malloc( channels * prevSamples * sizeof(SampleT) );
-    SampleT *output = ( SampleT* )malloc( channels * samples * sizeof(SampleT) );
+    CuScalarT *coeffs = ( CuScalarT* )malloc( prevSamples * sizeof(CuScalarT) );
+    CuScalarT *input = ( CuScalarT* )malloc( channels * samples * sizeof(CuScalarT) );
+    CuScalarT *previous = ( CuScalarT* )malloc( channels * prevSamples * sizeof(CuScalarT) );
+    CuScalarT *output = ( CuScalarT* )malloc( channels * samples * sizeof(CuScalarT) );
 
     // CHANGE from for( size_t i = 0; i < 32; ++i ) to
-    SampleT* chanWriteTmp;
+    CuScalarT* chanWriteTmp;
     for( WLEMData::DataT::Index c = 0; c < channels; ++c )
     {
         chanWriteTmp = input + c * samples;
         for( WLEMData::DataT::Index s = 0; s < samples; ++s )
         {
-            chanWriteTmp[s] = ( SampleT )( in( c, s ) );
+            chanWriteTmp[s] = ( CuScalarT )( in( c, s ) );
         }
     }
 
@@ -79,22 +79,22 @@ void WFIRFilterCuda::filter( WLEMData::DataT& out, const WLEMData::DataT& in, co
         chanWriteTmp = previous + c * prevSamples;
         for( WLEMData::DataT::Index s = 0; s < prevSamples; ++s )
         {
-            chanWriteTmp[s] = ( SampleT )( prev( c, s ) );
+            chanWriteTmp[s] = ( CuScalarT )( prev( c, s ) );
         }
     }
 
     for( WLEMData::DataT::Index s = 0; s < prevSamples; ++s )
     {
-        coeffs[s] = ( SampleT )m_coeffitients[s];
+        coeffs[s] = ( CuScalarT )m_coeffitients[s];
     }
 
     float time = cudaFirFilter( output, input, previous, channels, samples, coeffs, prevSamples );
 
-    const SampleT* chanReadTmp;
+    const CuScalarT* chanReadTmp;
     for( WLEMData::DataT::Index c = 0; c < in.rows(); ++c )
     {
         chanReadTmp = output + c * samples;
-        out.row( c ) = Eigen::VectorXf::Map( chanReadTmp, samples ).cast< WLEMData::SampleT >();
+        out.row( c ) = Eigen::Matrix< CuScalarT, 1, Eigen::Dynamic >::Map( chanReadTmp, samples ).cast< WLEMData::ScalarT >();
     }
 
     free( output );

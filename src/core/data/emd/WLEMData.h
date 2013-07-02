@@ -39,6 +39,7 @@
 
 using Eigen::MatrixXd;
 using Eigen::RowVectorXd;
+using Eigen::VectorXd;
 
 /**
  * Class for general modality. Saves information which are present for all modalities.
@@ -56,13 +57,25 @@ public:
      */
     typedef boost::shared_ptr< const WLEMData > ConstSPtr;
 
+    /**
+     * Date type of a multi channel measurement: Channel x Time
+     */
     typedef MatrixXd DataT;
 
+    /**
+     * Data type of a measured single channel over time.
+     */
     typedef RowVectorXd ChannelT;
 
-    typedef DataT::Scalar SampleT;
+    /**
+     * Data type of a multi channel sample for a defined time point aka "All channels at time t1".
+     */
+    typedef VectorXd SampleT;
 
-    // TODO(pieloth): New typedef column vector aka time pos. or Sample(!). Change SampleT to ScalarT.
+    /**
+     * Data type of single value aka "Channel c1 at time t1".
+     */
+    typedef DataT::Scalar ScalarT;
 
     typedef boost::shared_ptr< DataT > DataSPtr;
 

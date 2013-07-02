@@ -34,14 +34,14 @@ namespace LaBP
     class WLBoundCalculator
     {
     public:
-        explicit WLBoundCalculator( WLEMData::SampleT alpha = 1.5 );
-        WLEMData::SampleT getMax2D( WLEMMeasurement::ConstSPtr emm, LaBP::WEModalityType::Enum modality );
-        WLEMData::SampleT getMax3D( WLEMMeasurement::ConstSPtr emm, LaBP::WEModalityType::Enum modality );
-        WLEMData::SampleT getMax( const WLEMData::DataT& data );
+        explicit WLBoundCalculator( WLEMData::ScalarT alpha = 1.5 );
+        WLEMData::ScalarT getMax2D( WLEMMeasurement::ConstSPtr emm, LaBP::WEModalityType::Enum modality );
+        WLEMData::ScalarT getMax3D( WLEMMeasurement::ConstSPtr emm, LaBP::WEModalityType::Enum modality );
+        WLEMData::ScalarT getMax( const WLEMData::DataT& data );
         virtual ~WLBoundCalculator();
 
     private:
-        WLEMData::SampleT m_alpha;
+        WLEMData::ScalarT m_alpha;
     };
 
 } /* namespace LaBP */

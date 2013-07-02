@@ -52,7 +52,7 @@ public:
      */
     typedef boost::shared_ptr< const WSourceReconstruction > ConstSPtr;
 
-    typedef WLEMData::SampleT ScalarT;
+    typedef WLEMData::ScalarT ScalarT;
 
     typedef WLEMData::DataT MatrixT;
 

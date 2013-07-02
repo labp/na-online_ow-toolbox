@@ -128,9 +128,9 @@ private:
         return emd;
     }
 
-    WLEMData::SampleT getSum( size_t i, size_t smp, size_t offset )
+    WLEMData::ScalarT getSum( size_t i, size_t smp, size_t offset )
     {
-        WLEMData::SampleT result = 0;
+        WLEMData::ScalarT result = 0;
         result += smp;
         for( size_t ii = i; 0 < ii; --ii )
         {

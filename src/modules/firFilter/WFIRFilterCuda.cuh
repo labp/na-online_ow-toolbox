@@ -30,7 +30,7 @@
 /**
  * Floating point type (float/double) of a single sample for CUDA kernel. When using double, compute capability >=1.3 is required!
  */
-typedef float SampleT;
+typedef float CuScalarT;
 
 /**
  * Prepare the data and calls the CUDA kernel for FIR filter.
@@ -45,12 +45,12 @@ typedef float SampleT;
  *
  * \return Elapsed time in ms.
  */
-extern "C" float cudaFirFilter( SampleT* const output,
-                const SampleT* const input,
-                const SampleT* const previous,
+extern "C" float cudaFirFilter( CuScalarT* const output,
+                const CuScalarT* const input,
+                const CuScalarT* const previous,
                 size_t channels,
                 size_t samples,
-                const SampleT* const coeffs,
+                const CuScalarT* const coeffs,
                 size_t coeffSize );
 
 #endif  // WFIRFILTERCUDA_CUH_

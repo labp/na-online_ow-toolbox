@@ -96,7 +96,7 @@ WLEMMeasurement::SPtr WEpochAveragingMoving::getAverage( WLEMMeasurement::ConstS
     }
 
     // divide
-    WLEMData::SampleT divFactor;
+    WLEMData::ScalarT divFactor;
     for( size_t mod = 0; mod < emmOut->getModalityCount(); ++mod )
     {
         emdOut = emmOut->getModality( mod );

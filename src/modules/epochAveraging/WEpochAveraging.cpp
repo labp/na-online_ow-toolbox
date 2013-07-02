@@ -90,10 +90,10 @@ WLEMMeasurement::SPtr WEpochAveraging::baseline( WLEMMeasurement::ConstSPtr emm 
         const size_t channels = emd->getNrChans();
         const size_t tbase = std::min( m_tbase, emd->getSamplesPerChan() );
 
-        WLEMData::ChannelT means( channels );
+        WLEMData::SampleT means( channels );
         for( size_t chan = 0; chan < channels; ++chan )
         {
-            WLEMData::SampleT mean = 0;
+            WLEMData::ScalarT mean = 0;
             for( size_t smp = 0; smp < tbase; ++smp )
             {
                 mean += data( chan, smp );
@@ -102,7 +102,7 @@ WLEMMeasurement::SPtr WEpochAveraging::baseline( WLEMMeasurement::ConstSPtr emm 
             means( chan ) = mean;
         }
 
-        dataOut.colwise() -= means.transpose();
+        dataOut.colwise() -= means;
 
         emmOut->addModality( emdOut );
     }

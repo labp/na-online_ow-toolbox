@@ -49,7 +49,7 @@ public:
      */
     typedef boost::shared_ptr< const WFIRFilter > ConstSPtr;
 
-    typedef WLEMData::SampleT ScalarT;
+    typedef WLEMData::ScalarT ScalarT;
 
     static const std::string CLASS;
 
