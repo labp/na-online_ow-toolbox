@@ -231,17 +231,6 @@ bool WSourceReconstruction::calculateInverseSolution( const MatrixT& noiseCov, c
     return true;
 }
 
-WLEMDSource::SPtr WSourceReconstruction::createEMDSource( WLEMData::ConstSPtr emd, const MatrixT matrix )
-{
-    // TODO(pieloth)
-//    WLEMData::DataSPtr data = WLEMDSource::convertMatrix( matrix );
-//    WLEMDSource::SPtr sourceEmd( new WLEMDSource( *emd ) );
-//    sourceEmd->setData( data );
-    WLEMDSource::SPtr sourceEmd( new WLEMDSource( *emd ) );
-    sourceEmd->setData( WLEMData::DataSPtr( new WLEMData::DataT( matrix ) ) );
-    return sourceEmd;
-}
-
 bool WSourceReconstruction::averageReference( WLEMData::DataT& dataOut, const WLEMData::DataT& dataIn )
 {
     wlog::debug( CLASS ) << "averageReference() called!";

@@ -1,11 +1,30 @@
-// TODO doc & license
+//---------------------------------------------------------------------------
+//
+// Project: OpenWalnut ( http://www.openwalnut.org )
+//
+// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+// For more information see http://www.openwalnut.org/copying
+//
+// This file is part of OpenWalnut.
+//
+// OpenWalnut is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// OpenWalnut is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+//
+//---------------------------------------------------------------------------
 
 #include <string>
-#include <vector>
 
 #include <boost/shared_ptr.hpp>
-
-#include <core/common/WLogger.h>
 
 #include "core/data/WLEMMEnumTypes.h"
 #include "WLEMData.h"
@@ -28,7 +47,6 @@ WLEMDSource::WLEMDSource( const WLEMData& emd ) :
                 WLEMData( emd )
 {
     // C++11 supports "delegating constructors". So default initialization could be moved to default constructor.
-    m_chanNames.reset( new std::vector< std::string >() );
     m_originModalityType = emd.getModalityType();
 }
 
@@ -41,57 +59,11 @@ LaBP::WEModalityType::Enum WLEMDSource::getModalityType() const
     return LaBP::WEModalityType::SOURCE;
 }
 
-//boost::shared_ptr< WLEMDSource::DataT > WLEMDSource::convertMatrix( const LaBP::MatrixT& matrix )
-//{
-//    boost::shared_ptr< WLEMDSource::DataT > data( new DataT( matrix.rows(), matrix.cols() ) );
-////    data->reserve( matrix.rows() );
-////    data->resize( matrix.rows() );
-////
-//    for( LaBP::MatrixT::Index row = 0; row < matrix.rows(); ++row )
-//    {
-////        data->at( row ).reserve( matrix.cols() );
-//        for( LaBP::MatrixT::Index col = 0; col < matrix.cols(); ++col )
-//        {
-//            ( *data )( row, col ) = matrix( row, col );
-//        }
-//    }
-//
-//    return data;
-//}
-
 WLEMData::SPtr WLEMDSource::clone() const
 {
     WLEMDSource::SPtr emd( new WLEMDSource( *this ) );
     return emd;
 }
-
-//WLEMData::DataT& WLEMDSource::getData() const
-//{
-//    wlog::warn( CLASS )
-//                    << "Do not use getData() to retrieve source reconstruction data! Due to performance issues, use getMatrix() instead.";
-//    return *m_data;
-//}
-//
-//size_t WLEMDSource::getNrChans() const
-//{
-//    return static_cast< size_t >( m_matrix->rows() );
-//}
-//
-//size_t WLEMDSource::getSamplesPerChan() const
-//{
-//    return static_cast< size_t >( m_matrix->cols() );
-//}
-//
-//LaBP::MatrixT& WLEMDSource::getMatrix() const
-//{
-//    return *m_matrix;
-//}
-//
-//void WLEMDSource::setMatrix( boost::shared_ptr< LaBP::MatrixT > matrix )
-//{
-//    m_data.reset();
-//    m_matrix = matrix;
-//}
 
 LaBP::WEModalityType::Enum WLEMDSource::getOriginModalityType() const
 {

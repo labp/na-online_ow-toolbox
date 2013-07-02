@@ -100,8 +100,6 @@ public:
 
     virtual WLEMDSource::SPtr reconstruct( WLEMData::ConstSPtr emd ) = 0;
 
-    static WLEMDSource::SPtr createEMDSource( WLEMData::ConstSPtr emd, MatrixT matrix );
-
     static bool averageReference( WLEMData::DataT& dataOut, const WLEMData::DataT& dataIn );
 
 protected:

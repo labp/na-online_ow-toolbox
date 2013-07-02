@@ -67,6 +67,7 @@ WSourceReconstructionCuda::~WSourceReconstructionCuda()
 
 bool WSourceReconstructionCuda::calculateInverseSolution( const MatrixT& noiseCov, const MatrixT& dataCov, double snr )
 {
+    // TODO(pieloth): Do we need this wrapper?
     m_inverseChanged = WSourceReconstruction::calculateInverseSolution( noiseCov, dataCov, snr );
     return m_inverseChanged;
 }
@@ -82,11 +83,17 @@ WLEMDSource::SPtr WSourceReconstructionCuda::reconstruct( WLEMData::ConstSPtr em
 
     WLTimeProfiler tp( CLASS, "reconstruct" );
 
+    // Calculare average reference //
+    WLEMData::DataT emdData;
+    WSourceReconstruction::averageReference( emdData, emd->getData() );
+
+    // Prepare CUDA profiling //
     float elapsedTime;
     cudaEvent_t startCalc, stopCalc; // computation time
     cudaEventCreate( &startCalc );
     cudaEventCreate( &stopCalc );
 
+    // Initialize matrix dimensions //
     const size_t ROWS_A = m_inverse->rows();
     const size_t COLS_A = m_inverse->cols();
     // prepare copy later
@@ -94,49 +101,26 @@ WLEMDSource::SPtr WSourceReconstructionCuda::reconstruct( WLEMData::ConstSPtr em
     const size_t ROWS_B = emd->getNrChans();
     const size_t COLS_B = emd->getSamplesPerChan();
 
-    // ElementT* inverse = ( ElementT* )malloc( 1 * sizeof(ElementT) );
-//    ScalarT* B_host = ( ScalarT* )malloc( ROWS_B * COLS_B * sizeof( ScalarT ) );
-//    if( B_host == NULL )
-//    {
-//        // TODO(pieloth): return code
-//        wlog::error( CLASS ) << "Could not allocate memory for EMD data!";
-//    }
-
-    WLEMData::DataT emdData;
-    WSourceReconstruction::averageReference( emdData, emd->getData() );
-    ScalarT* B_host = emdData.data();
-
-//    // convert from row-major order to column-major order
-//    WLTimeProfiler prfToMatrix( CLASS, "reconstruct_toMat", false );
-//    prfToMatrix.start();
-//    size_t i = 0;
-//    for( size_t col = 0; col != COLS_B; ++col )
-//    {
-//        for( size_t row = 0; row < ROWS_B; ++row )
-//        {
-//            // convert from row-major order to column-major order
-//            B_host[i++] = emdData[row][col];
-//        }
-//    }
-//    prfToMatrix.stop();
-//    wlprofiler::log() << prfToMatrix;
-
     const size_t ROWS_C = ROWS_A;
     const size_t COLS_C = COLS_B;
-    // Avoid transfer ElementT* to MatrixT
-    // LaBP::MatrixT S( ROWS_C, COLS_C );
+
+    // Prepare pointer for cuBLAS //
+    // const ScalarT* const A_host; Is needed only once
+    const ScalarT* const B_host = emdData.data();
+    // C_host is used for copy out in correct column order: MatrixSPtr == cuBLAS-Matrix
     MatrixSPtr S( new MatrixT( ROWS_C, COLS_C ) );
     ScalarT* C_host = S->data();
 
-    cublasInit();
-
-    // ElementT* A_dev;
+    // Scalar* A_dev; Is needed only once
     ScalarT* B_dev;
     ScalarT* C_dev;
 
+    // Copy in //
+    cublasInit();
+
     if( m_inverse && m_inverseChanged )
     {
-        const ScalarT* A_host = m_inverse->data();
+        const ScalarT* const A_host = m_inverse->data();
         if( A_host == NULL )
         {
             // TODO(pieloth): return code
@@ -156,13 +140,13 @@ WLEMDSource::SPtr WSourceReconstructionCuda::reconstruct( WLEMData::ConstSPtr em
 
     CublasSafeCall( cublasAlloc( ROWS_C * COLS_C, sizeof(ScalarT), ( void** )&C_dev ) );
 
-    // Call cuBLAS kernel
-    // C_dev = 1 * A_dev * B_dev + 0 * C_dev
+    // Call cuBLAS kernel //
+    // C_dev = 1.0 * A_dev * B_dev + 0.0 * C_dev
     // S = G * d
     cudaEventRecord( startCalc, 0 );
 
 //    cublasSgemm( 'n', 'n', ROWS_A, COLS_B, COLS_A, 1, m_A_dev, ROWS_A, B_dev, ROWS_B, 0, C_dev, ROWS_C );
-    cublasDgemm( 'n', 'n', ROWS_A, COLS_B, COLS_A, 1, m_A_dev, ROWS_A, B_dev, ROWS_B, 0, C_dev, ROWS_C );
+    cublasDgemm( 'n', 'n', ROWS_A, COLS_B, COLS_A, 1.0, m_A_dev, ROWS_A, B_dev, ROWS_B, 0.0, C_dev, ROWS_C );
     CublasSafeCall( cublasGetError() );
 
     cudaEventRecord( stopCalc, 0 );
@@ -172,12 +156,15 @@ WLEMDSource::SPtr WSourceReconstructionCuda::reconstruct( WLEMData::ConstSPtr em
     prfMatMul.setMilliseconds( elapsedTime );
     wlprofiler::log() << prfMatMul;
 
+    // Copy out //
     WLTimeProfiler prfCopyOut( CLASS, "reconstruct_copyOut", false );
     prfCopyOut.start();
     CublasSafeCall( cublasGetMatrix( ROWS_C, COLS_C, sizeof(ScalarT), C_dev, ROWS_C, C_host, ROWS_C ) );
     prfCopyOut.stop();
     wlprofiler::log() << prfCopyOut;
 
+    // Clean memory //
+    // CublasSafeCall( cublasFree( m_A_dev ) ); Is done in destructor
     CublasSafeCall( cublasFree( B_dev ) );
     CublasSafeCall( cublasFree( C_dev ) );
 
@@ -186,13 +173,11 @@ WLEMDSource::SPtr WSourceReconstructionCuda::reconstruct( WLEMData::ConstSPtr em
     cudaEventDestroy( startCalc );
     cudaEventDestroy( stopCalc );
 
-    // free( A_host ); Do not free, because point to class variable
-    // free( B_host );
-    // free( C_host ); TODO(pieloth): Do not free, because point of return value or copy out??? (depends on eigen impl. check!)
+    // free( A_host ); Do not free, because points to shared pointer
+    // free( B_host ); Do not free, because points to shared pointer
+    // free( C_host ); Do not free, because points to shared pointer
 
-    // const LaBP::WDataSetEMMSource::SPtr emdOut = WSourceReconstruction::createEMDSource( emd, S );
-    const WLEMDSource::SPtr emdOut( new WLEMDSource( *emd ) ); // = WSourceReconstruction::createEMDSource( emd, S );
-//    emdOut->setMatrix( S );
+    const WLEMDSource::SPtr emdOut( new WLEMDSource( *emd ) );
     emdOut->setData( S );
 
     return emdOut;

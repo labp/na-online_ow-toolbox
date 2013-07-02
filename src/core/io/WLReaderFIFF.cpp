@@ -99,33 +99,33 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
     LFArrayPtr< LFDataBuffer > &rawdatabuffers_in = rawdata_in.GetLFDataBuffer();
     size_t nBuffers_in = rawdatabuffers_in.size();
     size_t nBuffers_out = 0;
-    for( size_t i = 0; i < nBuffers_in; i++ )
+    for( size_t i = 0; i < nBuffers_in; ++i )
         nBuffers_out += rawdatabuffers_in[i]->GetSize();
     nBuffers_out /= nChannels;
     WLEMData::DataT rawdatabuffers_out( nChannels, nBuffers_out );
-//    Change from vec<vec> to eigen matrix
-//    for( int32_t i = 0; i < nChannels; i++ )
-//        rawdatabuffers_out[i].resize( nBuffers_out );
     int32_t current_channel = 0, current_buffer_out = 0;
     LFArrayPtr< LFChannelInfo > &channelInfos = measinfo_in.GetLFChannelInfo();
     double scaleFactor;
-    for( size_t i = 0; i < nBuffers_in; i++ )
+    for( size_t i = 0; i < nBuffers_in; ++i )
     {
         LFDataBuffer* pBuf = rawdatabuffers_in[i];
         size_t nValues = pBuf->GetSize();
-        for( size_t j = 0; j < nValues; j++ )
+        for( size_t j = 0; j < nValues; ++j )
         {
             scaleFactor = channelInfos[current_channel]->GetRange() * channelInfos[current_channel]->GetCal();
             switch( pBuf->GetDataType() )
             {
                 case LFDataBuffer::dt_int16:
-                    rawdatabuffers_out( current_channel, current_buffer_out ) = pBuf->GetBufferInt16()->at( j ) * scaleFactor;
+                    rawdatabuffers_out( current_channel, current_buffer_out ) = ( WLEMData::SampleT )pBuf->GetBufferInt16()->at(
+                                    j ) * scaleFactor;
                     break;
                 case LFDataBuffer::dt_int32:
-                    rawdatabuffers_out( current_channel, current_buffer_out ) = pBuf->GetBufferInt32()->at( j ) * scaleFactor;
+                    rawdatabuffers_out( current_channel, current_buffer_out ) = ( WLEMData::SampleT )pBuf->GetBufferInt32()->at(
+                                    j ) * scaleFactor;
                     break;
                 case LFDataBuffer::dt_float:
-                    rawdatabuffers_out( current_channel, current_buffer_out ) = pBuf->GetBufferFloat()->at( j ) * scaleFactor;
+                    rawdatabuffers_out( current_channel, current_buffer_out ) = ( WLEMData::SampleT )pBuf->GetBufferFloat()->at(
+                                    j ) * scaleFactor;
                     break;
                 default:
                     // LFDataBuffer::dt_unknown
@@ -236,7 +236,6 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
                 }
 
                 // Collect general data
-//                data->push_back( dummy->getData().row(chan) );
                 dataTmp.row( modChan++ ) = ( dummy->getData().row( chan ) );
                 fiffUnit = measinfo_in.GetLFChannelInfo()[chan]->GetUnit();
             }
@@ -283,7 +282,6 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
     // Create event/stimulus channel
     LFEvents events = measinfo_in.GetLFEvents();
     WLEMMeasurement::EChannelT eventData_out;
-//    std::vector< double > eventData_in;
     WLEMData::ChannelT eventData_in;
     for( std::vector< int32_t >::iterator chan = events.GetEventChannels().begin(); chan != events.GetEventChannels().end();
                     ++chan )
@@ -347,44 +345,6 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( LaBP::WLEMMSubject::SPtr out 
     }
     //TODO(Evfimevskiy): data.GetBirthday();
     return getReturnCode( ret );
-}
-
-WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( std::vector< std::vector< double > >& out )
-{
-    LFRawData data;
-    returncode_t ret = LFInterface::fiffRead( data, m_fname.data() );
-    if( ret != rc_normal )
-        return getReturnCode( ret );
-    LFArrayPtr< LFDataBuffer > &rawdatabuffers_in = data.GetLFDataBuffer();
-    size_t nBuffers_in = rawdatabuffers_in.size();
-    out.resize( nBuffers_in );
-    for( size_t i = 0; i < nBuffers_in; i++ )
-    {
-        LFDataBuffer* pBuf = rawdatabuffers_in[i];
-        size_t nValues = pBuf->GetSize();
-        out[i].resize( nValues );
-        for( size_t j = 0; j < nValues; j++ )
-        {
-            switch( pBuf->GetDataType() )
-            {
-                case LFDataBuffer::dt_int16:
-                    out[i][j] = pBuf->GetBufferInt16()->at( j );
-                    break;
-                case LFDataBuffer::dt_int32:
-                    out[i][j] = pBuf->GetBufferInt32()->at( j );
-                    break;
-                case LFDataBuffer::dt_float:
-                    out[i][j] = pBuf->GetBufferFloat()->at( j );
-                    break;
-                default:
-                    // LFDataBuffer::dt_unknown
-                    break;
-            }
-        }
-    }
-//    for( size_t i = 0; i < nBuffers_in; i++ ) printf("\nBuffer %d, value[0]==%lf",i,out[i][0]);//dbg
-    return getReturnCode( ret );
-//  return rc_normal; //dbg
 }
 
 WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::getReturnCode( returncode_t rc )

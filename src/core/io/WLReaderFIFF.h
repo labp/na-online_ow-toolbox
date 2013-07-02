@@ -61,10 +61,6 @@ namespace LaBP
          * Reads subject data only.
          */
         ReturnCode::Enum Read( LaBP::WLEMMSubject::SPtr out );
-        /**
-         * Reads raw data only.
-         */
-        ReturnCode::Enum Read( std::vector< std::vector< double > >& out );
 
     private:
         static ReturnCode::Enum getReturnCode( returncode_t rc );

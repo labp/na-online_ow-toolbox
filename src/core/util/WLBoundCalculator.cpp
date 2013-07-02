@@ -24,6 +24,8 @@
 
 #include <vector>
 
+#include <Eigen/Dense>
+
 #include "core/data/WLMatrixTypes.h"
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMEnumTypes.h"
@@ -60,53 +62,23 @@ namespace LaBP
 
     WLEMData::SampleT WLBoundCalculator::getMax3D( WLEMMeasurement::ConstSPtr emm, LaBP::WEModalityType::Enum modality )
     {
-            return getMax( emm->getModality( modality )->getData() );
+        return getMax( emm->getModality( modality )->getData() );
     }
-
-//    WLEMData::SampleT WLBoundCalculator::getMax( const MatrixT& matrix )
-//    {
-//        std::vector< WLEMData::SampleT > average;
-//        for( MatrixT::Index r = 0; r < matrix.rows(); ++r )
-//        {
-//            WLEMData::SampleT sum = 0;
-//            for( MatrixT::Index c = 0; c < matrix.cols(); ++c )
-//            {
-//                sum += matrix( r, c );
-//            }
-//            average.push_back( sum / matrix.cols() );
-//        }
-//
-//        WLEMData::SampleT maxValue = 0;
-//        for( MatrixT::Index r = 0; r < matrix.rows(); ++r )
-//        {
-//            WLEMData::SampleT value = 0;
-//            for( MatrixT::Index c = 0; c < matrix.cols(); ++c )
-//            {
-//                value += ( matrix( r, c ) - average[r] ) * ( matrix( r, c ) - average[r] );
-//            }
-//            value = sqrt( value / matrix.cols() ) * m_alpha + average[r];
-//            if( value > maxValue )
-//            {
-//                maxValue = value;
-//            }
-//        }
-//        return maxValue;
-//    }
 
     WLEMData::SampleT WLBoundCalculator::getMax( const WLEMData::DataT& data )
     {
         const size_t channels = data.rows();
-        WLEMData::ChannelT average( channels );
-        for( size_t chan = 0; chan < channels; ++chan )
+        const size_t samples = data.cols();
+
+        // TODO(pieloth): use new ScalarT/SampleT
+        Eigen::VectorXd average( channels );
+        average.setZero();
+
+        for( size_t smp = 0; smp < samples; ++smp )
         {
-            WLEMData::SampleT sum = 0;
-            const size_t samples = data.row( chan ).size();
-            for( size_t smp = 0; smp < samples; ++smp )
-            {
-                sum += data( chan, smp );
-            }
-            average( chan ) = ( sum / samples );
+            average += data.col( smp );
         }
+        average *= ( 1.0 / samples );
 
         WLEMData::SampleT maxValue = 0;
         for( size_t chan = 0; chan < channels; ++chan )

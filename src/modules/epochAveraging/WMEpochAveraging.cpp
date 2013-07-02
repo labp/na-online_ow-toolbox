@@ -50,6 +50,7 @@ W_LOADABLE_MODULE( WMEpochAveraging )
 
 WMEpochAveraging::WMEpochAveraging()
 {
+    m_frequence = 0.0;
 }
 
 WMEpochAveraging::~WMEpochAveraging()

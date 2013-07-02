@@ -436,14 +436,6 @@ private:
             WLEMData::DataSPtr data( new WLEMData::DataT( emdIn->getNrChans(), blockSize ) );
             const WLEMData::DataT& dataIn = emdIn->getData();
             ( *data ) = dataIn.block( 0, start, emdIn->getNrChans(), blockSize );
-//            for( size_t chan = 0; chan < emdIn->getNrChans(); ++chan )
-//            {
-//                WLEMData::ChannelT channel( emdIn->getData()[chan].begin() + start,
-//                                start + blockSize <= emdIn->getData()[chan].size() ? emdIn->getData()[chan].begin() + start
-//                                                + blockSize :
-//                                                emdIn->getData()[chan].end() );
-//                data->push_back( channel );
-//            }
             emdOut->setData( data );
             emmOut->addModality( emdOut );
         }

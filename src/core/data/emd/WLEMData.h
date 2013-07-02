@@ -62,6 +62,8 @@ public:
 
     typedef DataT::Scalar SampleT;
 
+    // TODO(pieloth): New typedef column vector aka time pos. or Sample(!). Change SampleT to ScalarT.
+
     typedef boost::shared_ptr< DataT > DataSPtr;
 
     typedef boost::shared_ptr< const DataT > DataConstSPtr;
@@ -99,11 +101,6 @@ public:
     {
         return boost::dynamic_pointer_cast< EMD >( shared_from_this() );
     }
-
-//    /**
-//     * TODO(kaehler): Comments
-//     */
-//    void addSample( double value );
 
     /**
      * TODO(kaehler): Comments
@@ -267,7 +264,7 @@ public:
 
 protected:
     /**
-     * name of the measurement desvice
+     * name of the measurement device
      */
     std::string m_measurementDeviceName;
 
@@ -318,14 +315,6 @@ protected:
     LaBP::WECoordSystemName::Enum m_CoordSystem;
 
     /**
-     * TODO(kaehler): Trafomat
-     */
-
-    /**
-     * TODO(kaehler): Verweis auf Source
-     */
-
-    /**
      * size of data buffer per channel in samples
      */
     uint32_t m_dataBuffSizePerChan;
@@ -336,7 +325,7 @@ protected:
     uint32_t m_dataOffsetIdx;
 
     /**
-     * TODO(kaehler): size in constructor malloc [nrChans][m_dataBuffSizePerChan] evtl. als vector oder resize
+     * Raw data of the measurement.
      */
     DataSPtr m_data;
 

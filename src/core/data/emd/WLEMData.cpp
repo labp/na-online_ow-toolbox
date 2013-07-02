@@ -70,19 +70,6 @@ WLEMData::~WLEMData()
 {
 }
 
-//template< typename EMD >
-//boost::shared_ptr< EMD > LaBP::WDataSetEMMEMD::getAs()
-//{
-//    return boost::dynamic_pointer_cast< EMD >( shared_from_this() );
-//}
-
-//template< typename EMD >
-//boost::shared_ptr< const EMD > LaBP::WDataSetEMMEMD::getAs( LaBP::WDataSetEMMEMD::ConstSPtr emd )
-//{
-//
-//    return boost::dynamic_pointer_cast< const EMD >( emd );
-//}
-
 WLEMData::DataT& WLEMData::getData() const
 {
     return *m_data;
@@ -92,13 +79,6 @@ void WLEMData::setData( DataSPtr data )
 {
     m_data = data;
 }
-
-//void WLEMData::addSample( double value )
-//{
-//    std::vector< double > channel;
-//    channel.push_back( value );
-//    m_data->push_back( channel );
-//}
 
 float WLEMData::getAnalogHighPass() const
 {
