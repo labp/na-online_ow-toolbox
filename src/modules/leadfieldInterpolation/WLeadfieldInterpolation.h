@@ -30,6 +30,8 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <mne/mne_forwardsolution.h>
+
 #include <core/common/math/linearAlgebra/WPosition.h>
 
 #include "core/data/WLMatrixTypes.h"
@@ -50,6 +52,11 @@ public:
 
     WLeadfieldInterpolation();
     virtual ~WLeadfieldInterpolation();
+
+    /**
+     * Reads the postions and leadfield matrix and converts/sets the value.
+     */
+    bool prepareHDLeadfield( MNELIB::MNEForwardSolution::ConstSPtr hdLeadfield );
 
     /**
      * Sets the positions of real sensors.
@@ -100,7 +107,7 @@ private:
 
     MatrixSPtr m_hdLeadfield;
 
-    bool searchNearestNeighbor( std::vector< NeighborsT >* neighbors, const PositionsT& searchPoints,
+    bool searchNearestNeighbor( std::vector< NeighborsT >* const neighbors, const PositionsT& searchPoints,
                     const PositionsT& inputPoints );
 };
 

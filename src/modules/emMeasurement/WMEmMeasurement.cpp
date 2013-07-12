@@ -51,6 +51,7 @@
 #include "core/data/WLEMMSurface.h"
 #include "core/data/WLEMMBemBoundary.h"
 #include "core/data/WLEMMEnumTypes.h"
+#include "core/data/WLMatrixTypes.h"
 
 #include "core/io/WLReaderELC.h"
 #include "core/io/WLReaderFIFF.h"
@@ -64,6 +65,9 @@
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMEmMeasurement )
+
+using LaBP::MatrixT;
+using LaBP::MatrixSPtr;
 
 WMEmMeasurement::WMEmMeasurement()
 {
@@ -101,11 +105,16 @@ const std::string WMEmMeasurement::getDescription() const
 
 void WMEmMeasurement::connectors()
 {
+    m_input = LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr(
+                    new LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >( 8, shared_from_this(), "in",
+                                    "Expects a EMM-DataSet for filtering." ) );
+
     m_output = LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr(
                     new LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >( shared_from_this(), "out",
                                     "A loaded dataset." ) );
 
     // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
+    addConnector( m_input );
     addConnector( m_output );
 }
 
@@ -246,6 +255,7 @@ void WMEmMeasurement::moduleMain()
 {
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_propCondition );
+    m_moduleState.add( m_input->getDataChangedCondition() );
     m_moduleState.add( m_genDataTrigger->getCondition() );
     m_moduleState.add( m_genDataTriggerEnd->getCondition() );
 
@@ -255,7 +265,12 @@ void WMEmMeasurement::moduleMain()
 
     while( !m_shutdownFlag() )
     {
-        m_moduleState.wait();
+        if( m_input->isEmpty() ) // continue processing if data is available
+        {
+            debugLog() << "Waiting for Events";
+            m_moduleState.wait(); // wait for events like inputdata or properties changed
+        }
+
         if( m_shutdownFlag() )
         {
             break;
@@ -300,6 +315,18 @@ void WMEmMeasurement::moduleMain()
         if( ( m_expLoadTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED ) )
         {
             handleExperimentLoadChanged();
+        }
+
+        // ---------- INPUTDATAUPDATEEVENT ----------
+        WLEMMCommand::SPtr cmdIn;
+        if( !m_input->isEmpty() )
+        {
+            cmdIn = m_input->getData();
+        }
+        const bool dataValid = ( cmdIn );
+        if( dataValid ) // If there was an update on the inputconnector
+        {
+            process( cmdIn );
         }
     }
 }
@@ -822,8 +849,16 @@ void WMEmMeasurement::handleExperimentLoadChanged()
     const string surfaceType = m_expSurfacesSelection->get().at( 0 )->getAs< WItemSelectionItemTyped< string > >()->getValue();
     rc |= m_expReader->readSourceSpace( surfaceType, m_subject );
 
-    const string trial = m_expTrial->get();
-    rc |= m_expReader->readLeadFields( surfaceType, bemFile, trial, m_subject );
+    if( m_hasLeadfield )
+    {
+        infoLog() << "Using interpolated leadfield!";
+        m_subject->setLeadfield( LaBP::WEModalityType::EEG, m_leadfield );
+    }
+    else
+    {
+        const string trial = m_expTrial->get();
+        rc |= m_expReader->readLeadFields( surfaceType, bemFile, trial, m_subject );
+    }
 
     if( rc )
     {
@@ -920,6 +955,34 @@ bool WMEmMeasurement::processInit( WLEMMCommand::SPtr labp )
 bool WMEmMeasurement::processReset( WLEMMCommand::SPtr labp )
 {
     m_output->updateData( labp );
+    return true;
+}
+
+bool WMEmMeasurement::processMisc( WLEMMCommand::SPtr labp )
+{
+    debugLog() << "processMisc() called!";
+    if( labp->getMiscCommand().find( "leadfield" ) == WLEMMCommand::MiscCommandT::npos )
+    {
+        WLModuleDrawable::processMisc( labp );
+        return true;
+    }
+
+    infoLog() << "[processMisc] received leadfield!";
+
+    m_leadfield = labp->getParameterAs< MatrixSPtr >();
+    if( !m_leadfield )
+    {
+        m_hasLeadfield = false;
+        return false;
+    }
+    m_hasLeadfield = true;
+    if( m_isExpLoaded )
+    {
+        infoLog() << "Override leadfield from experiment!";
+        m_subject->setLeadfield( LaBP::WEModalityType::EEG, m_leadfield );
+        // TODO(pieloth): force a processInit
+    }
+
     return true;
 }
 

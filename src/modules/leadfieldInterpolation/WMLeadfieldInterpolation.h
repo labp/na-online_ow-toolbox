@@ -25,12 +25,14 @@
 #ifndef WMLEADFIELDINTERPOLATION_H_
 #define WMLEADFIELDINTERPOLATION_H_
 
+#include <mne/mne_forwardsolution.h>
+
 #include <core/kernel/WModule.h>
-#include <core/kernel/WModuleOutputData.h>
 
 #include "core/data/WLEMMBemBoundary.h"
 #include "core/data/WLEMMCommand.h"
 #include "core/data/WLEMMeasurement.h"
+#include "core/module/WLModuleOutputDataCollectionable.h"
 
 using namespace LaBP;
 
@@ -88,11 +90,11 @@ private:
     /**
      * Output connector for a EMMCommand dataset
      */
-    WModuleOutputData< WLEMMCommand >::SPtr m_output;
+    LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output;
 
     WCondition::SPtr m_propCondition;
 
-    WLEMMBemBoundary::SPtr m_bemBoundary;
+    MNELIB::MNEForwardSolution::SPtr m_fwdSolution;
 
     WLEMMeasurement::SPtr m_emm;
 
@@ -100,7 +102,7 @@ private:
 
     WPropString m_status;
 
-    WPropFilename m_bndFile;
+    WPropFilename m_hdLeadfieldFile;
 
     WPropFilename m_fiffFile;
 
@@ -108,7 +110,7 @@ private:
 
     bool readFiff( const std::string& fname );
 
-    bool readBnd( const std::string& fname );
+    bool readHDLeadfield( const std::string& fname );
 
     bool interpolate();
 
@@ -120,9 +122,9 @@ private:
 
     static const std::string NONE;
 
-    static const std::string FIFF_OK;
+    static const std::string FIFF_OK_TEXT; // Conflicts with mne/fiff/fiff_constants.h
 
-    static const std::string BND_OK;
+    static const std::string HD_LEADFIELD_OK_TEXT;
 
     static const std::string READING;
 };

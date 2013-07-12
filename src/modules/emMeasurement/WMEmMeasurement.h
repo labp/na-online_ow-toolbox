@@ -30,13 +30,16 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "core/common/math/linearAlgebra/WVectorFixed.h"
-#include "core/common/WPropertyTypes.h"
+#include <core/common/math/linearAlgebra/WVectorFixed.h>
+#include <core/common/WPropertyTypes.h>
+
 #include "core/data/WLEMMCommand.h"
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMSubject.h"
 #include "core/data/WLEMMSurface.h"
 #include "core/data/WLEMMBemBoundary.h"
+#include "core/data/WLMatrixTypes.h"
+#include "core/module/WLModuleInputDataRingBuffer.h"
 
 #include "core/module/WLModuleDrawable.h"
 
@@ -45,6 +48,8 @@
 #include "algorithms/WRegistrationNaive.h"
 
 #include "core/io/WLReaderExperiment.h"
+
+using LaBP::MatrixSPtr;
 
 /**
  * This module implements several onscreen status displays. At the moment the main purpose
@@ -83,6 +88,7 @@ protected:
     virtual bool processCompute( WLEMMeasurement::SPtr emm );
     virtual bool processInit( WLEMMCommand::SPtr labp );
     virtual bool processReset( WLEMMCommand::SPtr labp );
+    virtual bool processMisc( WLEMMCommand::SPtr labp );
 
     virtual void moduleInit();
 
@@ -118,6 +124,8 @@ protected:
 private:
     //! a condition for the matrix selection
     WCondition::SPtr m_propCondition;
+
+    LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input;
 
     // FIFF file //
     void streamData();
@@ -194,6 +202,9 @@ private:
     bool readElc( std::string fname );
 
     bool m_isElcLoaded;
+
+    bool m_hasLeadfield;
+    MatrixSPtr m_leadfield;
 
     WPropFilename m_elcFile;
 
