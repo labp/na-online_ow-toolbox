@@ -29,7 +29,7 @@
 #include <core/common/WLogger.h>
 #include <core/gui/WCustomWidget.h>
 
-#include "core/data/WLDataSetEMM.h"
+#include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMEnumTypes.h"
 #include "core/data/emd/WLEMDSource.h"
 
@@ -49,7 +49,7 @@ namespace LaBP
     {
     }
 
-    void WLEMDDrawable2DMultiDynamicSource::draw( LaBP::WLDataSetEMM::SPtr emm )
+    void WLEMDDrawable2DMultiDynamicSource::draw( WLEMMeasurement::SPtr emm )
     {
         bool success = false;
         if( emm->hasModality( WEModalityType::SOURCE ) )

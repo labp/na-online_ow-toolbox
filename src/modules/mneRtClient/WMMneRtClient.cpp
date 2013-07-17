@@ -32,10 +32,9 @@
 #include <core/common/WPathHelper.h>
 #include <core/kernel/WModule.h>
 
-// Output connector and data
-// TODO(pieloth): use OW class
+#include "core/data/WLEMMCommand.h"
+#include "core/data/WLEMMeasurement.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
-#include "core/data/WLDataSetEMM.h"
 
 #include "WMMneRtClient.h"
 #include "WMMneRtClient.xpm"
@@ -80,7 +79,7 @@ void WMMneRtClient::connectors()
     // initialize connectors
     // TODO(pieloth) use OW class
     m_output.reset(
-                    new LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM >( shared_from_this(), "out",
+                    new LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >( shared_from_this(), "out",
                                     "A loaded dataset." ) );
 
     // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
@@ -130,7 +129,7 @@ void WMMneRtClient::properties()
                     false );
 
 //    const std::string con_ip_address = "127.0.0.1";
-    const std::string con_ip_address = "141.57.41.164";
+    const std::string con_ip_address = "192.168.100.1";
     m_propConIp = m_propGrpConControl->addProperty( "IP:", "IP Address of MNE server.", con_ip_address );
     m_propConStatus = m_propGrpConControl->addProperty( "Connection status:", "Shows connection status.",
                     STATUS_CON_DISCONNECTED );
@@ -160,7 +159,7 @@ void WMMneRtClient::properties()
     m_trgDataStop->setHidden( true );
 }
 
-void WMMneRtClient::initModule()
+void WMMneRtClient::moduleInit()
 {
     infoLog() << "Initializing module ...";
     waitRestored();
@@ -180,7 +179,7 @@ void WMMneRtClient::moduleMain()
 
     ready();
 
-    initModule();
+    moduleInit();
 
     while( !m_shutdownFlag() )
     {
@@ -291,7 +290,7 @@ void WMMneRtClient::handleTrgDataStart()
 
         while( !m_stopStreaming && !m_shutdownFlag() )
         {
-            LaBP::WLDataSetEMM::SPtr emm( new LaBP::WLDataSetEMM() );
+            WLEMMeasurement::SPtr emm( new WLEMMeasurement() );
             if( m_rtClient->readData( emm ) )
             {
                 if( m_isExpLoaded )
@@ -299,7 +298,9 @@ void WMMneRtClient::handleTrgDataStart()
                     emm->setSubject( m_subject );
                 }
                 updateView( emm );
-                m_output->updateData( emm );
+                WLEMMCommand::SPtr labp( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
+                labp->setEmm( emm );
+                m_output->updateData( labp );
             }
         }
         m_rtClient->stop();
@@ -419,4 +420,24 @@ void WMMneRtClient::handleTrgConnectorChanged()
     {
         infoLog() << "set connector: " << m_connectorSelection->get().at( 0 )->getName();
     }
+}
+
+bool WMMneRtClient::processCompute( WLEMMeasurement::SPtr emm )
+{
+    WLEMMCommand::SPtr labp( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
+    labp->setEmm( emm );
+    m_output->updateData( labp );
+    return true;
+}
+
+bool WMMneRtClient::processInit( WLEMMCommand::SPtr labp )
+{
+    m_output->updateData( labp );
+    return true;
+}
+
+bool WMMneRtClient::processReset( WLEMMCommand::SPtr labp )
+{
+    m_output->updateData( labp );
+    return true;
 }

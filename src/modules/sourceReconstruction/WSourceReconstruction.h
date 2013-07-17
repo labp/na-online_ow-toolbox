@@ -30,12 +30,12 @@
 #include <set>
 
 #include <boost/shared_ptr.hpp>
+#include <Eigen/SparseCore>
 
-#include "core/data/WLMatrixTypes.h"
-#include "core/data/emd/WLEMD.h"
+#include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDSource.h"
 
-#include "core/util/WLTimeProfiler.h"
+using Eigen::SparseMatrix;
 
 class WSourceReconstruction
 {
@@ -51,6 +51,16 @@ public:
      * Abbreviation for const shared pointer.
      */
     typedef boost::shared_ptr< const WSourceReconstruction > ConstSPtr;
+
+    typedef WLEMData::ScalarT ScalarT;
+
+    typedef WLEMData::DataT MatrixT;
+
+    typedef WLEMData::DataSPtr MatrixSPtr;
+
+    typedef SparseMatrix< ScalarT > SpMatrixT;
+
+    typedef boost::shared_ptr< SpMatrixT > SpMatrixSPtr;
 
     struct WEWeightingCalculation
     {
@@ -70,37 +80,34 @@ public:
 
     virtual void reset();
 
-    void setLeadfield( LaBP::MatrixSPtr matrix );
+    void setLeadfield( MatrixSPtr matrix );
 
-    const LaBP::MatrixT& getLeadfield() const;
+    const MatrixT& getLeadfield() const;
 
     bool hasLeadfield() const;
 
     bool calculateWeightningMatrix( WSourceReconstruction::WEWeightingCalculation::Enum type );
 
-    const LaBP::SpMatrixT& getWeighting() const;
+    const SpMatrixT& getWeighting() const;
 
     bool hasWeighting() const;
 
-    virtual bool calculateInverseSolution( const LaBP::MatrixT& noiseCov, const LaBP::MatrixT& dataCov, double snr );
+    virtual bool calculateInverseSolution( const MatrixT& noiseCov, const MatrixT& dataCov, double snr );
 
-    const LaBP::MatrixT& getInverse() const;
+    const MatrixT& getInverse() const;
 
     bool hasInverse() const;
 
-    virtual LaBP::WLEMDSource::SPtr reconstruct( LaBP::WLEMD::ConstSPtr emd,
-                    LaBP::WLTimeProfiler::SPtr profiler ) = 0;
+    virtual WLEMDSource::SPtr reconstruct( WLEMData::ConstSPtr emd ) = 0;
 
-    static LaBP::WLEMDSource::SPtr createEMDSource( LaBP::WLEMD::ConstSPtr emd, const LaBP::MatrixT matrix );
-
-    static bool averageReference( LaBP::WLEMD::DataT& dataOut, const LaBP::WLEMD::DataT& dataIn );
+    static bool averageReference( WLEMData::DataT& dataOut, const WLEMData::DataT& dataIn );
 
 protected:
-    LaBP::MatrixSPtr m_leadfield;
+    MatrixSPtr m_leadfield;
 
-    LaBP::SpMatrixSPtr m_weighting;
+    SpMatrixSPtr m_weighting;
 
-    LaBP::MatrixSPtr m_inverse;
+    MatrixSPtr m_inverse;
 };
 
 #endif  // WSOURCERECONSTRUCTION_H_

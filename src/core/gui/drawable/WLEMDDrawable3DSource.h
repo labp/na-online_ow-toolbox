@@ -29,7 +29,7 @@
 
 #include <core/gui/WCustomWidget.h>
 
-#include "core/data/WLMatrixTypes.h"
+#include "core/data/emd/WLEMData.h"
 
 #include "WLEMDDrawable3D.h"
 
@@ -56,7 +56,7 @@ namespace LaBP
         virtual void osgNodeCallback( osg::NodeVisitor* nv );
 
     private:
-        void osgUpdateSurfaceColor( const MatrixT& data );
+        void osgUpdateSurfaceColor( const WLEMData::DataT& data );
     };
 } /* namespace LaBP */
 #endif  // WLEMDDRAWABLE3DSOURCE_H_

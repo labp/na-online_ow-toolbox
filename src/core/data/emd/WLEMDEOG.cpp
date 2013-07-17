@@ -28,30 +28,30 @@
 
 #include "core/data/WLEMMEnumTypes.h"
 
-#include "WLEMD.h"
+#include "WLEMData.h"
 #include "WLEMDEOG.h"
 
-LaBP::WLEMDEOG::WLEMDEOG() :
+WLEMDEOG::WLEMDEOG() :
                 WLEMDEEG()
 {
 }
 
-LaBP::WLEMDEOG::WLEMDEOG( const WLEMDEOG& eog ) :
+WLEMDEOG::WLEMDEOG( const WLEMDEOG& eog ) :
                 WLEMDEEG( eog )
 {
 }
 
-LaBP::WLEMDEOG::~WLEMDEOG()
+WLEMDEOG::~WLEMDEOG()
 {
 }
 
-LaBP::WLEMD::SPtr LaBP::WLEMDEOG::clone() const
+WLEMData::SPtr WLEMDEOG::clone() const
 {
-    LaBP::WLEMDEOG::SPtr eog( new WLEMDEOG( *this ) );
+    WLEMDEOG::SPtr eog( new WLEMDEOG( *this ) );
     return eog;
 }
 
-LaBP::WEModalityType::Enum LaBP::WLEMDEOG::getModalityType() const
+LaBP::WEModalityType::Enum WLEMDEOG::getModalityType() const
 {
     return LaBP::WEModalityType::EOG;
 }

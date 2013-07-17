@@ -34,73 +34,70 @@
 
 #include "core/data/WLEMMEnumTypes.h"
 
-#include "WLEMD.h"
+#include "WLEMData.h"
 
-namespace LaBP
+class WLEMDEEG: public WLEMData
 {
-    class WLEMDEEG: public LaBP::WLEMD
-    {
-    public:
-        /**
-         * Abbreviation for a shared pointer.
-         */
-        typedef boost::shared_ptr< WLEMDEEG > SPtr;
+public:
+    /**
+     * Abbreviation for a shared pointer.
+     */
+    typedef boost::shared_ptr< WLEMDEEG > SPtr;
 
-        /**
-         * Abbreviation for const shared pointer.
-         */
-        typedef boost::shared_ptr< const WLEMDEEG > ConstSPtr;
+    /**
+     * Abbreviation for const shared pointer.
+     */
+    typedef boost::shared_ptr< const WLEMDEEG > ConstSPtr;
 
-        WLEMDEEG();
+    WLEMDEEG();
 
-        explicit WLEMDEEG( const WLEMDEEG& eeg );
+    explicit WLEMDEEG( const WLEMDEEG& eeg );
 
-        virtual ~WLEMDEEG();
+    virtual ~WLEMDEEG();
 
-        virtual WLEMD::SPtr clone() const;
+    virtual WLEMData::SPtr clone() const;
 
-        LaBP::WEPolarityType::Enum getPolarityType() const;
+    LaBP::WEPolarityType::Enum getPolarityType() const;
 
-        virtual LaBP::WEModalityType::Enum getModalityType() const;
+    virtual LaBP::WEModalityType::Enum getModalityType() const;
 
-        /**
-         * Returns the positions in millimeter. NOTE: The method does not modify any object data, but positions may modified indirectly!
-         */
-        boost::shared_ptr< std::vector< WPosition > > getChannelPositions3d() const;
+    /**
+     * Returns the positions in millimeter. NOTE: The method does not modify any object data, but positions may modified indirectly!
+     */
+    boost::shared_ptr< std::vector< WPosition > > getChannelPositions3d() const;
 
-        /**
-         * Sets the positions. Positions must be in millimeter.
-         */
-        void setChannelPositions3d( boost::shared_ptr< std::vector< WPosition > > chanPos3d );
+    /**
+     * Sets the positions. Positions must be in millimeter.
+     */
+    void setChannelPositions3d( boost::shared_ptr< std::vector< WPosition > > chanPos3d );
 
-        /**
-         * Returns the faces. NOTE: The method does not modify any object data, but faces may modified indirectly!
-         */
-        std::vector< WVector3i >& getFaces() const;
-        void setFaces( boost::shared_ptr< std::vector< WVector3i > > faces );
+    /**
+     * Returns the faces. NOTE: The method does not modify any object data, but faces may modified indirectly!
+     */
+    std::vector< WVector3i >& getFaces() const;
+    void setFaces( boost::shared_ptr< std::vector< WVector3i > > faces );
 
-    private:
+private:
+    boost::shared_ptr< std::vector< WPosition > > m_chanPos3d;
 
-        boost::shared_ptr< std::vector< WPosition > > m_chanPos3d;
+    boost::shared_ptr< std::vector< WVector3i > > m_faces;
 
-        boost::shared_ptr< std::vector< WVector3i > > m_faces;
+    /**
+     * TODO(kaehler): unipolar --> Point3D  m_pos[5].x
+     * float m_chanPos2D[nrChan][2]
+     * float m_referencePos[3]
+     * bool m_isAverageReference // false als default value
+     */
 
-        /**
-         * TODO(kaehler): unipolar --> Point3D  m_pos[5].x
-         * float m_chanPos2D[nrChan][2]
-         * float m_referencePos[3]
-         * bool m_isAverageReference // false als default value
-         */
+    /**
+     * TODO(kaehler): bipolar
+     * float m_posPair[nrChans][2*3] // xyz xyz
+     */
 
-        /**
-         * TODO(kaehler): bipolar
-         * float m_posPair[nrChans][2*3] // xyz xyz
-         */
+    /**
+     * type of polarity, can be unipolar or bipolar
+     */
+    LaBP::WEPolarityType::Enum m_polarityType;
+};
 
-        /**
-         * type of polarity, can be unipolar or bipolar
-         */
-        LaBP::WEPolarityType::Enum m_polarityType;
-    };
-}
 #endif  // WLEMDEEG_H

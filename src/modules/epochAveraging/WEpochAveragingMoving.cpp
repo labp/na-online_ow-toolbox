@@ -22,14 +22,12 @@
 //
 //---------------------------------------------------------------------------
 
-#include <algorithm> // transform
 #include <cstddef>
-#include <functional> // divides, plus, bind
 #include <string>
 
-#include "core/util/WLTimeProfiler.h"
-#include "core/data/WLDataSetEMM.h"
-#include "core/data/emd/WLEMD.h"
+#include "core/data/WLEMMeasurement.h"
+#include "core/data/emd/WLEMData.h"
+#include "core/util/profiler/WLTimeProfiler.h"
 
 #include "WEpochAveraging.h"
 #include "WEpochAveragingMoving.h"
@@ -56,37 +54,27 @@ size_t WEpochAveragingMoving::getCount() const
     return std::min( m_size, m_count );
 }
 
-LaBP::WLDataSetEMM::SPtr WEpochAveragingMoving::getAverage( LaBP::WLDataSetEMM::ConstSPtr emmIn )
+WLEMMeasurement::SPtr WEpochAveragingMoving::getAverage( WLEMMeasurement::ConstSPtr emmIn )
 {
-    LaBP::WLTimeProfiler time( CLASS, "average" );
-    time.start();
+    WLTimeProfiler tp( CLASS, "getAverage" );
 
     emmIn = WEpochAveraging::baseline( emmIn );
 
     pushBuffer( emmIn );
 
-    LaBP::WLDataSetEMM::SPtr emmOut( new LaBP::WLDataSetEMM( *emmIn ) );
-    LaBP::WLTimeProfiler::SPtr profiler( new LaBP::WLTimeProfiler( CLASS, "lifetime" ) );
-    profiler->start();
-    emmOut->setTimeProfiler( profiler );
+    WLEMMeasurement::SPtr emmOut( new WLEMMeasurement( *emmIn ) );
 
-    LaBP::WLEMD::ConstSPtr emdIn;
-    LaBP::WLEMD::SPtr emdOut;
+    WLEMData::ConstSPtr emdIn;
+    WLEMData::SPtr emdOut;
 
     // Create output EMM
-    size_t channels;
-    size_t samples;
     for( size_t mod = 0; mod < emmIn->getModalityCount(); ++mod )
     {
         emdIn = emmIn->getModality( mod );
         emdOut = emdIn->clone();
-        channels = emdIn->getData().size();
-        emdOut->getData().resize( channels );
-        samples = emdIn->getData().front().size();
-        for( size_t chan = 0; chan < channels; ++chan )
-        {
-            emdOut->getData()[chan].resize( samples, 0 );
-        }
+        const size_t channels = emdIn->getNrChans();
+        const size_t samples = emdIn->getSamplesPerChan();
+        emdOut->getData().setZero( channels, samples );
         emmOut->addModality( emdOut );
     }
 
@@ -99,29 +87,23 @@ LaBP::WLDataSetEMM::SPtr WEpochAveragingMoving::getAverage( LaBP::WLDataSetEMM::
         {
             emdIn = emmIn->getModality( mod );
             emdOut = emmOut->getModality( mod );
-            channels = emdIn->getData().size();
-            WAssertDebug( channels == emdOut->getData().size(), "channels == emdOut->getData().size()" );
-            for( size_t chan = 0; chan < channels; ++chan )
-            {
-                std::transform( emdIn->getData()[chan].begin(), emdIn->getData()[chan].end(), emdOut->getData()[chan].begin(),
-                                emdOut->getData()[chan].begin(), std::plus< double >() );
-            }
+            WAssertDebug( emdIn->getNrChans() == emdOut->getNrChans(), "emdIn->getNrChans() == emdOut->getNrChans()" );
+
+            const WLEMData::DataT& dataIn = emdIn->getData();
+            WLEMData::DataT& dataOut = emdOut->getData();
+            dataOut += dataIn;
         }
     }
 
     // divide
+    WLEMData::ScalarT divFactor;
     for( size_t mod = 0; mod < emmOut->getModalityCount(); ++mod )
     {
         emdOut = emmOut->getModality( mod );
-        channels = emdOut->getData().size();
-        for( size_t chan = 0; chan < channels; ++chan )
-        {
-            std::transform( emdOut->getData()[chan].begin(), emdOut->getData()[chan].end(), emdOut->getData()[chan].begin(),
-                            std::bind2nd( std::divides< double >(), std::min( m_size, m_count ) ) );
-        }
+        WLEMData::DataT& dataOut = emdOut->getData();
+        divFactor = 1.0 / std::min( m_size, m_count );
+        dataOut *= divFactor;
     }
-
-    time.stopAndLog();
 
     return emmOut;
 }
@@ -138,7 +120,7 @@ void WEpochAveragingMoving::setSize( size_t size )
     }
 }
 
-void WEpochAveragingMoving::pushBuffer( const LaBP::WLDataSetEMM::ConstSPtr emm )
+void WEpochAveragingMoving::pushBuffer( const WLEMMeasurement::ConstSPtr emm )
 {
     ++m_count;
     m_buffer[m_ptr++] = emm;

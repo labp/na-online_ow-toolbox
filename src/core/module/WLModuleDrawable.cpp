@@ -26,22 +26,26 @@
 #include <cmath>
 #include <cstddef>
 #include <string>
+#include <vector>
 
+#include <boost/shared_ptr.hpp> // dynamic pointer cast
 #include <core/common/WItemSelectionItemTyped.h>
 #include <core/dataHandler/WDataSet.h>
 #include <core/gui/WCustomWidget.h>
 #include <core/gui/WGUI.h>
 #include <core/kernel/WKernel.h>
 
+#include "core/data/emd/WLEMData.h"
 #include "core/data/WLMatrixTypes.h"
-#include "core/data/WLDataSetEMM.h"
+#include "core/data/WLEMMCommand.h"
+#include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMEnumTypes.h"
-
 #include "core/gui/drawable/WLEMDDrawable.h"
 #include "core/gui/drawable/WLEMDDrawable2D.h"
 #include "core/gui/drawable/WLEMDDrawable2DMultiChannel.h"
 #include "core/gui/drawable/WLEMDDrawable3D.h"
 #include "core/gui/drawable/WLEMDDrawable3DEEG.h"
+#include "core/gui/events/WLGUIEvent.h"
 #include "core/gui/events/WLMarkTimePositionHandler.h"
 #include "core/gui/events/WL2DChannelScrollHandler.h"
 #include "core/gui/colorMap/WLColorMap.h"
@@ -235,7 +239,7 @@ void LaBP::WLModuleDrawable::callbackAmplitudeScaleChanged()
 void LaBP::WLModuleDrawable::callbackTimeRangeChanged()
 {
     m_drawable2D->setTimeRange( m_timeRange->get() );
-// TODO: Code definition
+// TODO(pieloth): ?Code definition?
 }
 
 void LaBP::WLModuleDrawable::callbackChannelHeightChanged()
@@ -267,21 +271,12 @@ void LaBP::WLModuleDrawable::initView( LaBP::WLEMDDrawable2D::WEGraphType::Enum 
     m_widget = WKernel::getRunningKernel()->getGui()->openCustomEMDWidget( getName(), WGECamera::TWO_D,
                     m_shutdownFlag.getCondition() );
 
-// TODO: Skizze von Mirco ? Sollte er raus oder nicht?
-//    m_widget->setVisibility( showChannels, 0 );
-//    m_widget->setVisibility( showHead, 1 );
-//    m_widget->setVisibility( showInfo, 2 );
-//    m_widget->setVisibility( showInfo, 3 );
-//    m_widget->setVisibility( showInfo, 4 );
-//    m_widget->setVisibility( showInfo, 5 );
-//    m_widget->setVisibility( showInfo, 6 );
-
     createColorMap();
 
     resetView();
 }
 
-void LaBP::WLModuleDrawable::updateView( boost::shared_ptr< LaBP::WLDataSetEMM > emm )
+void LaBP::WLModuleDrawable::updateView( WLEMMeasurement::SPtr emm )
 {
     if( m_widget->getViewer()->isClosed() )
     {
@@ -295,10 +290,10 @@ void LaBP::WLModuleDrawable::updateView( boost::shared_ptr< LaBP::WLDataSetEMM >
         WLBoundCalculator calculator;
         --m_autoScaleCounter;
         // Scale 2D
-        const LaBP::WLEMD::SampleT amplitudeScale = calculator.getMax2D( emm, getViewModality() );
+        const WLEMData::ScalarT amplitudeScale = calculator.getMax2D( emm, getViewModality() );
         m_amplitudeScale->set( amplitudeScale );
         // Scale 3D
-        const LaBP::WLEMD::SampleT sens3dScale = calculator.getMax3D( emm, getViewModality() );
+        const WLEMData::ScalarT sens3dScale = calculator.getMax3D( emm, getViewModality() );
         m_maxSensitity3D->set( sens3dScale );
         m_minSensitity3D->set( -sens3dScale );
     }
@@ -314,7 +309,15 @@ void LaBP::WLModuleDrawable::updateView( boost::shared_ptr< LaBP::WLDataSetEMM >
 void LaBP::WLModuleDrawable::resetView()
 {
     debugLog() << "reset() called!";
-    m_eventHandler.clear();
+    // Avoid memory leak due to circular references drawables <-> listener
+    if( m_drawable2D )
+    {
+        m_drawable2D->clearListeners();
+    }
+    if( m_drawable3D )
+    {
+        m_drawable3D->clearListeners();
+    }
 
     WCustomWidget::SPtr widget2D = m_widget->getSubWidget( LaBP::WLEMDWidget::WEWidgetType::EMD_2D );
     m_drawable2D = WLEMDDrawable2D::getInstance( widget2D, getViewModality(), m_graphType );
@@ -322,21 +325,18 @@ void LaBP::WLModuleDrawable::resetView()
     if( drawable )
     {
         drawable->setChannelHeight( static_cast< WLEMDDrawable::ValueT >( m_channelHeight->get() ) );
-        WL2DChannelScrollHandler::SPtr handler( new WL2DChannelScrollHandler( drawable, drawable ) );
-        m_eventHandler.push_back( handler );
+        WL2DChannelScrollHandler::SPtr handler( new WL2DChannelScrollHandler( drawable ) );
+        drawable->addMouseEventListener( handler );
     }
     m_drawable2D->setTimeRange( m_timeRange->get() );
-    // TODO (pieloth): m_drawable2D->setLabelWidth( m_labelsWidth->get() );
     m_drawable2D->setAmplitudeScale( m_amplitudeScale->get() );
-    //m_drawable2D->setTimePosition( 0.0 );
 
     WCustomWidget::SPtr widget3D = m_widget->getSubWidget( LaBP::WLEMDWidget::WEWidgetType::EMD_3D );
     m_drawable3D = WLEMDDrawable3D::getInstance( widget3D, getViewModality() );
     m_drawable3D->setColorMap( m_colorMap );
-    //m_drawable3D->setTimePosition( 0.0 );
 
-    WLMarkTimePositionHandler::SPtr handler( new WLMarkTimePositionHandler( m_drawable2D, m_drawable3D ) );
-    m_eventHandler.push_back( handler );
+    WLMarkTimePositionHandler::SPtr handler( new WLMarkTimePositionHandler( m_drawable2D, m_drawable3D, m_output ) );
+    m_drawable2D->addMouseEventListener( handler );
 }
 
 double LaBP::WLModuleDrawable::getTimerange()
@@ -371,4 +371,20 @@ void LaBP::WLModuleDrawable::createColorMap()
     const WEColorMapMode::Enum color_mode = m_selectionColorMode->get().at( 0 )->getAs<
                     WItemSelectionItemTyped< WEColorMapMode::Enum > >()->getValue();
     m_colorMap = WEColorMap::instance( color_map, m_minSensitity3D->get(), m_maxSensitity3D->get(), color_mode );
+}
+
+bool LaBP::WLModuleDrawable::processTime( WLEMMCommand::SPtr labp )
+{
+    bool rc = true;
+    const float relative = labp->getParameterAs< float >();
+    rc &= m_drawable2D->setSelectedTime( relative );
+    rc &= m_drawable3D->setSelectedTime( relative );
+    m_output->updateData( labp );
+    return rc;
+}
+
+bool LaBP::WLModuleDrawable::processMisc( WLEMMCommand::SPtr labp )
+{
+    m_output->updateData( labp );
+    return false;
 }

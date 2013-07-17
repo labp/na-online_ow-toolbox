@@ -43,16 +43,15 @@
 #include <core/common/WPropertyTypes.h>
 #include <core/common/WRealtimeTimer.h>
 
-// Output connector and data
-// TODO use OW class
 #include "core/module/WLModuleOutputDataCollectionable.h"
-#include "core/data/WLDataSetEMM.h"
+#include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMDEEG.h"
 #include "core/data/emd/WLEMDMEG.h"
 #include "core/data/WLEMMSubject.h"
 #include "core/data/WLEMMSurface.h"
 #include "core/data/WLEMMBemBoundary.h"
 #include "core/data/WLEMMEnumTypes.h"
+#include "core/data/WLMatrixTypes.h"
 
 #include "core/io/WLReaderELC.h"
 #include "core/io/WLReaderFIFF.h"
@@ -64,25 +63,29 @@
 #include "WMEmMeasurement.h"
 #include "WMEmMeasurement.xpm"
 
-using namespace boost;
-using namespace std;
-
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMEmMeasurement )
 
+using LaBP::MatrixT;
+using LaBP::MatrixSPtr;
+
 WMEmMeasurement::WMEmMeasurement()
 {
-    m_fiffEmm = boost::shared_ptr< LaBP::WLDataSetEMM >( new LaBP::WLDataSetEMM() );
+    m_fiffEmm = WLEMMeasurement::SPtr( new WLEMMeasurement() );
+    m_isDipLoaded = false;
+    m_isElcLoaded = false;
+    m_isExpLoaded = false;
+    m_isFiffLoaded = false;
+    m_isVolLoaded = false;
 }
 
 WMEmMeasurement::~WMEmMeasurement()
 {
-
 }
 
-boost::shared_ptr< WModule > WMEmMeasurement::factory() const
+WModule::SPtr WMEmMeasurement::factory() const
 {
-    return boost::shared_ptr< WModule >( new WMEmMeasurement() );
+    return WModule::SPtr( new WMEmMeasurement() );
 }
 
 const char** WMEmMeasurement::getXPMIcon() const
@@ -102,13 +105,16 @@ const std::string WMEmMeasurement::getDescription() const
 
 void WMEmMeasurement::connectors()
 {
-    // initialize connectors
-    // TODO use OW class
-    m_output = boost::shared_ptr< LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM > >(
-                    new LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM >( shared_from_this(), "out",
+    m_input = LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr(
+                    new LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >( 8, shared_from_this(), "in",
+                                    "Expects a EMM-DataSet for filtering." ) );
+
+    m_output = LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr(
+                    new LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >( shared_from_this(), "out",
                                     "A loaded dataset." ) );
 
     // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
+    addConnector( m_input );
     addConnector( m_output );
 }
 
@@ -116,7 +122,7 @@ void WMEmMeasurement::properties()
 {
     LaBP::WLModuleDrawable::properties();
 
-    m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+    m_propCondition = WCondition::SPtr( new WCondition() );
 
     // Experiment loader - Fiff properties //
 //    m_propGrpFiffStreaming = m_properties->addPropertyGroup( "FIFF streaming properties",
@@ -231,7 +237,7 @@ void WMEmMeasurement::properties()
     m_regError->setPurpose( PV_PURPOSE_INFORMATION );
 }
 
-void WMEmMeasurement::initModule()
+void WMEmMeasurement::moduleInit()
 {
     infoLog() << "Initializing module ...";
     waitRestored();
@@ -249,16 +255,22 @@ void WMEmMeasurement::moduleMain()
 {
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_propCondition );
+    m_moduleState.add( m_input->getDataChangedCondition() );
     m_moduleState.add( m_genDataTrigger->getCondition() );
     m_moduleState.add( m_genDataTriggerEnd->getCondition() );
 
     ready();
 
-    initModule();
+    moduleInit();
 
     while( !m_shutdownFlag() )
     {
-        m_moduleState.wait();
+        if( m_input->isEmpty() ) // continue processing if data is available
+        {
+            debugLog() << "Waiting for Events";
+            m_moduleState.wait(); // wait for events like inputdata or properties changed
+        }
+
         if( m_shutdownFlag() )
         {
             break;
@@ -304,6 +316,18 @@ void WMEmMeasurement::moduleMain()
         {
             handleExperimentLoadChanged();
         }
+
+        // ---------- INPUTDATAUPDATEEVENT ----------
+        WLEMMCommand::SPtr cmdIn;
+        if( !m_input->isEmpty() )
+        {
+            cmdIn = m_input->getData();
+        }
+        const bool dataValid = ( cmdIn );
+        if( dataValid ) // If there was an update on the inputconnector
+        {
+            process( cmdIn );
+        }
     }
 }
 
@@ -323,9 +347,9 @@ void WMEmMeasurement::streamData()
         size_t blockOffset = 0; // start index for current block
         size_t blockCount = 0;
         int smplFrq;
-        std::vector< std::vector< double > > fiffData;
+        WLEMData::DataT fiffData;
         bool hasData;
-        std::vector< LaBP::WLEMD::SPtr > emds = m_fiffEmm->getModalityList();
+        std::vector< WLEMData::SPtr > emds = m_fiffEmm->getModalityList();
         boost::shared_ptr< std::vector< std::vector< int > > > events = m_fiffEmm->getEventChannels();
 
         totalTimer.reset();
@@ -342,39 +366,30 @@ void WMEmMeasurement::streamData()
 
             waitTimer.reset();
 
-            boost::shared_ptr< LaBP::WLDataSetEMM > emmPacket = boost::shared_ptr< LaBP::WLDataSetEMM >(
-                            new LaBP::WLDataSetEMM( *m_fiffEmm ) );
+            WLEMMeasurement::SPtr emmPacket( new WLEMMeasurement( *m_fiffEmm ) );
 
             // clone each modality
-            for( std::vector< LaBP::WLEMD::SPtr >::const_iterator emd = emds.begin(); emd != emds.end(); ++emd )
+            for( std::vector< WLEMData::SPtr >::const_iterator emd = emds.begin(); emd != emds.end(); ++emd )
             {
                 if( m_shutdownFlag() )
                 {
                     break;
                 }
 
-                boost::shared_ptr< LaBP::WLEMD > emdPacket = ( *emd )->clone();
-                boost::shared_ptr< std::vector< std::vector< double > > > data( new std::vector< std::vector< double > >() );
-                data->reserve( ( *emd )->getNrChans() );
-
                 smplFrq = ( *emd )->getSampFreq();
                 blockSize = smplFrq * SEC_PER_BLOCK;
                 blockOffset = blockCount * blockSize;
+                WLEMData::SPtr emdPacket = ( *emd )->clone();
+                WLEMData::DataSPtr data( new WLEMData::DataT( ( *emd )->getNrChans(), blockSize ) );
                 fiffData = ( *emd )->getData();
 
                 // copy each channel
                 for( size_t chan = 0; chan < ( *emd )->getNrChans(); ++chan )
                 {
-                    std::vector< double > channel;
-                    channel.reserve( blockSize );
-
-                    for( size_t sample = 0; sample < blockSize && ( blockOffset + sample ) < fiffData.at( chan ).size();
-                                    ++sample )
+                    for( size_t sample = 0; sample < blockSize && ( blockOffset + sample ) < fiffData.cols(); ++sample )
                     {
-                        channel.push_back( fiffData[chan][blockOffset + sample] );
+                        ( *data )( chan, sample ) = fiffData( chan, blockOffset + sample );
                     }
-
-                    data->push_back( channel );
                 }
 
                 emdPacket->setData( data );
@@ -382,20 +397,18 @@ void WMEmMeasurement::streamData()
 
                 if( ( *emd )->getNrChans() > 0 )
                 {
-                    debugLog() << "emdPacket type: " << emdPacket->getModalityType() << " size: "
-                                    << emdPacket->getData().front().size();
+                    debugLog() << "emdPacket type: " << emdPacket->getModalityType() << " size: " << emdPacket->getData().cols();
 
                     // set termination condition
-                    hasData = hasData || blockOffset + blockSize < fiffData[0].size();
+                    hasData = hasData || blockOffset + blockSize < fiffData.cols();
                 }
             }
 
             // copy event channels
             blockOffset = blockCount * blockSize; // Using blockSize/samplFreq of last modality
-            for( std::vector< std::vector< int > >::const_iterator eChannel = events->begin(); eChannel != events->end();
-                            ++eChannel )
+            for( WLEMMeasurement::EDataT::const_iterator eChannel = events->begin(); eChannel != events->end(); ++eChannel )
             {
-                std::vector< int > data;
+                WLEMMeasurement::EChannelT data;
                 data.reserve( blockSize );
                 for( size_t event = 0; event < blockSize && ( blockOffset + event ) < ( *eChannel ).size(); ++event )
                 {
@@ -411,9 +424,7 @@ void WMEmMeasurement::streamData()
             debugLog() << "emmPacket modalities: " << emmPacket->getModalityCount();
             debugLog() << "emmPacket events: " << emmPacket->getEventChannelCount();
 
-            emmPacket->getTimeProfiler()->start();
-            updateView( emmPacket ); // update view
-            m_output->updateData( emmPacket ); // update connected modules
+            processCompute( emmPacket );
 
             ++blockCount;
             infoLog() << "Streamed emmPacket #" << blockCount;
@@ -472,43 +483,41 @@ void WMEmMeasurement::generateData()
             break;
         }
 
-        boost::shared_ptr< LaBP::WLDataSetEMM > emm = boost::shared_ptr< LaBP::WLDataSetEMM >( new LaBP::WLDataSetEMM() );
-        boost::shared_ptr< LaBP::WLEMDEEG > eeg = boost::shared_ptr< LaBP::WLEMDEEG >( new LaBP::WLEMDEEG() );
+        WLEMMeasurement::SPtr emm( new WLEMMeasurement() );
+        WLEMDEEG::SPtr eeg( new WLEMDEEG() );
 
         eeg->setSampFreq( m_generationFreq->get() );
 
-        for( int i = 0; i < m_generationNrChans->get(); i++ )
+        const size_t channels = m_generationNrChans->get();
+        const size_t samples = m_generationFreq->get() * ( ( double )m_generationBlockSize->get() / 1000.0 );
+        eeg->getData().resize( channels, samples );
+        for( size_t chan = 0; chan < channels; ++chan )
         {
-            std::vector< double > channel;
-            for( int j = 0; j < m_generationFreq->get() * ( ( double )m_generationBlockSize->get() / 1000.0 ); j++ )
+            WLEMData::ChannelT channel( samples );
+            for( size_t smp = 0; smp < samples; ++smp )
             {
-                channel.push_back( 30.0 * ( double )rand() / RAND_MAX - 15.0 );
+                channel( smp ) = ( 30.0 * ( WLEMData::ScalarT )rand() / RAND_MAX - 15.0 );
             }
-            double a = ( double )rand() / RAND_MAX - 0.5;
-            double b = ( double )rand() / RAND_MAX - 0.5;
-            double c = ( double )rand() / RAND_MAX - 0.5;
-            double m = sqrt( a * a + b * b + c * c );
-            double r = 100;
+            WPosition::ValueType a = ( WPosition::ValueType )rand() / RAND_MAX - 0.5;
+            WPosition::ValueType b = ( WPosition::ValueType )rand() / RAND_MAX - 0.5;
+            WPosition::ValueType c = ( WPosition::ValueType )rand() / RAND_MAX - 0.5;
+            WPosition::ValueType m = sqrt( a * a + b * b + c * c );
+            WPosition::ValueType r = 100;
             a *= r / m;
             b *= r / m;
             c *= r / m;
-            //WPosition point = new ;
             eeg->getChannelPositions3d()->push_back( WPosition( a, b, abs( c ) ) );
-            eeg->getData().push_back( channel );
+            eeg->getData().row( chan ) = channel;
         }
 
         emm->addModality( eeg );
         setAdditionalInformation( emm );
 
-        emm->getTimeProfiler()->start();
-        updateView( emm );
-
-        m_output->updateData( emm );
-        debugLog() << "m_output->updateData() called!";
+        processCompute( emm );
 
         debugLog() << "inserted block " << k + 1 << "/"
                         << ( ( double )m_generationDuration->get() * 1000 ) / ( double )m_generationBlockSize->get() << " with "
-                        << m_generationFreq->get() * ( double )m_generationBlockSize->get() / 1000.0 << " Samples";
+                        << samples << " Samples";
 
         const double tuSleep = m_generationBlockSize->get() * 1000 - ( waitTimer.elapsed() * 1000000 );
         if( tuSleep > 0 )
@@ -540,12 +549,12 @@ bool WMEmMeasurement::readFiff( std::string fname )
     if( boost::filesystem::exists( fname ) && boost::filesystem::is_regular_file( fname ) )
     {
         LaBP::WLReaderFIFF fiffReader( fname );
-        m_fiffEmm.reset( new LaBP::WLDataSetEMM() );
+        m_fiffEmm.reset( new WLEMMeasurement() );
         if( fiffReader.Read( m_fiffEmm ) == LaBP::WLReaderFIFF::ReturnCode::SUCCESS )
         {
             if( m_fiffEmm->hasModality( LaBP::WEModalityType::EEG ) )
             {
-                LaBP::WLEMDEEG::SPtr eeg = m_fiffEmm->getModality< LaBP::WLEMDEEG >( LaBP::WEModalityType::EEG );
+                WLEMDEEG::SPtr eeg = m_fiffEmm->getModality< WLEMDEEG >( LaBP::WEModalityType::EEG );
                 if( eeg->getFaces().empty() )
                 {
                     warnLog() << "No faces found! Faces will be generated.";
@@ -574,6 +583,7 @@ bool WMEmMeasurement::readFiff( std::string fname )
         m_fiffFileStatus->set( FILE_ERROR, true );
         return false;
     }
+    return false;
 }
 
 bool WMEmMeasurement::readElc( std::string fname )
@@ -588,7 +598,7 @@ bool WMEmMeasurement::readElc( std::string fname )
     {
         elcReader = new LaBP::WLReaderELC( fname );
     }
-    catch( std::exception& e )
+    catch( const std::exception& e )
     {
         errorLog() << e.what();
         m_elcFileStatus->set( FILE_ERROR, true );
@@ -616,7 +626,6 @@ bool WMEmMeasurement::readElc( std::string fname )
         stream << "ELC labels: ";
         for( size_t i = 0; i < 5 && i < m_elcLabels->size(); ++i )
         {
-
             stream << m_elcLabels->at( i ) << " ";
         }
         debugLog() << stream.str();
@@ -626,7 +635,6 @@ bool WMEmMeasurement::readElc( std::string fname )
         stream << "ELC faces: ";
         for( size_t i = 0; i < 5 && i < m_elcFaces->size(); ++i )
         {
-
             stream << m_elcFaces->at( i ) << " ";
         }
         debugLog() << stream.str();
@@ -655,7 +663,7 @@ bool WMEmMeasurement::readDip( std::string fname )
     {
         reader = new LaBP::WLReaderDIP( fname );
     }
-    catch( std::exception& e )
+    catch( const std::exception& e )
     {
         errorLog() << e.what();
         m_dipFileStatus->set( FILE_ERROR, true );
@@ -683,7 +691,6 @@ bool WMEmMeasurement::readDip( std::string fname )
         stream << "DIP faces: ";
         for( size_t i = 0; i < 5 && i < m_dipSurface->getFaces().size(); ++i )
         {
-
             stream << m_dipSurface->getFaces().at( i ) << " ";
         }
         debugLog() << stream.str();
@@ -712,7 +719,7 @@ bool WMEmMeasurement::readVol( std::string fname )
     {
         reader = new LaBP::WLReaderVOL( fname );
     }
-    catch( std::exception& e )
+    catch( const std::exception& e )
     {
         errorLog() << e.what();
         m_volFileStatus->set( FILE_ERROR, true );
@@ -737,18 +744,17 @@ bool WMEmMeasurement::readVol( std::string fname )
     }
 }
 
-void WMEmMeasurement::setAdditionalInformation( LaBP::WLDataSetEMM::SPtr emm )
+void WMEmMeasurement::setAdditionalInformation( WLEMMeasurement::SPtr emm )
 {
     if( m_isElcLoaded )
     {
-        std::vector< LaBP::WLEMD::SPtr > modalities = emm->getModalityList();
-        for( std::vector< LaBP::WLEMD::SPtr >::iterator it = modalities.begin(); it != modalities.end();
-                        ++it )
+        std::vector< WLEMData::SPtr > modalities = emm->getModalityList();
+        for( std::vector< WLEMData::SPtr >::iterator it = modalities.begin(); it != modalities.end(); ++it )
         {
-            ( *it )->setChanNames( m_elcLabels ); // TODO m_elcLabels are specific for each modality
+            ( *it )->setChanNames( m_elcLabels ); // TODO(pieloth) m_elcLabels are specific for each modality
             if( ( *it )->getModalityType() == LaBP::WEModalityType::EEG )
             {
-                LaBP::WLEMDEEG::SPtr eeg = ( *it )->getAs< LaBP::WLEMDEEG >();
+                WLEMDEEG::SPtr eeg = ( *it )->getAs< WLEMDEEG >();
                 eeg->setFaces( m_elcFaces );
                 eeg->setChannelPositions3d( m_elcPositions3d );
             }
@@ -780,7 +786,7 @@ void WMEmMeasurement::align()
         {
             setAdditionalInformation( m_fiffEmm );
 
-            LaBP::WLEMDEEG::SPtr eeg = m_fiffEmm->getModality< LaBP::WLEMDEEG >( LaBP::WEModalityType::EEG );
+            WLEMDEEG::SPtr eeg = m_fiffEmm->getModality< WLEMDEEG >( LaBP::WEModalityType::EEG );
             boost::shared_ptr< std::vector< WPosition > > from = eeg->getChannelPositions3d();
 
             std::vector< LaBP::WLEMMBemBoundary::SPtr > bems = m_fiffEmm->getSubject()->getBemBoundaries();
@@ -796,7 +802,7 @@ void WMEmMeasurement::align()
             if( bemSkin )
             {
                 std::vector< WPosition > to = bemSkin->getVertex();
-                // TODO check unit!
+                // TODO(pieloth): check unit!
                 double error = m_regNaive.compute( *from, to );
                 infoLog() << WRegistrationNaive::CLASS << " error: " << error;
 
@@ -812,7 +818,6 @@ void WMEmMeasurement::align()
                 errorLog() << "No BEM skin layer found. Alignment is canceled!";
                 m_regError->set( -1.0, true );
             }
-
         }
         else
         {
@@ -844,13 +849,26 @@ void WMEmMeasurement::handleExperimentLoadChanged()
     const string surfaceType = m_expSurfacesSelection->get().at( 0 )->getAs< WItemSelectionItemTyped< string > >()->getValue();
     rc |= m_expReader->readSourceSpace( surfaceType, m_subject );
 
-    const string trial = m_expTrial->get();
-    rc |= m_expReader->readLeadFields( surfaceType, bemFile, trial, m_subject );
+    if( m_hasLeadfield )
+    {
+        infoLog() << "Using interpolated leadfield!";
+        m_subject->setLeadfield( LaBP::WEModalityType::EEG, m_leadfield );
+    }
+    else
+    {
+        const string trial = m_expTrial->get();
+        rc |= m_expReader->readLeadFields( surfaceType, bemFile, trial, m_subject );
+    }
 
     if( rc )
     {
         m_expLoadStatus->set( DATA_LOADED, true );
         m_isExpLoaded = true;
+
+        WLEMMeasurement::SPtr emm( new WLEMMeasurement( m_subject ) );
+        WLEMMCommand::SPtr labp = WLEMMCommand::instance( WLEMMCommand::Command::INIT );
+        labp->setEmm( emm );
+        m_output->updateData( labp );
     }
     else
     {
@@ -914,6 +932,58 @@ void WMEmMeasurement::extractExpLoader( std::string fName )
         WPropertyHelper::PC_SELECTONLYONE::addTo( m_expSurfacesSelection );
         m_expLoadTrigger->setHidden( false );
     }
+}
+
+bool WMEmMeasurement::processCompute( WLEMMeasurement::SPtr emm )
+{
+    // Set a new profiler for the new EMM
+    emm->setProfiler( WLLifetimeProfiler::instance( WLEMMeasurement::CLASS, "lifetime" ) );
+
+    WLEMMCommand::SPtr labp = WLEMMCommand::instance( WLEMMCommand::Command::COMPUTE );
+    labp->setEmm( emm );
+    updateView( emm );
+    m_output->updateData( labp );
+    return true;
+}
+
+bool WMEmMeasurement::processInit( WLEMMCommand::SPtr labp )
+{
+    m_output->updateData( labp );
+    return true;
+}
+
+bool WMEmMeasurement::processReset( WLEMMCommand::SPtr labp )
+{
+    m_output->updateData( labp );
+    return true;
+}
+
+bool WMEmMeasurement::processMisc( WLEMMCommand::SPtr labp )
+{
+    debugLog() << "processMisc() called!";
+    if( labp->getMiscCommand().find( "leadfield" ) == WLEMMCommand::MiscCommandT::npos )
+    {
+        WLModuleDrawable::processMisc( labp );
+        return true;
+    }
+
+    infoLog() << "[processMisc] received leadfield!";
+
+    m_leadfield = labp->getParameterAs< MatrixSPtr >();
+    if( !m_leadfield )
+    {
+        m_hasLeadfield = false;
+        return false;
+    }
+    m_hasLeadfield = true;
+    if( m_isExpLoaded )
+    {
+        infoLog() << "Override leadfield from experiment!";
+        m_subject->setLeadfield( LaBP::WEModalityType::EEG, m_leadfield );
+        // TODO(pieloth): force a processInit
+    }
+
+    return true;
 }
 
 const std::string WMEmMeasurement::NO_DATA_LOADED = "No data loaded.";

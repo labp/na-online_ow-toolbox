@@ -24,20 +24,28 @@
 
 #include <sstream>
 #include <string>
-
+#include <utility>  // for pair<>
 #include <boost/lexical_cast.hpp>
+
+#include <osg/Array>
+#include <osg/Geode>
+#include <osg/Geometry>
+#include <osg/MatrixTransform>
 #include <osgText/Text>
 
+#include <core/common/WLogger.h>
 #include <core/gui/WCustomWidget.h>
 
-#include "core/data/WLDataSetEMM.h"
-#include "core/data/emd/WLEMD.h"
+#include "core/data/WLEMMeasurement.h"
+#include "core/data/emd/WLEMData.h"
 #include "core/util/WLBoundCalculator.h"
 
 #include "WLEMDDrawable2DSingleChannel.h"
 
 namespace LaBP
 {
+    const std::string WLEMDDrawable2DSingleChannel::CLASS = "WLEMDDrawable2DSingleChannel";
+
     WLEMDDrawable2DSingleChannel::WLEMDDrawable2DSingleChannel( WCustomWidget::SPtr widget ) :
                     WLEMDDrawable2D( widget )
     {
@@ -49,7 +57,7 @@ namespace LaBP
     {
     }
 
-    void WLEMDDrawable2DSingleChannel::draw( LaBP::WLDataSetEMM::SPtr emm )
+    void WLEMDDrawable2DSingleChannel::draw( WLEMMeasurement::SPtr emm )
     {
         m_emm = emm;
         m_dataChanged = true;
@@ -61,12 +69,12 @@ namespace LaBP
         return m_emm.get() && m_emm->hasModality( m_modality );
     }
 
-    size_t WLEMDDrawable2DSingleChannel::maxChannels( const LaBP::WLEMD* emd ) const
+    size_t WLEMDDrawable2DSingleChannel::maxChannels( const WLEMData* emd ) const
     {
         return emd->getNrChans();
     }
 
-    void WLEMDDrawable2DSingleChannel::osgAddChannels( const LaBP::WLEMD* emd )
+    void WLEMDDrawable2DSingleChannel::osgAddChannels( const WLEMData* emd )
     {
         m_rootGroup->removeChild( m_channelGroup );
         m_channelGroup = new osg::Group;
@@ -82,15 +90,14 @@ namespace LaBP
         // TODO(pieloth): dynamic shift scale ... width / m_timeRange
         // TODO(pieloth): dynamic shift scale ... x_pos * width / m_timeRange,
         panTransform->setMatrix( osg::Matrix::translate( x_pos, y_pos, 0.0 ) );
-        const WLEMD::DataT& emdData = emd->getData();
+        const WLEMData::DataT& emdData = emd->getData();
         const size_t channels_begin = 0;
         const size_t channels_count = maxChannels( emd );
-        wlog::debug( CLASS ) << "channels_count: " << channels_count;
         osg::ref_ptr< osg::Geode > channelGeode;
         for( size_t channel = channels_begin, channelPos = 0; channelPos < channels_count && channel < emd->getNrChans();
                         ++channel, ++channelPos )
         {
-            channelGeode = drawChannel( emdData[channel] );
+            channelGeode = drawChannel( emdData.row( channel ) );
             osg::ref_ptr< osg::MatrixTransform > scaleSpacingTransform = new osg::MatrixTransform;
             scaleSpacingTransform->setMatrix( osg::Matrix::scale( x_scale, y_scale, 1.0 ) );
             scaleSpacingTransform->setDataVariance( osg::Object::DYNAMIC );
@@ -103,7 +110,7 @@ namespace LaBP
         m_rootGroup->addChild( m_channelGroup );
     }
 
-    void WLEMDDrawable2DSingleChannel::osgAddValueGrid( const LaBP::WLEMD* emd )
+    void WLEMDDrawable2DSingleChannel::osgAddValueGrid( const WLEMData* emd )
     {
         const ValueT height = m_widget->height();
         const ValueT width = m_widget->width();
@@ -125,7 +132,7 @@ namespace LaBP
             vertices->push_back( osg::Vec2( width, y_zero_pos ) );
 
             line->setVertexArray( vertices );
-            line->setColorArray( m_timeGridColors ); // TODO
+            line->setColorArray( m_gridColors ); // TODO(pieloth): define color for grid
             line->setColorBinding( osg::Geometry::BIND_OVERALL );
             line->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINES, 0, vertices->size() ) );
 
@@ -142,14 +149,14 @@ namespace LaBP
             zeroText->setAxisAlignment( osgText::Text::SCREEN );
             zeroText->setCharacterSizeMode( osgText::Text::SCREEN_COORDS );
             zeroText->setCharacterSize( char_size );
-            zeroText->setColor( ( *m_timeGridColors )[0] );
+            zeroText->setColor( ( *m_gridColors )[0] );
             osg::ref_ptr< osg::Geode > zeroTextGeode = new osg::Geode;
             zeroTextGeode->addDrawable( zeroText );
             m_valueGridGroup->addChild( zeroTextGeode );
 
             // Find maximum
             LaBP::WLBoundCalculator bc;
-            LaBP::WLEMD::SampleT max = bc.getMax( emd->getData() );
+            WLEMData::ScalarT max = bc.getMax( emd->getData() );
 
             const ValueT y_scale = ( ( m_widget->height() / 2 ) / m_amplitudeScale );
             for( ValueT yPos = y_zero_pos + ( y_scale * max ); yPos > height * 0.9; yPos = y_zero_pos + ( y_scale * max ) )
@@ -166,7 +173,7 @@ namespace LaBP
 
             osg::ref_ptr< osg::Geometry > vLinePos = new osg::Geometry;
             vLinePos->setVertexArray( vLinePosVec );
-            vLinePos->setColorArray( m_timeGridColors );
+            vLinePos->setColorArray( m_gridColors );
             vLinePos->setColorBinding( osg::Geometry::BIND_OVERALL );
             vLinePos->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINES, 0, vLinePosVec->size() ) );
 
@@ -179,7 +186,7 @@ namespace LaBP
             maxText->setAxisAlignment( osgText::Text::SCREEN );
             maxText->setCharacterSizeMode( osgText::Text::SCREEN_COORDS );
             maxText->setCharacterSize( char_size );
-            maxText->setColor( ( *m_timeGridColors )[0] );
+            maxText->setColor( ( *m_gridColors )[0] );
             osg::ref_ptr< osg::Geode > maxTextGeode = new osg::Geode;
             zeroTextGeode->addDrawable( maxText );
             m_valueGridGroup->addChild( maxTextGeode );
@@ -193,7 +200,7 @@ namespace LaBP
 
             osg::ref_ptr< osg::Geometry > vLineNeg = new osg::Geometry;
             vLineNeg->setVertexArray( vLineNegVec );
-            vLineNeg->setColorArray( m_timeGridColors );
+            vLineNeg->setColorArray( m_gridColors );
             vLineNeg->setColorBinding( osg::Geometry::BIND_OVERALL );
             vLineNeg->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINES, 0, vLineNegVec->size() ) );
 
@@ -206,7 +213,7 @@ namespace LaBP
             minText->setAxisAlignment( osgText::Text::SCREEN );
             minText->setCharacterSizeMode( osgText::Text::SCREEN_COORDS );
             minText->setCharacterSize( char_size );
-            minText->setColor( ( *m_timeGridColors )[0] );
+            minText->setColor( ( *m_gridColors )[0] );
             osg::ref_ptr< osg::Geode > minTextGeode = new osg::Geode;
             zeroTextGeode->addDrawable( minText );
             m_valueGridGroup->addChild( minTextGeode );
@@ -220,11 +227,11 @@ namespace LaBP
         }
     }
 
-    std::pair< LaBP::WLDataSetEMM::SPtr, size_t > WLEMDDrawable2DSingleChannel::getSelectedData( ValueT pixel ) const
+    std::pair< WLEMMeasurement::SPtr, size_t > WLEMDDrawable2DSingleChannel::getSelectedData( ValueT pixel ) const
     {
         size_t sample = 0;
 
-        LaBP::WLDataSetEMM::SPtr emm = m_emm;
+        WLEMMeasurement::SPtr emm = m_emm;
 
         if( pixel > m_xOffset )
         {
@@ -249,8 +256,8 @@ namespace LaBP
             return;
         }
 
-        LaBP::WLDataSetEMM::ConstSPtr emm = m_emm;
-        LaBP::WLEMD::ConstSPtr emd = emm->getModality( m_modality );
+        WLEMMeasurement::ConstSPtr emm = m_emm;
+        WLEMData::ConstSPtr emd = emm->getModality( m_modality );
         osgAddChannels( emd.get() );
         osgAddValueGrid( emd.get() );
 

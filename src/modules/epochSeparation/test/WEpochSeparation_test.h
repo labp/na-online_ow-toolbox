@@ -10,8 +10,8 @@
 
 #include <core/common/WLogger.h>
 
-#include "core/data/WLDataSetEMM.h"
-#include "core/data/emd/WLEMD.h"
+#include "core/data/WLEMMeasurement.h"
+#include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDEEG.h"
 
 #include "../WEpochSeparation.h"
@@ -33,7 +33,7 @@ public:
         const size_t PRESAMPLES = 42;
         const size_t POSTSAMPLES = 23;
         const size_t ECHANNEL = 2;
-        set< LaBP::WLDataSetEMM::EventT > triggers;
+        set< WLEMMeasurement::EventT > triggers;
         triggers.insert( 50 );
 
         WEpochSeparation::SPtr separation( new WEpochSeparation( ECHANNEL, triggers, PRESAMPLES, POSTSAMPLES ) );
@@ -63,21 +63,21 @@ public:
     {
         TS_TRACE( "test_extractSinglePacketNoModalityNoEventChannel ..." );
 
-        LaBP::WLDataSetEMM::SPtr emm( new LaBP::WLDataSetEMM() );
+        WLEMMeasurement::SPtr emm( new WLEMMeasurement() );
         const size_t SAMPLES = 10;
         emm->addModality( createEmd( 21, SAMPLES, 0 * SAMPLES ) );
         emm->addModality( createEmd( 42, SAMPLES, 1 * SAMPLES ) );
 
         // Single packet must be bigger than (postSamles + preSamles + 1), because WEpochSeparation returns true only for a full collected packet
-        set< LaBP::WLDataSetEMM::EventT > triggers;
+        set< WLEMMeasurement::EventT > triggers;
         triggers.insert( 1 );
         WEpochSeparation::SPtr separation( new WEpochSeparation( 1, triggers, SAMPLES / 3, SAMPLES / 3 ) );
         // no event channel
         TS_ASSERT_EQUALS( separation->extract( emm ), 0 );
 
         separation.reset( new WEpochSeparation( 1, triggers, SAMPLES / 3, SAMPLES / 3 ) );
-        emm.reset( new LaBP::WLDataSetEMM() );
-        LaBP::WLDataSetEMM::EChannelT eChannel( SAMPLES, 1 );
+        emm.reset( new WLEMMeasurement() );
+        WLEMMeasurement::EChannelT eChannel( SAMPLES, 1 );
         emm->addEventChannel( eChannel );
         // no modality
         TS_ASSERT_EQUALS( separation->extract( emm ), 0 );
@@ -90,22 +90,22 @@ public:
         const size_t SAMPLES = 500;
         const size_t PRESAMPLES = SAMPLES / 3;
         const size_t POSTSAMPLES = SAMPLES / 3;
-        const LaBP::WLDataSetEMM::EventT TRIGGER_MATCH = 4;
-        set< LaBP::WLDataSetEMM::EventT > triggersMatch;
+        const WLEMMeasurement::EventT TRIGGER_MATCH = 4;
+        set< WLEMMeasurement::EventT > triggersMatch;
         triggersMatch.insert( TRIGGER_MATCH + 5 );
         triggersMatch.insert( TRIGGER_MATCH );
-        const LaBP::WLDataSetEMM::EventT TRIGGER_NO_MATCH = 1;
-        set< LaBP::WLDataSetEMM::EventT > triggersNoMatch;
+        const WLEMMeasurement::EventT TRIGGER_NO_MATCH = 1;
+        set< WLEMMeasurement::EventT > triggersNoMatch;
         triggersNoMatch.insert( TRIGGER_NO_MATCH );
         const size_t EINDEX = SAMPLES / 2;
 
-        LaBP::WLDataSetEMM::SPtr emm( new LaBP::WLDataSetEMM() );
+        WLEMMeasurement::SPtr emm( new WLEMMeasurement() );
         emm->addModality( createEmd( 21, SAMPLES, 0 * SAMPLES ) );
         emm->addModality( createEmd( 42, SAMPLES, 1 * SAMPLES ) );
 
-        LaBP::WLDataSetEMM::EChannelT eChannel1( SAMPLES, TRIGGER_NO_MATCH );
+        WLEMMeasurement::EChannelT eChannel1( SAMPLES, TRIGGER_NO_MATCH );
         emm->addEventChannel( eChannel1 );
-        LaBP::WLDataSetEMM::EChannelT eChannel2( SAMPLES, 0 );
+        WLEMMeasurement::EChannelT eChannel2( SAMPLES, 0 );
         eChannel2[EINDEX] = TRIGGER_MATCH;
         emm->addEventChannel( eChannel2 );
 
@@ -134,58 +134,58 @@ public:
         const size_t SAMPLES = 500;
         const size_t PRESAMPLES = SAMPLES / 3;
         const size_t POSTSAMPLES = SAMPLES / 3;
-        const LaBP::WLDataSetEMM::EventT TRIGGER_MATCH = 4;
-        set< LaBP::WLDataSetEMM::EventT > triggersMatch;
+        const WLEMMeasurement::EventT TRIGGER_MATCH = 4;
+        set< WLEMMeasurement::EventT > triggersMatch;
         triggersMatch.insert( TRIGGER_MATCH + 42 );
         triggersMatch.insert( TRIGGER_MATCH );
         const size_t EINDEX = SAMPLES / 2;
 
-        LaBP::WLDataSetEMM::SPtr emm( new LaBP::WLDataSetEMM() );
+        WLEMMeasurement::SPtr emm( new WLEMMeasurement() );
         emm->addModality( createEmd( 21, SAMPLES, 0 * SAMPLES ) );
         emm->addModality( createEmd( 42, SAMPLES, 1 * SAMPLES ) );
-        LaBP::WLDataSetEMM::EChannelT eChannel1( SAMPLES, 1 );
+        WLEMMeasurement::EChannelT eChannel1( SAMPLES, 1 );
         emm->addEventChannel( eChannel1 );
-        LaBP::WLDataSetEMM::EChannelT eChannel2( SAMPLES, 0 );
+        WLEMMeasurement::EChannelT eChannel2( SAMPLES, 0 );
         eChannel2[EINDEX] = TRIGGER_MATCH;
         emm->addEventChannel( eChannel2 );
 
         WEpochSeparation::SPtr separation( new WEpochSeparation( 1, triggersMatch, PRESAMPLES, POSTSAMPLES ) );
         TS_ASSERT( separation->extract( emm ) );
         // should match
-        LaBP::WLDataSetEMM::SPtr emmEpoch = separation->getNextEpoch();
+        WLEMMeasurement::SPtr emmEpoch = separation->getNextEpoch();
 
         // check sizes
         TS_ASSERT_EQUALS( emmEpoch->getModalityCount(), emm->getModalityCount() );
         // check modality count
         for( size_t mod = 0; mod < emm->getModalityCount(); ++mod )
         {
-            TS_ASSERT_EQUALS( emmEpoch->getModality( mod )->getData().size(), emm->getModality( mod )->getData().size() );
+            TS_ASSERT_EQUALS( emmEpoch->getModality( mod )->getNrChans(), emm->getModality( mod )->getNrChans() );
             // check channel size
-            TS_ASSERT_EQUALS( emmEpoch->getModality( mod )->getData().front().size(),
+            TS_ASSERT_EQUALS( emmEpoch->getModality( mod )->getSamplesPerChan(),
                             separation->getPreSamples() + separation->getPostSamples() + 1 );
             // check samples size: post + pre + 1
         }
 
         // check data
-        LaBP::WLEMD::SPtr emdEpoch;
+        WLEMData::SPtr emdEpoch;
         double startValue;
         for( size_t mod = 0; mod < emmEpoch->getModalityCount(); ++mod )
         {
             emdEpoch = emmEpoch->getModality( mod );
             startValue = mod * SAMPLES + ( EINDEX - PRESAMPLES );
-            for( size_t chan = 0; chan < emdEpoch->getData().size(); ++chan )
+            for( size_t chan = 0; chan < emdEpoch->getNrChans(); ++chan )
             {
                 for( size_t smp = 0; smp < ( PRESAMPLES + POSTSAMPLES + 1 ); ++smp )
                 {
-                    TS_ASSERT_EQUALS( emdEpoch->getData()[chan][smp], startValue + smp );
+                    TS_ASSERT_EQUALS( emdEpoch->getData()( chan, smp ), startValue + smp );
                 }
             }
         }
 
         // check event channels
         TS_ASSERT_EQUALS( emmEpoch->getEventChannelCount(), emm->getEventChannelCount() );
-        LaBP::WLDataSetEMM::EChannelT eChannel;
-        LaBP::WLDataSetEMM::EChannelT eChannelOrg;
+        WLEMMeasurement::EChannelT eChannel;
+        WLEMMeasurement::EChannelT eChannelOrg;
         size_t startIndex = EINDEX - PRESAMPLES;
         for( size_t eChan = 0; eChan < emmEpoch->getEventChannelCount(); ++eChan )
         {
@@ -208,25 +208,25 @@ public:
         const size_t SAMPLES = BLOCKSIZE * 20;
         const size_t PRESAMPLES = 3 * BLOCKSIZE;
         const size_t POSTSAMPLES = 2 * BLOCKSIZE;
-        const LaBP::WLDataSetEMM::EventT TRIGGER_MATCH = 4;
-        set< LaBP::WLDataSetEMM::EventT > triggersMatch;
+        const WLEMMeasurement::EventT TRIGGER_MATCH = 4;
+        set< WLEMMeasurement::EventT > triggersMatch;
         triggersMatch.insert( TRIGGER_MATCH + 21 );
         triggersMatch.insert( TRIGGER_MATCH );
         const size_t EINDEX = SAMPLES - ( POSTSAMPLES + 1.5 * BLOCKSIZE );
 
-        LaBP::WLDataSetEMM::SPtr emm( new LaBP::WLDataSetEMM() );
+        WLEMMeasurement::SPtr emm( new WLEMMeasurement() );
         emm->addModality( createEmd( 21, SAMPLES, 0 * SAMPLES ) );
         emm->addModality( createEmd( 42, SAMPLES, 1 * SAMPLES ) );
-        LaBP::WLDataSetEMM::EChannelT eChannel1( SAMPLES, 1 );
+        WLEMMeasurement::EChannelT eChannel1( SAMPLES, 1 );
         emm->addEventChannel( eChannel1 );
-        LaBP::WLDataSetEMM::EChannelT eChannel2( SAMPLES, 0 );
+        WLEMMeasurement::EChannelT eChannel2( SAMPLES, 0 );
         eChannel2[EINDEX] = TRIGGER_MATCH;
         emm->addEventChannel( eChannel2 );
 
         WEpochSeparation::SPtr separation( new WEpochSeparation( 1, triggersMatch, PRESAMPLES, POSTSAMPLES ) );
 
-        LaBP::WLDataSetEMM::SPtr emmEpoch;
-        LaBP::WLDataSetEMM::SPtr emmPacket;
+        WLEMMeasurement::SPtr emmEpoch;
+        WLEMMeasurement::SPtr emmPacket;
         for( size_t smp = 0; smp < SAMPLES; smp += BLOCKSIZE )
         {
             emmPacket = splitToPacket( emm, smp, BLOCKSIZE );
@@ -242,33 +242,33 @@ public:
         // check modality count
         for( size_t mod = 0; mod < emm->getModalityCount(); ++mod )
         {
-            TS_ASSERT_EQUALS( emmEpoch->getModality( mod )->getData().size(), emm->getModality( mod )->getData().size() );
+            TS_ASSERT_EQUALS( emmEpoch->getModality( mod )->getNrChans(), emm->getModality( mod )->getNrChans() );
             // check channel size
-            TS_ASSERT_EQUALS( emmEpoch->getModality( mod )->getData().front().size(),
+            TS_ASSERT_EQUALS( emmEpoch->getModality( mod )->getSamplesPerChan(),
                             separation->getPreSamples() + separation->getPostSamples() + 1 );
             // check samples size: post + pre + 1
         }
 
         // check data
-        LaBP::WLEMD::SPtr emd;
+        WLEMData::SPtr emd;
         double startValue;
         for( size_t mod = 0; mod < emmEpoch->getModalityCount(); ++mod )
         {
             emd = emmEpoch->getModality( mod );
             startValue = mod * SAMPLES + ( EINDEX - PRESAMPLES );
-            for( size_t chan = 0; chan < emd->getData().size(); ++chan )
+            for( size_t chan = 0; chan < emd->getNrChans(); ++chan )
             {
                 for( size_t smp = 0; smp < ( PRESAMPLES + POSTSAMPLES + 1 ); ++smp )
                 {
-                    TS_ASSERT_EQUALS( emd->getData()[chan][smp], startValue + smp );
+                    TS_ASSERT_EQUALS( emd->getData()( chan, smp ), startValue + smp );
                 }
             }
         }
 
         // check event channels
         TS_ASSERT_EQUALS( emmEpoch->getEventChannelCount(), emm->getEventChannelCount() );
-        LaBP::WLDataSetEMM::EChannelT eChannel;
-        LaBP::WLDataSetEMM::EChannelT eChannelOrg;
+        WLEMMeasurement::EChannelT eChannel;
+        WLEMMeasurement::EChannelT eChannelOrg;
         size_t startIndex = EINDEX - PRESAMPLES;
         for( size_t eChan = 0; eChan < emmEpoch->getEventChannelCount(); ++eChan )
         {
@@ -293,18 +293,18 @@ public:
         const size_t PRESAMPLES = BLOCKSIZE / 2;
         const size_t POSTSAMPLES = BLOCKSIZE;
         const size_t EPOCHLENGTH = PRESAMPLES + POSTSAMPLES + 1;
-        const LaBP::WLDataSetEMM::EventT TRIGGER_MATCH1 = 1;
-        const LaBP::WLDataSetEMM::EventT TRIGGER_MATCH2 = 8;
-        const LaBP::WLDataSetEMM::EventT TRIGGER_MATCH3 = 20;
-        set< LaBP::WLDataSetEMM::EventT > triggersMatch;
+        const WLEMMeasurement::EventT TRIGGER_MATCH1 = 1;
+        const WLEMMeasurement::EventT TRIGGER_MATCH2 = 8;
+        const WLEMMeasurement::EventT TRIGGER_MATCH3 = 20;
+        set< WLEMMeasurement::EventT > triggersMatch;
         triggersMatch.insert( TRIGGER_MATCH1 );
         triggersMatch.insert( TRIGGER_MATCH2 );
         triggersMatch.insert( TRIGGER_MATCH3 );
 
         // Create test data
         std::list< size_t > eIndices;
-        LaBP::WLDataSetEMM::EChannelT eChannel1( SAMPLES, 0 );
-        LaBP::WLDataSetEMM::EventT trigger = TRIGGER_MATCH1;
+        WLEMMeasurement::EChannelT eChannel1( SAMPLES, 0 );
+        WLEMMeasurement::EventT trigger = TRIGGER_MATCH1;
         for( size_t pos = PRESAMPLES + 10; ( pos + POSTSAMPLES ) < SAMPLES; pos += PRESAMPLES )
         {
             eIndices.push_back( pos );
@@ -328,7 +328,7 @@ public:
                     }
         }
 
-        LaBP::WLDataSetEMM::SPtr emm( new LaBP::WLDataSetEMM() );
+        WLEMMeasurement::SPtr emm( new WLEMMeasurement() );
         emm->addEventChannel( eChannel1 );
         emm->addModality( createEmd( CHANNELS, SAMPLES, 0 * SAMPLES ) );
         emm->addModality( createEmd( CHANNELS, SAMPLES, 1 * SAMPLES ) );
@@ -336,8 +336,8 @@ public:
         // Call trigger  routines
         WEpochSeparation::SPtr separation( new WEpochSeparation( 0, triggersMatch, PRESAMPLES, POSTSAMPLES ) );
 
-        LaBP::WLDataSetEMM::SPtr emmPacket;
-        std::list< LaBP::WLDataSetEMM::ConstSPtr > epochs;
+        WLEMMeasurement::SPtr emmPacket;
+        std::list< WLEMMeasurement::ConstSPtr > epochs;
         for( size_t smp = 0; smp < SAMPLES; smp += BLOCKSIZE )
         {
             emmPacket = splitToPacket( emm, smp, BLOCKSIZE );
@@ -354,12 +354,12 @@ public:
         TS_ASSERT_EQUALS( eIndices.size(), epochs.size() );
 
         // Check data of epochs
-        std::list< LaBP::WLDataSetEMM::ConstSPtr >::const_iterator epIt = epochs.begin();
+        std::list< WLEMMeasurement::ConstSPtr >::const_iterator epIt = epochs.begin();
         std::list< size_t >::const_iterator evIt = eIndices.begin();
 
-        LaBP::WLEMD::ConstSPtr emd;
-        LaBP::WLDataSetEMM::ConstSPtr emmEpoch;
-        LaBP::WLEMD::ConstSPtr emdEpoch;
+        WLEMData::ConstSPtr emd;
+        WLEMMeasurement::ConstSPtr emmEpoch;
+        WLEMData::ConstSPtr emdEpoch;
 
         size_t event;
 
@@ -373,16 +373,16 @@ public:
             {
                 emd = emm->getModality( mod );
                 emdEpoch = emmEpoch->getModality( mod );
-                LaBP::WLEMD::DataT& data = emd->getData();
+                const WLEMData::DataT& data = emd->getData();
 
                 // Compare data
-                LaBP::WLEMD::DataT& resData = emdEpoch->getData();
+                const WLEMData::DataT& resData = emdEpoch->getData();
                 for( size_t chan = 0; chan < emdEpoch->getNrChans(); ++chan )
                 {
-                    TS_ASSERT_EQUALS( resData[chan].size(), EPOCHLENGTH );
-                    for( size_t smp = 0; smp < resData[chan].size(); ++smp )
+                    TS_ASSERT_EQUALS( resData.cols(), EPOCHLENGTH );
+                    for( size_t smp = 0; smp < resData.cols(); ++smp )
                     {
-                        TS_ASSERT_EQUALS( resData[chan][smp], data[chan][event - PRESAMPLES + smp] );
+                        TS_ASSERT_EQUALS( resData( chan, smp ), data( chan, event - PRESAMPLES + smp ) );
                     }
                 }
             }
@@ -391,7 +391,7 @@ public:
             TS_ASSERT_EQUALS( emmEpoch->getEventChannelCount(), emm->getEventChannelCount() );
             for( size_t chan = 0; chan < emmEpoch->getEventChannelCount(); ++chan )
             {
-                LaBP::WLDataSetEMM::EChannelT& evEpoch = emmEpoch->getEventChannel( chan );
+                WLEMMeasurement::EChannelT& evEpoch = emmEpoch->getEventChannel( chan );
                 TS_ASSERT_EQUALS( evEpoch.size(), EPOCHLENGTH );
                 for( size_t smp = 0; smp < evEpoch.size(); ++smp )
                 {
@@ -404,54 +404,47 @@ public:
 protected:
 
 private:
-    LaBP::WLEMD::SPtr createEmd( size_t channels, size_t samples, int startValue = 0 )
+    WLEMData::SPtr createEmd( size_t channels, size_t samples, int startValue = 0 )
     {
-        LaBP::WLEMD::SPtr emd( new LaBP::WLEMDEEG() );
-        boost::shared_ptr< LaBP::WLEMD::DataT > data( new LaBP::WLEMD::DataT() );
+        WLEMData::SPtr emd( new WLEMDEEG() );
+        WLEMData::DataSPtr data( new WLEMData::DataT( channels, samples ) );
 
         for( size_t chan = 0; chan < channels; ++chan )
         {
-            LaBP::WLEMD::ChannelT channel;
             for( size_t smp = 0; smp < samples; ++smp )
             {
-                channel.push_back( startValue + smp );
+                ( *data )( chan, smp ) = startValue + smp;
             }
-            data->push_back( channel );
         }
         emd->setData( data );
 
         return emd;
     }
 
-    LaBP::WLDataSetEMM::SPtr splitToPacket( LaBP::WLDataSetEMM::ConstSPtr emmIn, size_t start, size_t blockSize )
+    WLEMMeasurement::SPtr splitToPacket( WLEMMeasurement::ConstSPtr emmIn, size_t start, size_t blockSize )
     {
-        LaBP::WLDataSetEMM::SPtr emmOut( new LaBP::WLDataSetEMM( *emmIn ) );
-        LaBP::WLEMD::ConstSPtr emdIn;
-        LaBP::WLEMD::SPtr emdOut;
+        WLEMMeasurement::SPtr emmOut( new WLEMMeasurement( *emmIn ) );
+        WLEMData::ConstSPtr emdIn;
+        WLEMData::SPtr emdOut;
 
         // copy modality
         for( size_t mod = 0; mod < emmIn->getModalityCount(); ++mod )
         {
             emdIn = emmIn->getModality( mod );
             emdOut = emdIn->clone();
-            boost::shared_ptr< LaBP::WLEMD::DataT > data( new LaBP::WLEMD::DataT() );
-            for( size_t chan = 0; chan < emdIn->getData().size(); ++chan )
-            {
-                LaBP::WLEMD::ChannelT channel( emdIn->getData()[chan].begin() + start,
-                                start + blockSize <= emdIn->getData()[chan].size() ? emdIn->getData()[chan].begin() + start
-                                                + blockSize :
-                                                emdIn->getData()[chan].end() );
-                data->push_back( channel );
-            }
+            blockSize = start + blockSize <= emdIn->getSamplesPerChan() ? blockSize : emdIn->getSamplesPerChan();
+            WLEMData::DataSPtr data( new WLEMData::DataT( emdIn->getNrChans(), blockSize ) );
+            const WLEMData::DataT& dataIn = emdIn->getData();
+            ( *data ) = dataIn.block( 0, start, emdIn->getNrChans(), blockSize );
             emdOut->setData( data );
             emmOut->addModality( emdOut );
         }
 
         // copy event
-        boost::shared_ptr< LaBP::WLDataSetEMM::EDataT > data( new LaBP::WLDataSetEMM::EDataT() );
+        boost::shared_ptr< WLEMMeasurement::EDataT > data( new WLEMMeasurement::EDataT() );
         for( size_t chan = 0; chan < emmIn->getEventChannelCount(); ++chan )
         {
-            LaBP::WLDataSetEMM::EChannelT channel( emmIn->getEventChannel( chan ).begin() + start,
+            WLEMMeasurement::EChannelT channel( emmIn->getEventChannel( chan ).begin() + start,
                             start + blockSize <= emmIn->getEventChannel( chan ).size() ? emmIn->getEventChannel( chan ).begin()
                                             + start + blockSize :
                                             emmIn->getEventChannel( chan ).end() );

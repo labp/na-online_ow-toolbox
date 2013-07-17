@@ -28,8 +28,9 @@
 #include <vector>
 
 #include "core/common/WLogger.h"
-#include "core/data/WLDataSetEMM.h"
-#include "core/data/emd/WLEMD.h"
+#include "core/data/WLEMMeasurement.h"
+#include "core/data/emd/WLEMData.h"
+#include "core/util/profiler/WLTimeProfiler.h"
 
 #include "WEpochAveraging.h"
 
@@ -70,51 +71,44 @@ void WEpochAveraging::setTBase( size_t tbase, bool reset )
     m_tbase = tbase;
 }
 
-LaBP::WLDataSetEMM::SPtr WEpochAveraging::baseline( LaBP::WLDataSetEMM::ConstSPtr emm )
+WLEMMeasurement::SPtr WEpochAveraging::baseline( WLEMMeasurement::ConstSPtr emm )
 {
-    LaBP::WLEMD::ConstSPtr emd;
+    WLTimeProfiler tp( CLASS, "baseline" );
+    WLEMData::ConstSPtr emd;
 
-    LaBP::WLDataSetEMM::SPtr emmOut = emm->clone();
-    LaBP::WLEMD::SPtr emdOut;
+    WLEMMeasurement::SPtr emmOut = emm->clone();
+    WLEMData::SPtr emdOut;
 
     for( size_t mod = 0; mod < emm->getModalityCount(); ++mod )
     {
-        std::vector< double > means;
-
         emd = emm->getModality( mod );
-        LaBP::WLEMD::DataT& data = emd->getData();
-
+        WLEMData::DataT& data = emd->getData();
         emdOut = emd->clone();
-        LaBP::WLEMD::DataT& dataOut = emdOut->getData();
-        dataOut.assign( data.begin(), data.end() );
+        WLEMData::DataT& dataOut = emdOut->getData();
+        dataOut = data;
 
         const size_t channels = emd->getNrChans();
         const size_t tbase = std::min( m_tbase, emd->getSamplesPerChan() );
+
+        WLEMData::SampleT means( channels );
         for( size_t chan = 0; chan < channels; ++chan )
         {
-            double mean = 0;
+            WLEMData::ScalarT mean = 0;
             for( size_t smp = 0; smp < tbase; ++smp )
             {
-                mean += data[chan][smp];
+                mean += data( chan, smp );
             }
             mean = tbase > 0 ? ( mean / tbase ) : 0;
-            means.push_back( mean );
+            means( chan ) = mean;
         }
 
-        const size_t smpPerChan = emdOut->getSamplesPerChan();
-        for( size_t chan = 0; chan < channels; ++chan )
-        {
-            double mean = means[chan];
-            for( size_t smp = 0; smp < smpPerChan; ++smp )
-            {
-                dataOut[chan][smp] -= mean;
-            }
-        }
+        dataOut.colwise() -= means;
+
         emmOut->addModality( emdOut );
     }
 
-    boost::shared_ptr< LaBP::WLDataSetEMM::EDataT > events = emm->getEventChannels();
-    boost::shared_ptr< LaBP::WLDataSetEMM::EDataT > eventsOut = emmOut->getEventChannels();
+    boost::shared_ptr< WLEMMeasurement::EDataT > events = emm->getEventChannels();
+    boost::shared_ptr< WLEMMeasurement::EDataT > eventsOut = emmOut->getEventChannels();
     eventsOut->assign( events->begin(), events->end() );
 
     return emmOut;

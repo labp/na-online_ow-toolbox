@@ -1,11 +1,32 @@
-/*
- * WLEMDDrawable2DMultiStatic.cpp
- *
- *  Created on: 16.04.2013
- *      Author: pieloth
- */
+//---------------------------------------------------------------------------
+//
+// Project: OpenWalnut ( http://www.openwalnut.org )
+//
+// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+// For more information see http://www.openwalnut.org/copying
+//
+// This file is part of OpenWalnut.
+//
+// OpenWalnut is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// OpenWalnut is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+//
+//---------------------------------------------------------------------------
 
 #include <string>
+#include <utility>  // for pair<>
+#include <osg/MatrixTransform>
+
+#include <core/common/WLogger.h>
 
 #include "WLEMDDrawable2DMultiStatic.h"
 
@@ -22,9 +43,8 @@ namespace LaBP
     {
     }
 
-    void WLEMDDrawable2DMultiStatic::draw( LaBP::WLDataSetEMM::SPtr emm )
+    void WLEMDDrawable2DMultiStatic::draw( WLEMMeasurement::SPtr emm )
     {
-
         m_emm = emm;
         m_dataChanged = true;
         redraw();
@@ -35,12 +55,12 @@ namespace LaBP
         return m_emm.get() && m_emm->hasModality( m_modality );
     }
 
-    std::pair< LaBP::WLDataSetEMM::SPtr, size_t > WLEMDDrawable2DMultiStatic::getSelectedData( ValueT pixel ) const
+    std::pair< WLEMMeasurement::SPtr, size_t > WLEMDDrawable2DMultiStatic::getSelectedData( ValueT pixel ) const
     {
         size_t sample = 0;
         const ValueT x_offset = m_xOffset;
 
-        LaBP::WLDataSetEMM::SPtr emm = m_emm;
+        WLEMMeasurement::SPtr emm = m_emm;
 
         if( pixel > x_offset )
         {
@@ -63,15 +83,15 @@ namespace LaBP
             return;
         }
 
-        LaBP::WLDataSetEMM::ConstSPtr emm = m_emm;
-        LaBP::WLEMD::ConstSPtr emd = emm->getModality( m_modality );
+        WLEMMeasurement::ConstSPtr emm = m_emm;
+        WLEMData::ConstSPtr emd = emm->getModality( m_modality );
         osgAddLabels( emd.get() );
         osgAddChannels( emd.get() );
 
         WLEMDDrawable2DMultiChannel::osgNodeCallback( nv );
     }
 
-    void WLEMDDrawable2DMultiStatic::osgAddChannels( const LaBP::WLEMD* emd )
+    void WLEMDDrawable2DMultiStatic::osgAddChannels( const WLEMData* emd )
     {
         m_rootGroup->removeChild( m_channelGroup );
         m_channelGroup = new osg::Group;
@@ -87,14 +107,14 @@ namespace LaBP
         // TODO(pieloth): dynamic shift scale ... width / m_timeRange
         // TODO(pieloth): dynamic shift scale ... x_pos * width / m_timeRange,
         panTransform->setMatrix( osg::Matrix::translate( x_pos, y_pos, 0.0 ) );
-        const WLEMD::DataT& emdData = emd->getData();
+        const WLEMData::DataT& emdData = emd->getData();
         const size_t channels_emd = emd->getNrChans();
         const size_t channels_count = maxChannels( emd );
         osg::ref_ptr< osg::Geode > channelGeode;
         for( size_t channel = getChannelBegin( emd ), channelPos = 0; channelPos < channels_count && channel < channels_emd;
                         ++channel, ++channelPos )
         {
-            channelGeode = drawChannel( emdData[channel] );
+            channelGeode = drawChannel( emdData.row( channel ) );
             osg::ref_ptr< osg::MatrixTransform > scaleSpacingTransform = new osg::MatrixTransform;
             scaleSpacingTransform->setMatrix(
                             osg::Matrix::scale( x_scale, y_scale, 1.0 )
@@ -103,7 +123,6 @@ namespace LaBP
             scaleSpacingTransform->addChild( channelGeode );
 
             panTransform->addChild( scaleSpacingTransform );
-
         }
 
         m_channelGroup->addChild( panTransform );

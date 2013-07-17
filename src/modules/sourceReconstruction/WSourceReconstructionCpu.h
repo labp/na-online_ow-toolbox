@@ -29,10 +29,8 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "core/data/emd/WLEMD.h"
+#include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDSource.h"
-
-#include "core/util/WLTimeProfiler.h"
 
 #include "WSourceReconstruction.h"
 
@@ -54,9 +52,7 @@ public:
     WSourceReconstructionCpu();
     virtual ~WSourceReconstructionCpu();
 
-    // Move up to base class virtual bool calculateInverseSolution( const MatrixT& noiseCov, const MatrixT& dataCov );
-
-    virtual LaBP::WLEMDSource::SPtr reconstruct( LaBP::WLEMD::ConstSPtr emd, LaBP::WLTimeProfiler::SPtr profiler );
+    virtual WLEMDSource::SPtr reconstruct( WLEMData::ConstSPtr emd );
 };
 
 #endif  // WSOURCERECONSTRUCTIONCPU_H_

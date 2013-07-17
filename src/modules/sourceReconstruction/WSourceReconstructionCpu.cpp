@@ -29,10 +29,11 @@
 #include <core/common/WLogger.h>
 
 #include "core/data/WLMatrixTypes.h"
-#include "core/data/emd/WLEMD.h"
+#include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDSource.h"
 
-#include "core/util/WLTimeProfiler.h"
+#include "core/util/profiler/WLProfilerLogger.h"
+#include "core/util/profiler/WLTimeProfiler.h"
 
 #include "WSourceReconstructionCpu.h"
 
@@ -46,55 +47,26 @@ WSourceReconstructionCpu::~WSourceReconstructionCpu()
 {
 }
 
-LaBP::WLEMDSource::SPtr WSourceReconstructionCpu::reconstruct( LaBP::WLEMD::ConstSPtr emd,
-                LaBP::WLTimeProfiler::SPtr profiler )
+WLEMDSource::SPtr WSourceReconstructionCpu::reconstruct( WLEMData::ConstSPtr emd )
 {
     if( !m_inverse )
     {
         // TODO(pieloth): return code
         wlog::error( CLASS ) << "No inverse matrix set!";
     }
-    LaBP::WLTimeProfiler::SPtr allProfiler( new LaBP::WLTimeProfiler( CLASS, "reconstruct_all" ) );
-    allProfiler->start();
+   WLTimeProfiler tp(CLASS, "reconstruct");
 
-    LaBP::WLTimeProfiler::SPtr avgProfiler( new LaBP::WLTimeProfiler( CLASS, "reconstruct_avgRef" ) );
-    avgProfiler->start();
-    LaBP::WLEMD::DataT emdData;
+    WLEMData::DataT emdData;
     WSourceReconstruction::averageReference( emdData, emd->getData() );
-    avgProfiler->stopAndLog();
 
-    LaBP::WLTimeProfiler::SPtr toMatProfiler( new LaBP::WLTimeProfiler( CLASS, "reconstruct_toMat" ) );
-    toMatProfiler->start();
-    size_t rows = emdData.size();
-    size_t cols = emdData.front().size();
-    LaBP::MatrixT data( rows, cols );
-    for( size_t r = 0; r < rows; ++r )
-    {
-        for( size_t c = 0; c < cols; ++c )
-        {
-            data( r, c ) = emdData[r][c];
-        }
-    }
-    toMatProfiler->stopAndLog();
+    WLTimeProfiler prfMatMul( CLASS, "reconstruct_matMul", false );
+    prfMatMul.start();
+    WLEMData::DataSPtr S( new WLEMData::DataT( *m_inverse * emdData ) );
+    prfMatMul.stop();
+    wlprofiler::log() << prfMatMul;
 
-    LaBP::WLTimeProfiler::SPtr matMulProfiler( new LaBP::WLTimeProfiler( CLASS, "reconstruct_matMul" ) );
-    matMulProfiler->start();
-    // LaBP::MatrixT S = *m_inverse * data;
-    boost::shared_ptr< LaBP::MatrixT > S( new LaBP::MatrixT( *m_inverse * data ) );
-    matMulProfiler->stopAndLog();
-
-    // const LaBP::WDataSetEMMSource::SPtr emdOut = WSourceReconstruction::createEMDSource( emd, S );
-    const LaBP::WLEMDSource::SPtr emdOut( new LaBP::WLEMDSource( *emd ) );
-    emdOut->setMatrix( S );
-
-    if( profiler )
-    {
-        allProfiler->stopAndLog();
-        profiler->addChild( allProfiler );
-        profiler->addChild( avgProfiler );
-        profiler->addChild( toMatProfiler );
-        profiler->addChild( matMulProfiler );
-    }
+    const WLEMDSource::SPtr emdOut( new WLEMDSource( *emd ) );
+    emdOut->setData( S );
 
     return emdOut;
 }

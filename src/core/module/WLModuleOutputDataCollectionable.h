@@ -37,7 +37,6 @@
 
 #include "WLModuleInputDataCollection.h"
 
-
 namespace LaBP
 {
     /**
@@ -49,6 +48,16 @@ namespace LaBP
     class WLModuleOutputDataCollectionable: public WModuleOutputData< T >
     {
     public:
+        /**
+         * Pointer to this. For convenience.
+         */
+        typedef boost::shared_ptr< WLModuleOutputDataCollectionable< T > > SPtr;
+
+        /**
+         * Pointer to this. For convenience.
+         */
+        typedef boost::shared_ptr< const WLModuleOutputDataCollectionable< T > > ConstSPtr;
+
         /**
          * Constructor.
          *

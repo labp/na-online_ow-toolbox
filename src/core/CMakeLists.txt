@@ -52,5 +52,12 @@ ADD_LIBRARY( ${LibName} SHARED ${TARGET_CPP_FILES} ${TARGET_H_FILES} )
 TARGET_LINK_LIBRARIES( ${LibName} ${ADDITIONAL_LIBS} )
 
 # Do not forget the install targets
-SETUP_LIB_INSTALL( ${LibName} ${OW_LIBRARY_DIR_RELATIVE}/.. ${LABP_CORE} )  
+SETUP_LIB_INSTALL( ${LibName} ${OW_LIBRARY_DIR_RELATIVE}/.. ${LABP_CORE} )
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+# Test Setup
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Setup tests of this target
+SETUP_TESTS( "${TARGET_TEST_FILES}" "${LibName}" "" )
 

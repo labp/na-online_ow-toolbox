@@ -27,7 +27,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "core/data/WLDataSetEMM.h"
+#include "core/data/WLEMMeasurement.h"
 
 class WEpochRejection
 {
@@ -53,7 +53,7 @@ public:
      *
      * \return A boolean value, which specifies, whether or not the input object has to reject.
      */
-    bool getRejection(const LaBP::WLDataSetEMM::SPtr emm);
+    bool getRejection(const WLEMMeasurement::SPtr emm);
 
     /**
      * Defines the number of rejections for the current input.

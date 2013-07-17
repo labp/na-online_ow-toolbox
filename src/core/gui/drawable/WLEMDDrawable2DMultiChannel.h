@@ -26,6 +26,7 @@
 #define WLEMDDRAWABLE2DMULTICHANNEL_H_
 
 #include <string>
+#include <utility>  // for pair<>
 
 #include <boost/shared_ptr.hpp>
 
@@ -34,7 +35,7 @@
 
 #include <core/gui/WCustomWidget.h>
 
-#include "core/data/emd/WLEMD.h"
+#include "core/data/emd/WLEMData.h"
 
 #include "WLEMDDrawable2D.h"
 
@@ -53,19 +54,19 @@ namespace LaBP
          */
         typedef boost::shared_ptr< const WLEMDDrawable2DMultiChannel > ConstSPtr;
 
-        static std::string CLASS;
+        static const std::string CLASS;
 
         explicit WLEMDDrawable2DMultiChannel( WCustomWidget::SPtr widget );
         virtual ~WLEMDDrawable2DMultiChannel();
 
-        virtual void draw( LaBP::WLDataSetEMM::SPtr emm ) = 0;
+        virtual void draw( WLEMMeasurement::SPtr emm ) = 0;
 
         virtual bool hasData() const = 0;
 
         virtual ValueT getChannelHeight() const;
         virtual void setChannelHeight( ValueT spacing );
 
-        virtual std::pair< LaBP::WLDataSetEMM::SPtr, size_t > getSelectedData( ValueT pixel ) const = 0;
+        virtual std::pair< WLEMMeasurement::SPtr, size_t > getSelectedData( ValueT pixel ) const = 0;
 
         virtual size_t getChannelBegin() const;
         virtual size_t setChannelBegin( size_t channelNr );
@@ -75,10 +76,10 @@ namespace LaBP
 
         virtual void osgNodeCallback( osg::NodeVisitor* nv );
 
-        void virtual osgAddLabels( const LaBP::WLEMD* emd );
+        void virtual osgAddLabels( const WLEMData* emd );
 
-        virtual size_t maxChannels( const LaBP::WLEMD* emd ) const;
-        virtual size_t getChannelBegin( const LaBP::WLEMD* emd );
+        virtual size_t maxChannels( const WLEMData* emd ) const;
+        virtual size_t getChannelBegin( const WLEMData* emd );
 
         const ValueT m_labelWidth;
 

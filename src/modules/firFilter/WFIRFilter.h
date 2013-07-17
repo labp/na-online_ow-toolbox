@@ -32,10 +32,8 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "core/data/WLDataSetEMM.h"
-#include "core/data/emd/WLEMD.h"
-
-#include "core/util/WLTimeProfiler.h"
+#include "core/data/WLEMMeasurement.h"
+#include "core/data/emd/WLEMData.h"
 
 class WFIRFilter
 {
@@ -50,6 +48,8 @@ public:
      * Abbreviation for const shared pointer.
      */
     typedef boost::shared_ptr< const WFIRFilter > ConstSPtr;
+
+    typedef WLEMData::ScalarT ScalarT;
 
     static const std::string CLASS;
 
@@ -77,58 +77,60 @@ public:
         static std::string name( Enum value );
     };
 
-    WFIRFilter( WEFilterType::Enum filtertype, WEWindowsType::Enum windowtype, int order, double sFreq, double cFreq1,
-                    double cFreq2 );
+    WFIRFilter( WEFilterType::Enum filtertype, WEWindowsType::Enum windowtype, int order, ScalarT sFreq, ScalarT cFreq1,
+                    ScalarT cFreq2 );
+
     explicit WFIRFilter( const char *pathToFcf );
 
     virtual ~WFIRFilter();
 
-    LaBP::WLEMD::SPtr filter( const LaBP::WLEMD::ConstSPtr emdIn, LaBP::WLTimeProfiler::SPtr profiler );
+    WLEMData::SPtr filter( const WLEMData::ConstSPtr emdIn );
 
-    void doPostProcessing( LaBP::WLDataSetEMM::SPtr emmOut, LaBP::WLDataSetEMM::ConstSPtr emmIn,
-                    LaBP::WLTimeProfiler::SPtr profiler );
+    void doPostProcessing( WLEMMeasurement::SPtr emmOut, WLEMMeasurement::ConstSPtr emmIn );
 
     void setFilterType( WEFilterType::Enum value, bool redesign = false );
     void setWindowsType( WEWindowsType::Enum value, bool redesign = false );
     void setOrder( size_t value, bool redesign = false );
-    void setSamplingFrequency( double value, bool redesign = false );
-    void setCutOffFrequency1( double value, bool redesign = false );
-    void setCutOffFrequency2( double value, bool redesign = false );
-    void setCoefficients( std::vector< double > values, bool redesign = false );
+    void setSamplingFrequency( ScalarT value, bool redesign = false );
+    void setCutOffFrequency1( ScalarT value, bool redesign = false );
+    void setCutOffFrequency2( ScalarT value, bool redesign = false );
+    void setCoefficients( std::vector< ScalarT > values, bool redesign = false );
     bool setCoefficients( const char *pathToFcf, bool redesign = false );
 
-    std::vector< double > getCoefficients();
+    std::vector< ScalarT > getCoefficients();
 
     void design();
-    void design( WEFilterType::Enum filtertype, WEWindowsType::Enum windowtype, size_t order, double sFreq, double cFreq1,
-                    double cFreq2 );
+    void design( WEFilterType::Enum filtertype, WEWindowsType::Enum windowtype, size_t order, ScalarT sFreq, ScalarT cFreq1,
+                    ScalarT cFreq2 );
+
+    void reset();
 
 protected:
-    virtual void filter( LaBP::WLEMD::DataT& out, const LaBP::WLEMD::DataT& in,
-                    const LaBP::WLEMD::DataT& prev, LaBP::WLTimeProfiler::SPtr profiler ) = 0;
+    virtual void filter( WLEMData::DataT& out, const WLEMData::DataT& in, const WLEMData::DataT& prev ) = 0;
 
-    std::vector< double > m_coeffitients;
+    std::vector< ScalarT > m_coeffitients;
     WEWindowsType::Enum m_window;
     WEFilterType::Enum m_type;
-    double m_sFreq;
-    double m_cFreq1;
-    double m_cFreq2;
+    ScalarT m_sFreq;
+    ScalarT m_cFreq1;
+    ScalarT m_cFreq2;
     size_t m_order;
-    std::vector< double > m_allPass;
+    std::vector< ScalarT > m_allPass;
 
-    const LaBP::WLEMD::DataT& getPreviousData( LaBP::WLEMD::ConstSPtr emd );
-    void storePreviousData( LaBP::WLEMD::ConstSPtr emd );
+    const WLEMData::DataT& getPreviousData( WLEMData::ConstSPtr emd );
+    void storePreviousData( WLEMData::ConstSPtr emd );
 
 private:
-    void designLowpass( std::vector< double >* pCoeff, size_t order, double cFreq1, double sFreq, WEWindowsType::Enum windowtype );
+    void designLowpass( std::vector< ScalarT >* pCoeff, size_t order, ScalarT cFreq1, ScalarT sFreq,
+                    WEWindowsType::Enum windowtype );
     void designHighpass( void );
     void designBandpass( void );
     void designBandstop( void );
 
-    void normalizeCoeff( std::vector< double >* pCoeff );
+    void normalizeCoeff( std::vector< ScalarT >* pCoeff );
 
-    std::map< LaBP::WEModalityType::Enum, LaBP::WLEMD::DataT > m_prevData;
-    LaBP::WLDataSetEMM::EDataT m_prevEvents;
+    std::map< LaBP::WEModalityType::Enum, WLEMData::DataT > m_prevData;
+    WLEMMeasurement::EDataT m_prevEvents;
 };
 
 #endif  // WFIRFILTER_H

@@ -32,52 +32,49 @@
 
 #include "core/data/WLEMMEnumTypes.h"
 
-#include "WLEMD.h"
+#include "WLEMData.h"
 
-namespace LaBP
+class WLEMDPCA: public WLEMData
 {
-    class WLEMDPCA: public LaBP::WLEMD
-    {
-    public:
-        /**
-         * Abbreviation for a shared pointer.
-         */
-        typedef boost::shared_ptr< WLEMDPCA > SPtr;
+public:
+    /**
+     * Abbreviation for a shared pointer.
+     */
+    typedef boost::shared_ptr< WLEMDPCA > SPtr;
 
-        /**
-         * Abbreviation for const shared pointer.
-         */
-        typedef boost::shared_ptr< const WLEMDPCA > ConstSPtr;
+    /**
+     * Abbreviation for const shared pointer.
+     */
+    typedef boost::shared_ptr< const WLEMDPCA > ConstSPtr;
 
-        typedef Eigen::MatrixXd MatrixT;
+    typedef Eigen::MatrixXd MatrixT;
 
-        typedef Eigen::VectorXd VectorT;
+    typedef Eigen::VectorXd VectorT;
 
-        WLEMDPCA();
+    WLEMDPCA();
 
-        explicit WLEMDPCA( const WLEMDPCA& pca );
+    explicit WLEMDPCA( const WLEMDPCA& pca );
 
-        explicit WLEMDPCA( const WLEMD& emd );
+    explicit WLEMDPCA( const WLEMData& emd );
 
-        virtual ~WLEMDPCA();
+    virtual ~WLEMDPCA();
 
-        virtual LaBP::WLEMD::SPtr clone() const;
+    virtual WLEMData::SPtr clone() const;
 
-        virtual LaBP::WEModalityType::Enum getModalityType() const;
+    virtual LaBP::WEModalityType::Enum getModalityType() const;
 
-        void setTransformationMatrix( boost::shared_ptr< MatrixT > );
-        MatrixT& getTransformationMatrix();
-        void setChannelMeans( boost::shared_ptr< VectorT > );
-        VectorT& getChannelMeans();
-        void setPreprocessedData( WLEMD::SPtr new_preprocessed_data );
-        WLEMD::SPtr getPreprocessedData();
+    void setTransformationMatrix( boost::shared_ptr< MatrixT > );
+    MatrixT& getTransformationMatrix();
+    void setChannelMeans( boost::shared_ptr< VectorT > );
+    VectorT& getChannelMeans();
+    void setPreprocessedData( WLEMData::SPtr new_preprocessed_data );
+    WLEMData::SPtr getPreprocessedData();
 
-    private:
-        boost::shared_ptr< MatrixT > m_transformation_matrix;
+private:
+    boost::shared_ptr< MatrixT > m_transformation_matrix;
 
-        boost::shared_ptr< VectorT > m_channel_means;
+    boost::shared_ptr< VectorT > m_channel_means;
 
-        WLEMD::SPtr m_preprocessed_data;
-    };
-}
+    WLEMData::SPtr m_preprocessed_data;
+};
 #endif  // WLEMDPCA_H

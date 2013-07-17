@@ -29,11 +29,12 @@
 
 #include <core/kernel/WModule.h>
 
-#include "core/data/WLDataSetEMM.h"
+#include "core/data/WLEMMCommand.h"
+#include "core/data/WLEMMeasurement.h"
 #include "core/module/WLModuleDrawable.h"
 // TODO(pieloth): use OW classes
+#include "core/module/WLEMMCommandProcessor.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
-#include "core/module/WLModuleOutputDataCollectionable.h"
 
 #include "WFIRFilter.h"
 
@@ -69,7 +70,7 @@ public:
     virtual const std::string getDescription() const;
 
 protected:
-    virtual void initModule();
+    virtual void moduleInit();
 
     /**
      * \par Description
@@ -100,9 +101,16 @@ protected:
      */
     virtual const char** getXPMIcon() const;
 
+    // ----------------------------
+    // Methods from WLEMMCommandProcessor
+    // ----------------------------
+    virtual bool processCompute( WLEMMeasurement::SPtr emm );
+    virtual bool processInit( WLEMMCommand::SPtr labp );
+    virtual bool processReset( WLEMMCommand::SPtr labp );
+
 private:
     // GUI event handler
-    void callbackDesignButtonPressed();
+    void handleDesignButtonPressed();
     void callbackFilterTypeChanged();
     void callbackCoeffFileChanged();
     void handleImplementationChanged();
@@ -125,17 +133,12 @@ private:
     /**
      * Input connector for a WEEG2 dataset to get filtered
      */
-    boost::shared_ptr< LaBP::WLModuleInputDataRingBuffer< LaBP::WLDataSetEMM > > m_input;
-
-    /**
-     * Output connector for a filtered WEEG2 dataset
-     */
-    boost::shared_ptr< LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM > > m_output;
+    LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input;
 
     /**
      * A condition used to notify about changes in several properties.
      */
-    boost::shared_ptr< WCondition > m_propCondition;
+    WCondition::SPtr m_propCondition;
 
     /**
      * Exported MatLAB File with coefficients

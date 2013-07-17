@@ -37,7 +37,7 @@ WFIRDesignWindow::~WFIRDesignWindow()
 {
 }
 
-double WFIRDesignWindow::getFactor( WFIRFilter::WEWindowsType::Enum windowtype, int order, int n )
+WFIRFilter::ScalarT WFIRDesignWindow::getFactor( WFIRFilter::WEWindowsType::Enum windowtype, int order, int n )
 {
     switch( windowtype )
     {

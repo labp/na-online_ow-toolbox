@@ -30,13 +30,12 @@
 #include <core/common/WItemSelectionItemTyped.h>
 #include <core/kernel/WModule.h>
 
-// Input & output connectors
+#include "core/data/WLEMMCommand.h"
+#include "core/data/emd/WLEMData.h"
+#include "core/data/WLEMMeasurement.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
-
-// Input & output data
-#include "core/data/WLDataSetEMM.h"
-#include "core/util/WLTimeProfiler.h"
+#include "core/util/profiler/WLTimeProfiler.h"
 
 #include "WMPCA.h"
 #include "WMPCA.xpm"
@@ -74,13 +73,13 @@ const std::string WMPCA::getDescription() const
 
 void WMPCA::connectors()
 {
-    m_input = boost::shared_ptr< LaBP::WLModuleInputDataRingBuffer< LaBP::WLDataSetEMM > >(
-                    new LaBP::WLModuleInputDataRingBuffer< LaBP::WLDataSetEMM >( 32, shared_from_this(), "in",
+    m_input = LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr(
+                    new LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >( 32, shared_from_this(), "in",
                                     "Expects a EMM-DataSet for filtering." ) );
     addConnector( m_input );
 
-    m_output = boost::shared_ptr< LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM > >(
-                    new LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM >( shared_from_this(), "out",
+    m_output = LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr(
+                    new LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >( shared_from_this(), "out",
                                     "Provides a filtered EMM-DataSet" ) );
     addConnector( m_output );
 }
@@ -130,7 +129,7 @@ void WMPCA::properties()
     WPropertyHelper::PC_NOTEMPTY::addTo( m_processModalitySelection );
 }
 
-void WMPCA::initModule()
+void WMPCA::moduleInit()
 {
     infoLog() << "Initializing module ...";
     waitRestored();
@@ -148,18 +147,18 @@ void WMPCA::moduleMain()
     // m_moduleState.add( m_propUseCuda->getCondition() ); // when useCuda changed
     m_moduleState.add( m_propCondition ); // when properties changed
 
-    LaBP::WLDataSetEMM::SPtr emmIn;
+    WLEMMCommand::SPtr labpIn;
 
     ready(); // signal ready state
 
-    initModule();
+    moduleInit();
 
     debugLog() << "Entering main loop";
     while( !m_shutdownFlag() )
     {
-        debugLog() << "Waiting for Events";
         if( m_input->isEmpty() )
         {
+            debugLog() << "Waiting for Events";
             m_moduleState.wait(); // wait for events like inputdata or properties changed
         }
         // ---------- SHUTDOWNEVENT ----------
@@ -168,38 +167,38 @@ void WMPCA::moduleMain()
             break; // break mainLoop on shutdown
         }
 
-        emmIn.reset();
+        labpIn.reset();
         if( !m_input->isEmpty() )
         {
-            emmIn = m_input->getData();
+            labpIn = m_input->getData();
         }
-        const bool dataValid = ( emmIn );
+        const bool dataValid = ( labpIn );
 
         // ---------- INPUTDATAUPDATEEVENT ----------
-        if( dataValid ) // If there was an update on the inputconnector
+        if( dataValid && labpIn->hasEmm() ) // If there was an update on the inputconnector
         {
+            WLEMMeasurement::SPtr emmIn;
             debugLog() << "received data";
-            LaBP::WLTimeProfiler::SPtr profiler = emmIn->createAndAddProfiler( getName(), "process" );
-            profiler->start();
+            // TODO(pieloth): new profiler
 
             //m_pca->setParams( m_finalDimensions->get(), m_reverse->get() );
-            LaBP::WLDataSetEMM::SPtr emmOut( new LaBP::WLDataSetEMM( *emmIn ) );
+            WLEMMeasurement::SPtr emmOut( new WLEMMeasurement( *emmIn ) );
 
 //            for( size_t mod = 0; mod < m_emm->getModalityCount(); ++mod )
 //            {
             LaBP::WEModalityType::Enum mod = m_processModalitySelection->get().at( 0 )->getAs<
                             WItemSelectionItemTyped< LaBP::WEModalityType::Enum > >()->getValue();
-            boost::shared_ptr< LaBP::WLEMD > emdIn = emmIn->getModality( mod );
-            boost::shared_ptr< LaBP::WLEMD > emdOut = m_pca->processData( emdIn );
+            WLEMData::SPtr emdIn = emmIn->getModality( mod );
+            WLEMData::SPtr emdOut = m_pca->processData( emdIn );
 
             // emm object can create in the outer module
             emmOut->addModality( emdOut );
 //            }
 
-            m_output->updateData( emmOut );
+            WLEMMCommand::SPtr labp( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
+            labp->setEmm( emmOut );
+            m_output->updateData( labp );
             updateView( emmOut );
-
-            profiler->stopAndLog();
         }
     }
 }
@@ -213,4 +212,25 @@ void WMPCA::callbackPCATypeChanged()
 void WMPCA::callbackProcessModalityChanged( void )
 {
     debugLog() << "handleProcessModalityChanged() called!";
+}
+
+bool WMPCA::processCompute( WLEMMeasurement::SPtr emm )
+{
+    // TODO(pieloth): use method for computation
+    WLEMMCommand::SPtr labp( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
+    labp->setEmm( emm );
+    m_output->updateData( labp );
+    return true;
+}
+
+bool WMPCA::processInit( WLEMMCommand::SPtr labp )
+{
+    m_output->updateData( labp );
+    return true;
+}
+
+bool WMPCA::processReset( WLEMMCommand::SPtr labp )
+{
+    m_output->updateData( labp );
+    return true;
 }

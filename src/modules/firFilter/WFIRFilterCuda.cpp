@@ -25,9 +25,12 @@
 #include <cstddef>
 #include <string>
 
+#include <Eigen/Core>
+
 #include <core/common/WLogger.h>
 
-#include "core/util/WLTimeProfiler.h"
+#include "core/util/profiler/WLProfilerLogger.h"
+#include "core/util/profiler/WLTimeProfiler.h"
 
 #include "WFIRFilter.h"
 #include "WFIRFilterCuda.h"
@@ -36,7 +39,7 @@
 const std::string WFIRFilterCuda::CLASS = "WFIRFilterCuda";
 
 WFIRFilterCuda::WFIRFilterCuda( WFIRFilter::WEFilterType::Enum filtertype, WFIRFilter::WEWindowsType::Enum windowtype, int order,
-                double sFreq, double cFreq1, double cFreq2 ) :
+                ScalarT sFreq, ScalarT cFreq1, ScalarT cFreq2 ) :
                 WFIRFilter( filtertype, windowtype, order, sFreq, cFreq1, cFreq2 )
 {
 }
@@ -46,57 +49,52 @@ WFIRFilterCuda::WFIRFilterCuda( const char *pathToFcf ) :
 {
 }
 
-void WFIRFilterCuda::filter( LaBP::WLEMD::DataT& out, const LaBP::WLEMD::DataT& in,
-                const LaBP::WLEMD::DataT& prev, LaBP::WLTimeProfiler::SPtr profiler )
+void WFIRFilterCuda::filter( WLEMData::DataT& out, const WLEMData::DataT& in, const WLEMData::DataT& prev )
 {
     wlog::debug( CLASS ) << "filter() called!";
-    LaBP::WLTimeProfiler::SPtr emdProfiler( new LaBP::WLTimeProfiler( CLASS, "filter_data" ) );
-    emdProfiler->start();
+    WLTimeProfiler prfTime( CLASS, "filter" );
 
-    const size_t samples = in[0].size();
+    const WLEMData::DataT::Index channels = in.rows();
+    const WLEMData::DataT::Index samples = in.cols();
+    const WLEMData::DataT::Index prevSamples = static_cast< WLEMData::DataT::Index >( m_coeffitients.size() );
 
-    SampleT *coeffs = ( SampleT* )malloc( m_coeffitients.size() * sizeof( SampleT ) );
-    SampleT *input = ( SampleT* )malloc( in.size() * samples * sizeof( SampleT ) );
-    SampleT *previous = ( SampleT* )malloc( prev.size() * m_coeffitients.size() * sizeof( SampleT ) );
-    SampleT *output = ( SampleT* )malloc( in.size() * samples * sizeof( SampleT ) );
+    CuScalarT *coeffs = ( CuScalarT* )malloc( prevSamples * sizeof(CuScalarT) );
+    CuScalarT *input = ( CuScalarT* )malloc( channels * samples * sizeof(CuScalarT) );
+    CuScalarT *previous = ( CuScalarT* )malloc( channels * prevSamples * sizeof(CuScalarT) );
+    CuScalarT *output = ( CuScalarT* )malloc( channels * samples * sizeof(CuScalarT) );
 
     // CHANGE from for( size_t i = 0; i < 32; ++i ) to
-    for( size_t i = 0; i < in.size(); ++i )
+    CuScalarT* chanWriteTmp;
+    for( WLEMData::DataT::Index c = 0; c < channels; ++c )
     {
-        for( size_t j = 0; j < samples; ++j )
+        chanWriteTmp = input + c * samples;
+        for( WLEMData::DataT::Index s = 0; s < samples; ++s )
         {
-            input[i * samples + j] = ( SampleT )( ( in )[i][j] );
+            chanWriteTmp[s] = ( CuScalarT )( in( c, s ) );
         }
     }
 
-    const size_t prevSamples = m_coeffitients.size();
-    for( size_t i = 0; i < prev.size(); ++i )
+    for( WLEMData::DataT::Index c = 0; c < channels; ++c )
     {
-        for( size_t j = 0; j < prevSamples; ++j )
+        chanWriteTmp = previous + c * prevSamples;
+        for( WLEMData::DataT::Index s = 0; s < prevSamples; ++s )
         {
-            previous[i * prevSamples + j] = ( SampleT )( ( prev )[i][j] );
+            chanWriteTmp[s] = ( CuScalarT )( prev( c, s ) );
         }
     }
 
-    for( size_t i = 0; i < m_coeffitients.size(); ++i )
+    for( WLEMData::DataT::Index s = 0; s < prevSamples; ++s )
     {
-        coeffs[i] = ( SampleT )m_coeffitients[i];
+        coeffs[s] = ( CuScalarT )m_coeffitients[s];
     }
 
-    float time = cudaFirFilter( output, input, previous, in.size(), samples, coeffs, m_coeffitients.size() );
+    float time = cudaFirFilter( output, input, previous, channels, samples, coeffs, prevSamples );
 
-    for( size_t i = 0; i < in.size(); ++i )
+    const CuScalarT* chanReadTmp;
+    for( WLEMData::DataT::Index c = 0; c < in.rows(); ++c )
     {
-        LaBP::WLEMD::ChannelT outChan; // generate a new dimension for every channel
-        outChan.reserve( samples );
-        // CHANGED to *.assign
-//        for( size_t j = 0; j < samples; ++j )
-//        {
-//            value = ( LaBP::WDataSetEMMEMD::SampleT )output[i * samples + j];
-//            outChan.push_back( value );
-//        }
-        outChan.assign( output + i * samples, output + ( i + 1 ) * samples );
-        out.push_back( outChan );
+        chanReadTmp = output + c * samples;
+        out.row( c ) = Eigen::Matrix< CuScalarT, 1, Eigen::Dynamic >::Map( chanReadTmp, samples ).cast< WLEMData::ScalarT >();
     }
 
     free( output );
@@ -104,13 +102,7 @@ void WFIRFilterCuda::filter( LaBP::WLEMD::DataT& out, const LaBP::WLEMD::DataT& 
     free( previous );
     free( coeffs );
 
-    LaBP::WLTimeProfiler::SPtr kernelProfiler( new LaBP::WLTimeProfiler( CLASS, "filter_kernel" ) );
-    kernelProfiler->setMilliseconds( time );
-    kernelProfiler->log();
-    emdProfiler->stopAndLog();
-    if( profiler )
-    {
-        profiler->addChild( kernelProfiler );
-        profiler->addChild( emdProfiler );
-    }
+    WLTimeProfiler prfTimeKernel( CLASS, "filter_kernel", false );
+    prfTimeKernel.setMilliseconds( time );
+    wlprofiler::log() << prfTimeKernel;
 }

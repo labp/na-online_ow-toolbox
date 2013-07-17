@@ -25,21 +25,18 @@
 #ifndef WLEMDDRAWABLE2D_H_
 #define WLEMDDRAWABLE2D_H_
 
-#include <cstddef>
 #include <string>
-
+#include <utility>  // pair.make_pair
 #include <boost/shared_ptr.hpp>
 
 #include <osg/Array>
-#include <osg/Drawable>
 #include <osg/Geode>
 #include <osg/Group>
 #include <osg/ref_ptr>
 
 #include <core/gui/WCustomWidget.h>
 
-#include "core/util/WLRingBuffer.h"
-#include "core/data/emd/WLEMD.h"
+#include "core/data/emd/WLEMData.h"
 #include "core/data/WLEMMEnumTypes.h"
 
 #include "WLEMDDrawable.h"
@@ -61,6 +58,8 @@ namespace LaBP
          * Abbreviation for a const shared pointer on a instance of this class.
          */
         typedef boost::shared_ptr< const WLEMDDrawable2D > ConstSPtr;
+
+        typedef osg::Vec4Array WLColorArray;
 
         /**
          * Class name for logs.
@@ -107,7 +106,7 @@ namespace LaBP
          *
          * @param emm data to draw.
          */
-        virtual void draw( LaBP::WLDataSetEMM::SPtr emm ) = 0;
+        virtual void draw( WLEMMeasurement::SPtr emm ) = 0;
 
         /**
          * Checks whether data is available.
@@ -123,19 +122,23 @@ namespace LaBP
         virtual ValueT getSelectedPixel() const;
         virtual bool setSelectedPixel( ValueT value );
 
-        virtual std::pair< LaBP::WLDataSetEMM::SPtr, size_t > getSelectedData( ValueT pixel ) const = 0;
+        virtual float getSelectedTime() const;
+
+        virtual bool setSelectedTime( float relative );
+
+        virtual std::pair< WLEMMeasurement::SPtr, size_t > getSelectedData( ValueT pixel ) const = 0;
 
     protected:
         virtual void osgNodeCallback( osg::NodeVisitor* nv );
 
         virtual bool mustDraw() const;
 
-        osg::ref_ptr< osg::Geode > drawChannel( const LaBP::WLEMD::ChannelT& channel );
+        osg::ref_ptr< osg::Geode > drawChannel( const WLEMData::ChannelT& channel );
 
         void osgAddMarkLine();
         void osgAddTimeGrid();
 
-        virtual size_t maxChannels( const LaBP::WLEMD* emd ) const = 0;
+        virtual size_t maxChannels( const WLEMData* emd ) const = 0;
 
         osg::ref_ptr< osg::Group > m_channelGroup;
         osg::ref_ptr< osg::Geode > m_markerGeode;
@@ -162,14 +165,9 @@ namespace LaBP
         ValueT m_selectedPixel;
         bool m_selectedPixelChanged;
 
-        osg::ref_ptr< osg::Vec4Array > m_channelColors;
-        osg::ref_ptr< osg::Vec4Array > m_markerColors;
-        osg::ref_ptr< osg::Vec4Array > m_timeGridColors;
-
-//    private:
-//        osg::ref_ptr< osg::Vec4Array > m_channelColors;
-//        osg::ref_ptr< osg::Vec4Array > m_markerColors;
-//        osg::ref_ptr< osg::Vec4Array > m_timeGridColors;
+        osg::ref_ptr< WLColorArray > m_channelColors;
+        osg::ref_ptr< WLColorArray > m_markerColors;
+        osg::ref_ptr< WLColorArray > m_gridColors;
     };
 
 } /* namespace LaBP */

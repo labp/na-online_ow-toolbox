@@ -31,12 +31,13 @@
 
 #include <core/kernel/WModule.h>
 
-#include "core/data/WLDataSetEMM.h"
+#include "core/data/WLEMMCommand.h"
+#include "core/data/WLEMMeasurement.h"
 
+#include "core/module/WLEMMCommandProcessor.h"
 #include "core/module/WLModuleDrawable.h"
 // TODO(pieloth): use OW classes
 #include "core/module/WLModuleInputDataRingBuffer.h"
-#include "core/module/WLModuleOutputDataCollectionable.h"
 
 #include "WEpochAveraging.h"
 
@@ -72,7 +73,7 @@ public:
     virtual const std::string getDescription() const;
 
 protected:
-    virtual void initModule();
+    virtual void moduleInit();
 
     /**
      * \par Description
@@ -103,22 +104,24 @@ protected:
      */
     virtual const char** getXPMIcon() const;
 
+    // ----------------------------
+    // Methods from WLEMMCommandProcessor
+    // ----------------------------
+    virtual bool processCompute( WLEMMeasurement::SPtr emm );
+    virtual bool processInit( WLEMMCommand::SPtr labp );
+    virtual bool processReset( WLEMMCommand::SPtr labp );
+
 private:
     // TODO(pieloth): use OW classes
     /**
      * Input connector for a EMM dataset
      */
-    boost::shared_ptr< LaBP::WLModuleInputDataRingBuffer< LaBP::WLDataSetEMM > > m_input;
-
-    /**
-     * Output connector for a EMM dataset
-     */
-    boost::shared_ptr< LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM > > m_output;
+    LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input;
 
     /**
      * A condition used to notify about changes in several properties.
      */
-    boost::shared_ptr< WCondition > m_propCondition;
+    WCondition::SPtr m_propCondition;
 
     // Averaging properties //
     WPropGroup m_propGrpAverage;

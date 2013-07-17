@@ -1,4 +1,26 @@
-// TODO doc & license
+//---------------------------------------------------------------------------
+//
+// Project: OpenWalnut ( http://www.openwalnut.org )
+//
+// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+// For more information see http://www.openwalnut.org/copying
+//
+// This file is part of OpenWalnut.
+//
+// OpenWalnut is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// OpenWalnut is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+//
+//---------------------------------------------------------------------------
 
 #ifndef WLEMDSOURCE_H_
 #define WLEMDSOURCE_H_
@@ -7,60 +29,41 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "core/data/WLMatrixTypes.h"
+#include "core/data/emd/WLEMData.h"
 
-#include "core/data/emd/WLEMD.h"
-
-namespace LaBP
+class WLEMDSource: public WLEMData
 {
+public:
+    /**
+     * Abbreviation for a shared pointer.
+     */
+    typedef boost::shared_ptr< WLEMDSource > SPtr;
 
-    class WLEMDSource: public LaBP::WLEMD
-    {
-    public:
-        /**
-         * Abbreviation for a shared pointer.
-         */
-        typedef boost::shared_ptr< WLEMDSource > SPtr;
+    /**
+     * Abbreviation for const shared pointer.
+     */
+    typedef boost::shared_ptr< const WLEMDSource > ConstSPtr;
 
-        /**
-         * Abbreviation for const shared pointer.
-         */
-        typedef boost::shared_ptr< const WLEMDSource > ConstSPtr;
+    static const std::string CLASS;
 
-        static const std::string CLASS;
+    WLEMDSource();
 
-        WLEMDSource();
+    explicit WLEMDSource( const WLEMDSource& source );
 
-        explicit WLEMDSource( const WLEMDSource& source );
+    explicit WLEMDSource( const WLEMData& emd );
 
-        explicit WLEMDSource( const WLEMD& emd );
+    virtual ~WLEMDSource();
 
-        virtual ~WLEMDSource();
+    virtual WLEMData::SPtr clone() const;
 
-        virtual WLEMD::SPtr clone() const;
+    virtual LaBP::WEModalityType::Enum getModalityType() const;
 
-        virtual DataT& getData() const;
+    LaBP::WEModalityType::Enum getOriginModalityType() const;
 
-        virtual size_t getNrChans() const;
+    void setOriginModalityType( LaBP::WEModalityType::Enum modality );
 
-        virtual size_t getSamplesPerChan() const;
+private:
+    LaBP::WEModalityType::Enum m_originModalityType;
+};
 
-        virtual LaBP::WEModalityType::Enum getModalityType() const;
-
-        LaBP::WEModalityType::Enum getOriginModalityType() const;
-
-        void setOriginModalityType( LaBP::WEModalityType::Enum modality );
-
-        MatrixT& getMatrix() const;
-
-        void setMatrix( boost::shared_ptr< MatrixT > matrix );
-
-        static boost::shared_ptr< DataT > convertMatrix( const MatrixT& matrix );
-
-    private:
-        LaBP::WEModalityType::Enum m_originModalityType;
-        boost::shared_ptr< MatrixT > m_matrix;
-    };
-
-} /* namespace LaBP */
 #endif  // WLEMDSOURCE_H_

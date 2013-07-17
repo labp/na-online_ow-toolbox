@@ -141,6 +141,12 @@ bool WRtClient::start()
 
     wlog::info( CLASS ) << "Prepare streaming.";
 
+    // Set buffer size
+    // TODO(pieloth): set variable block size.
+    wlog::debug( CLASS ) << "Set buffer size.";
+    ( *m_rtCmdClient )["bufsize"].pValues()[0] = QVariant( 500 );
+    ( *m_rtCmdClient )["bufsize"].send();
+
     // Request measurement information
     wlog::debug( CLASS ) << "Requesting measurement information.";
     ( *m_rtCmdClient )["measinfo"].pValues()[0] = QVariant( m_clientId );
@@ -148,19 +154,28 @@ bool WRtClient::start()
 
     wlog::debug( CLASS ) << "Read measurement information.";
     m_fiffInfo = m_rtDataClient->readInfo();
+    wlog::info( CLASS ) << "Measurement information received.";
 
     m_picksMeg = m_fiffInfo->pick_types( true, false, false );
     wlog::debug( CLASS ) << "picks meg: " << m_picksMeg.size();
-    wlog::debug( CLASS ) << "values: " << m_picksMeg[0] << ", " << m_picksMeg[1] << ", " << m_picksMeg[2] << " ...";
+    if( m_picksMeg.size() > 2 )
+    {
+        wlog::debug( CLASS ) << "values: " << m_picksMeg[0] << ", " << m_picksMeg[1] << ", " << m_picksMeg[2] << " ...";
+    }
 
     m_picksEeg = m_fiffInfo->pick_types( false, true, false );
-    wlog::debug( CLASS ) << "picks eeg: " << m_picksMeg.size();
-    wlog::debug( CLASS ) << "values: " << m_picksEeg[0] << ", " << m_picksEeg[1] << ", " << m_picksEeg[2] << " ...";
+    wlog::debug( CLASS ) << "picks eeg: " << m_picksEeg.size();
+    if( m_picksEeg.size() > 2 )
+    {
+        wlog::debug( CLASS ) << "values: " << m_picksEeg[0] << ", " << m_picksEeg[1] << ", " << m_picksEeg[2] << " ...";
+    }
 
     m_picksStim = m_fiffInfo->pick_types( false, false, true );
     wlog::debug( CLASS ) << "picks stim: " << m_picksStim.size();
-    wlog::debug( CLASS ) << "values: " << m_picksStim[0] << ", " << m_picksStim[1] << ", " << m_picksStim[2] << " ...";
-
+    if( m_picksStim.size() > 2 )
+    {
+        wlog::debug( CLASS ) << "values: " << m_picksStim[0] << ", " << m_picksStim[1] << ", " << m_picksStim[2] << " ...";
+    }
     readChannelNames();
     readChannelPositionsFaces();
 
@@ -255,7 +270,7 @@ bool WRtClient::setSimulationFile( std::string fname )
     return true;
 }
 
-bool WRtClient::readData( LaBP::WLDataSetEMM::SPtr emmIn )
+bool WRtClient::readData( WLEMMeasurement::SPtr emmIn )
 {
     wlog::debug( CLASS ) << "readData() called!";
     if( !isConnected() )
@@ -272,7 +287,7 @@ bool WRtClient::readData( LaBP::WLDataSetEMM::SPtr emmIn )
     {
         wlog::debug( CLASS ) << "matRawBuffer: " << matRawBuffer.rows() << "x" << matRawBuffer.cols();
 
-        LaBP::WLEMD::SPtr emd;
+        WLEMData::SPtr emd;
         if( m_picksEeg.size() > 0 )
         {
             emd = readEEG( matRawBuffer );
@@ -285,7 +300,7 @@ bool WRtClient::readData( LaBP::WLDataSetEMM::SPtr emmIn )
         }
         if( m_picksStim.size() > 0 )
         {
-            boost::shared_ptr< LaBP::WLDataSetEMM::EDataT > events = readEvents( matRawBuffer );
+            boost::shared_ptr< WLEMMeasurement::EDataT > events = readEvents( matRawBuffer );
             emmIn->setEventChannels( events );
         }
         return true;
@@ -301,10 +316,10 @@ bool WRtClient::readData( LaBP::WLDataSetEMM::SPtr emmIn )
     }
 }
 
-LaBP::WLEMDEEG::SPtr WRtClient::readEEG( const Eigen::MatrixXf& rawData )
+WLEMDEEG::SPtr WRtClient::readEEG( const Eigen::MatrixXf& rawData )
 {
     wlog::debug( CLASS ) << "readEEG() called!";
-    LaBP::WLEMDEEG::SPtr eeg( new LaBP::WLEMDEEG() );
+    WLEMDEEG::SPtr eeg( new WLEMDEEG() );
     readEmd( eeg.get(), m_picksEeg, rawData );
     // TODO(pieloth): setter
     eeg->setChanNames( m_chNamesEeg );
@@ -313,17 +328,17 @@ LaBP::WLEMDEEG::SPtr WRtClient::readEEG( const Eigen::MatrixXf& rawData )
     return eeg;
 }
 
-LaBP::WLEMDMEG::SPtr WRtClient::readMEG( const Eigen::MatrixXf& rawData )
+WLEMDMEG::SPtr WRtClient::readMEG( const Eigen::MatrixXf& rawData )
 {
     wlog::debug( CLASS ) << "readMEG() called!";
-    LaBP::WLEMDMEG::SPtr meg( new LaBP::WLEMDMEG() );
+    WLEMDMEG::SPtr meg( new WLEMDMEG() );
     readEmd( meg.get(), m_picksMeg, rawData );
     // TODO(pieloth): setter
     meg->setChanNames( m_chNamesMeg );
     return meg;
 }
 
-bool WRtClient::readEmd( LaBP::WLEMD* const emd, const Eigen::RowVectorXi& picks, const Eigen::MatrixXf& rawData )
+bool WRtClient::readEmd( WLEMData* const emd, const Eigen::RowVectorXi& picks, const Eigen::MatrixXf& rawData )
 {
     if( picks.size() == 0 )
     {
@@ -334,32 +349,28 @@ bool WRtClient::readEmd( LaBP::WLEMD* const emd, const Eigen::RowVectorXi& picks
     const Eigen::RowVectorXi::Index rows = picks.size();
     const Eigen::MatrixXf::Index cols = rawData.cols();
 
-    LaBP::WLEMD::DataT& emdData = emd->getData();
-    emdData.clear();
-    emdData.reserve( rows );
+    WLEMData::DataT& emdData = emd->getData();
+    emdData.resize( rows, cols );
     WAssertDebug( rows <= rawData.rows(), "More selected channels than in raw data!" );
 
     for( Eigen::RowVectorXi::Index row = 0; row < rows; ++row )
     {
         WAssertDebug( picks[row] < rawData.rows(), "Selected channel index out of raw data boundary!" );
-        LaBP::WLEMD::ChannelT emdChannel;
-        emdChannel.reserve( cols );
-        for( size_t col = 0; col < cols; ++col )
+        for( Eigen::RowVectorXi::Index col = 0; col < cols; ++col )
         {
-            emdChannel.push_back( ( LaBP::WLEMD::SampleT )rawData( picks[row], col ) );
+            emdData( row, col ) = ( WLEMData::ScalarT )rawData( picks[row], col );
         }
-        emdData.push_back( emdChannel );
     }
 
     emd->setSampFreq( m_fiffInfo->sfreq );
     return true;
 }
 
-boost::shared_ptr< LaBP::WLDataSetEMM::EDataT > WRtClient::readEvents( const Eigen::MatrixXf& rawData )
+boost::shared_ptr< WLEMMeasurement::EDataT > WRtClient::readEvents( const Eigen::MatrixXf& rawData )
 {
     wlog::debug( CLASS ) << "readStim() called!";
 
-    boost::shared_ptr< LaBP::WLDataSetEMM::EDataT > events( new LaBP::WLDataSetEMM::EDataT );
+    boost::shared_ptr< WLEMMeasurement::EDataT > events( new WLEMMeasurement::EDataT );
     if( m_picksStim.size() == 0 )
     {
         wlog::error( CLASS ) << "No channels to pick!";
@@ -376,11 +387,11 @@ boost::shared_ptr< LaBP::WLDataSetEMM::EDataT > WRtClient::readEvents( const Eig
     for( Eigen::RowVectorXi::Index row = 0; row < rows; ++row )
     {
         WAssertDebug( m_picksStim[row] < rawData.rows(), "Selected channel index out of raw data boundary!" );
-        LaBP::WLDataSetEMM::EChannelT eChannel;
+        WLEMMeasurement::EChannelT eChannel;
         eChannel.reserve( cols );
-        for( size_t col = 0; col < cols; ++col )
+        for( Eigen::RowVectorXi::Index col = 0; col < cols; ++col )
         {
-            eChannel.push_back( ( LaBP::WLDataSetEMM::EventT )rawData( m_picksStim[row], col ) );
+            eChannel.push_back( ( WLEMMeasurement::EventT )rawData( m_picksStim[row], col ) );
         }
         events->push_back( eChannel );
     }

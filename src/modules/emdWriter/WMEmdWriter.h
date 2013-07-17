@@ -32,12 +32,12 @@
 
 #include <core/kernel/WModule.h>
 
-#include "core/data/WLDataSetEMM.h"
+#include "core/data/WLEMMCommand.h"
+#include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMEnumTypes.h"
+#include "core/data/emd/WLEMData.h"
 #include "core/module/WLModuleDrawable.h"
-// TODO use OW classes
 #include "core/module/WLModuleInputDataRingBuffer.h"
-#include "core/module/WLModuleOutputDataCollectionable.h"
 
 /**
  * This module implements several onscreen status displays
@@ -71,7 +71,14 @@ public:
     virtual const std::string getDescription() const;
 
 protected:
-    virtual void initModule();
+    // ---------------------------------
+    // Methods for WLEMMCommandProcessor
+    // ---------------------------------
+    virtual bool processCompute( WLEMMeasurement::SPtr emm );
+    virtual bool processInit( WLEMMCommand::SPtr labp );
+    virtual bool processReset( WLEMMCommand::SPtr labp );
+
+    virtual void moduleInit();
 
     /**
      * \par Description
@@ -103,16 +110,10 @@ protected:
     virtual const char** getXPMIcon() const;
 
 private:
-    // TODO use OW classes
     /**
      * Input connector for a EMM dataset
      */
-    boost::shared_ptr< LaBP::WLModuleInputDataRingBuffer< LaBP::WLDataSetEMM > > m_input;
-
-    /**
-     * Output connector for a EMM dataset
-     */
-    boost::shared_ptr< LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM > > m_output;
+    LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input;
 
     /**
      * A condition used to notify about changes in several properties.
@@ -136,7 +137,7 @@ private:
     std::string getFileName( std::string folder, std::string prefix, std::string suffix, LaBP::WEModalityType::Enum emdType,
                     size_t channels, size_t samples, size_t count );
 
-    bool write( std::string fname, LaBP::WLEMD::ConstSPtr emd );
+    bool write( std::string fname, WLEMData::ConstSPtr emd );
 
 };
 

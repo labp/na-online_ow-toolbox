@@ -86,7 +86,7 @@ namespace LaBP
          */
         virtual ~WLEMDDrawable3D();
 
-        virtual void draw( LaBP::WLDataSetEMM::SPtr emm );
+        virtual void draw( WLEMMeasurement::SPtr emm );
 
         virtual bool hasData() const;
 
@@ -100,7 +100,11 @@ namespace LaBP
         /**
          * Set selected sample/index to mark, draw or else.
          */
-        virtual bool setSelectedSample( ptrdiff_t pixel );
+        virtual bool setSelectedSample( ptrdiff_t pixe );
+
+        virtual float getSelectedTime() const;
+
+        virtual bool setSelectedTime( float relative );
 
         /**
          * Returns the color map for the surface.
@@ -120,7 +124,7 @@ namespace LaBP
 
         virtual void osgNodeCallback( osg::NodeVisitor* nv );
 
-        LaBP::WLDataSetEMM::ConstSPtr m_emm;
+        WLEMMeasurement::ConstSPtr m_emm;
         // TODO(pizarro) move this functions to children classes, following the concept: a class just need methods that
         // all their children need. MatrixT is required only by the Source modality.
 

@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <cmath>    // fabs
 #include <string>
 
 #include <osg/Array>
@@ -34,10 +35,11 @@
 #include <osgText/Text>
 
 #include <core/common/WAssert.h>
+#include <core/common/WColor.h>
 #include <core/gui/WCustomWidget.h>
 #include <core/graphicsEngine/WGEGroupNode.h>
 
-#include "core/data/emd/WLEMD.h"
+#include "core/data/emd/WLEMData.h"
 #include "core/data/WLEMMEnumTypes.h"
 
 #include "WLEMDDrawable.h"
@@ -62,12 +64,12 @@ namespace LaBP
         m_timeRangeChanged = true;
         m_amplitudeScale = 1.5e-9;
         m_amplitudeScaleChanged = true;
-        m_channelColors = new osg::Vec4Array;
-        m_channelColors->push_back( osg::Vec4( 0.0, 0.0, 0.0, 1.0 ) );
-        m_markerColors = new osg::Vec4Array;
-        m_markerColors->push_back( osg::Vec4( 0.75f, 0.0f, 0.0f, 1.0f ) );
-        m_timeGridColors = new osg::Vec4Array;
-        m_timeGridColors->push_back( osg::Vec4( 0.72f, 0.53f, 0.04f, 1.0f ) );
+        m_channelColors = new WLColorArray;
+        m_channelColors->push_back( defaultColor::BLACK );
+        m_markerColors = new WLColorArray;
+        m_markerColors->push_back( defaultColor::DARKRED );
+        m_gridColors = new WLColorArray;
+        m_gridColors->push_back( defaultColor::ORANGE );
         m_selectedPixel = -1;
         m_selectedPixelChanged = false;
         m_timeGridWidth = -1.0f;
@@ -87,7 +89,7 @@ namespace LaBP
         return WLEMDDrawable::mustDraw() || m_timeRangeChanged || m_amplitudeScaleChanged || m_selectedPixelChanged;
     }
 
-    osg::ref_ptr< osg::Geode > WLEMDDrawable2D::drawChannel( const LaBP::WLEMD::ChannelT& channel )
+    osg::ref_ptr< osg::Geode > WLEMDDrawable2D::drawChannel( const WLEMData::ChannelT& channel )
     {
         osg::ref_ptr< osg::DrawArrays > lineDrawer = new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, 0, channel.size() );
 
@@ -96,7 +98,7 @@ namespace LaBP
         const size_t samples_end = channel.size();
         for( std::size_t sample = samples_begin; sample < samples_end; ++sample )
         {
-            samplesDots->push_back( osg::Vec2( sample, channel[sample] ) );
+            samplesDots->push_back( osg::Vec2( sample, channel( sample ) ) );
         }
 
         // Create geometry to draw 2D Points
@@ -125,7 +127,7 @@ namespace LaBP
         m_amplitudeScaleChanged = false;
         m_selectedPixelChanged = false;
 
-        WLEMDDrawable:resetDrawFlags();
+        WLEMDDrawable::resetDrawFlags();
     }
 
     void WLEMDDrawable2D::osgAddMarkLine()
@@ -181,7 +183,7 @@ namespace LaBP
                 vertices->push_back( osg::Vec2( xPos, height ) );
 
                 line->setVertexArray( vertices );
-                line->setColorArray( m_timeGridColors );
+                line->setColorArray( m_gridColors );
                 line->setColorBinding( osg::Geometry::BIND_OVERALL );
                 line->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINES, 0, vertices->size() ) );
 
@@ -202,11 +204,11 @@ namespace LaBP
             const ValueT z = -1.0f;
             bgVertices->push_back( osg::Vec3( m_xOffset, height - 16, z ) );
             bgVertices->push_back( osg::Vec3( m_xOffset, height, z ) );
-            bgVertices->push_back( osg::Vec3( m_xOffset + 50, height, z ) );
-            bgVertices->push_back( osg::Vec3( m_xOffset + 50, height - 16, z ) );
+            bgVertices->push_back( osg::Vec3( m_xOffset + 95, height, z ) );
+            bgVertices->push_back( osg::Vec3( m_xOffset + 95, height - 16, z ) );
 
-            osg::ref_ptr< osg::Vec4Array > bgColors = new osg::Vec4Array;
-            bgColors->push_back( osg::Vec4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+            osg::ref_ptr< WLColorArray > bgColors = new WLColorArray;
+            bgColors->push_back( defaultColor::WHITE );
 
             osg::ref_ptr< osg::Geometry > background = new osg::Geometry;
             background->setVertexArray( bgVertices );
@@ -219,13 +221,13 @@ namespace LaBP
 
             // Create time scale text.
             osg::ref_ptr< osgText::Text > text = new osgText::Text;
-            text->setText( "50ms" ); // related to deltaT
+            text->setText( "50ms/DIV" ); // related to deltaT
             text->setPosition( osg::Vec3( m_xOffset, height, 0.0 ) );
             text->setAlignment( osgText::Text::LEFT_TOP );
             text->setAxisAlignment( osgText::Text::SCREEN );
             text->setCharacterSizeMode( osgText::Text::SCREEN_COORDS );
             text->setCharacterSize( 16 );
-            text->setColor( ( *m_timeGridColors )[0] );
+            text->setColor( ( *m_gridColors )[0] );
             osg::ref_ptr< osg::Geode > textGeode = new osg::Geode;
             textGeode->addDrawable( text );
             m_timeGridGroup->addChild( textGeode );
@@ -273,13 +275,28 @@ namespace LaBP
 
     bool WLEMDDrawable2D::setSelectedPixel( ValueT value )
     {
-        if( value != m_selectedPixel )
+        if( fabs( value - m_selectedPixel ) >= 1.0 )
         {
             m_selectedPixel = value;
             m_selectedPixelChanged = true;
             return true;
         }
         return false;
+    }
+
+    float WLEMDDrawable2D::getSelectedTime() const
+    {
+        return ( m_selectedPixel - m_xOffset ) / ( m_widget->width() - m_xOffset );
+    }
+
+    bool WLEMDDrawable2D::setSelectedTime( float relative )
+    {
+        if( relative < 0 )
+        {
+            return false;
+        }
+        const float pos = relative * ( m_widget->width() - m_xOffset ) + m_xOffset;
+        return setSelectedPixel( pos );
     }
 
     WLEMDDrawable2D::SPtr WLEMDDrawable2D::getInstance( WCustomWidget::SPtr widget, LaBP::WEModalityType::Enum modality,

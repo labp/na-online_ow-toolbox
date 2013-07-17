@@ -1,19 +1,38 @@
-/*
- * WL2DChannelScrollHandler.cpp
- *
- *  Created on: 15.05.2013
- *      Author: pieloth
- */
+//---------------------------------------------------------------------------
+//
+// Project: OpenWalnut ( http://www.openwalnut.org )
+//
+// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+// For more information see http://www.openwalnut.org/copying
+//
+// This file is part of OpenWalnut.
+//
+// OpenWalnut is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// OpenWalnut is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+//
+//---------------------------------------------------------------------------
+
+#include <string>
 
 #include <core/common/WLogger.h>
 
+#include "WLGUIMouseEvent.h"
 #include "WL2DChannelScrollHandler.h"
 
 const std::string WL2DChannelScrollHandler::CLASS = "WL2DChannelScrollHandler";
 
-WL2DChannelScrollHandler::WL2DChannelScrollHandler( LaBP::WLEMDDrawable2DMultiChannel::SPtr initiator,
-                LaBP::WLEMDDrawable2DMultiChannel::SPtr acceptor ) :
-                LaBP::WLGUIEventHandler( initiator, acceptor )
+WL2DChannelScrollHandler::WL2DChannelScrollHandler( LaBP::WLEMDDrawable2DMultiChannel::SPtr initiator ) :
+                m_initiator( initiator )
 {
 }
 
@@ -21,31 +40,27 @@ WL2DChannelScrollHandler::~WL2DChannelScrollHandler()
 {
 }
 
-bool WL2DChannelScrollHandler::handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa )
+void WL2DChannelScrollHandler::mouseEventOccurred( const WLGUIMouseEvent& e )
 {
-    if( ea.getEventType() != osgGA::GUIEventAdapter::SCROLL )
+    const WLGUIMouseEvent::Event::Enum event = e.getEvent();
+    switch( event )
     {
-        return false;
-    }
-
-    // Workaround: ea.getScrollingMotion() == osgGA::GUIEventAdapter::SCROLL_DOWN / SCROLL_UP
-    const float y_delta = ea.getScrollingDeltaY();
-    if( y_delta != 0 )
-    {
-        LaBP::WLEMDDrawable2DMultiChannel::SPtr drawable = m_acceptor->getAs< LaBP::WLEMDDrawable2DMultiChannel >();
-        size_t channelNr = drawable->getChannelBegin();
-        if( y_delta < 0 ) // down
+        case WLGUIMouseEvent::Event::SCROLL_DOWN:
         {
-            drawable->setChannelBegin( ++channelNr );
-            return true;
+            const size_t channelNr = m_initiator->getChannelBegin();
+            m_initiator->setChannelBegin( channelNr + 1 );
+            return;
         }
-        if( y_delta > 0 && channelNr > 0 ) // up
+        case WLGUIMouseEvent::Event::SCROLL_UP:
         {
-            drawable->setChannelBegin( --channelNr );
-            return true;
+            const size_t channelNr = m_initiator->getChannelBegin();
+            if( channelNr > 0 )
+            {
+                m_initiator->setChannelBegin( channelNr - 1 );
+            }
+            return;
         }
+        default:
+            return;
     }
-
-    return false;
 }
-

@@ -22,14 +22,19 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLEMDDRAWABLE2DOVERLAYCHANNEL_H_
-#define WLEMDDRAWABLE2DOVERLAYCHANNEL_H_
+#ifndef WLEMDDRAWABLE2DSINGLECHANNEL_H
+#define WLEMDDRAWABLE2DSINGLECHANNEL_H
+
+#include <string>
+#include <utility>  // for pair<>
 
 #include <boost/shared_ptr.hpp>
 
+#include <osg/Group>
+
 #include <core/gui/WCustomWidget.h>
 
-#include "core/data/emd/WLEMD.h"
+#include "core/data/emd/WLEMData.h"
 
 #include "WLEMDDrawable2D.h"
 
@@ -48,6 +53,8 @@ namespace LaBP
          */
         typedef boost::shared_ptr< const WLEMDDrawable2DSingleChannel > ConstSPtr;
 
+        static const std::string CLASS;
+
         explicit WLEMDDrawable2DSingleChannel( WCustomWidget::SPtr widget );
         virtual ~WLEMDDrawable2DSingleChannel();
 
@@ -56,31 +63,31 @@ namespace LaBP
          *
          * @param emm data to draw.
          */
-        virtual void draw( LaBP::WLDataSetEMM::SPtr emm );
+        virtual void draw( WLEMMeasurement::SPtr emm );
 
         /**
          * Checks whether data is available.
          */
         virtual bool hasData() const;
 
-        virtual std::pair< LaBP::WLDataSetEMM::SPtr, size_t > getSelectedData( ValueT pixel ) const;
+        virtual std::pair< WLEMMeasurement::SPtr, size_t > getSelectedData( ValueT pixel ) const;
 
     protected:
-        LaBP::WLDataSetEMM::SPtr m_emm;
+        WLEMMeasurement::SPtr m_emm;
 
         virtual void osgNodeCallback( osg::NodeVisitor* nv );
 
-        void osgAddValueGrid( const LaBP::WLEMD* emd );
+        void osgAddValueGrid( const WLEMData* emd );
 
         ValueT m_valueGridHeight;
         ValueT m_valueGridWidth;
         osg::ref_ptr< osg::Group > m_valueGridGroup;
 
-        virtual size_t maxChannels( const LaBP::WLEMD* emd ) const;
+        virtual size_t maxChannels( const WLEMData* emd ) const;
 
     private:
-        void osgAddChannels( const LaBP::WLEMD* emd );
+        void osgAddChannels( const WLEMData* emd );
     };
 
 } /* namespace LaBP */
-#endif  // WLEMDDRAWABLE2DOVERLAYCHANNEL_H_
+#endif  // WLEMDDRAWABLE2DSINGLECHANNEL_H

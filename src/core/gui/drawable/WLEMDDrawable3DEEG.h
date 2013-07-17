@@ -68,9 +68,9 @@ namespace LaBP
 
         void osgAddNodes( const std::vector< WPosition >* positions );
 
-        void osgUpdateSurfaceColor( const LaBP::WLEMD::DataT& data );
+        void osgUpdateSurfaceColor( const WLEMData::DataT& data );
 
-        void osgUpdateNodesColor( const LaBP::WLEMD::DataT& data );
+        void osgUpdateNodesColor( const WLEMData::DataT& data );
 
         bool m_electrodesChanged;
 

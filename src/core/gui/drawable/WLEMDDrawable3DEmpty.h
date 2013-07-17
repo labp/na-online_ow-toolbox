@@ -31,7 +31,7 @@
 
 #include <core/gui/WCustomWidget.h>
 
-#include "core/data/WLDataSetEMM.h"
+#include "core/data/WLEMMeasurement.h"
 
 #include "WLEMDDrawable3D.h"
 
@@ -53,7 +53,7 @@ namespace LaBP
         explicit WLEMDDrawable3DEmpty( WCustomWidget::SPtr widget );
         virtual ~WLEMDDrawable3DEmpty();
 
-        virtual void draw( LaBP::WLDataSetEMM::SPtr emm );
+        virtual void draw( WLEMMeasurement::SPtr emm );
 
     protected:
         virtual void osgNodeCallback( osg::NodeVisitor* nv );

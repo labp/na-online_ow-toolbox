@@ -31,10 +31,8 @@
 
 #include <cxxtest/TestSuite.h>
 
-#include "core/data/emd/WLEMD.h"
+#include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDEEG.h"
-
-#include "core/util/WLTimeProfiler.h"
 
 #include "../WFIRFilter.h"
 
@@ -44,7 +42,27 @@
 class WFIRFilterTestHelper
 {
 public:
-    static void isEqual( std::vector< double >& vec1, std::vector< double >& vec2 )
+    static void isEqual( const WLEMData::ChannelT& vec1, const WLEMData::ChannelT& vec2 )
+    {
+        TS_ASSERT_EQUALS( vec1.size(), vec2.size() );
+
+        size_t count = std::min( vec1.size(), vec2.size() );
+        for( size_t i = 0; i < count; ++i )
+        {
+            TS_ASSERT_DELTA( vec1( i ), vec2( i ), EPS );
+        }
+    }
+
+    static void isNotEqual( const WLEMData::ChannelT& vec1, const WLEMData::ChannelT& vec2 )
+    {
+        size_t count = std::min( vec1.size(), vec2.size() );
+        for( size_t i = 0; i < count; ++i )
+        {
+            TS_ASSERT_DIFFERS( vec1( i ), vec2( i ) );
+        }
+    }
+
+    static void isEqual( const std::vector< WFIRFilter::ScalarT >& vec1, const std::vector< WFIRFilter::ScalarT >& vec2 )
     {
         TS_ASSERT_EQUALS( vec1.size(), vec2.size() );
 
@@ -55,7 +73,7 @@ public:
         }
     }
 
-    static void isNotEqual( std::vector< double >& vec1, std::vector< double >& vec2 )
+    static void isNotEqual( const std::vector< WFIRFilter::ScalarT >& vec1, const std::vector< WFIRFilter::ScalarT >& vec2 )
     {
         size_t count = std::min( vec1.size(), vec2.size() );
         for( size_t i = 0; i < count; ++i )
@@ -73,28 +91,24 @@ public:
         const size_t channels = CHANNELS;
         const size_t samples = coefficients;
 
-        boost::shared_ptr< std::vector< std::vector< double > > > in( new std::vector< std::vector< double > >() );
+        WLEMData::DataSPtr in( new WLEMData::DataT( channels, samples ) );
+        in->setZero();
+
         for( size_t chan = 0; chan < channels; ++chan )
         {
-            std::vector< double > channel;
-            channel.push_back( 1 );
-            for( size_t samps = 1; samps < samples; ++samps )
-            {
-                channel.push_back( 0 );
-            }
-            in->push_back( channel );
+            ( *in )( chan, 0 ) = 1;
         }
-        LaBP::WLEMD::SPtr emdIn( new LaBP::WLEMDEEG() );
+        WLEMData::SPtr emdIn( new WLEMDEEG() );
         emdIn->setData( in );
 
-        LaBP::WLEMD::SPtr emdOut = filter->filter( emdIn, LaBP::WLTimeProfiler::SPtr() );
+        WLEMData::SPtr emdOut = filter->filter( emdIn );
 
-        std::vector< double > outExpected = filter->getCoefficients();
-        std::vector< std::vector< double > > out = emdOut->getData();
+        WLEMData::ChannelT outExpected = WLEMData::ChannelT::Map( filter->getCoefficients().data(), coefficients );
+        const WLEMData::DataT& out = emdOut->getData();
 
         for( size_t chan = 0; chan < channels; ++chan )
         {
-            isEqual( outExpected, out[chan] );
+            isEqual( outExpected, out.row( chan ) );
         }
     }
 
@@ -107,36 +121,29 @@ public:
         const size_t channels = CHANNELS;
         const size_t samples = coefficients * 2;
 
-        boost::shared_ptr< std::vector< std::vector< double > > > in( new std::vector< std::vector< double > >() );
-        for( size_t chan = 0; chan < channels; ++chan )
-        {
-            std::vector< double > channel;
-            for( size_t samps = 0; samps < samples; ++samps )
-            {
-                channel.push_back( 1 );
-            }
-            in->push_back( channel );
-        }
-        LaBP::WLEMD::SPtr emdIn( new LaBP::WLEMDEEG() );
+        WLEMData::DataSPtr in( new WLEMData::DataT( channels, samples ) );
+        in->setOnes();
+        WLEMData::SPtr emdIn( new WLEMDEEG() );
         emdIn->setData( in );
 
-        LaBP::WLEMD::SPtr emdOut = filter->filter( emdIn, LaBP::WLTimeProfiler::SPtr() );
+        WLEMData::SPtr emdOut = filter->filter( emdIn );
 
-        double firSum = 0;
+        WLEMData::ScalarT firSum = 0;
         for( size_t i = 0; i < coefficients; ++i )
         {
             firSum += filter->getCoefficients()[i];
         }
-        std::vector< std::vector< double > > out = emdOut->getData();
-        std::vector< double > outExpected = out.front();
+
+        const WLEMData::DataT& out = emdOut->getData();
+        WLEMData::ChannelT outExpected = out.row( 0 );
         for( size_t i = coefficients; i < outExpected.size(); ++i )
         {
-            outExpected[i] = firSum;
+            outExpected( i ) = firSum;
         }
 
         for( size_t chan = 0; chan < channels; ++chan )
         {
-            isEqual( outExpected, out[chan] );
+            isEqual( outExpected, out.row( chan ) );
         }
     }
 };

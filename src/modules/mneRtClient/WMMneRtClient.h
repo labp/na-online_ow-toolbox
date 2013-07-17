@@ -29,9 +29,8 @@
 
 #include <core/common/WPropertyTypes.h>
 
-#include "core/data/WLDataSetEMM.h"
+#include "core/data/WLEMMCommand.h"
 #include "core/module/WLModuleDrawable.h"
-#include "core/module/WLModuleOutputDataCollectionable.h"
 #include "core/io/WLReaderExperiment.h"
 #include "WRtClient.h"
 
@@ -65,7 +64,14 @@ public:
     virtual const std::string getDescription() const;
 
 protected:
-    virtual void initModule();
+    // ---------------------------------
+    // Methods for WLEMMCommandProcessor
+    // ---------------------------------
+    virtual bool processCompute( WLEMMeasurement::SPtr emm );
+    virtual bool processInit( WLEMMCommand::SPtr labp );
+    virtual bool processReset( WLEMMCommand::SPtr labp );
+
+    virtual void moduleInit();
 
     /**
      * Entry point after loading the module. Runs in separate thread.
@@ -99,11 +105,6 @@ protected:
 private:
     //! a condition for the matrix selection
     WCondition::SPtr m_propCondition;
-
-    /**
-     * The only output of this data module. TODO use OW class
-     */
-    LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM >::SPtr m_output;
 
     /**
      * Property group for connection settings

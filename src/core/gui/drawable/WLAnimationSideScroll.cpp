@@ -190,7 +190,7 @@ namespace LaBP
         return m_listPAT;
     }
 
-    WLAnimationSideScroll::EMMNode::EMMNode( WLDataSetEMM::SPtr emm ) :
+    WLAnimationSideScroll::EMMNode::EMMNode( WLEMMeasurement::SPtr emm ) :
                     m_emm( emm )
     {
     }
@@ -199,7 +199,7 @@ namespace LaBP
     {
     }
 
-    WLDataSetEMM::SPtr WLAnimationSideScroll::EMMNode::getEmm()
+    WLEMMeasurement::SPtr WLAnimationSideScroll::EMMNode::getEmm()
     {
         return m_emm;
     }

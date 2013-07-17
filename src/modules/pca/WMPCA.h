@@ -29,10 +29,9 @@
 
 #include <core/kernel/WModule.h>
 
-#include "core/data/WLDataSetEMM.h"
+#include "core/data/WLEMMCommand.h"
 #include "core/module/WLModuleDrawable.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
-#include "core/module/WLModuleOutputDataCollectionable.h"
 
 #include "WPCA.h"
 
@@ -68,7 +67,14 @@ public:
     virtual const std::string getDescription() const;
 
 protected:
-    virtual void initModule();
+    // ---------------------------------
+    // Methods for WLEMMCommandProcessor
+    // ---------------------------------
+    virtual bool processCompute( WLEMMeasurement::SPtr emm );
+    virtual bool processInit( WLEMMCommand::SPtr labp );
+    virtual bool processReset( WLEMMCommand::SPtr labp );
+
+    virtual void moduleInit();
 
     /**
      * \par Description
@@ -113,12 +119,7 @@ private:
     /**
      * Input connector for a WEEG2 dataset to get filtered
      */
-    boost::shared_ptr< LaBP::WLModuleInputDataRingBuffer< LaBP::WLDataSetEMM > > m_input;
-
-    /**
-     * Output connector for a filtered WEEG2 dataset
-     */
-    boost::shared_ptr< LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM > > m_output;
+    LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input;
 
     /**
      * A condition used to notify about changes in several properties.

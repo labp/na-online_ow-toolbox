@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <algorithm>    // std::max
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -35,16 +36,11 @@
 #include <core/common/WPropertyHelper.h>
 #include <core/kernel/WModule.h>
 
-// Input & output data
-#include "core/data/WLDataSetEMM.h"
-
-// Input & output connectors
-// TODO(pieloth) use OW classes
+#include "core/data/WLEMMeasurement.h"
+#include "core/data/emd/WLEMData.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
-
-#include "core/util/WLTimeProfiler.h"
-
+#include "core/util/profiler/WLTimeProfiler.h"
 
 // FIR filter implementations
 #include "WFIRFilter.h"
@@ -91,13 +87,13 @@ const std::string WMFIRFilter::getDescription() const
 void WMFIRFilter::connectors()
 {
     // TODO(pieloth) use OW classes
-    m_input = boost::shared_ptr< LaBP::WLModuleInputDataRingBuffer< LaBP::WLDataSetEMM > >(
-                    new LaBP::WLModuleInputDataRingBuffer< LaBP::WLDataSetEMM >( 8, shared_from_this(), "in",
+    m_input = LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr(
+                    new LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >( 8, shared_from_this(), "in",
                                     "Expects a EMM-DataSet for filtering." ) );
     addConnector( m_input );
 
-    m_output = boost::shared_ptr< LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM > >(
-                    new LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM >( shared_from_this(), "out",
+    m_output = LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr(
+                    new LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >( shared_from_this(), "out",
                                     "Provides a filtered EMM-DataSet" ) );
     addConnector( m_output );
 }
@@ -106,7 +102,7 @@ void WMFIRFilter::properties()
 {
     LaBP::WLModuleDrawable::properties();
 
-    m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+    m_propCondition = WCondition::SPtr( new WCondition() );
 
     m_propGrpFirFilter = m_properties->addPropertyGroup( "FIR Filter", "Contains properties for FIR Filter.", false );
 
@@ -137,7 +133,7 @@ void WMFIRFilter::properties()
     WPropertyHelper::PC_NOTEMPTY::addTo( m_filterTypeSelection );
 
     // same with windows
-    m_windows = boost::shared_ptr< WItemSelection >( new WItemSelection() );
+    m_windows = WItemSelection::SPtr( new WItemSelection() );
     std::vector< WFIRFilter::WEWindowsType::Enum > wEnums = WFIRFilter::WEWindowsType::values();
     for( std::vector< WFIRFilter::WEWindowsType::Enum >::iterator it = wEnums.begin(); it != wEnums.end(); ++it )
     {
@@ -158,17 +154,17 @@ void WMFIRFilter::properties()
     // the frequencies
     m_samplingFreq = m_propGrpFirFilter->addProperty( "Sampling Frequency",
                     "Samplingfrequency comes from data. Do only change this for down- or upsampling", 500.0 );
-    m_samplingFreq->setMin( 0.0 );
-    m_samplingFreq->setMax( 48000.0 );
+    m_samplingFreq->setMin( 1.0 );
+    m_samplingFreq->setMax( 16000.0 );
 
     m_cFreq1 = m_propGrpFirFilter->addProperty( "Cutoff frequency 1", "Frequency for filterdesign", 1.0 );
     m_cFreq1->setMin( 0.0 );
-    m_cFreq1->setMax( 48000.0 );
+    m_cFreq1->setMax( 2000.0 );
 
     m_cFreq2 = m_propGrpFirFilter->addProperty( "Cutoff frequency 2",
                     "Frequency for filterdesign. Second frequency is needed for bandpass and bandstop", 20.0 );
     m_cFreq2->setMin( 0.0 );
-    m_cFreq2->setMax( 48000.0 );
+    m_cFreq2->setMax( 2000.0 );
     m_cFreq2->setHidden( true );
 
     m_order = m_propGrpFirFilter->addProperty( "Order:", "The number of coeffitients depends on the order", 200 );
@@ -176,10 +172,10 @@ void WMFIRFilter::properties()
 
     // button for starting design
     m_designTrigger = m_propGrpFirFilter->addProperty( "Filter:", "Calculate Filtercoeffitients", WPVBaseTypes::PV_TRIGGER_READY,
-                    boost::bind( &WMFIRFilter::callbackDesignButtonPressed, this ) );
+                    m_propCondition );
 }
 
-void WMFIRFilter::initModule()
+void WMFIRFilter::moduleInit()
 {
     infoLog() << "Initializing module ...";
 
@@ -206,19 +202,18 @@ void WMFIRFilter::moduleMain()
     m_moduleState.add( m_input->getDataChangedCondition() ); // when inputdata changed
     m_moduleState.add( m_propCondition ); // when properties changed
 
-    LaBP::WLDataSetEMM::SPtr emmIn;
-    LaBP::WLDataSetEMM::SPtr emmOut;
+    WLEMMCommand::SPtr labpIn;
 
     ready(); // signal ready state
 
-    initModule();
+    moduleInit();
 
     debugLog() << "Entering main loop";
     while( !m_shutdownFlag() )
     {
-        debugLog() << "Waiting for Events";
         if( m_input->isEmpty() ) // continue processing if data is available
         {
+            debugLog() << "Waiting for Events";
             m_moduleState.wait(); // wait for events like inputdata or properties changed
         }
 
@@ -233,54 +228,22 @@ void WMFIRFilter::moduleMain()
             handleImplementationChanged();
         }
 
-        emmIn.reset();
+        if( m_designTrigger->changed( true ) )
+        {
+            handleDesignButtonPressed();
+        }
+
+        labpIn.reset();
         if( !m_input->isEmpty() )
         {
-            emmIn = m_input->getData();
+            labpIn = m_input->getData();
         }
-        const bool dataValid = ( emmIn );
+        const bool dataValid = ( labpIn );
 
         // ---------- INPUTDATAUPDATEEVENT ----------
         if( dataValid ) // If there was an update on the inputconnector
         {
-            // The data is valid and we received an update. The data is not NULL but may be the same as in previous loops.
-            debugLog() << "Data received ...";
-            debugLog() << "EMM modalities: " << emmIn->getModalityCount();
-
-            LaBP::WLTimeProfiler::SPtr profiler = emmIn->createAndAddProfiler( getName(), "process" );
-            profiler->start();
-
-            // Create output data
-            emmOut.reset( new LaBP::WLDataSetEMM( *emmIn ) );
-
-            std::vector< LaBP::WLEMD::SPtr > emdsIn = emmIn->getModalityList();
-            for( std::vector< LaBP::WLEMD::SPtr >::const_iterator emdIn = emdsIn.begin(); emdIn != emdsIn.end();
-                            ++emdIn )
-            {
-                debugLog() << "EMD type: " << ( *emdIn )->getModalityType();
-
-#ifdef DEBUG
-                // Show some input pieces
-                const size_t nbChannels = ( *emdIn )->getNrChans();
-                debugLog() << "EMD channels: " << nbChannels;
-                const size_t nbSamlesPerChan = nbChannels > 0 ? ( *emdIn )->getSamplesPerChan() : 0;
-                debugLog() << "EMD samples per channel: " << nbSamlesPerChan;
-                debugLog() << "Input pieces:\n" << LaBP::WLEMD::dataToString( ( *emdIn )->getData(), 5, 10 );
-#endif // DEBUG
-                LaBP::WLEMD::SPtr emdOut = m_firFilter->filter( ( *emdIn ), profiler );
-                emmOut->addModality( emdOut );
-
-#ifdef DEBUG
-                // Show some filtered pieces
-                debugLog() << "Filtered pieces:\n" << LaBP::WLEMD::dataToString( emdOut->getData(), 5, 10 );
-#endif // DEBUG
-            }
-            m_firFilter->doPostProcessing( emmOut, emmIn, profiler );
-
-            updateView( emmOut );
-
-            profiler->stopAndLog();
-            m_output->updateData( emmOut );
+            process( labpIn );
         }
     }
 }
@@ -323,16 +286,14 @@ void WMFIRFilter::handleImplementationChanged( void )
                         new WFIRFilterCpu( fType, wType, m_order->get(), m_samplingFreq->get(), m_cFreq1->get(),
                                         m_cFreq2->get() ) );
     }
+
+    WLEMMCommand::SPtr labp( new WLEMMCommand( WLEMMCommand::Command::RESET ) );
+    processReset( labp );
 }
 
-void WMFIRFilter::callbackDesignButtonPressed( void )
+void WMFIRFilter::handleDesignButtonPressed( void )
 {
     debugLog() << "handleDesignButtonPressed() called!";
-    if( m_designTrigger->get() == WPVBaseTypes::PV_TRIGGER_READY )
-    {
-        // suppress double execution
-        return;
-    }
 
     m_firFilter->setFilterType(
                     m_filterTypeSelection->get().at( 0 )->getAs< WItemSelectionItemTyped< WFIRFilter::WEFilterType::Enum > >()->getValue() );
@@ -342,18 +303,19 @@ void WMFIRFilter::callbackDesignButtonPressed( void )
     m_firFilter->setSamplingFrequency( m_samplingFreq->get() );
     m_firFilter->setCutOffFrequency1( m_cFreq1->get() );
     m_firFilter->setCutOffFrequency2( m_cFreq2->get() );
-
     m_firFilter->design();
 
     m_designTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, true );
-    m_designTrigger->changed( true );
 
     infoLog() << "New filter designed!";
+
+    WLEMMCommand::SPtr labp = WLEMMCommand::instance( WLEMMCommand::Command::RESET );
+    processReset( labp );
 }
 
 void WMFIRFilter::callbackFilterTypeChanged( void )
 {
-    debugLog() << "handleFilterTypeChanged() called!";
+    debugLog() << "callbackFilterTypeChanged() called!";
     if( ( WFIRFilter::WEFilterType::name( WFIRFilter::WEFilterType::BANDPASS ).compare(
                     m_filterTypeSelection->get().at( 0 )->getName() ) == 0
                     || WFIRFilter::WEFilterType::name( WFIRFilter::WEFilterType::BANDSTOP ).compare(
@@ -366,3 +328,102 @@ void WMFIRFilter::callbackFilterTypeChanged( void )
         m_cFreq2->setHidden( true );
     }
 }
+
+bool WMFIRFilter::processCompute( WLEMMeasurement::SPtr emmIn )
+{
+    WLTimeProfiler tp( "WMFIRFilter", "processCompute" );
+
+    WLEMMeasurement::SPtr emmOut;
+
+    // The data is valid and we received an update. The data is not NULL but may be the same as in previous loops.
+    debugLog() << "Data received ...";
+    debugLog() << "EMM modalities: " << emmIn->getModalityCount();
+
+    // Create output data
+    emmOut.reset( new WLEMMeasurement( *emmIn ) );
+
+    std::vector< WLEMData::SPtr > emdsIn = emmIn->getModalityList();
+    for( std::vector< WLEMData::SPtr >::const_iterator emdIn = emdsIn.begin(); emdIn != emdsIn.end(); ++emdIn )
+    {
+        debugLog() << "EMD type: " << ( *emdIn )->getModalityType();
+
+#ifdef DEBUG
+        // Show some input pieces
+        const size_t nbChannels = ( *emdIn )->getNrChans();
+        debugLog() << "EMD channels: " << nbChannels;
+        const size_t nbSamlesPerChan = nbChannels > 0 ? ( *emdIn )->getSamplesPerChan() : 0;
+        debugLog() << "EMD samples per channel: " << nbSamlesPerChan;
+        debugLog() << "Input pieces:\n" << WLEMData::dataToString( ( *emdIn )->getData(), 5, 10 );
+#endif // DEBUG
+        WLEMData::SPtr emdOut = m_firFilter->filter( ( *emdIn ) );
+        emmOut->addModality( emdOut );
+
+#ifdef DEBUG
+        // Show some filtered pieces
+        debugLog() << "Filtered pieces:\n" << WLEMData::dataToString( emdOut->getData(), 5, 10 );
+#endif // DEBUG
+    }
+    m_firFilter->doPostProcessing( emmOut, emmIn );
+
+    updateView( emmOut );
+
+    WLEMMCommand::SPtr labp = WLEMMCommand::instance( WLEMMCommand::Command::COMPUTE );
+    labp->setEmm( emmOut );
+    m_output->updateData( labp );
+
+    return true;
+}
+
+bool WMFIRFilter::processInit( WLEMMCommand::SPtr labp )
+{
+    if( labp->hasEmm() )
+    {
+        WLEMMeasurement::ConstSPtr emm = labp->getEmm();
+        WLEMData::ConstSPtr emd;
+
+        float samplFreqEeg = 0.0;
+        if( emm->hasModality( LaBP::WEModalityType::EEG ) )
+        {
+            emd = emm->getModality( LaBP::WEModalityType::EEG );
+            samplFreqEeg = emd->getSampFreq();
+        }
+
+        float samplFreqMeg = 0.0;
+        if( emm->hasModality( LaBP::WEModalityType::MEG ) )
+        {
+            emd = emm->getModality( LaBP::WEModalityType::MEG );
+            samplFreqMeg = emd->getSampFreq();
+        }
+
+        float samplFreq = 0.0;
+        if( samplFreqEeg == samplFreqMeg && samplFreqEeg > 0.0 )
+        {
+            samplFreq = samplFreqEeg;
+        }
+        else
+            if( samplFreqEeg < 0.1 || samplFreqMeg < 0.1 )
+            {
+                samplFreq = std::max( samplFreqEeg, samplFreqMeg );
+            }
+        if( samplFreq > 0.0 )
+        {
+            infoLog() << "Init filter with new sampling rate: " << samplFreq;
+            m_samplingFreq->set( samplFreq, true );
+            handleDesignButtonPressed();
+        }
+        else
+        {
+            infoLog() << "No sampling rate to initialize!";
+        }
+    }
+    m_output->updateData( labp );
+    return true;
+}
+
+bool WMFIRFilter::processReset( WLEMMCommand::SPtr labp )
+{
+    m_firFilter->reset();
+    m_output->updateData( labp );
+    return true;
+}
+

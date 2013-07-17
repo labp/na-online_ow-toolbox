@@ -24,17 +24,19 @@
 
 #include <vector>
 
+#include <Eigen/Core>
+
 #include "core/data/WLMatrixTypes.h"
-#include "core/data/WLDataSetEMM.h"
+#include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMEnumTypes.h"
-#include "core/data/emd/WLEMD.h"
+#include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDSource.h"
 
 #include "WLBoundCalculator.h"
 
 namespace LaBP
 {
-    WLBoundCalculator::WLBoundCalculator( LaBP::WLEMD::SampleT alpha ) :
+    WLBoundCalculator::WLBoundCalculator( WLEMData::ScalarT alpha ) :
                     m_alpha( alpha )
     {
     }
@@ -43,13 +45,12 @@ namespace LaBP
     {
     }
 
-    LaBP::WLEMD::SampleT WLBoundCalculator::getMax2D( LaBP::WLDataSetEMM::ConstSPtr emm,
-                    LaBP::WEModalityType::Enum modality )
+    WLEMData::ScalarT WLBoundCalculator::getMax2D( WLEMMeasurement::ConstSPtr emm, LaBP::WEModalityType::Enum modality )
     {
         if( modality == LaBP::WEModalityType::SOURCE )
         {
             LaBP::WEModalityType::Enum origin_modality =
-                            emm->getModality< const LaBP::WLEMDSource >( modality )->getOriginModalityType();
+                            emm->getModality< const WLEMDSource >( modality )->getOriginModalityType();
 
             return getMax( emm->getModality( origin_modality )->getData() );
         }
@@ -59,74 +60,35 @@ namespace LaBP
         }
     }
 
-    LaBP::WLEMD::SampleT WLBoundCalculator::getMax3D( LaBP::WLDataSetEMM::ConstSPtr emm,
-                    LaBP::WEModalityType::Enum modality )
+    WLEMData::ScalarT WLBoundCalculator::getMax3D( WLEMMeasurement::ConstSPtr emm, LaBP::WEModalityType::Enum modality )
     {
-        if( modality == LaBP::WEModalityType::SOURCE )
-        {
-            return getMax( emm->getModality< const LaBP::WLEMDSource >( modality )->getMatrix() );
-        }
-        else
-        {
-            return getMax( emm->getModality( modality )->getData() );
-        }
+        return getMax( emm->getModality( modality )->getData() );
     }
 
-    LaBP::WLEMD::SampleT WLBoundCalculator::getMax( const MatrixT& matrix )
+    WLEMData::ScalarT WLBoundCalculator::getMax( const WLEMData::DataT& data )
     {
-        std::vector< LaBP::WLEMD::SampleT > average;
-        for( MatrixT::Index r = 0; r < matrix.rows(); ++r )
-        {
-            LaBP::WLEMD::SampleT sum = 0;
-            for( MatrixT::Index c = 0; c < matrix.cols(); ++c )
-            {
-                sum += matrix( r, c );
-            }
-            average.push_back( sum / matrix.cols() );
-        }
+        const WLEMData::ChannelT::Index channels = data.rows();
+        const WLEMData::SampleT::Index samples = data.cols();
 
-        LaBP::WLEMD::SampleT maxValue = 0;
-        for( MatrixT::Index r = 0; r < matrix.rows(); ++r )
-        {
-            LaBP::WLEMD::SampleT value = 0;
-            for( MatrixT::Index c = 0; c < matrix.cols(); ++c )
-            {
-                value += ( matrix( r, c ) - average[r] ) * ( matrix( r, c ) - average[r] );
-            }
-            value = sqrt( value / matrix.cols() ) * m_alpha + average[r];
-            if( value > maxValue )
-            {
-                maxValue = value;
-            }
-        }
-        return maxValue;
-    }
+        // TODO(pieloth): use new ScalarT/SampleT
+        WLEMData::SampleT average( channels );
+        average.setZero();
 
-    LaBP::WLEMD::SampleT WLBoundCalculator::getMax( const LaBP::WLEMD::DataT& data )
-    {
-        std::vector< LaBP::WLEMD::SampleT > average;
-        const size_t channels = data.size();
-        for( size_t chan = 0; chan < channels; ++chan )
+        for( WLEMData::SampleT::Index smp = 0; smp < samples; ++smp )
         {
-            LaBP::WLEMD::SampleT sum = 0;
-            const size_t samples = data[chan].size();
-            for( size_t smp = 0; smp < samples; ++smp )
-            {
-                sum += data[chan][smp];
-            }
-            average.push_back( sum / samples );
+            average += data.col( smp );
         }
+        average *= ( 1.0 / samples );
 
-        LaBP::WLEMD::SampleT maxValue = 0;
-        for( size_t chan = 0; chan < channels; ++chan )
+        WLEMData::ScalarT maxValue = 0;
+        for( WLEMData::ChannelT::Index chan = 0; chan < channels; ++chan )
         {
-            LaBP::WLEMD::SampleT value = 0;
-            const size_t samples = data[chan].size();
-            for( size_t smp = 0; smp < samples; ++smp )
-            {
-                value += ( data[chan][smp] - average[chan] ) * ( data[chan][smp] - average[chan] );
-            }
-            value = sqrt( value / samples ) * m_alpha + average[chan];
+            WLEMData::ScalarT value = 0;
+            Eigen::Array< WLEMData::ScalarT, 1, Eigen::Dynamic > vVec( data.row( chan ) );
+            vVec -= average( chan );
+            vVec *= vVec;
+            value = vVec.sum();
+            value = m_alpha * sqrt( value / samples ) + average( chan );
             if( value > maxValue )
             {
                 maxValue = value;

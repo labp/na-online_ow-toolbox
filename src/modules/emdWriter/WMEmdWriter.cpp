@@ -33,18 +33,14 @@
 #include <core/common/WPropertyHelper.h>
 #include <core/kernel/WModule.h>
 
-// Input & output connectors
-// TODO use OW classes
+#include "core/data/WLEMMCommand.h"
+#include "core/data/WLEMMeasurement.h"
+#include "core/data/WLEMMEnumTypes.h"
+#include "core/data/emd/WLEMData.h"
+#include "core/data/emd/WLEMDSource.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
-
-// Input & output data
-#include "core/data/WLDataSetEMM.h"
-#include "core/data/WLEMMEnumTypes.h"
-#include "core/data/emd/WLEMD.h"
-#include "core/data/emd/WLEMDSource.h"
-
-#include "core/util/WLTimeProfiler.h"
+#include "core/util/profiler/WLTimeProfiler.h"
 
 #include "WMEmdWriter.h"
 #include "WMEmdWriter.xpm"
@@ -83,13 +79,13 @@ const std::string WMEmdWriter::getDescription() const
 
 void WMEmdWriter::connectors()
 {
-    m_input = boost::shared_ptr< LaBP::WLModuleInputDataRingBuffer< LaBP::WLDataSetEMM > >(
-                    new LaBP::WLModuleInputDataRingBuffer< LaBP::WLDataSetEMM >( 8, shared_from_this(), "in",
+    m_input = LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr(
+                    new LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >( 8, shared_from_this(), "in",
                                     "Expects a EMM-DataSet for filtering." ) );
     addConnector( m_input );
 
-    m_output = boost::shared_ptr< LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM > >(
-                    new LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM >( shared_from_this(), "out",
+    m_output = LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr(
+                    new LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >( shared_from_this(), "out",
                                     "Provides a filtered EMM-DataSet" ) );
     addConnector( m_output );
 }
@@ -137,7 +133,7 @@ void WMEmdWriter::properties()
     m_fSuffix = m_propGrpModule->addProperty( "File suffix:", "File suffix ...", suffix ); // TODO
 }
 
-void WMEmdWriter::initModule()
+void WMEmdWriter::moduleInit()
 {
     infoLog() << "Initializing module ...";
     waitRestored();
@@ -152,11 +148,11 @@ void WMEmdWriter::moduleMain()
     m_moduleState.add( m_input->getDataChangedCondition() ); // when inputdata changed
     m_moduleState.add( m_propCondition ); // when properties changed
 
-    LaBP::WLDataSetEMM::SPtr emmIn;
+    WLEMMCommand::SPtr labpIn;
 
     ready(); // signal ready state
 
-    initModule();
+    moduleInit();
 
     debugLog() << "Entering main loop";
 
@@ -167,7 +163,7 @@ void WMEmdWriter::moduleMain()
     std::string prefix;
     std::string suffix;
     std::string fname;
-    LaBP::WLEMD::ConstSPtr emd;
+    WLEMData::ConstSPtr emd;
 
     while( !m_shutdownFlag() )
     {
@@ -198,32 +194,34 @@ void WMEmdWriter::moduleMain()
             }
         }
 
-        emmIn.reset();
+        labpIn.reset();
         if( !m_input->isEmpty() )
         {
-            emmIn = m_input->getData();
+            labpIn = m_input->getData();
         }
-        const bool dataValid = ( emmIn );
+        const bool dataValid = ( labpIn );
 
         // ---------- INPUTDATAUPDATEEVENT ----------
-        if( dataValid ) // If there was an update on the inputconnector
+        if( dataValid && labpIn->hasEmm() ) // If there was an update on the inputconnector
         {
             // TODO take every x. packet
 
             // The data is valid and we received an update. The data is not NULL but may be the same as in previous loops.
             debugLog() << "received data";
 
+            WLEMMeasurement::SPtr emm = labpIn->getEmm();
             if( m_packetsAll->get() || m_packetsNext->get() )
             {
                 allEmd = m_allEmd->get();
                 folder = m_folder->get();
                 prefix = m_fPrefix->get();
                 suffix = m_fSuffix->get();
+
                 if( allEmd )
                 {
-                    for( size_t i = 0; i < emmIn->getModalityCount(); ++i )
+                    for( size_t i = 0; i < emm->getModalityCount(); ++i )
                     {
-                        emd = emmIn->getModality( i );
+                        emd = emm->getModality( i );
                         emdType = emd->getModalityType();
                         fname = getFileName( folder, prefix, suffix, emdType, emd->getNrChans(), emd->getSamplesPerChan(),
                                         count );
@@ -235,9 +233,9 @@ void WMEmdWriter::moduleMain()
                 {
                     emdType = m_processModalitySelection->get().at( 0 )->getAs<
                                     WItemSelectionItemTyped< LaBP::WEModalityType::Enum > >()->getValue();
-                    if( emmIn->hasModality( emdType ) )
+                    if( emm->hasModality( emdType ) )
                     {
-                        emd = emmIn->getModality( emdType );
+                        emd = emm->getModality( emdType );
                         fname = getFileName( folder, prefix, suffix, emdType, emd->getNrChans(), emd->getSamplesPerChan(),
                                         count );
                         infoLog() << "file name: " << fname;
@@ -251,21 +249,21 @@ void WMEmdWriter::moduleMain()
                 m_packetsNext->set( false );
             }
 
-            updateView( emmIn );
+            updateView( emm );
             ++count;
-            m_output->updateData( emmIn );
+            m_output->updateData( labpIn );
         }
     }
 }
 
-bool WMEmdWriter::write( std::string fname, LaBP::WLEMD::ConstSPtr emd )
+bool WMEmdWriter::write( std::string fname, WLEMData::ConstSPtr emd )
 {
     std::ofstream fstream;
     fstream.open( fname.c_str(), std::ofstream::binary );
 
     if( emd->getModalityType() == LaBP::WEModalityType::SOURCE )
     {
-        LaBP::MatrixT& data = emd->getAs< const LaBP::WLEMDSource >()->getMatrix();
+        LaBP::MatrixT& data = emd->getAs< const WLEMDSource >()->getMatrix();
         const LaBP::MatrixT::Index channels = data.rows();
         const LaBP::MatrixT::Index samples = data.cols();
         LaBP::MatrixT::Scalar value;
@@ -281,7 +279,7 @@ bool WMEmdWriter::write( std::string fname, LaBP::WLEMD::ConstSPtr emd )
     }
     else
     {
-        LaBP::WLEMD::DataT& data = emd->getData();
+        WLEMData::DataT& data = emd->getData();
         const size_t channels = emd->getNrChans();
         const size_t samples = emd->getSamplesPerChan();
 
@@ -309,4 +307,24 @@ std::string WMEmdWriter::getFileName( std::string folder, std::string prefix, st
     fname.append( ss.str() );
     fname.append( suffix );
     return fname;
+}
+
+bool WMEmdWriter::processCompute( WLEMMeasurement::SPtr emm )
+{
+    WLEMMCommand::SPtr labp( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
+    labp->setEmm( emm );
+    m_output->updateData( labp );
+    return true;
+}
+
+bool WMEmdWriter::processInit( WLEMMCommand::SPtr labp )
+{
+    m_output->updateData( labp );
+    return true;
+}
+
+bool WMEmdWriter::processReset( WLEMMCommand::SPtr labp )
+{
+    m_output->updateData( labp );
+    return true;
 }

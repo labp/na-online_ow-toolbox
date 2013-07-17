@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include "core/common/WLogger.h"
+#include "core/util/profiler/WLTimeProfiler.h"
 
 #include "WEpochRejection.h"
 
@@ -49,17 +50,17 @@ WEpochRejection::~WEpochRejection()
  */
 void WEpochRejection::initRejection()
 {
-   m_eegLevel = 0;
-   m_eogLevel = 0;
-   m_megGrad = 0;
-   m_megMag = 0;
-   m_rejCount = 0;
+    m_eegLevel = 0;
+    m_eogLevel = 0;
+    m_megGrad = 0;
+    m_megMag = 0;
+    m_rejCount = 0;
 }
 
 /**
  * Method to initialize the thresholds
  */
-void WEpochRejection::setLevels(double eegLevel, double eogLevel, double megGrad, double megMag)
+void WEpochRejection::setLevels( double eegLevel, double eogLevel, double megGrad, double megMag )
 {
     m_eegLevel = eegLevel;
     m_eogLevel = eogLevel;
@@ -70,99 +71,82 @@ void WEpochRejection::setLevels(double eegLevel, double eogLevel, double megGrad
 /**
  * Method to process the rejection on the data.
  */
-bool WEpochRejection::getRejection(const LaBP::WLDataSetEMM::SPtr emm)
+bool WEpochRejection::getRejection( const WLEMMeasurement::SPtr emm )
 {
+    WLTimeProfiler tp( "WEpochRejection", "getRejection" );
     wlog::debug( CLASS ) << "starting rejection";
 
     m_rejCount = 0;
 
-    LaBP::WLEMD::SPtr modality;
-    size_t channels;
-    size_t samples;
-    size_t rejections = 0;
-    double levelValue = 0;
+    WLEMData::SPtr modality;
 
-    for(size_t mod = 0; mod < emm->getModalityCount(); mod++) // for all modalities
+    for( size_t mod = 0; mod < emm->getModalityCount(); ++mod ) // for all modalities
     {
         // get modality
         modality = emm->getModality( mod );
+        const size_t channels = modality->getData().rows();
+        size_t rejections = 0;
 
         // if wrong modality, next
-        if(! validModality(modality->getModalityType()))
+        if( !validModality( modality->getModalityType() ) )
         {
             wlog::debug( CLASS ) << "invalid modality";
             continue;
         }
 
-        channels = modality->getData().size(); // get number of channels
-        samples = modality->getData().front().size(); // get number of samples
+        WLEMData::SampleT max = modality->getData().rowwise().maxCoeff();
+        WLEMData::SampleT min = modality->getData().rowwise().minCoeff();
+        WLEMData::SampleT diff = max - min;
 
-        size_t channelCount = 0;
-
-        for( size_t chan = 0; chan < channels; chan++) // for all channels
+        // definition of the threshold to use by the modality
+        switch( modality->getModalityType() )
         {
-            double min = 0, max = 0; // vars for min/max peak
+            case LaBP::WEModalityType::EEG:
+                // compare the difference with the given level value
+                if( diff.maxCoeff() > m_eegLevel )
+                {
+                    ++rejections; // counts the rejected for each modality
+                }
+                break;
+            case LaBP::WEModalityType::EOG:
+                if( diff.maxCoeff() > m_eogLevel )
+                {
+                    ++rejections; // counts the rejected for each modality
+                }
+                break;
+            case LaBP::WEModalityType::MEG:
 
-            channelCount++; // number of the current channel
+                for( size_t chan = 0; chan < channels; chan++ )
+                {
+                    if( ( chan % 3 ) == 0 ) // magnetometer
+                    {
+                        if( diff( chan ) > m_megMag )
+                        {
+                            ++rejections;
+                        }
 
-            // definition of the threshold to use by the modality
-            switch(modality->getModalityType())
-            {
-                case LaBP::WEModalityType::EEG:
-                    levelValue = m_eegLevel;
-                    break;
-                case LaBP::WEModalityType::EOG:
-                    levelValue = m_eogLevel;
-                    break;
-                case LaBP::WEModalityType::MEG:
-                    if( (channelCount % 3) == 0) // magnetometer
-                        levelValue = m_megMag;
+                    }
                     else // gradiometer
-                        levelValue = m_megGrad;
-                    break;
-                default:; // skip the channel
-            }
+                    {
+                        if( diff( chan ) > m_megGrad )
+                        {
+                            ++rejections;
+                        }
+                    }
 
-            for( size_t samp = 0; samp < samples; samp++ ) // for all samples of the channel
-            {
-                double sample = modality->getData()[chan][samp]; // store the sample value
+                }
 
-                if( max == 0)
-                    max = sample;
-
-                if( min == 0)
-                    min = sample;
-
-                if(sample > max) // define maximum
-                    max = sample;
-
-                if(sample < min) // define minimum
-                    min = sample;
-            }
-
-            double diff = 0;
-
-            // calculate the difference between min and max peek for the channel
-            if(max >= 0)
-            {
-                diff = max - min;
-            }
-            else
-            {
-                diff = min - max;
-                diff *= (-1); // positive difference
-            }
-
-            // compare the difference with the given level value
-            if(diff > levelValue)
-            {
-                rejections++; // counts the rejected for each modality
-            }
+                break;
+            default:
+                ; // skip the channel
         }
 
         // if least one channel has to reject, reject the whole input
-        if(rejections > 0)
-            m_rejCount++;
+        if( rejections > 0 )
+        {
+            wlog::debug( CLASS ) << "Epochs rejected for " << modality->getModalityType() << ": " << rejections;
+            ++m_rejCount;
+        }
     }
 
     return m_rejCount > 0;
@@ -180,23 +164,24 @@ size_t WEpochRejection::getCount()
  * Method to separate valid modalities from invalid modalities.
  * It returns false, if the modality has to skip else true.
  */
-bool WEpochRejection::validModality(LaBP::WEModalityType::Enum modalityType)
+bool WEpochRejection::validModality( LaBP::WEModalityType::Enum modalityType )
 {
-   bool rc = false;
+    bool rc = false;
 
-   switch(modalityType)
-   {
-       case LaBP::WEModalityType::EEG:
-           rc = true;
-           break;
-       case LaBP::WEModalityType::EOG:
-           rc = true;
-           break;
-       case LaBP::WEModalityType::MEG:
-           rc = true;
-           break;
-       default:;
-   }
+    switch( modalityType )
+    {
+        case LaBP::WEModalityType::EEG:
+            rc = true;
+            break;
+        case LaBP::WEModalityType::EOG:
+            rc = true;
+            break;
+        case LaBP::WEModalityType::MEG:
+            rc = true;
+            break;
+        default:
+            ;
+    }
 
-   return rc;
+    return rc;
 }

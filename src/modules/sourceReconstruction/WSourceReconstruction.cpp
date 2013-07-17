@@ -36,8 +36,9 @@
 #include <core/common/WLogger.h>
 
 #include "core/data/WLEMMEnumTypes.h"
-#include "core/data/emd/WLEMD.h"
+#include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDSource.h"
+#include "core/util/profiler/WLTimeProfiler.h"
 
 #include "WSourceReconstruction.h"
 
@@ -66,14 +67,14 @@ void WSourceReconstruction::reset()
     m_inverse.reset();
 }
 
-void WSourceReconstruction::setLeadfield( LaBP::MatrixSPtr matrix )
+void WSourceReconstruction::setLeadfield( MatrixSPtr matrix )
 {
     m_leadfield = matrix;
     m_weighting.reset();
     m_inverse.reset();
 }
 
-const LaBP::MatrixT& WSourceReconstruction::getLeadfield() const
+const WSourceReconstruction::MatrixT& WSourceReconstruction::getLeadfield() const
 {
     return *m_leadfield;
 }
@@ -85,6 +86,8 @@ bool WSourceReconstruction::hasLeadfield() const
 
 bool WSourceReconstruction::calculateWeightningMatrix( WSourceReconstruction::WEWeightingCalculation::Enum type )
 {
+    WLTimeProfiler tp( CLASS, "calculateWeightningMatrix" );
+
     if( !m_leadfield )
     {
         wlog::error( CLASS ) << "No leadfield matrix available!";
@@ -96,11 +99,11 @@ bool WSourceReconstruction::calculateWeightningMatrix( WSourceReconstruction::WE
     {
         case WEWeightingCalculation::MN:
         {
-            const LaBP::SpMatrixT::Index wmRows = m_leadfield->cols();
-            const LaBP::SpMatrixT::Index wmCols = m_leadfield->cols();
-            m_weighting.reset( new LaBP::SpMatrixT( wmRows, wmCols ) );
+            const SpMatrixT::Index wmRows = m_leadfield->cols();
+            const SpMatrixT::Index wmCols = m_leadfield->cols();
+            m_weighting.reset( new SpMatrixT( wmRows, wmCols ) );
 
-            for( LaBP::SpMatrixT::Index i = 0; i < m_weighting->cols(); ++i )
+            for( SpMatrixT::Index i = 0; i < m_weighting->cols(); ++i )
             {
                 m_weighting->insert( i, i ) = 1;
             }
@@ -110,16 +113,16 @@ bool WSourceReconstruction::calculateWeightningMatrix( WSourceReconstruction::WE
         }
         case WEWeightingCalculation::WMN:
         {
-            const LaBP::SpMatrixT::Index wmRows = m_leadfield->cols();
-            const LaBP::SpMatrixT::Index wmCols = m_leadfield->cols();
-            m_weighting.reset( new LaBP::SpMatrixT( wmRows, wmCols ) );
+            const SpMatrixT::Index wmRows = m_leadfield->cols();
+            const SpMatrixT::Index wmCols = m_leadfield->cols();
+            m_weighting.reset( new SpMatrixT( wmRows, wmCols ) );
 
-            const LaBP::MatrixT::Index lfRows = m_leadfield->rows();
-            LaBP::MatrixElementT sum;
-            for( LaBP::SpMatrixT::Index col = 0; col < wmRows; ++col )
+            const MatrixT::Index lfRows = m_leadfield->rows();
+            ScalarT sum;
+            for( SpMatrixT::Index col = 0; col < wmRows; ++col )
             {
                 sum = 0;
-                for( LaBP::MatrixT::Index chan = 0; chan < lfRows; ++chan )
+                for( MatrixT::Index chan = 0; chan < lfRows; ++chan )
                 {
                     sum += pow( ( *m_leadfield )( chan, col ), 2 );
                 }
@@ -138,7 +141,7 @@ bool WSourceReconstruction::calculateWeightningMatrix( WSourceReconstruction::WE
     }
 }
 
-const LaBP::SpMatrixT& WSourceReconstruction::getWeighting() const
+const WSourceReconstruction::SpMatrixT& WSourceReconstruction::getWeighting() const
 {
     return *m_weighting;
 }
@@ -148,7 +151,7 @@ bool WSourceReconstruction::hasWeighting() const
     return m_weighting.get() != NULL;
 }
 
-const LaBP::MatrixT& WSourceReconstruction::getInverse() const
+const WSourceReconstruction::MatrixT& WSourceReconstruction::getInverse() const
 {
     return *m_inverse;
 }
@@ -158,9 +161,11 @@ bool WSourceReconstruction::hasInverse() const
     return m_inverse.get() != NULL;
 }
 
-bool WSourceReconstruction::calculateInverseSolution( const LaBP::MatrixT& noiseCov, const LaBP::MatrixT& dataCov, double snr )
+bool WSourceReconstruction::calculateInverseSolution( const MatrixT& noiseCov, const MatrixT& dataCov, double snr )
 {
     wlog::debug( CLASS ) << "calculateInverseSolution() called!";
+    WLTimeProfiler tp( CLASS, "calculateInverseSolution" );
+
     if( !m_leadfield )
     {
         wlog::error( CLASS ) << "No leadfield matrix set!";
@@ -186,18 +191,18 @@ bool WSourceReconstruction::calculateInverseSolution( const LaBP::MatrixT& noise
     wlog::debug( CLASS ) << "snr " << snr;
 
     // Leafield transpose matrix
-    LaBP::MatrixT LT = m_leadfield->transpose();
+    MatrixT LT = m_leadfield->transpose();
     wlog::debug( CLASS ) << "LT " << LT.rows() << " x " << LT.cols();
 
     // WinvLT = W^-1 * LT
-    SuperLU< LaBP::SpMatrixT > spSolver;
+    SuperLU< SpMatrixT > spSolver;
     spSolver.compute( *m_weighting );
     if( spSolver.info() != Eigen::Success )
     {
         wlog::error( CLASS ) << "spSolver.compute( weighting ) not succeeded: " << spSolver.info();
         return false;
     }
-    LaBP::MatrixT WinvLT = spSolver.solve( LT ); // needs dense matrix, returns dense matrix
+    MatrixT WinvLT = spSolver.solve( LT ); // needs dense matrix, returns dense matrix
     if( spSolver.info() != Eigen::Success )
     {
         wlog::error( CLASS ) << "spSolver.solve( LT ) not succeeded: " << spSolver.info();
@@ -206,7 +211,7 @@ bool WSourceReconstruction::calculateInverseSolution( const LaBP::MatrixT& noise
     wlog::debug( CLASS ) << "WinvLT " << WinvLT.rows() << " x " << WinvLT.cols();
 
     // LWL = L * W^-1 * LT
-    LaBP::MatrixT LWL = *m_leadfield * WinvLT;
+    MatrixT LWL = *m_leadfield * WinvLT;
     wlog::debug( CLASS ) << "LWL " << LWL.rows() << " x " << LWL.cols();
 
     // alpha = sqrt(trace(LWL)/(snr * num_sensors));
@@ -214,52 +219,41 @@ bool WSourceReconstruction::calculateInverseSolution( const LaBP::MatrixT& noise
     wlog::debug( CLASS ) << "alpha " << alpha;
 
     // G = W^-1 * LT * inv( (L W^-1 * LT) + alpha^2 * Cn )
-    LaBP::MatrixT toInv = LWL + pow( alpha, 2 ) * noiseCov;
+    MatrixT toInv = LWL + pow( alpha, 2 ) * noiseCov;
     wlog::debug( CLASS ) << "toInv " << toInv.rows() << " x " << toInv.cols();
 
-    LaBP::MatrixT inv = toInv.inverse();
+    MatrixT inv = toInv.inverse();
 
-    LaBP::MatrixT G = WinvLT * inv;
-    m_inverse.reset( new LaBP::MatrixT( G ) );
+    MatrixT G = WinvLT * inv;
+    m_inverse.reset( new MatrixT( G ) );
     wlog::debug( CLASS ) << "G " << G.rows() << " x " << G.cols();
 
     return true;
 }
 
-LaBP::WLEMDSource::SPtr WSourceReconstruction::createEMDSource( LaBP::WLEMD::ConstSPtr emd,
-                const LaBP::MatrixT matrix )
-{
-    boost::shared_ptr< LaBP::WLEMD::DataT > data = LaBP::WLEMDSource::convertMatrix( matrix );
-    LaBP::WLEMDSource::SPtr sourceEmd( new LaBP::WLEMDSource( *emd ) );
-    sourceEmd->setData( data );
-    return sourceEmd;
-}
-
-bool WSourceReconstruction::averageReference( LaBP::WLEMD::DataT& dataOut, const LaBP::WLEMD::DataT& dataIn )
+bool WSourceReconstruction::averageReference( WLEMData::DataT& dataOut, const WLEMData::DataT& dataIn )
 {
     wlog::debug( CLASS ) << "averageReference() called!";
-    LaBP::WLEMD::ChannelT dataSum( dataIn.front().size(), 0 );
+    WLTimeProfiler tp( CLASS, "averageReference" );
+
+    WLEMData::ChannelT dataSum( dataIn.cols() );
+    dataSum.setZero();
 
     // calculate sum
-    for( size_t chan = 0; chan < dataIn.size(); ++chan )
+    for( WLEMData::DataT::Index chan = 0; chan < dataIn.rows(); ++chan )
     {
-        std::transform( dataIn[chan].begin(), dataIn[chan].end(), dataSum.begin(), dataSum.begin(),
-                        std::plus< LaBP::WLEMD::SampleT >() );
+        dataSum += dataIn.row( chan );
     }
 
     // calculate average
-    const size_t count = dataIn.size();
-    std::transform( dataSum.begin(), dataSum.end(), dataSum.begin(), std::bind2nd( std::divides< double >(), count ) );
+    const size_t count = dataIn.rows();
+    dataSum *= ( 1.0 / count );
 
     // calculate reference
-    dataOut.resize( dataIn.size() );
-    for( size_t chan = 0; chan < dataIn.size(); ++chan )
+    dataOut.resize( dataIn.rows(), dataIn.cols() );
+    for( WLEMData::DataT::Index chan = 0; chan < dataIn.rows(); ++chan )
     {
-        dataOut[chan].reserve( dataSum.size() );
-        dataOut[chan].resize( dataSum.size() );
-
-        std::transform( dataIn[chan].begin(), dataIn[chan].end(), dataSum.begin(), dataOut[chan].begin(),
-                        std::minus< LaBP::WLEMD::SampleT >() );
+        dataOut.row( chan ) = dataIn.row( chan ) - dataSum;
     }
 
     return true;

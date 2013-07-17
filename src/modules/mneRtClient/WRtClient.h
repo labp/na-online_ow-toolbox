@@ -41,8 +41,8 @@
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
-#include "core/data/WLDataSetEMM.h"
-#include "core/data/emd/WLEMD.h"
+#include "core/data/WLEMMeasurement.h"
+#include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDEEG.h"
 #include "core/data/emd/WLEMDMEG.h"
 
@@ -69,12 +69,12 @@ public:
 
     bool isStreaming();
 
-    int getConnectors( std::map< int, std::string >* const conMap);
-    bool setConnector(int conId);
+    int getConnectors( std::map< int, std::string >* const conMap );
+    bool setConnector( int conId );
 
-    bool setSimulationFile(std::string);
+    bool setSimulationFile( std::string simFile );
 
-    bool readData( LaBP::WLDataSetEMM::SPtr emmIn );
+    bool readData( WLEMMeasurement::SPtr emmIn );
 
 private:
     bool m_isStreaming;
@@ -102,10 +102,10 @@ private:
     const std::string m_alias;
     qint32 m_clientId;
 
-    LaBP::WLEMDEEG::SPtr readEEG( const Eigen::MatrixXf& rawData );
-    LaBP::WLEMDMEG::SPtr readMEG( const Eigen::MatrixXf& rawData );
-    boost::shared_ptr< LaBP::WLDataSetEMM::EDataT > readEvents( const Eigen::MatrixXf& rawData );
-    bool readEmd( LaBP::WLEMD* const emd, const Eigen::RowVectorXi& picks, const Eigen::MatrixXf& rawData );
+    WLEMDEEG::SPtr readEEG( const Eigen::MatrixXf& rawData );
+    WLEMDMEG::SPtr readMEG( const Eigen::MatrixXf& rawData );
+    boost::shared_ptr< WLEMMeasurement::EDataT > readEvents( const Eigen::MatrixXf& rawData );
+    bool readEmd( WLEMData* const emd, const Eigen::RowVectorXi& picks, const Eigen::MatrixXf& rawData );
 };
 
 #endif  // WRTCLIENT_H_

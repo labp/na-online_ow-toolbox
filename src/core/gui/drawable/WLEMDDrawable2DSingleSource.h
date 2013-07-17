@@ -31,7 +31,7 @@
 
 #include <core/gui/WCustomWidget.h>
 
-#include "core/data/WLDataSetEMM.h"
+#include "core/data/WLEMMeasurement.h"
 
 #include "WLEMDDrawable2DSingleChannel.h"
 
@@ -55,7 +55,7 @@ namespace LaBP
         explicit WLEMDDrawable2DSingleSource( WCustomWidget::SPtr widget );
         virtual ~WLEMDDrawable2DSingleSource();
 
-        virtual void draw( LaBP::WLDataSetEMM::SPtr emm );
+        virtual void draw( WLEMMeasurement::SPtr emm );
     };
 
 } /* namespace LaBP */

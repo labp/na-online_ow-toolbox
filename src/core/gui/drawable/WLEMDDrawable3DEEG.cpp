@@ -37,8 +37,7 @@
 #include <core/common/WAssert.h>
 #include <core/gui/WCustomWidget.h>
 
-#include "core/data/WLDataSetEMM.h"
-#include "core/data/emd/WLEMD.h"
+#include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMDEEG.h"
 
 #include "WLEMDDrawable3D.h"
@@ -139,19 +138,19 @@ namespace LaBP
         }
     }
 
-    void WLEMDDrawable3DEEG::osgUpdateSurfaceColor( const LaBP::WLEMD::DataT& data )
+    void WLEMDDrawable3DEEG::osgUpdateSurfaceColor( const WLEMData::DataT& data )
     {
-        if( m_selectedSample >= 0 && ( m_dataChanged || m_colorMapChanged ) )
+        if( m_selectedSample >= 0 && ( m_selectedSampleChanged || m_dataChanged || m_colorMapChanged ) )
         {
             osg::ref_ptr< osg::FloatArray > texCoords =
                             static_cast< osg::FloatArray* >( m_surfaceGeometry->getTexCoordArray( 0 ) );
 
-            WAssertDebug( data.size() == texCoords->size(), "data.size() == texCoords->size()" );
-            WAssertDebug( 0 <= m_selectedSample && m_selectedSample < data.front().size(),
-                            "0 <= m_selectedSample && m_selectedSample < data.front().size()" );
+            WAssertDebug( data.rows() == texCoords->size(), "data.rows() == texCoords->size()" );
+            WAssertDebug( 0 <= m_selectedSample && m_selectedSample < data.cols(),
+                            "0 <= m_selectedSample && m_selectedSample < data.cols()" );
             for( std::size_t vertexID = 0; vertexID < texCoords->size(); ++vertexID )
             {
-                float color = data.at( vertexID ).at( m_selectedSample );
+                float color = data( vertexID, m_selectedSample );
                 ( *texCoords )[vertexID] = m_colorMap->getTextureCoordinate( color );
             }
             m_surfaceGeometry->setTexCoordArray( 0, texCoords );
@@ -162,17 +161,17 @@ namespace LaBP
         }
     }
 
-    void WLEMDDrawable3DEEG::osgUpdateNodesColor( const LaBP::WLEMD::DataT& data )
+    void WLEMDDrawable3DEEG::osgUpdateNodesColor( const WLEMData::DataT& data )
     {
         if( m_selectedSample >= 0 && ( m_dataChanged || m_colorMapChanged ) )
         {
             float color;
-            WAssertDebug( data.size() == m_electrodesDrawables.size(), "data.size() == m_electrodesDrawables.size()" );
-            WAssertDebug( 0 <= m_selectedSample && m_selectedSample < data.front().size(),
+            WAssertDebug( data.rows() == m_electrodesDrawables.size(), "data.rows() == m_electrodesDrawables.size()" );
+            WAssertDebug( 0 <= m_selectedSample && m_selectedSample < data.cols(),
                             "0 <= m_selectedSample && m_selectedSample < data.front().size()" );
             for( size_t channelID = 0; channelID < m_electrodesDrawables.size(); ++channelID )
             {
-                color = data.at( channelID ).at( m_selectedSample );
+                color = data( channelID, m_selectedSample );
                 m_electrodesDrawables.at( channelID )->setColor( m_colorMap->getColor( color ) );
             }
         }
@@ -190,8 +189,8 @@ namespace LaBP
             return;
         }
 
-        LaBP::WLDataSetEMM::ConstSPtr emm = m_emm;
-        LaBP::WLEMDEEG::ConstSPtr emd = emm->getModality< const WLEMDEEG >( WEModalityType::EEG );
+        WLEMMeasurement::ConstSPtr emm = m_emm;
+        WLEMDEEG::ConstSPtr emd = emm->getModality< const WLEMDEEG >( WEModalityType::EEG );
 
         if( m_colorMapChanged )
         {

@@ -24,21 +24,18 @@
 
 #include <cublas.h>
 #include <cuda_runtime.h>   // time measurement
-
 #include <cstddef>  // NULL macro
 #include <cstdio>   // stderr stream
 #include <cstdlib>  // malloc
 #include <string>   // CLASS variable
-
 #include <boost/shared_ptr.hpp>
 
 #include <core/common/WLogger.h>
 
-#include "core/data/WLMatrixTypes.h"
-#include "core/data/emd/WLEMD.h"
+#include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDSource.h"
-
-#include "core/util/WLTimeProfiler.h"
+#include "core/util/profiler/WLProfilerLogger.h"
+#include "core/util/profiler/WLTimeProfiler.h"
 
 #include "WSourceReconstructionCuda.h"
 
@@ -68,15 +65,14 @@ WSourceReconstructionCuda::~WSourceReconstructionCuda()
     }
 }
 
-bool WSourceReconstructionCuda::calculateInverseSolution( const LaBP::MatrixT& noiseCov, const LaBP::MatrixT& dataCov,
-                double snr )
+bool WSourceReconstructionCuda::calculateInverseSolution( const MatrixT& noiseCov, const MatrixT& dataCov, double snr )
 {
+    // TODO(pieloth): Do we need this wrapper?
     m_inverseChanged = WSourceReconstruction::calculateInverseSolution( noiseCov, dataCov, snr );
     return m_inverseChanged;
 }
 
-LaBP::WLEMDSource::SPtr WSourceReconstructionCuda::reconstruct( LaBP::WLEMD::ConstSPtr emd,
-                LaBP::WLTimeProfiler::SPtr profiler )
+WLEMDSource::SPtr WSourceReconstructionCuda::reconstruct( WLEMData::ConstSPtr emd )
 {
     wlog::debug( CLASS ) << "reconstruct() called!";
     if( !m_inverse )
@@ -85,65 +81,46 @@ LaBP::WLEMDSource::SPtr WSourceReconstructionCuda::reconstruct( LaBP::WLEMD::Con
         wlog::error( CLASS ) << "No inverse matrix set!";
     }
 
-    LaBP::WLTimeProfiler::SPtr allProfiler( new LaBP::WLTimeProfiler( CLASS, "reconstruct_all" ) );
-    allProfiler->start();
+    WLTimeProfiler tp( CLASS, "reconstruct" );
 
+    // Calculare average reference //
+    WLEMData::DataT emdData;
+    WSourceReconstruction::averageReference( emdData, emd->getData() );
+
+    // Prepare CUDA profiling //
     float elapsedTime;
     cudaEvent_t startCalc, stopCalc; // computation time
     cudaEventCreate( &startCalc );
     cudaEventCreate( &stopCalc );
 
+    // Initialize matrix dimensions //
     const size_t ROWS_A = m_inverse->rows();
     const size_t COLS_A = m_inverse->cols();
     // prepare copy later
 
     const size_t ROWS_B = emd->getNrChans();
-    const size_t COLS_B = emd->getData().front().size();
-
-    // ElementT* inverse = ( ElementT* )malloc( 1 * sizeof(ElementT) );
-    LaBP::MatrixElementT* B_host = ( LaBP::MatrixElementT* )malloc( ROWS_B * COLS_B * sizeof( LaBP::MatrixElementT ) );
-    if( B_host == NULL )
-    {
-        // TODO(pieloth): return code
-        wlog::error( CLASS ) << "Could not allocate memory for EMD data!";
-    }
-
-    LaBP::WLTimeProfiler::SPtr avgProfiler( new LaBP::WLTimeProfiler( CLASS, "reconstruct_avgRef" ) );
-    avgProfiler->start();
-    LaBP::WLEMD::DataT emdData;
-    WSourceReconstruction::averageReference( emdData, emd->getData() );
-    avgProfiler->stopAndLog();
-
-    // convert from row-major order to column-major order
-    LaBP::WLTimeProfiler::SPtr toMatProfiler( new LaBP::WLTimeProfiler( CLASS, "reconstruct_toMat" ) );
-    toMatProfiler->start();
-    size_t i = 0;
-    for( size_t col = 0; col != COLS_B; ++col )
-    {
-        for( size_t row = 0; row < ROWS_B; ++row )
-        {
-            // convert from row-major order to column-major order
-            B_host[i++] = emdData[row][col];
-        }
-    }
-    toMatProfiler->stopAndLog();
+    const size_t COLS_B = emd->getSamplesPerChan();
 
     const size_t ROWS_C = ROWS_A;
     const size_t COLS_C = COLS_B;
-    // Avoid transfer ElementT* to MatrixT
-    // LaBP::MatrixT S( ROWS_C, COLS_C );
-    boost::shared_ptr< LaBP::MatrixT > S( new LaBP::MatrixT( ROWS_C, COLS_C ) );
-    LaBP::MatrixElementT* C_host = S->data();
 
+    // Prepare pointer for cuBLAS //
+    // const ScalarT* const A_host; Is needed only once
+    const ScalarT* const B_host = emdData.data();
+    // C_host is used for copy out in correct column order: MatrixSPtr == cuBLAS-Matrix
+    MatrixSPtr S( new MatrixT( ROWS_C, COLS_C ) );
+    ScalarT* C_host = S->data();
+
+    // Scalar* A_dev; Is needed only once
+    ScalarT* B_dev;
+    ScalarT* C_dev;
+
+    // Copy in //
     cublasInit();
-
-    // ElementT* A_dev;
-    LaBP::MatrixElementT* B_dev;
-    LaBP::MatrixElementT* C_dev;
 
     if( m_inverse && m_inverseChanged )
     {
-        const LaBP::MatrixElementT* A_host = m_inverse->data();
+        const ScalarT* const A_host = m_inverse->data();
         if( A_host == NULL )
         {
             // TODO(pieloth): return code
@@ -153,37 +130,41 @@ LaBP::WLEMDSource::SPtr WSourceReconstructionCuda::reconstruct( LaBP::WLEMD::Con
         {
             CublasSafeCall( cublasFree( m_A_dev ) );
         }
-        CublasSafeCall( cublasAlloc( ROWS_A * COLS_A, sizeof( LaBP::MatrixElementT ), ( void** )&m_A_dev ) );
-        CublasSafeCall( cublasSetMatrix( ROWS_A, COLS_A, sizeof( LaBP::MatrixElementT ), A_host, ROWS_A, m_A_dev, ROWS_A ) );
+        CublasSafeCall( cublasAlloc( ROWS_A * COLS_A, sizeof(ScalarT), ( void** )&m_A_dev ) );
+        CublasSafeCall( cublasSetMatrix( ROWS_A, COLS_A, sizeof(ScalarT), A_host, ROWS_A, m_A_dev, ROWS_A ) );
         m_inverseChanged = false;
     }
 
-    CublasSafeCall( cublasAlloc( ROWS_B * COLS_B, sizeof( LaBP::MatrixElementT ), ( void** )&B_dev ) );
-    CublasSafeCall( cublasSetMatrix( ROWS_B, COLS_B, sizeof( LaBP::MatrixElementT ), B_host, ROWS_B, B_dev, ROWS_B ) );
+    CublasSafeCall( cublasAlloc( ROWS_B * COLS_B, sizeof(ScalarT), ( void** )&B_dev ) );
+    CublasSafeCall( cublasSetMatrix( ROWS_B, COLS_B, sizeof(ScalarT), B_host, ROWS_B, B_dev, ROWS_B ) );
 
-    CublasSafeCall( cublasAlloc( ROWS_C * COLS_C, sizeof( LaBP::MatrixElementT ), ( void** )&C_dev ) );
+    CublasSafeCall( cublasAlloc( ROWS_C * COLS_C, sizeof(ScalarT), ( void** )&C_dev ) );
 
-    // Call cuBLAS kernel
-    // C_dev = 1 * A_dev * B_dev + 0 * C_dev
+    // Call cuBLAS kernel //
+    // C_dev = 1.0 * A_dev * B_dev + 0.0 * C_dev
     // S = G * d
     cudaEventRecord( startCalc, 0 );
 
-    cublasSgemm( 'n', 'n', ROWS_A, COLS_B, COLS_A, 1, m_A_dev, ROWS_A, B_dev, ROWS_B, 0, C_dev, ROWS_C );
-//    cublasDgemm( CUBLAS_OP_N, CUBLAS_OP_N, ROWS_A, COLS_B, COLS_A, 1, A_dev, ROWS_A, B_dev, ROWS_B, 0, C_dev, ROWS_C );
+//    cublasSgemm( 'n', 'n', ROWS_A, COLS_B, COLS_A, 1, m_A_dev, ROWS_A, B_dev, ROWS_B, 0, C_dev, ROWS_C );
+    cublasDgemm( 'n', 'n', ROWS_A, COLS_B, COLS_A, 1.0, m_A_dev, ROWS_A, B_dev, ROWS_B, 0.0, C_dev, ROWS_C );
     CublasSafeCall( cublasGetError() );
 
     cudaEventRecord( stopCalc, 0 );
     cudaEventSynchronize( stopCalc );
     cudaEventElapsedTime( &elapsedTime, startCalc, stopCalc );
-    LaBP::WLTimeProfiler::SPtr matMulProfiler( new LaBP::WLTimeProfiler( CLASS, "reconstruct_matMul" ) );
-    matMulProfiler->setMilliseconds( elapsedTime );
-    matMulProfiler->log();
+    WLTimeProfiler prfMatMul( CLASS, "reconstruct_matMul", false );
+    prfMatMul.setMilliseconds( elapsedTime );
+    wlprofiler::log() << prfMatMul;
 
-    LaBP::WLTimeProfiler::SPtr cpOutProfiler( new LaBP::WLTimeProfiler( CLASS, "reconstruct_copyOut" ) );
-    cpOutProfiler->start();
-    CublasSafeCall( cublasGetMatrix( ROWS_C, COLS_C, sizeof( LaBP::MatrixElementT ), C_dev, ROWS_C, C_host, ROWS_C ) );
-    cpOutProfiler->stopAndLog();
+    // Copy out //
+    WLTimeProfiler prfCopyOut( CLASS, "reconstruct_copyOut", false );
+    prfCopyOut.start();
+    CublasSafeCall( cublasGetMatrix( ROWS_C, COLS_C, sizeof(ScalarT), C_dev, ROWS_C, C_host, ROWS_C ) );
+    prfCopyOut.stop();
+    wlprofiler::log() << prfCopyOut;
 
+    // Clean memory //
+    // CublasSafeCall( cublasFree( m_A_dev ) ); Is done in destructor
     CublasSafeCall( cublasFree( B_dev ) );
     CublasSafeCall( cublasFree( C_dev ) );
 
@@ -192,23 +173,12 @@ LaBP::WLEMDSource::SPtr WSourceReconstructionCuda::reconstruct( LaBP::WLEMD::Con
     cudaEventDestroy( startCalc );
     cudaEventDestroy( stopCalc );
 
-    // free( A_host ); Do not free, because point to class variable
-    free( B_host );
-    // free( C_host ); TODO(pieloth): Do not free, because point of return value or copy out??? (depends on eigen impl. check!)
+    // free( A_host ); Do not free, because points to shared pointer
+    // free( B_host ); Do not free, because points to shared pointer
+    // free( C_host ); Do not free, because points to shared pointer
 
-    // const LaBP::WDataSetEMMSource::SPtr emdOut = WSourceReconstruction::createEMDSource( emd, S );
-    const LaBP::WLEMDSource::SPtr emdOut( new LaBP::WLEMDSource( *emd ) ); // = WSourceReconstruction::createEMDSource( emd, S );
-    emdOut->setMatrix( S );
-
-    if( profiler )
-    {
-        allProfiler->stopAndLog();
-        profiler->addChild( allProfiler );
-        profiler->addChild( avgProfiler );
-        profiler->addChild( toMatProfiler );
-        profiler->addChild( matMulProfiler );
-        profiler->addChild( cpOutProfiler );
-    }
+    const WLEMDSource::SPtr emdOut( new WLEMDSource( *emd ) );
+    emdOut->setData( S );
 
     return emdOut;
 }

@@ -29,7 +29,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "core/data/emd/WLEMD.h"
+#include "core/data/emd/WLEMData.h"
 
 #include "WFIRFilter.h"
 
@@ -48,18 +48,15 @@ public:
 
     static const std::string CLASS;
 
-    WFIRFilterCpu( WFIRFilter::WEFilterType::Enum filtertype, WFIRFilter::WEWindowsType::Enum windowtype, int order, double sFreq,
-                    double cFreq1, double cFreq2 );
+    WFIRFilterCpu( WFIRFilter::WEFilterType::Enum filtertype, WFIRFilter::WEWindowsType::Enum windowtype, int order, ScalarT sFreq,
+                    ScalarT cFreq1, ScalarT cFreq2 );
     explicit WFIRFilterCpu( const char *pathToFcf );
-    //virtual ~WMFIRFilterCpu();
+
+    virtual ~WFIRFilterCpu();
 
 protected:
-    void filter( LaBP::WLEMD::DataT& out, const LaBP::WLEMD::DataT& in,
-                    const LaBP::WLEMD::DataT& prevData, LaBP::WLTimeProfiler::SPtr profiler );
+    virtual void filter( WLEMData::DataT& out, const WLEMData::DataT& in, const WLEMData::DataT& prevData );
 
-private:
-    void filterSingleChannel( LaBP::WLEMD::ChannelT& out, const LaBP::WLEMD::ChannelT& in,
-                    const LaBP::WLEMD::ChannelT& prev );
 };
 
 #endif  // WFIRFILTERCPU_H

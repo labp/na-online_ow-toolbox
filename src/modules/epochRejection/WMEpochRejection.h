@@ -32,7 +32,8 @@
 
 #include <core/kernel/WModule.h>
 
-#include "core/data/WLDataSetEMM.h"
+#include "core/data/WLEMMeasurement.h"
+#include "core/data/WLEMMCommand.h"
 
 #include "core/module/WLModuleDrawable.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
@@ -70,7 +71,7 @@ public:
     virtual const std::string getDescription() const;
 
 protected:
-    virtual void initModule();
+    virtual void moduleInit();
 
     /**
      * Entry point after loading the module. Runs in separate thread.
@@ -100,6 +101,10 @@ protected:
      */
     virtual const char** getXPMIcon() const;
 
+    virtual bool processCompute( WLEMMeasurement::SPtr emm );
+    virtual bool processInit( WLEMMCommand::SPtr labp );
+    virtual bool processReset( WLEMMCommand::SPtr labp );
+
 private:
     /**
      * Method to assign the parsed value to the property members.
@@ -107,19 +112,14 @@ private:
     void assignNewValues(std::map<std::string,double> valueList);
 
     /**
-     * Method to create a new data set based on the given data set.
-     */
-    LaBP::WLDataSetEMM::SPtr createOutput(LaBP::WLDataSetEMM::SPtr emmIn);
-
-    /**
      * Input connector for a EMM data set.
      */
-    boost::shared_ptr< LaBP::WLModuleInputDataRingBuffer< LaBP::WLDataSetEMM > > m_input;
+    LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input;
 
     /**
      * Output connector for a EMM data set.
      */
-    boost::shared_ptr< LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM > > m_output;
+    LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output;
 
     /**
      * A condition used to notify about changes in several properties.

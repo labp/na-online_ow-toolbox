@@ -25,18 +25,20 @@
 #ifndef WLMODULEDRAWABLE_H
 #define WLMODULEDRAWABLE_H
 
-#include <list>
+//#include <boost/enable_shared_from_this.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include <core/common/WProperties.h>
+#include <core/gui/WLEMDWidget.h>
 #include <core/kernel/WModule.h>
 
-#include "core/data/WLDataSetEMM.h"
-#include "core/gui/WLEMDWidget.h"
-#include "core/gui/events/WLGUIEventHandler.h"
+#include "core/data/WLEMMCommand.h"
+#include "core/data/WLEMMeasurement.h"
+#include "core/gui/colorMap/WLColorMap.h"
 #include "core/gui/drawable/WLEMDDrawable2D.h"
 #include "core/gui/drawable/WLEMDDrawable3D.h"
-
-#include "core/gui/colorMap/WLColorMap.h"
+#include "core/module/WLModuleOutputDataCollectionable.h"
+#include "core/module/WLEMMCommandProcessor.h"
 
 /**
  * Virtual Implementation of WModule to let our modules use a VIEW including just 4 lines! of code
@@ -44,10 +46,19 @@
 
 namespace LaBP
 {
-    class WLModuleDrawable: public WModule
+    class WLModuleDrawable: public WModule, public WLEMMCommandProcessor
     {
-
     public:
+        /**
+         * Abbreviation for a shared pointer.
+         */
+        typedef boost::shared_ptr< WLModuleDrawable > SPtr;
+
+        /**
+         * Abbreviation for const shared pointer.
+         */
+        typedef boost::shared_ptr< const WLModuleDrawable > ConstSPtr;
+
         /**
          * standard constructor
          */
@@ -59,6 +70,17 @@ namespace LaBP
         virtual ~WLModuleDrawable();
 
     protected:
+        // ----------------------------
+        // Methods from WLEMMCommandProcessor
+        // ----------------------------
+        virtual bool processTime( WLEMMCommand::SPtr labp );
+        virtual bool processMisc( WLEMMCommand::SPtr labp );
+
+        /**
+         * Output connector for a filtered WEEG2 dataset
+         */
+        LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output;
+
         /**
          * Initialize the properties for this module and load the widget
          */
@@ -67,7 +89,7 @@ namespace LaBP
         /**
          * Sets the new data to draw.
          */
-        void updateView( LaBP::WLDataSetEMM::SPtr emm );
+        void updateView( WLEMMeasurement::SPtr emm );
 
         /**
          * Set which elements of the view we want to see: info panels, channels and/or head. Called it after ready()!
@@ -82,7 +104,7 @@ namespace LaBP
         /**
          * Initializes the underlying algorithm with the values of WProperties. Called it after ready()!
          */
-        virtual void initModule() = 0;
+        virtual void moduleInit() = 0;
 
         /**
          * Add commentaries here:
@@ -110,6 +132,16 @@ namespace LaBP
         void setTimerangeInformationOnly( bool enable );
 
         void hideComputeModalitySelection( bool enable );
+
+        /**
+         * Add commentaries here:
+         */
+        LaBP::WLEMDDrawable2D::SPtr m_drawable2D;
+
+        /**
+         * Add commentaries here:
+         */
+        LaBP::WLEMDDrawable3D::SPtr m_drawable3D;
 
     private:
         /**
@@ -165,16 +197,6 @@ namespace LaBP
         void callbackLabelsChanged();
 
         LaBP::WLEMDDrawable2D::WEGraphType::Enum m_graphType;
-
-        /**
-         * Add commentaries here:
-         */
-        LaBP::WLEMDDrawable2D::SPtr m_drawable2D;
-
-        /**
-         * Add commentaries here:
-         */
-        LaBP::WLEMDDrawable3D::SPtr m_drawable3D;
 
         WPropGroup m_propView;
 
@@ -240,8 +262,6 @@ namespace LaBP
          * Add commentaries here:
          */
         LaBP::WLColorMap::SPtr m_colorMap;
-
-        std::list< WLGUIEventHandler::SPtr > m_eventHandler;
     };
 }
 

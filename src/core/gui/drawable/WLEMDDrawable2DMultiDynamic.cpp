@@ -23,19 +23,24 @@
 //---------------------------------------------------------------------------
 
 #include <cmath>
-
+#include <list>
+#include <string>
+#include <utility>  // for pair<>
 #include <osgGA/Export>
 #include <osgGA/GUIEventHandler>
 #include <osgGA/GUIEventAdapter>
 #include <osgGA/GUIActionAdapter>
 
+#include <core/common/WLogger.h>
 #include <core/common/WRealtimeTimer.h>
+
+#include "core/data/emd/WLEMData.h"
 
 #include "WLEMDDrawable2DMultiDynamic.h"
 
 namespace LaBP
 {
-    std::string WLEMDDrawable2DMultiDynamic::CLASS = "WLEMDDrawable2DMultiDynamic";
+    const std::string WLEMDDrawable2DMultiDynamic::CLASS = "WLEMDDrawable2DMultiDynamic";
 
     WLEMDDrawable2DMultiDynamic::WLEMDDrawable2DMultiDynamic( WCustomWidget::SPtr widget ) :
                     WLEMDDrawable2DMultiChannel( widget )
@@ -55,7 +60,7 @@ namespace LaBP
         delete m_animation;
     }
 
-    void WLEMDDrawable2DMultiDynamic::draw( LaBP::WLDataSetEMM::SPtr emm )
+    void WLEMDDrawable2DMultiDynamic::draw( WLEMMeasurement::SPtr emm )
     {
         osg::ref_ptr< WLAnimationSideScroll::EMMNode > emdNode = createEmdNode( emm );
         if( emdNode.valid() )
@@ -79,14 +84,16 @@ namespace LaBP
             {
                 osg::ref_ptr< WLAnimationSideScroll::EMMNode > emmNode = m_emmQueue.front();
                 m_emmQueue.pop();
-                WLDataSetEMM::SPtr emm = emmNode->getEmm();
+                WLEMMeasurement::SPtr emm = emmNode->getEmm();
                 const WEModalityType::Enum modality = m_modality;
                 if( emm->hasModality( modality ) )
                 {
-                    const WLEMD* const emd = emm->getModality( modality ).get();
+                    const WLEMData* const emd = emm->getModality( modality ).get();
+#ifdef DEBUG
                     wlog::debug( CLASS ) << "osgNodeCallback() - samplesPerChan: " << emd->getSamplesPerChan();
                     wlog::debug( CLASS ) << "osgNodeCallback() - freq: " << emd->getSampFreq();
                     wlog::debug( CLASS ) << "osgNodeCallback() - secondsPerChan: " << emd->getLength();
+#endif // DEBUG
                     osgAddLabels( emd );
                 }
 
@@ -97,7 +104,7 @@ namespace LaBP
         m_animation->sweep();
     }
 
-    osg::ref_ptr< WLAnimationSideScroll::EMMNode > WLEMDDrawable2DMultiDynamic::createEmdNode( LaBP::WLDataSetEMM::SPtr emm )
+    osg::ref_ptr< WLAnimationSideScroll::EMMNode > WLEMDDrawable2DMultiDynamic::createEmdNode( WLEMMeasurement::SPtr emm )
     {
         const WEModalityType::Enum modality = m_modality;
         if( !emm->hasModality( modality ) )
@@ -106,7 +113,7 @@ namespace LaBP
             return osg::ref_ptr< WLAnimationSideScroll::EMMNode >();
         }
 
-        LaBP::WLEMD* emd = emm->getModality( modality ).get();
+        WLEMData* emd = emm->getModality( modality ).get();
         m_blockLength = emd->getLength();
 
         const ValueT x_pos = m_widget->width();
@@ -124,7 +131,7 @@ namespace LaBP
         blockGroup->setDataVariance( osg::Object::DYNAMIC );
 
         // Every new packed come at the end of the widget!
-        const WLEMD::DataT& emdData = emd->getData();
+        const WLEMData::DataT& emdData = emd->getData();
         const size_t channels_emd = emd->getNrChans();
         const size_t channels_count = maxChannels( emd );
         wlog::debug( CLASS ) << "channels_count: " << channels_count;
@@ -133,7 +140,7 @@ namespace LaBP
         for( size_t channel = getChannelBegin( emd ), channelPos = 0; channelPos < channels_count && channel < channels_emd;
                         ++channel, ++channelPos )
         {
-            channelGeode = drawChannel( emdData[channel] );
+            channelGeode = drawChannel( emdData.row( channel ) );
             osg::ref_ptr< osg::MatrixTransform > channelTransform = new osg::MatrixTransform;
             channelTransform->setMatrix(
                             osg::Matrix::scale( x_scale, y_scale, 1.0 )
@@ -149,7 +156,7 @@ namespace LaBP
         return pat;
     }
 
-    std::pair< LaBP::WLDataSetEMM::SPtr, size_t > WLEMDDrawable2DMultiDynamic::getSelectedData( ValueT pixel ) const
+    std::pair< WLEMMeasurement::SPtr, size_t > WLEMDDrawable2DMultiDynamic::getSelectedData( ValueT pixel ) const
     {
         m_animation->setPause( true );
 
@@ -158,7 +165,7 @@ namespace LaBP
         {
             wlog::error( CLASS ) << "getSelectedData() - No data to select!";
             m_animation->setPause( false );
-            return std::make_pair( LaBP::WLDataSetEMM::SPtr(), 0 );
+            return std::make_pair( WLEMMeasurement::SPtr(), 0 );
         }
 
         const ValueT pixelPerBlock = getPixelPerBlock( m_blockLength );
@@ -178,10 +185,10 @@ namespace LaBP
         {
             wlog::error( CLASS ) << "getSelectedData() - No data found for pixel: " << pixel;
             m_animation->setPause( false );
-            return std::make_pair( LaBP::WLDataSetEMM::SPtr(), 0 );
+            return std::make_pair( WLEMMeasurement::SPtr(), 0 );
         }
 
-        LaBP::WLDataSetEMM::SPtr emm = emmNode->getEmm();
+        WLEMMeasurement::SPtr emm = emmNode->getEmm();
 
         const ValueT xBlock = emmNode->getPosition().x();
         const ValueT xRelative = pixel - xBlock;

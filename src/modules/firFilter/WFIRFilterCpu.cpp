@@ -27,8 +27,8 @@
 
 #include <core/common/WLogger.h>
 
-#include "core/data/emd/WLEMD.h"
-#include "core/util/WLTimeProfiler.h"
+#include "core/data/emd/WLEMData.h"
+#include "core/util/profiler/WLTimeProfiler.h"
 
 #include "WFIRFilter.h"
 #include "WFIRFilterCpu.h"
@@ -36,7 +36,7 @@
 const std::string WFIRFilterCpu::CLASS = "WFIRFilterCpu";
 
 WFIRFilterCpu::WFIRFilterCpu( WFIRFilter::WEFilterType::Enum filtertype, WFIRFilter::WEWindowsType::Enum windowtype, int order,
-                double sFreq, double cFreq1, double cFreq2 ) :
+                ScalarT sFreq, ScalarT cFreq1, ScalarT cFreq2 ) :
                 WFIRFilter( filtertype, windowtype, order, sFreq, cFreq1, cFreq2 )
 {
 }
@@ -46,53 +46,32 @@ WFIRFilterCpu::WFIRFilterCpu( const char *pathToFcf ) :
 {
 }
 
-void WFIRFilterCpu::filter( LaBP::WLEMD::DataT& out, const LaBP::WLEMD::DataT& in,
-                const LaBP::WLEMD::DataT& prevData, LaBP::WLTimeProfiler::SPtr profiler )
+WFIRFilterCpu::~WFIRFilterCpu()
 {
-    wlog::debug( CLASS ) << "filter() called!";
-    LaBP::WLTimeProfiler::SPtr emdProfiler( new LaBP::WLTimeProfiler( CLASS, "filter_data" ) );
-    emdProfiler->start();
-
-    for( size_t i = 0; i < in.size(); ++i )
-    {
-        LaBP::WLEMD::ChannelT outChan; // generate a new dimension for every channel
-        outChan.reserve( in[i].size() );
-        out.push_back( outChan );
-
-        filterSingleChannel( out[i], in[i], prevData[i] );
-    }
-
-    emdProfiler->stopAndLog();
-    if( profiler )
-    {
-        profiler->addChild( emdProfiler );
-    }
 }
 
-void WFIRFilterCpu::filterSingleChannel( LaBP::WLEMD::ChannelT& out, const LaBP::WLEMD::ChannelT& in,
-                const LaBP::WLEMD::ChannelT& prev )
+void WFIRFilterCpu::filter( WLEMData::DataT& out, const WLEMData::DataT& in, const WLEMData::DataT& prevData )
 {
-    // TODO(pieloth): check
-    LaBP::WLEMD::SampleT tmp = 0.0;
+    wlog::debug( CLASS ) << "filter() called!";
+    WLTimeProfiler prfTime( CLASS, "filter" );
 
     // CHANGE original: for( int n = 1; (uint) n < in.size(); n++ )
     const size_t nbCoeff = m_coeffitients.size();
-    for( size_t n = 0; n < in.size(); ++n )
+    out.setZero();
+    for( WLEMData::ChannelT::Index n = 0; n < in.cols(); ++n )
     {
-        tmp = 0.0;
         for( size_t k = 0; k < nbCoeff; ++k )
         {
             // CHANGE from ( long int )( n - k ) >= 0 ? m_coeffitients[k] * in[n - k] : 0;
-            //tmp += ( n >= k ) ? m_coeffitients[k] * in[n - k] : 0;
+            // tmp += ( n >= k ) ? m_coeffitients[k] * in[n - k] : 0;
             if( n >= k )
             {
-                tmp += m_coeffitients[k] * in[n - k];
+                out.col( n ) += m_coeffitients[k] * in.col( n - k );
             }
             else
             {
-                tmp += m_coeffitients[k] * prev[nbCoeff - ( k - n )];
+                out.col( n ) += m_coeffitients[k] * prevData.col( nbCoeff - ( k - n ) );
             }
         }
-        out.push_back( tmp );
     }
 }

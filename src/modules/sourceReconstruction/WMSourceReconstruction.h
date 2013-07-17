@@ -27,19 +27,18 @@
 
 #include <string>
 
-#include <boost/shared_ptr.hpp>
-
 #include <core/common/WItemSelection.h>
 #include <core/common/WPropertyTypes.h>
 #include <core/kernel/WModule.h>
 
-#include "core/data/WLDataSetEMM.h"
+#include "core/data/WLEMMCommand.h"
+#include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMEnumTypes.h"
 
+#include "core/module/WLEMMCommandProcessor.h"
 #include "core/module/WLModuleDrawable.h"
 // TODO(pieloth): use OW classes
 #include "core/module/WLModuleInputDataRingBuffer.h"
-#include "core/module/WLModuleOutputDataCollectionable.h"
 
 #include "WSourceReconstruction.h"
 
@@ -75,7 +74,7 @@ public:
     virtual const std::string getDescription() const;
 
 protected:
-    virtual void initModule();
+    virtual void moduleInit();
 
     /**
      * \par Description
@@ -106,17 +105,19 @@ protected:
      */
     virtual const char** getXPMIcon() const;
 
+    // ----------------------------
+    // Methods from WLEMMCommandProcessor
+    // ----------------------------
+    virtual bool processCompute( WLEMMeasurement::SPtr emm );
+    virtual bool processInit( WLEMMCommand::SPtr labp );
+    virtual bool processReset( WLEMMCommand::SPtr labp );
+
 private:
     // TODO(pieloth): use OW classes
     /**
      * Input connector for a EMM dataset
      */
-    boost::shared_ptr< LaBP::WLModuleInputDataRingBuffer< LaBP::WLDataSetEMM > > m_input;
-
-    /**
-     * Output connector for a EMM dataset
-     */
-    boost::shared_ptr< LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM > > m_output;
+    LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input;
 
     /**
      * A condition used to notify about changes in several properties.
@@ -154,11 +155,13 @@ private:
     WPropString m_inverseStatus;
     WPropInt m_inverseRows;
     WPropInt m_inverseCols;
-    bool inverseSolutionFromSubject( LaBP::WLDataSetEMM::SPtr emm, LaBP::WEModalityType::Enum modality );
+    bool inverseSolutionFromSubject( WLEMMeasurement::SPtr emm, LaBP::WEModalityType::Enum modality );
+
+    double m_range;
 
     // data and noise covariance matices //
-    LaBP::MatrixSPtr m_nCovarianceMatrix;
-    LaBP::MatrixSPtr m_dCovarianceMatrix;
+    WSourceReconstruction::MatrixSPtr m_nCovarianceMatrix;
+    WSourceReconstruction::MatrixSPtr m_dCovarianceMatrix;
 
     // File status string //
     static const std::string NO_MATRIX_LOADED;

@@ -26,20 +26,15 @@
 #define WMPROFILERLOG_H
 
 #include <string>
-#include <fstream>
-
-#include <boost/shared_ptr.hpp>
 
 #include <core/kernel/WModule.h>
 
-// TODO use OW classes
+#include "core/data/WLEMMCommand.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
-#include "core/data/WLDataSetEMM.h"
-
 /**
- * This module implements several onscreen status displays
+ * This module just prints the LifetimeProfiler of an EMM.
  * \ingroup modules
  */
 class WMProfilerLog: public WModule
@@ -92,7 +87,7 @@ protected:
      *
      * \return the prototype used to create every module in OpenWalnut.
      */
-    virtual boost::shared_ptr< WModule > factory() const;
+    virtual WModule::SPtr factory() const;
 
     /**
      * Get the icon for this module in XPM format.
@@ -100,30 +95,15 @@ protected:
     virtual const char** getXPMIcon() const;
 
 private:
-    // TODO use OW classes
     /**
-     * Input connector for a EMM dataset
+     * Input connector for a EMMCommand dataset
      */
-    boost::shared_ptr< LaBP::WLModuleInputDataRingBuffer< LaBP::WLDataSetEMM > > m_input;
-
-    /**
-     * Output connector for a EMM dataset
-     */
-    boost::shared_ptr< LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM > > m_output;
+    LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input;
 
     /**
-     * A condition used to notify about changes in several properties.
+     * Output connector for a EMMCommand dataset
      */
-    boost::shared_ptr< WCondition > m_propCondition;
-
-    WPropGroup m_propGrpModule;
-
-    WPropString m_file;
-
-    bool write( std::string fname, LaBP::WLDataSetEMM::SPtr emm );
-
-    void write( std::ofstream& fstream, LaBP::WLTimeProfiler::SPtr profiler, std::string prefix );
-
+    LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output;
 };
 
 #endif  // WMPROFILERLOG_H

@@ -36,7 +36,7 @@
 #include <core/common/WLogger.h>
 
 #include "core/data/WLEMMEnumTypes.h"
-#include "core/data/emd/WLEMD.h"
+#include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDPCA.h"
 
 #include "WPCA.h"
@@ -63,7 +63,7 @@ void WPCA::setParams( int newNumDimensions, bool newReverse )
     m_reverse = newReverse;
 }
 
-boost::shared_ptr< LaBP::WLEMD > WPCA::processData( LaBP::WLEMD::SPtr emdIn )
+WLEMData::SPtr WPCA::processData( WLEMData::SPtr emdIn )
 {
     wlog::debug( CLASS ) << "processData() called!";
     wlog::debug( CLASS ) << "Average pieces of first modality (PRE-COMPUTATION): ";
@@ -98,7 +98,7 @@ boost::shared_ptr< LaBP::WLEMD > WPCA::processData( LaBP::WLEMD::SPtr emdIn )
     if( !m_reverse && emdIn->getModalityType() != LaBP::WEModalityType::PCA ) // EEG, MEG ... to PCA
     {
         wlog::debug( CLASS ) << "EEG, MEG ... to PCA";
-        LaBP::WLEMD::DataT& dataIn = emdIn->getData();
+        WLEMData::DataT& dataIn = emdIn->getData();
         wlog::debug( CLASS ) << "dataIn: " << dataIn.size() << " x " << dataIn.front().size();
 #ifdef DEBUG
         wlog::debug( CLASS ) << "dataIn (first channels and samples only):";
@@ -113,7 +113,7 @@ boost::shared_ptr< LaBP::WLEMD > WPCA::processData( LaBP::WLEMD::SPtr emdIn )
         }
 #endif /* DEBUG */
 
-        boost::shared_ptr< LaBP::WLEMDPCA::DataT > dataOut = computePCA( dataIn );
+        boost::shared_ptr< WLEMDPCA::DataT > dataOut = computePCA( dataIn );
         wlog::debug( CLASS ) << "dataOut: " << dataOut->size() << " x " << dataOut->front().size();
 #ifdef DEBUG
         wlog::debug( CLASS ) << "dataOut (first channels and samples only):";
@@ -128,15 +128,15 @@ boost::shared_ptr< LaBP::WLEMD > WPCA::processData( LaBP::WLEMD::SPtr emdIn )
         }
 #endif /* DEBUG */
 
-        LaBP::WLEMDPCA::SPtr pcaOut = createPCAContainer( emdIn, dataOut );
+        WLEMDPCA::SPtr pcaOut = createPCAContainer( emdIn, dataOut );
         return pcaOut;
     }
     else
         if( m_reverse && emdIn->getModalityType() == LaBP::WEModalityType::PCA ) // PCA to EEG, MEG, ...
         {
             wlog::debug( CLASS ) << "PCA to EEG, MEG ...";
-            LaBP::WLEMDPCA::SPtr pcaIn = emdIn->getAs< LaBP::WLEMDPCA >();
-            LaBP::WLEMD::SPtr emdOut = WPCA::convertPCAToModality( pcaIn );
+            WLEMDPCA::SPtr pcaIn = emdIn->getAs< WLEMDPCA >();
+            WLEMData::SPtr emdOut = WPCA::convertPCAToModality( pcaIn );
             return emdOut;
         }
         else
@@ -147,7 +147,7 @@ boost::shared_ptr< LaBP::WLEMD > WPCA::processData( LaBP::WLEMD::SPtr emdIn )
         }
 }
 
-LaBP::WLEMD::SPtr WPCA::convertPCAToModality( LaBP::WLEMDPCA::SPtr pcaIn )
+WLEMData::SPtr WPCA::convertPCAToModality( WLEMDPCA::SPtr pcaIn )
 {
     wlog::debug( CLASS ) << "convertPCAToModality() called!";
     std::vector< std::vector< double > >& oldPcaData = pcaIn->getData();
@@ -212,15 +212,15 @@ LaBP::WLEMD::SPtr WPCA::convertPCAToModality( LaBP::WLEMDPCA::SPtr pcaIn )
         wlog::debug( CLASS ) << ss.str();
     }
 #endif // DEBUG
-    LaBP::WLEMD::SPtr emdOut( pcaIn->getPreprocessedData()->clone() );
+    WLEMData::SPtr emdOut( pcaIn->getPreprocessedData()->clone() );
     emdOut->setData( modalityData );
     return emdOut;
 }
 
-LaBP::WLEMDPCA::SPtr WPCA::createPCAContainer( LaBP::WLEMD::SPtr emdIn,
-                boost::shared_ptr< LaBP::WLEMDPCA::DataT > pcaData )
+WLEMDPCA::SPtr WPCA::createPCAContainer( WLEMData::SPtr emdIn,
+                boost::shared_ptr< WLEMDPCA::DataT > pcaData )
 {
-    LaBP::WLEMDPCA::SPtr pcaOut( new LaBP::WLEMDPCA( *emdIn ) );
+    WLEMDPCA::SPtr pcaOut( new WLEMDPCA( *emdIn ) );
     pcaOut->setData( pcaData );
     pcaOut->setPreprocessedData( emdIn );
     pcaOut->setChannelMeans( m_channelMeans );
@@ -250,7 +250,7 @@ Eigen::MatrixXd WPCA::getCovarianceMatrix( Eigen::MatrixXd data )
     return cov;
 }
 
-boost::shared_ptr< LaBP::WLEMD::DataT > WPCA::computePCA( LaBP::WLEMD::DataT& rawData )
+boost::shared_ptr< WLEMData::DataT > WPCA::computePCA( WLEMData::DataT& rawData )
 {
     wlog::debug( CLASS ) << "computePCA() called!";
     wlog::debug( CLASS ) << "Allocating data into Eigen structure ...";

@@ -22,30 +22,34 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMEMMMEASUREMENT_H
-#define WMEMMMEASUREMENT_H
+#ifndef WMEMMEASUREMENT_H
+#define WMEMMEASUREMENT_H
 
 #include <string>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
 
-#include "core/common/math/linearAlgebra/WVectorFixed.h"
-#include "core/common/WPropertyTypes.h"
-#include "core/data/WLDataSetEMM.h"
+#include <core/common/math/linearAlgebra/WVectorFixed.h>
+#include <core/common/WPropertyTypes.h>
+
+#include "core/data/WLEMMCommand.h"
+#include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMSubject.h"
 #include "core/data/WLEMMSurface.h"
 #include "core/data/WLEMMBemBoundary.h"
+#include "core/data/WLMatrixTypes.h"
+#include "core/module/WLModuleInputDataRingBuffer.h"
 
 #include "core/module/WLModuleDrawable.h"
-// TODO use OW class
-#include "core/module/WLModuleOutputDataCollectionable.h"
 
 #include "algorithms/WRegistration.h"
 #include "algorithms/WRegistrationICP.h"
 #include "algorithms/WRegistrationNaive.h"
 
 #include "core/io/WLReaderExperiment.h"
+
+using LaBP::MatrixSPtr;
 
 /**
  * This module implements several onscreen status displays. At the moment the main purpose
@@ -78,7 +82,15 @@ public:
     virtual const std::string getDescription() const;
 
 protected:
-    virtual void initModule();
+    // ---------------------------------
+    // Methods for WLEMMCommandProcessor
+    // ---------------------------------
+    virtual bool processCompute( WLEMMeasurement::SPtr emm );
+    virtual bool processInit( WLEMMCommand::SPtr labp );
+    virtual bool processReset( WLEMMCommand::SPtr labp );
+    virtual bool processMisc( WLEMMCommand::SPtr labp );
+
+    virtual void moduleInit();
 
     /**
      * Entry point after loading the module. Runs in separate thread.
@@ -101,7 +113,7 @@ protected:
      *
      * \return the prototype used to create every module in OpenWalnut.
      */
-    virtual boost::shared_ptr< WModule > factory() const;
+    virtual WModule::SPtr factory() const;
 
     /**
      * Get the icon for this module in XPM format.
@@ -111,12 +123,9 @@ protected:
 
 private:
     //! a condition for the matrix selection
-    boost::shared_ptr< WCondition > m_propCondition;
+    WCondition::SPtr m_propCondition;
 
-    /**
-     * The only output of this data module. TODO use OW class
-     */
-    boost::shared_ptr< LaBP::WLModuleOutputDataCollectionable< LaBP::WLDataSetEMM > > m_output;
+    LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input;
 
     // FIFF file //
     void streamData();
@@ -135,7 +144,7 @@ private:
     /**
      * pointer to data out of read fiff file
      */
-    boost::shared_ptr< LaBP::WLDataSetEMM > m_fiffEmm;
+    WLEMMeasurement::SPtr m_fiffEmm;
 
     WPropString m_fiffFileStatus;
 
@@ -187,12 +196,15 @@ private:
     // Additional Settings //
     WPropGroup m_propGrpExtra;
 
-    void setAdditionalInformation( boost::shared_ptr< LaBP::WLDataSetEMM > emm );
+    void setAdditionalInformation( WLEMMeasurement::SPtr emm );
 
     // ELC Settings //
     bool readElc( std::string fname );
 
     bool m_isElcLoaded;
+
+    bool m_hasLeadfield;
+    MatrixSPtr m_leadfield;
 
     WPropFilename m_elcFile;
 
@@ -217,7 +229,7 @@ private:
 
     WPropFilename m_dipFile;
 
-    boost::shared_ptr< LaBP::WLEMMSurface > m_dipSurface;
+    LaBP::WLEMMSurface::SPtr m_dipSurface;
 
     WPropString m_dipFileStatus;
 
@@ -232,7 +244,7 @@ private:
 
     WPropFilename m_volFile;
 
-    boost::shared_ptr< std::vector< boost::shared_ptr< LaBP::WLEMMBemBoundary > > > m_volBoundaries;
+    boost::shared_ptr< std::vector< LaBP::WLEMMBemBoundary::SPtr > > m_volBoundaries;
 
     WPropString m_volFileStatus;
 
@@ -258,10 +270,10 @@ private:
     void extractExpLoader( std::string fiffFile );
     WPropString m_expSubject;
 
-    boost::shared_ptr< WItemSelection > m_expBemFiles;
+    WItemSelection::SPtr m_expBemFiles;
     WPropSelection m_expBemFilesSelection;
 
-    boost::shared_ptr< WItemSelection > m_expSurfaces;
+    WItemSelection::SPtr m_expSurfaces;
     WPropSelection m_expSurfacesSelection;
 
     WPropString m_expTrial;
@@ -290,7 +302,6 @@ private:
     static const std::string FILE_LOADED;
 
     static const std::string FILE_ERROR;
-
 };
 
-#endif  // WMEMMMEASUREMENT_H
+#endif  // WMEMMEASUREMENT_H

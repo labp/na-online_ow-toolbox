@@ -29,68 +29,68 @@
 
 #include "core/data/WLEMMEnumTypes.h"
 
-#include "WLEMD.h"
+#include "WLEMData.h"
 #include "WLEMDPCA.h"
 
-LaBP::WLEMDPCA::WLEMDPCA() :
-                WLEMD()
+WLEMDPCA::WLEMDPCA() :
+                WLEMData()
 {
     m_chanNames.reset( new std::vector< std::string >() );
 }
 
-LaBP::WLEMDPCA::WLEMDPCA( const WLEMDPCA& pca ) :
-                WLEMD( pca )
+WLEMDPCA::WLEMDPCA( const WLEMDPCA& pca ) :
+                WLEMData( pca )
 {
 }
 
-LaBP::WLEMDPCA::WLEMDPCA( const WLEMD& emd ) :
-                WLEMD( emd )
+WLEMDPCA::WLEMDPCA( const WLEMData& emd ) :
+                WLEMData( emd )
 {
     // C++11 supports "delegating constructors". So default initialization could be moved to default constructor.
     m_chanNames.reset( new std::vector< std::string >() );
 }
 
-LaBP::WLEMDPCA::~WLEMDPCA()
+WLEMDPCA::~WLEMDPCA()
 {
 }
 
-LaBP::WLEMD::SPtr LaBP::WLEMDPCA::clone() const
+WLEMData::SPtr WLEMDPCA::clone() const
 {
-    LaBP::WLEMDPCA::SPtr pca( new LaBP::WLEMDPCA( *this ) );
+    WLEMDPCA::SPtr pca( new WLEMDPCA( *this ) );
     return pca;
 }
 
-LaBP::WEModalityType::Enum LaBP::WLEMDPCA::getModalityType() const
+LaBP::WEModalityType::Enum WLEMDPCA::getModalityType() const
 {
     return LaBP::WEModalityType::PCA;
 }
 
-void LaBP::WLEMDPCA::setTransformationMatrix( boost::shared_ptr< MatrixT > new_trans )
+void WLEMDPCA::setTransformationMatrix( boost::shared_ptr< MatrixT > new_trans )
 {
     m_transformation_matrix = new_trans;
 }
 
-LaBP::WLEMDPCA::MatrixT& LaBP::WLEMDPCA::getTransformationMatrix()
+WLEMDPCA::MatrixT& WLEMDPCA::getTransformationMatrix()
 {
     return *m_transformation_matrix;
 }
 
-void LaBP::WLEMDPCA::setChannelMeans( boost::shared_ptr< VectorT > new_chan_means )
+void WLEMDPCA::setChannelMeans( boost::shared_ptr< VectorT > new_chan_means )
 {
     m_channel_means = new_chan_means;
 }
 
-LaBP::WLEMDPCA::VectorT& LaBP::WLEMDPCA::getChannelMeans()
+WLEMDPCA::VectorT& WLEMDPCA::getChannelMeans()
 {
     return *m_channel_means;
 }
 
-void LaBP::WLEMDPCA::setPreprocessedData( WLEMD::SPtr new_preprocessed_data )
+void WLEMDPCA::setPreprocessedData( WLEMData::SPtr new_preprocessed_data )
 {
     m_preprocessed_data = new_preprocessed_data;
 }
 
-LaBP::WLEMD::SPtr LaBP::WLEMDPCA::getPreprocessedData()
+WLEMData::SPtr WLEMDPCA::getPreprocessedData()
 {
     return m_preprocessed_data;
 }
