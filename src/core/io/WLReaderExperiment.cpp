@@ -1,4 +1,27 @@
-// TODO doc & license
+//---------------------------------------------------------------------------
+//
+// Project: OpenWalnut ( http://www.openwalnut.org )
+//
+// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+// For more information see http://www.openwalnut.org/copying
+//
+// This file is part of OpenWalnut.
+//
+// OpenWalnut is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// OpenWalnut is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+//
+//---------------------------------------------------------------------------
+
 #include <algorithm>
 #include <set>
 #include <string>
@@ -7,6 +30,10 @@
 #include <boost/filesystem.hpp>
 #include <boost/regex.hpp>
 #include <boost/shared_ptr.hpp>
+
+#include <QFile>
+
+#include <mne/mne_forwardsolution.h>
 
 #include <core/common/WAssert.h>
 #include <core/common/WIOTools.h>
@@ -38,11 +65,13 @@ const string WLReaderExperiment::m_INFLATED = "inflated";
 const string WLReaderExperiment::m_LEADFIELD = "leadfield";
 const string WLReaderExperiment::m_LH = "lh";
 const string WLReaderExperiment::m_RH = "rh";
+const string WLReaderExperiment::m_LHRH = "all";
 const string WLReaderExperiment::m_EEG = "eeg";
 const string WLReaderExperiment::m_MEG = "meg";
 const string WLReaderExperiment::m_VOL = ".vol";
 const string WLReaderExperiment::m_DIP = ".dip";
 const string WLReaderExperiment::m_MAT = ".mat";
+const string WLReaderExperiment::m_FIFF = ".fif";
 
 const string WLReaderExperiment::CLASS = "WLReaderExperiment";
 
@@ -368,87 +397,16 @@ bool WLReaderExperiment::readLeadField( std::string surface, std::string bemName
                 LaBP::WLEMMSubject::SPtr subject )
 {
     wlog::debug( CLASS ) << "readLeadField() called!";
-    bool rc = true;
 
-    bemName = bemName.substr( 0, bemName.find( m_VOL ) );
-
-    path folder( m_PATH_EXPERIMENT );
-    folder /= m_FOLDER_RESULTS;
-    folder /= m_SUBJECT;
-
-    path lhFile( folder );
-    lhFile /= m_LEADFIELD + "_" + m_LH + "." + surface + "_" + bemName + "_" + m_SUBJECT + trial + "_" + modality + m_MAT;
-    wlog::info( CLASS ) << "Read file: " << lhFile.string();
-    if( !exists( lhFile ) )
-    {
-        wlog::error( CLASS ) << "File does not exist!";
-        return false;
-    }
-
-    WLReaderMatMab lhReader( lhFile.string() );
-    LaBP::MatrixSPtr lhMatrix;
-    WLReaderMatMab::ReturnCode::Enum lhReturn = lhReader.read( lhMatrix );
-    if( lhReturn == WLReaderMatMab::ReturnCode::SUCCESS )
-    {
-        wlog::info( CLASS ) << "Successfully read left leadfield!";
-    }
-    else
-    {
-        wlog::error( CLASS ) << "Could not load left leadfield!";
-        return false;
-    }
-
-    path rhFile( folder );
-    rhFile /= m_LEADFIELD + "_" + m_RH + "." + surface + "_" + bemName + "_" + m_SUBJECT + trial + "_" + modality + m_MAT;
-    wlog::info( CLASS ) << "Read file: " << rhFile.string();
-    if( !exists( rhFile ) )
-    {
-        wlog::error( CLASS ) << "File does not exist!";
-        return false;
-    }
-
-    WLReaderMatMab rhReader( rhFile.string() );
-    LaBP::MatrixSPtr rhMatrix;
-    WLReaderMatMab::ReturnCode::Enum rhReturn = rhReader.read( rhMatrix );
-    if( rhReturn == WLReaderMatMab::ReturnCode::SUCCESS )
-    {
-        wlog::info( CLASS ) << "Successfully read right leadfield!";
-    }
-    else
-    {
-        wlog::error( CLASS ) << "Could not load right leadfield!";
-        return false;
-    }
-
-    // Combine lhMatrix and rhMatrix
-    wlog::debug( CLASS ) << "lhMatrix " << lhMatrix->rows() << " x " << lhMatrix->cols();
-    wlog::debug( CLASS ) << "rhMatrix " << rhMatrix->rows() << " x " << rhMatrix->cols();
-
-    WAssert( lhMatrix->rows() == rhMatrix->rows(), "lh and rh matrices has different row size" );
-    LaBP::MatrixSPtr leadfield( new LaBP::MatrixT( lhMatrix->rows(), lhMatrix->cols() + rhMatrix->cols() ) );
-
-    for( LaBP::MatrixT::Index row = 0; row < leadfield->rows(); ++row )
-    {
-        for( LaBP::MatrixT::Index col = 0; col < lhMatrix->cols(); ++col )
-        {
-            ( *leadfield )( row, col ) = ( *lhMatrix )( row, col );
-        }
-        for( LaBP::MatrixT::Index col = 0; col < rhMatrix->cols(); ++col )
-        {
-            ( *leadfield )( row, col + lhMatrix->cols() ) = ( *rhMatrix )( row, col );
-        }
-    }
-
-    wlog::debug( CLASS ) << "leadfield " << leadfield->rows() << " x " << leadfield->cols();
-
+    WEModalityType::Enum modEnum;
     if( m_MEG.compare( modality ) == 0 )
     {
-        subject->setLeadfield( WEModalityType::MEG, leadfield );
+        modEnum = WEModalityType::MEG;
     }
     else
         if( m_EEG.compare( modality ) == 0 )
         {
-            subject->setLeadfield( WEModalityType::EEG, leadfield );
+            modEnum = WEModalityType::EEG;
         }
         else
         {
@@ -456,5 +414,85 @@ bool WLReaderExperiment::readLeadField( std::string surface, std::string bemName
             return false;
         }
 
-    return rc;
+    bemName = bemName.substr( 0, bemName.find( m_VOL ) );
+    path folder( m_PATH_EXPERIMENT );
+    folder /= m_FOLDER_RESULTS;
+    folder /= m_SUBJECT;
+
+    // trying to load fif file
+    path allFile( folder );
+    allFile /= m_LEADFIELD + "_" + m_LHRH + "." + surface + "_" + bemName + "_" + m_SUBJECT + trial + "_" + modality + m_FIFF;
+    MatrixSPtr allMatrix;
+    if( readLeadFieldFiff( allFile.string(), allMatrix ) )
+    {
+        wlog::info( CLASS ) << "Leadfield (" << modality << "): " << allMatrix->rows() << " x " << allMatrix->cols();
+        subject->setLeadfield( modEnum, allMatrix );
+        return true;
+    }
+
+    // if no fiff file available trying to load matlab file
+    path lhFile( folder );
+    lhFile /= m_LEADFIELD + "_" + m_LH + "." + surface + "_" + bemName + "_" + m_SUBJECT + trial + "_" + modality + m_MAT;
+    MatrixSPtr lhMatrix;
+    if( !readLeadFieldMat( lhFile.string(), lhMatrix ) )
+    {
+        wlog::error( CLASS ) << "Could not load left leadfield!";
+        return false;
+    }
+    wlog::info( CLASS ) << "Left Leadfield (" << modality << "): " << lhMatrix->rows() << " x " << lhMatrix->cols();
+
+    path rhFile( folder );
+    rhFile /= m_LEADFIELD + "_" + m_RH + "." + surface + "_" + bemName + "_" + m_SUBJECT + trial + "_" + modality + m_MAT;
+    MatrixSPtr rhMatrix;
+    if( !readLeadFieldMat( rhFile.string(), rhMatrix ) )
+    {
+        wlog::error( CLASS ) << "Could not load right leadfield!";
+        return false;
+    }
+    wlog::info( CLASS ) << "Right Leadfield (" << modality << "): " << rhMatrix->rows() << " x " << rhMatrix->cols();
+
+    // Combine left and right
+    const MatrixT::Index rows = lhMatrix->rows();
+    const MatrixT::Index cols = lhMatrix->cols() + rhMatrix->cols();
+    if( rows != rhMatrix->rows() )
+    {
+        wlog::error( CLASS ) << "Rows of left and right leadfield do not match: " << rows << " != " << rhMatrix->rows();
+        return false;
+    }
+    allMatrix.reset( new LaBP::MatrixT( rows, cols ) );
+    allMatrix->block( 0, 0, rows, lhMatrix->cols() ) = ( *lhMatrix );
+    allMatrix->block( 0, lhMatrix->cols(), rows, rhMatrix->cols() ) = ( *rhMatrix );
+
+    wlog::info( CLASS ) << "Leadfield (" << modality << "): " << allMatrix->rows() << " x " << allMatrix->cols();
+    subject->setLeadfield( modEnum, allMatrix );
+    return true;
+}
+
+bool WLReaderExperiment::readLeadFieldMat( const std::string& fName, MatrixSPtr& matrix )
+{
+    if( !exists( fName ) )
+    {
+        wlog::error( CLASS ) << "File does not exist: " << fName;
+        return false;
+    }
+    wlog::info( CLASS ) << "Read file: " << fName;
+
+    WLReaderMatMab reader( fName );
+    WLReaderMatMab::ReturnCode::Enum rc = reader.read( matrix );
+    return rc == WLReaderMatMab::ReturnCode::SUCCESS;
+}
+
+bool WLReaderExperiment::readLeadFieldFiff( const std::string& fName, MatrixSPtr& matrix )
+{
+    if( !exists( fName ) )
+    {
+        wlog::error( CLASS ) << "File does not exist: " << fName;
+        return false;
+    }
+    wlog::info( CLASS ) << "Read file: " << fName;
+    QFile file( fName.c_str() );
+    MNELIB::MNEForwardSolution fwdSolution = MNELIB::MNEForwardSolution( file );
+    matrix.reset( new MatrixT( fwdSolution.sol->data.cast< MatrixT::Scalar >() ) );
+
+    return true;
 }

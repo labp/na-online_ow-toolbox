@@ -33,9 +33,53 @@ SET( libfiffio_dir ${PROJECT_SOURCE_DIR}/../resources/platformDependent/libfiffi
 # Search own dependencies
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
-INCLUDE_DIRECTORIES( ${libfiffio_dir}/include )
-
 SET( ADDITIONAL_LIBS "" )
+
+
+# -----------------------------------------------------------------------------------------------------------------------------------------------
+# Add MNE Library for FIFF reader
+# -----------------------------------------------------------------------------------------------------------------------------------------------
+# NOTE: Order of static libs is important. Wrong order can produce undefined references and symbols!
+#       We need the MNE dependencies twice :(
+
+FIND_PACKAGE( MNE REQUIRED )
+INCLUDE_DIRECTORIES( ${MNE_INCLUDE_DIR} )
+LINK_DIRECTORIES( ${MNE_LIBRARY_DIR} )
+LIST( APPEND ADDITIONAL_LIBS ${MNE_FIFF_LIBRARY} ${MNE_LIBRARY} ${MNE_UTILS_LIBRARY} ${MNE_FS_LIBRARY} )
+
+
+# -----------------------------------------------------------------------------------------------------------------------------------------------
+# Add static Qt5 for MNE Library
+# -----------------------------------------------------------------------------------------------------------------------------------------------
+# NOTE: Need of static linking due to conflicts with Qt4 of OpenWalnut (runtime error).
+# NOTE: Order of Qt5 static libs is important. Wrong order can produce undefined references and symbols!
+
+FIND_PACKAGE( Qt5Static REQUIRED )
+INCLUDE_DIRECTORIES( ${QT5_INCLUDE_DIR} )
+INCLUDE_DIRECTORIES( ${QT5_QTCORE_INCLUDE_DIR} )
+INCLUDE_DIRECTORIES( ${QT5_QTNETWORK_INCLUDE_DIR} )
+LINK_DIRECTORIES( ${QT5_STATIC_LIBRARY_DIR} )
+LIST( APPEND ADDITIONAL_LIBS ${QT5_STATIC_QTNETWORK_LIBRARY} ${QT5_STATIC_QTCORE_LIBRARY} )
+# Libraries needed due to Qt5 static linking
+LIST( APPEND ADDITIONAL_LIBS pthread rt z icudata icui18n icuuc glib-2.0 dl )
+
+
+# -----------------------------------------------------------------------------------------------------------------------------------------------
+# Add MNE Library for FIFF reader
+# -----------------------------------------------------------------------------------------------------------------------------------------------
+# NOTE: Order of static libs is important. Wrong order can produce undefined references and symbols!
+
+FIND_PACKAGE( MNE REQUIRED )
+INCLUDE_DIRECTORIES( ${MNE_INCLUDE_DIR} )
+LINK_DIRECTORIES( ${MNE_LIBRARY_DIR} )
+LIST( APPEND ADDITIONAL_LIBS ${MNE_FIFF_LIBRARY} ${MNE_LIBRARY} ${MNE_UTILS_LIBRARY} ${MNE_FS_LIBRARY} )
+
+
+# -----------------------------------------------------------------------------------------------------------------------------------------------
+# OpenWalnut dependencies
+# -----------------------------------------------------------------------------------------------------------------------------------------------
+
+INCLUDE_DIRECTORIES( ${libfiffio_dir}/include )
 
 LIST( APPEND ADDITIONAL_LIBS ${OW_LIB_OPENWALNUT} )
 LIST( APPEND ADDITIONAL_LIBS ${libfiffio_dir}/linux_x86_64/libfiffio.so )
@@ -53,6 +97,7 @@ TARGET_LINK_LIBRARIES( ${LibName} ${ADDITIONAL_LIBS} )
 
 # Do not forget the install targets
 SETUP_LIB_INSTALL( ${LibName} ${OW_LIBRARY_DIR_RELATIVE}/.. ${LABP_CORE} )
+
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Test Setup
