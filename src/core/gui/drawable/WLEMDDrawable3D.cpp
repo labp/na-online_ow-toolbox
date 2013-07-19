@@ -239,8 +239,8 @@ namespace LaBP
 
             const ValueT width = m_widget->width();
             const ValueT height = m_widget->height();
-            const float cm_max = m_colorMap->getMax();
-            const float cm_min = m_colorMap->getMin();
+            const WLColorMap::ValueT cm_max = m_colorMap->getMax();
+            const WLColorMap::ValueT cm_min = m_colorMap->getMin();
             const ValueT cm_width = 20;
             const ValueT cm_height = height / 2;
             const ValueT cm_x_offset = 10;
