@@ -28,7 +28,6 @@
 
 #include <osg/Image>
 #include <osgSim/ColorRange>
-#include <osgSim/ScalarsToColors>
 
 #include <core/common/WAssert.h>
 #include <core/common/WLogger.h>
@@ -42,16 +41,31 @@
 
 namespace LaBP
 {
+    const std::string WLColorMap::CLASS = "WLColorMap";
 
     WLColorMap::WLColorMap( ValueT min, ValueT max, WEColorMapMode::Enum mode ) :
-                    osgSim::ScalarsToColors( mode == WEColorMapMode::ABSOLUTE && min < 0 ? 0 : min, max ), m_mode( mode )
+                    m_mode( mode )
     {
         if( mode == WEColorMapMode::ABSOLUTE && min < 0 )
         {
             min = 0;
-            wlog::warn( "WLColorMap" ) << "Mode is absolute but min is not 0! Using 0 instead!";
+            wlog::warn( CLASS ) << "Mode is absolute but min is not 0! Using 0 instead!";
 
         }
+        if( min > max )
+        {
+            wlog::warn( CLASS ) << "min > max! Swapping values.";
+            ValueT tmp = min;
+            min = max;
+            max = tmp;
+        }
+        else
+            if( min == max )
+            {
+                max = min == 0.0 ? 1 : ( min + fabs( min ) );
+                wlog::warn( CLASS ) << "min == max! Changed max to: " << max;
+            }
+
         m_colorRange = new osgSim::ColorRange( min, max );
         m_range = max - min;
     }
@@ -59,6 +73,16 @@ namespace LaBP
     WLColorMap::~WLColorMap()
     {
         delete m_colorRange;
+    }
+
+    WLColorMap::ValueT WLColorMap::getMin() const
+    {
+        return m_colorRange->getMin();
+    }
+
+    WLColorMap::ValueT WLColorMap::getMax() const
+    {
+        return m_colorRange->getMax();
     }
 
     WLColorMap::ColorT WLColorMap::getColor( ValueT scalar ) const
