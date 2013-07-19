@@ -383,8 +383,7 @@ bool WMSourceReconstruction::processCompute( WLEMMeasurement::SPtr emmIn )
     // The data is valid and we received an update. The data is not NULL but may be the same as in previous loops.
     debugLog() << "received data";
 
-    // TODO(pieloth) choose correct EMD
-    LaBP::WEModalityType::Enum modality = LaBP::WEModalityType::EEG;
+    LaBP::WEModalityType::Enum modality = this->getCalculateModality();
     if( m_range < 0 )
     {
         if( emmIn->hasModality( modality ) )
@@ -422,8 +421,7 @@ bool WMSourceReconstruction::processCompute( WLEMMeasurement::SPtr emmIn )
 
 bool WMSourceReconstruction::processInit( WLEMMCommand::SPtr labp )
 {
-    // TODO(pieloth) choose correct EMD
-    LaBP::WEModalityType::Enum modality = LaBP::WEModalityType::EEG;
+    LaBP::WEModalityType::Enum modality = this->getCalculateModality();
     if( labp->hasEmm() )
     {
         inverseSolutionFromSubject( labp->getEmm(), modality );
