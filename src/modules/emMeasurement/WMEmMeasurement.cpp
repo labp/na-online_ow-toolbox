@@ -247,7 +247,7 @@ void WMEmMeasurement::moduleInit()
     m_isDipLoaded = false;
     m_isExpLoaded = false;
 
-    initView( LaBP::WLEMDDrawable2D::WEGraphType::DYNAMIC );
+    viewInit( LaBP::WLEMDDrawable2D::WEGraphType::DYNAMIC );
     infoLog() << "Initializing module finished!";
 }
 
@@ -333,7 +333,7 @@ void WMEmMeasurement::moduleMain()
 
 void WMEmMeasurement::streamData()
 {
-    resetView();
+    viewReset();
     if( m_isFiffLoaded )
     {
         infoLog() << "Streaming started ...";
@@ -457,7 +457,7 @@ void WMEmMeasurement::streamData()
 
 void WMEmMeasurement::generateData()
 {
-    resetView();
+    viewReset();
     infoLog() << "Generation started ...";
     m_genDataTrigger->setHidden( true );
     m_genDataTriggerEnd->setHidden( false );
@@ -941,7 +941,7 @@ bool WMEmMeasurement::processCompute( WLEMMeasurement::SPtr emm )
 
     WLEMMCommand::SPtr labp = WLEMMCommand::instance( WLEMMCommand::Command::COMPUTE );
     labp->setEmm( emm );
-    updateView( emm );
+    viewUpdate( emm );
     m_output->updateData( labp );
     return true;
 }

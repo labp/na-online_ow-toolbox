@@ -181,7 +181,7 @@ void WMSourceReconstruction::moduleInit()
 {
     infoLog() << "Initializing module ...";
     waitRestored();
-    initView( LaBP::WLEMDDrawable2D::WEGraphType::SINGLE );
+    viewInit( LaBP::WLEMDDrawable2D::WEGraphType::SINGLE );
     handleImplementationChanged();
     handleWeightingTypeChanged();
     handleSnrChanged();
@@ -411,7 +411,7 @@ bool WMSourceReconstruction::processCompute( WLEMMeasurement::SPtr emmIn )
     }
     emmOut->addModality( sourceOut );
 
-    updateView( emmOut );
+    viewUpdate( emmOut );
 
     WLEMMCommand::SPtr labp = WLEMMCommand::instance( WLEMMCommand::Command::COMPUTE );
     labp->setEmm( emmOut );
@@ -433,7 +433,7 @@ bool WMSourceReconstruction::processInit( WLEMMCommand::SPtr labp )
 
 bool WMSourceReconstruction::processReset( WLEMMCommand::SPtr labp )
 {
-    resetView();
+    viewReset();
     m_sourceReconstruction->reset();
 
     m_leadfieldRows->set( 0, true );

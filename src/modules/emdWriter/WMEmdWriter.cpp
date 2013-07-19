@@ -137,7 +137,7 @@ void WMEmdWriter::moduleInit()
 {
     infoLog() << "Initializing module ...";
     waitRestored();
-    initView( LaBP::WLEMDDrawable2D::WEGraphType::DYNAMIC );
+    viewInit( LaBP::WLEMDDrawable2D::WEGraphType::DYNAMIC );
     infoLog() << "Initializing module finished!";
 }
 
@@ -249,7 +249,7 @@ void WMEmdWriter::moduleMain()
                 m_packetsNext->set( false );
             }
 
-            updateView( emm );
+            viewUpdate( emm );
             ++count;
             m_output->updateData( labpIn );
         }

@@ -190,7 +190,7 @@ void WMFIRFilter::moduleInit()
     {
         callbackCoeffFileChanged();
     }
-    initView( LaBP::WLEMDDrawable2D::WEGraphType::DYNAMIC );
+    viewInit( LaBP::WLEMDDrawable2D::WEGraphType::DYNAMIC );
 
     infoLog() << "Initializing module finished!";
 }
@@ -365,7 +365,7 @@ bool WMFIRFilter::processCompute( WLEMMeasurement::SPtr emmIn )
     }
     m_firFilter->doPostProcessing( emmOut, emmIn );
 
-    updateView( emmOut );
+    viewUpdate( emmOut );
 
     WLEMMCommand::SPtr labp = WLEMMCommand::instance( WLEMMCommand::Command::COMPUTE );
     labp->setEmm( emmOut );

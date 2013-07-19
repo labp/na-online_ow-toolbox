@@ -112,7 +112,7 @@ void WMEpochSeparation::moduleInit()
 {
     infoLog() << "Initializing module ...";
     waitRestored();
-    initView( LaBP::WLEMDDrawable2D::WEGraphType::MULTI );
+    viewInit( LaBP::WLEMDDrawable2D::WEGraphType::MULTI );
     m_separation = WEpochSeparation::SPtr( new WEpochSeparation() );
     handleResetTriggerPressed();
     infoLog() << "Initializing module finished!";
@@ -216,7 +216,7 @@ bool WMEpochSeparation::processCompute( WLEMMeasurement::SPtr emmIn )
     // Because updates are to fast to recognize changes, update the last EMM only.
     if( emmOut )
     {
-        updateView( emmOut );
+        viewUpdate( emmOut );
     }
     return true;
 }
@@ -230,7 +230,7 @@ bool WMEpochSeparation::processInit( WLEMMCommand::SPtr labp )
 
 bool WMEpochSeparation::processReset( WLEMMCommand::SPtr labp )
 {
-    resetView();
+    viewReset();
     m_separation->reset();
 
     int preSamples = m_preTrigger->get();

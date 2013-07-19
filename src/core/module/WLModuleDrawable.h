@@ -89,17 +89,17 @@ namespace LaBP
         /**
          * Sets the new data to draw.
          */
-        void updateView( WLEMMeasurement::SPtr emm );
+        void viewUpdate( WLEMMeasurement::SPtr emm );
 
         /**
          * Set which elements of the view we want to see: info panels, channels and/or head. Called it after ready()!
          */
-        void initView( LaBP::WLEMDDrawable2D::WEGraphType::Enum graphType );
+        void viewInit( LaBP::WLEMDDrawable2D::WEGraphType::Enum graphType );
 
         /**
          * Add commentaries here:
          */
-        void resetView();
+        void viewReset();
 
         /**
          * Initializes the underlying algorithm with the values of WProperties. Called it after ready()!

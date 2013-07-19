@@ -152,7 +152,7 @@ void WMEpochRejection::moduleInit()
 
     waitRestored();
 
-    initView( LaBP::WLEMDDrawable2D::WEGraphType::SINGLE );
+    viewInit( LaBP::WLEMDDrawable2D::WEGraphType::SINGLE );
 
     infoLog() << "Initializing module finished!";
 }
@@ -311,7 +311,7 @@ bool WMEpochRejection::processCompute( WLEMMeasurement::SPtr emmIn )
     rejectProcess->finish(); // finish the process visualization
 
     // transfer the output to the view
-    updateView( emmIn ); // update the GUI component
+    viewUpdate( emmIn ); // update the GUI component
 
     // deliver to output-connector if there was no failure
     if(rejected == false)

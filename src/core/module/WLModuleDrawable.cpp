@@ -210,7 +210,7 @@ void LaBP::WLModuleDrawable::callbackColorModeChanged()
 
 void LaBP::WLModuleDrawable::callbackViewModalityChanged()
 {
-    resetView();
+    viewReset();
 
     m_drawable2D->redraw();
     m_drawable3D->redraw();
@@ -262,7 +262,7 @@ void LaBP::WLModuleDrawable::callbackLabelsChanged()
     }
 }
 
-void LaBP::WLModuleDrawable::initView( LaBP::WLEMDDrawable2D::WEGraphType::Enum graphType )
+void LaBP::WLModuleDrawable::viewInit( LaBP::WLEMDDrawable2D::WEGraphType::Enum graphType )
 {
     waitRestored();
 
@@ -273,10 +273,10 @@ void LaBP::WLModuleDrawable::initView( LaBP::WLEMDDrawable2D::WEGraphType::Enum 
 
     createColorMap();
 
-    resetView();
+    viewReset();
 }
 
-void LaBP::WLModuleDrawable::updateView( WLEMMeasurement::SPtr emm )
+void LaBP::WLModuleDrawable::viewUpdate( WLEMMeasurement::SPtr emm )
 {
     if( m_widget->getViewer()->isClosed() )
     {
@@ -306,7 +306,7 @@ void LaBP::WLModuleDrawable::updateView( WLEMMeasurement::SPtr emm )
     m_drawable3D->draw( emm );
 }
 
-void LaBP::WLModuleDrawable::resetView()
+void LaBP::WLModuleDrawable::viewReset()
 {
     debugLog() << "reset() called!";
     // Avoid memory leak due to circular references drawables <-> listener

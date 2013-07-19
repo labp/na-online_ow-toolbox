@@ -168,7 +168,7 @@ void WMMneRtClient::moduleInit()
     const std::string ip = "127.0.0.1";
     const std::string alias = "OW-LaBP";
     m_rtClient.reset( new WRtClient( ip, alias ) );
-    initView( LaBP::WLEMDDrawable2D::WEGraphType::DYNAMIC );
+    viewInit( LaBP::WLEMDDrawable2D::WEGraphType::DYNAMIC );
     infoLog() << "Initializing module finished!";
 }
 
@@ -297,7 +297,7 @@ void WMMneRtClient::handleTrgDataStart()
                 {
                     emm->setSubject( m_subject );
                 }
-                updateView( emm );
+                viewUpdate( emm );
                 WLEMMCommand::SPtr labp( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
                 labp->setEmm( emm );
                 m_output->updateData( labp );

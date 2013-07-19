@@ -143,7 +143,7 @@ void WMEpochAveraging::moduleInit()
     infoLog() << "Initializing module ...";
     waitRestored();
 
-    initView( LaBP::WLEMDDrawable2D::WEGraphType::SINGLE );
+    viewInit( LaBP::WLEMDDrawable2D::WEGraphType::SINGLE );
 
     callbackAverageTypeChanged();
 
@@ -267,7 +267,7 @@ bool WMEpochAveraging::processCompute( WLEMMeasurement::SPtr emmIn )
         debugLog() << ss.str();
     }
 #endif // DEBUG
-    updateView( emmOut );
+    viewUpdate( emmOut );
 
     WLEMMCommand::SPtr labp = WLEMMCommand::instance( WLEMMCommand::Command::COMPUTE );
     labp->setEmm( emmOut );
@@ -285,7 +285,7 @@ bool WMEpochAveraging::processInit( WLEMMCommand::SPtr labp )
 
 bool WMEpochAveraging::processReset( WLEMMCommand::SPtr labp )
 {
-    resetView();
+    viewReset();
     m_averaging->reset();
     m_epochCount->set( m_averaging->getCount(), true );
     infoLog() << "Reset averaging!";
