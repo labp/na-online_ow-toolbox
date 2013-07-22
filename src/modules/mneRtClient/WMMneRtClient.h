@@ -38,7 +38,7 @@
  * TODO
  * \ingroup modules
  */
-class WMMneRtClient: public LaBP::WLModuleDrawable
+class WMMneRtClient: public WLModuleDrawable
 {
 public:
     /**

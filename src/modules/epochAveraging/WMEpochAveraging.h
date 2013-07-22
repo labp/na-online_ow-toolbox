@@ -45,7 +45,7 @@
  * Module for epoch averaging.
  * \ingroup modules
  */
-class WMEpochAveraging: public LaBP::WLModuleDrawable
+class WMEpochAveraging: public WLModuleDrawable
 {
 public:
     /**

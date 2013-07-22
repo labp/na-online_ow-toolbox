@@ -100,7 +100,8 @@ void WMFIRFilter::connectors()
 
 void WMFIRFilter::properties()
 {
-    LaBP::WLModuleDrawable::properties();
+    WLModuleDrawable::properties();
+    WLModuleDrawable::hideComputeModalitySelection( true );
 
     m_propCondition = WCondition::SPtr( new WCondition() );
 

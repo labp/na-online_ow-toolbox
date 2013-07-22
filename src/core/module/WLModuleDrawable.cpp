@@ -25,6 +25,7 @@
 #include <algorithm> // min(), max()
 #include <cmath>
 #include <cstddef>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -55,21 +56,24 @@
 
 using std::min;
 using std::max;
+using std::set;
 
-const int LaBP::WLModuleDrawable::AUTO_SCALE_PACKETS = 8;
+using namespace LaBP;
 
-LaBP::WLModuleDrawable::WLModuleDrawable()
+const int WLModuleDrawable::AUTO_SCALE_PACKETS = 8;
+
+WLModuleDrawable::WLModuleDrawable()
 {
     m_autoScaleCounter = AUTO_SCALE_PACKETS;
     m_graphType = WLEMDDrawable2D::WEGraphType::MULTI;
 }
 
-LaBP::WLModuleDrawable::~WLModuleDrawable()
+WLModuleDrawable::~WLModuleDrawable()
 {
     WKernel::getRunningKernel()->getGui()->closeCustomWidget( m_widget->getTitle() );
 }
 
-void LaBP::WLModuleDrawable::properties()
+void WLModuleDrawable::properties()
 {
     WModule::properties();
     m_runtimeName->setPurpose( PV_PURPOSE_INFORMATION );
@@ -77,12 +81,12 @@ void LaBP::WLModuleDrawable::properties()
 
     // VIEWPROPERTIES ---------------------------------------------------------------------------------------
     m_channelHeight = m_propView->addProperty( "Channel height", "The distance between two curves of the graph in pixel.", 32.0,
-                    boost::bind( &LaBP::WLModuleDrawable::callbackChannelHeightChanged, this ), false );
+                    boost::bind( &WLModuleDrawable::callbackChannelHeightChanged, this ), false );
     m_channelHeight->setMin( 4.0 );
     m_channelHeight->setMax( 512.0 );
 
     m_labelsOn = m_propView->addProperty( "Labels on", "Switch channel labels on/off (3D).", true,
-                    boost::bind( &LaBP::WLModuleDrawable::callbackLabelsChanged, this ), false );
+                    boost::bind( &WLModuleDrawable::callbackLabelsChanged, this ), false );
 
     WItemSelection::SPtr colorModeSelection( new WItemSelection() );
     std::vector< WEColorMapMode::Enum > colorModes = WEColorMapMode::values();
@@ -95,7 +99,7 @@ void LaBP::WLModuleDrawable::properties()
     }
 
     m_selectionColorMode = m_propView->addProperty( "Color mode", "Select a mode", colorModeSelection->getSelectorFirst(),
-                    boost::bind( &LaBP::WLModuleDrawable::callbackColorModeChanged, this ) );
+                    boost::bind( &WLModuleDrawable::callbackColorModeChanged, this ) );
 
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_selectionColorMode );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_selectionColorMode );
@@ -111,20 +115,19 @@ void LaBP::WLModuleDrawable::properties()
     }
 
     m_selectionColor = m_propView->addProperty( "Color map", "Select a color", colorMapSelection->getSelector( 2 ),
-                    boost::bind( &LaBP::WLModuleDrawable::callbackColorChanged, this ) );
+                    boost::bind( &WLModuleDrawable::callbackColorChanged, this ) );
 
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_selectionColor );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_selectionColor );
 
     WItemSelection::SPtr calculateSelection( new WItemSelection() );
-    std::vector< LaBP::WEModalityType::Enum > modalities_m = LaBP::WEModalityType::values();
-    for( std::vector< LaBP::WEModalityType::Enum >::iterator it = modalities_m.begin(); it != modalities_m.end(); ++it )
+    std::vector< WEModalityType::Enum > modalities_m = WEModalityType::values();
+    for( std::vector< WEModalityType::Enum >::iterator it = modalities_m.begin(); it != modalities_m.end(); ++it )
     {
         calculateSelection->addItem(
-                        WItemSelectionItemTyped< LaBP::WEModalityType::Enum >::SPtr(
-                                        new WItemSelectionItemTyped< LaBP::WEModalityType::Enum >( *it,
-                                                        LaBP::WEModalityType::name( *it ),
-                                                        LaBP::WEModalityType::description( *it ) ) ) );
+                        WItemSelectionItemTyped< WEModalityType::Enum >::SPtr(
+                                        new WItemSelectionItemTyped< WEModalityType::Enum >( *it, WEModalityType::name( *it ),
+                                                        WEModalityType::description( *it ) ) ) );
     }
 
     m_selectionCalculate = m_propView->addProperty( "Compute modality", "Select a modality to compute.",
@@ -137,56 +140,108 @@ void LaBP::WLModuleDrawable::properties()
     // we are not using it, also it will be hidden until a solution is found. Dynamic view divide the width into the amount
     // of blocks ( default 2 ), also timeRange is not longer required.
     m_timeRange = m_propView->addProperty( "Time Range", "Size of time windows in ???.", 1.0,
-                    boost::bind( &LaBP::WLModuleDrawable::callbackTimeRangeChanged, this ), true );
+                    boost::bind( &WLModuleDrawable::callbackTimeRangeChanged, this ), true );
     m_timeRange->setMin( 0.100 );
     m_timeRange->setMax( 4.0 );
 
     WItemSelection::SPtr viewSelection( new WItemSelection() );
-    std::vector< LaBP::WEModalityType::Enum > modalities = LaBP::WEModalityType::values();
-    for( std::vector< LaBP::WEModalityType::Enum >::iterator it = modalities.begin(); it != modalities.end(); ++it )
+    std::vector< WEModalityType::Enum > modalities = WEModalityType::values();
+    for( std::vector< WEModalityType::Enum >::iterator it = modalities.begin(); it != modalities.end(); ++it )
     {
         viewSelection->addItem(
-                        WItemSelectionItemTyped< LaBP::WEModalityType::Enum >::SPtr(
-                                        new WItemSelectionItemTyped< LaBP::WEModalityType::Enum >( *it,
-                                                        LaBP::WEModalityType::name( *it ),
-                                                        LaBP::WEModalityType::description( *it ) ) ) );
+                        WItemSelectionItemTyped< WEModalityType::Enum >::SPtr(
+                                        new WItemSelectionItemTyped< WEModalityType::Enum >( *it, WEModalityType::name( *it ),
+                                                        WEModalityType::description( *it ) ) ) );
     }
 
     m_selectionView = m_propView->addProperty( "View modality", "Select a to visualize", viewSelection->getSelectorFirst(),
-                    boost::bind( &LaBP::WLModuleDrawable::callbackViewModalityChanged, this ) );
+                    boost::bind( &WLModuleDrawable::callbackViewModalityChanged, this ) );
 
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_selectionView );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_selectionView );
 
     m_autoSensitivity = m_propView->addProperty( "Sensitivity automatic", "Sensitivity automatic calculate.", true,
-                    boost::bind( &LaBP::WLModuleDrawable::callbackAutoSensitivityChanged, this ), false );
+                    boost::bind( &WLModuleDrawable::callbackAutoSensitivityChanged, this ), false );
 
     m_amplitudeScale = m_propView->addProperty( "Amplitude scale", "Scale of the amplitude / y-axis", 1.5e-9,
-                    boost::bind( &LaBP::WLModuleDrawable::callbackAmplitudeScaleChanged, this ), true );
+                    boost::bind( &WLModuleDrawable::callbackAmplitudeScaleChanged, this ), true );
     m_minSensitity3D = m_propView->addProperty( "Min 3D scale", "Minimum data value for color map.", -1.5e-9,
-                    boost::bind( &LaBP::WLModuleDrawable::callbackMin3DChanged, this ), true );
+                    boost::bind( &WLModuleDrawable::callbackMin3DChanged, this ), true );
     m_maxSensitity3D = m_propView->addProperty( "Max 3D scale", "Maximum data value for color map.", 1.5e-9,
-                    boost::bind( &LaBP::WLModuleDrawable::callbackMax3DChanged, this ), true );
+                    boost::bind( &WLModuleDrawable::callbackMax3DChanged, this ), true );
 }
 
-LaBP::WEModalityType::Enum LaBP::WLModuleDrawable::getViewModality()
+WEModalityType::Enum WLModuleDrawable::getViewModality()
 {
-    return m_selectionView->get().at( 0 )->getAs< WItemSelectionItemTyped< LaBP::WEModalityType::Enum > >()->getValue();
+    return m_selectionView->get().at( 0 )->getAs< WItemSelectionItemTyped< WEModalityType::Enum > >()->getValue();
 }
 
-LaBP::WEModalityType::Enum LaBP::WLModuleDrawable::getCalculateModality()
+void WLModuleDrawable::setViewModality( WEModalityType::Enum mod )
 {
-    LaBP::WEModalityType::Enum modality;
-    modality = m_selectionCalculate->get().at( 0 )->getAs< WItemSelectionItemTyped< LaBP::WEModalityType::Enum > >()->getValue();
+    // TODO(pieloth): dirty hack. Find a way just to select a item in the current selection.
+    m_propView->removeProperty( m_selectionView );
+
+    WItemSelection::SPtr viewSelection( new WItemSelection() );
+    std::vector< WEModalityType::Enum > modalities = WEModalityType::values();
+    size_t selected = 0;
+    for( std::vector< WEModalityType::Enum >::iterator it = modalities.begin(); it != modalities.end(); ++it )
+    {
+        viewSelection->addItem(
+                        WItemSelectionItemTyped< WEModalityType::Enum >::SPtr(
+                                        new WItemSelectionItemTyped< WEModalityType::Enum >( *it, WEModalityType::name( *it ),
+                                                        WEModalityType::description( *it ) ) ) );
+        if( *it != mod )
+        {
+            ++selected;
+        }
+    }
+
+    m_selectionView = m_propView->addProperty( "View modality", "Select a to visualize", viewSelection->getSelector( selected ),
+                    boost::bind( &WLModuleDrawable::callbackViewModalityChanged, this ) );
+
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_selectionView );
+    WPropertyHelper::PC_NOTEMPTY::addTo( m_selectionView );
+}
+
+void WLModuleDrawable::hideViewModalitySelection( bool enable )
+{
+    m_selectionView->setHidden( enable );
+}
+
+WEModalityType::Enum WLModuleDrawable::getCalculateModality()
+{
+    WEModalityType::Enum modality;
+    modality = m_selectionCalculate->get().at( 0 )->getAs< WItemSelectionItemTyped< WEModalityType::Enum > >()->getValue();
     return modality;
 }
 
-void LaBP::WLModuleDrawable::hideComputeModalitySelection( bool enable )
+void WLModuleDrawable::hideComputeModalitySelection( bool enable )
 {
     m_selectionCalculate->setHidden( enable );
 }
 
-void LaBP::WLModuleDrawable::callbackAutoSensitivityChanged()
+void WLModuleDrawable::setComputeModalitySelection( const set< WEModalityType::Enum >& modalities )
+{
+        // TODO(pieloth): dirty hack. Find a way just to remove a item in the current selection.
+        m_propView->removeProperty( m_selectionCalculate );
+
+        WItemSelection::SPtr calculateSelection( new WItemSelection() );
+        for( set< WEModalityType::Enum >::iterator it = modalities.begin(); it != modalities.end(); ++it )
+        {
+            calculateSelection->addItem(
+                            WItemSelectionItemTyped< WEModalityType::Enum >::SPtr(
+                                            new WItemSelectionItemTyped< WEModalityType::Enum >( *it, WEModalityType::name( *it ),
+                                                            WEModalityType::description( *it ) ) ) );
+        }
+
+        m_selectionCalculate = m_propView->addProperty( "Compute modality", "Select a modality to compute.",
+                        calculateSelection->getSelectorFirst() );
+
+        WPropertyHelper::PC_SELECTONLYONE::addTo( m_selectionCalculate );
+        WPropertyHelper::PC_NOTEMPTY::addTo( m_selectionCalculate );
+}
+
+void WLModuleDrawable::callbackAutoSensitivityChanged()
 {
     m_autoScaleCounter = AUTO_SCALE_PACKETS;
     m_amplitudeScale->setHidden( m_autoSensitivity->get() );
@@ -194,21 +249,21 @@ void LaBP::WLModuleDrawable::callbackAutoSensitivityChanged()
     m_maxSensitity3D->setHidden( m_autoSensitivity->get() );
 }
 
-void LaBP::WLModuleDrawable::callbackColorChanged()
+void WLModuleDrawable::callbackColorChanged()
 {
     createColorMap();
     m_drawable3D->setColorMap( m_colorMap );
     m_drawable3D->redraw();
 }
 
-void LaBP::WLModuleDrawable::callbackColorModeChanged()
+void WLModuleDrawable::callbackColorModeChanged()
 {
     createColorMap();
     m_drawable3D->setColorMap( m_colorMap );
     m_drawable3D->redraw();
 }
 
-void LaBP::WLModuleDrawable::callbackViewModalityChanged()
+void WLModuleDrawable::callbackViewModalityChanged()
 {
     viewReset();
 
@@ -216,33 +271,33 @@ void LaBP::WLModuleDrawable::callbackViewModalityChanged()
     m_drawable3D->redraw();
 }
 
-void LaBP::WLModuleDrawable::callbackMin3DChanged()
+void WLModuleDrawable::callbackMin3DChanged()
 {
     createColorMap();
     m_drawable3D->setColorMap( m_colorMap );
     m_drawable3D->redraw();
 }
 
-void LaBP::WLModuleDrawable::callbackMax3DChanged()
+void WLModuleDrawable::callbackMax3DChanged()
 {
     createColorMap();
     m_drawable3D->setColorMap( m_colorMap );
     m_drawable3D->redraw();
 }
 
-void LaBP::WLModuleDrawable::callbackAmplitudeScaleChanged()
+void WLModuleDrawable::callbackAmplitudeScaleChanged()
 {
     m_drawable2D->setAmplitudeScale( m_amplitudeScale->get() );
     m_drawable2D->redraw();
 }
 
-void LaBP::WLModuleDrawable::callbackTimeRangeChanged()
+void WLModuleDrawable::callbackTimeRangeChanged()
 {
     m_drawable2D->setTimeRange( m_timeRange->get() );
 // TODO(pieloth): ?Code definition?
 }
 
-void LaBP::WLModuleDrawable::callbackChannelHeightChanged()
+void WLModuleDrawable::callbackChannelHeightChanged()
 {
     WLEMDDrawable2DMultiChannel::SPtr drawable = m_drawable2D->getAs< WLEMDDrawable2DMultiChannel >();
     if( drawable )
@@ -252,7 +307,7 @@ void LaBP::WLModuleDrawable::callbackChannelHeightChanged()
     }
 }
 
-void LaBP::WLModuleDrawable::callbackLabelsChanged()
+void WLModuleDrawable::callbackLabelsChanged()
 {
     WLEMDDrawable3DEEG::SPtr drawable = m_drawable3D->getAs< WLEMDDrawable3DEEG >();
     if( drawable )
@@ -262,7 +317,7 @@ void LaBP::WLModuleDrawable::callbackLabelsChanged()
     }
 }
 
-void LaBP::WLModuleDrawable::viewInit( LaBP::WLEMDDrawable2D::WEGraphType::Enum graphType )
+void WLModuleDrawable::viewInit( WLEMDDrawable2D::WEGraphType::Enum graphType )
 {
     waitRestored();
 
@@ -276,7 +331,7 @@ void LaBP::WLModuleDrawable::viewInit( LaBP::WLEMDDrawable2D::WEGraphType::Enum 
     viewReset();
 }
 
-void LaBP::WLModuleDrawable::viewUpdate( WLEMMeasurement::SPtr emm )
+void WLModuleDrawable::viewUpdate( WLEMMeasurement::SPtr emm )
 {
     if( m_widget->getViewer()->isClosed() )
     {
@@ -306,10 +361,10 @@ void LaBP::WLModuleDrawable::viewUpdate( WLEMMeasurement::SPtr emm )
     m_drawable3D->draw( emm );
 }
 
-void LaBP::WLModuleDrawable::viewReset()
+void WLModuleDrawable::viewReset()
 {
     debugLog() << "reset() called!";
-    // Avoid memory leak due to circular references drawables <-> listener
+// Avoid memory leak due to circular references drawables <-> listener
     if( m_drawable2D )
     {
         m_drawable2D->clearListeners();
@@ -319,7 +374,7 @@ void LaBP::WLModuleDrawable::viewReset()
         m_drawable3D->clearListeners();
     }
 
-    WCustomWidget::SPtr widget2D = m_widget->getSubWidget( LaBP::WLEMDWidget::WEWidgetType::EMD_2D );
+    WCustomWidget::SPtr widget2D = m_widget->getSubWidget( WLEMDWidget::WEWidgetType::EMD_2D );
     m_drawable2D = WLEMDDrawable2D::getInstance( widget2D, getViewModality(), m_graphType );
     WLEMDDrawable2DMultiChannel::SPtr drawable = m_drawable2D->getAs< WLEMDDrawable2DMultiChannel >();
     if( drawable )
@@ -331,7 +386,7 @@ void LaBP::WLModuleDrawable::viewReset()
     m_drawable2D->setTimeRange( m_timeRange->get() );
     m_drawable2D->setAmplitudeScale( m_amplitudeScale->get() );
 
-    WCustomWidget::SPtr widget3D = m_widget->getSubWidget( LaBP::WLEMDWidget::WEWidgetType::EMD_3D );
+    WCustomWidget::SPtr widget3D = m_widget->getSubWidget( WLEMDWidget::WEWidgetType::EMD_3D );
     m_drawable3D = WLEMDDrawable3D::getInstance( widget3D, getViewModality() );
     m_drawable3D->setColorMap( m_colorMap );
 
@@ -339,19 +394,19 @@ void LaBP::WLModuleDrawable::viewReset()
     m_drawable2D->addMouseEventListener( handler );
 }
 
-double LaBP::WLModuleDrawable::getTimerange()
+double WLModuleDrawable::getTimerange()
 {
     return m_timeRange->get();
 }
 
-void LaBP::WLModuleDrawable::setTimerange( double value )
+void WLModuleDrawable::setTimerange( double value )
 {
     value = max( value, m_timeRange->getMin()->getMin() );
     value = min( value, m_timeRange->getMax()->getMax() );
     m_timeRange->set( value );
 }
 
-void LaBP::WLModuleDrawable::setTimerangeInformationOnly( bool enable )
+void WLModuleDrawable::setTimerangeInformationOnly( bool enable )
 {
     if( enable == true )
     {
@@ -363,7 +418,7 @@ void LaBP::WLModuleDrawable::setTimerangeInformationOnly( bool enable )
     }
 }
 
-void LaBP::WLModuleDrawable::createColorMap()
+void WLModuleDrawable::createColorMap()
 {
 // create color map
     const WEColorMap::Enum color_map =
@@ -373,7 +428,7 @@ void LaBP::WLModuleDrawable::createColorMap()
     m_colorMap = WEColorMap::instance( color_map, m_minSensitity3D->get(), m_maxSensitity3D->get(), color_mode );
 }
 
-bool LaBP::WLModuleDrawable::processTime( WLEMMCommand::SPtr labp )
+bool WLModuleDrawable::processTime( WLEMMCommand::SPtr labp )
 {
     bool rc = true;
     const float relative = labp->getParameterAs< float >();
@@ -383,7 +438,7 @@ bool LaBP::WLModuleDrawable::processTime( WLEMMCommand::SPtr labp )
     return rc;
 }
 
-bool LaBP::WLModuleDrawable::processMisc( WLEMMCommand::SPtr labp )
+bool WLModuleDrawable::processMisc( WLEMMCommand::SPtr labp )
 {
     m_output->updateData( labp );
     return false;

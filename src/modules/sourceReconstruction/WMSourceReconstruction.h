@@ -46,7 +46,7 @@
  * This module implements several onscreen status displays
  * \ingroup modules
  */
-class WMSourceReconstruction: public LaBP::WLModuleDrawable
+class WMSourceReconstruction: public WLModuleDrawable
 {
 public:
     /**

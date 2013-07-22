@@ -45,7 +45,7 @@
 /**
  * Module for epoch rejection.
  */
-class WMEpochRejection: public LaBP::WLModuleDrawable
+class WMEpochRejection: public WLModuleDrawable
 {
 public:
     /**

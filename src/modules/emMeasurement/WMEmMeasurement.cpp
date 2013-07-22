@@ -120,7 +120,7 @@ void WMEmMeasurement::connectors()
 
 void WMEmMeasurement::properties()
 {
-    LaBP::WLModuleDrawable::properties();
+    WLModuleDrawable::properties();
 
     m_propCondition = WCondition::SPtr( new WCondition() );
 

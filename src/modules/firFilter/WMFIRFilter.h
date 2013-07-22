@@ -42,7 +42,7 @@
  * Module to parameterize and process a FIR filter.
  * \ingroup modules
  */
-class WMFIRFilter: public LaBP::WLModuleDrawable
+class WMFIRFilter: public WLModuleDrawable
 {
 public:
     /**

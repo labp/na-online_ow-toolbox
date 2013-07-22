@@ -92,8 +92,9 @@ void WMEpochAveraging::connectors()
 
 void WMEpochAveraging::properties()
 {
-    LaBP::WLModuleDrawable::properties();
-    LaBP::WLModuleDrawable::setTimerangeInformationOnly( true );
+    WLModuleDrawable::properties();
+    WLModuleDrawable::setTimerangeInformationOnly( true );
+    WLModuleDrawable::hideComputeModalitySelection( true );
 
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 

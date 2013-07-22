@@ -56,7 +56,7 @@ using LaBP::MatrixSPtr;
  * is the display of information from picking, i.e. what is picked.
  * \ingroup modules
  */
-class WMEmMeasurement: public LaBP::WLModuleDrawable
+class WMEmMeasurement: public WLModuleDrawable
 {
 public:
     /**

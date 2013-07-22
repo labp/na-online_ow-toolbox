@@ -55,6 +55,8 @@
 #include "WMSourceReconstruction.h"
 #include "WMSourceReconstruction.xpm"
 
+using std::set;
+
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMSourceReconstruction )
 
@@ -102,8 +104,15 @@ void WMSourceReconstruction::connectors()
 
 void WMSourceReconstruction::properties()
 {
-    LaBP::WLModuleDrawable::properties();
-    setTimerangeInformationOnly( true );
+    WLModuleDrawable::properties();
+    WLModuleDrawable::setTimerangeInformationOnly( true );
+    WLModuleDrawable::setViewModality( WEModalityType::SOURCE );
+    WLModuleDrawable::hideViewModalitySelection( true );
+
+    set< WEModalityType::Enum > modalities;
+    modalities.insert( WEModalityType::EEG );
+    modalities.insert( WEModalityType::MEG );
+    WLModuleDrawable::setComputeModalitySelection( modalities );
 
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 

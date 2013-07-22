@@ -88,7 +88,8 @@ void WMMneRtClient::connectors()
 
 void WMMneRtClient::properties()
 {
-    LaBP::WLModuleDrawable::properties();
+    WLModuleDrawable::properties();
+    WLModuleDrawable::hideComputeModalitySelection( true );
 
     m_propCondition.reset( new WCondition() );
 

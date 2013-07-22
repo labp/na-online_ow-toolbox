@@ -40,7 +40,7 @@
  * Module for epoch separation.
  * \ingroup modules
  */
-class WMEpochSeparation: public LaBP::WLModuleDrawable
+class WMEpochSeparation: public WLModuleDrawable
 {
 public:
     /**
