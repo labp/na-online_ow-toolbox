@@ -61,13 +61,13 @@ WSourceReconstructionCuda::~WSourceReconstructionCuda()
 {
     if( m_A_dev != NULL )
     {
+        ExclusiveLockT lock(m_lockData);
         CublasSafeCall( cublasFree( m_A_dev ) );
     }
 }
 
 bool WSourceReconstructionCuda::calculateInverseSolution( const MatrixT& noiseCov, const MatrixT& dataCov, double snr )
 {
-    // TODO(pieloth): Do we need this wrapper?
     m_inverseChanged = WSourceReconstruction::calculateInverseSolution( noiseCov, dataCov, snr );
     return m_inverseChanged;
 }
@@ -75,13 +75,14 @@ bool WSourceReconstructionCuda::calculateInverseSolution( const MatrixT& noiseCo
 WLEMDSource::SPtr WSourceReconstructionCuda::reconstruct( WLEMData::ConstSPtr emd )
 {
     wlog::debug( CLASS ) << "reconstruct() called!";
+    WLTimeProfiler tp( CLASS, "reconstruct" );
     if( !m_inverse )
     {
         // TODO(pieloth): return code
         wlog::error( CLASS ) << "No inverse matrix set!";
     }
 
-    WLTimeProfiler tp( CLASS, "reconstruct" );
+
 
     // Calculare average reference //
     WLEMData::DataT emdData;
@@ -93,6 +94,7 @@ WLEMDSource::SPtr WSourceReconstructionCuda::reconstruct( WLEMData::ConstSPtr em
     cudaEventCreate( &startCalc );
     cudaEventCreate( &stopCalc );
 
+    SharedLockT lock(m_lockData);
     // Initialize matrix dimensions //
     const size_t ROWS_A = m_inverse->rows();
     const size_t COLS_A = m_inverse->cols();
@@ -148,6 +150,8 @@ WLEMDSource::SPtr WSourceReconstructionCuda::reconstruct( WLEMData::ConstSPtr em
 //    cublasSgemm( 'n', 'n', ROWS_A, COLS_B, COLS_A, 1, m_A_dev, ROWS_A, B_dev, ROWS_B, 0, C_dev, ROWS_C );
     cublasDgemm( 'n', 'n', ROWS_A, COLS_B, COLS_A, 1.0, m_A_dev, ROWS_A, B_dev, ROWS_B, 0.0, C_dev, ROWS_C );
     CublasSafeCall( cublasGetError() );
+
+    lock.unlock();
 
     cudaEventRecord( stopCalc, 0 );
     cudaEventSynchronize( stopCalc );

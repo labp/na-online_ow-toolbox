@@ -204,7 +204,7 @@ void WMSourceReconstruction::moduleMain()
     m_moduleState.add( m_input->getDataChangedCondition() ); // when inputdata changed
     m_moduleState.add( m_propCondition ); // when properties changed
 
-    WLEMMCommand::SPtr labpIn;
+    WLEMMCommand::SPtr cmd;
 
     ready(); // signal ready state
 
@@ -245,17 +245,23 @@ void WMSourceReconstruction::moduleMain()
             handleImplementationChanged();
         }
 
-        labpIn.reset();
+        cmd.reset();
         if( !m_input->isEmpty() )
         {
-            labpIn = m_input->getData();
+            cmd = m_input->getData();
         }
-        const bool dataValid = ( labpIn );
+
+        if( m_lastModality != getCalculateModality() )
+        {
+            handleComputeModalityChanged( cmd );
+        }
+
+        const bool dataValid = ( cmd );
 
         // ---------- INPUTDATAUPDATEEVENT ----------
         if( dataValid ) // If there was an update on the inputconnector
         {
-            process( labpIn );
+            process( cmd );
         }
     }
 }
@@ -340,7 +346,14 @@ void WMSourceReconstruction::handleSnrChanged()
     }
 }
 
-bool WMSourceReconstruction::inverseSolutionFromSubject( WLEMMeasurement::SPtr emm, LaBP::WEModalityType::Enum modality )
+void WMSourceReconstruction::handleComputeModalityChanged( WLEMMCommand::ConstSPtr cmd )
+{
+    debugLog() << "handleComputeModalityChanged()";
+    m_lastModality = getCalculateModality();
+    m_sourceReconstruction->reset();
+}
+
+bool WMSourceReconstruction::inverseSolutionFromSubject( WLEMMeasurement::SPtr emm, WEModalityType::Enum modality )
 {
     debugLog() << "inverseSolutionFromSubject() called!";
     LaBP::WLEMMSubject::SPtr subject = emm->getSubject();

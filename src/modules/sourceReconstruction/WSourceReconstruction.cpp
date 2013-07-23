@@ -62,6 +62,8 @@ WSourceReconstruction::~WSourceReconstruction()
 
 void WSourceReconstruction::reset()
 {
+    ExclusiveLockT lock(m_lockData);
+
     m_leadfield.reset();
     m_weighting.reset();
     m_inverse.reset();
@@ -69,6 +71,8 @@ void WSourceReconstruction::reset()
 
 void WSourceReconstruction::setLeadfield( MatrixSPtr matrix )
 {
+    ExclusiveLockT lock(m_lockData);
+
     m_leadfield = matrix;
     m_weighting.reset();
     m_inverse.reset();
@@ -87,6 +91,7 @@ bool WSourceReconstruction::hasLeadfield() const
 bool WSourceReconstruction::calculateWeightningMatrix( WSourceReconstruction::WEWeightingCalculation::Enum type )
 {
     WLTimeProfiler tp( CLASS, "calculateWeightningMatrix" );
+    ExclusiveLockT lock(m_lockData);
 
     if( !m_leadfield )
     {
@@ -164,6 +169,7 @@ bool WSourceReconstruction::hasInverse() const
 bool WSourceReconstruction::calculateInverseSolution( const MatrixT& noiseCov, const MatrixT& dataCov, double snr )
 {
     wlog::debug( CLASS ) << "calculateInverseSolution() called!";
+    ExclusiveLockT lock(m_lockData);
     WLTimeProfiler tp( CLASS, "calculateInverseSolution" );
 
     if( !m_leadfield )

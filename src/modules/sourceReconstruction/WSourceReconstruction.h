@@ -29,6 +29,8 @@
 #include <string>
 #include <set>
 
+#include "boost/thread/mutex.hpp"
+#include <boost/thread/locks.hpp>
 #include <boost/shared_ptr.hpp>
 #include <Eigen/SparseCore>
 
@@ -103,6 +105,12 @@ public:
     static bool averageReference( WLEMData::DataT& dataOut, const WLEMData::DataT& dataIn );
 
 protected:
+    typedef boost::shared_mutex MutexT;
+    typedef boost::shared_lock< MutexT > SharedLockT;
+    typedef boost::unique_lock< MutexT > ExclusiveLockT;
+
+    mutable MutexT m_lockData;
+
     MatrixSPtr m_leadfield;
 
     SpMatrixSPtr m_weighting;
