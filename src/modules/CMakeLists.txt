@@ -29,6 +29,16 @@
 LIST( APPEND OW_LIB_OPENWALNUT ${LABP_CORE} )
 
 
+# -----------------------------------------------------------------------------------------------------------------------------------------------
+# Switch for float/double computation
+# -----------------------------------------------------------------------------------------------------------------------------------------------
+
+OPTION( LABP_FLOAT_COMPUTATION "Use float instead of double." )
+IF( LABP_FLOAT_COMPUTATION )
+	ADD_DEFINITIONS( -DLABP_FLOAT_COMPUTATION )
+ENDIF( LABP_FLOAT_COMPUTATION )
+
+
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 #
 # Some modules need third party libraries. We provide them if they are available

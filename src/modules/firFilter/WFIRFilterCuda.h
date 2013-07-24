@@ -54,6 +54,23 @@ public:
 
 protected:
     virtual void filter( WLEMData::DataT& out, const WLEMData::DataT& in, const WLEMData::DataT& prev );
+
+    /**
+     * Prepare the data and calls the CUDA kernel for FIR filter.
+     *
+     * \param output A 2 dimensional output array, first dimension = channel, second = samples.
+     * \param input A 2 dimensional input array, first dimension = channel, second = samples.
+     * \param previous Last samples of previous packet, 2 dimensional.
+     * \param channelsNumber of channels.
+     * \param samples Number of samples per channel.
+     * \param coeffs Coefficient vector.
+     * \param coeffSize Coefficient vector size.
+     *
+     * \return Elapsed time in ms.
+     */
+    float cudaFilter( WLEMData::ScalarT* const output, const WLEMData::ScalarT* const input,
+                    const WLEMData::ScalarT* const previous, size_t channels, size_t samples,
+                    const WLEMData::ScalarT* const coeffs, size_t coeffSize );
 };
 
 #endif  // WFIRFILTERCUDA_H
