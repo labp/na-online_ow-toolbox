@@ -61,7 +61,7 @@ WSourceReconstructionCuda::~WSourceReconstructionCuda()
 {
     if( m_A_dev != NULL )
     {
-        ExclusiveLockT lock(m_lockData);
+        ExclusiveLockT lock( m_lockData );
         CublasSafeCall( cublasFree( m_A_dev ) );
     }
 }
@@ -82,8 +82,6 @@ WLEMDSource::SPtr WSourceReconstructionCuda::reconstruct( WLEMData::ConstSPtr em
         wlog::error( CLASS ) << "No inverse matrix set!";
     }
 
-
-
     // Calculare average reference //
     WLEMData::DataT emdData;
     WSourceReconstruction::averageReference( emdData, emd->getData() );
@@ -94,7 +92,7 @@ WLEMDSource::SPtr WSourceReconstructionCuda::reconstruct( WLEMData::ConstSPtr em
     cudaEventCreate( &startCalc );
     cudaEventCreate( &stopCalc );
 
-    SharedLockT lock(m_lockData);
+    SharedLockT lock( m_lockData );
     // Initialize matrix dimensions //
     const size_t ROWS_A = m_inverse->rows();
     const size_t COLS_A = m_inverse->cols();
@@ -147,12 +145,10 @@ WLEMDSource::SPtr WSourceReconstructionCuda::reconstruct( WLEMData::ConstSPtr em
     // S = G * d
     cudaEventRecord( startCalc, 0 );
 
-//    cublasSgemm( 'n', 'n', ROWS_A, COLS_B, COLS_A, 1, m_A_dev, ROWS_A, B_dev, ROWS_B, 0, C_dev, ROWS_C );
-    cublasDgemm( 'n', 'n', ROWS_A, COLS_B, COLS_A, 1.0, m_A_dev, ROWS_A, B_dev, ROWS_B, 0.0, C_dev, ROWS_C );
+    cublasTgemm< ScalarT >( 'n', 'n', ROWS_A, COLS_B, COLS_A, 1.0, m_A_dev, ROWS_A, B_dev, ROWS_B, 0.0, C_dev, ROWS_C );
     CublasSafeCall( cublasGetError() );
 
     lock.unlock();
-
     cudaEventRecord( stopCalc, 0 );
     cudaEventSynchronize( stopCalc );
     cudaEventElapsedTime( &elapsedTime, startCalc, stopCalc );
