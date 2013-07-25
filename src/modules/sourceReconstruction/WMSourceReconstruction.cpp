@@ -111,6 +111,7 @@ void WMSourceReconstruction::properties()
     WLModuleDrawable::setTimerangeInformationOnly( true );
     WLModuleDrawable::setViewModality( WEModalityType::SOURCE );
     WLModuleDrawable::hideViewModalitySelection( true );
+    WLModuleDrawable::hideLabelChanged( true );
 
     set< WEModalityType::Enum > modalities;
     modalities.insert( WEModalityType::EEG );

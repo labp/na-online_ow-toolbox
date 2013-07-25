@@ -119,6 +119,8 @@ protected:
 
     void setComputeModalitySelection( const std::set< LaBP::WEModalityType::Enum >& modalities );
 
+    void hideLabelChanged( bool enable );
+
     LaBP::WLEMDDrawable2D::SPtr m_drawable2D;
 
     LaBP::WLEMDDrawable3D::SPtr m_drawable3D;

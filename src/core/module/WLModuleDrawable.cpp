@@ -221,23 +221,28 @@ void WLModuleDrawable::hideComputeModalitySelection( bool enable )
 
 void WLModuleDrawable::setComputeModalitySelection( const set< WEModalityType::Enum >& modalities )
 {
-        // TODO(pieloth): dirty hack. Find a way just to remove a item in the current selection.
-        m_propView->removeProperty( m_selectionCalculate );
+    // TODO(pieloth): dirty hack. Find a way just to remove a item in the current selection.
+    m_propView->removeProperty( m_selectionCalculate );
 
-        WItemSelection::SPtr calculateSelection( new WItemSelection() );
-        for( set< WEModalityType::Enum >::iterator it = modalities.begin(); it != modalities.end(); ++it )
-        {
-            calculateSelection->addItem(
-                            WItemSelectionItemTyped< WEModalityType::Enum >::SPtr(
-                                            new WItemSelectionItemTyped< WEModalityType::Enum >( *it, WEModalityType::name( *it ),
-                                                            WEModalityType::description( *it ) ) ) );
-        }
+    WItemSelection::SPtr calculateSelection( new WItemSelection() );
+    for( set< WEModalityType::Enum >::iterator it = modalities.begin(); it != modalities.end(); ++it )
+    {
+        calculateSelection->addItem(
+                        WItemSelectionItemTyped< WEModalityType::Enum >::SPtr(
+                                        new WItemSelectionItemTyped< WEModalityType::Enum >( *it, WEModalityType::name( *it ),
+                                                        WEModalityType::description( *it ) ) ) );
+    }
 
-        m_selectionCalculate = m_propView->addProperty( "Compute modality", "Select a modality to compute.",
-                        calculateSelection->getSelectorFirst() );
+    m_selectionCalculate = m_propView->addProperty( "Compute modality", "Select a modality to compute.",
+                    calculateSelection->getSelectorFirst() );
 
-        WPropertyHelper::PC_SELECTONLYONE::addTo( m_selectionCalculate );
-        WPropertyHelper::PC_NOTEMPTY::addTo( m_selectionCalculate );
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_selectionCalculate );
+    WPropertyHelper::PC_NOTEMPTY::addTo( m_selectionCalculate );
+}
+
+void WLModuleDrawable::hideLabelChanged( bool enable )
+{
+    m_labelsOn->setHidden( enable );
 }
 
 void WLModuleDrawable::callbackAutoSensitivityChanged()
