@@ -11,8 +11,6 @@
 
 #include "WRegistration.h"
 
-using namespace std;
-
 class WRegistrationNaive: public WRegistration
 {
 public:
@@ -28,7 +26,7 @@ public:
 
     typedef double Angle;
 
-    static const string CLASS;
+    static const std::string CLASS;
 
     WRegistrationNaive();
 

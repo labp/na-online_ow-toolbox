@@ -36,9 +36,6 @@
 #include "core/data/emd/WLEMDSource.h"
 #include "core/data/WLDataTypes.h"
 
-using WLMatrix::MatrixT;
-using WLSpMatrix::SpMatrixT;
-
 class WSourceReconstruction
 {
 public:
@@ -74,19 +71,19 @@ public:
 
     void setLeadfield( WLMatrix::SPtr matrix );
 
-    const MatrixT& getLeadfield() const;
+    const WLMatrix::MatrixT& getLeadfield() const;
 
     bool hasLeadfield() const;
 
     bool calculateWeightningMatrix( WSourceReconstruction::WEWeightingCalculation::Enum type );
 
-    const SpMatrixT& getWeighting() const;
+    const WLSpMatrix::SpMatrixT& getWeighting() const;
 
     bool hasWeighting() const;
 
-    virtual bool calculateInverseSolution( const MatrixT& noiseCov, const MatrixT& dataCov, double snr );
+    virtual bool calculateInverseSolution( const WLMatrix::MatrixT& noiseCov, const WLMatrix::MatrixT& dataCov, double snr );
 
-    const MatrixT& getInverse() const;
+    const WLMatrix::MatrixT& getInverse() const;
 
     bool hasInverse() const;
 

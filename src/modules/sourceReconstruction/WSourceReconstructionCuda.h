@@ -55,7 +55,7 @@ public:
     WSourceReconstructionCuda();
     virtual ~WSourceReconstructionCuda();
 
-    virtual bool calculateInverseSolution( const MatrixT& noiseCov, const MatrixT& dataCov, double snr );
+    virtual bool calculateInverseSolution( const WLMatrix::MatrixT& noiseCov, const WLMatrix::MatrixT& dataCov, double snr );
 
     virtual WLEMDSource::SPtr reconstruct( WLEMData::ConstSPtr emd );
 

@@ -16,7 +16,7 @@
 
 #include "../WEpochSeparation.h"
 
-using namespace std;
+using std::set;
 
 class WTriggerExtractorCpuTest: public CxxTest::TestSuite
 {

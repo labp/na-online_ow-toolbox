@@ -34,8 +34,6 @@
 #include "core/data/WLEMMeasurement.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
-using namespace LaBP;
-
 class WMLeadfieldInterpolation: public WModule
 {
 public:

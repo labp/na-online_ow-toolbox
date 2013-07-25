@@ -47,6 +47,8 @@ using Eigen::Triplet;
 using std::minus;
 using std::set;
 using std::transform;
+using WLMatrix::MatrixT;
+using WLSpMatrix::SpMatrixT;
 
 typedef Eigen::Triplet< double > TripletT;
 

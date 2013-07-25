@@ -40,8 +40,6 @@
 #include "WLEMMSurface.h"
 #include "WLEMMBemBoundary.h"
 
-using WLMatrix::MatrixT;
-
 namespace LaBP
 {
     class WLEMMSubject
@@ -99,7 +97,7 @@ namespace LaBP
         std::vector< WLEMMBemBoundary::SPtr >& getBemBoundaries() const;
         void setBemBoundaries( boost::shared_ptr< std::vector< WLEMMBemBoundary::SPtr > > bemBoundaries );
 
-        MatrixT& getLeadfield( WEModalityType::Enum modality ) const;
+        WLMatrix::MatrixT& getLeadfield( WEModalityType::Enum modality ) const;
         void setLeadfield( WEModalityType::Enum modality, WLMatrix::SPtr leadfield );
 
     private:

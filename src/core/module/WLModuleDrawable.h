@@ -41,9 +41,6 @@
 #include "core/module/WLModuleOutputDataCollectionable.h"
 #include "core/module/WLEMMCommandProcessor.h"
 
-using std::set;
-using namespace LaBP;
-
 /**
  * Virtual Implementation of WModule to let our modules use a VIEW including just 4 lines! of code
  */
@@ -80,7 +77,7 @@ protected:
     /**
      * Output connector for a filtered WEEG2 dataset
      */
-    WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output;
+    LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output;
 
     /**
      * Initialize the properties for this module and load the widget
@@ -95,7 +92,7 @@ protected:
     /**
      * Set which elements of the view we want to see: info panels, channels and/or head. Called it after ready()!
      */
-    void viewInit( WLEMDDrawable2D::WEGraphType::Enum graphType );
+    void viewInit( LaBP::WLEMDDrawable2D::WEGraphType::Enum graphType );
 
     void viewReset();
 
@@ -104,13 +101,13 @@ protected:
      */
     virtual void moduleInit() = 0;
 
-    WEModalityType::Enum getViewModality();
+    LaBP::WEModalityType::Enum getViewModality();
 
-    void setViewModality( WEModalityType::Enum mod );
+    void setViewModality( LaBP::WEModalityType::Enum mod );
 
     void hideViewModalitySelection( bool enable );
 
-    WEModalityType::Enum getCalculateModality();
+    LaBP::WEModalityType::Enum getCalculateModality();
 
     double getTimerange();
 
@@ -120,11 +117,11 @@ protected:
 
     void hideComputeModalitySelection( bool enable );
 
-    void setComputeModalitySelection( const set< WEModalityType::Enum >& modalities );
+    void setComputeModalitySelection( const std::set< LaBP::WEModalityType::Enum >& modalities );
 
-    WLEMDDrawable2D::SPtr m_drawable2D;
+    LaBP::WLEMDDrawable2D::SPtr m_drawable2D;
 
-    WLEMDDrawable3D::SPtr m_drawable3D;
+    LaBP::WLEMDDrawable3D::SPtr m_drawable3D;
 
 private:
     void createColorMap();
@@ -149,7 +146,7 @@ private:
 
     void callbackLabelsChanged();
 
-    WLEMDDrawable2D::WEGraphType::Enum m_graphType;
+    LaBP::WLEMDDrawable2D::WEGraphType::Enum m_graphType;
 
     WPropGroup m_propView;
 
@@ -175,7 +172,7 @@ private:
 
     WPropSelection m_selectionColorMode;
 
-    WLEMDWidget::SPtr m_widget;
+    LaBP::WLEMDWidget::SPtr m_widget;
 
     WPropDouble m_amplitudeScale;
 
@@ -185,7 +182,7 @@ private:
 
     int m_autoScaleCounter;
 
-    WLColorMap::SPtr m_colorMap;
+    LaBP::WLColorMap::SPtr m_colorMap;
 
     static const int AUTO_SCALE_PACKETS;
 };

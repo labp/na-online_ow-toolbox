@@ -43,8 +43,6 @@
 
 #include "WSourceReconstruction.h"
 
-using namespace LaBP;
-
 /**
  * This module implements several onscreen status displays
  * \ingroup modules
@@ -154,14 +152,14 @@ private:
     WPropDouble m_snr;
     void handleSnrChanged();
 
-    WEModalityType::Enum m_lastModality;
+    LaBP::WEModalityType::Enum m_lastModality;
     void handleComputeModalityChanged( WLEMMCommand::ConstSPtr cmd );
 
     // Generate inverse solution //
     WPropString m_inverseStatus;
     WPropInt m_inverseRows;
     WPropInt m_inverseCols;
-    bool inverseSolutionFromSubject( WLEMMeasurement::SPtr emm, WEModalityType::Enum modality );
+    bool inverseSolutionFromSubject( WLEMMeasurement::SPtr emm, LaBP::WEModalityType::Enum modality );
 
     double m_range;
 

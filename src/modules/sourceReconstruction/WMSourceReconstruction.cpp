@@ -55,7 +55,10 @@
 #include "WMSourceReconstruction.h"
 #include "WMSourceReconstruction.xpm"
 
+using namespace LaBP;
+
 using std::set;
+using WLMatrix::MatrixT;
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMSourceReconstruction )

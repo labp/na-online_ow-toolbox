@@ -37,9 +37,6 @@
 
 #include "core/data/WLEMMEnumTypes.h"
 
-using Eigen::Dynamic;
-using Eigen::Matrix;
-
 /**
  * Class for general modality. Saves information which are present for all modalities.
  */
@@ -67,17 +64,17 @@ public:
     /**
      * Data type of a multi channel sample for a defined time point aka "All channels at time t1".
      */
-    typedef Matrix< ScalarT, Dynamic, 1 > SampleT;
+    typedef Eigen::Matrix< ScalarT, Eigen::Dynamic, 1 > SampleT;
 
     /**
      * Data type of a measured single channel over time.
      */
-    typedef Matrix< ScalarT, 1, Dynamic > ChannelT;
+    typedef Eigen::Matrix< ScalarT, 1, Eigen::Dynamic > ChannelT;
 
     /**
      * Date type of a multi channel measurement: Channel x Time
      */
-    typedef Matrix< ScalarT, Dynamic, Dynamic > DataT;
+    typedef Eigen::Matrix< ScalarT, Eigen::Dynamic, Eigen::Dynamic > DataT;
 
     typedef boost::shared_ptr< DataT > DataSPtr;
 

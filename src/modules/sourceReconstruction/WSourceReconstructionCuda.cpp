@@ -49,6 +49,8 @@ inline void __cublasSafeCall( cublasStatus err, const char *file, const int line
     }
 }
 
+using WLMatrix::MatrixT;
+
 const std::string WSourceReconstructionCuda::CLASS = "WSoureReconstructionCuda";
 
 WSourceReconstructionCuda::WSourceReconstructionCuda()

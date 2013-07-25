@@ -45,7 +45,7 @@ namespace LaBP
     {
     public:
 
-        static const string CLASS;
+        static const std::string CLASS;
 
         /**
          * Constructs a reader object.

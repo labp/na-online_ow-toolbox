@@ -31,10 +31,6 @@
 #ifndef WLDATATYPES_H_
 #define WLDATATYPES_H_
 
-using Eigen::Dynamic;
-using Eigen::Matrix;
-using Eigen::SparseMatrix;
-
 /**
  * Replacement for a scalar type used for computations.
  */
@@ -49,21 +45,21 @@ typedef double ScalarT;
 
 namespace WLVector
 {
-    typedef Matrix< ScalarT, Dynamic, 1 > VectorT;
+    typedef Eigen::Matrix< ScalarT, Eigen::Dynamic, 1 > VectorT;
     typedef boost::shared_ptr< VectorT > SPtr;
     typedef boost::shared_ptr< const VectorT > ConstSPtr;
 }
 
 namespace WLRowVector
 {
-    typedef Matrix< ScalarT, 1, Dynamic > RowVectorT;
+    typedef Eigen::Matrix< ScalarT, 1, Eigen::Dynamic > RowVectorT;
     typedef boost::shared_ptr< RowVectorT > SPtr;
     typedef boost::shared_ptr< const RowVectorT > ConstSPtr;
 }
 
 namespace WLMatrix
 {
-    typedef Matrix< ScalarT, Dynamic, Dynamic > MatrixT;
+    typedef Eigen::Matrix< ScalarT, Eigen::Dynamic, Eigen::Dynamic > MatrixT;
     typedef boost::shared_ptr< MatrixT > SPtr;
     typedef boost::shared_ptr< const MatrixT > ConstSPtr;
 }
@@ -73,7 +69,7 @@ namespace WLMatrix
  */
 namespace WLSpMatrix
 {
-    typedef SparseMatrix< ScalarT > SpMatrixT;
+    typedef Eigen::SparseMatrix< ScalarT > SpMatrixT;
     typedef boost::shared_ptr< SpMatrixT > SPtr;
     typedef boost::shared_ptr< const SpMatrixT > ConstSPtr;
 }
