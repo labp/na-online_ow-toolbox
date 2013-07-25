@@ -33,7 +33,7 @@
 
 #include <core/dataHandler/exceptions/WDHNoSuchFile.h>
 
-#include "core/data/WLMatrixTypes.h"
+#include "core/data/WLDataTypes.h"
 #include "core/data/WLEMMSubject.h"
 
 class WLReaderExperiment
@@ -69,8 +69,8 @@ public:
     bool readLeadFields( std::string surface, std::string bemName, std::string trial, LaBP::WLEMMSubject::SPtr subject );
     bool readLeadField( std::string surface, std::string bemName, std::string trial, std::string modality,
                     LaBP::WLEMMSubject::SPtr subject );
-    bool readLeadFieldMat( const std::string& fName, LaBP::MatrixSPtr& matrix );
-    bool readLeadFieldFiff( const std::string& fName, LaBP::MatrixSPtr& matrix );
+    bool readLeadFieldMat( const std::string& fName, WLMatrix::SPtr& matrix );
+    bool readLeadFieldFiff( const std::string& fName, WLMatrix::SPtr& matrix );
 
 private:
     // Initial information //

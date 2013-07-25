@@ -125,8 +125,6 @@ namespace LaBP
         virtual void osgNodeCallback( osg::NodeVisitor* nv );
 
         WLEMMeasurement::ConstSPtr m_emm;
-        // TODO(pizarro) move this functions to children classes, following the concept: a class just need methods that
-        // all their children need. MatrixT is required only by the Source modality.
 
         void osgAddSurface( const std::vector< WPosition >* positions, const std::vector< WVector3i >& faces );
 

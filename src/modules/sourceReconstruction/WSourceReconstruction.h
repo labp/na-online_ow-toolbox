@@ -22,7 +22,6 @@
 //
 //---------------------------------------------------------------------------
 
-// NOTE: Needs Eigen v3.1 or higher for sparse matrices, see README
 #ifndef WSOURCERECONSTRUCTION_H_
 #define WSOURCERECONSTRUCTION_H_
 
@@ -32,12 +31,13 @@
 #include "boost/thread/mutex.hpp"
 #include <boost/thread/locks.hpp>
 #include <boost/shared_ptr.hpp>
-#include <Eigen/SparseCore>
 
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDSource.h"
+#include "core/data/WLDataTypes.h"
 
-using Eigen::SparseMatrix;
+using WLMatrix::MatrixT;
+using WLSpMatrix::SpMatrixT;
 
 class WSourceReconstruction
 {
@@ -53,16 +53,6 @@ public:
      * Abbreviation for const shared pointer.
      */
     typedef boost::shared_ptr< const WSourceReconstruction > ConstSPtr;
-
-    typedef WLEMData::ScalarT ScalarT;
-
-    typedef WLEMData::DataT MatrixT;
-
-    typedef WLEMData::DataSPtr MatrixSPtr;
-
-    typedef SparseMatrix< ScalarT > SpMatrixT;
-
-    typedef boost::shared_ptr< SpMatrixT > SpMatrixSPtr;
 
     struct WEWeightingCalculation
     {
@@ -82,7 +72,7 @@ public:
 
     virtual void reset();
 
-    void setLeadfield( MatrixSPtr matrix );
+    void setLeadfield( WLMatrix::SPtr matrix );
 
     const MatrixT& getLeadfield() const;
 
@@ -111,11 +101,11 @@ protected:
 
     mutable MutexT m_lockData;
 
-    MatrixSPtr m_leadfield;
+    WLMatrix::SPtr m_leadfield;
 
-    SpMatrixSPtr m_weighting;
+    WLSpMatrix::SPtr m_weighting;
 
-    MatrixSPtr m_inverse;
+    WLMatrix::SPtr m_inverse;
 };
 
 #endif  // WSOURCERECONSTRUCTION_H_

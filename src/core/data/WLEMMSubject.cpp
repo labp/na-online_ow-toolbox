@@ -30,12 +30,14 @@
 
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
-#include "WLMatrixTypes.h"
+#include "WLDataTypes.h"
 #include "WLEMMEnumTypes.h"
 #include "WLEMMSurface.h"
 #include "WLEMMBemBoundary.h"
 
 #include "WLEMMSubject.h"
+
+using WLMatrix::MatrixT;
 
 LaBP::WLEMMSubject::WLEMMSubject()
 {
@@ -138,7 +140,7 @@ void LaBP::WLEMMSubject::setSurface( boost::shared_ptr< WLEMMSurface > surface )
     m_surfaces[surface->getHemisphere()] = surface;
 }
 
-LaBP::MatrixT& LaBP::WLEMMSubject::getLeadfield( WEModalityType::Enum modality ) const
+MatrixT& LaBP::WLEMMSubject::getLeadfield( WEModalityType::Enum modality ) const
 {
     if( m_leadfields.find( modality ) != m_leadfields.end() )
     {
@@ -150,7 +152,7 @@ LaBP::MatrixT& LaBP::WLEMMSubject::getLeadfield( WEModalityType::Enum modality )
     }
 }
 
-void LaBP::WLEMMSubject::setLeadfield( WEModalityType::Enum modality, MatrixSPtr leadfield )
+void LaBP::WLEMMSubject::setLeadfield( WEModalityType::Enum modality, WLMatrix::SPtr leadfield )
 {
     m_leadfields[modality] = leadfield;
 }

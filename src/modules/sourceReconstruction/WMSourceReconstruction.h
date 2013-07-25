@@ -31,6 +31,7 @@
 #include <core/common/WPropertyTypes.h>
 #include <core/kernel/WModule.h>
 
+#include "core/data/WLDataTypes.h"
 #include "core/data/WLEMMCommand.h"
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMEnumTypes.h"
@@ -165,8 +166,8 @@ private:
     double m_range;
 
     // data and noise covariance matices //
-    WSourceReconstruction::MatrixSPtr m_nCovarianceMatrix;
-    WSourceReconstruction::MatrixSPtr m_dCovarianceMatrix;
+    WLMatrix::SPtr m_nCovarianceMatrix;
+    WLMatrix::SPtr m_dCovarianceMatrix;
 
     // File status string //
     static const std::string NO_MATRIX_LOADED;

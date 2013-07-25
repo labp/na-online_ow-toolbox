@@ -32,7 +32,7 @@
 
 #include "core/data/emd/WLEMDEEG.h"
 #include "core/data/WLEMMeasurement.h"
-#include "core/data/WLMatrixTypes.h"
+#include "core/data/WLDataTypes.h"
 #include "core/io/WLReaderBND.h"
 #include "core/io/WLReaderFIFF.h"
 #include "core/util/profiler/WLTimeProfiler.h"
@@ -42,6 +42,7 @@
 #include "WMLeadfieldInterpolation.h"
 
 using namespace LaBP;
+using WLMatrix::MatrixT;
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMLeadfieldInterpolation )
@@ -244,7 +245,7 @@ bool WMLeadfieldInterpolation::interpolate()
     li.prepareHDLeadfield( m_fwdSolution );
     li.setSensorPositions( m_fiffEmm->getModality( WEModalityType::EEG )->getAs< WLEMDEEG >()->getChannelPositions3d() );
 
-    MatrixSPtr leadfield( new MatrixT( m_fiffEmm->getModality( WEModalityType::EEG )->getNrChans(), m_fwdSolution->nsource ) );
+    WLMatrix::SPtr leadfield( new MatrixT( m_fiffEmm->getModality( WEModalityType::EEG )->getNrChans(), m_fwdSolution->nsource ) );
     bool success = li.interpolate( leadfield );
     if( success )
     {

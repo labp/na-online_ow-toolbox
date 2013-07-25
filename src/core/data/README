@@ -1,4 +1,4 @@
-README - SourceReconstruction
+README - WLDataTypes
 
 * SourceReconstruction needs Eigen v3.1 or higher due to sparse matrix support
 * Ubuntu 12.04 contains Eigen v3.0.5

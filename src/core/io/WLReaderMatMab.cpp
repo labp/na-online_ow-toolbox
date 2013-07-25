@@ -9,11 +9,12 @@
 #include <core/common/WStringUtils.h>
 #include <core/dataHandler/io/WReader.h>
 
-#include "core/data/WLMatrixTypes.h"
+#include "core/data/WLDataTypes.h"
 
 #include "WLReaderMatMab.h"
 
 using namespace std;
+using WLMatrix::MatrixT;
 
 const string CLASS = "WLReaderMatMab";
 
@@ -27,7 +28,7 @@ WLReaderMatMab::~WLReaderMatMab()
 {
 }
 
-WLReaderMatMab::ReturnCode::Enum WLReaderMatMab::read( LaBP::MatrixSPtr& matrix )
+WLReaderMatMab::ReturnCode::Enum WLReaderMatMab::read( WLMatrix::SPtr& matrix )
 {
 
     ifstream ifs;
@@ -74,7 +75,7 @@ WLReaderMatMab::ReturnCode::Enum WLReaderMatMab::read( LaBP::MatrixSPtr& matrix 
         string mabFile = m_fname.substr( 0, m_fname.find_last_of( ".mat" ) - 3 );
         mabFile = mabFile.append( ".mab" );
         wlog::debug( CLASS ) << "Matix file: " << mabFile;
-        matrix.reset( new LaBP::MatrixT( rows, cols ) );
+        matrix.reset( new MatrixT( rows, cols ) );
         rc = readMab( matrix, mabFile, rows, cols );
     }
     else
@@ -86,7 +87,7 @@ WLReaderMatMab::ReturnCode::Enum WLReaderMatMab::read( LaBP::MatrixSPtr& matrix 
 
 }
 
-WLReaderMatMab::ReturnCode::Enum WLReaderMatMab::readMab( LaBP::MatrixSPtr matrix, std::string fName, size_t rows, size_t cols )
+WLReaderMatMab::ReturnCode::Enum WLReaderMatMab::readMab( WLMatrix::SPtr matrix, std::string fName, size_t rows, size_t cols )
 {
     if( static_cast< size_t >( matrix->rows() ) != rows || static_cast< size_t >( matrix->cols() ) != cols )
     {

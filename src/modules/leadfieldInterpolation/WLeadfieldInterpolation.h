@@ -34,9 +34,7 @@
 
 #include <core/common/math/linearAlgebra/WPosition.h>
 
-#include "core/data/WLMatrixTypes.h"
-
-using LaBP::MatrixSPtr;
+#include "core/data/WLDataTypes.h"
 
 /**
  * Interpolates a high resolution leadfield (HD leadfield) with K nearest neighbors of each sensors.
@@ -71,7 +69,7 @@ public:
     /**
      * Sets the high resolution leadfield.
      */
-    void setHDLeadfield( MatrixSPtr leadfield );
+    void setHDLeadfield( WLMatrix::SPtr leadfield );
 
     /**
      * Fills the input matrix with a new interpolated matrix.
@@ -80,7 +78,7 @@ public:
      *
      * \return true if successful.
      */
-    bool interpolate( MatrixSPtr leadfield );
+    bool interpolate( WLMatrix::SPtr leadfield );
 
     /**
      * Generates a leadfield matrix for testing purpose.
@@ -90,7 +88,7 @@ public:
      *
      * \return A sensors*sources matrix with random elements.
      */
-    static MatrixSPtr generateRandomLeadfield( size_t sensors, size_t sources );
+    static WLMatrix::SPtr generateRandomLeadfield( size_t sensors, size_t sources );
 
 private:
     static const int NEIGHBORS;
@@ -105,7 +103,7 @@ private:
 
     PositionsSPtr m_posHDLeadfield;
 
-    MatrixSPtr m_hdLeadfield;
+    WLMatrix::SPtr m_hdLeadfield;
 
     bool searchNearestNeighbor( std::vector< NeighborsT >* const neighbors, const PositionsT& searchPoints,
                     const PositionsT& inputPoints );

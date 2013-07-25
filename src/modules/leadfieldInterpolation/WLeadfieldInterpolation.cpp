@@ -44,8 +44,7 @@
 const std::string WLeadfieldInterpolation::CLASS = "WLeadfieldInterpolation";
 const int WLeadfieldInterpolation::NEIGHBORS = 4;
 
-using LaBP::MatrixSPtr;
-using LaBP::MatrixT;
+using WLMatrix::MatrixT;
 
 WLeadfieldInterpolation::WLeadfieldInterpolation()
 {
@@ -76,7 +75,11 @@ bool WLeadfieldInterpolation::prepareHDLeadfield( MNELIB::MNEForwardSolution::Co
 
     setHDLeadfieldPosition( positions );
 
-    MatrixSPtr hdMatrix( new MatrixT( hdLeadfield->sol->data.cast< float >() ) );
+#ifdef LABP_FLOAT_COMPUTATION
+    WLMatrix::SPtr hdMatrix( new MatrixT( hdLeadfield->sol->data.cast< MatrixT::Scalar >() ) );
+#else
+    WLMatrix::SPtr hdMatrix( new MatrixT( hdLeadfield->sol->data ) );
+#endif  // LABP_FLOAT_COMPUTATION
     setHDLeadfield( hdMatrix );
 
     return true;
@@ -92,12 +95,12 @@ void WLeadfieldInterpolation::setHDLeadfieldPosition( PositionsSPtr posHdLeadfie
     m_posHDLeadfield = posHdLeadfield;
 }
 
-void WLeadfieldInterpolation::setHDLeadfield( MatrixSPtr leadfield )
+void WLeadfieldInterpolation::setHDLeadfield( WLMatrix::SPtr leadfield )
 {
     m_hdLeadfield = leadfield;
 }
 
-bool WLeadfieldInterpolation::interpolate( MatrixSPtr leadfield )
+bool WLeadfieldInterpolation::interpolate( WLMatrix::SPtr leadfield )
 {
     WLTimeProfiler tp( CLASS, "interpolate" );
     // Some error checking //
@@ -196,10 +199,10 @@ bool WLeadfieldInterpolation::searchNearestNeighbor( std::vector< NeighborsT >* 
     return true;
 }
 
-MatrixSPtr WLeadfieldInterpolation::generateRandomLeadfield( size_t sensors, size_t sources )
+WLMatrix::SPtr WLeadfieldInterpolation::generateRandomLeadfield( size_t sensors, size_t sources )
 {
     WLTimeProfiler tp( CLASS, "generateTestHDLeadfield" );
-    MatrixSPtr hdLeadfield( new MatrixT( sensors, sources ) );
+    WLMatrix::SPtr hdLeadfield( new MatrixT( sensors, sources ) );
     hdLeadfield->setRandom();
     return hdLeadfield;
 }

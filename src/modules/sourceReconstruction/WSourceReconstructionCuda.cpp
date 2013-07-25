@@ -108,7 +108,7 @@ WLEMDSource::SPtr WSourceReconstructionCuda::reconstruct( WLEMData::ConstSPtr em
     // const ScalarT* const A_host; Is needed only once
     const ScalarT* const B_host = emdData.data();
     // C_host is used for copy out in correct column order: MatrixSPtr == cuBLAS-Matrix
-    MatrixSPtr S( new MatrixT( ROWS_C, COLS_C ) );
+    WLMatrix::SPtr S( new MatrixT( ROWS_C, COLS_C ) );
     ScalarT* C_host = S->data();
 
     // Scalar* A_dev; Is needed only once

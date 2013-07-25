@@ -33,7 +33,7 @@
 #include <core/kernel/WModule.h>
 
 // Input & output data
-#include "core/data/WLMatrixTypes.h"
+#include "core/data/WLDataTypes.h"
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMEnumTypes.h"
 #include "core/data/emd/WLEMData.h"
@@ -364,13 +364,10 @@ bool WMSourceReconstruction::inverseSolutionFromSubject( WLEMMeasurement::SPtr e
         return false;
     }
 
-    WSourceReconstruction::MatrixSPtr leadfield;
+    WLMatrix::SPtr leadfield;
     try
     {
-        // TODO(pieloth)
-        leadfield.reset(
-                        new WSourceReconstruction::MatrixT(
-                                        subject->getLeadfield( modality ).cast< WSourceReconstruction::ScalarT >() ) );
+        leadfield.reset( new MatrixT( subject->getLeadfield( modality ) ) );
     }
     catch( const WException& ex )
     {
@@ -384,10 +381,10 @@ bool WMSourceReconstruction::inverseSolutionFromSubject( WLEMMeasurement::SPtr e
     m_leadfieldCols->set( leadfield->cols(), true );
     m_leadfieldStatus->set( WMSourceReconstruction::MATRIX_LOADED, true );
 
-    m_dCovarianceMatrix.reset( new WSourceReconstruction::MatrixT( leadfield->rows(), leadfield->rows() ) );
+    m_dCovarianceMatrix.reset( new MatrixT( leadfield->rows(), leadfield->rows() ) );
     m_dCovarianceMatrix->setIdentity();
 
-    m_nCovarianceMatrix.reset( new WSourceReconstruction::MatrixT( leadfield->rows(), leadfield->rows() ) );
+    m_nCovarianceMatrix.reset( new MatrixT( leadfield->rows(), leadfield->rows() ) );
     m_nCovarianceMatrix->setIdentity();
 
     handleWeightingTypeChanged();

@@ -28,7 +28,6 @@
 
 #include <core/common/WLogger.h>
 
-#include "core/data/WLMatrixTypes.h"
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDSource.h"
 

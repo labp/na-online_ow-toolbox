@@ -69,7 +69,7 @@ void WSourceReconstruction::reset()
     m_inverse.reset();
 }
 
-void WSourceReconstruction::setLeadfield( MatrixSPtr matrix )
+void WSourceReconstruction::setLeadfield( WLMatrix::SPtr matrix )
 {
     ExclusiveLockT lock(m_lockData);
 
@@ -78,7 +78,7 @@ void WSourceReconstruction::setLeadfield( MatrixSPtr matrix )
     m_inverse.reset();
 }
 
-const WSourceReconstruction::MatrixT& WSourceReconstruction::getLeadfield() const
+const WLMatrix::MatrixT& WSourceReconstruction::getLeadfield() const
 {
     return *m_leadfield;
 }
@@ -146,7 +146,7 @@ bool WSourceReconstruction::calculateWeightningMatrix( WSourceReconstruction::WE
     }
 }
 
-const WSourceReconstruction::SpMatrixT& WSourceReconstruction::getWeighting() const
+const WLSpMatrix::SpMatrixT& WSourceReconstruction::getWeighting() const
 {
     return *m_weighting;
 }
@@ -156,7 +156,7 @@ bool WSourceReconstruction::hasWeighting() const
     return m_weighting.get() != NULL;
 }
 
-const WSourceReconstruction::MatrixT& WSourceReconstruction::getInverse() const
+const WLMatrix::MatrixT& WSourceReconstruction::getInverse() const
 {
     return *m_inverse;
 }

@@ -38,7 +38,7 @@
 #include "core/data/WLEMMSubject.h"
 #include "core/data/WLEMMSurface.h"
 #include "core/data/WLEMMBemBoundary.h"
-#include "core/data/WLMatrixTypes.h"
+#include "core/data/WLDataTypes.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 
 #include "core/module/WLModuleDrawable.h"
@@ -48,8 +48,6 @@
 #include "algorithms/WRegistrationNaive.h"
 
 #include "core/io/WLReaderExperiment.h"
-
-using LaBP::MatrixSPtr;
 
 /**
  * This module implements several onscreen status displays. At the moment the main purpose
@@ -204,7 +202,7 @@ private:
     bool m_isElcLoaded;
 
     bool m_hasLeadfield;
-    MatrixSPtr m_leadfield;
+    WLMatrix::SPtr m_leadfield;
 
     WPropFilename m_elcFile;
 

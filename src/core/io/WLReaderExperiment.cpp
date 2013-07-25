@@ -40,6 +40,7 @@
 #include <core/common/WLogger.h>
 #include <core/dataHandler/exceptions/WDHNoSuchFile.h>
 
+#include "core/data/WLDataTypes.h"
 #include "core/data/WLEMMBemBoundary.h"
 #include "core/data/WLEMMEnumTypes.h"
 #include "core/data/WLEMMSubject.h"
@@ -54,6 +55,7 @@
 using namespace boost::filesystem;
 using namespace LaBP;
 using namespace std;
+using WLMatrix::MatrixT;
 
 const string WLReaderExperiment::m_FOLDER_BEM = "bem";
 const string WLReaderExperiment::m_FOLDER_FSLVOL = "fslvol";
@@ -422,7 +424,7 @@ bool WLReaderExperiment::readLeadField( std::string surface, std::string bemName
     // trying to load fif file
     path allFile( folder );
     allFile /= m_LEADFIELD + "_" + m_LHRH + "." + surface + "_" + bemName + "_" + m_SUBJECT + trial + "_" + modality + m_FIFF;
-    MatrixSPtr allMatrix;
+    WLMatrix::SPtr allMatrix;
     if( readLeadFieldFiff( allFile.string(), allMatrix ) )
     {
         wlog::info( CLASS ) << "Leadfield (" << modality << "): " << allMatrix->rows() << " x " << allMatrix->cols();
@@ -433,7 +435,7 @@ bool WLReaderExperiment::readLeadField( std::string surface, std::string bemName
     // if no fiff file available trying to load matlab file
     path lhFile( folder );
     lhFile /= m_LEADFIELD + "_" + m_LH + "." + surface + "_" + bemName + "_" + m_SUBJECT + trial + "_" + modality + m_MAT;
-    MatrixSPtr lhMatrix;
+    WLMatrix::SPtr lhMatrix;
     if( !readLeadFieldMat( lhFile.string(), lhMatrix ) )
     {
         wlog::error( CLASS ) << "Could not load left leadfield!";
@@ -443,7 +445,7 @@ bool WLReaderExperiment::readLeadField( std::string surface, std::string bemName
 
     path rhFile( folder );
     rhFile /= m_LEADFIELD + "_" + m_RH + "." + surface + "_" + bemName + "_" + m_SUBJECT + trial + "_" + modality + m_MAT;
-    MatrixSPtr rhMatrix;
+    WLMatrix::SPtr rhMatrix;
     if( !readLeadFieldMat( rhFile.string(), rhMatrix ) )
     {
         wlog::error( CLASS ) << "Could not load right leadfield!";
@@ -459,7 +461,7 @@ bool WLReaderExperiment::readLeadField( std::string surface, std::string bemName
         wlog::error( CLASS ) << "Rows of left and right leadfield do not match: " << rows << " != " << rhMatrix->rows();
         return false;
     }
-    allMatrix.reset( new LaBP::MatrixT( rows, cols ) );
+    allMatrix.reset( new MatrixT( rows, cols ) );
     allMatrix->block( 0, 0, rows, lhMatrix->cols() ) = ( *lhMatrix );
     allMatrix->block( 0, lhMatrix->cols(), rows, rhMatrix->cols() ) = ( *rhMatrix );
 
@@ -468,7 +470,7 @@ bool WLReaderExperiment::readLeadField( std::string surface, std::string bemName
     return true;
 }
 
-bool WLReaderExperiment::readLeadFieldMat( const std::string& fName, MatrixSPtr& matrix )
+bool WLReaderExperiment::readLeadFieldMat( const std::string& fName, WLMatrix::SPtr& matrix )
 {
     if( !exists( fName ) )
     {
@@ -482,7 +484,7 @@ bool WLReaderExperiment::readLeadFieldMat( const std::string& fName, MatrixSPtr&
     return rc == WLReaderMatMab::ReturnCode::SUCCESS;
 }
 
-bool WLReaderExperiment::readLeadFieldFiff( const std::string& fName, MatrixSPtr& matrix )
+bool WLReaderExperiment::readLeadFieldFiff( const std::string& fName, WLMatrix::SPtr& matrix )
 {
     if( !exists( fName ) )
     {
@@ -492,7 +494,10 @@ bool WLReaderExperiment::readLeadFieldFiff( const std::string& fName, MatrixSPtr
     wlog::info( CLASS ) << "Read file: " << fName;
     QFile file( fName.c_str() );
     MNELIB::MNEForwardSolution fwdSolution = MNELIB::MNEForwardSolution( file );
+#ifdef LABP_FLOAT_COMPUTATION
     matrix.reset( new MatrixT( fwdSolution.sol->data.cast< MatrixT::Scalar >() ) );
-
+#else
+    matrix.reset( new MatrixT( fwdSolution.sol->data ) );
+#endif  // LABP_FLOAT_COMPUTATION
     return true;
 }

@@ -51,7 +51,7 @@
 #include "core/data/WLEMMSurface.h"
 #include "core/data/WLEMMBemBoundary.h"
 #include "core/data/WLEMMEnumTypes.h"
-#include "core/data/WLMatrixTypes.h"
+#include "core/data/WLDataTypes.h"
 
 #include "core/io/WLReaderELC.h"
 #include "core/io/WLReaderFIFF.h"
@@ -65,9 +65,6 @@
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMEmMeasurement )
-
-using LaBP::MatrixT;
-using LaBP::MatrixSPtr;
 
 WMEmMeasurement::WMEmMeasurement()
 {
@@ -969,7 +966,7 @@ bool WMEmMeasurement::processMisc( WLEMMCommand::SPtr labp )
 
     infoLog() << "[processMisc] received leadfield!";
 
-    m_leadfield = labp->getParameterAs< MatrixSPtr >();
+    m_leadfield = labp->getParameterAs< WLMatrix::SPtr >();
     if( !m_leadfield )
     {
         m_hasLeadfield = false;

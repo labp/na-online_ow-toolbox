@@ -37,7 +37,6 @@
 #include <core/kernel/WKernel.h>
 
 #include "core/data/emd/WLEMData.h"
-#include "core/data/WLMatrixTypes.h"
 #include "core/data/WLEMMCommand.h"
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMEnumTypes.h"
