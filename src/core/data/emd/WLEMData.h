@@ -37,15 +37,8 @@
 
 #include "core/data/WLEMMEnumTypes.h"
 
-#ifdef LABP_FLOAT_COMPUTATION
-using Eigen::MatrixXf;
-using Eigen::RowVectorXf;
-using Eigen::VectorXf;
-#else
-using Eigen::MatrixXd;
-using Eigen::RowVectorXd;
-using Eigen::VectorXd;
-#endif  // LABP_FLOAT_COMPUTATION
+using Eigen::Dynamic;
+using Eigen::Matrix;
 
 /**
  * Class for general modality. Saves information which are present for all modalities.
@@ -63,42 +56,28 @@ public:
      */
     typedef boost::shared_ptr< const WLEMData > ConstSPtr;
 
-#ifdef LABP_FLOAT_COMPUTATION
-    /**
-     * Date type of a multi channel measurement: Channel x Time
-     */
-    typedef MatrixXf DataT;
-
-    /**
-     * Data type of a measured single channel over time.
-     */
-    typedef RowVectorXf ChannelT;
-
-    /**
-     * Data type of a multi channel sample for a defined time point aka "All channels at time t1".
-     */
-    typedef VectorXf SampleT;
-#else
-    /**
-     * Date type of a multi channel measurement: Channel x Time
-     */
-    typedef MatrixXd DataT;
-
-    /**
-     * Data type of a measured single channel over time.
-     */
-    typedef RowVectorXd ChannelT;
-
-    /**
-     * Data type of a multi channel sample for a defined time point aka "All channels at time t1".
-     */
-    typedef VectorXd SampleT;
-#endif  // LABP_FLOAT_COMPUTATION
-
     /**
      * Data type of single value aka "Channel c1 at time t1".
      */
-    typedef DataT::Scalar ScalarT;
+#ifdef LABP_FLOAT_COMPUTATION
+    typedef float ScalarT;
+#else
+    typedef double ScalarT;
+#endif  // LABP_FLOAT_COMPUTATION
+    /**
+     * Data type of a multi channel sample for a defined time point aka "All channels at time t1".
+     */
+    typedef Matrix< ScalarT, Dynamic, 1 > SampleT;
+
+    /**
+     * Data type of a measured single channel over time.
+     */
+    typedef Matrix< ScalarT, 1, Dynamic > ChannelT;
+
+    /**
+     * Date type of a multi channel measurement: Channel x Time
+     */
+    typedef Matrix< ScalarT, Dynamic, Dynamic > DataT;
 
     typedef boost::shared_ptr< DataT > DataSPtr;
 
