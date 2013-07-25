@@ -417,7 +417,11 @@ bool WMSourceReconstruction::processCompute( WLEMMeasurement::SPtr emmIn )
 
     if( !m_sourceReconstruction->hasInverse() )
     {
-        inverseSolutionFromSubject( emmIn, modality );
+        if( !inverseSolutionFromSubject( emmIn, modality ) )
+        {
+            errorLog() << "Skip processing due to no inverse solution!";
+            return false;
+        }
     }
 
     sourceOut = m_sourceReconstruction->reconstruct( emmIn->getModality( modality ) );
@@ -447,7 +451,7 @@ bool WMSourceReconstruction::processInit( WLEMMCommand::SPtr labp )
     }
 
     m_output->updateData( labp );
-    return false;
+    return true;
 }
 
 bool WMSourceReconstruction::processReset( WLEMMCommand::SPtr labp )
