@@ -153,7 +153,7 @@ bool WEpochRejection::getRejection( const WLEMMeasurement::SPtr emm )
 }
 
 /**
- * Returns the number of rejections.
+ * Returns the number of rejected modalities.
  */
 size_t WEpochRejection::getCount()
 {
