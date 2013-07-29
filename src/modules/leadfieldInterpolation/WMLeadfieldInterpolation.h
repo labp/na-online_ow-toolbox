@@ -32,9 +32,11 @@
 #include "core/data/WLEMMBemBoundary.h"
 #include "core/data/WLEMMCommand.h"
 #include "core/data/WLEMMeasurement.h"
+#include "core/module/WLModuleInputDataCollection.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
+#include "core/module/WLEMMCommandProcessor.h"
 
-class WMLeadfieldInterpolation: public WModule
+class WMLeadfieldInterpolation: public WModule, public WLEMMCommandProcessor
 {
 public:
     WMLeadfieldInterpolation();
@@ -55,6 +57,12 @@ public:
     virtual const std::string getDescription() const;
 
 protected:
+    virtual bool processCompute( WLEMMeasurement::SPtr emm );
+    virtual bool processInit( WLEMMCommand::SPtr labp );
+    virtual bool processMisc( WLEMMCommand::SPtr labp );
+    virtual bool processTime( WLEMMCommand::SPtr labp );
+    virtual bool processReset( WLEMMCommand::SPtr labp );
+
     /**
      * \par Description
      * Entry point after loading the module. Runs in separate thread.
@@ -88,11 +96,18 @@ private:
     /**
      * Output connector for a EMMCommand dataset
      */
+    LaBP::WLModuleInputDataCollection< WLEMMCommand >::SPtr m_input;
+
+    /**
+     * Output connector for a EMMCommand dataset
+     */
     LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output;
 
     WCondition::SPtr m_propCondition;
 
     MNELIB::MNEForwardSolution::SPtr m_fwdSolution;
+
+    WLMatrix::SPtr m_leadfieldInterpolated;
 
     WLEMMeasurement::SPtr m_emm;
 
@@ -105,6 +120,8 @@ private:
     WPropFilename m_fiffFile;
 
     WLEMMeasurement::SPtr m_fiffEmm;
+
+    void handleInput( WLEMMCommand::ConstSPtr cmd );
 
     bool readFiff( const std::string& fname );
 
@@ -125,6 +142,8 @@ private:
     static const std::string HD_LEADFIELD_OK_TEXT;
 
     static const std::string READING;
+
+    static const std::string COMMAND;
 };
 
 #endif  // WMLEADFIELDINTERPOLATION_H_
