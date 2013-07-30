@@ -34,13 +34,15 @@
 
 #include "WLEMData.h"
 
-WLEMData::WLEMData()
+WLEMData::WLEMData() :
+                boost::enable_shared_from_this< WLEMData >()
 {
     m_data.reset( new DataT() );
     m_chanNames.reset( new std::vector< std::string >() );
 }
 
-WLEMData::WLEMData( const WLEMData& emd )
+WLEMData::WLEMData( const WLEMData& emd ) :
+                boost::enable_shared_from_this< WLEMData >()
 {
     // C++11 supports "delegating constructors". So default initialization could be moved to default constructor.
     m_data.reset( new DataT() );
