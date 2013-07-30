@@ -26,8 +26,7 @@
 #include <set>
 #include <string>
 
-#include <boost/filesystem.hpp>
-
+#include <core/common/WAssert.h>
 #include <core/common/WItemSelectionItemTyped.h>
 #include <core/common/WPathHelper.h>
 #include <core/kernel/WModule.h>
@@ -36,10 +35,15 @@
 #include "core/data/WLEMMeasurement.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
+#include "reader/WLReaderLeadfield.h"
+#include "reader/WLReaderSourceSpace.h"
 #include "WMMneRtClient.h"
 #include "WMMneRtClient.xpm"
 
+using std::map;
+using std::set;
 using std::string;
+using namespace LaBP;
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMMneRtClient )
@@ -80,9 +84,7 @@ void WMMneRtClient::connectors()
 {
     // initialize connectors
     // TODO(pieloth) use OW class
-    m_output.reset(
-                    new LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >( shared_from_this(), "out",
-                                    "A loaded dataset." ) );
+    m_output.reset( new WLModuleOutputDataCollectionable< WLEMMCommand >( shared_from_this(), "out", "A loaded dataset." ) );
 
     // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
     addConnector( m_output );
@@ -101,7 +103,7 @@ void WMMneRtClient::properties()
     m_fiffFileStatus = m_propGrpExperiment->addProperty( "FIFF file status:", "FIFF file status.", NO_FILE_LOADED );
     m_fiffFileStatus->setPurpose( PV_PURPOSE_INFORMATION );
 
-    m_fiffFile = m_propGrpExperiment->addProperty( "FIFF file:", "Read a FIFF file for the data stream.",
+    m_fiffFile = m_propGrpExperiment->addProperty( "FIFF file:", "Read a FIFF file to load additional information.",
                     WPathHelper::getHomePath(), m_propCondition );
     m_fiffFile->changed( true );
 
@@ -113,12 +115,12 @@ void WMMneRtClient::properties()
                     m_propCondition );
     m_expLoadTrigger->setHidden( true );
 
-    const std::string subject( "none" );
+    const string subject( "none" );
     m_expSubject = m_propGrpExperiment->addProperty( "Subject:", "Selected a subject.", subject );
     m_expSubject->setHidden( true );
     m_expSubject->setPurpose( PV_PURPOSE_INFORMATION );
 
-    const std::string trial( "none" );
+    const string trial( "none" );
     m_expTrial = m_propGrpExperiment->addProperty( "Trial:", "Selected a trial.", trial );
     m_expTrial->setHidden( true );
     m_expTrial->setPurpose( PV_PURPOSE_INFORMATION );
@@ -132,7 +134,7 @@ void WMMneRtClient::properties()
                     false );
 
 //    const std::string con_ip_address = "127.0.0.1";
-    const std::string con_ip_address = "192.168.100.1";
+    const string con_ip_address = "192.168.100.1";
     m_propConIp = m_propGrpConControl->addProperty( "IP:", "IP Address of MNE server.", con_ip_address );
     m_propConStatus = m_propGrpConControl->addProperty( "Connection status:", "Shows connection status.",
                     STATUS_CON_DISCONNECTED );
@@ -149,7 +151,7 @@ void WMMneRtClient::properties()
                     m_connectorItem->getSelectorFirst(), m_propCondition );
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_connectorSelection );
 
-    const std::string sim_file = "/opt/naonline/emm_data/intershift/rawdir/is05a/is05a1.fif";
+    const string sim_file = "/opt/naonline/emm_data/intershift/rawdir/is05a/is05a1.fif";
     m_simFile = m_propGrpConControl->addProperty( "Simulation File:", "Local path on server to simluation file.", sim_file );
 
     // Setup streaming //
@@ -160,6 +162,23 @@ void WMMneRtClient::properties()
     m_trgDataStop = m_propGrpConControl->addProperty( "Stop streaming:", "Stop", WPVBaseTypes::PV_TRIGGER_READY,
                     boost::bind( &WMMneRtClient::callbackTrgDataStop, this ) );
     m_trgDataStop->setHidden( true );
+
+    // Setup connection control //
+    m_propGrpAdditional = m_properties->addPropertyGroup( "Additional data", "Additional data needed by other modules.", false );
+    m_srcSpaceFile = m_propGrpAdditional->addProperty( "Source space file:", "Read a FIFF file containing the source space.",
+                    WPathHelper::getHomePath(), m_propCondition );
+    m_srcSpaceFile->changed( true );
+
+    m_lfEEGFile = m_propGrpAdditional->addProperty( "Leadfield EEG file:", "Read a FIFF file containing the leadfield for EEG.",
+                    WPathHelper::getHomePath(), m_propCondition );
+    m_lfEEGFile->changed( true );
+
+    m_lfMEGFile = m_propGrpAdditional->addProperty( "Leadfield MEG file:", "Read a FIFF file containing the leadfield for MEG.",
+                    WPathHelper::getHomePath(), m_propCondition );
+    m_lfMEGFile->changed( true );
+
+    m_additionalStatus = m_propGrpAdditional->addProperty( "Additional data status:", "Additional data status.", NO_DATA_LOADED );
+    m_additionalStatus->setPurpose( PV_PURPOSE_INFORMATION );
 }
 
 void WMMneRtClient::moduleInit()
@@ -168,10 +187,11 @@ void WMMneRtClient::moduleInit()
     waitRestored();
 
     // TODO(pieloth)
-    const std::string ip = "127.0.0.1";
-    const std::string alias = "OW-LaBP";
+    const string ip = "127.0.0.1";
+    const string alias = "OW-LaBP";
     m_rtClient.reset( new WRtClient( ip, alias ) );
-    viewInit( LaBP::WLEMDDrawable2D::WEGraphType::DYNAMIC );
+    m_subject.reset( new WLEMMSubject() );
+    viewInit( WLEMDDrawable2D::WEGraphType::DYNAMIC );
     infoLog() << "Initializing module finished!";
 }
 
@@ -216,7 +236,28 @@ void WMMneRtClient::moduleMain()
         {
             handleTrgConnectorChanged();
         }
-        // TODO(pieloth)
+        if( m_srcSpaceFile->changed( true ) )
+        {
+            if( handleSurfaceFileChanged( m_srcSpaceFile->get().string() ) )
+            {
+                m_subject->setSurface( m_surface );
+            }
+        }
+        if( m_lfEEGFile->changed( true ) )
+        {
+            if( handleLfFileChanged( m_lfEEGFile->get().string(), m_leadfieldEEG ) )
+            {
+                m_subject->setLeadfield( WEModalityType::EEG, m_leadfieldEEG );
+            }
+        }
+        if( m_lfMEGFile->changed( true ) )
+        {
+            if( handleLfFileChanged( m_lfMEGFile->get().string(), m_leadfieldMEG ) )
+            {
+                m_subject->setLeadfield( WEModalityType::MEG, m_leadfieldMEG );
+            }
+        }
+
     }
 }
 
@@ -230,9 +271,9 @@ void WMMneRtClient::handleTrgConConnect()
     if( m_rtClient->isConnected() )
     {
 
-        std::map< int, std::string > cMap;
+        map< int, string > cMap;
         const int selCon = m_rtClient->getConnectors( &cMap );
-        std::map< int, std::string >::const_iterator itMap = cMap.begin();
+        map< int, string >::const_iterator itMap = cMap.begin();
         m_connectorItem->clear();
         for( ; itMap != cMap.end(); ++itMap )
         {
@@ -296,7 +337,7 @@ void WMMneRtClient::handleTrgDataStart()
             WLEMMeasurement::SPtr emm( new WLEMMeasurement() );
             if( m_rtClient->readData( emm ) )
             {
-                if( m_isExpLoaded )
+                if( m_subject && ( m_surface || m_leadfieldEEG || m_leadfieldMEG || m_isExpLoaded ) )
                 {
                     emm->setSubject( m_subject );
                 }
@@ -327,8 +368,8 @@ void WMMneRtClient::handleExtractExpLoader( std::string fName )
 {
     boost::filesystem::path fiffFile( fName );
     boost::filesystem::path expRoot = WLReaderExperiment::getExperimentRootFromFiff( fiffFile );
-    const std::string subject = WLReaderExperiment::getSubjectFromFiff( fiffFile );
-    const std::string trial = WLReaderExperiment::getTrialFromFiff( fiffFile );
+    const string subject = WLReaderExperiment::getSubjectFromFiff( fiffFile );
+    const string trial = WLReaderExperiment::getTrialFromFiff( fiffFile );
 
     m_expSubject->set( subject );
     m_expSubject->setHidden( false );
@@ -341,12 +382,12 @@ void WMMneRtClient::handleExtractExpLoader( std::string fName )
     }
     m_expReader.reset( new WLReaderExperiment( expRoot.string(), subject ) );
 
-    std::set< std::string > bems = m_expReader->findBems();
+    set< string > bems = m_expReader->findBems();
     m_expBemFiles->clear();
     m_propGrpExperiment->removeProperty( m_expBemFilesSelection );
     if( !bems.empty() )
     {
-        for( std::set< std::string >::iterator it = bems.begin(); it != bems.end(); ++it )
+        for( set< string >::iterator it = bems.begin(); it != bems.end(); ++it )
         {
             m_expBemFiles->addItem(
                             WItemSelectionItemTyped< string >::SPtr( new WItemSelectionItemTyped< string >( *it, *it ) ) );
@@ -361,10 +402,10 @@ void WMMneRtClient::handleExtractExpLoader( std::string fName )
 
     m_expSurfaces->clear();
     m_propGrpExperiment->removeProperty( m_expSurfacesSelection );
-    std::set< std::string > surfaces = m_expReader->findSurfaceKinds();
+    set< string > surfaces = m_expReader->findSurfaceKinds();
     if( !surfaces.empty() )
     {
-        for( std::set< std::string >::iterator it = surfaces.begin(); it != surfaces.end(); ++it )
+        for( set< string >::iterator it = surfaces.begin(); it != surfaces.end(); ++it )
         {
             m_expSurfaces->addItem(
                             WItemSelectionItemTyped< string >::SPtr( new WItemSelectionItemTyped< string >( *it, *it ) ) );
@@ -385,7 +426,7 @@ void WMMneRtClient::handleExperimentLoadChanged()
     bool rc = false;
     m_expLoadStatus->set( LOADING_DATA, true );
 
-    m_subject.reset( new LaBP::WLEMMSubject() );
+    m_subject.reset( new WLEMMSubject() );
 
     const string bemFile = m_expBemFilesSelection->get().at( 0 )->getAs< WItemSelectionItemTyped< string > >()->getValue();
     rc |= m_expReader->readBem( bemFile, m_subject );
@@ -422,6 +463,65 @@ void WMMneRtClient::handleTrgConnectorChanged()
     if( m_rtClient->setConnector( conId ) )
     {
         infoLog() << "set connector: " << m_connectorSelection->get().at( 0 )->getName();
+    }
+}
+
+bool WMMneRtClient::handleLfFileChanged( std::string fName, WLMatrix::SPtr& lf )
+{
+    debugLog() << "handleLfFileChanged()";
+    m_additionalStatus->set( LOADING_DATA, true );
+
+    WLReaderLeadfield::SPtr reader;
+    try
+    {
+        reader.reset( new WLReaderLeadfield( fName ) );
+    }
+    catch( const WDHNoSuchFile& e )
+    {
+        errorLog() << "File does not exist: " << fName;
+        return false;
+    }
+
+    if( reader->read( lf ) )
+    {
+        m_additionalStatus->set( DATA_LOADED, true );
+        return true;
+    }
+    else
+    {
+        m_additionalStatus->set( DATA_ERROR, true );
+        errorLog() << "Could not read leadfield!";
+        return false;
+    }
+}
+
+bool WMMneRtClient::handleSurfaceFileChanged( std::string fName )
+{
+    debugLog() << "handleLfFileChanged()";
+
+    m_additionalStatus->set( LOADING_DATA, true );
+    WLReaderSourceSpace::SPtr reader;
+    try
+    {
+        reader.reset( new WLReaderSourceSpace( fName ) );
+    }
+    catch( const WDHNoSuchFile& e )
+    {
+        errorLog() << "File does not exist: " << fName;
+        return false;
+    }
+
+    m_surface.reset( new WLEMMSurface() );
+    if( reader->read( m_surface ) )
+    {
+        m_additionalStatus->set( DATA_LOADED, true );
+        return true;
+    }
+    else
+    {
+        m_additionalStatus->set( DATA_ERROR, true );
+        errorLog() << "Could not read source space!";
+        return false;
     }
 }
 

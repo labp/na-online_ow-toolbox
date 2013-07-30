@@ -30,6 +30,8 @@
 #include <core/common/WPropertyTypes.h>
 
 #include "core/data/WLEMMCommand.h"
+#include "core/data/WLDataTypes.h"
+#include "core/data/WLEMMSurface.h"
 #include "core/module/WLModuleDrawable.h"
 #include "core/io/WLReaderExperiment.h"
 #include "WRtClient.h"
@@ -170,6 +172,21 @@ private:
     void handleExperimentLoadChanged();
     void handleExtractExpLoader( std::string fiffFile );
     WLReaderExperiment::SPtr m_expReader;
+
+    // Additional data //
+    WPropGroup m_propGrpAdditional;
+
+    WPropFilename m_srcSpaceFile;
+    LaBP::WLEMMSurface::SPtr m_surface;
+    bool handleSurfaceFileChanged( std::string fName );
+
+    WPropFilename m_lfEEGFile;
+    WPropFilename m_lfMEGFile;
+    WLMatrix::SPtr m_leadfieldEEG;
+    WLMatrix::SPtr m_leadfieldMEG;
+    bool handleLfFileChanged( std::string fName, WLMatrix::SPtr& lf );
+
+    WPropString m_additionalStatus;
 
     // File status string //
     static const std::string NO_DATA_LOADED;
