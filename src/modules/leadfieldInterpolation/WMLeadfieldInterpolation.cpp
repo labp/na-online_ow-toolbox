@@ -129,7 +129,11 @@ void WMLeadfieldInterpolation::moduleMain()
     WLEMMCommand::SPtr cmdIn;
     while( !m_shutdownFlag() )
     {
-        m_moduleState.wait();
+        if( m_input->isEmpty() ) // continue processing if data is available
+        {
+            debugLog() << "Waiting for Events";
+            m_moduleState.wait(); // wait for events like inputdata or properties changed
+        }
         if( m_shutdownFlag() )
         {
             break;
