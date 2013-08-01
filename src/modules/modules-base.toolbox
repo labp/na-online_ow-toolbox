@@ -4,6 +4,7 @@
 ADD_MODULE( emMeasurement )
 ADD_MODULE( epochAveraging )
 ADD_MODULE( epochSeparation )
+ADD_MODULE( fiffWriter )
 ADD_MODULE( firFilter )
 ADD_MODULE( leadfieldInterpolation )
 ADD_MODULE( mneRtClient )
