@@ -104,23 +104,19 @@ private:
 
     WCondition::SPtr m_propCondition;
 
+    WPropFilename m_propFile;
+
+    WPropString m_propFileStatus;
+
+    bool handleFileChanged();
+
     WWriterFiff::SPtr m_fiffWriter;
 
     static const std::string ERROR;
 
-    static const std::string COMPUTING;
-
-    static const std::string SUCCESS;
+    static const std::string OPEN;
 
     static const std::string NONE;
-
-    static const std::string FIFF_OK_TEXT; // Conflicts with mne/fiff/fiff_constants.h
-
-    static const std::string HD_LEADFIELD_OK_TEXT;
-
-    static const std::string READING;
-
-    static const std::string COMMAND;
 };
 
 #endif  // WMLEADFIELDINTERPOLATION_H_

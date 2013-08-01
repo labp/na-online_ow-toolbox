@@ -41,14 +41,9 @@ using WLMatrix::MatrixT;
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMFiffWriter )
 
-const std::string WMFiffWriter::ERROR = "error";
-const std::string WMFiffWriter::COMPUTING = "computing";
-const std::string WMFiffWriter::SUCCESS = "success";
-const std::string WMFiffWriter::NONE = "none";
-const std::string WMFiffWriter::FIFF_OK_TEXT = "FIFF ok";
-const std::string WMFiffWriter::HD_LEADFIELD_OK_TEXT = "HD leadfield ok";
-const std::string WMFiffWriter::READING = "reading ...";
-const std::string WMFiffWriter::COMMAND = "leadfield";
+const std::string WMFiffWriter::ERROR = "Error";
+const std::string WMFiffWriter::OPEN = "Open";
+const std::string WMFiffWriter::NONE = "None";
 
 WMFiffWriter::WMFiffWriter()
 {
@@ -96,19 +91,11 @@ void WMFiffWriter::properties()
 
     m_propCondition = WCondition::SPtr( new WCondition() );
 
-//    m_fiffFile = m_properties->addProperty( "Sensor file:", "Read a FIFF file for sensor positions.", WPathHelper::getHomePath(),
-//                    m_propCondition );
-//    m_fiffFile->changed( true );
-//
-//    m_hdLeadfieldFile = m_properties->addProperty( "Leadfield file:", "Read a FIFF file for HD leadfield.",
-//                    WPathHelper::getHomePath(), m_propCondition );
-//    m_hdLeadfieldFile->changed( true );
-//
-//    m_start = m_properties->addProperty( "Interpolation:", "Start", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
-//
-//    m_status = m_properties->addProperty( "Status:", "Status", NONE );
-//    m_status->setPurpose( PV_PURPOSE_INFORMATION );
+    m_propFile = m_properties->addProperty( "File:", "Destination file.", WPathHelper::getHomePath(), m_propCondition );
+    m_propFile->changed( true );
 
+    m_propFileStatus = m_properties->addProperty( "Status:", "Status", NONE );
+    m_propFileStatus->setPurpose( PV_PURPOSE_INFORMATION );
 }
 
 void WMFiffWriter::moduleMain()
@@ -119,31 +106,29 @@ void WMFiffWriter::moduleMain()
 
     ready();
 
-    try
-    {
-        m_fiffWriter.reset( new WWriterFiff( "/tmp/test.fiff" ) );
-    }
-    catch( const WDHException& e )
-    {
-        errorLog() << "Could not create fiff writer!";
-    }
-    if( !m_fiffWriter->open() )
-    {
-        errorLog() << "Could not open writer!";
-        m_fiffWriter.reset();
-    }
-//    if( !m_fiffWriter->close() )
-//    {
-//        errorLog() << "Could not close writer!";
-//    }
-
     WLEMMCommand::SPtr cmdIn;
     while( !m_shutdownFlag() )
     {
-        m_moduleState.wait();
+        if( m_input->isEmpty() ) // continue processing if data is available
+        {
+            debugLog() << "Waiting for Events";
+            m_moduleState.wait(); // wait for events like inputdata or properties changed
+        }
         if( m_shutdownFlag() )
         {
             break;
+        }
+
+        if( m_propFile->changed( true ) )
+        {
+            if( handleFileChanged() )
+            {
+                m_propFileStatus->set( OPEN, true );
+            }
+            else
+            {
+                m_propFileStatus->set( ERROR, true );
+            }
         }
 
         cmdIn.reset();
@@ -159,49 +144,47 @@ void WMFiffWriter::moduleMain()
             process( cmdIn );
         }
     }
-    if( m_fiffWriter->close() )
+
+    if( m_fiffWriter )
     {
-        infoLog() << "Close reader!";
+        m_fiffWriter->close();
     }
-    else
+}
+
+bool WMFiffWriter::handleFileChanged()
+{
+    bool rc = true;
+    if( m_fiffWriter )
     {
-        errorLog() << "Could not close reader!";
+        m_fiffWriter->close();
+        rc = false;
+        debugLog() << "Closed old writer!";
     }
+
+    try
+    {
+        infoLog() << "Open file: " << m_propFile->get().string();
+        m_fiffWriter.reset( new WWriterFiff( m_propFile->get().string() ) );
+        rc = m_fiffWriter->open();
+    }
+    catch( const WDHException& e )
+    {
+        errorLog() << "Could not create fiff writer!";
+        rc = false;
+    }
+
+    return rc;
+
 }
 
 bool WMFiffWriter::processCompute( WLEMMeasurement::SPtr emm )
 {
-    bool rc = true;
+    bool rc = false;
 
     if( m_fiffWriter )
     {
         rc = m_fiffWriter->write( emm );
     }
-//    if( m_leadfieldInterpolated )
-//    {
-//        // TODO NOTE: Manipulation of a incoming packet!!!
-//        emm->getSubject()->setLeadfield( WEModalityType::EEG, m_leadfieldInterpolated );
-//    }
-//    else
-//        if( m_fwdSolution )
-//        {
-//            m_fiffEmm = emm;
-//            m_status->set( COMPUTING, true );
-//            if( interpolate() )
-//            {
-//                emm->getSubject()->setLeadfield( WEModalityType::EEG, m_leadfieldInterpolated );
-//                m_status->set( SUCCESS, true );
-//            }
-//            else
-//            {
-//                m_status->set( ERROR, true );
-//            }
-//        }
-//        else
-//        {
-//            errorLog() << "No interpolated leadfield or no HD leadfield to compute!";
-//            rc = false;
-//        }
 
     WLEMMCommand::SPtr cmd( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
     cmd->setEmm( emm );
@@ -211,25 +194,6 @@ bool WMFiffWriter::processCompute( WLEMMeasurement::SPtr emm )
 
 bool WMFiffWriter::processInit( WLEMMCommand::SPtr labp )
 {
-//    if( labp->hasEmm() )
-//    {
-//        m_fiffEmm = labp->getEmm();
-//    }
-//    if( m_fiffEmm && m_fwdSolution )
-//    {
-//        m_status->set( COMPUTING, true );
-//        if( interpolate() )
-//        {
-//            WLEMMeasurement::SPtr emm = labp->getEmm();
-//            emm->getSubject()->setLeadfield( WEModalityType::EEG, m_leadfieldInterpolated );
-//            m_status->set( SUCCESS, true );
-//        }
-//        else
-//        {
-//            m_status->set( ERROR, true );
-//        }
-//    }
-
     m_output->updateData( labp );
     return true;
 }

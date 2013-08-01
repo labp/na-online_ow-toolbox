@@ -169,12 +169,19 @@ bool WWriterFiff::beginFiff( const WLEMMeasurement* const emm )
     }
     else
     {
+        wlog::error( CLASS ) << "Could not start writing raw!";
         return false;
     }
 }
 
 bool WWriterFiff::writeData( const WLEMMeasurement* const emm )
 {
+    if( !m_fiffStream )
+    {
+        wlog::error( CLASS ) << "Could not writing raw!";
+        return false;
+    }
+
     size_t nchan = 0;
     size_t samples = 0;
     WLEMData::ConstSPtr eeg;
