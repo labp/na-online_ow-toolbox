@@ -1,5 +1,6 @@
 # LaBP Toolbox
 
+ADD_MODULE( codeSnippets )
 #ADD_MODULE( emdWriter )
 ADD_MODULE( emMeasurement )
 ADD_MODULE( epochAveraging )
