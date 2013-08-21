@@ -452,13 +452,12 @@ bool WRtClient::readChannelPositionsFaces()
         {
             WAssertDebug( m_picksEeg[row] < chInfos.size(), "Selected channel index out of chInfos boundary!" );
             const Eigen::Matrix< double, 3, 2, Eigen::DontAlign >& chPos = chInfos.at( ( int )m_picksEeg[row] ).eeg_loc;
-            WPosition pos( chPos( 0, 0 ), chPos( 1, 0 ), chPos( 2, 0 ) );
-            pos *= 1000; // convert to millimeter
+            const WPosition pos( chPos( 0, 0 ), chPos( 1, 0 ), chPos( 2, 0 ) );
             m_chPosEeg->push_back( pos );
         }
 
         m_facesEeg.reset( new std::vector< WVector3i > );
-        WLGeometry::computeTriangulation( *m_facesEeg, *m_chPosEeg );
+        WLGeometry::computeTriangulation( *m_facesEeg, *m_chPosEeg, -5 );
     }
 
     // TODO(pieloth): MEG
