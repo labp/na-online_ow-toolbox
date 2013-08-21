@@ -193,12 +193,19 @@ namespace LaBP
         {
             m_rootGroup->removeChild( m_surfaceGeode );
 
-            std::size_t nbPositions = positions->size();
+            const size_t nbPositions = positions->size();
+            std::vector< WPosition > scaledPos;
+            scaledPos.reserve( nbPositions );
+            for( size_t i = 0; i < nbPositions; ++i )
+            {
+                scaledPos.push_back( ( *positions )[i] * 1000 );
+            }
             boost::shared_ptr< WTriangleMesh > tri;
             if( faces.size() > 0 )
             {
-                osg::ref_ptr< osg::Vec3Array > vertices = wge::osgVec3Array( *positions );
+                osg::ref_ptr< osg::Vec3Array > vertices = wge::osgVec3Array( scaledPos );
                 std::vector< size_t > triangles;
+                triangles.resize( faces.size() * 3 );
 
                 for( size_t i = 0; i < faces.size(); ++i )
                 {
@@ -212,7 +219,7 @@ namespace LaBP
             }
             else
             {
-                tri = wge::triangulate( *positions, -0.005 );
+                tri = wge::triangulate( scaledPos, -0.005 );
                 m_surfaceGeometry = wge::convertToOsgGeometry( tri, WColor( 1.0, 1.0, 1.0, 1.0 ), true );
             }
             osg::ref_ptr< osg::Vec4Array > colors = new osg::Vec4Array;

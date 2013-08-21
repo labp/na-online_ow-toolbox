@@ -505,7 +505,7 @@ void WMEmMeasurement::generateData()
             a *= r / m;
             b *= r / m;
             c *= r / m;
-            eeg->getChannelPositions3d()->push_back( WPosition( a, b, abs( c ) ) );
+            eeg->getChannelPositions3d()->push_back( WPosition( a, b, abs( c ) ) * 0.001);
             eeg->getData().row( chan ) = channel;
         }
 
@@ -557,7 +557,7 @@ bool WMEmMeasurement::readFiff( std::string fname )
                 if( eeg->getFaces().empty() )
                 {
                     warnLog() << "No faces found! Faces will be generated.";
-                    WLGeometry::computeTriangulation( eeg->getFaces(), *eeg->getChannelPositions3d() );
+                    WLGeometry::computeTriangulation( eeg->getFaces(), *eeg->getChannelPositions3d(), -5 );
                 }
             }
             infoLog() << "Modalities:\t" << m_fiffEmm->getModalityCount();

@@ -230,9 +230,8 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
                 // Collect positions for EEG and MEG
                 if( mod == 1 || mod == 2 )
                 {
-                    const float scale = 1000; // convert to millimeter
                     pos = measinfo_in.GetLFChannelInfo()[chan]->GetR0();
-                    positions->push_back( WPosition( pos[0] * scale, pos[1] * scale, pos[2] * scale ) );
+                    positions->push_back( WPosition( pos[0], pos[1], pos[2] ) );
                 }
 
                 // Collect general data
