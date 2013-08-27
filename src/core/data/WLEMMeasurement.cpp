@@ -67,6 +67,7 @@ WLEMMeasurement::WLEMMeasurement( const WLEMMeasurement& emm )
     m_expDescription = emm.m_expDescription;
     m_experimenter = emm.m_experimenter;
     m_subject = emm.m_subject;
+    m_digPoints = emm.m_digPoints;
     m_transDevToFid = emm.m_transDevToFid;
     m_transFidToACPC = emm.m_transFidToACPC;
 }
