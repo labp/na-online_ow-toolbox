@@ -24,6 +24,7 @@
 
 #include <cmath>
 #include <set>
+#include <vector>
 
 #include <boost/shared_ptr.hpp>
 
@@ -87,11 +88,17 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
     LFIsotrak& isotrak = measinfo_in.GetLFIsotrak();
     LFArrayPtr< LFDigitisationPoint > &digPoints = isotrak.GetLFDigitisationPoint();
     boost::shared_ptr< std::vector< WVector3f > > itPos( new std::vector< WVector3f >() );
+    std::vector< WLDigPoint > digPointsOut;
+    digPointsOut.reserve( digPoints.size() );
     for( LFArrayPtr< LFDigitisationPoint >::size_type i = 0; i < digPoints.size(); ++i )
     {
         itPos->push_back( WVector3f( digPoints[i]->GetRr()[0], digPoints[i]->GetRr()[1], digPoints[i]->GetRr()[2] ) );
+        const WPosition pos( digPoints[i]->GetRr()[0], digPoints[i]->GetRr()[1], digPoints[i]->GetRr()[2] );
+        const WLDigPoint digPoint( pos, digPoints[i]->GetKind(), digPoints[i]->GetIdent() );
+        digPointsOut.push_back( digPoint );
     }
     subject_out->setIsotrak( itPos );
+    out->setDigPoints( digPointsOut );
     wlog::debug( CLASS ) << "Isotrak size: " << itPos->size();
 
     // Read raw data

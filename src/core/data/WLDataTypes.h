@@ -65,6 +65,16 @@ namespace WLMatrix
 }
 
 /**
+ * 4x4 matrix e.g. transformation matrix.
+ */
+namespace WLMatrix4
+{
+    typedef Eigen::Matrix< ScalarT, 4, 4 > MatrixT;
+    typedef boost::shared_ptr< MatrixT > SPtr;
+    typedef boost::shared_ptr< const MatrixT > ConstSPtr;
+}
+
+/**
  * Replacement for sparse matrix type. E.g. SparseMatrix< double >
  */
 namespace WLSpMatrix

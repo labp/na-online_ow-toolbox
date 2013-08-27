@@ -34,6 +34,8 @@
 
 #include "core/util/profiler/WLLifetimeProfiler.h"
 
+#include "core/data/WLDataTypes.h"
+#include "core/data/WLDigPoint.h"
 #include "core/data/emd/WLEMData.h"
 #include "WLEMMEnumTypes.h"
 #include "WLEMMSubject.h"
@@ -259,6 +261,12 @@ public:
     WLLifetimeProfiler::ConstSPtr getProfiler() const;
     void setProfiler( WLLifetimeProfiler::SPtr profiler );
 
+    const std::vector< WLDigPoint >& getDigPoints() const;
+
+    void setDigPoints( const std::vector< WLDigPoint >& digPoints );
+
+    std::vector< WLDigPoint > getDigPoints( WLDigPoint::PointType::Enum kind ) const;
+
 private:
     WLLifetimeProfiler::SPtr m_profiler;
 
@@ -286,6 +294,13 @@ private:
      * Event/Stimuli channels
      */
     boost::shared_ptr< std::vector< EChannelT > > m_eventChannels;
+
+    std::vector< WLDigPoint > m_digPoints;
+
+    WLMatrix4::MatrixT m_transDevToFid;
+
+    WLMatrix4::MatrixT m_transFidToACPC;
+
 };
 
 #endif  // WLEMMEASUREMENT_H

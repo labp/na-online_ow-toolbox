@@ -42,6 +42,8 @@ const std::string WLEMMeasurement::CLASS = "WLEMMeasurement";
 
 WLEMMeasurement::WLEMMeasurement()
 {
+    m_transDevToFid.setIdentity();
+    m_transFidToACPC.setIdentity();
     m_eventChannels.reset( new EDataT() );
     m_subject.reset( new LaBP::WLEMMSubject() );
     m_profiler.reset( new WLLifetimeProfiler( CLASS, "lifetime" ) );
@@ -49,6 +51,8 @@ WLEMMeasurement::WLEMMeasurement()
 
 WLEMMeasurement::WLEMMeasurement( LaBP::WLEMMSubject::SPtr subject )
 {
+    m_transDevToFid.setIdentity();
+    m_transFidToACPC.setIdentity();
     m_subject = subject;
     m_eventChannels.reset( new EDataT() );
     m_profiler.reset( new WLLifetimeProfiler( CLASS, "lifetime" ) );
@@ -63,6 +67,8 @@ WLEMMeasurement::WLEMMeasurement( const WLEMMeasurement& emm )
     m_expDescription = emm.m_expDescription;
     m_experimenter = emm.m_experimenter;
     m_subject = emm.m_subject;
+    m_transDevToFid = emm.m_transDevToFid;
+    m_transFidToACPC = emm.m_transFidToACPC;
 }
 
 WLEMMeasurement::~WLEMMeasurement()
@@ -263,4 +269,28 @@ WLLifetimeProfiler::ConstSPtr WLEMMeasurement::getProfiler() const
 void WLEMMeasurement::setProfiler( WLLifetimeProfiler::SPtr profiler )
 {
     m_profiler = profiler;
+}
+
+const std::vector< WLDigPoint >& WLEMMeasurement::getDigPoints() const
+{
+    return m_digPoints;
+}
+
+void WLEMMeasurement::setDigPoints( const std::vector< WLDigPoint >& digPoints )
+{
+    m_digPoints = digPoints;
+}
+
+std::vector< WLDigPoint > WLEMMeasurement::getDigPoints( WLDigPoint::PointType::Enum kind ) const
+{
+    std::vector< WLDigPoint > digForKind;
+    std::vector< WLDigPoint >::const_iterator cit;
+    for( cit = m_digPoints.begin(); cit != m_digPoints.end(); ++cit )
+    {
+        if( cit->getKind() == kind )
+        {
+            digForKind.push_back( *cit );
+        }
+    }
+    return digForKind;
 }
