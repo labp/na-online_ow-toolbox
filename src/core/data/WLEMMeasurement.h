@@ -267,6 +267,14 @@ public:
 
     std::vector< WLDigPoint > getDigPoints( WLDigPoint::PointType::Enum kind ) const;
 
+    const WLMatrix4::MatrixT& getDevToFidTransformation() const;
+
+    void setDevToFidTransformation( const WLMatrix4::MatrixT& mat );
+
+    const WLMatrix4::MatrixT& geFidToACPCPTransformation() const;
+
+    void setFidToACPCPTransformation( const WLMatrix4::MatrixT& mat );
+
 private:
     WLLifetimeProfiler::SPtr m_profiler;
 

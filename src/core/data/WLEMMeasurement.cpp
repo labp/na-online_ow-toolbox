@@ -295,3 +295,23 @@ std::vector< WLDigPoint > WLEMMeasurement::getDigPoints( WLDigPoint::PointType::
     }
     return digForKind;
 }
+
+const WLMatrix4::MatrixT& WLEMMeasurement::getDevToFidTransformation() const
+{
+    return m_transDevToFid;
+}
+
+void WLEMMeasurement::setDevToFidTransformation( const WLMatrix4::MatrixT& mat )
+{
+    m_transDevToFid = mat;
+}
+
+const WLMatrix4::MatrixT& WLEMMeasurement::geFidToACPCPTransformation() const
+{
+    return m_transFidToACPC;
+}
+
+void WLEMMeasurement::setFidToACPCPTransformation( const WLMatrix4::MatrixT& mat )
+{
+    m_transFidToACPC = mat;
+}
