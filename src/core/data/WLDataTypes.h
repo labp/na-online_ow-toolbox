@@ -46,6 +46,7 @@ typedef double ScalarT;
 namespace WLVector
 {
     typedef Eigen::Matrix< ScalarT, Eigen::Dynamic, 1 > VectorT;
+    typedef VectorT::Scalar ScalarT;
     typedef boost::shared_ptr< VectorT > SPtr;
     typedef boost::shared_ptr< const VectorT > ConstSPtr;
 }
@@ -53,6 +54,7 @@ namespace WLVector
 namespace WLRowVector
 {
     typedef Eigen::Matrix< ScalarT, 1, Eigen::Dynamic > RowVectorT;
+    typedef RowVectorT::Scalar ScalarT;
     typedef boost::shared_ptr< RowVectorT > SPtr;
     typedef boost::shared_ptr< const RowVectorT > ConstSPtr;
 }
@@ -60,6 +62,7 @@ namespace WLRowVector
 namespace WLMatrix
 {
     typedef Eigen::Matrix< ScalarT, Eigen::Dynamic, Eigen::Dynamic > MatrixT;
+    typedef MatrixT::Scalar ScalarT;
     typedef boost::shared_ptr< MatrixT > SPtr;
     typedef boost::shared_ptr< const MatrixT > ConstSPtr;
 }
@@ -70,6 +73,7 @@ namespace WLMatrix
 namespace WLMatrix4
 {
     typedef Eigen::Matrix< ScalarT, 4, 4 > MatrixT;
+    typedef MatrixT::Scalar ScalarT;
     typedef boost::shared_ptr< MatrixT > SPtr;
     typedef boost::shared_ptr< const MatrixT > ConstSPtr;
 }
@@ -80,6 +84,7 @@ namespace WLMatrix4
 namespace WLSpMatrix
 {
     typedef Eigen::SparseMatrix< ScalarT > SpMatrixT;
+    typedef SpMatrixT::Scalar ScalarT;
     typedef boost::shared_ptr< SpMatrixT > SPtr;
     typedef boost::shared_ptr< const SpMatrixT > ConstSPtr;
 }

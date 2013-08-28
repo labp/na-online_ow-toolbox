@@ -1,5 +1,6 @@
 # LaBP Toolbox
 
+ADD_MODULE( alignment )
 ADD_MODULE( codeSnippets )
 #ADD_MODULE( emdWriter )
 ADD_MODULE( emMeasurement )
