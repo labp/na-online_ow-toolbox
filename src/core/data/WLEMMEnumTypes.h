@@ -100,6 +100,8 @@ namespace LaBP
         };
         std::vector< Enum > values();
         std::string name( Enum val );
+        double factor( Enum val);
+
     }
 
     /**

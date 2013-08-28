@@ -64,7 +64,30 @@ std::string LaBP::WEExponent::name( LaBP::WEExponent::Enum val )
             WAssert( false, "Unknown WEExponent!" );
             return UNDEFINED;
     }
+}
 
+double LaBP::WEExponent::factor( LaBP::WEExponent::Enum val )
+{
+    switch( val )
+    {
+        case LaBP::WEExponent::KILO:
+            return 1.0e+3;
+        case LaBP::WEExponent::BASE:
+            return 1.0;
+        case LaBP::WEExponent::MILLI:
+            return 1.0e-3;
+        case LaBP::WEExponent::MICRO:
+            return 1.0e-6;
+        case LaBP::WEExponent::NANO:
+            return 1.0e-9;
+        case LaBP::WEExponent::PICO:
+            return 1.0e-12;
+        case LaBP::WEExponent::FEMTO:
+            return 1.0e-15;
+        default:
+            WAssert( false, "Unknown WEExponent!" );
+            return 0.0;
+    }
 }
 
 std::vector< LaBP::WEModalityType::Enum > LaBP::WEModalityType::values()
