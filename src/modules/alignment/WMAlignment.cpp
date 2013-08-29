@@ -32,12 +32,14 @@
 #include <pcl/registration/transformation_estimation_svd.h>
 #include <pcl/registration/icp.h>
 
+#include <core/graphicsEngine/WGEZoomTrackballManipulator.h>
+#include <core/kernel/WKernel.h>
+
 #include "core/data/WLDigPoint.h"
 #include "core/data/emd/WLEMDEEG.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 #include "core/util/profiler/WLTimeProfiler.h"
-
 #include "WMAlignment.h"
 #include "WMAlignment.xpm"
 
@@ -59,6 +61,7 @@ WMAlignment::WMAlignment()
 
 WMAlignment::~WMAlignment()
 {
+    WKernel::getRunningKernel()->getGui()->closeCustomWidget( m_widget );
 }
 
 const std::string WMAlignment::getName() const
@@ -96,10 +99,10 @@ void WMAlignment::connectors()
 
 void WMAlignment::properties()
 {
+    WModule::properties();
+
     m_propCondition = WCondition::SPtr( new WCondition() );
     m_trgReset = m_properties->addProperty( "Reset:", "Reset", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
-
-    WLModuleDrawable::properties();
 
     m_propEstGroup = m_properties->addPropertyGroup( "Transformation Estimation",
                     "Contains properties an initial transformation estimation.", false );
@@ -119,9 +122,30 @@ void WMAlignment::properties()
     m_propIcpScore->setPurpose( PV_PURPOSE_INFORMATION );
 }
 
+void WMAlignment::viewInit()
+{
+    m_widget = WKernel::getRunningKernel()->getGui()->openCustomWidget( getName(), WGECamera::ORTHOGRAPHIC,
+                    m_shutdownFlag.getCondition() );
+    m_widget->getViewer()->setCameraManipulator( new WGEZoomTrackballManipulator() );
+
+    m_drawable = WLEMDDrawable3DEEGBEM::SPtr( new WLEMDDrawable3DEEGBEM( m_widget ) );
+}
+
+void WMAlignment::viewUpdate( WLEMMeasurement::SPtr emm )
+{
+    if( m_widget->getViewer()->isClosed() )
+    {
+        return;
+    }
+    m_drawable->draw( emm );
+}
+
 void WMAlignment::moduleInit()
 {
+    infoLog() << "Initializing module ...";
+    waitRestored();
 
+    viewInit();
 }
 
 void WMAlignment::moduleMain()
@@ -166,11 +190,16 @@ void WMAlignment::moduleMain()
 
 bool WMAlignment::processCompute( WLEMMeasurement::SPtr emm )
 {
-    Fiducial eegPoints;
+    WLEMMCommand::SPtr cmd( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
+    cmd->setEmm( emm );
     WLEMMeasurement& emmRef = *emm;
+
+    // TODO(pieloth): check if computation is needed!
+
+    Fiducial eegPoints;
     if( !extractFiducialPoints( &eegPoints, emmRef ) )
     {
-        // TODO(pieloth): Error handling
+        m_output->updateData( cmd );
         return false;
     }
 
@@ -182,32 +211,27 @@ bool WMAlignment::processCompute( WLEMMeasurement::SPtr emm )
     PCLMatrixT trans;
     if( !estimateTransformation( &trans, eegPoints, skinPoints, emmRef ) )
     {
-        // TODO(pieloth): Error handling
+        m_output->updateData( cmd );
         return false;
     }
 
     double score = -1;
-    if( icpAlign( &trans, &score, emmRef, m_propIcpIterations->get( false ) ) )
+    if( !icpAlign( &trans, &score, emmRef, m_propIcpIterations->get( false ) ) )
     {
-        m_propIcpConverged->set( true, false );
-        m_propIcpScore->set( score, false );
-#ifndef LABP_FLOAT_COMPUTATION
-        emmRef.setFidToACPCPTransformation( trans.cast< WLMatrix4::ScalarT >() );
-#else
-        emmRef.setFidToACPCPTransformation( trans );
-#endif
-
-    }
-    else
-    {
-        // TODO(pieloth): Error handling
+        m_output->updateData( cmd );
         m_propIcpConverged->set( false, false );
         return false;
     }
+    m_propIcpConverged->set( true, false );
+    m_propIcpScore->set( score, false );
+#ifndef LABP_FLOAT_COMPUTATION
+    emmRef.setFidToACPCTransformation( trans.cast< WLMatrix4::ScalarT >() );
+#else
+    emmRef.setFidToACPCTransformation( trans );
+#endif
+    viewUpdate( emm );
 
-    WLEMMCommand::SPtr cmd( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
-    cmd->setEmm( emm );
-    m_output->updateData(cmd);
+    m_output->updateData( cmd );
     return true;
 }
 
@@ -219,6 +243,20 @@ bool WMAlignment::processInit( WLEMMCommand::SPtr cmd )
 }
 
 bool WMAlignment::processReset( WLEMMCommand::SPtr cmd )
+{
+    // TODO
+    m_output->updateData( cmd );
+    return true;
+}
+
+bool WMAlignment::processTime( WLEMMCommand::SPtr cmd )
+{
+    // TODO
+    m_output->updateData( cmd );
+    return true;
+}
+
+bool WMAlignment::processMisc( WLEMMCommand::SPtr cmd )
 {
     // TODO
     m_output->updateData( cmd );
@@ -263,7 +301,7 @@ bool WMAlignment::extractFiducialPoints( Fiducial* const eegPoints, const WLEMMe
 bool WMAlignment::estimateTransformation( PCLMatrixT* const trans, const Fiducial& eegPoints, const Fiducial& skinPoints,
                 const WLEMMeasurement& emm )
 {
-    WLTimeProfiler tp(getName(), "estimateTransformation");
+    WLTimeProfiler tp( getName(), "estimateTransformation" );
 
     PointCloud< PointXYZ > src, trg;
 
@@ -291,7 +329,7 @@ bool WMAlignment::estimateTransformation( PCLMatrixT* const trans, const Fiducia
 
 bool WMAlignment::icpAlign( PCLMatrixT* const trans, double* const score, const WLEMMeasurement& emm, int maxIterations )
 {
-    WLTimeProfiler tp(getName(), "icpAlign");
+    WLTimeProfiler tp( getName(), "icpAlign" );
 
     debugLog() << "icpAlign: Get EEG sensor positions.";
     WLEMDEEG::ConstSPtr eeg;

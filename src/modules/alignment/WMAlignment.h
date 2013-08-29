@@ -31,11 +31,18 @@
 
 #include <core/common/WCondition.h>
 #include <core/common/WPropertyTypes.h>
+#include <core/gui/WCustomWidget.h>
+#include <core/gui/WGUI.h>
+#include <core/kernel/WModule.h>
 
-#include "core/module/WLModuleDrawable.h"
+#include "core/data/WLEMMCommand.h"
+#include "core/data/WLEMMeasurement.h"
+#include "core/gui/drawable/WLEMDDrawable3DEEGBEM.h"
+#include "core/module/WLEMMCommandProcessor.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
+#include "core/module/WLModuleOutputDataCollectionable.h"
 
-class WMAlignment: public WLModuleDrawable
+class WMAlignment: public WModule, public WLEMMCommandProcessor
 {
 public:
     WMAlignment();
@@ -50,8 +57,6 @@ public:
     virtual const char** getXPMIcon() const;
 
 protected:
-    virtual void moduleInit();
-
     virtual void moduleMain();
 
     virtual void connectors();
@@ -64,14 +69,29 @@ protected:
     virtual bool processCompute( WLEMMeasurement::SPtr emm );
     virtual bool processInit( WLEMMCommand::SPtr cmd );
     virtual bool processReset( WLEMMCommand::SPtr cmd );
+    virtual bool processMisc( WLEMMCommand::SPtr labp );
+    virtual bool processTime( WLEMMCommand::SPtr labp );
 
 private:
+    void viewInit();
+    void viewUpdate( WLEMMeasurement::SPtr emm );
+
+    void moduleInit();
+
+    WCustomWidget::SPtr m_widget;
+    WLEMDDrawable3DEEGBEM::SPtr m_drawable;
+
     typedef Eigen::Matrix< float, 4, 4 > PCLMatrixT;
 
     /**
-     * Input connector for a EMM dataset
+     * Input connector for an EMM Command dataset
      */
     LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input;
+
+    /**
+     * Output connector for an EMM Command dataset
+     */
+    LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output;
 
     WCondition::SPtr m_propCondition;
     WPropTrigger m_trgReset;
@@ -102,7 +122,7 @@ private:
         WPosition rpa;
     };
 
-    bool extractFiducialPoints( Fiducial*const eegPoints, const WLEMMeasurement& emm );
+    bool extractFiducialPoints( Fiducial* const eegPoints, const WLEMMeasurement& emm );
 
     bool estimateTransformation( PCLMatrixT* const trans, const Fiducial& eegPoints, const Fiducial& skinPoints,
                     const WLEMMeasurement& emm );

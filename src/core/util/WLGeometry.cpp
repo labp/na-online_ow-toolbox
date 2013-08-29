@@ -7,17 +7,21 @@
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
+#include <Eigen/Core>
 
 #include <osg/Array>
 #include <osgUtil/DelaunayTriangulator>
 
 #include <core/common/WLogger.h>
+#include <core/common/math/WLinearAlgebraFunctions.h>
 #include <core/common/math/linearAlgebra/WMatrixFixed.h>
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 #include <core/graphicsEngine/WGEUtils.h>
 
 #include "WLGeometry.h"
+
+using namespace LaBP;
 
 bool WLGeometry::computeTriangulation( std::vector< WVector3i >& triangles, const std::vector< WPosition >& points,
                 double transformationFactor )
@@ -166,4 +170,34 @@ double WLGeometry::distance( const Point& p1, const Point& p2 )
     double zd = p2.z() - p1.z();
 
     return sqrt( xd * xd + yd * yd + zd * zd );
+}
+
+void WLGeometry::transformPoints( std::vector< Point >* const out, const std::vector< Point >& in,
+                const WLMatrix4::Matrix4T& trans )
+{
+    out->reserve( in.size() );
+#ifdef LABP_FLOAT_COMPUTATION
+    WMatrix< double > owTrans( ( Eigen::MatrixXf )trans );
+#else
+    WMatrix< double > owTrans( ( Eigen::MatrixXd )trans );
+#endif
+    std::vector< Point >::const_iterator it;
+    for( it = in.begin(); it != in.end(); ++it )
+    {
+        const WPosition p = transformPosition3DWithMatrix4D( owTrans, *it );
+        out->push_back( p );
+    }
+
+}
+
+void WLGeometry::toBaseExponent( std::vector< Point >* const out, const std::vector< Point >& in, WEExponent::Enum exp )
+{
+    out->reserve( in.size() );
+    double factor = WEExponent::factor( exp );
+    std::vector< Point >::const_iterator it;
+    for( it = in.begin(); it != in.end(); ++it )
+    {
+        const Point p = *it * factor;
+        out->push_back( p );
+    }
 }

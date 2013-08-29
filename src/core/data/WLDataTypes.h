@@ -72,10 +72,10 @@ namespace WLMatrix
  */
 namespace WLMatrix4
 {
-    typedef Eigen::Matrix< ScalarT, 4, 4 > MatrixT;
-    typedef MatrixT::Scalar ScalarT;
-    typedef boost::shared_ptr< MatrixT > SPtr;
-    typedef boost::shared_ptr< const MatrixT > ConstSPtr;
+    typedef Eigen::Matrix< ScalarT, 4, 4 > Matrix4T;
+    typedef Matrix4T::Scalar ScalarT;
+    typedef boost::shared_ptr< Matrix4T > SPtr;
+    typedef boost::shared_ptr< const Matrix4T > ConstSPtr;
 }
 
 /**
