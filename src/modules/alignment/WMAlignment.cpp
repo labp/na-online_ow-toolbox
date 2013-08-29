@@ -22,35 +22,19 @@
 //
 //---------------------------------------------------------------------------
 
-#include <limits>
 #include <vector>
-
-#include <pcl/correspondence.h>
-#include <pcl/point_types.h>
-#include <pcl/pcl_base.h>
-#include <pcl/common/common.h>
-#include <pcl/registration/transformation_estimation_svd.h>
-#include <pcl/registration/icp.h>
 
 #include <core/graphicsEngine/WGEZoomTrackballManipulator.h>
 #include <core/kernel/WKernel.h>
 
-#include "core/data/WLDigPoint.h"
-#include "core/data/emd/WLEMDEEG.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 #include "core/util/profiler/WLTimeProfiler.h"
+#include "WEEGSkinAlignment.h"
 #include "WMAlignment.h"
 #include "WMAlignment.xpm"
 
 using namespace LaBP;
-
-using pcl::Correspondence;
-using pcl::Correspondences;
-using pcl::IterativeClosestPoint;
-using pcl::PointXYZ;
-using pcl::PointCloud;
-using pcl::registration::TransformationEstimationSVD;
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMAlignment )
@@ -196,27 +180,14 @@ bool WMAlignment::processCompute( WLEMMeasurement::SPtr emm )
 
     // TODO(pieloth): check if computation is needed!
 
-    Fiducial eegPoints;
-    if( !extractFiducialPoints( &eegPoints, emmRef ) )
-    {
-        m_output->updateData( cmd );
-        return false;
-    }
+    WEEGSkinAlignment align( m_propIcpIterations->get( false ) );
+    align.setLpaSkin( m_propEstLPA->get( false ) );
+    align.setNasionSkin( m_propEstNasion->get( false ) );
+    align.setRpaSkin( m_propEstRPA->get( false ) );
 
-    Fiducial skinPoints;
-    skinPoints.lpa = m_propEstLPA->get( false );
-    skinPoints.nasion = m_propEstNasion->get( false );
-    skinPoints.rpa = m_propEstRPA->get( false );
-
-    PCLMatrixT trans;
-    if( !estimateTransformation( &trans, eegPoints, skinPoints, emmRef ) )
-    {
-        m_output->updateData( cmd );
-        return false;
-    }
-
-    double score = -1;
-    if( !icpAlign( &trans, &score, emmRef, m_propIcpIterations->get( false ) ) )
+    WLMatrix4::Matrix4T transformation;
+    double score = align.align( &transformation, emm );
+    if( score == WEEGSkinAlignment::NOT_CONVERGED )
     {
         m_output->updateData( cmd );
         m_propIcpConverged->set( false, false );
@@ -224,11 +195,7 @@ bool WMAlignment::processCompute( WLEMMeasurement::SPtr emm )
     }
     m_propIcpConverged->set( true, false );
     m_propIcpScore->set( score, false );
-#ifndef LABP_FLOAT_COMPUTATION
-    emmRef.setFidToACPCTransformation( trans.cast< WLMatrix4::ScalarT >() );
-#else
-    emmRef.setFidToACPCTransformation( trans );
-#endif
+    emm->setFidToACPCTransformation( transformation );
     viewUpdate( emm );
 
     m_output->updateData( cmd );
@@ -261,170 +228,4 @@ bool WMAlignment::processMisc( WLEMMCommand::SPtr cmd )
     // TODO
     m_output->updateData( cmd );
     return true;
-}
-
-bool WMAlignment::extractFiducialPoints( Fiducial* const eegPoints, const WLEMMeasurement& emm )
-{
-    std::vector< WLDigPoint > digPoints = emm.getDigPoints( WLDigPoint::PointType::CARDINAL );
-    char count = 0;
-    std::vector< WLDigPoint >::const_iterator cit;
-    for( cit = digPoints.begin(); cit != digPoints.end() && count < 3; ++cit )
-    {
-        if( cit->checkCardinal( WLDigPoint::CardinalPoints::LPA ) )
-        {
-            eegPoints->lpa = cit->getPoint();
-            ++count;
-        }
-        if( cit->checkCardinal( WLDigPoint::CardinalPoints::NASION ) )
-        {
-            eegPoints->nasion = cit->getPoint();
-            ++count;
-        }
-        if( cit->checkCardinal( WLDigPoint::CardinalPoints::RPA ) )
-        {
-            eegPoints->rpa = cit->getPoint();
-            ++count;
-        }
-    }
-    if( count > 2 )
-    {
-        return true;
-
-    }
-    else
-    {
-        warnLog() << "Could not found fiducial points: " << ( short )count;
-        return false;
-    }
-}
-
-bool WMAlignment::estimateTransformation( PCLMatrixT* const trans, const Fiducial& eegPoints, const Fiducial& skinPoints,
-                const WLEMMeasurement& emm )
-{
-    WLTimeProfiler tp( getName(), "estimateTransformation" );
-
-    PointCloud< PointXYZ > src, trg;
-
-    src.push_back( PointXYZ( eegPoints.lpa.x(), eegPoints.lpa.y(), eegPoints.lpa.z() ) );
-    trg.push_back( PointXYZ( skinPoints.lpa.x(), skinPoints.lpa.y(), skinPoints.lpa.z() ) );
-
-    src.push_back( PointXYZ( eegPoints.nasion.x(), eegPoints.nasion.y(), eegPoints.nasion.z() ) );
-    trg.push_back( PointXYZ( skinPoints.nasion.x(), skinPoints.nasion.y(), skinPoints.nasion.z() ) );
-
-    src.push_back( PointXYZ( eegPoints.rpa.x(), eegPoints.rpa.y(), eegPoints.rpa.z() ) );
-    trg.push_back( PointXYZ( skinPoints.rpa.x(), skinPoints.rpa.y(), skinPoints.rpa.z() ) );
-
-    Correspondences corrs;
-    corrs.push_back( Correspondence( 0, 0, std::numeric_limits< float >::max() ) );
-    corrs.push_back( Correspondence( 1, 1, std::numeric_limits< float >::max() ) );
-    corrs.push_back( Correspondence( 2, 2, std::numeric_limits< float >::max() ) );
-
-    TransformationEstimationSVD< PointXYZ, PointXYZ > te;
-    Eigen::Matrix< float, 4, 4 > guess;
-    te.estimateRigidTransformation( src, trg, corrs, *trans );
-    debugLog() << "Estimate transformation:\n" << *trans;
-
-    return true;
-}
-
-bool WMAlignment::icpAlign( PCLMatrixT* const trans, double* const score, const WLEMMeasurement& emm, int maxIterations )
-{
-    WLTimeProfiler tp( getName(), "icpAlign" );
-
-    debugLog() << "icpAlign: Get EEG sensor positions.";
-    WLEMDEEG::ConstSPtr eeg;
-    if( emm.hasModality( WEModalityType::EEG ) )
-    {
-        eeg = emm.getModality< const WLEMDEEG >( WEModalityType::EEG );
-    }
-    else
-    {
-        errorLog() << "icpAlign: No EEG data!";
-        return false;
-    }
-    boost::shared_ptr< std::vector< WPosition > > eegPositions = eeg->getChannelPositions3d();
-
-    debugLog() << "icpAlign: Get BEM skin layer.";
-    WLEMMSubject::ConstSPtr subject = emm.getSubject();
-    const std::vector< WLEMMBemBoundary::SPtr >& bems = subject->getBemBoundaries();
-    std::vector< WLEMMBemBoundary::SPtr >::const_iterator itBem;
-    WLEMMBemBoundary::ConstSPtr bemSkin;
-    for( itBem = bems.begin(); itBem != bems.end(); ++itBem )
-    {
-        if( ( *itBem )->getBemType() == WEBemType::OUTER_SKIN )
-        {
-            bemSkin = *itBem;
-            break;
-        }
-    }
-    if( !bemSkin )
-    {
-        errorLog() << "icpAlign: No BEM skin layer available!";
-        return false;
-    }
-
-    debugLog() << "icpAlign: Collect bottom sphere parameters.";
-    const std::vector< WPosition >& bemPosition = bemSkin->getVertex();
-    WPosition::ValueType min = std::numeric_limits< WPosition::ValueType >::max();
-    WPosition::ValueType max = std::numeric_limits< WPosition::ValueType >::min();
-    std::vector< WPosition >::const_iterator itPos;
-    for( itPos = bemPosition.begin(); itPos != bemPosition.end(); ++itPos )
-    {
-        const WPosition::ValueType z = itPos->z();
-        if( z < min )
-        {
-            min = z;
-        }
-        if( z > max )
-        {
-            max = z;
-        }
-    }
-    const WPosition::ValueType z_threashold = min + ( max - min ) * 0.25;
-    debugLog() << "icpAlign: BEM z_threashold: " << z_threashold;
-
-    debugLog() << "icpAlign: Transforming WPosition to PCL::PointXYZ";
-    PointCloud< PointXYZ > src;
-    for( itPos = eegPositions->begin(); itPos != eegPositions->end(); ++itPos )
-    {
-        src.push_back( PointXYZ( itPos->x(), itPos->y(), itPos->z() ) );
-    }
-
-    PointCloud< PointXYZ > trg;
-    WEExponent::Enum exp = bemSkin->getVertexExponent();
-    float factor = WEExponent::factor( exp );
-    size_t removed = 0;
-    for( itPos = bemPosition.begin(); itPos != bemPosition.end(); ++itPos )
-    {
-        if( itPos->z() > z_threashold )
-        {
-            trg.push_back( PointXYZ( itPos->x() * factor, itPos->y() * factor, itPos->z() * factor ) );
-        }
-        else
-        {
-            ++removed;
-        }
-    }
-    debugLog() << "Removed points from BEM: " << removed;
-
-    debugLog() << "icpAlign: Run ICP";
-    IterativeClosestPoint< PointXYZ, PointXYZ > icp;
-    icp.setMaximumIterations( maxIterations );
-    icp.setInputCloud( src.makeShared() );
-    icp.setInputTarget( trg.makeShared() );
-
-    icp.align( src, *trans );
-    if( icp.hasConverged() )
-    {
-        *score = icp.getFitnessScore();
-        *trans = icp.getFinalTransformation();
-        debugLog() << "ICP score: " << *score;
-        debugLog() << "ICP transformation:\n" << *trans;
-        return true;
-    }
-    else
-    {
-        errorLog() << "icpAlign: ICP not converged!";
-        return false;
-    }
 }

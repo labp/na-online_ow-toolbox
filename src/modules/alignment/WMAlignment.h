@@ -27,8 +27,6 @@
 
 #include <string>
 
-#include <Eigen/Core>
-
 #include <core/common/WCondition.h>
 #include <core/common/WPropertyTypes.h>
 #include <core/gui/WCustomWidget.h>
@@ -81,8 +79,6 @@ private:
     WCustomWidget::SPtr m_widget;
     WLEMDDrawable3DEEGBEM::SPtr m_drawable;
 
-    typedef Eigen::Matrix< float, 4, 4 > PCLMatrixT;
-
     /**
      * Input connector for an EMM Command dataset
      */
@@ -111,23 +107,6 @@ private:
     WPropInt m_propIcpIterations;
     WPropDouble m_propIcpScore;
     WPropBool m_propIcpConverged;
-
-    // ----------------------------
-    // Alignment methods
-    // ----------------------------
-    struct Fiducial
-    {
-        WPosition lpa;
-        WPosition nasion;
-        WPosition rpa;
-    };
-
-    bool extractFiducialPoints( Fiducial* const eegPoints, const WLEMMeasurement& emm );
-
-    bool estimateTransformation( PCLMatrixT* const trans, const Fiducial& eegPoints, const Fiducial& skinPoints,
-                    const WLEMMeasurement& emm );
-
-    bool icpAlign( PCLMatrixT* const trans, double* const score, const WLEMMeasurement& emm, int maxIterations );
 };
 
 #endif  // WMALIGNMENT_H_
