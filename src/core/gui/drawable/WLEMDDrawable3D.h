@@ -126,9 +126,11 @@ namespace LaBP
 
         WLEMMeasurement::ConstSPtr m_emm;
 
-        void osgAddSurface( const std::vector< WPosition >* positions, const std::vector< WVector3i >& faces );
+        void osgAddSurface( const std::vector< WPosition >& positions, const std::vector< WVector3i >& faces );
 
         void osgAddColorMap();
+
+        float m_zoomFactor;
 
         bool m_colorMapChanged;
 

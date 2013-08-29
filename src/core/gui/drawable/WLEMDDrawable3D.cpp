@@ -61,6 +61,7 @@ namespace LaBP
     WLEMDDrawable3D::WLEMDDrawable3D( WCustomWidget::SPtr widget ) :
                     WLEMDDrawable( widget )
     {
+        m_zoomFactor = 1000;
         m_selectedSample = -1;
         m_selectedSampleChanged = false;
         m_colorMapChanged = true;
@@ -186,19 +187,19 @@ namespace LaBP
         m_colorMapChanged = true;
     }
 
-    void WLEMDDrawable3D::osgAddSurface( const std::vector< WPosition >* positions, const std::vector< WVector3i >& faces )
+    void WLEMDDrawable3D::osgAddSurface( const std::vector< WPosition >& positions, const std::vector< WVector3i >& faces )
     {
         // draw head surface
         if( m_surfaceChanged )
         {
             m_rootGroup->removeChild( m_surfaceGeode );
 
-            const size_t nbPositions = positions->size();
+            const size_t nbPositions = positions.size();
             std::vector< WPosition > scaledPos;
             scaledPos.reserve( nbPositions );
             for( size_t i = 0; i < nbPositions; ++i )
             {
-                scaledPos.push_back( ( *positions )[i] * 1000 );
+                scaledPos.push_back( positions[i] * m_zoomFactor );
             }
             boost::shared_ptr< WTriangleMesh > tri;
             if( faces.size() > 0 )

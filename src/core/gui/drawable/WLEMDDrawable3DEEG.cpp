@@ -124,7 +124,7 @@ namespace LaBP
             m_electrodesDrawables.reserve( count_max );
             for( size_t channelID = 0; channelID < count_max; ++channelID )
             {
-                osg::Vec3 pos = positions->at( channelID )* 1000;
+                osg::Vec3 pos = positions->at( channelID )* m_zoomFactor;
                 // create sphere geode on electrode position
                 osg::ref_ptr< osg::ShapeDrawable > shape = new osg::ShapeDrawable( new osg::Sphere( pos, sphere_size ) );
                 shape->setDataVariance( osg::Object::DYNAMIC );
@@ -202,7 +202,7 @@ namespace LaBP
         osgAddNodes( emd->getChannelPositions3d().get() );
         osgUpdateNodesColor( emd->getData() );
 
-        osgAddSurface( emd->getChannelPositions3d().get(), emd->getFaces() );
+        osgAddSurface( *emd->getChannelPositions3d(), emd->getFaces() );
         osgUpdateSurfaceColor( emd->getData() );
 
         WLEMDDrawable3D::osgNodeCallback( nv );

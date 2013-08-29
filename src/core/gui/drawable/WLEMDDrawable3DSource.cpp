@@ -88,7 +88,7 @@ namespace LaBP
             m_state->setTextureAttributeAndModes( 0, m_colorMap->getAsTexture() );
         }
 
-        osgAddSurface( subject->getSurface( WLEMMSurface::Hemisphere::BOTH ).getVertex().get(),
+        osgAddSurface( *subject->getSurface( WLEMMSurface::Hemisphere::BOTH ).getVertex(),
                         subject->getSurface( WLEMMSurface::Hemisphere::BOTH ).getFaces() );
 
         osgUpdateSurfaceColor( emd->getData() );
