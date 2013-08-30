@@ -67,8 +67,8 @@ protected:
     virtual bool processCompute( WLEMMeasurement::SPtr emm );
     virtual bool processInit( WLEMMCommand::SPtr cmd );
     virtual bool processReset( WLEMMCommand::SPtr cmd );
-    virtual bool processMisc( WLEMMCommand::SPtr labp );
-    virtual bool processTime( WLEMMCommand::SPtr labp );
+    virtual bool processMisc( WLEMMCommand::SPtr cmd );
+    virtual bool processTime( WLEMMCommand::SPtr cmd );
 
 private:
     void viewInit();

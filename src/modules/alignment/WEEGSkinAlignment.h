@@ -34,34 +34,82 @@
 #include "WAlignment.h"
 
 /**
- * TODO(pieloth): explain automatic matching with fiducial points
+ * Aligns the EEG sensor positions to the BEM skin layer
+ * by using the fiducial points (lpa, nasion, rpa) from both coordinate systems as correspondences.
+ * Note: Correspondences for WAlignment are set by this implementation!
+ *
+ * \author pieloth
  */
 class WEEGSkinAlignment: public WAlignment
 {
 public:
     static const std::string CLASS;
 
+    /**
+     * Constructor.
+     *
+     * \param maxInterations Maximum iterations for ICP.
+     */
     WEEGSkinAlignment( int maxInteration = 10 );
     virtual ~WEEGSkinAlignment();
 
+    /**
+     * Computes the alignment and stores the transformation matrix.
+     * Extracts the fiducial points for EEG from the digitization points of the measurement.
+     * Fiducial points for BEM skin layer must set manually.
+     *
+     * \param matrix Holds the final transformation.
+     * \param emm EM measurement containing digitization points, EEG sensor positions and a BEM skin layer.
+     * \return Fitness score (>=0) if converged or NOT_CONVERGED.
+     */
     double align( TransformationT* const matrix, WLEMMeasurement::ConstSPtr emm );
 
+    /**
+     * Returns the left pre-auricular position on the BEM skin layer.
+     *
+     * \return the position.
+     */
     const WPosition& getLpaSkin() const;
 
+    /**
+     * Sets the left pre-auricular position on the BEM skin layer.
+     *
+     * \param lpaSkin the position.
+     */
     void setLpaSkin( const WPosition& lpaSkin );
 
+    /**
+     * Returns the nasion position on the BEM skin layer.
+     *
+     * \return the position.
+     */
     const WPosition& getNasionSkin() const;
 
+    /**
+     * Sets the nasion position on the BEM skin layer.
+     *
+     * \param nasionSkin the position.
+     */
     void setNasionSkin( const WPosition& nasionSkin );
 
+    /**
+     * Returns the right pre-auricular position on the BEM skin layer.
+     *
+     * \return the position.
+     */
     const WPosition& getRpaSkin() const;
 
+    /**
+     * Sets the right pre-auricular position on the BEM skin layer.
+     *
+     * \param rpaSkin the position.
+     */
     void setRpaSkin( const WPosition& rpaSkin );
 
 private:
     bool extractFiducialPoints( WPosition* const lpa, WPosition* const nasion, WPosition* const rpa, const WLEMMeasurement& emm );
 
-    bool extractBEMSkinPoints( PointsT* const out, const WLEMMeasurement& emm);
+    bool extractBEMSkinPoints( PointsT* const out, const WLEMMeasurement& emm );
 
     WPosition m_lpaSkin;
     WPosition m_nasionSkin;

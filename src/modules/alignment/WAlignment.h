@@ -37,6 +37,13 @@
 #include "core/data/WLDataTypes.h"
 #include "core/data/WLEMMeasurement.h"
 
+/**
+ * Registration and Alignment implementation.
+ * A transformation estimation, initial transformation, will be computed if correspondences are available.
+ * With or without this initial transformation the alignment is done with an ICP algorithm.
+ *
+ * \author pieloth
+ */
 class WAlignment
 {
 public:
@@ -46,14 +53,43 @@ public:
 
     static const std::string CLASS;
 
+    /**
+     * Constant to indicate that the algorithm has not converged.
+     */
     static const double NOT_CONVERGED;
 
-    WAlignment(int maxInterations = 10);
+    /**
+     * Constructor.
+     *
+     * \param maxInterations Maximum iterations for ICP.
+     */
+    WAlignment( int maxInterations = 10 );
     virtual ~WAlignment();
 
+    /**
+     * Adds a pair of corresponding points for transform estimation.
+     * A minimum of correspondences is suggested.
+     *
+     * \param cor A pair of corresponding points.
+     */
     void addCorrespondence( const CorrespondenceT& cor );
+
+    /**
+     * Deletes all correspondences.
+     */
     void clearCorrespondences();
 
+    /**
+     * Computes the alignment and stores the transformation matrix.
+     * If correspondences are available, a transformation estimation will be done.
+     * If no correspondences are available and the matrix is not zero or not an identity,
+     * the matrix will be used as a initial transformation.
+     *
+     * \param matrix Holds the final transformation.
+     * \param from Source points.
+     * \param to Target points.
+     * \return Fitness score (=>0) if converged or NOT_CONVERGED.
+     */
     double align( TransformationT* const matrix, const PointsT& from, const PointsT& to );
 
 private:
