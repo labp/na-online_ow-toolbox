@@ -90,7 +90,7 @@ void WLEMDDrawable3DEEGBEM::osgNodeCallback( osg::NodeVisitor* nv )
     osgAddSurface( bemPositions, bemFaces );
 
     std::vector< WPosition > pointsTrans;
-    WLGeometry::transformPoints( &pointsTrans, *( emd->getChannelPositions3d() ), emm->geFidToACPCTransformation() );
+    WLGeometry::transformPoints( &pointsTrans, *( emd->getChannelPositions3d() ), emm->getFidToACPCTransformation() );
 
     osgAddNodes( pointsTrans );
 

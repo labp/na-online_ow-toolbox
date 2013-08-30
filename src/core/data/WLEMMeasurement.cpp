@@ -306,7 +306,7 @@ void WLEMMeasurement::setDevToFidTransformation( const WLMatrix4::Matrix4T& mat 
     m_transDevToFid = mat;
 }
 
-const WLMatrix4::Matrix4T& WLEMMeasurement::geFidToACPCTransformation() const
+const WLMatrix4::Matrix4T& WLEMMeasurement::getFidToACPCTransformation() const
 {
     return m_transFidToACPC;
 }

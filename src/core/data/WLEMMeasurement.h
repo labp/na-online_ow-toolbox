@@ -271,7 +271,7 @@ public:
 
     void setDevToFidTransformation( const WLMatrix4::Matrix4T& mat );
 
-    const WLMatrix4::Matrix4T& geFidToACPCTransformation() const;
+    const WLMatrix4::Matrix4T& getFidToACPCTransformation() const;
 
     void setFidToACPCTransformation( const WLMatrix4::Matrix4T& mat );
 
