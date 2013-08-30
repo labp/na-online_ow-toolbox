@@ -40,17 +40,6 @@ INCLUDE_DIRECTORIES( ${libfiffio_dir}/include )
 LIST( APPEND ADDITIONAL_LIBS ${libfiffio_dir}/linux_x86_64/libfiffio.so )
 
 
-# -----------------------------------------------------------------------------------------------------------------------------------------------
-# Add Point Cloud Library for ICP Registration/Alignment
-# -----------------------------------------------------------------------------------------------------------------------------------------------
-# Code has been written with PCL v1.5
-# FIND_PACKAGE( PCL 1.5 REQUIRED COMPONENTS common kdtree registration )
-
-FIND_PACKAGE( PCL REQUIRED COMPONENTS common kdtree registration )
-INCLUDE_DIRECTORIES( ${PCL_INCLUDE_DIRS} )
-LINK_DIRECTORIES( ${PCL_LIBRARY_DIRS} )
-ADD_DEFINITIONS( ${PCL_DEFINITIONS} )
-LIST( APPEND ADDITIONAL_LIBS ${PCL_COMMON_LIBRARIES};${PCL_KDTREE_LIBRARIES};${PCL_REGISTRATION_LIBRARIES} )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Setup for compilation
@@ -63,4 +52,3 @@ SETUP_MODULE( ${MODULE_NAME}                # name of the module
              "${ADDITIONAL_LIBS}"           # does your module need additional libs to compile?
              ""                             # do you want to exclude files from stylechecking? (externals for example)
 )
-

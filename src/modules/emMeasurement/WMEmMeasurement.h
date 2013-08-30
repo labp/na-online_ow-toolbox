@@ -43,10 +43,6 @@
 
 #include "core/module/WLModuleDrawable.h"
 
-#include "algorithms/WRegistration.h"
-#include "algorithms/WRegistrationICP.h"
-#include "algorithms/WRegistrationNaive.h"
-
 #include "core/io/WLReaderExperiment.h"
 
 /**
@@ -247,18 +243,6 @@ private:
     WPropString m_volFileStatus;
 
     WPropInt m_volBoundaryCount;
-
-    // Registration settings //
-    WPropGroup m_propGrpRegistration;
-
-    WRegistration::MatrixTransformation m_regTransformation;
-
-    WRegistrationNaive m_regNaive;
-    WRegistrationICP m_regICP;
-    WPropTrigger m_regAlignTrigger;
-    WPropDouble m_regError;
-
-    void align();
 
     // Experiment loader //
     WPropGroup m_propGrpExperiment;

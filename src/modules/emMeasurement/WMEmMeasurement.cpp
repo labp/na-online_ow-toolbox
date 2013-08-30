@@ -76,6 +76,7 @@ WMEmMeasurement::WMEmMeasurement()
     m_isExpLoaded = false;
     m_isFiffLoaded = false;
     m_isVolLoaded = false;
+    m_hasLeadfield = false;
 }
 
 WMEmMeasurement::~WMEmMeasurement()
@@ -225,15 +226,6 @@ void WMEmMeasurement::properties()
     m_volFile->changed( true );
     m_volBoundaryCount = m_propGrpExtra->addProperty( "BEM Boundaries:", "BEM Boundaries found in file.", 0 );
     m_volBoundaryCount->setPurpose( PV_PURPOSE_INFORMATION );
-
-    // Registration Properties //
-    m_propGrpRegistration = m_properties->addPropertyGroup( "Registration and Alignment",
-                    "Alignment of different coordinate systems.", false );
-    m_regAlignTrigger = m_propGrpRegistration->addProperty( "Start Alignment", "Start Alignment", WPVBaseTypes::PV_TRIGGER_READY,
-                    m_propCondition );
-
-    m_regError = m_propGrpRegistration->addProperty( "Deviation:", "Deviation after alignment.", -1.0 );
-    m_regError->setPurpose( PV_PURPOSE_INFORMATION );
 }
 
 void WMEmMeasurement::moduleInit()
@@ -304,11 +296,6 @@ void WMEmMeasurement::moduleMain()
         if( ( m_streamFiffTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED ) )
         {
             streamData();
-        }
-
-        if( ( m_regAlignTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED ) )
-        {
-            align();
         }
 
         if( ( m_expLoadTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED ) )
@@ -774,63 +761,6 @@ void WMEmMeasurement::setAdditionalInformation( WLEMMeasurement::SPtr emm )
             emm->getSubject()->setBemBoundaries( m_volBoundaries );
         }
     }
-}
-
-void WMEmMeasurement::align()
-{
-    infoLog() << "Start alignment for FIFF file and EEG only!";
-    if( m_isFiffLoaded )
-    {
-        if( m_fiffEmm->hasModality( LaBP::WEModalityType::EEG ) )
-        {
-            setAdditionalInformation( m_fiffEmm );
-
-            WLEMDEEG::SPtr eeg = m_fiffEmm->getModality< WLEMDEEG >( LaBP::WEModalityType::EEG );
-            boost::shared_ptr< std::vector< WPosition > > from = eeg->getChannelPositions3d();
-
-            std::vector< LaBP::WLEMMBemBoundary::SPtr > bems = m_fiffEmm->getSubject()->getBemBoundaries();
-            LaBP::WLEMMBemBoundary::SPtr bemSkin;
-            for( std::vector< LaBP::WLEMMBemBoundary::SPtr >::iterator it = bems.begin(); it != bems.end(); ++it )
-            {
-                if( ( *it )->getBemType() == LaBP::WEBemType::SKIN || ( *it )->getBemType() == LaBP::WEBemType::OUTER_SKIN )
-                {
-                    bemSkin = ( *it );
-                    break;
-                }
-            }
-            if( bemSkin )
-            {
-                std::vector< WPosition > to = bemSkin->getVertex();
-                // TODO(pieloth): check unit!
-                double error = m_regNaive.compute( *from, to );
-                infoLog() << WRegistrationNaive::CLASS << " error: " << error;
-
-                error = m_regICP.compute( *from, to, m_regNaive.getTransformationMatrix() );
-                infoLog() << WRegistrationICP::CLASS << " error: " << error;
-
-                m_regError->set( error, true );
-                m_regTransformation = m_regICP.getTransformationMatrix();
-                infoLog() << "Transformation: " << m_regTransformation;
-            }
-            else
-            {
-                errorLog() << "No BEM skin layer found. Alignment is canceled!";
-                m_regError->set( -1.0, true );
-            }
-        }
-        else
-        {
-            errorLog() << "No EEG modality found. Alignment is canceled!";
-            m_regError->set( -1.0, true );
-        }
-    }
-    else
-    {
-        errorLog() << "No FIFF file loaded. Alignment is canceled!";
-        m_regError->set( -1.0, true );
-    }
-
-    m_regAlignTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, true );
 }
 
 void WMEmMeasurement::handleExperimentLoadChanged()
