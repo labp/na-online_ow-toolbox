@@ -37,6 +37,7 @@
 #include "core/io/WLReaderFIFF.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/util/profiler/WLTimeProfiler.h"
+#include "core/util/WLGeometry.h"
 
 #include "WLeadfieldInterpolation.h"
 #include "WMLeadfieldInterpolation.xpm"
@@ -290,7 +291,11 @@ bool WMLeadfieldInterpolation::interpolate()
 
     WLeadfieldInterpolation li;
     li.prepareHDLeadfield( m_fwdSolution );
-    li.setSensorPositions( m_fiffEmm->getModality( WEModalityType::EEG )->getAs< WLEMDEEG >()->getChannelPositions3d() );
+    const std::vector< WPosition >& eeg_pos =
+                    *( m_fiffEmm->getModality( WEModalityType::EEG )->getAs< WLEMDEEG >()->getChannelPositions3d() );
+    WLeadfieldInterpolation::PositionsSPtr eegPosTrans( new WLeadfieldInterpolation::PositionsT );
+    WLGeometry::transformPoints( eegPosTrans.get(), eeg_pos, m_fiffEmm->getFidToACPCTransformation() );
+    li.setSensorPositions( eegPosTrans );
 
     m_leadfieldInterpolated.reset(
                     new MatrixT( m_fiffEmm->getModality( WEModalityType::EEG )->getNrChans(), m_fwdSolution->nsource ) );
