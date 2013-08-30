@@ -33,6 +33,7 @@
 #include <core/gui/WGUI.h>
 #include <core/kernel/WModule.h>
 
+#include "core/data/WLDataTypes.h"
 #include "core/data/WLEMMCommand.h"
 #include "core/data/WLEMMeasurement.h"
 #include "core/gui/drawable/WLEMDDrawable3DEEGBEM.h"
@@ -73,8 +74,11 @@ protected:
 private:
     void viewInit();
     void viewUpdate( WLEMMeasurement::SPtr emm );
+    void viewReset();
 
     void moduleInit();
+
+    void handleTrgReset();
 
     WCustomWidget::SPtr m_widget;
     WLEMDDrawable3DEEGBEM::SPtr m_drawable;
@@ -91,6 +95,8 @@ private:
 
     WCondition::SPtr m_propCondition;
     WPropTrigger m_trgReset;
+
+    WLMatrix4::Matrix4T m_transformation;
 
     // ----------------------------
     // Transformation Estimation Properties

@@ -41,6 +41,7 @@ W_LOADABLE_MODULE( WMAlignment )
 
 WMAlignment::WMAlignment()
 {
+    m_transformation.setZero();
 }
 
 WMAlignment::~WMAlignment()
@@ -102,7 +103,7 @@ void WMAlignment::properties()
     m_propIcpIterations = m_propIcpGroup->addProperty( "Iterations:", "Maximum iterations for ICP algorithm.", 10, false );
     m_propIcpConverged = m_propIcpGroup->addProperty( "Converged:", "Indicates if ICP has converged.", false, false );
     m_propIcpConverged->setPurpose( PV_PURPOSE_INFORMATION );
-    m_propIcpScore = m_propIcpGroup->addProperty( "Score:", "Fitness score of converged ICP.", -1.0, false );
+    m_propIcpScore = m_propIcpGroup->addProperty( "Score:", "Fitness score of converged ICP.", WAlignment::NOT_CONVERGED, false );
     m_propIcpScore->setPurpose( PV_PURPOSE_INFORMATION );
 }
 
@@ -122,6 +123,11 @@ void WMAlignment::viewUpdate( WLEMMeasurement::SPtr emm )
         return;
     }
     m_drawable->draw( emm );
+}
+
+void WMAlignment::viewReset()
+{
+    m_drawable.reset( new WLEMDDrawable3DEEGBEM( m_widget ) );
 }
 
 void WMAlignment::moduleInit()
@@ -157,6 +163,11 @@ void WMAlignment::moduleMain()
             break; // break mainLoop on shutdown
         }
 
+        if( m_trgReset->changed( true ) )
+        {
+            handleTrgReset();
+        }
+
         cmdIn.reset();
         if( !m_input->isEmpty() )
         {
@@ -174,19 +185,24 @@ void WMAlignment::moduleMain()
 
 bool WMAlignment::processCompute( WLEMMeasurement::SPtr emm )
 {
+    WLTimeProfiler tp( "WMAlignment", "processCompute" );
+
     WLEMMCommand::SPtr cmd( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
     cmd->setEmm( emm );
-    WLEMMeasurement& emmRef = *emm;
 
-    // TODO(pieloth): check if computation is needed!
+    if( !m_transformation.isZero() )
+    {
+        emm->setFidToACPCTransformation( m_transformation );
+        m_output->updateData( cmd );
+        return true;
+    }
 
     WEEGSkinAlignment align( m_propIcpIterations->get( false ) );
     align.setLpaSkin( m_propEstLPA->get( false ) );
     align.setNasionSkin( m_propEstNasion->get( false ) );
     align.setRpaSkin( m_propEstRPA->get( false ) );
 
-    WLMatrix4::Matrix4T transformation;
-    double score = align.align( &transformation, emm );
+    double score = align.align( &m_transformation, emm );
     if( score == WEEGSkinAlignment::NOT_CONVERGED )
     {
         m_output->updateData( cmd );
@@ -195,7 +211,7 @@ bool WMAlignment::processCompute( WLEMMeasurement::SPtr emm )
     }
     m_propIcpConverged->set( true, false );
     m_propIcpScore->set( score, false );
-    emm->setFidToACPCTransformation( transformation );
+    emm->setFidToACPCTransformation( m_transformation );
     viewUpdate( emm );
 
     m_output->updateData( cmd );
@@ -204,28 +220,35 @@ bool WMAlignment::processCompute( WLEMMeasurement::SPtr emm )
 
 bool WMAlignment::processInit( WLEMMCommand::SPtr cmd )
 {
-    // TODO
     m_output->updateData( cmd );
     return true;
 }
 
 bool WMAlignment::processReset( WLEMMCommand::SPtr cmd )
 {
-    // TODO
+    handleTrgReset();
     m_output->updateData( cmd );
     return true;
 }
 
 bool WMAlignment::processTime( WLEMMCommand::SPtr cmd )
 {
-    // TODO
     m_output->updateData( cmd );
     return true;
 }
 
 bool WMAlignment::processMisc( WLEMMCommand::SPtr cmd )
 {
-    // TODO
     m_output->updateData( cmd );
     return true;
+}
+
+void WMAlignment::handleTrgReset()
+{
+    viewReset();
+    m_transformation.setZero();
+    m_propIcpConverged->set( false, false );
+    m_propIcpScore->set( WAlignment::NOT_CONVERGED, false );
+    m_propIcpIterations->set( 10, false );
+    m_trgReset->set( WPVBaseTypes::PV_TRIGGER_READY, true );
 }
