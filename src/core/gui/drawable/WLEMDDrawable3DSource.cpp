@@ -38,6 +38,7 @@ namespace LaBP
     WLEMDDrawable3DSource::WLEMDDrawable3DSource( WCustomWidget::SPtr widget ) :
                     WLEMDDrawable3D( widget )
     {
+        m_zoomFactor = 1;
     }
 
     WLEMDDrawable3DSource::~WLEMDDrawable3DSource()
@@ -88,8 +89,10 @@ namespace LaBP
             m_state->setTextureAttributeAndModes( 0, m_colorMap->getAsTexture() );
         }
 
-        osgAddSurface( *subject->getSurface( WLEMMSurface::Hemisphere::BOTH ).getVertex(),
-                        subject->getSurface( WLEMMSurface::Hemisphere::BOTH ).getFaces() );
+        const WLEMMSurface& surf = subject->getSurface( WLEMMSurface::Hemisphere::BOTH );
+
+        m_zoomFactor = WEExponent::factor( surf.getVertexExponent() ) * 1000;
+        osgAddSurface( *surf.getVertex(), surf.getFaces() );
 
         osgUpdateSurfaceColor( emd->getData() );
 
