@@ -255,7 +255,11 @@ bool WWriterFiff::writeData( const WLEMMeasurement* const emm )
     RowVectorXd cals( nchan );
     cals.setOnes();
 
+#ifndef LABP_FLOAT_COMPUTATION
     return m_fiffStream->write_raw_buffer( data, cals );
+#else
+    return m_fiffStream->write_raw_buffer( data.cast< double >(), cals );
+#endif
 }
 
 void WWriterFiff::setChannelInfo( FIFFLIB::FiffChInfo* const chInfo )

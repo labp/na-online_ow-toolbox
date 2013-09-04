@@ -483,7 +483,7 @@ bool WRtClient::readChannelPositionsFaces()
 void WRtClient::readInfo()
 {
 #if LABP_FLOAT_COMPUTATION
-    m_devToHead = m_fiffInfo->dev_head_t.trans);
+    m_devToHead = m_fiffInfo->dev_head_t.trans;
 #else
     m_devToHead = m_fiffInfo->dev_head_t.trans.cast< WLMatrix4::Matrix4T::Scalar >();
 #endif

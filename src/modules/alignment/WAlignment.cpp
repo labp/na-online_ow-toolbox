@@ -83,7 +83,7 @@ double WAlignment::align( TransformationT* const matrix, const PointsT& from, co
 #ifndef LABP_FLOAT_COMPUTATION
             pclMatrix = matrix->cast< PCLMatrixT::Scalar >();
 #else
-            pclMatrix= matrix;
+            pclMatrix = *matrix;
 #endif
         }
     }
