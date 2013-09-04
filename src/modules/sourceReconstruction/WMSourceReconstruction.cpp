@@ -326,6 +326,7 @@ void WMSourceReconstruction::handleWeightingTypeChanged()
 
 void WMSourceReconstruction::handleSnrChanged()
 {
+    WLTimeProfiler tp( "WMSourceReconstruction", "handleSnrChanged" );
     debugLog() << "handleSnrChanged() called!";
     if( !m_nCovarianceMatrix || !m_dCovarianceMatrix )
     {
@@ -359,6 +360,7 @@ void WMSourceReconstruction::handleComputeModalityChanged( WLEMMCommand::ConstSP
 
 bool WMSourceReconstruction::inverseSolutionFromSubject( WLEMMeasurement::SPtr emm, WEModalityType::Enum modality )
 {
+    WLTimeProfiler tp( "WMSourceReconstruction", "inverseSolutionFromSubject" );
     debugLog() << "inverseSolutionFromSubject() called!";
     LaBP::WLEMMSubject::SPtr subject = emm->getSubject();
     if( !subject )
@@ -448,6 +450,7 @@ bool WMSourceReconstruction::processCompute( WLEMMeasurement::SPtr emmIn )
 
 bool WMSourceReconstruction::processInit( WLEMMCommand::SPtr labp )
 {
+    WLTimeProfiler tp( "WMSourceReconstruction", "processInit" );
     LaBP::WEModalityType::Enum modality = this->getCalculateModality();
     if( labp->hasEmm() )
     {

@@ -271,6 +271,7 @@ bool WMLeadfieldInterpolation::readHDLeadfield( const std::string& fname )
 
 bool WMLeadfieldInterpolation::interpolate()
 {
+    WLTimeProfiler tp( "WMLeadfieldInterpolation", "interpolate" );
 // TODO(pieloth): Support for other modalities.
     debugLog() << "interpolate() called!";
     WLTimeProfiler tp( "WMLeadfieldInterpolation", "interpolate" );
@@ -323,6 +324,7 @@ bool WMLeadfieldInterpolation::interpolate()
 
 bool WMLeadfieldInterpolation::processCompute( WLEMMeasurement::SPtr emm )
 {
+    WLTimeProfiler tp( "WMLeadfieldInterpolation", "processCompute" );
     bool rc = true;
     if( m_leadfieldInterpolated )
     {
@@ -358,6 +360,7 @@ bool WMLeadfieldInterpolation::processCompute( WLEMMeasurement::SPtr emm )
 
 bool WMLeadfieldInterpolation::processInit( WLEMMCommand::SPtr labp )
 {
+    WLTimeProfiler tp( "WMLeadfieldInterpolation", "processInit" );
     if( labp->hasEmm() )
     {
         m_fiffEmm = labp->getEmm();
