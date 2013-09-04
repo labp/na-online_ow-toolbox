@@ -41,6 +41,8 @@
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
+#include "core/data/WLDataTypes.h"
+#include "core/data/WLDigPoint.h"
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDEEG.h"
@@ -102,9 +104,13 @@ private:
     const std::string m_alias;
     qint32 m_clientId;
 
+    std::vector< WLDigPoint > m_digPoints;
+    WLMatrix4::Matrix4T m_devToHead;
+
     WLEMDEEG::SPtr readEEG( const Eigen::MatrixXf& rawData );
     WLEMDMEG::SPtr readMEG( const Eigen::MatrixXf& rawData );
     boost::shared_ptr< WLEMMeasurement::EDataT > readEvents( const Eigen::MatrixXf& rawData );
+    void readInfo();
     bool readEmd( WLEMData* const emd, const Eigen::RowVectorXi& picks, const Eigen::MatrixXf& rawData );
 };
 

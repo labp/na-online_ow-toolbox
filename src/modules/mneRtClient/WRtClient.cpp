@@ -26,14 +26,19 @@
 #include <vector>
 
 #include <QtGlobal>
+#include <QList>
 #include <QMap>
 #include <QString>
 
 #include <fiff/fiff_ch_info.h>
+#include <fiff/fiff_dig_point.h>
 
 #include <core/common/WAssert.h>
 #include <core/common/WLogger.h>
+#include <core/common/math/linearAlgebra/WPosition.h>
 
+#include "core/data/WLDataTypes.h"
+#include "core/data/WLDigPoint.h"
 #include "core/util/WLGeometry.h"
 #include "WRtClient.h"
 
@@ -45,6 +50,7 @@ WRtClient::WRtClient( const std::string& ip_address, const std::string& alias ) 
     m_isStreaming = false;
     m_isConnected = false;
     m_clientId = -1;
+    m_devToHead = WLMatrix4::Matrix4T::Zero();
 }
 
 WRtClient::~WRtClient()
@@ -176,6 +182,7 @@ bool WRtClient::start()
     {
         wlog::debug( CLASS ) << "values: " << m_picksStim[0] << ", " << m_picksStim[1] << ", " << m_picksStim[2] << " ...";
     }
+    readInfo();
     readChannelNames();
     readChannelPositionsFaces();
 
@@ -279,10 +286,19 @@ bool WRtClient::readData( WLEMMeasurement::SPtr emmIn )
         return false;
     }
 
-    FIFFLIB::fiff_int_t kind;
+    if( !m_digPoints.empty() )
+    {
+        emmIn->setDigPoints( m_digPoints );
+    }
+    if( !m_devToHead.isZero() )
+    {
+        emmIn->setDevToFidTransformation( m_devToHead );
+    }
 
+    FIFFLIB::fiff_int_t kind;
     Eigen::MatrixXf matRawBuffer;
     m_rtDataClient->readRawBuffer( m_fiffInfo->nchan, matRawBuffer, kind );
+
     if( kind == FIFF_DATA_BUFFER )
     {
         wlog::debug( CLASS ) << "matRawBuffer: " << matRawBuffer.rows() << "x" << matRawBuffer.cols();
@@ -447,7 +463,7 @@ bool WRtClient::readChannelPositionsFaces()
     {
         WAssertDebug( eegSize <= chInfos.size(), "More selected channels than in chNames!" );
         m_chPosEeg.reset( new std::vector< WPosition > );
-        m_chNamesMeg->reserve( eegSize );
+        m_chPosEeg->reserve( eegSize );
         for( Eigen::RowVectorXi::Index row = 0; row < eegSize; ++row )
         {
             WAssertDebug( m_picksEeg[row] < chInfos.size(), "Selected channel index out of chInfos boundary!" );
@@ -462,4 +478,24 @@ bool WRtClient::readChannelPositionsFaces()
 
     // TODO(pieloth): MEG
     return true;
+}
+
+void WRtClient::readInfo()
+{
+#if LABP_FLOAT_COMPUTATION
+    m_devToHead = m_fiffInfo->dev_head_t.trans);
+#else
+    m_devToHead = m_fiffInfo->dev_head_t.trans.cast< WLMatrix4::Matrix4T::Scalar >();
+#endif
+
+    const QList< FIFFLIB::FiffDigPoint >& digs = m_fiffInfo->dig;
+    m_digPoints.clear();
+    m_digPoints.reserve( digs.size() );
+    QList< FIFFLIB::FiffDigPoint >::ConstIterator it;
+    for( it = digs.begin(); it != digs.end(); ++it )
+    {
+        const WPosition pos( it->r[0], it->r[1], it->r[2] );
+        WLDigPoint dig( pos, it->kind, it->ident );
+        m_digPoints.push_back( dig );
+    }
 }
