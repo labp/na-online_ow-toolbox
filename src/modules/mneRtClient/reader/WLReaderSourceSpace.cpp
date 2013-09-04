@@ -78,7 +78,7 @@ bool WLReaderSourceSpace::read( WLEMMSurface::SPtr& surface )
         fiffStream->device()->close();
         return false;
     }
-    wlog::error( CLASS ) << "srcSpaces: " << srcSpaces.size();
+    wlog::debug( CLASS ) << "srcSpaces: " << srcSpaces.size();
 
     MNESourceSpace sourceSpace; // = NULL;
     if( !MNESourceSpace::readFromStream( fiffStream, true, fiffDirTree, sourceSpace ) )
