@@ -97,6 +97,39 @@ void WMMneRtClient::properties()
 
     m_propCondition.reset( new WCondition() );
 
+    // Setup connection control //
+    m_propGrpConControl = m_properties->addPropertyGroup( "MNE Connection Control", "Connections settings for MNE server.",
+                    false );
+
+    //    const std::string con_ip_address = "127.0.0.1";
+    const string con_ip_address = "192.168.100.1";
+    m_propConIp = m_propGrpConControl->addProperty( "IP:", "IP Address of MNE server.", con_ip_address );
+    m_propConStatus = m_propGrpConControl->addProperty( "Connection status:", "Shows connection status.",
+                    STATUS_CON_DISCONNECTED );
+    m_propConStatus->setPurpose( PV_PURPOSE_INFORMATION );
+    m_trgConConnect = m_propGrpConControl->addProperty( "Connect:", "Connect", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
+    m_trgConDisconnect = m_propGrpConControl->addProperty( "Disconnect:", "Disconnect", WPVBaseTypes::PV_TRIGGER_READY,
+                    m_propCondition );
+    m_trgConDisconnect->setHidden( true );
+
+    m_connectorItem = WItemSelection::SPtr( new WItemSelection() );
+    m_connectorItem->addItem(
+                    WItemSelectionItemTyped< int >::SPtr( new WItemSelectionItemTyped< int >( NO_CONNECTOR, "none", "none" ) ) );
+    m_connectorSelection = m_propGrpConControl->addProperty( "Connectors", "Choose a server connector.",
+                    m_connectorItem->getSelectorFirst(), m_propCondition );
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_connectorSelection );
+
+    const string sim_file = "/opt/naonline/emm_data/intershift/rawdir/is05a/is05a1.fif";
+    m_simFile = m_propGrpConControl->addProperty( "Simulation File:", "Local path on server to simluation file.", sim_file );
+
+    // Setup streaming //
+    m_propDataStatus = m_propGrpConControl->addProperty( "Data status:", "Streaming status.", STATUS_DATA_NOT_STREAMING );
+    m_propDataStatus->setPurpose( PV_PURPOSE_INFORMATION );
+    m_trgDataStart = m_propGrpConControl->addProperty( "Start streaming:", "Start", WPVBaseTypes::PV_TRIGGER_READY,
+                    m_propCondition );
+    m_trgDataStop = m_propGrpConControl->addProperty( "Stop streaming:", "Stop", WPVBaseTypes::PV_TRIGGER_READY,
+                    boost::bind( &WMMneRtClient::callbackTrgDataStop, this ) );
+
     // Experiment loader - Fiff properties //
     m_propGrpExperiment = m_properties->addPropertyGroup( "LaBP Experiment Loader", "LaBP Experiment Loader", false );
 
@@ -129,38 +162,6 @@ void WMMneRtClient::properties()
 
     m_expSurfaces.reset( new WItemSelection() );
 
-    // Setup connection control //
-    m_propGrpConControl = m_properties->addPropertyGroup( "MNE Connection Control", "Connections settings for MNE server.",
-                    false );
-
-//    const std::string con_ip_address = "127.0.0.1";
-    const string con_ip_address = "192.168.100.1";
-    m_propConIp = m_propGrpConControl->addProperty( "IP:", "IP Address of MNE server.", con_ip_address );
-    m_propConStatus = m_propGrpConControl->addProperty( "Connection status:", "Shows connection status.",
-                    STATUS_CON_DISCONNECTED );
-    m_propConStatus->setPurpose( PV_PURPOSE_INFORMATION );
-    m_trgConConnect = m_propGrpConControl->addProperty( "Connect:", "Connect", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
-    m_trgConDisconnect = m_propGrpConControl->addProperty( "Disconnect:", "Disconnect", WPVBaseTypes::PV_TRIGGER_READY,
-                    m_propCondition );
-    m_trgConDisconnect->setHidden( true );
-
-    m_connectorItem = WItemSelection::SPtr( new WItemSelection() );
-    m_connectorItem->addItem(
-                    WItemSelectionItemTyped< int >::SPtr( new WItemSelectionItemTyped< int >( NO_CONNECTOR, "none", "none" ) ) );
-    m_connectorSelection = m_propGrpConControl->addProperty( "Connectors", "Choose a server connector.",
-                    m_connectorItem->getSelectorFirst(), m_propCondition );
-    WPropertyHelper::PC_SELECTONLYONE::addTo( m_connectorSelection );
-
-    const string sim_file = "/opt/naonline/emm_data/intershift/rawdir/is05a/is05a1.fif";
-    m_simFile = m_propGrpConControl->addProperty( "Simulation File:", "Local path on server to simluation file.", sim_file );
-
-    // Setup streaming //
-    m_propDataStatus = m_propGrpConControl->addProperty( "Data status:", "Streaming status.", STATUS_DATA_NOT_STREAMING );
-    m_propDataStatus->setPurpose( PV_PURPOSE_INFORMATION );
-    m_trgDataStart = m_propGrpConControl->addProperty( "Start streaming:", "Start", WPVBaseTypes::PV_TRIGGER_READY,
-                    m_propCondition );
-    m_trgDataStop = m_propGrpConControl->addProperty( "Stop streaming:", "Stop", WPVBaseTypes::PV_TRIGGER_READY,
-                    boost::bind( &WMMneRtClient::callbackTrgDataStop, this ) );
     m_trgDataStop->setHidden( true );
 
     // Setup connection control //
