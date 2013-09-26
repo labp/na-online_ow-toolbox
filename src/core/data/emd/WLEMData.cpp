@@ -27,12 +27,13 @@
 #include <ostream> // std::endl
 #include <vector>
 
-#include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include <core/common/WLogger.h>
 
 #include "WLEMData.h"
+
+using namespace LaBP;
 
 WLEMData::WLEMData() :
                 boost::enable_shared_from_this< WLEMData >()
@@ -51,10 +52,16 @@ WLEMData::WLEMData( const WLEMData& emd ) :
     if( m_chanNames->empty() )
     {
         wlog::info( "WDataSetEMMEMD" ) << "No channel names available! Channels will be numbered.";
+        // Using prefix to avoid ambiguous matchings in MNE library.
+        const std::string modName = WEModalityType::name( emd.getModalityType() );
+        std::stringstream sstream;
         const size_t chanSize = emd.getNrChans();
         for( size_t i = 0; i < chanSize; ++i )
         {
-            m_chanNames->push_back( boost::lexical_cast< std::string >( i ) );
+            sstream << modName << std::setw( 3 ) << std::setfill( '0' ) << i + 1;
+            m_chanNames->push_back( sstream.str() );
+            sstream.str( "" );
+            sstream.clear();
         }
     }
     m_measurementDeviceName.assign( emd.getMeasurementDeviceName() );

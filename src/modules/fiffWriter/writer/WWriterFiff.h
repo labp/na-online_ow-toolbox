@@ -29,6 +29,7 @@
 
 #include <boost/shared_ptr.hpp>
 #include <fiff/fiff_ch_info.h>
+#include <fiff/fiff_info.h>
 #include <fiff/fiff_stream.h>
 #include <QFile>
 #include <QList>
@@ -74,6 +75,8 @@ private:
     FIFFLIB::FiffStream::SPtr m_fiffStream;
 
     bool beginFiff( const WLEMMeasurement* const emm );
+
+    bool setDigPoint( FIFFLIB::FiffInfo* const info, const WLEMMeasurement* const emm );
 
     bool writeData( const WLEMMeasurement* const emm );
 
