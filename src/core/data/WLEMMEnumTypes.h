@@ -158,7 +158,7 @@ namespace LaBP
     {
         enum Enum
         {
-            BRAIN, SKULL, SKIN, INNER_SKIN, OUTER_SKIN, INNER_SKULL, OUTER_SKULL
+            BRAIN, SKULL, SKIN, INNER_SKIN, OUTER_SKIN, INNER_SKULL, OUTER_SKULL, UNKNOWN, UNKNOWN2
         };
         std::vector< Enum > values();
         std::string name( Enum val );

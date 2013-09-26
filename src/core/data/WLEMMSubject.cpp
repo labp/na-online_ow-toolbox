@@ -163,7 +163,7 @@ std::vector< LaBP::WLEMMBemBoundary::SPtr >& LaBP::WLEMMSubject::getBemBoundarie
 }
 
 void LaBP::WLEMMSubject::setBemBoundaries(
-                boost::shared_ptr< std::vector< boost::shared_ptr< LaBP::WLEMMBemBoundary > > > bemBoundaries )
+                boost::shared_ptr< std::vector< LaBP::WLEMMBemBoundary::SPtr > > bemBoundaries )
 {
     m_bemBoundaries = bemBoundaries;
 }

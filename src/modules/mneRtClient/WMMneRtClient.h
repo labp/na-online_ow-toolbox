@@ -26,12 +26,16 @@
 #define WMMNERTCLIENT_H
 
 #include <string>
+#include <vector>
+
+#include <boost/shared_ptr.hpp>
 
 #include <core/common/WPropertyTypes.h>
 
-#include "core/data/WLEMMCommand.h"
 #include "core/data/WLDataTypes.h"
+#include "core/data/WLEMMCommand.h"
 #include "core/data/WLEMMSurface.h"
+#include "core/data/WLEMMBemBoundary.h"
 #include "core/module/WLModuleDrawable.h"
 #include "core/io/WLReaderExperiment.h"
 #include "WRtClient.h"
@@ -179,6 +183,10 @@ private:
     WPropFilename m_srcSpaceFile;
     LaBP::WLEMMSurface::SPtr m_surface;
     bool handleSurfaceFileChanged( std::string fName );
+
+    WPropFilename m_bemFile;
+    boost::shared_ptr< std::vector< LaBP::WLEMMBemBoundary::SPtr > > m_bems;
+    bool handleBemFileChanged( std::string fName );
 
     WPropFilename m_lfEEGFile;
     WPropFilename m_lfMEGFile;

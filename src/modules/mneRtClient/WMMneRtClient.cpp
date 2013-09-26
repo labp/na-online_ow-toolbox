@@ -37,6 +37,7 @@
 
 #include "reader/WLReaderLeadfield.h"
 #include "reader/WLReaderSourceSpace.h"
+#include "reader/WLReaderBem.h"
 #include "WMMneRtClient.h"
 #include "WMMneRtClient.xpm"
 
@@ -170,6 +171,10 @@ void WMMneRtClient::properties()
                     WPathHelper::getHomePath(), m_propCondition );
     m_srcSpaceFile->changed( true );
 
+    m_bemFile = m_propGrpAdditional->addProperty( "BEM file:", "Read a FIFF file containing BEM layers.",
+                    WPathHelper::getHomePath(), m_propCondition );
+    m_bemFile->changed( true );
+
     m_lfEEGFile = m_propGrpAdditional->addProperty( "Leadfield EEG file:", "Read a FIFF file containing the leadfield for EEG.",
                     WPathHelper::getHomePath(), m_propCondition );
     m_lfEEGFile->changed( true );
@@ -242,6 +247,13 @@ void WMMneRtClient::moduleMain()
             if( handleSurfaceFileChanged( m_srcSpaceFile->get().string() ) )
             {
                 m_subject->setSurface( m_surface );
+            }
+        }
+        if( m_bemFile->changed( true ) )
+        {
+            if( handleBemFileChanged( m_bemFile->get().string() ) )
+            {
+                m_subject->setBemBoundaries( m_bems );
             }
         }
         if( m_lfEEGFile->changed( true ) )
@@ -338,7 +350,7 @@ void WMMneRtClient::handleTrgDataStart()
             WLEMMeasurement::SPtr emm( new WLEMMeasurement() );
             if( m_rtClient->readData( emm ) )
             {
-                if( m_subject && ( m_surface || m_leadfieldEEG || m_leadfieldMEG || m_isExpLoaded ) )
+                if( m_subject && ( m_surface || m_bems || m_leadfieldEEG || m_leadfieldMEG || m_isExpLoaded ) )
                 {
                     emm->setSubject( m_subject );
                 }
@@ -498,7 +510,7 @@ bool WMMneRtClient::handleLfFileChanged( std::string fName, WLMatrix::SPtr& lf )
 
 bool WMMneRtClient::handleSurfaceFileChanged( std::string fName )
 {
-    debugLog() << "handleLfFileChanged()";
+    debugLog() << "handleSurfaceFileChanged()";
 
     m_additionalStatus->set( LOADING_DATA, true );
     WLReaderSourceSpace::SPtr reader;
@@ -522,6 +534,37 @@ bool WMMneRtClient::handleSurfaceFileChanged( std::string fName )
     {
         m_additionalStatus->set( DATA_ERROR, true );
         errorLog() << "Could not read source space!";
+        return false;
+    }
+}
+
+bool WMMneRtClient::handleBemFileChanged( std::string fName )
+{
+    debugLog() << "handleBemFileChanged()";
+
+    m_additionalStatus->set( LOADING_DATA, true );
+    WLReaderBem::SPtr reader;
+    try
+    {
+        reader.reset( new WLReaderBem( fName ) );
+    }
+    catch( const WDHNoSuchFile& e )
+    {
+        errorLog() << "File does not exist: " << fName;
+        return false;
+    }
+
+    m_bems.reset( new std::vector< LaBP::WLEMMBemBoundary::SPtr > );
+    if( reader->read( m_bems.get() ) )
+    {
+        m_additionalStatus->set( DATA_LOADED, true );
+        infoLog() << "Loaded BEM layer: " << m_bems->size();
+        return true;
+    }
+    else
+    {
+        m_additionalStatus->set( DATA_ERROR, true );
+        errorLog() << "Could not read BEM layers!";
         return false;
     }
 }

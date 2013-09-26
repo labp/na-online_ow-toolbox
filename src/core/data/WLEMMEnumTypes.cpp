@@ -117,7 +117,7 @@ std::string LaBP::WEModalityType::name( LaBP::WEModalityType::Enum val )
         case LaBP::WEModalityType::PCA:
             return "PCA";
         case LaBP::WEModalityType::SOURCE:
-                    return "Source";
+            return "Source";
         default:
             WAssert( false, "Unknown WEModalityType!" );
             return UNDEFINED;
@@ -140,7 +140,7 @@ std::string LaBP::WEModalityType::description( LaBP::WEModalityType::Enum val )
         case LaBP::WEModalityType::PCA:
             return "PCA measurement";
         case LaBP::WEModalityType::SOURCE:
-                    return "Source localization";
+            return "Source localization";
         default:
             WAssert( false, "Unknown WEModalityType!" );
             return UNDEFINED;
@@ -220,6 +220,8 @@ std::vector< LaBP::WEBemType::Enum > LaBP::WEBemType::values()
     values.push_back( LaBP::WEBemType::OUTER_SKIN );
     values.push_back( LaBP::WEBemType::INNER_SKULL );
     values.push_back( LaBP::WEBemType::OUTER_SKULL );
+    values.push_back( LaBP::WEBemType::UNKNOWN );
+    values.push_back( LaBP::WEBemType::UNKNOWN2 );
     return values;
 }
 
@@ -241,6 +243,10 @@ std::string LaBP::WEBemType::name( LaBP::WEBemType::Enum val )
             return "inner_skull";
         case LaBP::WEBemType::OUTER_SKULL:
             return "outer_skull";
+        case LaBP::WEBemType::UNKNOWN:
+            return "Not known";
+        case LaBP::WEBemType::UNKNOWN2:
+            return "Undefined";
         default:
             WAssert( false, "Unknown WEBemType!" );
             return UNDEFINED;
