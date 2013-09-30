@@ -119,7 +119,7 @@ WLReaderELC::ReturnCode::Enum WLReaderELC::read( boost::shared_ptr< std::vector<
     if( facesOut->empty() )
     {
         wlog::warn( CLASS ) << "No faces found! Faces will be generated.";
-        WLGeometry::computeTriangulation( *facesOut, *posOut );
+        WLGeometry::computeTriangulation( facesOut.get(), *posOut );
     }
 
     ifs.close();

@@ -43,7 +43,7 @@ namespace WLGeometry
     typedef double Angle;
     typedef WMatrix3d MatrixRotation;
 
-    bool computeTriangulation( std::vector< WVector3i >& triangles, const std::vector< WPosition >& positions,
+    bool computeTriangulation( std::vector< WVector3i >* const triangles, const std::vector< WPosition >& positions,
                     double transformationFactor = -0.005 );
 
     MatrixRotation getRotationXYZMatrix( double x, double y, double z );

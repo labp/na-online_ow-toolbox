@@ -4,6 +4,7 @@
 
 #include <cmath>
 #include <map>
+#include <string>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
@@ -23,18 +24,20 @@
 
 using namespace LaBP;
 
-bool WLGeometry::computeTriangulation( std::vector< WVector3i >& triangles, const std::vector< WPosition >& points,
+bool WLGeometry::computeTriangulation( std::vector< WVector3i >* const triangles, const std::vector< WPosition >& points,
                 double transformationFactor )
 {
+    const std::string SOURCE = "WLGeometry::computeTriangulation";
+
     // Using algorithm of core/graphicsEngine/WGEGeometryUtils.cpp
     if( points.size() < 3 )
     {
-        wlog::error( "WGeometry" ) << "computeTriangulation() The Delaunay triangulation needs at least 3 vertices!";
+        wlog::error( SOURCE ) << "The Delaunay triangulation needs at least 3 vertices!";
         return false;
     }
 
     osg::ref_ptr< osg::Vec3Array > osgPoints = wge::osgVec3Array( points );
-    wlog::debug( "WGeometry" ) << "computeTriangulation() osgPoints: " << osgPoints->size();
+    wlog::debug( SOURCE ) << "osgPoints: " << osgPoints->size();
 
     if( transformationFactor != 0.0 )
     {
@@ -70,16 +73,14 @@ bool WLGeometry::computeTriangulation( std::vector< WVector3i >& triangles, cons
     bool triangulationResult = triangulator->triangulate();
     if( !triangulationResult )
     {
-        wlog::error( "WGeometry" ) << "computeTriangulation() Something went wrong in triangulation.";
+        wlog::error( SOURCE ) << "Something went wrong in triangulation.";
         return false;
     }
 
-    WAssert( triangulationResult, "Something went wrong in triangulation." );
-
     osg::ref_ptr< const osg::DrawElementsUInt > osgTriangles( triangulator->getTriangles() );
-    wlog::debug( "WGeometry" ) << "computeTriangulation() osgTriangles: " << osgTriangles->size();
+    wlog::debug( SOURCE ) << "osgTriangles: " << osgTriangles->size();
     size_t nbTriangles = osgTriangles->size() / 3;
-    triangles.reserve( nbTriangles );
+    triangles->reserve( nbTriangles );
 
     // Convert the new index of the osgTriangle to the original index stored in map.
     size_t vertID;
@@ -92,9 +93,9 @@ bool WLGeometry::computeTriangulation( std::vector< WVector3i >& triangles, cons
         triangle.y() = map[( *osgPoints )[( *osgTriangles )[vertID + 1]]];
         triangle.z() = map[( *osgPoints )[( *osgTriangles )[vertID + 2]]];
 
-        triangles.push_back( triangle );
+        triangles->push_back( triangle );
     }
-    wlog::debug( "WGeometry" ) << "computeTriangulation() triangles: " << triangles.size();
+    wlog::debug( SOURCE ) << "triangles: " << triangles->size();
     return true;
 }
 

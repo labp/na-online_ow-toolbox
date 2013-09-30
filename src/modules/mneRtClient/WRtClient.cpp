@@ -162,7 +162,7 @@ bool WRtClient::start()
     m_fiffInfo = m_rtDataClient->readInfo();
     wlog::info( CLASS ) << "Measurement information received.";
 
-    m_picksMeg = m_fiffInfo->pick_types( true, false, false );
+    m_picksMeg = m_fiffInfo->pick_types( false, false, false );
     wlog::debug( CLASS ) << "picks meg: " << m_picksMeg.size();
     if( m_picksMeg.size() > 2 )
     {
@@ -454,7 +454,7 @@ bool WRtClient::readChannelNames()
 
 bool WRtClient::readChannelPositionsFaces()
 {
-    wlog::debug( CLASS ) << "readChannelPositions() called!";
+    wlog::debug( CLASS ) << "readChannelPositionsFaces() called!";
 
     QList< FIFFLIB::FiffChInfo > chInfos = m_fiffInfo->chs;
     // EEG
@@ -473,7 +473,7 @@ bool WRtClient::readChannelPositionsFaces()
         }
 
         m_facesEeg.reset( new std::vector< WVector3i > );
-        WLGeometry::computeTriangulation( *m_facesEeg, *m_chPosEeg, -5 );
+        WLGeometry::computeTriangulation( m_facesEeg.get(), *m_chPosEeg, -5 );
     }
 
     // TODO(pieloth): MEG
