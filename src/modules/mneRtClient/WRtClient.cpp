@@ -51,6 +51,12 @@ WRtClient::WRtClient( const std::string& ip_address, const std::string& alias ) 
     m_isConnected = false;
     m_clientId = -1;
     m_devToHead = WLMatrix4::Matrix4T::Zero();
+
+    m_chNamesMeg.reset( new std::vector< std::string > );
+    m_chPosMeg.reset( new std::vector< WPosition > );
+    m_chNamesEeg.reset( new std::vector< std::string > );
+    m_chPosEeg.reset( new std::vector< WPosition > );
+    m_facesEeg.reset( new std::vector< WVector3i > );
 }
 
 WRtClient::~WRtClient()
@@ -426,7 +432,7 @@ bool WRtClient::readChannelNames()
     if( eegSize > 0 )
     {
         WAssertDebug( eegSize <= chNames.size(), "More selected channels than in chNames!" );
-        m_chNamesEeg.reset( new std::vector< std::string > );
+        m_chNamesEeg->clear();
         m_chNamesEeg->reserve( eegSize );
         for( Eigen::RowVectorXi::Index row = 0; row < eegSize; ++row )
         {
@@ -440,7 +446,7 @@ bool WRtClient::readChannelNames()
     if( megSize > 0 )
     {
         WAssertDebug( megSize <= chNames.size(), "More selected channels than in chNames!" );
-        m_chNamesMeg.reset( new std::vector< std::string > );
+        m_chNamesMeg->clear();
         m_chNamesMeg->reserve( megSize );
         for( Eigen::RowVectorXi::Index row = 0; row < megSize; ++row )
         {
@@ -456,28 +462,51 @@ bool WRtClient::readChannelPositionsFaces()
 {
     wlog::debug( CLASS ) << "readChannelPositionsFaces() called!";
 
+    bool rc = true;
+
     QList< FIFFLIB::FiffChInfo > chInfos = m_fiffInfo->chs;
     // EEG
     const Eigen::RowVectorXi::Index eegSize = m_picksEeg.size();
     if( eegSize > 0 )
     {
         WAssertDebug( eegSize <= chInfos.size(), "More selected channels than in chNames!" );
-        m_chPosEeg.reset( new std::vector< WPosition > );
+        m_chPosEeg->clear();
         m_chPosEeg->reserve( eegSize );
+        const WPosition zero = WPosition::zero();
+        size_t nzero = 0;
         for( Eigen::RowVectorXi::Index row = 0; row < eegSize; ++row )
         {
             WAssertDebug( m_picksEeg[row] < chInfos.size(), "Selected channel index out of chInfos boundary!" );
             const Eigen::Matrix< double, 3, 2, Eigen::DontAlign >& chPos = chInfos.at( ( int )m_picksEeg[row] ).eeg_loc;
             const WPosition pos( chPos( 0, 0 ), chPos( 1, 0 ), chPos( 2, 0 ) );
             m_chPosEeg->push_back( pos );
+            if( pos == zero )
+            {
+                ++nzero;
+            }
         }
 
-        m_facesEeg.reset( new std::vector< WVector3i > );
-        WLGeometry::computeTriangulation( m_facesEeg.get(), *m_chPosEeg, -5 );
+        if( m_chPosEeg->empty() )
+        {
+            wlog::error( CLASS ) << "No EEG channels found!";
+            rc &= false;
+        }
+
+        if( nzero < 3 )
+        {
+            m_facesEeg->clear();
+            WLGeometry::computeTriangulation( m_facesEeg.get(), *m_chPosEeg, -5 );
+        }
+        else
+        {
+            wlog::warn( CLASS ) << "Counted " << nzero
+                            << " (0,0,0) position - assumed incorrect EEG positions! Triangulation is skipped!";
+            rc &= false;
+        }
     }
 
     // TODO(pieloth): MEG
-    return true;
+    return rc;
 }
 
 void WRtClient::readInfo()

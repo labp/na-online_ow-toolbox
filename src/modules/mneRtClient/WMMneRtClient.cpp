@@ -52,7 +52,7 @@ W_LOADABLE_MODULE( WMMneRtClient )
 const int WMMneRtClient::NO_CONNECTOR = -1;
 
 WMMneRtClient::WMMneRtClient() :
-                m_stopStreaming( true )
+                m_stopStreaming( true ), m_isExpLoaded( false ), m_isFiffLoaded( false )
 {
 }
 

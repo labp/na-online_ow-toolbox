@@ -36,6 +36,7 @@
 #include <osg/Texture>
 #include <osgText/Text>
 
+#include <core/common/WException.h>
 #include <core/common/WLogger.h>
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
@@ -220,7 +221,15 @@ namespace LaBP
             }
             else
             {
-                tri = wge::triangulate( scaledPos, -0.005 );
+                try
+                {
+                    tri = wge::triangulate( scaledPos, -0.005 );
+                }
+                catch( WException& e )
+                {
+                    wlog::error( CLASS ) << "wge::triangulate() " << e.what();
+                    return;
+                }
                 m_surfaceGeometry = wge::convertToOsgGeometry( tri, WColor( 1.0, 1.0, 1.0, 1.0 ), true );
             }
             osg::ref_ptr< osg::Vec4Array > colors = new osg::Vec4Array;
