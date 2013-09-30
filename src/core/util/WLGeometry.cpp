@@ -13,12 +13,15 @@
 #include <osg/Array>
 #include <osgUtil/DelaunayTriangulator>
 
+#include <core/common/WException.h>
 #include <core/common/WLogger.h>
 #include <core/common/math/WLinearAlgebraFunctions.h>
 #include <core/common/math/linearAlgebra/WMatrixFixed.h>
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 #include <core/graphicsEngine/WGEUtils.h>
+
+#include "core/util/profiler/WLTimeProfiler.h"
 
 #include "WLGeometry.h"
 
@@ -27,6 +30,8 @@ using namespace LaBP;
 bool WLGeometry::computeTriangulation( std::vector< WVector3i >* const triangles, const std::vector< WPosition >& points,
                 double transformationFactor )
 {
+    WLTimeProfiler tp( "WLGeometry", "computeTriangulation" );
+
     const std::string SOURCE = "WLGeometry::computeTriangulation";
 
     // Using algorithm of core/graphicsEngine/WGEGeometryUtils.cpp
@@ -70,10 +75,17 @@ bool WLGeometry::computeTriangulation( std::vector< WVector3i >* const triangles
 
     osg::ref_ptr< osgUtil::DelaunayTriangulator > triangulator( new osgUtil::DelaunayTriangulator( osgPoints ) );
 
-    bool triangulationResult = triangulator->triangulate();
-    if( !triangulationResult )
+    try
     {
-        wlog::error( SOURCE ) << "Something went wrong in triangulation.";
+        if( !triangulator->triangulate() )
+        {
+            wlog::error( SOURCE ) << "Something went wrong in triangulation.";
+            return false;
+        }
+    }
+    catch( const WException& e )
+    {
+        wlog::error( SOURCE ) << "Unexpected error: " << e.what() << "\n" << e.getBacktrace();
         return false;
     }
 
