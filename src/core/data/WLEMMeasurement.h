@@ -32,13 +32,15 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "core/util/profiler/WLLifetimeProfiler.h"
+#include <core/common/exceptions/WNotFound.h>
 
 #include "core/data/WLDataTypes.h"
 #include "core/data/WLDigPoint.h"
+#include "core/data/WLEMMEnumTypes.h"
+#include "core/data/WLEMMSubject.h"
 #include "core/data/emd/WLEMData.h"
-#include "WLEMMEnumTypes.h"
-#include "WLEMMSubject.h"
+#include "core/util/profiler/WLLifetimeProfiler.h"
+
 /**
  * TODO(kaehler): Comments
  */
@@ -124,17 +126,17 @@ public:
     WLEMData::ConstSPtr getModality( size_t i ) const;
 
     /**
-     * Returns the first occurrence of EMMEMD  with the given type or an empty shared pointer. Throws an exception if requested type is not available.
+     * Returns the first occurrence of EMMEMD  with the given type or an empty shared pointer. Throws WNotFound if requested type is not available.
      */
     WLEMData::SPtr getModality( LaBP::WEModalityType::Enum type );
 
     /**
-     * Returns the first occurrence of EMMEMD  with the given type or an empty shared pointer. Throws an exception if requested type is not available.
+     * Returns the first occurrence of EMMEMD  with the given type or an empty shared pointer. Throws WNotFound if requested type is not available.
      */
     WLEMData::ConstSPtr getModality( LaBP::WEModalityType::Enum type ) const;
 
     /**
-     * Returns the first occurrence of EMMEMD  with the given type or an empty shared pointer. Throws an exception if requested type is not available.
+     * Returns the first occurrence of EMMEMD  with the given type or an empty shared pointer. Throws WNotFound if requested type is not available.
      */
     template< typename EMD >
     boost::shared_ptr< EMD > getModality( LaBP::WEModalityType::Enum type )
@@ -142,13 +144,13 @@ public:
         WLEMData::SPtr emd = getModality( type );
         if( !emd )
         {
-            throw "Modality type not available!";
+            throw WNotFound( "Modality type not available!" );
         }
         return emd->getAs< EMD >();
     }
 
     /**
-     * Returns the first occurrence of EMMEMD  with the given type or an empty shared pointer. Throws an exception if requested type is not available.
+     * Returns the first occurrence of EMMEMD  with the given type or an empty shared pointer. Throws WNotFound if requested type is not available.
      */
     template< typename EMD >
     boost::shared_ptr< const EMD > getModality( LaBP::WEModalityType::Enum type ) const
@@ -156,7 +158,7 @@ public:
         WLEMData::ConstSPtr emd = getModality( type );
         if( !emd )
         {
-            throw "Modality type not available!";
+            throw WNotFound( "Modality type not available!" );
         }
         return emd->getAs< EMD >();
     }

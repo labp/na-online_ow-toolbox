@@ -32,9 +32,11 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <core/common/exceptions/WNotFound.h>
+
+#include "core/data/WLEMMEnumTypes.h"
+#include "core/data/WLEMMSubject.h"
 #include "core/data/emd/WLEMData.h"
-#include "WLEMMEnumTypes.h"
-#include "WLEMMSubject.h"
 
 #include "WLEMMeasurement.h"
 
@@ -149,26 +151,14 @@ size_t WLEMMeasurement::getModalityCount() const
 
 WLEMData::SPtr WLEMMeasurement::getModality( size_t i )
 {
-    if( m_modalityList.size() )
-    {
-        return m_modalityList.at( i );
-    }
-    else
-    {
-        throw "Index out of range!";
-    }
+    // .at() throws an std::out_of_range
+    return m_modalityList.at( i );
 }
 
 WLEMData::ConstSPtr WLEMMeasurement::getModality( size_t i ) const
 {
-    if( m_modalityList.size() )
-    {
-        return m_modalityList.at( i );
-    }
-    else
-    {
-        throw "Index out of range!";
-    }
+    // .at() throws an std::out_of_range
+    return m_modalityList.at( i );
 }
 
 WLEMData::SPtr WLEMMeasurement::getModality( LaBP::WEModalityType::Enum type )
@@ -180,7 +170,7 @@ WLEMData::SPtr WLEMMeasurement::getModality( LaBP::WEModalityType::Enum type )
             return m_modalityList.at( i );
         }
     }
-    throw "Modality type not available!";
+    throw WNotFound( "Modality type not available!" );
 }
 
 WLEMData::ConstSPtr WLEMMeasurement::getModality( LaBP::WEModalityType::Enum type ) const
@@ -192,7 +182,7 @@ WLEMData::ConstSPtr WLEMMeasurement::getModality( LaBP::WEModalityType::Enum typ
             return m_modalityList.at( i );
         }
     }
-    throw "Modality type not available!";
+    throw WNotFound( "Modality type not available!" );
 }
 
 std::set< LaBP::WEModalityType::Enum > WLEMMeasurement::getModalityTypes() const
