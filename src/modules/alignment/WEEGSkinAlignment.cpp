@@ -114,7 +114,7 @@ double WEEGSkinAlignment::align( TransformationT* const matrix, WLEMMeasurement:
     else
     {
         wlog::error( CLASS ) << "align: No EEG data!";
-        return false;
+        return NOT_CONVERGED;
     }
     boost::shared_ptr< std::vector< WPosition > > fromPtr = eeg->getChannelPositions3d();
 

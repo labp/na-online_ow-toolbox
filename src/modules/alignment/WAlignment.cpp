@@ -61,6 +61,7 @@ void WAlignment::addCorrespondence( const CorrespondenceT& cor )
 {
     m_correspondences.push_back( cor );
 }
+
 void WAlignment::clearCorrespondences()
 {
     m_correspondences.clear();
@@ -69,6 +70,12 @@ void WAlignment::clearCorrespondences()
 double WAlignment::align( TransformationT* const matrix, const PointsT& from, const PointsT& to )
 {
     WLTimeProfiler tp( CLASS, "align" );
+
+    if( from.empty() || to.empty() )
+    {
+        wlog::error( CLASS ) << "FROM or TO points are empty!";
+        return NOT_CONVERGED;
+    }
 
     PCLMatrixT pclMatrix = PCLMatrixT::Identity();
     if( !m_correspondences.empty() )
