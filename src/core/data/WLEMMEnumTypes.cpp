@@ -198,6 +198,7 @@ std::vector< LaBP::WESex::Enum > LaBP::WESex::values()
     modalities.push_back( LaBP::WESex::MALE );
     modalities.push_back( LaBP::WESex::FEMALE );
     modalities.push_back( LaBP::WESex::OTHER );
+    modalities.push_back( LaBP::WESex::UNKNOWN );
     return modalities;
 }
 
@@ -207,6 +208,7 @@ std::vector< LaBP::WEHand::Enum > LaBP::WEHand::values()
     modalities.push_back( LaBP::WEHand::RIGHT );
     modalities.push_back( LaBP::WEHand::LEFT );
     modalities.push_back( LaBP::WEHand::BOTH );
+    modalities.push_back( LaBP::WEHand::UNKNOWN );
     return modalities;
 }
 

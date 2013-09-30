@@ -138,7 +138,7 @@ namespace LaBP
     {
         enum Enum
         {
-            MALE, FEMALE, OTHER
+            MALE, FEMALE, OTHER, UNKNOWN
         };
         std::vector< Enum > values();
     }
@@ -149,7 +149,7 @@ namespace LaBP
     {
         enum Enum
         {
-            RIGHT, LEFT, BOTH
+            RIGHT, LEFT, BOTH, UNKNOWN
         };
         std::vector< Enum > values();
     }
