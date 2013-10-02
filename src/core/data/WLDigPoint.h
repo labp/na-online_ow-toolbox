@@ -25,6 +25,7 @@
 #ifndef WLDIGPOINT_H_
 #define WLDIGPOINT_H_
 
+#include <ostream>
 #include <string>
 
 #include <boost/shared_ptr.hpp>
@@ -43,6 +44,8 @@ public:
      * Convenience typedef for a  boost::shared_ptr< const WLDigPoint >
      */
     typedef boost::shared_ptr< const WLDigPoint > ConstSPtr;
+
+    typedef WPosition PointT;
 
     /**
      * FIFF specification: B9. Point definitions
@@ -70,9 +73,9 @@ public:
 
     WLDigPoint();
 
-    WLDigPoint( const WPosition& pos, PointType::Enum kind, int ident );
+    WLDigPoint( const PointT& pos, PointType::Enum kind, int ident );
 
-    WLDigPoint( const WPosition& pos, int kind, int ident );
+    WLDigPoint( const PointT& pos, int kind, int ident );
 
     virtual ~WLDigPoint();
 
@@ -84,9 +87,9 @@ public:
 
     void setIdent( int ident );
 
-    const WPosition& getPoint() const;
+    const PointT& getPoint() const;
 
-    void setPoint( const WPosition& pos );
+    void setPoint( const PointT& pos );
 
     /**
      * Checks cardinal point for brain.
@@ -100,7 +103,12 @@ private:
 
     int m_ident;
 
-    WPosition m_point;
+    PointT m_point;
 };
+
+/**
+ * Overload for streamed output.
+ */
+std::ostream& operator<<( std::ostream &strm, const WLDigPoint& obj );
 
 #endif  // WLDIGPOINT_H_

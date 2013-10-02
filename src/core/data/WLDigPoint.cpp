@@ -33,12 +33,12 @@ WLDigPoint::WLDigPoint() :
 {
 }
 
-WLDigPoint::WLDigPoint( const WPosition& pos, PointType::Enum kind, int ident ) :
+WLDigPoint::WLDigPoint( const PointT& pos, PointType::Enum kind, int ident ) :
                 m_point( pos ), m_kind( kind ), m_ident( ident )
 {
 }
 
-WLDigPoint::WLDigPoint( const WPosition& pos, int kind, int ident )
+WLDigPoint::WLDigPoint( const PointT& pos, int kind, int ident )
 {
     m_point = pos;
     m_ident = ident;
@@ -93,12 +93,12 @@ void WLDigPoint::setIdent( int ident )
     m_ident = ident;
 }
 
-const WPosition& WLDigPoint::getPoint() const
+const WLDigPoint::PointT& WLDigPoint::getPoint() const
 {
     return m_point;
 }
 
-void WLDigPoint::setPoint( const WPosition& pos )
+void WLDigPoint::setPoint( const PointT& pos )
 {
     m_point = pos;
 }
@@ -106,4 +106,10 @@ void WLDigPoint::setPoint( const WPosition& pos )
 bool WLDigPoint::checkCardinal( CardinalPoints::Enum ident ) const
 {
     return m_kind == PointType::CARDINAL && ident == m_ident;
+}
+
+std::ostream& operator<<( std::ostream &strm, const WLDigPoint& obj )
+{
+    strm << obj.CLASS << ": kind=" << obj.getKind() << "; ident=" << obj.getIdent() << "; point=(" << obj.getPoint() << ")";
+    return strm;
 }

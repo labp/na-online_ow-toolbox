@@ -35,6 +35,7 @@
 #include "core/data/WLEMMeasurement.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
+#include "reader/WLReaderDigPoints.h"
 #include "reader/WLReaderLeadfield.h"
 #include "reader/WLReaderSourceSpace.h"
 #include "reader/WLReaderBem.h"
@@ -131,6 +132,31 @@ void WMMneRtClient::properties()
     m_trgDataStop = m_propGrpConControl->addProperty( "Stop streaming:", "Stop", WPVBaseTypes::PV_TRIGGER_READY,
                     boost::bind( &WMMneRtClient::callbackTrgDataStop, this ) );
 
+    // Setup additional data //
+    m_propGrpAdditional = m_properties->addPropertyGroup( "Additional data", "Additional data needed by other modules.", false );
+    m_srcSpaceFile = m_propGrpAdditional->addProperty( "Source space file:", "Read a FIFF file containing the source space.",
+                    WPathHelper::getHomePath(), m_propCondition );
+    m_srcSpaceFile->changed( true );
+
+    m_bemFile = m_propGrpAdditional->addProperty( "BEM file:", "Read a FIFF file containing BEM layers.",
+                    WPathHelper::getHomePath(), m_propCondition );
+    m_bemFile->changed( true );
+
+    m_digPointsFile = m_propGrpAdditional->addProperty( "DigPoints file:", "Read a FIFF file containing digitization points.",
+                    WPathHelper::getHomePath(), m_propCondition );
+    m_digPointsFile->changed( true );
+
+    m_lfEEGFile = m_propGrpAdditional->addProperty( "Leadfield EEG file:", "Read a FIFF file containing the leadfield for EEG.",
+                    WPathHelper::getHomePath(), m_propCondition );
+    m_lfEEGFile->changed( true );
+
+    m_lfMEGFile = m_propGrpAdditional->addProperty( "Leadfield MEG file:", "Read a FIFF file containing the leadfield for MEG.",
+                    WPathHelper::getHomePath(), m_propCondition );
+    m_lfMEGFile->changed( true );
+
+    m_additionalStatus = m_propGrpAdditional->addProperty( "Additional data status:", "Additional data status.", NO_DATA_LOADED );
+    m_additionalStatus->setPurpose( PV_PURPOSE_INFORMATION );
+
     // Experiment loader - Fiff properties //
     m_propGrpExperiment = m_properties->addPropertyGroup( "LaBP Experiment Loader", "LaBP Experiment Loader", false );
 
@@ -164,27 +190,6 @@ void WMMneRtClient::properties()
     m_expSurfaces.reset( new WItemSelection() );
 
     m_trgDataStop->setHidden( true );
-
-    // Setup connection control //
-    m_propGrpAdditional = m_properties->addPropertyGroup( "Additional data", "Additional data needed by other modules.", false );
-    m_srcSpaceFile = m_propGrpAdditional->addProperty( "Source space file:", "Read a FIFF file containing the source space.",
-                    WPathHelper::getHomePath(), m_propCondition );
-    m_srcSpaceFile->changed( true );
-
-    m_bemFile = m_propGrpAdditional->addProperty( "BEM file:", "Read a FIFF file containing BEM layers.",
-                    WPathHelper::getHomePath(), m_propCondition );
-    m_bemFile->changed( true );
-
-    m_lfEEGFile = m_propGrpAdditional->addProperty( "Leadfield EEG file:", "Read a FIFF file containing the leadfield for EEG.",
-                    WPathHelper::getHomePath(), m_propCondition );
-    m_lfEEGFile->changed( true );
-
-    m_lfMEGFile = m_propGrpAdditional->addProperty( "Leadfield MEG file:", "Read a FIFF file containing the leadfield for MEG.",
-                    WPathHelper::getHomePath(), m_propCondition );
-    m_lfMEGFile->changed( true );
-
-    m_additionalStatus = m_propGrpAdditional->addProperty( "Additional data status:", "Additional data status.", NO_DATA_LOADED );
-    m_additionalStatus->setPurpose( PV_PURPOSE_INFORMATION );
 }
 
 void WMMneRtClient::moduleInit()
@@ -256,6 +261,14 @@ void WMMneRtClient::moduleMain()
                 m_subject->setBemBoundaries( m_bems );
             }
         }
+        if( m_digPointsFile->changed( true ) )
+        {
+            if( handleDigPointsFileChanged( m_digPointsFile->get().string() ) )
+            {
+                // TODO(pieloth): set dig points
+                m_rtClient->setDigPointsAndEEG( m_digPoints );
+            }
+        }
         if( m_lfEEGFile->changed( true ) )
         {
             if( handleLfFileChanged( m_lfEEGFile->get().string(), m_leadfieldEEG ) )
@@ -279,6 +292,12 @@ void WMMneRtClient::handleTrgConConnect()
     debugLog() << "handleTrgConConnect() called!";
 
     m_rtClient.reset( new WRtClient( m_propConIp->get(), "OW-LaBP" ) );
+
+    // TODO(pieloth): set dig points
+    if( !m_digPoints.empty() )
+    {
+        m_rtClient->setDigPointsAndEEG( m_digPoints );
+    }
 
     m_rtClient->connect();
     if( m_rtClient->isConnected() )
@@ -565,6 +584,36 @@ bool WMMneRtClient::handleBemFileChanged( std::string fName )
     {
         m_additionalStatus->set( DATA_ERROR, true );
         errorLog() << "Could not read BEM layers!";
+        return false;
+    }
+}
+
+bool WMMneRtClient::handleDigPointsFileChanged( std::string fName )
+{
+    debugLog() << "handleDigPointsFileChanged()";
+
+    m_additionalStatus->set( LOADING_DATA, true );
+    WLReaderDigPoints::SPtr reader;
+    try
+    {
+        reader.reset( new WLReaderDigPoints( fName ) );
+    }
+    catch( const WDHNoSuchFile& e )
+    {
+        errorLog() << "File does not exist: " << fName;
+        return false;
+    }
+
+    if( reader->read( &m_digPoints ) == WLReaderDigPoints::ReturnCode::SUCCESS )
+    {
+        m_additionalStatus->set( DATA_LOADED, true );
+        infoLog() << "Loaded dig points: " << m_digPoints.size();
+        return true;
+    }
+    else
+    {
+        m_additionalStatus->set( DATA_ERROR, true );
+        errorLog() << "Could not read dig points!";
         return false;
     }
 }

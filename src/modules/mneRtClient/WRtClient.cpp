@@ -469,39 +469,60 @@ bool WRtClient::readChannelPositionsFaces()
     const Eigen::RowVectorXi::Index eegSize = m_picksEeg.size();
     if( eegSize > 0 )
     {
-        WAssertDebug( eegSize <= chInfos.size(), "More selected channels than in chNames!" );
-        m_chPosEeg->clear();
-        m_chPosEeg->reserve( eegSize );
-        const WPosition zero = WPosition::zero();
-        size_t nzero = 0;
-        for( Eigen::RowVectorXi::Index row = 0; row < eegSize; ++row )
-        {
-            WAssertDebug( m_picksEeg[row] < chInfos.size(), "Selected channel index out of chInfos boundary!" );
-            const Eigen::Matrix< double, 3, 2, Eigen::DontAlign >& chPos = chInfos.at( ( int )m_picksEeg[row] ).eeg_loc;
-            const WPosition pos( chPos( 0, 0 ), chPos( 1, 0 ), chPos( 2, 0 ) );
-            m_chPosEeg->push_back( pos );
-            if( pos == zero )
-            {
-                ++nzero;
-            }
-        }
-
         if( m_chPosEeg->empty() )
         {
-            wlog::error( CLASS ) << "No EEG channels found!";
-            rc &= false;
-        }
 
-        if( nzero < 3 )
-        {
-            m_facesEeg->clear();
-            WLGeometry::computeTriangulation( m_facesEeg.get(), *m_chPosEeg, -5 );
+            WAssertDebug( eegSize <= chInfos.size(), "More selected channels than in chNames!" );
+            m_chPosEeg->clear();
+            m_chPosEeg->reserve( eegSize );
+            const WPosition zero = WPosition::zero();
+            size_t nzero = 0;
+            for( Eigen::RowVectorXi::Index row = 0; row < eegSize; ++row )
+            {
+                WAssertDebug( m_picksEeg[row] < chInfos.size(), "Selected channel index out of chInfos boundary!" );
+                const Eigen::Matrix< double, 3, 2, Eigen::DontAlign >& chPos = chInfos.at( ( int )m_picksEeg[row] ).eeg_loc;
+                const WPosition pos( chPos( 0, 0 ), chPos( 1, 0 ), chPos( 2, 0 ) );
+                m_chPosEeg->push_back( pos );
+                if( pos == zero )
+                {
+                    ++nzero;
+                }
+            }
+
+            if( m_chPosEeg->empty() )
+            {
+                wlog::error( CLASS ) << "No EEG channels found!";
+                rc &= false;
+            }
+
+            if( nzero < 3 )
+            {
+                m_facesEeg->clear();
+                WLGeometry::computeTriangulation( m_facesEeg.get(), *m_chPosEeg, -5 );
+            }
+            else
+            {
+                wlog::warn( CLASS ) << "Counted " << nzero
+                                << " (0,0,0) position - assumed incorrect EEG positions! Triangulation is skipped!";
+                rc &= false;
+            }
         }
         else
         {
-            wlog::warn( CLASS ) << "Counted " << nzero
-                            << " (0,0,0) position - assumed incorrect EEG positions! Triangulation is skipped!";
-            rc &= false;
+            if( m_chPosEeg->size() == eegSize )
+            {
+                wlog::info( CLASS ) << "Using user-defined EEG positions and faces.";
+            }
+            else
+            {
+                wlog::error( CLASS )
+                                << "Size of user-defined EEG positions and EEG channels are different, try to read EEG positions from stream.";
+                m_chPosEeg->clear();
+                m_facesEeg->clear();
+                m_digPoints.clear();
+                readInfo();
+                rc &= readChannelPositionsFaces();
+            }
         }
     }
 
@@ -517,14 +538,58 @@ void WRtClient::readInfo()
     m_devToHead = m_fiffInfo->dev_head_t.trans.cast< WLMatrix4::Matrix4T::Scalar >();
 #endif
 
-    const QList< FIFFLIB::FiffDigPoint >& digs = m_fiffInfo->dig;
-    m_digPoints.clear();
-    m_digPoints.reserve( digs.size() );
-    QList< FIFFLIB::FiffDigPoint >::ConstIterator it;
-    for( it = digs.begin(); it != digs.end(); ++it )
+    if( m_digPoints.empty() )
     {
-        const WPosition pos( it->r[0], it->r[1], it->r[2] );
-        WLDigPoint dig( pos, it->kind, it->ident );
-        m_digPoints.push_back( dig );
+        const QList< FIFFLIB::FiffDigPoint >& digs = m_fiffInfo->dig;
+        m_digPoints.clear();
+        m_digPoints.reserve( digs.size() );
+        QList< FIFFLIB::FiffDigPoint >::ConstIterator it;
+        for( it = digs.begin(); it != digs.end(); ++it )
+        {
+            const WPosition pos( it->r[0], it->r[1], it->r[2] );
+            WLDigPoint dig( pos, it->kind, it->ident );
+            m_digPoints.push_back( dig );
+        }
+    }
+}
+
+bool WRtClient::setDigPointsAndEEG( const std::vector< WLDigPoint >& digPoints )
+{
+    wlog::info( CLASS ) << "Set user-defined digitization points and EEG positions.";
+    m_digPoints = digPoints;
+    wlog::info( CLASS ) << "Digitization points: " << m_digPoints.size();
+
+    m_chPosEeg->clear();
+    m_chPosEeg->reserve( m_digPoints.size() );
+    std::vector< WLDigPoint >::const_iterator it;
+    for( it = m_digPoints.begin(); it != m_digPoints.end(); ++it )
+    {
+        if( it->getKind() != WLDigPoint::PointType::EEG )
+        {
+            continue;
+        }
+
+        m_chPosEeg->push_back( it->getPoint() );
+    }
+
+    wlog::info( CLASS ) << "EEG positions from digPoints: " << m_chPosEeg->size();
+
+    m_facesEeg->clear();
+    if( !WLGeometry::computeTriangulation( m_facesEeg.get(), *m_chPosEeg, -5 ) )
+    {
+        wlog::warn( CLASS ) << "Could not generate faces!";
+    }
+    else
+    {
+        wlog::info( CLASS ) << "EEG faces from digPoints: " << m_facesEeg->size();
+    }
+
+    if( !m_digPoints.empty() && !m_chPosEeg->empty() && !m_facesEeg->empty() )
+    {
+        return true;
+    }
+    else
+    {
+        return false;
     }
 }

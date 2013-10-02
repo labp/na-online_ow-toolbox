@@ -36,6 +36,7 @@
 #include "core/data/WLEMMCommand.h"
 #include "core/data/WLEMMSurface.h"
 #include "core/data/WLEMMBemBoundary.h"
+#include "core/data/WLDigPoint.h"
 #include "core/module/WLModuleDrawable.h"
 #include "core/io/WLReaderExperiment.h"
 #include "WRtClient.h"
@@ -187,6 +188,10 @@ private:
     WPropFilename m_bemFile;
     boost::shared_ptr< std::vector< LaBP::WLEMMBemBoundary::SPtr > > m_bems;
     bool handleBemFileChanged( std::string fName );
+
+    WPropFilename m_digPointsFile;
+    std::vector< WLDigPoint > m_digPoints;
+    bool handleDigPointsFileChanged( std::string fName );
 
     WPropFilename m_lfEEGFile;
     WPropFilename m_lfMEGFile;

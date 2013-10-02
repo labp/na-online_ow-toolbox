@@ -78,6 +78,9 @@ public:
 
     bool readData( WLEMMeasurement::SPtr emmIn );
 
+    // TODO(pieloth): Workaround for #227/#228
+    bool setDigPointsAndEEG( const std::vector< WLDigPoint >& digPoints );
+
 private:
     bool m_isStreaming;
     bool m_isConnected;
