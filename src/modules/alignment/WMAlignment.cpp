@@ -92,9 +92,14 @@ void WMAlignment::properties()
     m_propEstGroup = m_properties->addPropertyGroup( "Transformation Estimation",
                     "Contains properties an initial transformation estimation.", false );
     // Defaults for intershift is05
-    const WPosition LAP( -0.0754, -0.0131, -0.0520 );
-    const WPosition NASION( -0.0012, 0.0836, -0.0526 );
-    const WPosition RAP( 0.0706, -0.0140, -0.0613 );
+//    const WPosition LAP( -0.0754, -0.0131, -0.0520 );
+//    const WPosition NASION( -0.0012, 0.0836, -0.0526 );
+//    const WPosition RAP( 0.0706, -0.0140, -0.0613 );
+    // Defaults for hermann
+    const WPosition LAP(-0.07286011, 0.018106384,-0.068811984 );
+    const WPosition NASION( 0.002131995, 0.098106384, -0.019811981 );
+    const WPosition RAP( 0.075132007, 0.017106384, -0.074811978 );
+
     m_propEstLPA = m_propEstGroup->addProperty( "LPA (AC-PC):", "Left pre-auricular in AC-PC coordinate system.", LAP, false );
     m_propEstNasion = m_propEstGroup->addProperty( "Nasion (AC-PC):", "Nasion in AC-PC coordinate system.", NASION, false );
     m_propEstRPA = m_propEstGroup->addProperty( "RPA (AC-PC):", "Right pre-auricular in AC-PC coordinate system.", RAP, false );
