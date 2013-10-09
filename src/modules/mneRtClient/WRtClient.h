@@ -85,6 +85,9 @@ private:
     bool m_isStreaming;
     bool m_isConnected;
 
+    std::map< int, std::string > m_conMap;
+    int m_conSelected;
+
     FIFFLIB::FiffInfo::SPtr m_fiffInfo;
 
     Eigen::RowVectorXi m_picksEeg;

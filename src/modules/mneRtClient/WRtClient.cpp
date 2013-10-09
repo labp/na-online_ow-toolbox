@@ -50,6 +50,7 @@ WRtClient::WRtClient( const std::string& ip_address, const std::string& alias ) 
     m_isStreaming = false;
     m_isConnected = false;
     m_clientId = -1;
+    m_conSelected = -1;
     m_devToHead = WLMatrix4::Matrix4T::Zero();
 
     m_chNamesMeg.reset( new std::vector< std::string > );
@@ -240,16 +241,18 @@ int WRtClient::getConnectors( std::map< int, std::string >* const conMap )
         return false;
     }
 
+    m_conMap.clear();
     QMap< qint32, QString > qMap;
-    const int selCon = m_rtCmdClient->requestConnectors( qMap );
+    m_conSelected = m_rtCmdClient->requestConnectors( qMap );
     QMapIterator< int, QString > itMap( qMap );
     while( itMap.hasNext() )
     {
         itMap.next();
         ( *conMap )[itMap.key()] = itMap.value().toStdString();
+        m_conMap[itMap.key()] = itMap.value().toStdString();
     }
 
-    return selCon;
+    return m_conSelected;
 }
 bool WRtClient::setConnector( int conId )
 {
@@ -259,10 +262,19 @@ bool WRtClient::setConnector( int conId )
         return false;
     }
 
-    ( *m_rtCmdClient )["selcon"].pValues()[0] = QVariant( conId );
-    ( *m_rtCmdClient )["selcon"].send();
-    // TODO check if connector is set
-    return true;
+    if( m_conMap.find( conId ) != m_conMap.end() )
+    {
+        m_conSelected = conId;
+        ( *m_rtCmdClient )["selcon"].pValues()[0] = QVariant( conId );
+        ( *m_rtCmdClient )["selcon"].send();
+        // TODO check if connector is set
+        return true;
+    }
+    else
+    {
+        wlog::error( CLASS ) << "Could not find request connector!";
+        return false;
+    }
 }
 
 bool WRtClient::setSimulationFile( std::string fname )
@@ -273,14 +285,20 @@ bool WRtClient::setSimulationFile( std::string fname )
         return false;
     }
 
-//    QString simFile = "/home/pieloth/EMM-Data_light/intershift/rawdir/is05a/is05a1.fif";
-    QString simFile = QString::fromStdString( fname );
-    wlog::info( CLASS ) << "Set simulation file: " << simFile.toStdString();
-    ( *m_rtCmdClient )["simfile"].pValues()[0] = QVariant( simFile );
-    ( *m_rtCmdClient )["simfile"].send();
-
-    // TODO Check if file is set
-    return true;
+    std::map< int, std::string >::const_iterator it = m_conMap.find( m_conSelected );
+    if( it != m_conMap.end() && it->second.find( "Simulator" ) != std::string::npos )
+    {
+        QString simFile = QString::fromStdString( fname );
+        wlog::info( CLASS ) << "Set simulation file: " << simFile.toStdString();
+        ( *m_rtCmdClient )["simfile"].pValues()[0] = QVariant( simFile );
+        ( *m_rtCmdClient )["simfile"].send();
+        return true;
+    }
+    else
+    {
+        wlog::warn( CLASS ) << "Skip simulation file, due to no simulation connector!";
+        return false;
+    }
 }
 
 bool WRtClient::readData( WLEMMeasurement::SPtr emmIn )
@@ -562,6 +580,7 @@ bool WRtClient::setDigPointsAndEEG( const std::vector< WLDigPoint >& digPoints )
     m_chPosEeg->clear();
     m_chPosEeg->reserve( m_digPoints.size() );
     std::vector< WLDigPoint >::const_iterator it;
+    bool isFirst = true;
     for( it = m_digPoints.begin(); it != m_digPoints.end(); ++it )
     {
         if( it->getKind() != WLDigPoint::PointType::EEG )
@@ -569,7 +588,15 @@ bool WRtClient::setDigPointsAndEEG( const std::vector< WLDigPoint >& digPoints )
             continue;
         }
 
-        m_chPosEeg->push_back( it->getPoint() );
+        if( !isFirst )
+        {
+            m_chPosEeg->push_back( it->getPoint() );
+        }
+        else
+        {
+            isFirst = false;
+            continue;
+        }
     }
 
     wlog::info( CLASS ) << "EEG positions from digPoints: " << m_chPosEeg->size();
