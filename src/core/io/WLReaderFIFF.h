@@ -29,6 +29,7 @@
 
 #include <core/dataHandler/io/WReader.h>
 
+#include <libfiffio/common/LFMultipliers.h>
 #include <libfiffio/common/LFReturnCodes.h>
 #include <libfiffio/common/LFUnits.h>
 
@@ -65,7 +66,9 @@ namespace LaBP
     private:
         static ReturnCode::Enum getReturnCode( returncode_t rc );
 
-        static LaBP::WEUnit::Enum getChanUnit( fiffunits_t unit );
+        static WEUnit::Enum getChanUnit( fiffunits_t unit );
+
+        static WEExponent::Enum getChanUnitMul( fiffmultipliers_t unitMul );
     };
 }
 #endif /* WLREADERFIFF_H_ */

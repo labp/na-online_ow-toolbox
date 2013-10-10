@@ -119,6 +119,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
         size_t nValues = pBuf->GetSize();
         for( size_t j = 0; j < nValues; ++j )
         {
+            // scaleFactor: see FIFF spec. 1.3, 3.5.4 Raw data files, p. 15
             scaleFactor = channelInfos[current_channel]->GetRange() * channelInfos[current_channel]->GetCal();
             switch( pBuf->GetDataType() )
             {
@@ -201,6 +202,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
         float* eVec;
 
         fiffunits_t fiffUnit;
+        fiffmultipliers_t fiffUnitMul;
 
         size_t modChan = 0;
         WLEMData::DataT dataTmp( rawdatabuffers_out_ptr->rows(), rawdatabuffers_out_ptr->cols() );
@@ -244,6 +246,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
                 // Collect general data
                 dataTmp.row( modChan++ ) = ( dummy->getData().row( chan ) );
                 fiffUnit = measinfo_in.GetLFChannelInfo()[chan]->GetUnit();
+                fiffUnitMul = measinfo_in.GetLFChannelInfo()[chan]->GetUnitMul();
             }
         }
 
@@ -254,7 +257,9 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
         emd->setAnalogHighPass( dummy->getAnalogHighPass() );
         emd->setAnalogLowPass( dummy->getAnalogLowPass() );
         emd->setLineFreq( dummy->getLineFreq() );
-        emd->setChanUnitExp( LaBP::WEExponent::BASE ); // BASE because scaleFactor was multiplied
+
+        // scaleFactor was multiplied, so data is in unit_mul - see FIFF spec. 1.3, Table A.3, p. 28)
+        emd->setChanUnitExp( getChanUnitMul( fiffUnitMul ) );
         emd->setChanUnit( getChanUnit( fiffUnit ) );
         emd->setData( data );
 
@@ -376,12 +381,37 @@ LaBP::WEUnit::Enum WLReaderFIFF::getChanUnit( fiffunits_t unit )
     switch( unit )
     {
         case unit_V:
-            return LaBP::WEUnit::VOLT;
+            return WEUnit::VOLT;
         case unit_T:
-            return LaBP::WEUnit::TESLA;
+            return WEUnit::TESLA;
         case unit_T_m:
-            return LaBP::WEUnit::TESLA_PER_METER;
+            return WEUnit::TESLA_PER_METER;
         default:
-            return LaBP::WEUnit::UNKNOWN_UNIT;
+            wlog::warn( CLASS ) << "Unknown unit: " << unit;
+            return WEUnit::UNKNOWN_UNIT;
+    }
+}
+
+LaBP::WEExponent::Enum WLReaderFIFF::getChanUnitMul( fiffmultipliers_t unitMul )
+{
+    switch( unitMul )
+    {
+        case mul_k:
+            return WEExponent::KILO;
+        case mul_none:
+            return WEExponent::BASE;
+        case mul_m:
+            return WEExponent::MILLI;
+        case mul_mu:
+            return WEExponent::MICRO;
+        case mul_n:
+            return WEExponent::NANO;
+        case mul_p:
+            return WEExponent::PICO;
+        case mul_f:
+            return WEExponent::FEMTO;
+        default:
+            wlog::warn( CLASS ) << "Unknown unit_mul: " << unitMul;
+            return WEExponent::BASE;
     }
 }
