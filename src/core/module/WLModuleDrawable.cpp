@@ -84,7 +84,7 @@ void WLModuleDrawable::properties()
     m_channelHeight->setMin( 4.0 );
     m_channelHeight->setMax( 512.0 );
 
-    m_labelsOn = m_propView->addProperty( "Labels on", "Switch channel labels on/off (3D).", true,
+    m_labelsOn = m_propView->addProperty( "Labels on", "Switch channel labels on/off (3D).", false,
                     boost::bind( &WLModuleDrawable::callbackLabelsChanged, this ), false );
 
     WItemSelection::SPtr colorModeSelection( new WItemSelection() );
@@ -393,6 +393,7 @@ void WLModuleDrawable::viewReset()
     WCustomWidget::SPtr widget3D = m_widget->getSubWidget( WLEMDWidget::WEWidgetType::EMD_3D );
     m_drawable3D = WLEMDDrawable3D::getInstance( widget3D, getViewModality() );
     m_drawable3D->setColorMap( m_colorMap );
+    callbackLabelsChanged();
 
     WLMarkTimePositionHandler::SPtr handler( new WLMarkTimePositionHandler( m_drawable2D, m_drawable3D, m_output ) );
     m_drawable2D->addMouseEventListener( handler );
