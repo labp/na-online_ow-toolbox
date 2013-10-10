@@ -300,6 +300,7 @@ bool WMEpochAveraging::processReset( WLEMMCommand::SPtr labp )
         infoLog() << "Set moving average size to " << avgMov->getSize();
     }
 
+    m_input->clear();
     m_output->updateData( labp );
     return false;
 }

@@ -18,7 +18,7 @@
 
 using std::set;
 
-class WTriggerExtractorCpuTest: public CxxTest::TestSuite
+class WEpochSeparationTest: public CxxTest::TestSuite
 {
 public:
     void setUp( void )
@@ -121,10 +121,9 @@ public:
         separation->getNextEpoch();
         TS_ASSERT( !separation->hasEpochs() );
 
-        // TODO (pieloth) error cause trigger is not full and tries to get data of pre samples
+        // should not match, because trigger needs more pre samples.
         separation.reset( new WEpochSeparation( 1, triggersMatch, SAMPLES + 1, SAMPLES + 1 ) );
-        // should not match, because trigger is waiting for more packets
-        TS_ASSERT_THROWS_ANYTHING( separation->extract( emm ) );
+        TS_ASSERT_EQUALS( 0, separation->extract( emm ) );
     }
 
     void test_extractSinglePacketCheckData( void )
@@ -380,7 +379,7 @@ public:
                 for( size_t chan = 0; chan < emdEpoch->getNrChans(); ++chan )
                 {
                     TS_ASSERT_EQUALS( resData.cols(), EPOCHLENGTH );
-                    for( size_t smp = 0; smp < resData.cols(); ++smp )
+                    for( WLEMData::DataT::Index smp = 0; smp < resData.cols(); ++smp )
                     {
                         TS_ASSERT_EQUALS( resData( chan, smp ), data( chan, event - PRESAMPLES + smp ) );
                     }

@@ -159,8 +159,15 @@ size_t WEpochSeparation::extract( const WLEMMeasurement::SPtr emmIn )
     // Process preSamples of found matches //
     for( std::list< size_t >::iterator it = indices.begin(); it != indices.end(); ++it )
     {
-        LeftEpoch::SPtr leftEpoch = processPreSamples( *it );
-        m_leftEpochs.push_back( leftEpoch );
+        try
+        {
+            LeftEpoch::SPtr leftEpoch = processPreSamples( *it );
+            m_leftEpochs.push_back( leftEpoch );
+        }
+        catch( const WException& e )
+        {
+            wlog::info(CLASS) << "Skipping found epoch! Not enough presamples.";
+        }
     }
 
     // Process left epochs //
@@ -219,7 +226,7 @@ void WEpochSeparation::setupBuffer( WLEMData::ConstSPtr emd )
     }
 }
 
-WEpochSeparation::LeftEpoch::SPtr WEpochSeparation::processPreSamples( size_t eIndex )
+WEpochSeparation::LeftEpoch::SPtr WEpochSeparation::processPreSamples( size_t eIndex ) throw( WException )
 {
     wlog::debug( CLASS ) << "processPreSamples() called!";
     WLTimeProfiler tp( CLASS, "processPreSamples" );
@@ -265,6 +272,7 @@ WEpochSeparation::LeftEpoch::SPtr WEpochSeparation::processPreSamples( size_t eI
         WAssertDebug( pStart < m_blockSize, "pStart < m_blockSize" );
         offset = std::min( m_blockSize - pStart, ( m_preSamples + 1 ) - samplesCopied );
 
+        wlog::debug( CLASS ) << "m_buffer->size(): " << m_buffer->size();
         // Copy modalities //
         const WLEMMeasurement::ConstSPtr emm = m_buffer->getData( pIndex );
         WAssertDebug( emm, "m_buffer->getData(pIndex)" );
