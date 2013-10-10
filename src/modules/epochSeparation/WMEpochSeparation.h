@@ -123,7 +123,6 @@ private:
 
     WPropInt m_preTrigger;
     WPropInt m_postTrigger;
-    double m_frequence; // to calculate time rage
 
     WPropString m_triggers;
     WPropInt m_triggerChannel;

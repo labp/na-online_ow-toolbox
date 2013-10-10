@@ -181,6 +181,7 @@ void WMFIRFilter::moduleInit()
     infoLog() << "Initializing module ...";
 
     waitRestored();
+    viewInit( LaBP::WLEMDDrawable2D::WEGraphType::DYNAMIC );
     m_coeffFile->changed( true );
     m_useCuda->changed( true );
     handleImplementationChanged();
@@ -191,7 +192,6 @@ void WMFIRFilter::moduleInit()
     {
         callbackCoeffFileChanged();
     }
-    viewInit( LaBP::WLEMDDrawable2D::WEGraphType::DYNAMIC );
 
     infoLog() << "Initializing module finished!";
 }
@@ -423,6 +423,7 @@ bool WMFIRFilter::processInit( WLEMMCommand::SPtr labp )
 
 bool WMFIRFilter::processReset( WLEMMCommand::SPtr labp )
 {
+    viewReset();
     m_firFilter->reset();
     m_output->updateData( labp );
     return true;

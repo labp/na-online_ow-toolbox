@@ -161,8 +161,6 @@ private:
     WPropInt m_inverseCols;
     bool inverseSolutionFromSubject( WLEMMeasurement::SPtr emm, LaBP::WEModalityType::Enum modality );
 
-    double m_range;
-
     // data and noise covariance matices //
     WLMatrix::SPtr m_nCovarianceMatrix;
     WLMatrix::SPtr m_dCovarianceMatrix;

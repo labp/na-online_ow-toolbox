@@ -143,7 +143,6 @@ private:
      * Switches the averaging algorithm.
      */
     void callbackAverageTypeChanged();
-    double m_frequence; // to calculate time rage
 
     WEpochAveraging::SPtr m_averaging;
 };

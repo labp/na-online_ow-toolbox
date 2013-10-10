@@ -46,8 +46,7 @@ using std::istringstream;
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMEpochSeparation )
 
-WMEpochSeparation::WMEpochSeparation() :
-                m_frequence( 1000 )
+WMEpochSeparation::WMEpochSeparation()
 {
 }
 
@@ -186,20 +185,6 @@ bool WMEpochSeparation::processCompute( WLEMMeasurement::SPtr emmIn )
     WLTimeProfiler tp( "WMEpochSeparation", "processCompute" );
 
     WLEMMeasurement::SPtr emmOut;
-    double frequence;
-    // The data is valid and we received an update. The data is not NULL but may be the same as in previous loops.
-    debugLog() << "received data";
-
-    if( emmIn->hasModality( this->getViewModality() ) )
-    {
-        frequence = emmIn->getModality( this->getViewModality() )->getSampFreq();
-        if( frequence != m_frequence )
-        {
-            m_frequence = frequence;
-            double samples = m_preTrigger->get() + m_postTrigger->get() + 1;
-            this->setTimerange( samples / m_frequence );
-        }
-    }
 
     m_separation->extract( emmIn );
 
@@ -261,9 +246,6 @@ bool WMEpochSeparation::processReset( WLEMMCommand::SPtr labp )
     } while( next != std::string::npos );
     infoLog() << "Trigger set: " << triggers.size();
     m_separation->setTriggerMask( triggers );
-
-    double samples = preSamples + postSamples + 1;
-    this->setTimerange( samples / m_frequence );
 
     m_output->updateData( labp );
 

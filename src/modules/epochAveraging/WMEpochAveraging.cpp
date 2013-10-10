@@ -50,7 +50,6 @@ W_LOADABLE_MODULE( WMEpochAveraging )
 
 WMEpochAveraging::WMEpochAveraging()
 {
-    m_frequence = 0.0;
 }
 
 WMEpochAveraging::~WMEpochAveraging()
@@ -135,8 +134,6 @@ void WMEpochAveraging::properties()
                     static_cast< int >( avgMovingSize ) );
 
     m_resetAverage = m_propGrpAverage->addProperty( "(Re)set data", "(Re)set", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
-
-    m_frequence = 1000;
 }
 
 void WMEpochAveraging::moduleInit()
@@ -231,21 +228,6 @@ bool WMEpochAveraging::processCompute( WLEMMeasurement::SPtr emmIn )
 {
     WLTimeProfiler tp( "WMEpochAveraging", "processCompute" );
     WLEMMeasurement::SPtr emmOut;
-    double frequence;
-
-    // The data is valid and we received an update. The data is not NULL but may be the same as in previous loops.
-    debugLog() << "received data";
-
-    if( emmIn->hasModality( this->getViewModality() ) )
-    {
-        frequence = emmIn->getModality( this->getViewModality() )->getSampFreq();
-        if( frequence != m_frequence )
-        {
-            m_frequence = frequence;
-            double samples = emmIn->getModality( this->getViewModality() )->getSamplesPerChan();
-            this->setTimerange( samples / m_frequence );
-        }
-    }
 
     emmOut = m_averaging->getAverage( emmIn );
 

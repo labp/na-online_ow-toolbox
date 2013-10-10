@@ -63,8 +63,7 @@ using WLMatrix::MatrixT;
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMSourceReconstruction )
 
-WMSourceReconstruction::WMSourceReconstruction() :
-                m_range( -1 )
+WMSourceReconstruction::WMSourceReconstruction()
 {
 }
 
@@ -409,17 +408,6 @@ bool WMSourceReconstruction::processCompute( WLEMMeasurement::SPtr emmIn )
     debugLog() << "received data";
 
     LaBP::WEModalityType::Enum modality = this->getCalculateModality();
-    if( m_range < 0 )
-    {
-        if( emmIn->hasModality( modality ) )
-        {
-            const WLEMData::ConstSPtr emd = emmIn->getModality( modality );
-            const float frequence = emd->getSampFreq();
-            const double samples = static_cast< double >( emd->getSamplesPerChan() );
-            m_range = samples / frequence;
-            setTimerange( m_range );
-        }
-    }
 
     if( !m_sourceReconstruction->hasInverse() )
     {

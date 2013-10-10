@@ -63,6 +63,7 @@ const int WLModuleDrawable::AUTO_SCALE_PACKETS = 8;
 
 WLModuleDrawable::WLModuleDrawable()
 {
+    m_range = -1;
     m_autoScaleCounter = AUTO_SCALE_PACKETS;
     m_graphType = WLEMDDrawable2D::WEGraphType::MULTI;
 }
@@ -342,6 +343,31 @@ void WLModuleDrawable::viewUpdate( WLEMMeasurement::SPtr emm )
         return;
     }
 
+    // Set 2D time grid
+    if( m_range < 0 )
+    {
+        LaBP::WEModalityType::Enum modality = this->getViewModality();
+        if( emm->hasModality( modality ) )
+        {
+            const WLEMData::ConstSPtr emd = emm->getModality( modality );
+            const float frequence = emd->getSampFreq();
+            const double samples = static_cast< double >( emd->getSamplesPerChan() );
+            m_range = samples / frequence;
+            setTimerange( m_range );
+        }
+    }
+
+//    if( emm->hasModality( this->getViewModality() ) )
+//    {
+//        frequence = emm->getModality( this->getViewModality() )->getSampFreq();
+//        if( frequence != m_frequence )
+//        {
+//            m_frequence = frequence;
+//            double samples = emm->getModality( this->getViewModality() )->getSamplesPerChan();
+//            this->setTimerange( samples / m_frequence );
+//        }
+//    }
+
     bool autoScale = m_autoSensitivity->get() && m_autoScaleCounter > 0;
 
     if( autoScale )
@@ -368,6 +394,8 @@ void WLModuleDrawable::viewUpdate( WLEMMeasurement::SPtr emm )
 void WLModuleDrawable::viewReset()
 {
     debugLog() << "reset() called!";
+    m_range = -1;
+
 // Avoid memory leak due to circular references drawables <-> listener
     if( m_drawable2D )
     {
