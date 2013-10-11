@@ -57,6 +57,7 @@ WSourceReconstructionCuda::WSourceReconstructionCuda()
 {
     m_inverseChanged = false;
     m_A_dev = NULL;
+    cublasInit();
 }
 
 WSourceReconstructionCuda::~WSourceReconstructionCuda()
@@ -66,6 +67,7 @@ WSourceReconstructionCuda::~WSourceReconstructionCuda()
         ExclusiveLockT lock( m_lockData );
         CublasSafeCall( cublasFree( m_A_dev ) );
     }
+    cublasShutdown();
 }
 
 bool WSourceReconstructionCuda::calculateInverseSolution( const MatrixT& noiseCov, const MatrixT& dataCov, double snr )
@@ -118,8 +120,6 @@ WLEMDSource::SPtr WSourceReconstructionCuda::reconstruct( WLEMData::ConstSPtr em
     ScalarT* C_dev;
 
     // Copy in //
-    cublasInit();
-
     if( m_inverse && m_inverseChanged )
     {
         const ScalarT* const A_host = m_inverse->data();
