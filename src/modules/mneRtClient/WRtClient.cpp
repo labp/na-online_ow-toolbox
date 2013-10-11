@@ -25,6 +25,8 @@
 #include <string>
 #include <vector>
 
+#include <boost/shared_ptr.hpp>
+
 #include <QtGlobal>
 #include <QList>
 #include <QMap>
@@ -44,6 +46,8 @@
 
 const std::string WRtClient::CLASS = "WRtClient";
 
+using namespace LaBP;
+
 WRtClient::WRtClient( const std::string& ip_address, const std::string& alias ) :
                 m_ipAddress( ip_address ), m_alias( alias )
 {
@@ -51,13 +55,9 @@ WRtClient::WRtClient( const std::string& ip_address, const std::string& alias ) 
     m_isConnected = false;
     m_clientId = -1;
     m_conSelected = -1;
-    m_devToHead = WLMatrix4::Matrix4T::Zero();
 
-    m_chNamesMeg.reset( new std::vector< std::string > );
-    m_chPosMeg.reset( new std::vector< WPosition > );
-    m_chNamesEeg.reset( new std::vector< std::string > );
-    m_chPosEeg.reset( new std::vector< WPosition > );
-    m_facesEeg.reset( new std::vector< WVector3i > );
+    m_chPosEeg.reset( new ChannelsPositionsT );
+    m_facesEeg.reset( new FacesT );
 }
 
 WRtClient::~WRtClient()
@@ -169,10 +169,17 @@ bool WRtClient::start()
     m_fiffInfo = m_rtDataClient->readInfo();
     wlog::info( CLASS ) << "Measurement information received.";
 
+    WLEMMeasurement* emm = new WLEMMeasurement();
+    preparePrototype( emm );
+    m_emmPrototype.reset( emm );
+
     m_picksMeg = m_fiffInfo->pick_types( false, false, false );
     wlog::debug( CLASS ) << "picks meg: " << m_picksMeg.size();
     if( m_picksMeg.size() > 2 )
     {
+        WLEMDMEG* meg = new WLEMDMEG();
+        preparePrototype( meg, m_picksMeg );
+        m_megPrototype.reset( meg );
         wlog::debug( CLASS ) << "values: " << m_picksMeg[0] << ", " << m_picksMeg[1] << ", " << m_picksMeg[2] << " ...";
     }
 
@@ -180,6 +187,9 @@ bool WRtClient::start()
     wlog::debug( CLASS ) << "picks eeg: " << m_picksEeg.size();
     if( m_picksEeg.size() > 2 )
     {
+        WLEMDEEG* eeg = new WLEMDEEG();
+        preparePrototype( eeg, m_picksEeg );
+        m_eegPrototype.reset( eeg );
         wlog::debug( CLASS ) << "values: " << m_picksEeg[0] << ", " << m_picksEeg[1] << ", " << m_picksEeg[2] << " ...";
     }
 
@@ -189,9 +199,6 @@ bool WRtClient::start()
     {
         wlog::debug( CLASS ) << "values: " << m_picksStim[0] << ", " << m_picksStim[1] << ", " << m_picksStim[2] << " ...";
     }
-    readInfo();
-    readChannelNames();
-    readChannelPositionsFaces();
 
     wlog::info( CLASS ) << "Prepare streaming finished.";
 
@@ -254,6 +261,7 @@ int WRtClient::getConnectors( std::map< int, std::string >* const conMap )
 
     return m_conSelected;
 }
+
 bool WRtClient::setConnector( int conId )
 {
     if( !isConnected() )
@@ -301,8 +309,9 @@ bool WRtClient::setSimulationFile( std::string fname )
     }
 }
 
-bool WRtClient::readData( WLEMMeasurement::SPtr emmIn )
+bool WRtClient::readData( WLEMMeasurement::SPtr& emmIn )
 {
+    // TODO(pieloth): use prototype EMM
     wlog::debug( CLASS ) << "readData() called!";
     if( !isConnected() )
     {
@@ -310,14 +319,7 @@ bool WRtClient::readData( WLEMMeasurement::SPtr emmIn )
         return false;
     }
 
-    if( !m_digPoints.empty() )
-    {
-        emmIn->setDigPoints( m_digPoints );
-    }
-    if( !m_devToHead.isZero() )
-    {
-        emmIn->setDevToFidTransformation( m_devToHead );
-    }
+    emmIn = m_emmPrototype->clone();
 
     FIFFLIB::fiff_int_t kind;
     Eigen::MatrixXf matRawBuffer;
@@ -356,28 +358,6 @@ bool WRtClient::readData( WLEMMeasurement::SPtr emmIn )
     }
 }
 
-WLEMDEEG::SPtr WRtClient::readEEG( const Eigen::MatrixXf& rawData )
-{
-    wlog::debug( CLASS ) << "readEEG() called!";
-    WLEMDEEG::SPtr eeg( new WLEMDEEG() );
-    readEmd( eeg.get(), m_picksEeg, rawData );
-    // TODO(pieloth): setter
-    eeg->setChanNames( m_chNamesEeg );
-    eeg->setChannelPositions3d( m_chPosEeg );
-    eeg->setFaces( m_facesEeg );
-    return eeg;
-}
-
-WLEMDMEG::SPtr WRtClient::readMEG( const Eigen::MatrixXf& rawData )
-{
-    wlog::debug( CLASS ) << "readMEG() called!";
-    WLEMDMEG::SPtr meg( new WLEMDMEG() );
-    readEmd( meg.get(), m_picksMeg, rawData );
-    // TODO(pieloth): setter
-    meg->setChanNames( m_chNamesMeg );
-    return meg;
-}
-
 bool WRtClient::readEmd( WLEMData* const emd, const Eigen::RowVectorXi& picks, const Eigen::MatrixXf& rawData )
 {
     if( picks.size() == 0 )
@@ -402,8 +382,23 @@ bool WRtClient::readEmd( WLEMData* const emd, const Eigen::RowVectorXi& picks, c
         }
     }
 
-    emd->setSampFreq( m_fiffInfo->sfreq );
     return true;
+}
+
+WLEMDEEG::SPtr WRtClient::readEEG( const Eigen::MatrixXf& rawData )
+{
+    wlog::debug( CLASS ) << "readEEG() called!";
+    WLEMDEEG::SPtr eeg = m_eegPrototype->clone()->getAs< WLEMDEEG >();
+    readEmd( eeg.get(), m_picksEeg, rawData );
+    return eeg;
+}
+
+WLEMDMEG::SPtr WRtClient::readMEG( const Eigen::MatrixXf& rawData )
+{
+    wlog::debug( CLASS ) << "readMEG() called!";
+    WLEMDMEG::SPtr meg = m_megPrototype->clone()->getAs< WLEMDMEG >();
+    readEmd( meg.get(), m_picksMeg, rawData );
+    return meg;
 }
 
 boost::shared_ptr< WLEMMeasurement::EDataT > WRtClient::readEvents( const Eigen::MatrixXf& rawData )
@@ -437,138 +432,6 @@ boost::shared_ptr< WLEMMeasurement::EDataT > WRtClient::readEvents( const Eigen:
     }
 
     return events;
-}
-
-bool WRtClient::readChannelNames()
-{
-    wlog::debug( CLASS ) << "readChannelNames() called!";
-
-    const QStringList chNames = m_fiffInfo->ch_names;
-
-    // EEG
-    const Eigen::RowVectorXi::Index eegSize = m_picksEeg.size();
-    if( eegSize > 0 )
-    {
-        WAssertDebug( eegSize <= chNames.size(), "More selected channels than in chNames!" );
-        m_chNamesEeg->clear();
-        m_chNamesEeg->reserve( eegSize );
-        for( Eigen::RowVectorXi::Index row = 0; row < eegSize; ++row )
-        {
-            WAssertDebug( m_picksEeg[row] < chNames.size(), "Selected channel index out of chNames boundary!" );
-            m_chNamesEeg->push_back( chNames.at( ( int )m_picksEeg[row] ).toStdString() );
-        }
-    }
-
-    // MEG
-    const Eigen::RowVectorXi::Index megSize = m_picksMeg.size();
-    if( megSize > 0 )
-    {
-        WAssertDebug( megSize <= chNames.size(), "More selected channels than in chNames!" );
-        m_chNamesMeg->clear();
-        m_chNamesMeg->reserve( megSize );
-        for( Eigen::RowVectorXi::Index row = 0; row < megSize; ++row )
-        {
-            WAssertDebug( m_picksMeg[row] < chNames.size(), "Selected channel index out of chNames boundary!" );
-            m_chNamesMeg->push_back( chNames.at( ( int )m_picksMeg[row] ).toStdString() );
-        }
-    }
-
-    return true;
-}
-
-bool WRtClient::readChannelPositionsFaces()
-{
-    wlog::debug( CLASS ) << "readChannelPositionsFaces() called!";
-
-    bool rc = true;
-
-    QList< FIFFLIB::FiffChInfo > chInfos = m_fiffInfo->chs;
-    // EEG
-    const Eigen::RowVectorXi::Index eegSize = m_picksEeg.size();
-    if( eegSize > 0 )
-    {
-        if( m_chPosEeg->empty() )
-        {
-
-            WAssertDebug( eegSize <= chInfos.size(), "More selected channels than in chNames!" );
-            m_chPosEeg->clear();
-            m_chPosEeg->reserve( eegSize );
-            const WPosition zero = WPosition::zero();
-            size_t nzero = 0;
-            for( Eigen::RowVectorXi::Index row = 0; row < eegSize; ++row )
-            {
-                WAssertDebug( m_picksEeg[row] < chInfos.size(), "Selected channel index out of chInfos boundary!" );
-                const Eigen::Matrix< double, 3, 2, Eigen::DontAlign >& chPos = chInfos.at( ( int )m_picksEeg[row] ).eeg_loc;
-                const WPosition pos( chPos( 0, 0 ), chPos( 1, 0 ), chPos( 2, 0 ) );
-                m_chPosEeg->push_back( pos );
-                if( pos == zero )
-                {
-                    ++nzero;
-                }
-            }
-
-            if( m_chPosEeg->empty() )
-            {
-                wlog::error( CLASS ) << "No EEG channels found!";
-                rc &= false;
-            }
-
-            if( nzero < 3 )
-            {
-                m_facesEeg->clear();
-                WLGeometry::computeTriangulation( m_facesEeg.get(), *m_chPosEeg, -5 );
-            }
-            else
-            {
-                wlog::warn( CLASS ) << "Counted " << nzero
-                                << " (0,0,0) position - assumed incorrect EEG positions! Triangulation is skipped!";
-                rc &= false;
-            }
-        }
-        else
-        {
-            if( m_chPosEeg->size() == eegSize )
-            {
-                wlog::info( CLASS ) << "Using user-defined EEG positions and faces.";
-            }
-            else
-            {
-                wlog::error( CLASS )
-                                << "Size of user-defined EEG positions and EEG channels are different, try to read EEG positions from stream.";
-                m_chPosEeg->clear();
-                m_facesEeg->clear();
-                m_digPoints.clear();
-                readInfo();
-                rc &= readChannelPositionsFaces();
-            }
-        }
-    }
-
-    // TODO(pieloth): MEG
-    return rc;
-}
-
-void WRtClient::readInfo()
-{
-#if LABP_FLOAT_COMPUTATION
-    m_devToHead = m_fiffInfo->dev_head_t.trans;
-#else
-    m_devToHead = m_fiffInfo->dev_head_t.trans.cast< WLMatrix4::Matrix4T::Scalar >();
-#endif
-
-    if( m_digPoints.empty() )
-    {
-        const QList< FIFFLIB::FiffDigPoint >& digs = m_fiffInfo->dig;
-        m_digPoints.clear();
-        m_digPoints.reserve( digs.size() );
-        QList< FIFFLIB::FiffDigPoint >::ConstIterator it;
-        for( it = digs.begin(); it != digs.end(); ++it )
-        {
-            const WPosition pos( it->r[0], it->r[1], it->r[2] );
-            WLDigPoint dig( pos, it->kind, it->ident );
-            m_digPoints.push_back( dig );
-        }
-    }
 }
 
 bool WRtClient::setDigPointsAndEEG( const std::vector< WLDigPoint >& digPoints )
@@ -618,5 +481,251 @@ bool WRtClient::setDigPointsAndEEG( const std::vector< WLDigPoint >& digPoints )
     else
     {
         return false;
+    }
+}
+
+bool WRtClient::preparePrototype( WLEMMeasurement* const emm )
+{
+#if LABP_FLOAT_COMPUTATION
+    WLMatrix4::Matrix4T devToHead = m_fiffInfo->dev_head_t.trans;
+#else
+    WLMatrix4::Matrix4T devToHead = m_fiffInfo->dev_head_t.trans.cast< WLMatrix4::Matrix4T::Scalar >();
+#endif
+    if( !devToHead.isZero() )
+    {
+        emm->setDevToFidTransformation( devToHead );
+    }
+
+    if( m_digPoints.empty() )
+    {
+        const QList< FIFFLIB::FiffDigPoint >& digs = m_fiffInfo->dig;
+        m_digPoints.clear();
+        m_digPoints.reserve( digs.size() );
+        QList< FIFFLIB::FiffDigPoint >::ConstIterator it;
+        for( it = digs.begin(); it != digs.end(); ++it )
+        {
+            const WPosition pos( it->r[0], it->r[1], it->r[2] );
+            WLDigPoint dig( pos, it->kind, it->ident );
+            m_digPoints.push_back( dig );
+        }
+        emm->setDigPoints( m_digPoints );
+    }
+    return true;
+}
+
+bool WRtClient::preparePrototype( WLEMData* const emd, const Eigen::RowVectorXi& picks )
+{
+    readChannelNames( emd, picks );
+    readChannelPositions( emd, picks );
+    readChannelFaces( emd, picks );
+
+    const FIFFLIB::FiffChInfo fiffInfo = m_fiffInfo->chs[picks[0]];
+    emd->setSampFreq( m_fiffInfo->sfreq );
+    emd->setChanUnit( getChanUnit( fiffInfo.unit ) );
+    emd->setChanUnitExp( getChanUnitMul( fiffInfo.unit_mul ) );
+    return true;
+}
+
+bool WRtClient::preparePrototype( WLEMDEEG* const emd, const Eigen::RowVectorXi& picks )
+{
+    return preparePrototype( ( WLEMData* )emd, picks );
+}
+
+bool WRtClient::preparePrototype( WLEMDMEG* const emd, const Eigen::RowVectorXi& picks )
+{
+    return preparePrototype( ( WLEMData* )emd, picks );
+}
+
+bool WRtClient::readChannelNames( WLEMData* const emd, const Eigen::RowVectorXi& picks )
+{
+    wlog::debug( CLASS ) << "readChannelNames() called!";
+
+    if( picks.size() > 0 )
+    {
+        const QStringList chNames = m_fiffInfo->ch_names;
+        WAssertDebug( picks.size() <= chNames.size(), "More selected channels than in chNames!" );
+        ChannelNamesSPtr names( new ChannelNamesT );
+        names->reserve( picks.size() );
+        for( Eigen::RowVectorXi::Index row = 0; row < picks.size(); ++row )
+        {
+            WAssertDebug( m_picksEeg[row] < chNames.size(), "Selected channel index out of chNames boundary!" );
+            names->push_back( chNames.at( ( int )picks[row] ).toStdString() );
+        }
+        emd->setChanNames( names );
+        return true;
+    }
+    else
+    {
+        wlog::error( CLASS ) << "No picks!";
+        return false;
+    }
+}
+
+bool WRtClient::readChannelPositions( WLEMData* const emd, const Eigen::RowVectorXi& picks )
+{
+    wlog::debug( CLASS ) << "readChannelPositions() called!";
+
+    QList< FIFFLIB::FiffChInfo > chInfos = m_fiffInfo->chs;
+    // EEG
+    if( picks.size() > 0 )
+    {
+        ChannelsPositionsSPtr positions( new ChannelsPositionsT );
+        positions->reserve( picks.size() );
+        const WPosition zero = WPosition::zero();
+        for( Eigen::RowVectorXi::Index row = 0; row < picks.size(); ++row )
+        {
+            WAssertDebug( picks[row] < chInfos.size(), "Selected channel index out of chInfos boundary!" );
+            const Eigen::Matrix< double, 3, 2, Eigen::DontAlign >& chPos = chInfos.at( ( int )picks[row] ).eeg_loc;
+            const WPosition pos( chPos( 0, 0 ), chPos( 1, 0 ), chPos( 2, 0 ) );
+            positions->push_back( pos );
+        }
+
+        WLEMDEEG* eeg = dynamic_cast< WLEMDEEG* >( emd );
+        if( eeg != NULL )
+        {
+            if( !m_chPosEeg->empty() )
+            {
+                wlog::info( CLASS ) << "Using user-defined EEG positions and faces.";
+                eeg->setChannelPositions3d( m_chPosEeg );
+            }
+            else
+                if( !positions->empty() )
+                {
+                    eeg->setChannelPositions3d( positions );
+                    return true;
+                }
+                else
+                {
+                    wlog::error( CLASS ) << "No EEG positions found!";
+                    return false;
+                }
+        }
+
+        WLEMDMEG* meg = dynamic_cast< WLEMDMEG* >( emd );
+        if( meg != NULL )
+        {
+            if( !positions->empty() )
+            {
+                meg->setChannelPositions3d( positions );
+                return true;
+            }
+            else
+            {
+                wlog::error( CLASS ) << "No MEG positions found!";
+                return false;
+            }
+        }
+        return false;
+    }
+    else
+    {
+        wlog::error( CLASS ) << "No picks!";
+        return false;
+    }
+}
+
+bool WRtClient::readChannelFaces( WLEMData* const emd, const Eigen::RowVectorXi& picks )
+{
+    wlog::debug( CLASS ) << "readChannelFaces() called!";
+
+    ChannelsPositionsSPtr positions;
+    WLEMDEEG* eeg = dynamic_cast< WLEMDEEG* >( emd );
+    if( eeg != NULL )
+    {
+        positions = eeg->getChannelPositions3d();
+    }
+
+    WLEMDMEG* meg = dynamic_cast< WLEMDMEG* >( emd );
+    if( meg != NULL )
+    {
+        positions = meg->getChannelPositions3d();
+    }
+
+    if( !positions || positions->empty() )
+    {
+        wlog::error( CLASS ) << "No positions available, skipping faces!";
+        return false;
+    }
+
+    const WPosition zero = WPosition::zero();
+    ChannelsPositionsT::const_iterator it;
+    size_t nzero = 0;
+    for( it = positions->begin(); it != positions->end(); ++it )
+    {
+        if( *it == zero )
+        {
+            ++nzero;
+        }
+    }
+
+    FacesSPtr faces( new FacesT );
+    if( nzero < 3 )
+    {
+        if( WLGeometry::computeTriangulation( faces.get(), *positions, -5 ) )
+        {
+            if( eeg != NULL )
+            {
+                eeg->setFaces( faces );
+                return true;
+            }
+
+            if( meg != NULL )
+            {
+                meg->setFaces( faces );
+                return true;
+            }
+            return false;
+        }
+        else
+        {
+            wlog::error( CLASS ) << "Could not generated faces!";
+            return false;
+        }
+    }
+    else
+    {
+        wlog::warn( CLASS ) << "Counted " << nzero
+                        << " (0,0,0) position - assumed incorrect EEG positions! Triangulation is skipped!";
+        return false;
+    }
+}
+
+LaBP::WEUnit::Enum WRtClient::getChanUnit( FIFFLIB::fiff_int_t unit )
+{
+    switch( unit )
+    {
+        case FIFF_UNIT_V:
+            return WEUnit::VOLT;
+        case FIFF_UNIT_T:
+            return WEUnit::TESLA;
+        case FIFF_UNIT_T_M:
+            return WEUnit::TESLA_PER_METER;
+        default:
+            wlog::warn( CLASS ) << "Unknown unit: " << unit;
+            return WEUnit::UNKNOWN_UNIT;
+    }
+}
+
+WEExponent::Enum WRtClient::getChanUnitMul( FIFFLIB::fiff_int_t unitMul )
+{
+    switch( unitMul )
+    {
+        case FIFF_UNITM_K:
+            return WEExponent::KILO;
+        case FIFF_UNITM_NONE:
+            return WEExponent::BASE;
+        case FIFF_UNITM_M:
+            return WEExponent::MILLI;
+        case FIFF_UNITM_MU:
+            return WEExponent::MICRO;
+        case FIFF_UNITM_N:
+            return WEExponent::NANO;
+        case FIFF_UNITM_P:
+            return WEExponent::PICO;
+        case FIFF_UNITM_F:
+            return WEExponent::FEMTO;
+        default:
+            wlog::warn( CLASS ) << "Unknown unit_mul: " << unitMul;
+            return WEExponent::BASE;
     }
 }

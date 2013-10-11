@@ -366,7 +366,7 @@ void WMMneRtClient::handleTrgDataStart()
 
         while( !m_stopStreaming && !m_shutdownFlag() )
         {
-            WLEMMeasurement::SPtr emm( new WLEMMeasurement() );
+            WLEMMeasurement::SPtr emm;
             if( m_rtClient->readData( emm ) )
             {
                 if( m_subject && ( m_surface || m_bems || m_leadfieldEEG || m_leadfieldMEG || m_isExpLoaded ) )
