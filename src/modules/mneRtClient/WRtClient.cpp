@@ -311,7 +311,6 @@ bool WRtClient::setSimulationFile( std::string fname )
 
 bool WRtClient::readData( WLEMMeasurement::SPtr& emmIn )
 {
-    // TODO(pieloth): use prototype EMM
     wlog::debug( CLASS ) << "readData() called!";
     if( !isConnected() )
     {
