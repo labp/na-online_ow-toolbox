@@ -3,6 +3,7 @@
  */
 
 #include <cmath>
+#include <exception>
 #include <map>
 #include <string>
 #include <vector>
@@ -86,6 +87,16 @@ bool WLGeometry::computeTriangulation( std::vector< WVector3i >* const triangles
     catch( const WException& e )
     {
         wlog::error( SOURCE ) << "Unexpected error: " << e.what() << "\n" << e.getBacktrace();
+        return false;
+    }
+    catch( const std::exception& e )
+    {
+        wlog::error( SOURCE ) << "Unexpected error: " << e.what();
+        return false;
+    }
+    catch( ... )
+    {
+        wlog::error( SOURCE ) << "Unexpected error!";
         return false;
     }
 
