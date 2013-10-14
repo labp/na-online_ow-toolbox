@@ -14,6 +14,7 @@
 #include <osg/Array>
 #include <osgUtil/DelaunayTriangulator>
 
+#include <core/common/WAssert.h>
 #include <core/common/WException.h>
 #include <core/common/WLogger.h>
 #include <core/common/math/WLinearAlgebraFunctions.h>
@@ -74,10 +75,11 @@ bool WLGeometry::computeTriangulation( std::vector< WVector3i >* const triangles
         map[( *osgPoints )[index]] = index;
     }
 
-    osg::ref_ptr< osgUtil::DelaunayTriangulator > triangulator( new osgUtil::DelaunayTriangulator( osgPoints ) );
+    osg::ref_ptr< osgUtil::DelaunayTriangulator > triangulator;
 
     try
     {
+        triangulator = new osgUtil::DelaunayTriangulator( osgPoints );
         if( !triangulator->triangulate() )
         {
             wlog::error( SOURCE ) << "Something went wrong in triangulation.";
@@ -100,8 +102,9 @@ bool WLGeometry::computeTriangulation( std::vector< WVector3i >* const triangles
         return false;
     }
 
-    osg::ref_ptr< const osg::DrawElementsUInt > osgTriangles( triangulator->getTriangles() );
+    const osg::DrawElementsUInt* const osgTriangles = triangulator->getTriangles();
     wlog::debug( SOURCE ) << "osgTriangles: " << osgTriangles->size();
+    WAssertDebug( osgTriangles->size() % 3 == 0, "triangles/3 != 0!" );
     size_t nbTriangles = osgTriangles->size() / 3;
     triangles->reserve( nbTriangles );
 

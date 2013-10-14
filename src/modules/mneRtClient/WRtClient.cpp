@@ -107,6 +107,85 @@ bool WRtClient::connect()
     return m_isConnected;
 }
 
+bool WRtClient::prepareStreaming()
+{
+    wlog::debug( CLASS ) << "prepareStreaming() called!";
+    // Request measurement information
+    wlog::debug( CLASS ) << "Requesting measurement information.";
+    ( *m_rtCmdClient )["measinfo"].pValues()[0] = QVariant( m_clientId );
+    ( *m_rtCmdClient )["measinfo"].send();
+
+    wlog::debug( CLASS ) << "Read measurement information.";
+    m_fiffInfo.clear();
+    m_fiffInfo = m_rtDataClient->readInfo();
+    if( m_fiffInfo.isNull() )
+    {
+        wlog::error( CLASS ) << "Measurement information could not received!";
+        return false;
+    }
+    wlog::info( CLASS ) << "Measurement information received.";
+
+    WLEMMeasurement* emm = new WLEMMeasurement();
+    if( !preparePrototype( emm ) )
+    {
+        wlog::error( CLASS ) << "Could not read measurement information!";
+        free( emm );
+        return false;
+    }
+    m_emmPrototype.reset( emm );
+
+    m_picksMeg = m_fiffInfo->pick_types( true, false, false );
+    wlog::debug( CLASS ) << "picks meg: " << m_picksMeg.size();
+    if( m_picksMeg.size() > 0 )
+    {
+        WLEMDMEG* meg = new WLEMDMEG();
+        if( preparePrototype( meg, m_picksMeg ) )
+        {
+            m_megPrototype.reset( meg );
+            if( m_picksMeg.size() > 2 )
+            {
+                wlog::debug( CLASS ) << "values: " << m_picksMeg[0] << ", " << m_picksMeg[1] << ", " << m_picksMeg[2] << " ...";
+            }
+        }
+        else
+        {
+            wlog::error( CLASS ) << "Error on reading MEG information. Skip MEG data!";
+            free( meg );
+            m_picksMeg.resize( 0 );
+        }
+    }
+
+    m_picksEeg = m_fiffInfo->pick_types( false, true, false );
+    wlog::debug( CLASS ) << "picks eeg: " << m_picksEeg.size();
+    if( m_picksEeg.size() > 0 )
+    {
+        WLEMDEEG* eeg = new WLEMDEEG();
+        if( preparePrototype( eeg, m_picksEeg ) )
+        {
+            m_eegPrototype.reset( eeg );
+            if( m_picksEeg.size() > 2 )
+            {
+                wlog::debug( CLASS ) << "values: " << m_picksEeg[0] << ", " << m_picksEeg[1] << ", " << m_picksEeg[2] << " ...";
+            }
+        }
+        else
+        {
+            wlog::error( CLASS ) << "Error on reading EEG information. Skip EEG data!";
+            free( eeg );
+            m_picksEeg.resize( 0 );
+        }
+    }
+
+    m_picksStim = m_fiffInfo->pick_types( false, false, true );
+    wlog::debug( CLASS ) << "picks stim: " << m_picksStim.size();
+    if( m_picksStim.size() > 2 )
+    {
+        wlog::debug( CLASS ) << "values: " << m_picksStim[0] << ", " << m_picksStim[1] << ", " << m_picksStim[2] << " ...";
+    }
+
+    return m_picksEeg.size() > 0 || m_picksMeg.size() > 0;
+}
+
 bool WRtClient::isConnected()
 {
     return m_isConnected;
@@ -153,59 +232,26 @@ bool WRtClient::start()
     }
 
     wlog::info( CLASS ) << "Prepare streaming.";
+    if( prepareStreaming() )
+    {
+        wlog::info( CLASS ) << "Prepare streaming finished.";
+    }
+    else
+    {
+        wlog::error( CLASS ) << "Could not prepare steaming. Streaming is not started!";
+        return false;
+    }
 
-    // Set buffer size
-    // TODO(pieloth): set variable block size.
+// Set buffer size
+// TODO(pieloth): set variable block size.
     wlog::debug( CLASS ) << "Set buffer size.";
     ( *m_rtCmdClient )["bufsize"].pValues()[0] = QVariant( 500 );
     ( *m_rtCmdClient )["bufsize"].send();
 
-    // Request measurement information
-    wlog::debug( CLASS ) << "Requesting measurement information.";
-    ( *m_rtCmdClient )["measinfo"].pValues()[0] = QVariant( m_clientId );
-    ( *m_rtCmdClient )["measinfo"].send();
-
-    wlog::debug( CLASS ) << "Read measurement information.";
-    m_fiffInfo = m_rtDataClient->readInfo();
-    wlog::info( CLASS ) << "Measurement information received.";
-
-    WLEMMeasurement* emm = new WLEMMeasurement();
-    preparePrototype( emm );
-    m_emmPrototype.reset( emm );
-
-    m_picksMeg = m_fiffInfo->pick_types( false, false, false );
-    wlog::debug( CLASS ) << "picks meg: " << m_picksMeg.size();
-    if( m_picksMeg.size() > 2 )
-    {
-        WLEMDMEG* meg = new WLEMDMEG();
-        preparePrototype( meg, m_picksMeg );
-        m_megPrototype.reset( meg );
-        wlog::debug( CLASS ) << "values: " << m_picksMeg[0] << ", " << m_picksMeg[1] << ", " << m_picksMeg[2] << " ...";
-    }
-
-    m_picksEeg = m_fiffInfo->pick_types( false, true, false );
-    wlog::debug( CLASS ) << "picks eeg: " << m_picksEeg.size();
-    if( m_picksEeg.size() > 2 )
-    {
-        WLEMDEEG* eeg = new WLEMDEEG();
-        preparePrototype( eeg, m_picksEeg );
-        m_eegPrototype.reset( eeg );
-        wlog::debug( CLASS ) << "values: " << m_picksEeg[0] << ", " << m_picksEeg[1] << ", " << m_picksEeg[2] << " ...";
-    }
-
-    m_picksStim = m_fiffInfo->pick_types( false, false, true );
-    wlog::debug( CLASS ) << "picks stim: " << m_picksStim.size();
-    if( m_picksStim.size() > 2 )
-    {
-        wlog::debug( CLASS ) << "values: " << m_picksStim[0] << ", " << m_picksStim[1] << ", " << m_picksStim[2] << " ...";
-    }
-
-    wlog::info( CLASS ) << "Prepare streaming finished.";
-
     wlog::debug( CLASS ) << "Start streaming ...";
     ( *m_rtCmdClient )["start"].pValues()[0] = QVariant( m_clientId );
     ( *m_rtCmdClient )["start"].send();
-    // TODO(pieloth): Check if streaming has been started.
+// TODO(pieloth): Check if streaming has been started.
 
     m_isStreaming = true;
 
@@ -229,7 +275,7 @@ bool WRtClient::stop()
     }
 
     ( *m_rtCmdClient )["stop-all"].send();
-    // TODO(pieloth): Check if streaming has been stopped.
+// TODO(pieloth): Check if streaming has been stopped.
     m_isStreaming = false;
 
     return true;
@@ -514,15 +560,22 @@ bool WRtClient::preparePrototype( WLEMMeasurement* const emm )
 
 bool WRtClient::preparePrototype( WLEMData* const emd, const Eigen::RowVectorXi& picks )
 {
-    readChannelNames( emd, picks );
-    readChannelPositions( emd, picks );
-    readChannelFaces( emd, picks );
-
     const FIFFLIB::FiffChInfo fiffInfo = m_fiffInfo->chs[picks[0]];
     emd->setSampFreq( m_fiffInfo->sfreq );
     emd->setChanUnit( getChanUnit( fiffInfo.unit ) );
     emd->setChanUnitExp( getChanUnitMul( fiffInfo.unit_mul ) );
-    return true;
+
+    readChannelNames( emd, picks );
+    if( readChannelPositions( emd, picks ) )
+    {
+        readChannelFaces( emd, picks );
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+
 }
 
 bool WRtClient::preparePrototype( WLEMDEEG* const emd, const Eigen::RowVectorXi& picks )
@@ -547,7 +600,7 @@ bool WRtClient::readChannelNames( WLEMData* const emd, const Eigen::RowVectorXi&
         names->reserve( picks.size() );
         for( Eigen::RowVectorXi::Index row = 0; row < picks.size(); ++row )
         {
-            WAssertDebug( m_picksEeg[row] < chNames.size(), "Selected channel index out of chNames boundary!" );
+            WAssertDebug( picks[row] < chNames.size(), "Selected channel index out of chNames boundary!" );
             names->push_back( chNames.at( ( int )picks[row] ).toStdString() );
         }
         emd->setChanNames( names );
@@ -565,7 +618,7 @@ bool WRtClient::readChannelPositions( WLEMData* const emd, const Eigen::RowVecto
     wlog::debug( CLASS ) << "readChannelPositions() called!";
 
     QList< FIFFLIB::FiffChInfo > chInfos = m_fiffInfo->chs;
-    // EEG
+// EEG
     if( picks.size() > 0 )
     {
         ChannelsPositionsSPtr positions( new ChannelsPositionsT );
@@ -638,6 +691,8 @@ bool WRtClient::readChannelFaces( WLEMData* const emd, const Eigen::RowVectorXi&
     if( meg != NULL )
     {
         positions = meg->getChannelPositions3d();
+        wlog::warn( CLASS ) << "Skipping triangulation for MEG, due to segFault!";
+        return false;
     }
 
     if( !positions || positions->empty() )

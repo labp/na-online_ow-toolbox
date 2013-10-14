@@ -333,6 +333,7 @@ void WMMneRtClient::handleTrgConDisconnect()
 {
     debugLog() << "handleTrgConDisconnect() called!";
 
+    callbackTrgDataStop();
     m_rtClient->disconnect();
 
     if( !m_rtClient->isConnected() )

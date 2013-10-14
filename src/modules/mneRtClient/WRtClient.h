@@ -109,12 +109,13 @@ private:
     WLEMDMEG::ConstSPtr m_megPrototype;
 
     ChannelsPositionsSPtr m_chPosEeg;
-        FacesSPtr m_facesEeg;
+    FacesSPtr m_facesEeg;
 
     Eigen::RowVectorXi m_picksEeg;
     Eigen::RowVectorXi m_picksMeg;
     Eigen::RowVectorXi m_picksStim;
 
+    bool prepareStreaming();
     bool preparePrototype( WLEMMeasurement* const emm );
     bool preparePrototype( WLEMData* const emd, const Eigen::RowVectorXi& picks );
     bool preparePrototype( WLEMDEEG* const emd, const Eigen::RowVectorXi& picks );
