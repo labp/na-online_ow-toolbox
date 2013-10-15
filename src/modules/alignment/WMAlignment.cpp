@@ -91,21 +91,14 @@ void WMAlignment::properties()
 
     m_propEstGroup = m_properties->addPropertyGroup( "Transformation Estimation",
                     "Contains properties an initial transformation estimation.", false );
-    // Defaults for intershift is05
-//    const WPosition LAP( -0.0754, -0.0131, -0.0520 );
-//    const WPosition NASION( -0.0012, 0.0836, -0.0526 );
-//    const WPosition RAP( 0.0706, -0.0140, -0.0613 );
-    // Defaults for hermann
-    const WPosition LAP(-0.07286011, 0.018106384,-0.068811984 );
-    const WPosition NASION( 0.002131995, 0.098106384, -0.019811981 );
-    const WPosition RAP( 0.075132007, 0.017106384, -0.074811978 );
 
     m_propEstLPA = m_propEstGroup->addProperty( "LPA (AC-PC):", "Left pre-auricular in AC-PC coordinate system.", LAP, false );
     m_propEstNasion = m_propEstGroup->addProperty( "Nasion (AC-PC):", "Nasion in AC-PC coordinate system.", NASION, false );
     m_propEstRPA = m_propEstGroup->addProperty( "RPA (AC-PC):", "Right pre-auricular in AC-PC coordinate system.", RAP, false );
 
     m_propIcpGroup = m_properties->addPropertyGroup( "ICP properties", "Contains properties for ICP.", false );
-    m_propIcpIterations = m_propIcpGroup->addProperty( "Iterations:", "Maximum iterations for ICP algorithm.", 10, false );
+    m_propIcpIterations = m_propIcpGroup->addProperty( "Iterations:", "Maximum iterations for ICP algorithm.",
+                    ICP_DEFAULT_ITERATIONS, false );
     m_propIcpConverged = m_propIcpGroup->addProperty( "Converged:", "Indicates if ICP has converged.", false, false );
     m_propIcpConverged->setPurpose( PV_PURPOSE_INFORMATION );
     m_propIcpScore = m_propIcpGroup->addProperty( "Score:", "Fitness score of converged ICP.", WAlignment::NOT_CONVERGED, false );
@@ -138,19 +131,28 @@ void WMAlignment::viewReset()
 void WMAlignment::moduleInit()
 {
     infoLog() << "Initializing module ...";
+
+    m_moduleState.setResetable( true, true ); // resetable, autoreset
+    m_moduleState.add( m_input->getDataChangedCondition() ); // Wake up when input data changed
+    m_moduleState.add( m_propCondition ); // Wake up when property data changed
+
+    ready(); // signal ready state
     waitRestored();
 
     viewInit();
+
+    infoLog() << "Initializing module finished!";
+
+    infoLog() << "Restoring module ...";
+
+    m_propIcpConverged->set( false, false );
+    m_propIcpScore->set( WAlignment::NOT_CONVERGED, false );
+
+    infoLog() << "Restoring module finished!";
 }
 
 void WMAlignment::moduleMain()
 {
-    m_moduleState.setResetable( true, true ); // resetable, autoreset
-    m_moduleState.add( m_input->getDataChangedCondition() ); // when inputdata changed
-    m_moduleState.add( m_propCondition ); // when properties changed
-
-    ready(); // signal ready state
-
     moduleInit();
 
     WLEMMCommand::SPtr cmdIn;
@@ -168,7 +170,7 @@ void WMAlignment::moduleMain()
             break; // break mainLoop on shutdown
         }
 
-        if( m_trgReset->changed( true ) )
+        if( m_trgReset->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
             handleTrgReset();
         }
@@ -250,10 +252,15 @@ bool WMAlignment::processMisc( WLEMMCommand::SPtr cmd )
 
 void WMAlignment::handleTrgReset()
 {
+    debugLog() << "handleTrgReset() called";
+
     viewReset();
     m_transformation.setZero();
+    m_propEstLPA->set( LAP, false );
+    m_propEstNasion->set( NASION, false );
+    m_propEstRPA->set( RAP, false );
     m_propIcpConverged->set( false, false );
     m_propIcpScore->set( WAlignment::NOT_CONVERGED, false );
-    m_propIcpIterations->set( 10, false );
+    m_propIcpIterations->set( ICP_DEFAULT_ITERATIONS, false );
     m_trgReset->set( WPVBaseTypes::PV_TRIGGER_READY, true );
 }
