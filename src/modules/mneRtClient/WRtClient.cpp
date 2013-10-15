@@ -639,6 +639,7 @@ bool WRtClient::readChannelPositions( WLEMData* const emd, const Eigen::RowVecto
             {
                 wlog::info( CLASS ) << "Using user-defined EEG positions and faces.";
                 eeg->setChannelPositions3d( m_chPosEeg );
+                return true;
             }
             else
                 if( !positions->empty() )

@@ -38,7 +38,6 @@
 #include "core/data/WLEMMBemBoundary.h"
 #include "core/data/WLDigPoint.h"
 #include "core/module/WLModuleDrawable.h"
-#include "core/io/WLReaderExperiment.h"
 #include "WRtClient.h"
 
 /**
@@ -126,6 +125,7 @@ private:
     void handleTrgConConnect();
     void handleTrgConDisconnect();
 
+    // Connection status strings //
     static const std::string STATUS_CON_CONNECTED;
     static const std::string STATUS_CON_DISCONNECTED;
     static const std::string STATUS_CON_ERROR;
@@ -147,36 +147,10 @@ private:
 
     WPropString m_simFile;
 
+    // Streaming status strings //
     static const std::string STATUS_DATA_STREAMING;
     static const std::string STATUS_DATA_ERROR;
     static const std::string STATUS_DATA_NOT_STREAMING;
-
-    // Experiment loader //
-    WPropGroup m_propGrpExperiment;
-
-    LaBP::WLEMMSubject::SPtr m_subject;
-
-    bool m_isExpLoaded;
-    bool m_isFiffLoaded;
-
-    WPropFilename m_fiffFile;
-    WPropString m_fiffFileStatus;
-
-    WPropString m_expSubject;
-
-    WItemSelection::SPtr m_expBemFiles;
-    WPropSelection m_expBemFilesSelection;
-
-    WItemSelection::SPtr m_expSurfaces;
-    WPropSelection m_expSurfacesSelection;
-
-    WPropString m_expTrial;
-
-    WPropTrigger m_expLoadTrigger;
-    WPropString m_expLoadStatus;
-    void handleExperimentLoadChanged();
-    void handleExtractExpLoader( std::string fiffFile );
-    WLReaderExperiment::SPtr m_expReader;
 
     // Additional data //
     WPropGroup m_propGrpAdditional;
@@ -201,16 +175,16 @@ private:
 
     WPropString m_additionalStatus;
 
-    // File status string //
-    static const std::string NO_DATA_LOADED;
-    static const std::string LOADING_DATA;
+    LaBP::WLEMMSubject::SPtr m_subject;
+
+    // File status strings //
+    static const std::string DATA_NOT_LOADED;
+    static const std::string DATA_LOADING;
     static const std::string DATA_LOADED;
     static const std::string DATA_ERROR;
-    static const std::string NO_FILE_LOADED;
-    static const std::string LOADING_FILE;
-    static const std::string FILE_LOADED;
-    static const std::string FILE_ERROR;
 };
+
+const int WMMneRtClient::NO_CONNECTOR = -1;
 
 const std::string WMMneRtClient::STATUS_CON_CONNECTED = "Connected";
 const std::string WMMneRtClient::STATUS_CON_DISCONNECTED = "Disconnected";
@@ -220,13 +194,8 @@ const std::string WMMneRtClient::STATUS_DATA_STREAMING = "Streaming";
 const std::string WMMneRtClient::STATUS_DATA_ERROR = "Error";
 const std::string WMMneRtClient::STATUS_DATA_NOT_STREAMING = "Not streaming";
 
-const std::string WMMneRtClient::NO_FILE_LOADED = "No file loaded.";
-const std::string WMMneRtClient::LOADING_FILE = "Loading file ...";
-const std::string WMMneRtClient::FILE_LOADED = "File successfully loaded.";
-const std::string WMMneRtClient::FILE_ERROR = "Could not load file.";
-
-const std::string WMMneRtClient::NO_DATA_LOADED = "No data loaded.";
-const std::string WMMneRtClient::LOADING_DATA = "Loading data ...";
+const std::string WMMneRtClient::DATA_NOT_LOADED = "No data loaded.";
+const std::string WMMneRtClient::DATA_LOADING = "Loading data ...";
 const std::string WMMneRtClient::DATA_LOADED = "Data successfully loaded.";
 const std::string WMMneRtClient::DATA_ERROR = "Could not load data.";
 

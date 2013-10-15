@@ -26,7 +26,6 @@
 #include <set>
 #include <string>
 
-#include <core/common/WAssert.h>
 #include <core/common/WItemSelectionItemTyped.h>
 #include <core/common/WPathHelper.h>
 #include <core/kernel/WModule.h>
@@ -50,10 +49,8 @@ using namespace LaBP;
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMMneRtClient )
 
-const int WMMneRtClient::NO_CONNECTOR = -1;
-
 WMMneRtClient::WMMneRtClient() :
-                m_stopStreaming( true ), m_isExpLoaded( false ), m_isFiffLoaded( false )
+                m_stopStreaming( true )
 {
 }
 
@@ -131,6 +128,7 @@ void WMMneRtClient::properties()
                     m_propCondition );
     m_trgDataStop = m_propGrpConControl->addProperty( "Stop streaming:", "Stop", WPVBaseTypes::PV_TRIGGER_READY,
                     boost::bind( &WMMneRtClient::callbackTrgDataStop, this ) );
+    m_trgDataStop->setHidden( true );
 
     // Setup additional data //
     m_propGrpAdditional = m_properties->addPropertyGroup( "Additional data", "Additional data needed by other modules.", false );
@@ -154,65 +152,71 @@ void WMMneRtClient::properties()
                     WPathHelper::getHomePath(), m_propCondition );
     m_lfMEGFile->changed( true );
 
-    m_additionalStatus = m_propGrpAdditional->addProperty( "Additional data status:", "Additional data status.", NO_DATA_LOADED );
+    m_additionalStatus = m_propGrpAdditional->addProperty( "Additional data status:", "Additional data status.", DATA_NOT_LOADED );
     m_additionalStatus->setPurpose( PV_PURPOSE_INFORMATION );
-
-    // Experiment loader - Fiff properties //
-    m_propGrpExperiment = m_properties->addPropertyGroup( "LaBP Experiment Loader", "LaBP Experiment Loader", false );
-
-    m_fiffFileStatus = m_propGrpExperiment->addProperty( "FIFF file status:", "FIFF file status.", NO_FILE_LOADED );
-    m_fiffFileStatus->setPurpose( PV_PURPOSE_INFORMATION );
-
-    m_fiffFile = m_propGrpExperiment->addProperty( "FIFF file:", "Read a FIFF file to load additional information.",
-                    WPathHelper::getHomePath(), m_propCondition );
-    m_fiffFile->changed( true );
-
-    // Experiment loader - Metadata //
-    m_expLoadStatus = m_propGrpExperiment->addProperty( "Metadata status:", "LaBP Experiment data status.", NO_DATA_LOADED );
-    m_expLoadStatus->setPurpose( PV_PURPOSE_INFORMATION );
-
-    m_expLoadTrigger = m_propGrpExperiment->addProperty( "Load data", "Load data", WPVBaseTypes::PV_TRIGGER_READY,
-                    m_propCondition );
-    m_expLoadTrigger->setHidden( true );
-
-    const string subject( "none" );
-    m_expSubject = m_propGrpExperiment->addProperty( "Subject:", "Selected a subject.", subject );
-    m_expSubject->setHidden( true );
-    m_expSubject->setPurpose( PV_PURPOSE_INFORMATION );
-
-    const string trial( "none" );
-    m_expTrial = m_propGrpExperiment->addProperty( "Trial:", "Selected a trial.", trial );
-    m_expTrial->setHidden( true );
-    m_expTrial->setPurpose( PV_PURPOSE_INFORMATION );
-
-    m_expBemFiles.reset( new WItemSelection() );
-
-    m_expSurfaces.reset( new WItemSelection() );
-
-    m_trgDataStop->setHidden( true );
 }
 
 void WMMneRtClient::moduleInit()
 {
     infoLog() << "Initializing module ...";
+
+    m_moduleState.setResetable( true, true );
+    m_moduleState.add( m_propCondition );
+    ready();
     waitRestored();
 
-    // TODO(pieloth)
     const string ip = "127.0.0.1";
     const string alias = "OW-LaBP";
     m_rtClient.reset( new WRtClient( ip, alias ) );
     m_subject.reset( new WLEMMSubject() );
     viewInit( WLEMDDrawable2D::WEGraphType::DYNAMIC );
+
     infoLog() << "Initializing module finished!";
+
+    infoLog() << "Restoring module ...";
+
+    if( m_srcSpaceFile->changed( true ) )
+    {
+        if( handleSurfaceFileChanged( m_srcSpaceFile->get().string() ) )
+        {
+            m_subject->setSurface( m_surface );
+        }
+    }
+    if( m_bemFile->changed( true ) )
+    {
+        if( handleBemFileChanged( m_bemFile->get().string() ) )
+        {
+            m_subject->setBemBoundaries( m_bems );
+        }
+    }
+    if( m_digPointsFile->changed( true ) )
+    {
+        if( handleDigPointsFileChanged( m_digPointsFile->get().string() ) )
+        {
+            // TODO(pieloth): set dig points
+            m_rtClient->setDigPointsAndEEG( m_digPoints );
+        }
+    }
+    if( m_lfEEGFile->changed( true ) )
+    {
+        if( handleLfFileChanged( m_lfEEGFile->get().string(), m_leadfieldEEG ) )
+        {
+            m_subject->setLeadfield( WEModalityType::EEG, m_leadfieldEEG );
+        }
+    }
+    if( m_lfMEGFile->changed( true ) )
+    {
+        if( handleLfFileChanged( m_lfMEGFile->get().string(), m_leadfieldMEG ) )
+        {
+            m_subject->setLeadfield( WEModalityType::MEG, m_leadfieldMEG );
+        }
+    }
+
+    infoLog() << "Restoring module finished!";
 }
 
 void WMMneRtClient::moduleMain()
 {
-    m_moduleState.setResetable( true, true );
-    m_moduleState.add( m_propCondition );
-
-    ready();
-
     moduleInit();
 
     while( !m_shutdownFlag() )
@@ -235,18 +239,11 @@ void WMMneRtClient::moduleMain()
         {
             handleTrgDataStart();
         }
-        if( m_fiffFile->changed( true ) )
-        {
-            handleExtractExpLoader( m_fiffFile->get().string() );
-        }
-        if( m_expLoadTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
-        {
-            handleExperimentLoadChanged();
-        }
         if( m_connectorSelection->changed( true ) )
         {
             handleTrgConnectorChanged();
         }
+
         if( m_srcSpaceFile->changed( true ) )
         {
             if( handleSurfaceFileChanged( m_srcSpaceFile->get().string() ) )
@@ -265,7 +262,6 @@ void WMMneRtClient::moduleMain()
         {
             if( handleDigPointsFileChanged( m_digPointsFile->get().string() ) )
             {
-                // TODO(pieloth): set dig points
                 m_rtClient->setDigPointsAndEEG( m_digPoints );
             }
         }
@@ -283,7 +279,6 @@ void WMMneRtClient::moduleMain()
                 m_subject->setLeadfield( WEModalityType::MEG, m_leadfieldMEG );
             }
         }
-
     }
 }
 
@@ -293,7 +288,6 @@ void WMMneRtClient::handleTrgConConnect()
 
     m_rtClient.reset( new WRtClient( m_propConIp->get(), "OW-LaBP" ) );
 
-    // TODO(pieloth): set dig points
     if( !m_digPoints.empty() )
     {
         m_rtClient->setDigPointsAndEEG( m_digPoints );
@@ -370,7 +364,7 @@ void WMMneRtClient::handleTrgDataStart()
             WLEMMeasurement::SPtr emm;
             if( m_rtClient->readData( emm ) )
             {
-                if( m_subject && ( m_surface || m_bems || m_leadfieldEEG || m_leadfieldMEG || m_isExpLoaded ) )
+                if( m_subject && ( m_surface || m_bems || m_leadfieldEEG || m_leadfieldMEG ) )
                 {
                     emm->setSubject( m_subject );
                 }
@@ -397,93 +391,6 @@ void WMMneRtClient::callbackTrgDataStop()
     m_stopStreaming = true;
 }
 
-void WMMneRtClient::handleExtractExpLoader( std::string fName )
-{
-    boost::filesystem::path fiffFile( fName );
-    boost::filesystem::path expRoot = WLReaderExperiment::getExperimentRootFromFiff( fiffFile );
-    const string subject = WLReaderExperiment::getSubjectFromFiff( fiffFile );
-    const string trial = WLReaderExperiment::getTrialFromFiff( fiffFile );
-
-    m_expSubject->set( subject );
-    m_expSubject->setHidden( false );
-    m_expTrial->set( trial );
-    m_expTrial->setHidden( false );
-
-    if( !boost::filesystem::is_directory( expRoot ) )
-    {
-        expRoot = expRoot.parent_path();
-    }
-    m_expReader.reset( new WLReaderExperiment( expRoot.string(), subject ) );
-
-    set< string > bems = m_expReader->findBems();
-    m_expBemFiles->clear();
-    m_propGrpExperiment->removeProperty( m_expBemFilesSelection );
-    if( !bems.empty() )
-    {
-        for( set< string >::iterator it = bems.begin(); it != bems.end(); ++it )
-        {
-            m_expBemFiles->addItem(
-                            WItemSelectionItemTyped< string >::SPtr( new WItemSelectionItemTyped< string >( *it, *it ) ) );
-        }
-        m_expBemFilesSelection = m_propGrpExperiment->addProperty( "BEM Layers:", "Select BEM Layers to use.",
-                        m_expBemFiles->getSelectorFirst() );
-
-        // Be sure it is at least one selected, but not more than one
-        WPropertyHelper::PC_SELECTONLYONE::addTo( m_expBemFilesSelection );
-        m_expLoadTrigger->setHidden( false );
-    }
-
-    m_expSurfaces->clear();
-    m_propGrpExperiment->removeProperty( m_expSurfacesSelection );
-    set< string > surfaces = m_expReader->findSurfaceKinds();
-    if( !surfaces.empty() )
-    {
-        for( set< string >::iterator it = surfaces.begin(); it != surfaces.end(); ++it )
-        {
-            m_expSurfaces->addItem(
-                            WItemSelectionItemTyped< string >::SPtr( new WItemSelectionItemTyped< string >( *it, *it ) ) );
-        }
-        m_expSurfacesSelection = m_propGrpExperiment->addProperty( "Surfaces:", "Select surface to use.",
-                        m_expSurfaces->getSelectorFirst() );
-
-        // Be sure it is at least one selected, but not more than one
-        WPropertyHelper::PC_SELECTONLYONE::addTo( m_expSurfacesSelection );
-        m_expLoadTrigger->setHidden( false );
-    }
-}
-
-void WMMneRtClient::handleExperimentLoadChanged()
-{
-    debugLog() << "handleExperimentLoadChanged() called!";
-
-    bool rc = false;
-    m_expLoadStatus->set( LOADING_DATA, true );
-
-    m_subject.reset( new WLEMMSubject() );
-
-    const string bemFile = m_expBemFilesSelection->get().at( 0 )->getAs< WItemSelectionItemTyped< string > >()->getValue();
-    rc |= m_expReader->readBem( bemFile, m_subject );
-
-    const string surfaceType = m_expSurfacesSelection->get().at( 0 )->getAs< WItemSelectionItemTyped< string > >()->getValue();
-    rc |= m_expReader->readSourceSpace( surfaceType, m_subject );
-
-    const string trial = m_expTrial->get();
-    rc |= m_expReader->readLeadFields( surfaceType, bemFile, trial, m_subject );
-
-    if( rc )
-    {
-        m_expLoadStatus->set( DATA_LOADED, true );
-        m_isExpLoaded = true;
-    }
-    else
-    {
-        m_expLoadStatus->set( DATA_ERROR, true );
-        m_isExpLoaded = false;
-    }
-
-    m_expLoadTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, true );
-}
-
 void WMMneRtClient::handleTrgConnectorChanged()
 {
     debugLog() << "callbackTrgConnectorChanged() called!";
@@ -502,7 +409,7 @@ void WMMneRtClient::handleTrgConnectorChanged()
 bool WMMneRtClient::handleLfFileChanged( std::string fName, WLMatrix::SPtr& lf )
 {
     debugLog() << "handleLfFileChanged()";
-    m_additionalStatus->set( LOADING_DATA, true );
+    m_additionalStatus->set( DATA_LOADING, true );
 
     WLReaderLeadfield::SPtr reader;
     try
@@ -532,7 +439,7 @@ bool WMMneRtClient::handleSurfaceFileChanged( std::string fName )
 {
     debugLog() << "handleSurfaceFileChanged()";
 
-    m_additionalStatus->set( LOADING_DATA, true );
+    m_additionalStatus->set( DATA_LOADING, true );
     WLReaderSourceSpace::SPtr reader;
     try
     {
@@ -562,7 +469,7 @@ bool WMMneRtClient::handleBemFileChanged( std::string fName )
 {
     debugLog() << "handleBemFileChanged()";
 
-    m_additionalStatus->set( LOADING_DATA, true );
+    m_additionalStatus->set( DATA_LOADING, true );
     WLReaderBem::SPtr reader;
     try
     {
@@ -593,7 +500,7 @@ bool WMMneRtClient::handleDigPointsFileChanged( std::string fName )
 {
     debugLog() << "handleDigPointsFileChanged()";
 
-    m_additionalStatus->set( LOADING_DATA, true );
+    m_additionalStatus->set( DATA_LOADING, true );
     WLReaderDigPoints::SPtr reader;
     try
     {
