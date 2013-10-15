@@ -28,6 +28,7 @@
 #include <cstddef>
 #include <string>
 
+#include <boost/enable_shared_from_this.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include "core/data/WLEMMeasurement.h"
@@ -37,7 +38,7 @@
  *
  * \author  Christof Pieloth
  */
-class WEpochAveraging
+class WEpochAveraging: public boost::enable_shared_from_this< WEpochAveraging >
 {
 public:
     static const std::string CLASS;
@@ -76,6 +77,28 @@ public:
      * Resets all necessary attributes and objects to start a new calculation.
      */
     virtual void reset();
+
+    /**
+     * Cast to Average if possible.
+     *
+     * @return Shared Pointer< AVG >
+     */
+    template< typename AVG >
+    boost::shared_ptr< AVG > getAs()
+    {
+        return boost::dynamic_pointer_cast< AVG >( shared_from_this() );
+    }
+
+    /**
+     * Cast to Average if possible.
+     *
+     * @return Shared Pointer< const AVG >
+     */
+    template< typename AVG >
+    boost::shared_ptr< const AVG > getAs() const
+    {
+        return boost::dynamic_pointer_cast< AVG >( shared_from_this() );
+    }
 
 protected:
     /**
