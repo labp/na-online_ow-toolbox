@@ -119,13 +119,54 @@ void WMLeadfieldInterpolation::properties()
 
 }
 
+void WMLeadfieldInterpolation::moduleInit()
+{
+    infoLog() << "Initializing module ...";
+
+    m_moduleState.setResetable( true, true ); // resetable, autoreset
+    m_moduleState.add( m_input->getDataChangedCondition() ); // Wake up when input data changed
+    m_moduleState.add( m_propCondition ); // Wake up when input data changed
+
+    ready(); // signal ready state
+    waitRestored();
+
+    infoLog() << "Initializing module finished!";
+
+    infoLog() << "Restoring module ...";
+
+    m_status->set( NONE, true );
+    if( m_fiffFile->changed( true ) )
+    {
+        m_status->set( READING, true );
+        if( readFiff( m_fiffFile->get().string() ) )
+        {
+            m_status->set( FIFF_OK_TEXT, true );
+        }
+        else
+        {
+            m_status->set( ERROR, true );
+        }
+    }
+
+    if( m_hdLeadfieldFile->changed( true ) )
+    {
+        m_status->set( READING, true );
+        if( readHDLeadfield( m_hdLeadfieldFile->get().string() ) )
+        {
+            m_status->set( HD_LEADFIELD_OK_TEXT, true );
+        }
+        else
+        {
+            m_status->set( ERROR, true );
+        }
+    }
+
+    infoLog() << "Restoring module finished!";
+}
+
 void WMLeadfieldInterpolation::moduleMain()
 {
-    m_moduleState.setResetable( true, true );
-    m_moduleState.add( m_propCondition );
-    m_moduleState.add( m_input->getDataChangedCondition() );
-
-    ready();
+    moduleInit();
 
     WLEMMCommand::SPtr cmdIn;
     while( !m_shutdownFlag() )
@@ -192,30 +233,6 @@ void WMLeadfieldInterpolation::moduleMain()
             process( cmdIn );
         }
     }
-}
-
-void WMLeadfieldInterpolation::handleInput( WLEMMCommand::ConstSPtr cmd )
-{
-    if( cmd->getMiscCommand().find( COMMAND ) == WLEMMCommand::MiscCommandT::npos )
-    {
-        return;
-    }
-
-    m_fiffEmm = cmd->getParameterAs< WLEMMeasurement::SPtr >();
-    if( !m_fiffEmm )
-    {
-        errorLog() << "Command[" << COMMAND << "] did not contain a EMM!";
-        return;
-    }
-
-    if( !m_fiffEmm->hasModality( WEModalityType::EEG ) )
-    {
-        errorLog() << "No EEG found!";
-        m_status->set( ERROR, true );
-        return;
-    }
-    infoLog() << "Reading FIFF file finished!";
-    m_status->set( FIFF_OK_TEXT, true );
 }
 
 bool WMLeadfieldInterpolation::readFiff( const std::string& fname )
@@ -310,13 +327,6 @@ bool WMLeadfieldInterpolation::interpolate()
         errorLog() << "Could not interpolate leadfield!";
     }
 
-//    WLEMMCommand::SPtr cmd( new WLEMMCommand( WLEMMCommand::Command::MISC ) );
-//// TODO(pieloth): Refactor "leadfield" to a global constant
-//    cmd->setMiscCommand( COMMAND );
-//    WLEMMCommand::ParamT p = m_leadfieldInterpolated;
-//    cmd->setParameter( p );
-//    m_output->updateData( cmd );
-
     m_start->set( WPVBaseTypes::PV_TRIGGER_READY, true );
     return success;
 }
@@ -357,19 +367,19 @@ bool WMLeadfieldInterpolation::processCompute( WLEMMeasurement::SPtr emm )
     return rc;
 }
 
-bool WMLeadfieldInterpolation::processInit( WLEMMCommand::SPtr labp )
+bool WMLeadfieldInterpolation::processInit( WLEMMCommand::SPtr cmdIn )
 {
     WLTimeProfiler tp( "WMLeadfieldInterpolation", "processInit" );
-    if( labp->hasEmm() )
+    if( cmdIn->hasEmm() )
     {
-        m_fiffEmm = labp->getEmm();
+        m_fiffEmm = cmdIn->getEmm();
     }
     if( m_fiffEmm && m_fwdSolution )
     {
         m_status->set( COMPUTING, true );
         if( interpolate() )
         {
-            WLEMMeasurement::SPtr emm = labp->getEmm();
+            WLEMMeasurement::SPtr emm = cmdIn->getEmm();
             emm->getSubject()->setLeadfield( WEModalityType::EEG, m_leadfieldInterpolated );
             m_status->set( SUCCESS, true );
         }
@@ -379,24 +389,24 @@ bool WMLeadfieldInterpolation::processInit( WLEMMCommand::SPtr labp )
         }
     }
 
-    m_output->updateData( labp );
+    m_output->updateData( cmdIn );
     return true;
 }
 
-bool WMLeadfieldInterpolation::processMisc( WLEMMCommand::SPtr labp )
+bool WMLeadfieldInterpolation::processMisc( WLEMMCommand::SPtr cmdIn )
 {
-    m_output->updateData( labp );
+    m_output->updateData( cmdIn );
     return true;
 }
 
-bool WMLeadfieldInterpolation::processTime( WLEMMCommand::SPtr labp )
+bool WMLeadfieldInterpolation::processTime( WLEMMCommand::SPtr cmdIn )
 {
-    m_output->updateData( labp );
+    m_output->updateData( cmdIn );
     return true;
 }
 
-bool WMLeadfieldInterpolation::processReset( WLEMMCommand::SPtr labp )
+bool WMLeadfieldInterpolation::processReset( WLEMMCommand::SPtr cmdIn )
 {
-    m_output->updateData( labp );
+    m_output->updateData( cmdIn );
     return true;
 }

@@ -58,10 +58,13 @@ public:
 
 protected:
     virtual bool processCompute( WLEMMeasurement::SPtr emm );
-    virtual bool processInit( WLEMMCommand::SPtr labp );
-    virtual bool processMisc( WLEMMCommand::SPtr labp );
-    virtual bool processTime( WLEMMCommand::SPtr labp );
-    virtual bool processReset( WLEMMCommand::SPtr labp );
+    virtual bool processInit( WLEMMCommand::SPtr cmdIn );
+    virtual bool processMisc( WLEMMCommand::SPtr cmdIn );
+    virtual bool processTime( WLEMMCommand::SPtr cmdIn );
+    virtual bool processReset( WLEMMCommand::SPtr cmdIn );
+
+
+    virtual void moduleInit();
 
     /**
      * \par Description
@@ -120,8 +123,6 @@ private:
     WPropFilename m_fiffFile;
 
     WLEMMeasurement::SPtr m_fiffEmm;
-
-    void handleInput( WLEMMCommand::ConstSPtr cmd );
 
     bool readFiff( const std::string& fname );
 
