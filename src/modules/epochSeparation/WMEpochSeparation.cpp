@@ -111,28 +111,31 @@ void WMEpochSeparation::properties()
 void WMEpochSeparation::moduleInit()
 {
     infoLog() << "Initializing module ...";
-    waitRestored();
-    viewInit( LaBP::WLEMDDrawable2D::WEGraphType::MULTI );
-    m_separation = WEpochSeparation::SPtr( new WEpochSeparation() );
-    handleResetTriggerPressed();
-    infoLog() << "Initializing module finished!";
-}
-
-void WMEpochSeparation::moduleMain()
-{
     // init moduleState for using Events in mainLoop
     m_moduleState.setResetable( true, true ); // resetable, autoreset
     m_moduleState.add( m_input->getDataChangedCondition() ); // when inputdata changed
     m_moduleState.add( m_propCondition ); // when properties changed
 
-    WLEMMCommand::SPtr labpIn;
-
     ready(); // signal ready state
+    waitRestored();
 
+    viewInit( LaBP::WLEMDDrawable2D::WEGraphType::MULTI );
+    m_separation = WEpochSeparation::SPtr( new WEpochSeparation() );
+
+    infoLog() << "Initializing module finished!";
+
+    infoLog() << "Restoring module ...";
+
+    handleResetTriggerPressed();
+
+    infoLog() << "Restoring module finished!";
+}
+
+void WMEpochSeparation::moduleMain()
+{
     moduleInit();
 
-    debugLog() << "Entering main loop";
-
+    WLEMMCommand::SPtr cmdIn;
     while( !m_shutdownFlag() )
     {
         if( m_input->isEmpty() ) // continue processing if data is available
@@ -153,17 +156,17 @@ void WMEpochSeparation::moduleMain()
             handleResetTriggerPressed();
         }
 
-        labpIn.reset();
+        cmdIn.reset();
         if( !m_input->isEmpty() )
         {
-            labpIn = m_input->getData();
+            cmdIn = m_input->getData();
         }
-        const bool dataValid = ( labpIn );
+        const bool dataValid = ( cmdIn );
 
         // ---------- INPUTDATAUPDATEEVENT ----------
         if( dataValid ) // If there was an update on the inputconnector
         {
-            process( labpIn );
+            process( cmdIn );
         }
     }
 }
@@ -206,14 +209,13 @@ bool WMEpochSeparation::processCompute( WLEMMeasurement::SPtr emmIn )
     return true;
 }
 
-bool WMEpochSeparation::processInit( WLEMMCommand::SPtr labp )
+bool WMEpochSeparation::processInit( WLEMMCommand::SPtr cmdIn )
 {
-    // TODO(pieloth)
-    m_output->updateData( labp );
-    return false;
+    m_output->updateData( cmdIn );
+    return true;
 }
 
-bool WMEpochSeparation::processReset( WLEMMCommand::SPtr labp )
+bool WMEpochSeparation::processReset( WLEMMCommand::SPtr cmdIn )
 {
     viewReset();
     m_separation->reset();
@@ -247,7 +249,7 @@ bool WMEpochSeparation::processReset( WLEMMCommand::SPtr labp )
     infoLog() << "Trigger set: " << triggers.size();
     m_separation->setTriggerMask( triggers );
 
-    m_output->updateData( labp );
+    m_output->updateData( cmdIn );
 
     return true;
 }
