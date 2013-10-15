@@ -192,28 +192,33 @@ void WMSourceReconstruction::properties()
 void WMSourceReconstruction::moduleInit()
 {
     infoLog() << "Initializing module ...";
-    waitRestored();
-    viewInit( LaBP::WLEMDDrawable2D::WEGraphType::SINGLE );
-    handleImplementationChanged();
-    handleWeightingTypeChanged();
-    handleSnrChanged();
-    infoLog() << "Initializing module finished!";
-}
 
-void WMSourceReconstruction::moduleMain()
-{
     // init moduleState for using Events in mainLoop
     m_moduleState.setResetable( true, true ); // resetable, autoreset
     m_moduleState.add( m_input->getDataChangedCondition() ); // when inputdata changed
     m_moduleState.add( m_propCondition ); // when properties changed
 
-    WLEMMCommand::SPtr cmd;
-
     ready(); // signal ready state
+    waitRestored();
 
+    viewInit( LaBP::WLEMDDrawable2D::WEGraphType::SINGLE );
+
+    infoLog() << "Initializing module finished!";
+
+    infoLog() << "Restoring module ...";
+
+    handleImplementationChanged();
+    handleWeightingTypeChanged();
+    handleSnrChanged();
+
+    infoLog() << "Restoring module finished!";
+}
+
+void WMSourceReconstruction::moduleMain()
+{
     moduleInit();
 
-    debugLog() << "Entering main loop";
+    WLEMMCommand::SPtr cmd;
     while( !m_shutdownFlag() )
     {
         if( m_input->isEmpty() ) // continue processing if data is available
@@ -294,8 +299,8 @@ void WMSourceReconstruction::handleResetTrigger()
 {
     debugLog() << "handleResetTrigger() called!";
 
-    WLEMMCommand::SPtr labp( new WLEMMCommand( WLEMMCommand::Command::RESET ) );
-    processReset( labp );
+    WLEMMCommand::SPtr cmd( new WLEMMCommand( WLEMMCommand::Command::RESET ) );
+    processReset( cmd );
 
     m_resetModule->set( WPVBaseTypes::PV_TRIGGER_READY );
 }
@@ -436,20 +441,20 @@ bool WMSourceReconstruction::processCompute( WLEMMeasurement::SPtr emmIn )
     return true;
 }
 
-bool WMSourceReconstruction::processInit( WLEMMCommand::SPtr labp )
+bool WMSourceReconstruction::processInit( WLEMMCommand::SPtr cmdIn )
 {
     WLTimeProfiler tp( "WMSourceReconstruction", "processInit" );
     LaBP::WEModalityType::Enum modality = this->getCalculateModality();
-    if( labp->hasEmm() )
+    if( cmdIn->hasEmm() )
     {
-        inverseSolutionFromSubject( labp->getEmm(), modality );
+        inverseSolutionFromSubject( cmdIn->getEmm(), modality );
     }
 
-    m_output->updateData( labp );
+    m_output->updateData( cmdIn );
     return true;
 }
 
-bool WMSourceReconstruction::processReset( WLEMMCommand::SPtr labp )
+bool WMSourceReconstruction::processReset( WLEMMCommand::SPtr cmdIn )
 {
     viewReset();
     m_sourceReconstruction->reset();
@@ -469,7 +474,7 @@ bool WMSourceReconstruction::processReset( WLEMMCommand::SPtr labp )
     m_nCovarianceMatrix.reset();
     m_dCovarianceMatrix.reset();
 
-    m_output->updateData( labp );
+    m_output->updateData( cmdIn );
     return true;
 }
 

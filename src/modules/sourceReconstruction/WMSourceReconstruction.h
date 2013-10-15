@@ -110,8 +110,8 @@ protected:
     // Methods from WLEMMCommandProcessor
     // ----------------------------
     virtual bool processCompute( WLEMMeasurement::SPtr emm );
-    virtual bool processInit( WLEMMCommand::SPtr labp );
-    virtual bool processReset( WLEMMCommand::SPtr labp );
+    virtual bool processInit( WLEMMCommand::SPtr cmdIn );
+    virtual bool processReset( WLEMMCommand::SPtr cmdIn );
 
 private:
     // TODO(pieloth): use OW classes
