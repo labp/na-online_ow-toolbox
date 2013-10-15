@@ -123,9 +123,9 @@ protected:
 private:
     void designLowpass( std::vector< ScalarT >* pCoeff, size_t order, ScalarT cFreq1, ScalarT sFreq,
                     WEWindowsType::Enum windowtype );
-    void designHighpass( void );
-    void designBandpass( void );
-    void designBandstop( void );
+    void designHighpass();
+    void designBandpass();
+    void designBandstop();
 
     void normalizeCoeff( std::vector< ScalarT >* pCoeff );
 

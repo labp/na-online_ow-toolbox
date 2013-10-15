@@ -109,10 +109,14 @@ void WMFIRFilter::properties()
 
     m_coeffFile = m_propGrpFirFilter->addProperty( "Coefficients:", "Load coefficients from file.", WPathHelper::getAppPath(),
                     boost::bind( &WMFIRFilter::callbackCoeffFileChanged, this ) );
+    m_coeffFile->changed( true );
+
     m_useCuda = m_propGrpFirFilter->addProperty( "Use Cuda", "Activate CUDA support.", true, m_propCondition );
 #ifndef FOUND_CUDA
     m_useCuda->setHidden( true );
 #endif // FOUND_CUDA
+    m_useCuda->changed( true );
+
     // creating the list of Filtertypes
     m_filterTypes = WItemSelection::SPtr( new WItemSelection() );
     std::vector< WFIRFilter::WEFilterType::Enum > fEnums = WFIRFilter::WEFilterType::values();
@@ -174,42 +178,43 @@ void WMFIRFilter::properties()
     // button for starting design
     m_designTrigger = m_propGrpFirFilter->addProperty( "Filter:", "Calculate Filtercoeffitients", WPVBaseTypes::PV_TRIGGER_READY,
                     m_propCondition );
+    m_designTrigger->changed( true );
 }
 
 void WMFIRFilter::moduleInit()
 {
     infoLog() << "Initializing module ...";
 
+    m_moduleState.setResetable( true, true ); // resetable, autoreset
+    m_moduleState.add( m_input->getDataChangedCondition() ); // Wake up when input data changed
+    m_moduleState.add( m_propCondition ); // Wake up when property changed
+
+    ready(); // signal ready state
     waitRestored();
+
     viewInit( LaBP::WLEMDDrawable2D::WEGraphType::DYNAMIC );
-    m_coeffFile->changed( true );
-    m_useCuda->changed( true );
+
+    infoLog() << "Initializing module finished!";
+
+    infoLog() << "Restoring module ...";
+
     handleImplementationChanged();
     callbackFilterTypeChanged();
-    infoLog() << m_coeffFile->get().string();
     if( !( m_coeffFile->get().string().empty() )
                     && m_coeffFile->get().string().compare( WPathHelper::getAppPath().string() ) != 0 )
     {
         callbackCoeffFileChanged();
     }
+    handleDesignButtonPressed();
 
-    infoLog() << "Initializing module finished!";
+    infoLog() << "Restoring module finished!";
 }
 
 void WMFIRFilter::moduleMain()
 {
-    // init moduleState for using Events in mainLoop
-    m_moduleState.setResetable( true, true ); // resetable, autoreset
-    m_moduleState.add( m_input->getDataChangedCondition() ); // when inputdata changed
-    m_moduleState.add( m_propCondition ); // when properties changed
-
-    WLEMMCommand::SPtr labpIn;
-
-    ready(); // signal ready state
-
     moduleInit();
 
-    debugLog() << "Entering main loop";
+    WLEMMCommand::SPtr cmdIn;
     while( !m_shutdownFlag() )
     {
         if( m_input->isEmpty() ) // continue processing if data is available
@@ -229,22 +234,22 @@ void WMFIRFilter::moduleMain()
             handleImplementationChanged();
         }
 
-        if( m_designTrigger->changed( true ) )
+        if( m_designTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
             handleDesignButtonPressed();
         }
 
-        labpIn.reset();
+        cmdIn.reset();
         if( !m_input->isEmpty() )
         {
-            labpIn = m_input->getData();
+            cmdIn = m_input->getData();
         }
-        const bool dataValid = ( labpIn );
+        const bool dataValid = ( cmdIn );
 
         // ---------- INPUTDATAUPDATEEVENT ----------
         if( dataValid ) // If there was an update on the inputconnector
         {
-            process( labpIn );
+            process( cmdIn );
         }
     }
 }
@@ -260,7 +265,7 @@ void WMFIRFilter::callbackCoeffFileChanged( void )
 
 void WMFIRFilter::handleImplementationChanged( void )
 {
-    debugLog() << "handleUseCudaChanged() called!";
+    debugLog() << "handleImplementationChanged() called!";
     WFIRFilter::WEFilterType::Enum fType = m_filterTypeSelection->get().at( 0 )->getAs<
                     WItemSelectionItemTyped< WFIRFilter::WEFilterType::Enum > >()->getValue();
     WFIRFilter::WEWindowsType::Enum wType = m_windowSelection->get().at( 0 )->getAs<
@@ -375,11 +380,11 @@ bool WMFIRFilter::processCompute( WLEMMeasurement::SPtr emmIn )
     return true;
 }
 
-bool WMFIRFilter::processInit( WLEMMCommand::SPtr labp )
+bool WMFIRFilter::processInit( WLEMMCommand::SPtr cmdIn )
 {
-    if( labp->hasEmm() )
+    if( cmdIn->hasEmm() )
     {
-        WLEMMeasurement::ConstSPtr emm = labp->getEmm();
+        WLEMMeasurement::ConstSPtr emm = cmdIn->getEmm();
         WLEMData::ConstSPtr emd;
 
         float samplFreqEeg = 0.0;
@@ -417,15 +422,15 @@ bool WMFIRFilter::processInit( WLEMMCommand::SPtr labp )
             infoLog() << "No sampling rate to initialize!";
         }
     }
-    m_output->updateData( labp );
+    m_output->updateData( cmdIn );
     return true;
 }
 
-bool WMFIRFilter::processReset( WLEMMCommand::SPtr labp )
+bool WMFIRFilter::processReset( WLEMMCommand::SPtr cmdIn )
 {
     viewReset();
     m_firFilter->reset();
-    m_output->updateData( labp );
+    m_output->updateData( cmdIn );
     return true;
 }
 
