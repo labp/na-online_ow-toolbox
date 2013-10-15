@@ -324,6 +324,8 @@ void WLModuleDrawable::callbackLabelsChanged()
 
 void WLModuleDrawable::viewInit( WLEMDDrawable2D::WEGraphType::Enum graphType )
 {
+    debugLog() << "viewInit() called!";
+
     waitRestored();
 
     m_graphType = graphType;
@@ -393,7 +395,7 @@ void WLModuleDrawable::viewUpdate( WLEMMeasurement::SPtr emm )
 
 void WLModuleDrawable::viewReset()
 {
-    debugLog() << "reset() called!";
+    debugLog() << "viewReset() called!";
     m_range = -1;
 
 // Avoid memory leak due to circular references drawables <-> listener

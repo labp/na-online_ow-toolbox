@@ -71,8 +71,8 @@ protected:
     // ----------------------------
     // Methods from WLEMMCommandProcessor
     // ----------------------------
-    virtual bool processTime( WLEMMCommand::SPtr labp );
-    virtual bool processMisc( WLEMMCommand::SPtr labp );
+    virtual bool processTime( WLEMMCommand::SPtr cmdIn );
+    virtual bool processMisc( WLEMMCommand::SPtr cmdIn );
 
     /**
      * Output connector for a filtered WEEG2 dataset

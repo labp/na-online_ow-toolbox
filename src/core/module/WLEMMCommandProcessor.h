@@ -39,14 +39,14 @@ public:
 
     virtual ~WLEMMCommandProcessor();
 
-    bool process( WLEMMCommand::SPtr labp );
+    bool process( WLEMMCommand::SPtr cmdIn );
 
 protected:
     virtual bool processCompute( WLEMMeasurement::SPtr emm ) = 0;
-    virtual bool processInit( WLEMMCommand::SPtr labp ) = 0;
-    virtual bool processMisc( WLEMMCommand::SPtr labp ) = 0;
-    virtual bool processTime( WLEMMCommand::SPtr labp ) = 0;
-    virtual bool processReset( WLEMMCommand::SPtr labp ) = 0;
+    virtual bool processInit( WLEMMCommand::SPtr cmdIn ) = 0;
+    virtual bool processMisc( WLEMMCommand::SPtr cmdIn ) = 0;
+    virtual bool processTime( WLEMMCommand::SPtr cmdIn ) = 0;
+    virtual bool processReset( WLEMMCommand::SPtr cmdIn ) = 0;
 };
 
 #endif  // WLEMMCOMMANDPROCESSOR_H_

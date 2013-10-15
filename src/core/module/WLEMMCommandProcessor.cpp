@@ -34,30 +34,30 @@ WLEMMCommandProcessor::~WLEMMCommandProcessor()
 {
 }
 
-bool WLEMMCommandProcessor::process( WLEMMCommand::SPtr labp )
+bool WLEMMCommandProcessor::process( WLEMMCommand::SPtr cmdIn )
 {
     bool succes;
-    switch( labp->getCommand() )
+    switch( cmdIn->getCommand() )
     {
         case WLEMMCommand::Command::COMPUTE:
             wlog::debug( CLASS ) << "Processing Command::COMPUTE";
-            succes = processCompute( labp->getEmm() );
+            succes = processCompute( cmdIn->getEmm() );
             break;
         case WLEMMCommand::Command::INIT:
             wlog::debug( CLASS ) << "Processing Command::INIT";
-            succes = processInit( labp );
+            succes = processInit( cmdIn );
             break;
         case WLEMMCommand::Command::MISC:
             wlog::debug( CLASS ) << "Processing Command::MISC";
-            succes = processMisc( labp );
+            succes = processMisc( cmdIn );
             break;
         case WLEMMCommand::Command::TIME_UPDATE:
             wlog::debug( CLASS ) << "Processing Command::TIME_UPDATE";
-            succes = processTime( labp );
+            succes = processTime( cmdIn );
             break;
         case WLEMMCommand::Command::RESET:
             wlog::debug( CLASS ) << "Processing Command::RESET";
-            succes = processReset( labp );
+            succes = processReset( cmdIn );
             break;
         default:
             wlog::error( CLASS ) << "Unknown Command::Enum!";
