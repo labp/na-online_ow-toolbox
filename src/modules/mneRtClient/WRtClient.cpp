@@ -555,6 +555,10 @@ bool WRtClient::preparePrototype( WLEMMeasurement* const emm )
         }
         emm->setDigPoints( m_digPoints );
     }
+    else
+    {
+        emm->setDigPoints( m_digPoints );
+    }
     return true;
 }
 
