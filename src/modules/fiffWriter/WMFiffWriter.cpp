@@ -153,11 +153,9 @@ void WMFiffWriter::moduleMain()
 
 bool WMFiffWriter::handleFileChanged()
 {
-    bool rc = true;
     if( m_fiffWriter )
     {
         m_fiffWriter->close();
-        rc = false;
         debugLog() << "Closed old writer!";
     }
 
@@ -165,16 +163,13 @@ bool WMFiffWriter::handleFileChanged()
     {
         infoLog() << "Open file: " << m_propFile->get().string();
         m_fiffWriter.reset( new WWriterFiff( m_propFile->get().string() ) );
-        rc = m_fiffWriter->open();
+        return m_fiffWriter->open();
     }
     catch( const WDHException& e )
     {
         errorLog() << "Could not create fiff writer!";
-        rc = false;
+        return false;
     }
-
-    return rc;
-
 }
 
 bool WMFiffWriter::processCompute( WLEMMeasurement::SPtr emm )
