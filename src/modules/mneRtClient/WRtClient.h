@@ -77,6 +77,9 @@ public:
 
     bool setSimulationFile( std::string simFile );
 
+    void setBlockSize(int blockSize);
+    int getBlockSize();
+
     bool readData( WLEMMeasurement::SPtr& emmIn );
 
     // TODO(pieloth): Workaround for #227/#228
@@ -131,6 +134,8 @@ private:
     const std::string m_ipAddress;
     const std::string m_alias;
     qint32 m_clientId;
+
+    int m_blockSize;
 
     std::vector< WLDigPoint > m_digPoints;
 

@@ -121,6 +121,9 @@ void WMMneRtClient::properties()
     const string sim_file = "/opt/naonline/emm_data/intershift/rawdir/is05a/is05a1.fif";
     m_simFile = m_propGrpConControl->addProperty( "Simulation File:", "Local path on server to simluation file.", sim_file );
 
+    const int block_size = 500;
+    m_blockSize = m_propGrpConControl->addProperty( "Block size:", "Samples per packet.", block_size );
+
     // Setup streaming //
     m_propDataStatus = m_propGrpConControl->addProperty( "Data status:", "Streaming status.", STATUS_DATA_NOT_STREAMING );
     m_propDataStatus->setPurpose( PV_PURPOSE_INFORMATION );
@@ -152,7 +155,8 @@ void WMMneRtClient::properties()
                     WPathHelper::getHomePath(), m_propCondition );
     m_lfMEGFile->changed( true );
 
-    m_additionalStatus = m_propGrpAdditional->addProperty( "Additional data status:", "Additional data status.", DATA_NOT_LOADED );
+    m_additionalStatus = m_propGrpAdditional->addProperty( "Additional data status:", "Additional data status.",
+                    DATA_NOT_LOADED );
     m_additionalStatus->setPurpose( PV_PURPOSE_INFORMATION );
 }
 
@@ -169,6 +173,7 @@ void WMMneRtClient::moduleInit()
     const string alias = "OW-LaBP";
     m_rtClient.reset( new WRtClient( ip, alias ) );
     m_subject.reset( new WLEMMSubject() );
+
     viewInit( WLEMDDrawable2D::WEGraphType::DYNAMIC );
 
     infoLog() << "Initializing module finished!";
@@ -353,6 +358,8 @@ void WMMneRtClient::handleTrgDataStart()
     m_stopStreaming = false;
 
     m_rtClient->setSimulationFile( m_simFile->get() );
+    m_rtClient->setBlockSize( m_blockSize->get() );
+    viewReset();
     if( m_rtClient->start() )
     {
         m_propDataStatus->set( STATUS_DATA_STREAMING );

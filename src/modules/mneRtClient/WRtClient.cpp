@@ -55,6 +55,7 @@ WRtClient::WRtClient( const std::string& ip_address, const std::string& alias ) 
     m_isConnected = false;
     m_clientId = -1;
     m_conSelected = -1;
+    m_blockSize = 500;
 
     m_chPosEeg.reset( new ChannelsPositionsT );
     m_facesEeg.reset( new FacesT );
@@ -242,16 +243,14 @@ bool WRtClient::start()
         return false;
     }
 
-// Set buffer size
-// TODO(pieloth): set variable block size.
     wlog::debug( CLASS ) << "Set buffer size.";
-    ( *m_rtCmdClient )["bufsize"].pValues()[0] = QVariant( 500 );
+    ( *m_rtCmdClient )["bufsize"].pValues()[0] = QVariant( m_blockSize );
     ( *m_rtCmdClient )["bufsize"].send();
 
     wlog::debug( CLASS ) << "Start streaming ...";
     ( *m_rtCmdClient )["start"].pValues()[0] = QVariant( m_clientId );
     ( *m_rtCmdClient )["start"].send();
-// TODO(pieloth): Check if streaming has been started.
+    // TODO(pieloth): Check if streaming has been started.
 
     m_isStreaming = true;
 
@@ -329,6 +328,16 @@ bool WRtClient::setConnector( int conId )
         wlog::error( CLASS ) << "Could not find request connector!";
         return false;
     }
+}
+
+void WRtClient::setBlockSize( int blockSize )
+{
+    m_blockSize = blockSize;
+}
+
+int WRtClient::getBlockSize()
+{
+    return m_blockSize;
 }
 
 bool WRtClient::setSimulationFile( std::string fname )

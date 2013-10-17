@@ -146,6 +146,7 @@ private:
     static const int NO_CONNECTOR;
 
     WPropString m_simFile;
+    WPropInt m_blockSize;
 
     // Streaming status strings //
     static const std::string STATUS_DATA_STREAMING;
