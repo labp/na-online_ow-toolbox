@@ -60,6 +60,13 @@ namespace LaBP
         delete m_animation;
     }
 
+    bool WLEMDDrawable2DMultiDynamic::setTimeRange( ValueT timeRange )
+    {
+        bool rc = WLEMDDrawable2D::setTimeRange( timeRange );
+        m_animation->setTime( getTimeRange() );
+        return rc;
+    }
+
     void WLEMDDrawable2DMultiDynamic::draw( WLEMMeasurement::SPtr emm )
     {
         osg::ref_ptr< WLAnimationSideScroll::EMMNode > emdNode = createEmdNode( emm );

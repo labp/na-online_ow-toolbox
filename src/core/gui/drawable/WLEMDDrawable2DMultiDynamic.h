@@ -54,6 +54,8 @@ namespace LaBP
         WLEMDDrawable2DMultiDynamic( WCustomWidget::SPtr widget );
         virtual ~WLEMDDrawable2DMultiDynamic();
 
+        virtual bool setTimeRange( ValueT timeRange );
+
         virtual void draw( WLEMMeasurement::SPtr emm );
 
         virtual bool hasData() const;
