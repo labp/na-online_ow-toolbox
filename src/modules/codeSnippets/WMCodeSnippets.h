@@ -112,7 +112,13 @@ private:
     bool writeEmdPositions( WLEMMeasurement::ConstSPtr emm );
     bool writeEmdPositions( std::vector< WPosition >* const positions, std::string fname );
 
+    void emulateSinusWave();
+
     WPropBool m_writePos;
+
+    WPropTrigger m_trgGenerate;
+
+    static void generateSinusWave( WLEMData::DataT* const in, float sr, float f, float amp, float offset = 0 );
 };
 
 #endif  // WMCODESNIPPETS_H_

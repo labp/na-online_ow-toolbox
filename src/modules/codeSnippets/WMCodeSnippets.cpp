@@ -22,11 +22,13 @@
 //
 //---------------------------------------------------------------------------
 
+#include <cmath> // M_PI, sin, pow
 #include <fstream>
 #include <string>
 #include <vector>
 
 #include <core/common/WException.h>
+#include <core/common/WRealtimeTimer.h>
 
 #include "core/data/emd/WLEMDEEG.h"
 #include "core/data/emd/WLEMDMEG.h"
@@ -83,6 +85,8 @@ void WMCodeSnippets::properties()
 
     m_propCondition = WCondition::SPtr( new WCondition() );
     m_writePos = m_properties->addProperty( "Write Positions:", "Writes positions from EEG/MEG to /tmp/", true, m_propCondition );
+
+    m_trgGenerate = m_properties->addProperty( "Sinus generator:", "Start", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
 }
 
 WModule::SPtr WMCodeSnippets::factory() const
@@ -127,6 +131,11 @@ void WMCodeSnippets::moduleMain()
         if( dataValid ) // If there was an update on the inputconnector
         {
             process( cmdIn );
+        }
+
+        if( ( m_trgGenerate->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED ) )
+        {
+            emulateSinusWave();
         }
     }
 }
@@ -192,9 +201,11 @@ bool WMCodeSnippets::writeEmdPositions( WLEMMeasurement::ConstSPtr emm )
 
         vector< WLEMMBemBoundary::SPtr >& bems = subject->getBemBoundaries();
         vector< WLEMMBemBoundary::SPtr >::const_iterator it = bems.begin();
-        for(; it != bems.end(); ++it) {
-            if((*it)->getBemType() == WEBemType::OUTER_SKIN) {
-                vector< WPosition >& pos = (*it)->getVertex();
+        for( ; it != bems.end(); ++it )
+        {
+            if( ( *it )->getBemType() == WEBemType::OUTER_SKIN )
+            {
+                vector< WPosition >& pos = ( *it )->getVertex();
                 rc &= writeEmdPositions( &pos, "/tmp/positions_skin.txt" );
                 break;
             }
@@ -224,7 +235,7 @@ bool WMCodeSnippets::writeEmdPositions( vector< WPosition >* const positions, st
         mat << 0.99732f, 0.0693495f, -0.0232939f, -0.00432357f, -0.0672088f, 0.994307f, 0.0826812f, -0.00446779f, 0.0288952f, -0.0808941f, 0.996304f, 0.0442954f, 0.0f, 0.0f, 0.0f, 1.0f;
     }
     else
-        if( fname.compare( "/tmp/positions_src.txt" ) == 0 || fname.compare( "/tmp/positions_skin.txt" ) == 0)
+        if( fname.compare( "/tmp/positions_src.txt" ) == 0 || fname.compare( "/tmp/positions_skin.txt" ) == 0 )
         {
             mat.setIdentity();
             mat *= 0.001;
@@ -243,5 +254,69 @@ bool WMCodeSnippets::writeEmdPositions( vector< WPosition >* const positions, st
     }
     fstream.close();
     return true;
+}
+
+void WMCodeSnippets::generateSinusWave( WLEMData::DataT* const in, float sr, float f, float amp, float offset )
+{
+    float delta = 1 / static_cast< float >( sr );
+    for( WLEMData::DataT::Index row = 0; row < in->rows(); ++row )
+    {
+        for( WLEMData::ChannelT::Index col = 0; col < in->cols(); ++col )
+        {
+            const WLEMData::ScalarT x = col * delta;
+            const WLEMData::ScalarT x_rad = 2 * M_PI * x;
+            const WLEMData::ScalarT y = amp * sin( f * x_rad ) + offset;
+            ( *in )( row, col ) = y;
+        }
+    }
+}
+
+void WMCodeSnippets::emulateSinusWave()
+{
+    const float length = 30.0;
+    const float sampling_frequency = 1000.0;
+    const float sinus_frequency = 100.0;
+    const size_t block_size = 1000;
+    const float block_length = block_size / sampling_frequency;
+    const size_t channels = 5;
+    const float amp_factor = 10;
+    const float offset = 5;
+
+    WLEMMeasurement::SPtr emmPrototype( new WLEMMeasurement() );
+    WLEMDEEG::SPtr eegPrototype( new WLEMDEEG() );
+    eegPrototype->setSampFreq( sampling_frequency );
+
+    WRealtimeTimer waitTimer;
+    float seconds = 0.0;
+    while( seconds < length )
+    {
+        waitTimer.reset();
+        seconds += block_length;
+
+        WLEMData::DataSPtr data( new WLEMData::DataT( channels, block_size ) );
+        generateSinusWave( data.get(), sampling_frequency, sinus_frequency, amp_factor, offset );
+
+        WLEMData::SPtr emd = eegPrototype->clone();
+        emd->setData( data );
+        WLEMMeasurement::SPtr emm = emmPrototype->clone();
+        emm->addModality( emd );
+
+        WLEMMCommand::SPtr cmd = WLEMMCommand::instance( WLEMMCommand::Command::COMPUTE );
+        cmd->setEmm( emm );
+        m_output->updateData( cmd );
+
+        const double tuSleep = block_length * 1000000 - ( waitTimer.elapsed() * 1000000 );
+        if( tuSleep > 0 )
+        {
+            boost::this_thread::sleep( boost::posix_time::microseconds( tuSleep ) );
+            debugLog() << "Slept for " << tuSleep << " microseconds.";
+        }
+        else
+        {
+            warnLog() << "Generation took " << abs( tuSleep ) << " microseconds to long!";
+        }
+    }
+
+    m_trgGenerate->set( WPVBaseTypes::PV_TRIGGER_READY, true );
 }
 
