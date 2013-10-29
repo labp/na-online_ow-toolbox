@@ -42,15 +42,31 @@
 
 const std::string WFIRFilter::CLASS = "WFIRFilter";
 
+WFIRFilter::WFIRFilter()
+{
+    m_sFreq = 0;
+    m_cFreq1 = 0;
+    m_cFreq2 = 0;
+    m_order = 0;
+    m_type = WEFilterType::UNKNOWN;
+    m_window = WEWindowsType::UNKNOWN;
+}
+
+WFIRFilter::WFIRFilter( const std::string& pathToFcf )
+{
+    m_sFreq = 0;
+    m_cFreq1 = 0;
+    m_cFreq2 = 0;
+    m_order = 0;
+    m_type = WEFilterType::UNKNOWN;
+    m_window = WEWindowsType::UNKNOWN;
+    setCoefficients( pathToFcf );
+}
+
 WFIRFilter::WFIRFilter( WFIRFilter::WEFilterType::Enum filtertype, WFIRFilter::WEWindowsType::Enum windowtype, int order,
                 ScalarT sFreq, ScalarT cFreq1, ScalarT cFreq2 )
 {
     design( filtertype, windowtype, order, sFreq, cFreq1, cFreq2 );
-}
-
-WFIRFilter::WFIRFilter( const char *pathToFcf )
-{
-    setCoefficients( pathToFcf );
 }
 
 WFIRFilter::~WFIRFilter()
@@ -175,28 +191,35 @@ void WFIRFilter::setCutOffFrequency2( ScalarT value, bool redesign )
     }
 }
 
-void WFIRFilter::setCoefficients( std::vector< ScalarT > values, bool redesign )
+void WFIRFilter::setCoefficients( std::vector< ScalarT > values )
 {
     m_coeffitients = values;
-    if( redesign )
-    {
-        design();
-    }
-    else
-    {
-        wlog::debug( CLASS ) << "setCoefficients() m_coeffitients: " << m_coeffitients.size();
+    m_order = m_coeffitients.size() - 1;
+
+    m_sFreq = 0;
+    m_cFreq1 = 0;
+    m_cFreq2 = 0;
+    m_type = WEFilterType::UNKNOWN;
+    m_window = WEWindowsType::UNKNOWN;
+
+    wlog::debug( CLASS ) << "setCoefficients() m_coeffitients: " << m_coeffitients.size();
 #ifdef DEBUG
-        for( size_t i = 0; i < m_coeffitients.size(); i++ )
-        {
-            wlog::debug( CLASS ) << m_coeffitients[i];
-        }
-#endif // DEBUG
+    for( size_t i = 0; i < m_coeffitients.size(); i++ )
+    {
+        wlog::debug( CLASS ) << m_coeffitients[i];
     }
+#endif // DEBUG
 }
 
-bool WFIRFilter::setCoefficients( const char *pathToFcf, bool redesign )
+bool WFIRFilter::setCoefficients( const std::string& pathToFcf )
 {
-    std::ifstream f( pathToFcf );
+    m_sFreq = 0;
+    m_cFreq1 = 0;
+    m_cFreq2 = 0;
+    m_type = WEFilterType::UNKNOWN;
+    m_window = WEWindowsType::UNKNOWN;
+
+    std::ifstream f( pathToFcf.c_str() );
     std::string s;
 
     // find "Length"
@@ -239,20 +262,15 @@ bool WFIRFilter::setCoefficients( const char *pathToFcf, bool redesign )
     }
 
     f.close();
-    if( redesign )
-    {
-        design();
-    }
-    else
-    {
-        wlog::debug( CLASS ) << "setCoefficients() m_coeffitients: " << m_coeffitients.size();
+
+    m_order = m_coeffitients.size() - 1;
+    wlog::debug( CLASS ) << "setCoefficients() m_coeffitients: " << m_coeffitients.size();
 #ifdef DEBUG
-        for( size_t i = 0; i < m_coeffitients.size(); i++ )
-        {
-            wlog::debug( CLASS ) << m_coeffitients[i];
-        }
-#endif // DEBUG
+    for( size_t i = 0; i < m_coeffitients.size(); i++ )
+    {
+        wlog::debug( CLASS ) << m_coeffitients[i];
     }
+#endif // DEBUG
 
     return true;
 }
@@ -436,6 +454,7 @@ std::vector< WFIRFilter::WEFilterType::Enum > WFIRFilter::WEFilterType::values()
     values.push_back( WEFilterType::BANDSTOP );
     values.push_back( WEFilterType::HIGHPASS );
     values.push_back( WEFilterType::LOWPASS );
+    // skip: values.push_back( WEFilterType::UNKNOWN );
     return values;
 }
 
@@ -465,6 +484,7 @@ std::vector< WFIRFilter::WEWindowsType::Enum > WFIRFilter::WEWindowsType::values
     values.push_back( WEWindowsType::BARLETT );
     values.push_back( WEWindowsType::BLACKMAN );
     values.push_back( WEWindowsType::HANNING );
+    // skip: values.push_back( WEWindowsType::UNKNOWN );
     return values;
 }
 

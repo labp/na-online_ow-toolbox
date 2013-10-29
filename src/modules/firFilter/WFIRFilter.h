@@ -57,7 +57,7 @@ public:
     {
         enum Enum
         {
-            LOWPASS, HIGHPASS, BANDPASS, BANDSTOP
+            LOWPASS, HIGHPASS, BANDPASS, BANDSTOP, UNKNOWN
         };
 
         static std::vector< Enum > values();
@@ -69,7 +69,7 @@ public:
     {
         enum Enum
         {
-            HAMMING, RECTANGLE, BARLETT, BLACKMAN, HANNING
+            HAMMING, RECTANGLE, BARLETT, BLACKMAN, HANNING, UNKNOWN
         };
 
         static std::vector< Enum > values();
@@ -77,10 +77,12 @@ public:
         static std::string name( Enum value );
     };
 
+    WFIRFilter();
+
+    explicit WFIRFilter( const std::string& pathToFcf );
+
     WFIRFilter( WEFilterType::Enum filtertype, WEWindowsType::Enum windowtype, int order, ScalarT sFreq, ScalarT cFreq1,
                     ScalarT cFreq2 );
-
-    explicit WFIRFilter( const char *pathToFcf );
 
     virtual ~WFIRFilter();
 
@@ -94,8 +96,8 @@ public:
     void setSamplingFrequency( ScalarT value, bool redesign = false );
     void setCutOffFrequency1( ScalarT value, bool redesign = false );
     void setCutOffFrequency2( ScalarT value, bool redesign = false );
-    void setCoefficients( std::vector< ScalarT > values, bool redesign = false );
-    bool setCoefficients( const char *pathToFcf, bool redesign = false );
+    void setCoefficients( std::vector< ScalarT > values );
+    bool setCoefficients( const std::string& pathToFcf );
 
     std::vector< ScalarT > getCoefficients();
 

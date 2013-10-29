@@ -48,9 +48,12 @@ public:
 
     static const std::string CLASS;
 
+    WFIRFilterCuda();
+
     WFIRFilterCuda( WFIRFilter::WEFilterType::Enum filtertype, WFIRFilter::WEWindowsType::Enum windowtype, int order,
                     ScalarT sFreq, ScalarT cFreq1, ScalarT cFreq2 );
-    explicit WFIRFilterCuda( const char *pathToFcf );
+
+    explicit WFIRFilterCuda( const std::string& pathToFcf );
 
 protected:
     virtual void filter( WLEMData::DataT& out, const WLEMData::DataT& in, const WLEMData::DataT& prev );

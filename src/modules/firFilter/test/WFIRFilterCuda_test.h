@@ -58,9 +58,8 @@ public:
         WFIRFilterCuda::SPtr filter( new WFIRFilterCuda( fileName.c_str() ) );
         WFIRFilterTestHelper::filterImpulseTest( filter );
 
-        filter.reset(
-                        new WFIRFilterCuda( WFIRFilter::WEFilterType::BANDPASS, WFIRFilter::WEWindowsType::HAMMING, ORDER, SFREQ,
-                                        C1FREQ, C2FREQ ) );
+        filter.reset( new WFIRFilterCuda( WFIRFilter::WEFilterType::BANDPASS, WFIRFilter::WEWindowsType::HAMMING, ORDER, SFREQ,
+        C1FREQ, C2FREQ ) );
         WFIRFilterTestHelper::filterImpulseTest( filter );
     }
 
@@ -70,10 +69,22 @@ public:
         WFIRFilterCuda::SPtr filter( new WFIRFilterCuda( fileName.c_str() ) );
         WFIRFilterTestHelper::filterStepTest( filter );
 
-        filter.reset(
-                        new WFIRFilterCuda( WFIRFilter::WEFilterType::BANDPASS, WFIRFilter::WEWindowsType::HAMMING, ORDER, SFREQ,
-                                        C1FREQ, C2FREQ ) );
+        filter.reset( new WFIRFilterCuda( WFIRFilter::WEFilterType::BANDPASS, WFIRFilter::WEWindowsType::HAMMING, ORDER, SFREQ,
+        C1FREQ, C2FREQ ) );
         WFIRFilterTestHelper::filterStepTest( filter );
+    }
+
+    void test_filterSine( void )
+    {
+//            std::string fileName = W_FIXTURE_PATH + COEFFILE;
+        wlog::info("WFIRFilterCudaTest") << "test_filterSine() called!";
+        std::string fileName = "/home/pieloth/fdacoefs.h";
+        WFIRFilterCuda::SPtr filter( new WFIRFilterCuda( fileName.c_str() ) );
+        WFIRFilterTestHelper::filterSineTest( filter );
+
+//        filter.reset( new WFIRFilterCuda( WFIRFilter::WEFilterType::BANDPASS, WFIRFilter::WEWindowsType::HAMMING, ORDER, SFREQ,
+//        C1FREQ, C2FREQ ) );
+//        WFIRFilterTestHelper::filterSineTest( filter );
     }
 };
 

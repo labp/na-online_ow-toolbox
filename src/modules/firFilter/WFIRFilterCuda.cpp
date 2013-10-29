@@ -39,13 +39,17 @@
 
 const std::string WFIRFilterCuda::CLASS = "WFIRFilterCuda";
 
+WFIRFilterCuda::WFIRFilterCuda() : WFIRFilter()
+{
+}
+
 WFIRFilterCuda::WFIRFilterCuda( WFIRFilter::WEFilterType::Enum filtertype, WFIRFilter::WEWindowsType::Enum windowtype, int order,
                 ScalarT sFreq, ScalarT cFreq1, ScalarT cFreq2 ) :
                 WFIRFilter( filtertype, windowtype, order, sFreq, cFreq1, cFreq2 )
 {
 }
 
-WFIRFilterCuda::WFIRFilterCuda( const char *pathToFcf ) :
+WFIRFilterCuda::WFIRFilterCuda( const std::string& pathToFcf ) :
                 WFIRFilter( pathToFcf )
 {
 }
