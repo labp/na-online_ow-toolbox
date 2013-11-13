@@ -88,6 +88,11 @@ WLIOStatus::ioStatus_t WLWriterMAT::init()
 
 WLIOStatus::ioStatus_t WLWriterMAT::writeMatrix( WLMatrix::ConstSPtr matrix, const std::string& name )
 {
+    return writeMatrix( *matrix, name );
+}
+
+WLIOStatus::ioStatus_t WLWriterMAT::writeMatrix( const WLMatrix::MatrixT& matrix, const std::string& name )
+{
     if( !m_isInitialized )
     {
         WLIOStatus::ioStatus_t state = init();
@@ -98,12 +103,12 @@ WLIOStatus::ioStatus_t WLWriterMAT::writeMatrix( WLMatrix::ConstSPtr matrix, con
     }
 
     // Write data //
-    const size_t bytes = WLMatFileIO::MATWriter::writeMatrixDouble( m_ofs, *matrix, name );
+    const size_t bytes = WLMatFileIO::MATWriter::writeMatrixDouble( m_ofs, matrix, name );
     wlog::debug( CLASS ) << bytes << " bytes written to file.";
     // NOTE: min_bytes is only possible, if compression is not used!
     // min_byte = Tag(miMATRIX) + Tag(ArrayFlags)+Data(ArrayFlags)
     // min_byte += Tag(Dim)+Data(Dim) + SmallElement(ArrayName) + Tag(matrix)+Data(matrix)
-    const size_t min_bytes = 8 + 2 * 8 + 2 * 8 + 8 + 8 + matrix->rows() * matrix->cols() * sizeof(WLMatFileIO::miDouble_t);
+    const size_t min_bytes = 8 + 2 * 8 + 2 * 8 + 8 + 8 + matrix.rows() * matrix.cols() * sizeof(WLMatFileIO::miDouble_t);
     if( min_bytes <= bytes )
     {
         return WLIOStatus::SUCCESS;

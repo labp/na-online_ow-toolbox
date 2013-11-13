@@ -75,6 +75,8 @@ public:
      */
     WLIOStatus::ioStatus_t writeMatrix( WLMatrix::ConstSPtr matrix, const std::string& name = "M" );
 
+    WLIOStatus::ioStatus_t writeMatrix( const WLMatrix::MatrixT& matrix, const std::string& name = "M" );
+
     /**
      * Closes the output stream.
      */

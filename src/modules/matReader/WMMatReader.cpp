@@ -264,6 +264,7 @@ bool WMMatReader::handleGenerateEMM()
         infoLog() << "Set source space for EEG.";
         subject->setSurface( m_surface );
     }
+    emm->addModality( eeg );
 
     infoLog() << SUCCESS_EMM << " EEG: " << eeg->getNrChans() << "x" << eeg->getSamplesPerChan();
 
