@@ -57,7 +57,7 @@ WLReaderSourceSpace::~WLReaderSourceSpace()
 {
 }
 
-bool WLReaderSourceSpace::read( WLEMMSurface::SPtr& surface )
+WLIOStatus::ioStatus_t WLReaderSourceSpace::read( WLEMMSurface::SPtr& surface )
 {
     // Reading MNE type
     QFile file( m_fname.c_str() );
@@ -68,7 +68,7 @@ bool WLReaderSourceSpace::read( WLEMMSurface::SPtr& surface )
     if( !fiffStream->open( fiffDirTree, fiffDirEntries ) )
     {
         wlog::error( CLASS ) << "Could not open FIFF stream!";
-        return false;
+        return WLIOStatus::ERROR_FOPEN;
     }
 
     QList< FiffDirTree > srcSpaces = fiffDirTree.dir_tree_find( FIFFB_MNE_SOURCE_SPACE );
@@ -76,7 +76,7 @@ bool WLReaderSourceSpace::read( WLEMMSurface::SPtr& surface )
     {
         wlog::error( CLASS ) << "No source spaces available!";
         fiffStream->device()->close();
-        return false;
+        return WLIOStatus::ERROR_UNKNOWN;
     }
     wlog::debug( CLASS ) << "srcSpaces: " << srcSpaces.size();
 
@@ -85,7 +85,7 @@ bool WLReaderSourceSpace::read( WLEMMSurface::SPtr& surface )
     {
         fiffStream->device()->close();
         wlog::error( CLASS ) << "Could not read the source spaces";
-        return false;
+        return WLIOStatus::ERROR_FREAD;
     }
 
     for( qint32 k = 0; k < sourceSpace.size(); ++k )
@@ -98,7 +98,13 @@ bool WLReaderSourceSpace::read( WLEMMSurface::SPtr& surface )
     if( sourceSpace.size() != 2 )
     {
         wlog::error( CLASS ) << "Missing one or all hemispheres!";
-        return false;
+        return WLIOStatus::ERROR_UNKNOWN;
+    }
+
+    if( !surface )
+    {
+        wlog::debug( CLASS ) << "No surface instance! Creating a new one.";
+        surface.reset( new WLEMMSurface() );
     }
 
     // Convert to LaBP type
@@ -143,5 +149,5 @@ bool WLReaderSourceSpace::read( WLEMMSurface::SPtr& surface )
 
     surface->setFaces( faces );
     wlog::info( CLASS ) << "Faces: " << faces->size();
-    return true;
+    return WLIOStatus::SUCCESS;
 }

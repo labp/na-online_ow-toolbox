@@ -32,12 +32,13 @@
 
 #include "core/data/WLEMMCommand.h"
 #include "core/data/WLEMMeasurement.h"
+#include "core/io/WLReaderLeadfield.h"
+#include "core/io/WLReaderSourceSpace.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
 #include "reader/WLReaderDigPoints.h"
-#include "reader/WLReaderLeadfield.h"
-#include "reader/WLReaderSourceSpace.h"
 #include "reader/WLReaderBem.h"
+
 #include "WMMneRtClient.h"
 #include "WMMneRtClient.xpm"
 
@@ -429,7 +430,7 @@ bool WMMneRtClient::handleLfFileChanged( std::string fName, WLMatrix::SPtr& lf )
         return false;
     }
 
-    if( reader->read( lf ) )
+    if( reader->read( lf ) == WLIOStatus::SUCCESS )
     {
         m_additionalStatus->set( DATA_LOADED, true );
         return true;
@@ -459,7 +460,7 @@ bool WMMneRtClient::handleSurfaceFileChanged( std::string fName )
     }
 
     m_surface.reset( new WLEMMSurface() );
-    if( reader->read( m_surface ) )
+    if( reader->read( m_surface ) == WLIOStatus::SUCCESS )
     {
         m_additionalStatus->set( DATA_LOADED, true );
         return true;

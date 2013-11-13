@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLREADERSOURCESPACE_H_
-#define WLREADERSOURCESPACE_H_
+#ifndef WLREADERLEADFIELD_H_
+#define WLREADERLEADFIELD_H_
 
 #include <string>
 
@@ -31,9 +31,10 @@
 
 #include <core/dataHandler/io/WReader.h>
 
-#include "core/data/WLEMMSurface.h"
+#include "core/data/WLDataTypes.h"
+#include "core/io/WLIOStatus.h"
 
-class WLReaderSourceSpace: public WReader
+class WLReaderLeadfield: public WReader, public WLIOStatus::WLIOStatusInterpreter
 {
 public:
     static const std::string CLASS;
@@ -41,17 +42,17 @@ public:
     /**
      * Shared pointer abbreviation to a instance of this class.
      */
-    typedef boost::shared_ptr< WLReaderSourceSpace > SPtr;
+    typedef boost::shared_ptr< WLReaderLeadfield > SPtr;
 
     /**
      * Shared pointer abbreviation to a const instance of this class.
      */
-    typedef boost::shared_ptr< const WLReaderSourceSpace > ConstSPtr;
+    typedef boost::shared_ptr< const WLReaderLeadfield > ConstSPtr;
 
-    explicit WLReaderSourceSpace( std::string fname ) throw( WDHNoSuchFile );
-    virtual ~WLReaderSourceSpace();
+    explicit WLReaderLeadfield( std::string fname ) throw( WDHNoSuchFile );
+    virtual ~WLReaderLeadfield();
 
-    bool read( LaBP::WLEMMSurface::SPtr& surface );
+    WLIOStatus::ioStatus_t read( WLMatrix::SPtr& leadfield );
 };
 
-#endif  // WLREADERSOURCESPACE_H_
+#endif  // WLREADERLEADFIELD_H_

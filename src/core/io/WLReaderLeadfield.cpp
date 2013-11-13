@@ -44,7 +44,7 @@ WLReaderLeadfield::~WLReaderLeadfield()
 {
 }
 
-bool WLReaderLeadfield::read( WLMatrix::SPtr& leadfield )
+WLIOStatus::ioStatus_t WLReaderLeadfield::read( WLMatrix::SPtr& leadfield )
 {
     QFile fileIn( m_fname.c_str() );
 
@@ -52,7 +52,7 @@ bool WLReaderLeadfield::read( WLMatrix::SPtr& leadfield )
     if( fwdSolution->isEmpty() )
     {
         wlog::error( CLASS ) << "Could not read leadfield file!";
-        return false;
+        return WLIOStatus::ERROR_FREAD;
     }
 
 #ifdef LABP_FLOAT_COMPUTATION
@@ -62,5 +62,5 @@ bool WLReaderLeadfield::read( WLMatrix::SPtr& leadfield )
 #endif  // LABP_FLOAT_COMPUTATION
     leadfield.reset( matrix );
     wlog::info( CLASS ) << "Matrix size: " << leadfield->rows() << "x" << leadfield->cols();
-    return true;
+    return WLIOStatus::SUCCESS;
 }
