@@ -33,7 +33,7 @@ using std::ifstream;
 
 const std::string WLReaderMAT::CLASS = "WLReaderMat";
 
-WLReaderMAT::WLReaderMAT( std::string fname ) :
+WLReaderMAT::WLReaderMAT( std::string fname ) throw( WDHNoSuchFile ) :
                 WReader( fname )
 {
     m_isInitialized = false;

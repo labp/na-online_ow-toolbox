@@ -29,6 +29,9 @@
 #include <list>
 #include <string>
 
+#include <boost/shared_ptr.hpp>
+
+#include <core/dataHandler/exceptions/WDHNoSuchFile.h>
 #include <core/dataHandler/io/WReader.h>
 
 #include "core/data/WLDataTypes.h"
@@ -41,12 +44,22 @@
  *
  * @author pieloth
  */
-class WLReaderMAT: public WReader, WLIOStatus::WLIOStatusInterpreter
+class WLReaderMAT: public WReader, public WLIOStatus::WLIOStatusInterpreter
 {
 public:
+    /**
+     * Shared pointer abbreviation to a instance of this class.
+     */
+    typedef boost::shared_ptr< WLReaderMAT > SPtr;
+
+    /**
+     * Shared pointer abbreviation to a const instance of this class.
+     */
+    typedef boost::shared_ptr< const WLReaderMAT > ConstSPtr;
+
     const static std::string CLASS;
 
-    explicit WLReaderMAT( std::string fname );
+    explicit WLReaderMAT( std::string fname ) throw( WDHNoSuchFile );
     virtual ~WLReaderMAT();
 
     /**

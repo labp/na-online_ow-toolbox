@@ -28,6 +28,8 @@
 #include <fstream>
 #include <string>
 
+#include <boost/shared_ptr.hpp>
+
 #include <core/dataHandler/io/WWriter.h>
 
 #include "core/data/WLDataTypes.h"
@@ -38,9 +40,19 @@
  *
  * @author pieloth
  */
-class WLWriterMAT: public WWriter, WLIOStatus::WLIOStatusInterpreter
+class WLWriterMAT: public WWriter, public WLIOStatus::WLIOStatusInterpreter
 {
 public:
+    /**
+     * Shared pointer abbreviation to a instance of this class.
+     */
+    typedef boost::shared_ptr< WLWriterMAT > SPtr;
+
+    /**
+     * Shared pointer abbreviation to a const instance of this class.
+     */
+    typedef boost::shared_ptr< const WLWriterMAT > ConstSPtr;
+
     static const std::string CLASS;
 
     WLWriterMAT( std::string fname, bool overwrite = false );
