@@ -84,16 +84,16 @@ const char** WMMatReader::getXPMIcon() const
 
 void WMMatReader::connectors()
 {
-    WLModuleDrawable::connectors();
-    m_output = LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr(
-                    new LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >( shared_from_this(), "out",
+    WModule::connectors();
+    m_output.reset(
+                    new WLModuleOutputDataCollectionable< WLEMMCommand >( shared_from_this(), "out",
                                     "Provides a filtered EMM-DataSet" ) );
     addConnector( m_output );
 }
 
 void WMMatReader::properties()
 {
-    WLModuleDrawable::properties();
+    WModule::properties();
 
     m_propCondition = WCondition::SPtr( new WCondition() );
 
@@ -331,20 +331,5 @@ bool WMMatReader::processCompute( WLEMMeasurement::SPtr emm )
     WLEMMCommand::SPtr cmd = WLEMMCommand::instance( WLEMMCommand::Command::COMPUTE );
     cmd->setEmm( emm );
     m_output->updateData( cmd );
-    return true;
-}
-
-bool WMMatReader::processInit( WLEMMCommand::SPtr cmdIn )
-{
-    m_output->updateData( cmdIn );
-    return true;
-}
-
-bool WMMatReader::processReset( WLEMMCommand::SPtr cmdIn )
-{
-    m_matrix.reset();
-    m_propSamplFreq->set( SAMPLING_FEQUENCY, true );
-    m_status->set( NONE, true );
-    m_output->updateData( cmdIn );
     return true;
 }

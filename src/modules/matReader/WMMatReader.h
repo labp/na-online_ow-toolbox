@@ -27,12 +27,15 @@
 
 #include <core/common/WCondition.h>
 #include <core/common/WPropertyTypes.h>
+#include "core/kernel/WModule.h"
 
 #include "core/data/WLDataTypes.h"
 #include "core/data/WLEMMSurface.h"
-#include "core/module/WLModuleDrawable.h"
+#include "core/data/WLEMMeasurement.h"
+#include "core/data/WLEMMCommand.h"
+#include "core/module/WLModuleOutputDataCollectionable.h"
 
-class WMMatReader: public WLModuleDrawable
+class WMMatReader: public WModule
 {
 public:
     WMMatReader();
@@ -55,14 +58,11 @@ protected:
 
     virtual void moduleMain();
 
-    // *****************
-    // Command Processor
-    // *****************
     virtual bool processCompute( WLEMMeasurement::SPtr emm );
-    virtual bool processInit( WLEMMCommand::SPtr cmdIn );
-    virtual bool processReset( WLEMMCommand::SPtr cmdIn );
 
 private:
+    LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output;
+
     /**
      * A condition used to notify about changes in several properties.
      */
