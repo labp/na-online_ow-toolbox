@@ -33,6 +33,8 @@
 #include "core/io/WLReaderSourceSpace.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
+#include "reader/WReaderEEGPositions.h"
+
 #include "WMMatReader.xpm"
 #include "WMMatReader.h"
 
@@ -53,6 +55,7 @@ const std::string WMMatReader::GENERATE_EMM = "Generating EMM object ...";
 const std::string WMMatReader::READING_MAT = "Reading MAT-File ...";
 const std::string WMMatReader::READING_LF = "Reading Leadfield ...";
 const std::string WMMatReader::READING_SRC = "Reading Source Space ...";
+const std::string WMMatReader::READING_SENSORS = "Reading Sensor positions ...";
 
 WMMatReader::WMMatReader()
 {
@@ -99,6 +102,10 @@ void WMMatReader::properties()
 
     m_propMatFile = m_properties->addProperty( "MAT-File:", "MATLAB MAT-File to read.", WPathHelper::getHomePath(),
                     m_propCondition );
+    m_propMatFile->changed( true );
+
+    m_propSensorFile = m_properties->addProperty( "Sensor Positions:", "FIFF file containing sensor positions.",
+                    WPathHelper::getHomePath(), m_propCondition );
     m_propMatFile->changed( true );
 
     m_propLfFile = m_properties->addProperty( "Leadfield:", "FIFF file containing a Leadfield.", WPathHelper::getHomePath(),
@@ -154,6 +161,19 @@ void WMMatReader::moduleMain()
             }
         }
 
+        if( m_propSensorFile->changed( true ) )
+        {
+            m_status->set( READING_SENSORS, true );
+            if( handleSensorFileChanged() )
+            {
+                m_status->set( SUCCESS_READ, true );
+            }
+            else
+            {
+                m_status->set( ERROR_READ, true );
+            }
+        }
+
         if( m_propLfFile->changed( true ) )
         {
             m_status->set( READING_LF, true );
@@ -193,6 +213,33 @@ void WMMatReader::moduleMain()
             }
         }
     }
+}
+
+bool WMMatReader::handleSensorFileChanged()
+{
+    const std::string fName = m_propSensorFile->get().string();
+    infoLog() << "Start reading file: " << fName;
+    m_sensorPos.reset();
+
+    WReaderEEGPositions::SPtr reader;
+    try
+    {
+        reader.reset( new WReaderEEGPositions( fName ) );
+    }
+    catch( const WDHNoSuchFile& e )
+    {
+        errorLog() << "File does not exist: " << fName;
+        return false;
+    }
+
+    if( reader->read( m_sensorPos ) != WLIOStatus::SUCCESS )
+    {
+        errorLog() << ERROR_READ << " (Sensor Positions)";
+        return false;
+    }
+
+    infoLog() << SUCCESS_READ << " Sensor Positions: " << m_sensorPos->size();
+    return true;
 }
 
 bool WMMatReader::handleMatFileChanged()
@@ -247,6 +294,18 @@ bool WMMatReader::handleGenerateEMM()
     WLEMDEEG::SPtr eeg( new WLEMDEEG() );
     eeg->setData( m_matrix );
     eeg->setSampFreq( m_propSamplFreq->get() );
+    if( m_sensorPos.get() != NULL )
+    {
+        if( m_sensorPos->size() == eeg->getNrChans() )
+        {
+            infoLog() << "Set sensor positions for EEG.";
+            eeg->setChannelPositions3d( m_sensorPos );
+        }
+        else
+        {
+            warnLog() << "EEG channels does not match positions size!";
+        }
+    }
     if( m_leadfield.get() != NULL )
     {
         if( m_leadfield->rows() == eeg->getNrChans() )

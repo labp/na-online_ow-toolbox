@@ -25,8 +25,13 @@
 #ifndef WMMATREADER_H_
 #define WMMATREADER_H_
 
+#include <vector>
+
+#include <boost/shared_ptr.hpp>
+
 #include <core/common/WCondition.h>
 #include <core/common/WPropertyTypes.h>
+#include <core/common/math/linearAlgebra/WPosition.h>
 #include "core/kernel/WModule.h"
 
 #include "core/data/WLDataTypes.h"
@@ -76,6 +81,12 @@ private:
 
     WLMatrix::SPtr m_matrix;
 
+    WPropFilename m_propSensorFile;
+
+    bool handleSensorFileChanged();
+
+    boost::shared_ptr< std::vector< WPosition > > m_sensorPos;
+
     WPropTrigger m_trgGenerate;
 
     WPropDouble m_propSamplFreq;
@@ -105,6 +116,7 @@ private:
     static const std::string READING_MAT;
     static const std::string READING_LF;
     static const std::string READING_SRC;
+    static const std::string READING_SENSORS;
 
     static const double SAMPLING_FEQUENCY;
 };

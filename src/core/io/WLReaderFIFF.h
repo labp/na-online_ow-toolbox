@@ -27,6 +27,8 @@
 
 #include <string>
 
+#include <boost/shared_ptr.hpp>
+
 #include <core/dataHandler/io/WReader.h>
 
 #include <libfiffio/common/LFMultipliers.h>
@@ -41,10 +43,18 @@
 
 namespace LaBP
 {
-
     class WLReaderFIFF: public WLReader
     {
     public:
+        /**
+         * Shared pointer abbreviation to a instance of this class.
+         */
+        typedef boost::shared_ptr< WLReaderFIFF > SPtr;
+
+        /**
+         * Shared pointer abbreviation to a const instance of this class.
+         */
+        typedef boost::shared_ptr< const WLReaderFIFF > ConstSPtr;
 
         static const std::string CLASS;
 
