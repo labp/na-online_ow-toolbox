@@ -106,7 +106,7 @@ void WMMatReader::properties()
 
     m_propSensorFile = m_properties->addProperty( "Sensor Positions:", "FIFF file containing sensor positions.",
                     WPathHelper::getHomePath(), m_propCondition );
-    m_propMatFile->changed( true );
+    m_propSensorFile->changed( true );
 
     m_propLfFile = m_properties->addProperty( "Leadfield:", "FIFF file containing a Leadfield.", WPathHelper::getHomePath(),
                     m_propCondition );
