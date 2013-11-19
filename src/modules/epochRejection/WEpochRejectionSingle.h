@@ -22,60 +22,43 @@
 //
 //---------------------------------------------------------------------------
 
+#ifndef WEPOCHREJECTIONSINGLE_H_
+#define WEPOCHREJECTIONSINGLE_H_
+
+#include <boost/shared_ptr.hpp>
+
+#include "core/data/WLEMMeasurement.h"
+
 #include "WEpochRejection.h"
 
-const std::string WEpochRejection::CLASS = "WEpochRejection";
-
-WEpochRejection::WEpochRejection()
+class WEpochRejectionSingle: public WEpochRejection
 {
-    initRejection();
-}
+public:
+    static const std::string CLASS;
 
-WEpochRejection::~WEpochRejection()
-{
+    /**
+     * Abbreviation for a shared pointer.
+     */
+    typedef boost::shared_ptr< WEpochRejectionSingle > SPtr;
 
-}
+    /**
+     * Constructor
+     */
+    WEpochRejectionSingle();
 
-void WEpochRejection::initRejection()
-{
-    m_eegLevel = 0;
-    m_eogLevel = 0;
-    m_megGrad = 0;
-    m_megMag = 0;
-    m_rejCount = 0;
-}
+    /**
+     * Destructor
+     */
+    ~WEpochRejectionSingle();
 
-void WEpochRejection::setThresholds( double eegLevel, double eogLevel, double megGrad, double megMag )
-{
-    m_eegLevel = eegLevel;
-    m_eogLevel = eogLevel;
-    m_megGrad = megGrad;
-    m_megMag = megMag;
-}
+    /**
+     * Proceeds the rejection of the all modalities for the given input based on the
+     * user defined level values.
+     *
+     * \return A boolean value, which specifies, whether or not the input object has to reject.
+     */
+    bool getRejection( const WLEMMeasurement::SPtr emm );
 
-size_t WEpochRejection::getCount() const
-{
-    return m_rejCount;
-}
+};
 
-bool WEpochRejection::validModality( LaBP::WEModalityType::Enum modalityType )
-{
-    bool rc = false;
-
-    switch( modalityType )
-    {
-        case LaBP::WEModalityType::EEG:
-            rc = true;
-            break;
-        case LaBP::WEModalityType::EOG:
-            rc = true;
-            break;
-        case LaBP::WEModalityType::MEG:
-            rc = true;
-            break;
-        default:
-            ;
-    }
-
-    return rc;
-}
+#endif /* WEPOCHREJECTIONSINGLE_H_ */

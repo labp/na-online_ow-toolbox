@@ -32,20 +32,23 @@
 class WEpochRejection
 {
 public:
+
     static const std::string CLASS;
 
     /**
-     * Abbreviation for a shared pointer.
+     * Destructor
      */
-    typedef boost::shared_ptr< WEpochRejection > SPtr;
-
-    WEpochRejection();
-
     virtual ~WEpochRejection();
 
-    void initRejection();
+    /**
+     * Method for reseting and initializing the process.
+     */
+    virtual void initRejection();
 
-    void setLevels(double eegLevel, double eogLevel, double megGrad, double megMag);
+    /**
+     * This method receives the processing thresholds.
+     */
+    virtual void setThresholds( double eegLevel, double eogLevel, double megGrad, double megMag );
 
     /**
      * Proceeds the rejection of the all modalities for the given input based on the
@@ -53,21 +56,26 @@ public:
      *
      * \return A boolean value, which specifies, whether or not the input object has to reject.
      */
-    bool getRejection(const WLEMMeasurement::SPtr emm);
+    virtual bool getRejection( const WLEMMeasurement::SPtr emm ) = 0;
 
     /**
      * Defines the number of rejections for the current input.
      */
-    size_t getCount();
+    virtual size_t getCount() const;
+
+protected:
+
+    /**
+     * Constructor
+     */
+    WEpochRejection();
 
     /**
      * Method to separate valid modalities from invalid modalities.
      *
      * \return false, if the modality has to skip else true.
      */
-    bool validModality(LaBP::WEModalityType::Enum modalityType);
-
-private:
+    virtual bool validModality( LaBP::WEModalityType::Enum modalityType );
 
     double m_eegLevel;
 

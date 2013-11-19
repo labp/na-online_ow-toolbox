@@ -40,6 +40,7 @@
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
 #include "WEpochRejection.h"
+#include "WEpochRejectionSingle.h"
 #include "WThresholdParser.h"
 
 /**
@@ -127,34 +128,34 @@ private:
     boost::shared_ptr< WCondition > m_propCondition;
 
     /**
-     * Property Group for the level values.
+     * Property Group for the thresholds.
      */
-    WPropGroup m_propGrpLevelValues;
+    WPropGroup m_propGrpThresholds;
 
     /**
-     * Property Group for the level values.
+     * Property Group for the epoch properties.
      */
     WPropGroup m_propGrpEpoch;
 
     /**
-     * Level value for the EEG modality.
+     * Threshold for the EEG modality.
      */
-    WPropDouble m_eegLevel;
+    WPropDouble m_eegThreshold;
 
     /**
-     * Level value for the EOG modality.
+     * Threshold for the EOG modality.
      */
-    WPropDouble m_eogLevel;
+    WPropDouble m_eogThreshold;
 
     /**
-     * Level value for the MEG gradiometer channels.
+     * Threshold for the MEG gradiometer channels.
      */
-    WPropDouble m_megGradLevel;
+    WPropDouble m_megGradThreshold;
 
     /**
-     * Level value for the MEG magnetometer channels.
+     * Threshold for the MEG magnetometer channels.
      */
-    WPropDouble m_megMagLevel;
+    WPropDouble m_megMagThreshold;
 
     /**
      * Integer Property to count the epochs.
@@ -184,7 +185,7 @@ private:
     /**
      * The rejection process class.
      */
-    WEpochRejection::SPtr m_rejecting;
+    WEpochRejectionSingle::SPtr m_rejecting;
 
     /**
      * The threshold parser class.
@@ -199,13 +200,13 @@ private:
 
     static const std::string FILE_ERROR;
 
-    static const double EEG_LEVEL;
+    static const double EEG_THRESHOLD;
 
-    static const double EOG_LEVEL;
+    static const double EOG_THRESHOLD;
 
-    static const double MEG_MAG_LEVEL;
+    static const double MEG_MAG_THRESHOLD;
 
-    static const double MEG_GRAD_LEVEL;
+    static const double MEG_GRAD_THRESHOLD;
 
     static const std::string EEG_LABEL;
 

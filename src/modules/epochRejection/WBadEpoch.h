@@ -22,60 +22,38 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WEpochRejection.h"
+#ifndef WBADEPOCH_H_
+#define WBADEPOCH_H_
 
-const std::string WEpochRejection::CLASS = "WEpochRejection";
+#include <boost/shared_ptr.hpp>
 
-WEpochRejection::WEpochRejection()
+#include "core/data/WLEMMeasurement.h"
+
+class WBadEpoch
 {
-    initRejection();
-}
+public:
 
-WEpochRejection::~WEpochRejection()
-{
+    /**
+     * Constructor
+     */
+    WBadEpoch(WLEMMeasurement::ConstSPtr);
 
-}
+    /**
+     * Destructor
+     */
+    virtual ~WBadEpoch();
 
-void WEpochRejection::initRejection()
-{
-    m_eegLevel = 0;
-    m_eogLevel = 0;
-    m_megGrad = 0;
-    m_megMag = 0;
-    m_rejCount = 0;
-}
+    /**
+     * Returns the const pointer to the EMM object.
+     */
+    WLEMMeasurement::ConstSPtr getEMM();
 
-void WEpochRejection::setThresholds( double eegLevel, double eogLevel, double megGrad, double megMag )
-{
-    m_eegLevel = eegLevel;
-    m_eogLevel = eogLevel;
-    m_megGrad = megGrad;
-    m_megMag = megMag;
-}
+private:
 
-size_t WEpochRejection::getCount() const
-{
-    return m_rejCount;
-}
+    /**
+     * The EMM object to store.
+     */
+    WLEMMeasurement::ConstSPtr m_emm;
+};
 
-bool WEpochRejection::validModality( LaBP::WEModalityType::Enum modalityType )
-{
-    bool rc = false;
-
-    switch( modalityType )
-    {
-        case LaBP::WEModalityType::EEG:
-            rc = true;
-            break;
-        case LaBP::WEModalityType::EOG:
-            rc = true;
-            break;
-        case LaBP::WEModalityType::MEG:
-            rc = true;
-            break;
-        default:
-            ;
-    }
-
-    return rc;
-}
+#endif /* WBADEPOCH_H_ */

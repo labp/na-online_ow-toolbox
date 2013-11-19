@@ -22,60 +22,44 @@
 //
 //---------------------------------------------------------------------------
 
+#ifndef WEPOCHREJECTIONTOTAL_H_
+#define WEPOCHREJECTIONTOTAL_H_
+
+#include <boost/shared_ptr.hpp>
+
+#include "core/data/WLEMMeasurement.h"
+
 #include "WEpochRejection.h"
 
-const std::string WEpochRejection::CLASS = "WEpochRejection";
-
-WEpochRejection::WEpochRejection()
+class WEpochRejectionTotal: public WEpochRejection
 {
-    initRejection();
-}
+public:
 
-WEpochRejection::~WEpochRejection()
-{
+    static const std::string CLASS;
 
-}
+    /**
+     * A shared pointer on the class.
+     */
+    typedef boost::shared_ptr< WEpochRejectionTotal > SPtr;
 
-void WEpochRejection::initRejection()
-{
-    m_eegLevel = 0;
-    m_eogLevel = 0;
-    m_megGrad = 0;
-    m_megMag = 0;
-    m_rejCount = 0;
-}
+    /**
+     * Constructor
+     */
+    WEpochRejectionTotal();
 
-void WEpochRejection::setThresholds( double eegLevel, double eogLevel, double megGrad, double megMag )
-{
-    m_eegLevel = eegLevel;
-    m_eogLevel = eogLevel;
-    m_megGrad = megGrad;
-    m_megMag = megMag;
-}
+    /**
+     * Destructor
+     */
+    ~WEpochRejectionTotal();
 
-size_t WEpochRejection::getCount() const
-{
-    return m_rejCount;
-}
+    /**
+     * Proceeds the rejection of the all modalities for the given input based on the
+     * user defined level values.
+     *
+     * \return A boolean value, which specifies, whether or not the input object has to reject.
+     */
+    bool getRejection( const WLEMMeasurement::SPtr emm );
 
-bool WEpochRejection::validModality( LaBP::WEModalityType::Enum modalityType )
-{
-    bool rc = false;
+};
 
-    switch( modalityType )
-    {
-        case LaBP::WEModalityType::EEG:
-            rc = true;
-            break;
-        case LaBP::WEModalityType::EOG:
-            rc = true;
-            break;
-        case LaBP::WEModalityType::MEG:
-            rc = true;
-            break;
-        default:
-            ;
-    }
-
-    return rc;
-}
+#endif /* WEPOCHREJECTIONTOTAL_H_ */

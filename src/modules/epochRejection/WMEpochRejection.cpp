@@ -45,9 +45,12 @@
 
 #include "WMEpochRejection.h"
 #include "WMEpochRejection.xpm"
+#include "WBadEpochManager.h"
+#include "WEpochRejection.h"
+#include "WEpochRejectionSingle.h"
 
 // This line is needed by the module loader to actually find your module.
-W_LOADABLE_MODULE( WMEpochRejection )
+W_LOADABLE_MODULE (WMEpochRejection)
 
 WMEpochRejection::WMEpochRejection()
 {
@@ -80,7 +83,7 @@ const std::string WMEpochRejection::getName() const
  */
 const std::string WMEpochRejection::getDescription() const
 {
-    return "Checks the input values of each modality for defined level values. Module supports LaBP data types only!";
+    return "Checks the input values of each modality for defined thresholds. Module supports LaBP data types only!";
 }
 
 /**
@@ -110,32 +113,32 @@ void WMEpochRejection::properties()
     /* init property container */
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
-    /* PropertyGroup: level values for the several modalities  */
-    m_propGrpLevelValues = m_properties->addPropertyGroup( "Rejection Level Values", "Rejection Level Values", false );
-    m_propGrpEpoch = m_properties->addPropertyGroup("Epoch Properties", "Epoch Properties", false);
+    /* PropertyGroup: thresholds for the several modalities  */
+    m_propGrpThresholds = m_properties->addPropertyGroup( "Rejection Thresholds", "Rejection Thresholds", false );
+    m_propGrpEpoch = m_properties->addPropertyGroup( "Epoch Properties", "Epoch Properties", false );
 
     /* Rejection file properties */
-    m_rejectFileStatus = m_propGrpLevelValues->addProperty( "CFG file status:", "CFG file status.", NO_FILE_LOADED );
+    m_rejectFileStatus = m_propGrpThresholds->addProperty( "CFG file status:", "CFG file status.", NO_FILE_LOADED );
     m_rejectFileStatus->setPurpose( PV_PURPOSE_INFORMATION );
-    m_rejectFile = m_propGrpLevelValues->addProperty("CFG file:", "Read a CFG file, which contains the level values.",
-                    WPathHelper::getHomePath(), m_propCondition);
-    m_rejectFile->changed(true);
+    m_rejectFile = m_propGrpThresholds->addProperty( "CFG file:", "Read a CFG file, which contains the thresholds.",
+                    WPathHelper::getHomePath(), m_propCondition );
+    m_rejectFile->changed( true );
 
-    /* Level values */
-    m_eegLevel = m_propGrpLevelValues->addProperty("EEG level value","Level value for the EEG modality.", EEG_LEVEL);
-    m_eogLevel = m_propGrpLevelValues->addProperty("EOG level value","Level value for the EOG modality.", EOG_LEVEL);
-    m_megGradLevel = m_propGrpLevelValues->addProperty("MEG gradiometer level value","Level value for the MEG gradiometer channels.",
-                    MEG_GRAD_LEVEL);
-    m_megMagLevel = m_propGrpLevelValues->addProperty("MEG magnetometer level value","Level value for the MEG magnetometer channels.",
-                    MEG_MAG_LEVEL);
+    /* Thresholds */
+    m_eegThreshold = m_propGrpThresholds->addProperty( "EEG threshold", "Threshold for the EEG modality.", EEG_THRESHOLD );
+    m_eogThreshold = m_propGrpThresholds->addProperty( "EOG threshold", "Threshold for the EOG modality.", EOG_THRESHOLD );
+    m_megGradThreshold = m_propGrpThresholds->addProperty( "MEG gradiometer Threshold",
+                    "Threshold for the MEG gradiometer channels.", MEG_GRAD_THRESHOLD );
+    m_megMagThreshold = m_propGrpThresholds->addProperty( "MEG magnetometer Threshold",
+                    "Threshold for the MEG magnetometer channels.", MEG_MAG_THRESHOLD );
 
-    m_epochCount = m_propGrpEpoch->addProperty("Epoch Count:", "Number of epochs.", 0);
+    m_epochCount = m_propGrpEpoch->addProperty( "Epoch Count:", "Number of epochs.", 0 );
     m_epochCount->setPurpose( PV_PURPOSE_INFORMATION );
 
-    m_epochCountValid = m_propGrpEpoch->addProperty("Valid Epochs:", "Number of not rejected epochs.", 0);
+    m_epochCountValid = m_propGrpEpoch->addProperty( "Valid Epochs:", "Number of not rejected epochs.", 0 );
     m_epochCountValid->setPurpose( PV_PURPOSE_INFORMATION );
 
-    m_epochCountInValid = m_propGrpEpoch->addProperty("Invalid Epochs:", "Number of rejected epochs.", 0);
+    m_epochCountInValid = m_propGrpEpoch->addProperty( "Invalid Epochs:", "Number of rejected epochs.", 0 );
     m_epochCountInValid->setPurpose( PV_PURPOSE_INFORMATION );
 }
 
@@ -146,9 +149,9 @@ void WMEpochRejection::moduleInit()
 {
     infoLog() << "Initializing module ...";
 
-    m_epochCount->set(0, true);
-    m_epochCountValid->set(0, true);
-    m_epochCountInValid->set(0, true);
+    m_epochCount->set( 0, true );
+    m_epochCountValid->set( 0, true );
+    m_epochCountInValid->set( 0, true );
 
     waitRestored();
 
@@ -168,7 +171,7 @@ void WMEpochRejection::moduleMain()
     //LaBP::WLTimeProfiler::SPtr profiler( new LaBP::WLTimeProfiler( getName(), "process" ) );
     //LaBP::WLTimeProfiler::SPtr profilerIn;
 
-    m_rejecting.reset( new WEpochRejection() );
+    m_rejecting.reset( new WEpochRejectionSingle() );
     m_parser.reset( new WThresholdParser() );
 
     ready(); // signal ready state
@@ -180,19 +183,19 @@ void WMEpochRejection::moduleMain()
     while( !m_shutdownFlag() )
     {
         // parsing a ".cfg" file
-        if(m_rejectFile->changed(true))
+        if( m_rejectFile->changed( true ) )
         {
-            m_rejectFileStatus->set(WMEpochRejection::LOADING_FILE ,true); // change file notification
+            m_rejectFileStatus->set( WMEpochRejection::LOADING_FILE, true ); // change file notification
 
-            if(m_parser->parse(m_rejectFile->get().string())) // start parsing the file
+            if( m_parser->parse( m_rejectFile->get().string() ) ) // start parsing the file
             {
-                assignNewValues(m_parser->getThresholds()); // assign the parsed values to the members
+                assignNewValues( m_parser->getThresholds() ); // assign the parsed values to the members
 
-                m_rejectFileStatus->set(WMEpochRejection::FILE_LOADED ,true); // show success notification
+                m_rejectFileStatus->set( WMEpochRejection::FILE_LOADED, true ); // show success notification
             }
             else
             {
-                m_rejectFileStatus->set(WMEpochRejection::FILE_ERROR ,true); // show error notification
+                m_rejectFileStatus->set( WMEpochRejection::FILE_ERROR, true ); // show error notification
             }
         }
 
@@ -222,7 +225,7 @@ void WMEpochRejection::moduleMain()
             // The data is valid and we received an update. The data is not NULL but may be the same as in previous loops.
             debugLog() << "received data";
 
-            process(emmIn);
+            process( emmIn );
 
             debugLog() << "finished rejection";
         }
@@ -232,24 +235,24 @@ void WMEpochRejection::moduleMain()
 /**
  * Method to assign the parsed value to the property members. The properties will be updated in the view.
  */
-void WMEpochRejection::assignNewValues(std::map<std::string,double> valueList)
+void WMEpochRejection::assignNewValues( std::map< std::string, double > valueList )
 {
     // iterate all thresholds
-    for(std::map<std::string,double>::iterator it = valueList.begin(); it != valueList.end(); it++)
+    for( std::map< std::string, double >::iterator it = valueList.begin(); it != valueList.end(); it++ )
     {
-        switch( hashit((*it).first) )
+        switch( hashit( ( *it ).first ) )
         {
             case eegReject:
-                m_eegLevel->set((*it).second, true);
+                m_eegThreshold->set( ( *it ).second, true );
                 break;
             case eogReject:
-                m_eogLevel->set((*it).second, true);
+                m_eogThreshold->set( ( *it ).second, true );
                 break;
             case gradReject:
-                m_megGradLevel->set((*it).second, true);
+                m_megGradThreshold->set( ( *it ).second, true );
                 break;
             case magReject:
-                m_megMagLevel->set((*it).second, true);
+                m_megMagThreshold->set( ( *it ).second, true );
                 break;
             default:
                 break;
@@ -260,12 +263,16 @@ void WMEpochRejection::assignNewValues(std::map<std::string,double> valueList)
 /**
  * Test a given String for a string pattern and return the equivalent enum object for better testing.
  */
-WMEpochRejection::modality_code WMEpochRejection::hashit(std::string const& inString)
+WMEpochRejection::modality_code WMEpochRejection::hashit( std::string const& inString )
 {
-    if(inString == WMEpochRejection::EEG_LABEL) return eegReject;
-    if(inString == WMEpochRejection::EOG_LABEL) return eogReject;
-    if(inString == WMEpochRejection::MEG_GRAD_LABEL) return gradReject;
-    if(inString == WMEpochRejection::MEG_MAG_LABEL) return magReject;
+    if( inString == WMEpochRejection::EEG_LABEL )
+        return eegReject;
+    if( inString == WMEpochRejection::EOG_LABEL )
+        return eogReject;
+    if( inString == WMEpochRejection::MEG_GRAD_LABEL )
+        return gradReject;
+    if( inString == WMEpochRejection::MEG_MAG_LABEL )
+        return magReject;
 
     return eNULL;
 }
@@ -278,35 +285,31 @@ bool WMEpochRejection::processCompute( WLEMMeasurement::SPtr emmIn )
 
     // show process visualization
     boost::shared_ptr< WProgress > rejectProcess = boost::shared_ptr< WProgress >( new WProgress( "Check data for rejecting." ) );
-    m_progress->addSubProgress(rejectProcess);
+    m_progress->addSubProgress( rejectProcess );
 
     // time profiler for the main loop
     /*
-    profilerIn = emmIn->getTimeProfiler()->clone();
-    profilerIn->stop();
-    profiler->addChild( profilerIn );
-    if( !profiler->isStarted() )
-    {
-        profiler->start();
-    }
-    */
+     profilerIn = emmIn->getTimeProfiler()->clone();
+     profilerIn->stop();
+     profiler->addChild( profilerIn );
+     if( !profiler->isStarted() )
+     {
+     profiler->start();
+     }
+     */
     // TimeProfiler to measure the processing time
 //            LaBP::WLTimeProfiler::SPtr rejProfiler = profiler->createAndAdd( WEpochRejection::CLASS, "rejecting" );
 //            rejProfiler->start();
-
     // ---------- PROCESSING ----------
-
     m_rejecting->initRejection();
-    m_rejecting->setLevels(m_eegLevel->get(),
-                    m_eogLevel->get(),
-                    m_megGradLevel->get(),
-                    m_megMagLevel->get()); // serve parameter for processing
+    m_rejecting->setThresholds( m_eegThreshold->get(), m_eogThreshold->get(), m_megGradThreshold->get(),
+                    m_megMagThreshold->get() ); // serve parameter for processing
 
     rejected = m_rejecting->getRejection( emmIn ); // call the rejection process on the input
 
 //            rejProfiler->stopAndLog(); // stop process profiler
 
-    m_epochCount->set( m_epochCount->get()+1, true ); // count number of received inputs
+    m_epochCount->set( m_epochCount->get() + 1, true ); // count number of received inputs
 
     rejectProcess->finish(); // finish the process visualization
 
@@ -314,18 +317,22 @@ bool WMEpochRejection::processCompute( WLEMMeasurement::SPtr emmIn )
     updateView( emmIn ); // update the GUI component
 
     // deliver to output-connector if there was no failure
-    if(rejected == false)
+    if( rejected == false )
     {
-        WLEMMCommand::SPtr cmd(new WLEMMCommand(WLEMMCommand::Command::COMPUTE));
-        cmd->setEmm(emmIn);
+        WLEMMCommand::SPtr cmd( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
+        cmd->setEmm( emmIn );
 
         m_output->updateData( cmd ); // update the output-connector after processing
-        m_epochCountValid->set(m_epochCountValid->get() + 1, true);
+        m_epochCountValid->set( m_epochCountValid->get() + 1, true );
         debugLog() << "output connector updated";
     }
     else
     {
-        m_epochCountInValid->set(m_epochCountInValid->get() + 1, true);
+        // In case of rejecting the epoch, the single channels of the epoch have to test.
+
+        //WInvalidEpochManager::instance()->addEpoch( emmIn );
+
+        m_epochCountInValid->set( m_epochCountInValid->get() + 1, true );
     }
 
     return true;
@@ -343,7 +350,6 @@ bool WMEpochRejection::processReset( WLEMMCommand::SPtr labp )
     return false;
 }
 
-
 // file status messages
 const std::string WMEpochRejection::NO_FILE_LOADED = "No file loaded.";
 const std::string WMEpochRejection::LOADING_FILE = "Loading file ...";
@@ -351,10 +357,10 @@ const std::string WMEpochRejection::FILE_LOADED = "File successfully loaded.";
 const std::string WMEpochRejection::FILE_ERROR = "Could not load file.";
 
 // define standard values for the thresholds
-const double WMEpochRejection::EEG_LEVEL = 150e-6;
-const double WMEpochRejection::EOG_LEVEL = 80e-6;
-const double WMEpochRejection::MEG_MAG_LEVEL = 4e-12;
-const double WMEpochRejection::MEG_GRAD_LEVEL = 200e-12;
+const double WMEpochRejection::EEG_THRESHOLD = 150e-6;
+const double WMEpochRejection::EOG_THRESHOLD = 80e-6;
+const double WMEpochRejection::MEG_MAG_THRESHOLD = 4e-12;
+const double WMEpochRejection::MEG_GRAD_THRESHOLD = 200e-12;
 
 // file labels for modalities
 const std::string WMEpochRejection::EEG_LABEL = "eegReject";
