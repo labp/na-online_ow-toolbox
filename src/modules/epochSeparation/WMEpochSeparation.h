@@ -40,7 +40,7 @@
  * Module for epoch separation.
  * \ingroup modules
  */
-class WMEpochSeparation: public LaBP::WLModuleDrawable
+class WMEpochSeparation: public WLModuleDrawable
 {
 public:
     /**
@@ -103,8 +103,8 @@ protected:
     // Methods from WLEMMCommandProcessor
     // ----------------------------
     virtual bool processCompute( WLEMMeasurement::SPtr emm );
-    virtual bool processInit( WLEMMCommand::SPtr labp );
-    virtual bool processReset( WLEMMCommand::SPtr labp );
+    virtual bool processInit( WLEMMCommand::SPtr cmdIn );
+    virtual bool processReset( WLEMMCommand::SPtr cmdIn );
 
 private:
     // TODO(pieloth): use OW classes
@@ -123,7 +123,6 @@ private:
 
     WPropInt m_preTrigger;
     WPropInt m_postTrigger;
-    double m_frequence; // to calculate time rage
 
     WPropString m_triggers;
     WPropInt m_triggerChannel;

@@ -37,10 +37,6 @@
 
 #include "core/data/WLEMMEnumTypes.h"
 
-using Eigen::MatrixXd;
-using Eigen::RowVectorXd;
-using Eigen::VectorXd;
-
 /**
  * Class for general modality. Saves information which are present for all modalities.
  */
@@ -58,24 +54,27 @@ public:
     typedef boost::shared_ptr< const WLEMData > ConstSPtr;
 
     /**
-     * Date type of a multi channel measurement: Channel x Time
+     * Data type of single value aka "Channel c1 at time t1".
      */
-    typedef MatrixXd DataT;
+#ifdef LABP_FLOAT_COMPUTATION
+    typedef float ScalarT;
+#else
+    typedef double ScalarT;
+#endif  // LABP_FLOAT_COMPUTATION
+    /**
+     * Data type of a multi channel sample for a defined time point aka "All channels at time t1".
+     */
+    typedef Eigen::Matrix< ScalarT, Eigen::Dynamic, 1 > SampleT;
 
     /**
      * Data type of a measured single channel over time.
      */
-    typedef RowVectorXd ChannelT;
+    typedef Eigen::Matrix< ScalarT, 1, Eigen::Dynamic > ChannelT;
 
     /**
-     * Data type of a multi channel sample for a defined time point aka "All channels at time t1".
+     * Date type of a multi channel measurement: Channel x Time
      */
-    typedef VectorXd SampleT;
-
-    /**
-     * Data type of single value aka "Channel c1 at time t1".
-     */
-    typedef DataT::Scalar ScalarT;
+    typedef Eigen::Matrix< ScalarT, Eigen::Dynamic, Eigen::Dynamic > DataT;
 
     typedef boost::shared_ptr< DataT > DataSPtr;
 

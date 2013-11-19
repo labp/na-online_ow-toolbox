@@ -22,4 +22,36 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WLMatrixTypes.h"
+#ifndef WLREADERDIGPOINTS_H_
+#define WLREADERDIGPOINTS_H_
+
+#include <string>
+#include <vector>
+
+#include <boost/shared_ptr.hpp>
+
+#include "core/data/WLDigPoint.h"
+#include "core/io/WLReader.h"
+
+class WLReaderDigPoints: public WLReader
+{
+public:
+    static const std::string CLASS;
+
+    /**
+     * Convenience typedef for a boost::shared_ptr< WLDigPoint >
+     */
+    typedef boost::shared_ptr< WLReaderDigPoints > SPtr;
+
+    /**
+     * Convenience typedef for a  boost::shared_ptr< const WLDigPoint >
+     */
+    typedef boost::shared_ptr< const WLReaderDigPoints > ConstSPtr;
+
+    explicit WLReaderDigPoints( std::string fname );
+    virtual ~WLReaderDigPoints();
+
+    ReturnCode::Enum read( std::vector< WLDigPoint >* const out );
+};
+
+#endif  // WLREADERDIGPOINTS_H_

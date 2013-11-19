@@ -100,6 +100,8 @@ namespace LaBP
         };
         std::vector< Enum > values();
         std::string name( Enum val );
+        double factor( Enum val);
+
     }
 
     /**
@@ -136,7 +138,7 @@ namespace LaBP
     {
         enum Enum
         {
-            MALE, FEMALE, OTHER
+            MALE, FEMALE, OTHER, UNKNOWN
         };
         std::vector< Enum > values();
     }
@@ -147,7 +149,7 @@ namespace LaBP
     {
         enum Enum
         {
-            RIGHT, LEFT, BOTH
+            RIGHT, LEFT, BOTH, UNKNOWN
         };
         std::vector< Enum > values();
     }
@@ -156,7 +158,7 @@ namespace LaBP
     {
         enum Enum
         {
-            BRAIN, SKULL, SKIN, INNER_SKIN, OUTER_SKIN, INNER_SKULL, OUTER_SKULL
+            BRAIN, SKULL, SKIN, INNER_SKIN, OUTER_SKIN, INNER_SKULL, OUTER_SKULL, UNKNOWN, UNKNOWN2
         };
         std::vector< Enum > values();
         std::string name( Enum val );

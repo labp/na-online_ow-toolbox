@@ -30,10 +30,10 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <osg/ref_ptr>
 #include <osg/Texture1D>
 #include <osg/Vec4>
 #include <osgSim/ColorRange>
-#include <osgSim/ScalarsToColors>
 
 namespace LaBP
 {
@@ -76,7 +76,7 @@ namespace LaBP
      * The "color map texture" has a domain of [0;1]. A scalar must be mapped on this domain to get a correct mapping with GPU support.
      * See page 44 of thesis "Kombinierte Visualisierung von EEG- und Diffusions-MRT-Nervenfaser-Daten" by Cornelius Müller.
      */
-    class WLColorMap: public osgSim::ScalarsToColors
+    class WLColorMap
     {
     public:
         typedef osg::Vec4 ColorT;
@@ -95,6 +95,8 @@ namespace LaBP
          */
         typedef boost::shared_ptr< const WLColorMap > ConstSPtr;
 
+        static const std::string CLASS;
+
         /**
          * Constructor sets necessary variables for base class.
          *
@@ -104,6 +106,10 @@ namespace LaBP
          */
         WLColorMap( ValueT min = -1.0, ValueT max = 1.0, WEColorMapMode::Enum mode = WEColorMapMode::NORMAL );
         virtual ~WLColorMap();
+
+        ValueT getMin() const;
+
+        ValueT getMax() const;
 
         /**
          * Returns the color for a scalar value.

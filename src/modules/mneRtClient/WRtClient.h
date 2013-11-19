@@ -35,12 +35,15 @@
 
 // MNE Library
 #include <fiff/fiff_info.h>
+#include <fiff/fiff_types.h>
 #include <rtClient/rtcmdclient.h>
 #include <rtClient/rtdataclient.h>
 
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
+#include "core/data/WLDataTypes.h"
+#include "core/data/WLDigPoint.h"
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDEEG.h"
@@ -74,26 +77,56 @@ public:
 
     bool setSimulationFile( std::string simFile );
 
-    bool readData( WLEMMeasurement::SPtr emmIn );
+    void setBlockSize(int blockSize);
+    int getBlockSize();
+
+    bool readData( WLEMMeasurement::SPtr& emmIn );
+
+    // TODO(pieloth): Workaround for #227/#228
+    bool setDigPointsAndEEG( const std::vector< WLDigPoint >& digPoints );
 
 private:
+    typedef std::vector< std::string > ChannelNamesT;
+    typedef boost::shared_ptr< ChannelNamesT > ChannelNamesSPtr;
+
+    typedef std::vector< WPosition > ChannelsPositionsT;
+    typedef boost::shared_ptr< ChannelsPositionsT > ChannelsPositionsSPtr;
+
+    typedef std::vector< WVector3i > FacesT;
+    typedef boost::shared_ptr< FacesT > FacesSPtr;
+
+    static LaBP::WEUnit::Enum getChanUnit( FIFFLIB::fiff_int_t unit );
+
+    static LaBP::WEExponent::Enum getChanUnitMul( FIFFLIB::fiff_int_t unitMul );
+
     bool m_isStreaming;
     bool m_isConnected;
 
+    std::map< int, std::string > m_conMap;
+    int m_conSelected;
+
     FIFFLIB::FiffInfo::SPtr m_fiffInfo;
+
+    WLEMMeasurement::ConstSPtr m_emmPrototype;
+    WLEMDEEG::ConstSPtr m_eegPrototype;
+    WLEMDMEG::ConstSPtr m_megPrototype;
+
+    ChannelsPositionsSPtr m_chPosEeg;
+    FacesSPtr m_facesEeg;
 
     Eigen::RowVectorXi m_picksEeg;
     Eigen::RowVectorXi m_picksMeg;
     Eigen::RowVectorXi m_picksStim;
 
-    bool readChannelPositionsFaces();
-    boost::shared_ptr< std::vector< WPosition > > m_chPosEeg;
-    boost::shared_ptr< std::vector< WVector3i > > m_facesEeg;
-    boost::shared_ptr< std::vector< WPosition > > m_chPosMeg;
+    bool prepareStreaming();
+    bool preparePrototype( WLEMMeasurement* const emm );
+    bool preparePrototype( WLEMData* const emd, const Eigen::RowVectorXi& picks );
+    bool preparePrototype( WLEMDEEG* const emd, const Eigen::RowVectorXi& picks );
+    bool preparePrototype( WLEMDMEG* const emd, const Eigen::RowVectorXi& picks );
 
-    bool readChannelNames();
-    boost::shared_ptr< std::vector< std::string > > m_chNamesEeg;
-    boost::shared_ptr< std::vector< std::string > > m_chNamesMeg;
+    bool readChannelNames( WLEMData* const emd, const Eigen::RowVectorXi& picks );
+    bool readChannelPositions( WLEMData* const emd, const Eigen::RowVectorXi& picks );
+    bool readChannelFaces( WLEMData* const emd, const Eigen::RowVectorXi& picks );
 
     RTCLIENTLIB::RtCmdClient::SPtr m_rtCmdClient;
     RTCLIENTLIB::RtDataClient::SPtr m_rtDataClient;
@@ -102,10 +135,14 @@ private:
     const std::string m_alias;
     qint32 m_clientId;
 
+    int m_blockSize;
+
+    std::vector< WLDigPoint > m_digPoints;
+
+    bool readEmd( WLEMData* const emd, const Eigen::RowVectorXi& picks, const Eigen::MatrixXf& rawData );
     WLEMDEEG::SPtr readEEG( const Eigen::MatrixXf& rawData );
     WLEMDMEG::SPtr readMEG( const Eigen::MatrixXf& rawData );
     boost::shared_ptr< WLEMMeasurement::EDataT > readEvents( const Eigen::MatrixXf& rawData );
-    bool readEmd( WLEMData* const emd, const Eigen::RowVectorXi& picks, const Eigen::MatrixXf& rawData );
 };
 
 #endif  // WRTCLIENT_H_

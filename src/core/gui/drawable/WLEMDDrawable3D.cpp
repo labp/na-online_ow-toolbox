@@ -36,6 +36,7 @@
 #include <osg/Texture>
 #include <osgText/Text>
 
+#include <core/common/WException.h>
 #include <core/common/WLogger.h>
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
@@ -61,6 +62,7 @@ namespace LaBP
     WLEMDDrawable3D::WLEMDDrawable3D( WCustomWidget::SPtr widget ) :
                     WLEMDDrawable( widget )
     {
+        m_zoomFactor = 1000;
         m_selectedSample = -1;
         m_selectedSampleChanged = false;
         m_colorMapChanged = true;
@@ -186,19 +188,26 @@ namespace LaBP
         m_colorMapChanged = true;
     }
 
-    void WLEMDDrawable3D::osgAddSurface( const std::vector< WPosition >* positions, const std::vector< WVector3i >& faces )
+    void WLEMDDrawable3D::osgAddSurface( const std::vector< WPosition >& positions, const std::vector< WVector3i >& faces )
     {
         // draw head surface
         if( m_surfaceChanged )
         {
             m_rootGroup->removeChild( m_surfaceGeode );
 
-            std::size_t nbPositions = positions->size();
+            const size_t nbPositions = positions.size();
+            std::vector< WPosition > scaledPos;
+            scaledPos.reserve( nbPositions );
+            for( size_t i = 0; i < nbPositions; ++i )
+            {
+                scaledPos.push_back( positions[i] * m_zoomFactor );
+            }
             boost::shared_ptr< WTriangleMesh > tri;
             if( faces.size() > 0 )
             {
-                osg::ref_ptr< osg::Vec3Array > vertices = wge::osgVec3Array( *positions );
+                osg::ref_ptr< osg::Vec3Array > vertices = wge::osgVec3Array( scaledPos );
                 std::vector< size_t > triangles;
+                triangles.resize( faces.size() * 3 );
 
                 for( size_t i = 0; i < faces.size(); ++i )
                 {
@@ -212,7 +221,15 @@ namespace LaBP
             }
             else
             {
-                tri = wge::triangulate( *positions, -0.005 );
+                try
+                {
+                    tri = wge::triangulate( scaledPos, -0.005 );
+                }
+                catch( WException& e )
+                {
+                    wlog::error( CLASS ) << "wge::triangulate() " << e.what();
+                    return;
+                }
                 m_surfaceGeometry = wge::convertToOsgGeometry( tri, WColor( 1.0, 1.0, 1.0, 1.0 ), true );
             }
             osg::ref_ptr< osg::Vec4Array > colors = new osg::Vec4Array;
@@ -239,8 +256,8 @@ namespace LaBP
 
             const ValueT width = m_widget->width();
             const ValueT height = m_widget->height();
-            const float cm_max = m_colorMap->getMax();
-            const float cm_min = m_colorMap->getMin();
+            const WLColorMap::ValueT cm_max = m_colorMap->getMax();
+            const WLColorMap::ValueT cm_min = m_colorMap->getMin();
             const ValueT cm_width = 20;
             const ValueT cm_height = height / 2;
             const ValueT cm_x_offset = 10;

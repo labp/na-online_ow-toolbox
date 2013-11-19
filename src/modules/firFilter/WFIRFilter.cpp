@@ -42,15 +42,31 @@
 
 const std::string WFIRFilter::CLASS = "WFIRFilter";
 
+WFIRFilter::WFIRFilter()
+{
+    m_sFreq = 0;
+    m_cFreq1 = 0;
+    m_cFreq2 = 0;
+    m_order = 0;
+    m_type = WEFilterType::UNKNOWN;
+    m_window = WEWindowsType::UNKNOWN;
+}
+
+WFIRFilter::WFIRFilter( const std::string& pathToFcf )
+{
+    m_sFreq = 0;
+    m_cFreq1 = 0;
+    m_cFreq2 = 0;
+    m_order = 0;
+    m_type = WEFilterType::UNKNOWN;
+    m_window = WEWindowsType::UNKNOWN;
+    setCoefficients( pathToFcf );
+}
+
 WFIRFilter::WFIRFilter( WFIRFilter::WEFilterType::Enum filtertype, WFIRFilter::WEWindowsType::Enum windowtype, int order,
                 ScalarT sFreq, ScalarT cFreq1, ScalarT cFreq2 )
 {
     design( filtertype, windowtype, order, sFreq, cFreq1, cFreq2 );
-}
-
-WFIRFilter::WFIRFilter( const char *pathToFcf )
-{
-    setCoefficients( pathToFcf );
 }
 
 WFIRFilter::~WFIRFilter()
@@ -175,28 +191,35 @@ void WFIRFilter::setCutOffFrequency2( ScalarT value, bool redesign )
     }
 }
 
-void WFIRFilter::setCoefficients( std::vector< ScalarT > values, bool redesign )
+void WFIRFilter::setCoefficients( std::vector< ScalarT > values )
 {
     m_coeffitients = values;
-    if( redesign )
-    {
-        design();
-    }
-    else
-    {
-        wlog::info( CLASS ) << "setCoefficients() m_coeffitients: " << m_coeffitients.size();
+    m_order = m_coeffitients.size() - 1;
+
+    m_sFreq = 0;
+    m_cFreq1 = 0;
+    m_cFreq2 = 0;
+    m_type = WEFilterType::UNKNOWN;
+    m_window = WEWindowsType::UNKNOWN;
+
+    wlog::debug( CLASS ) << "setCoefficients() m_coeffitients: " << m_coeffitients.size();
 #ifdef DEBUG
-        for( size_t i = 0; i < m_coeffitients.size(); i++ )
-        {
-            wlog::debug( CLASS ) << m_coeffitients[i];
-        }
-#endif // DEBUG
+    for( size_t i = 0; i < m_coeffitients.size(); i++ )
+    {
+        wlog::debug( CLASS ) << m_coeffitients[i];
     }
+#endif // DEBUG
 }
 
-bool WFIRFilter::setCoefficients( const char *pathToFcf, bool redesign )
+bool WFIRFilter::setCoefficients( const std::string& pathToFcf )
 {
-    std::ifstream f( pathToFcf );
+    m_sFreq = 0;
+    m_cFreq1 = 0;
+    m_cFreq2 = 0;
+    m_type = WEFilterType::UNKNOWN;
+    m_window = WEWindowsType::UNKNOWN;
+
+    std::ifstream f( pathToFcf.c_str() );
     std::string s;
 
     // find "Length"
@@ -239,20 +262,15 @@ bool WFIRFilter::setCoefficients( const char *pathToFcf, bool redesign )
     }
 
     f.close();
-    if( redesign )
-    {
-        design();
-    }
-    else
-    {
-        wlog::info( CLASS ) << "setCoefficients() m_coeffitients: " << m_coeffitients.size();
+
+    m_order = m_coeffitients.size() - 1;
+    wlog::debug( CLASS ) << "setCoefficients() m_coeffitients: " << m_coeffitients.size();
 #ifdef DEBUG
-        for( size_t i = 0; i < m_coeffitients.size(); i++ )
-        {
-            wlog::debug( CLASS ) << m_coeffitients[i];
-        }
-#endif // DEBUG
+    for( size_t i = 0; i < m_coeffitients.size(); i++ )
+    {
+        wlog::debug( CLASS ) << m_coeffitients[i];
     }
+#endif // DEBUG
 
     return true;
 }
@@ -270,13 +288,15 @@ void WFIRFilter::reset()
 
 void WFIRFilter::design()
 {
+    wlog::debug( CLASS ) << "design() called!";
+
     this->reset();
 
     // prepare allPass for other filtertypes
     m_allPass.resize( m_order + 1, 0 );
     designLowpass( &m_allPass, m_order, 0.5, 1.0, m_window );
 
-    wlog::info( CLASS ) << "design() m_allPass: " << m_allPass.size();
+    wlog::debug( CLASS ) << "design() m_allPass: " << m_allPass.size();
 #ifdef DEBUG
     for( size_t i = 0; i < m_allPass.size(); i++ )
     {
@@ -304,7 +324,7 @@ void WFIRFilter::design()
             break;
     }
 
-    wlog::info( CLASS ) << "design() m_coeffitients: " << m_coeffitients.size();
+    wlog::debug( CLASS ) << "design() m_coeffitients: " << m_coeffitients.size();
 #ifdef DEBUG
     for( size_t i = 0; i < m_coeffitients.size(); i++ )
     {
@@ -316,6 +336,8 @@ void WFIRFilter::design()
 void WFIRFilter::design( WFIRFilter::WEFilterType::Enum filtertype, WFIRFilter::WEWindowsType::Enum windowtype, size_t order,
                 ScalarT sFreq, ScalarT cFreq1, ScalarT cFreq2 )
 {
+    wlog::debug( CLASS ) << "design(...) called!";
+
     m_type = filtertype;
     m_window = windowtype;
     m_order = order;
@@ -329,6 +351,8 @@ void WFIRFilter::design( WFIRFilter::WEFilterType::Enum filtertype, WFIRFilter::
 void WFIRFilter::designLowpass( std::vector< ScalarT >* pCoeff, size_t order, ScalarT cFreq, ScalarT sFreq,
                 WFIRFilter::WEWindowsType::Enum windowtype )
 {
+    wlog::debug( CLASS ) << "designLowpass() called!";
+
     WAssert( pCoeff, "pCoeff is NULL!" );
     std::vector< ScalarT >& coeff = *pCoeff;
     WAssert( cFreq != 0, "cFreq != 0" );
@@ -361,6 +385,8 @@ void WFIRFilter::designLowpass( std::vector< ScalarT >* pCoeff, size_t order, Sc
 
 void WFIRFilter::designHighpass( void )
 {
+    wlog::debug( CLASS ) << "designHighpass() called!";
+
     designLowpass( &m_coeffitients, m_order, m_cFreq1, m_sFreq, m_window );
     normalizeCoeff( &m_coeffitients );
 
@@ -371,8 +397,10 @@ void WFIRFilter::designHighpass( void )
     }
 }
 
-void WFIRFilter::designBandpass( void )
+void WFIRFilter::designBandpass()
 {
+    wlog::debug( CLASS ) << "designBandpass() called!";
+
     std::vector< ScalarT > tmpCoeff( m_coeffitients.size(), 0 );
 
     designLowpass( &m_coeffitients, m_order, m_cFreq1, m_sFreq, m_window );
@@ -389,8 +417,10 @@ void WFIRFilter::designBandpass( void )
     }
 }
 
-void WFIRFilter::designBandstop( void )
+void WFIRFilter::designBandstop()
 {
+    wlog::debug( CLASS ) << "designBandstop() called!";
+
     designBandpass();
 
     WAssert( m_allPass.size() == m_coeffitients.size(), "m_allPass.size() == m_coeffitients.size()" );
@@ -424,6 +454,7 @@ std::vector< WFIRFilter::WEFilterType::Enum > WFIRFilter::WEFilterType::values()
     values.push_back( WEFilterType::BANDSTOP );
     values.push_back( WEFilterType::HIGHPASS );
     values.push_back( WEFilterType::LOWPASS );
+    // skip: values.push_back( WEFilterType::UNKNOWN );
     return values;
 }
 
@@ -453,6 +484,7 @@ std::vector< WFIRFilter::WEWindowsType::Enum > WFIRFilter::WEWindowsType::values
     values.push_back( WEWindowsType::BARLETT );
     values.push_back( WEWindowsType::BLACKMAN );
     values.push_back( WEWindowsType::HANNING );
+    // skip: values.push_back( WEWindowsType::UNKNOWN );
     return values;
 }
 

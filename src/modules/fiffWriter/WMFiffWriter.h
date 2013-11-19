@@ -22,39 +22,24 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMEMDWRITER_H
-#define WMEMDWRITER_H
+#ifndef WMLEADFIELDINTERPOLATION_H_
+#define WMLEADFIELDINTERPOLATION_H_
 
 #include <string>
-#include <fstream>
-
-#include <boost/shared_ptr.hpp>
 
 #include <core/kernel/WModule.h>
 
-#include "core/data/WLEMMCommand.h"
-#include "core/data/WLEMMeasurement.h"
-#include "core/data/WLEMMEnumTypes.h"
-#include "core/data/emd/WLEMData.h"
-#include "core/module/WLModuleDrawable.h"
-#include "core/module/WLModuleInputDataRingBuffer.h"
+#include "core/module/WLModuleInputDataCollection.h"
+#include "core/module/WLModuleOutputDataCollectionable.h"
+#include "core/module/WLEMMCommandProcessor.h"
 
-/**
- * This module implements several onscreen status displays
- * \ingroup modules
- */
-class WMEmdWriter: public LaBP::WLModuleDrawable
+#include "writer/WWriterFiff.h"
+
+class WMFiffWriter: public WModule, public WLEMMCommandProcessor
 {
 public:
-    /**
-     * standard constructor
-     */
-    WMEmdWriter();
-
-    /**
-     * destructor
-     */
-    virtual ~WMEmdWriter();
+    WMFiffWriter();
+    virtual ~WMFiffWriter();
 
     /**
      * \par Description
@@ -71,14 +56,11 @@ public:
     virtual const std::string getDescription() const;
 
 protected:
-    // ---------------------------------
-    // Methods for WLEMMCommandProcessor
-    // ---------------------------------
     virtual bool processCompute( WLEMMeasurement::SPtr emm );
     virtual bool processInit( WLEMMCommand::SPtr labp );
+    virtual bool processMisc( WLEMMCommand::SPtr labp );
+    virtual bool processTime( WLEMMCommand::SPtr labp );
     virtual bool processReset( WLEMMCommand::SPtr labp );
-
-    virtual void moduleInit();
 
     /**
      * \par Description
@@ -102,7 +84,7 @@ protected:
      *
      * \return the prototype used to create every module in OpenWalnut.
      */
-    virtual boost::shared_ptr< WModule > factory() const;
+    virtual WModule::SPtr factory() const;
 
     /**
      * Get the icon for this module in XPM format.
@@ -111,34 +93,30 @@ protected:
 
 private:
     /**
-     * Input connector for a EMM dataset
+     * Output connector for a EMMCommand dataset
      */
-    LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input;
+    LaBP::WLModuleInputDataCollection< WLEMMCommand >::SPtr m_input;
 
     /**
-     * A condition used to notify about changes in several properties.
+     * Output connector for a EMMCommand dataset
      */
-    boost::shared_ptr< WCondition > m_propCondition;
+    LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output;
 
-    WPropGroup m_propGrpModule;
+    WCondition::SPtr m_propCondition;
 
-    WPropBool m_packetsAll;
-    WPropBool m_packetsNext;
+    WPropFilename m_propFile;
 
-    WPropBool m_allEmd;
+    WPropString m_propFileStatus;
 
-    WItemSelection::SPtr m_processModality;
-    WPropSelection m_processModalitySelection;
+    bool handleFileChanged();
 
-    WPropString m_folder;
-    WPropString m_fPrefix;
-    WPropString m_fSuffix;
+    WWriterFiff::SPtr m_fiffWriter;
 
-    std::string getFileName( std::string folder, std::string prefix, std::string suffix, LaBP::WEModalityType::Enum emdType,
-                    size_t channels, size_t samples, size_t count );
+    static const std::string ERROR;
 
-    bool write( std::string fname, WLEMData::ConstSPtr emd );
+    static const std::string OPEN;
 
+    static const std::string NONE;
 };
 
-#endif  // WMEMDWRITER_H
+#endif  // WMLEADFIELDINTERPOLATION_H_

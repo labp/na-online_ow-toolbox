@@ -22,53 +22,40 @@
 //
 //---------------------------------------------------------------------------
 
-// NOTE: Needs Eigen v3.1 or higher for sparse matrices
+#ifndef WREADEREEGPOSITIONS_H_
+#define WREADEREEGPOSITIONS_H_
 
-#ifndef WLMATRIXTYPES_H_
-#define WLMATRIXTYPES_H_
+#include <string>
+#include <vector>
 
 #include <boost/shared_ptr.hpp>
-#include <Eigen/Core>
-#include <Eigen/SparseCore>
 
-using Eigen::MatrixXf;
-using Eigen::SparseMatrix;
+#include <core/common/math/linearAlgebra/WPosition.h>
+#include <core/dataHandler/io/WReader.h>
+#include <core/dataHandler/exceptions/WDHNoSuchFile.h>
 
-namespace LaBP
+#include "core/io/WLIOStatus.h"
+
+class WReaderEEGPositions: public WReader, public WLIOStatus::WLIOStatusInterpreter
 {
+public:
     /**
-     * Replacement for element type in matrix.
+     * Shared pointer abbreviation to a instance of this class.
      */
-    typedef float MatrixElementT;
+    typedef boost::shared_ptr< WReaderEEGPositions > SPtr;
 
     /**
-     * Replacement for fixed matrix type. E.g. Eigen::Matrix or WMatrix
+     * Shared pointer abbreviation to a const instance of this class.
      */
-    typedef MatrixXf MatrixT;
+    typedef boost::shared_ptr< const WReaderEEGPositions > ConstSPtr;
 
-    /**
-     * Abbreviation for a shared pointer.
-     */
-    typedef boost::shared_ptr< MatrixT > MatrixSPtr;
+    static const std::string CLASS;
 
-    /**
-     * Abbreviation for const shared pointer.
-     */
-    typedef boost::shared_ptr< const MatrixT > MatrixConstSPtr;
+    explicit WReaderEEGPositions( std::string fname ) throw( WDHNoSuchFile );
 
-    /**
-     * Replacement for sparse matrix type. E.g. SparseMatrix< double >
-     */
-    typedef SparseMatrix< MatrixElementT > SpMatrixT;
+    virtual ~WReaderEEGPositions();
 
-    /**
-     * Abbreviation for a shared pointer.
-     */
-    typedef boost::shared_ptr< SpMatrixT > SpMatrixSPtr;
+    WLIOStatus::ioStatus_t read( boost::shared_ptr< std::vector< WPosition > >& positions );
+};
 
-    /**
-     * Abbreviation for const shared pointer.
-     */
-    typedef boost::shared_ptr< const SpMatrixT > SpMatrixConstSPtr;
-} // namespace LaBP
-#endif  // WLMATRIXTYPES_H_
+#endif  // WREADEREEGPOSITIONS_H_

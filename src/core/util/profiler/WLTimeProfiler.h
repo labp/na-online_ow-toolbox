@@ -33,8 +33,6 @@
 
 #include "WLProfiler.h"
 
-using std::string;
-
 /**
  * Explicit time measurement with start and stop method. An instance relates to a class and an action.
  */
@@ -53,7 +51,7 @@ public:
 
     typedef double TimeT;
 
-    static const string CLASS;
+    static const std::string CLASS;
 
     /**
      * Constructor to measure an action or method of a class.
@@ -61,7 +59,7 @@ public:
      * \param clazz Class to measure
      * \param action Action or method to measure
      */
-    WLTimeProfiler( string clazz, string action, bool autoLog = true );
+    WLTimeProfiler( std::string clazz, std::string action, bool autoLog = true );
 
     WLTimeProfiler( const WLTimeProfiler& profiler );
 

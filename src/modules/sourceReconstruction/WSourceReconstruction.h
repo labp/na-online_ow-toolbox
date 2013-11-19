@@ -22,20 +22,19 @@
 //
 //---------------------------------------------------------------------------
 
-// NOTE: Needs Eigen v3.1 or higher for sparse matrices, see README
 #ifndef WSOURCERECONSTRUCTION_H_
 #define WSOURCERECONSTRUCTION_H_
 
 #include <string>
 #include <set>
 
+#include "boost/thread/mutex.hpp"
+#include <boost/thread/locks.hpp>
 #include <boost/shared_ptr.hpp>
-#include <Eigen/SparseCore>
 
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDSource.h"
-
-using Eigen::SparseMatrix;
+#include "core/data/WLDataTypes.h"
 
 class WSourceReconstruction
 {
@@ -51,16 +50,6 @@ public:
      * Abbreviation for const shared pointer.
      */
     typedef boost::shared_ptr< const WSourceReconstruction > ConstSPtr;
-
-    typedef WLEMData::ScalarT ScalarT;
-
-    typedef WLEMData::DataT MatrixT;
-
-    typedef WLEMData::DataSPtr MatrixSPtr;
-
-    typedef SparseMatrix< ScalarT > SpMatrixT;
-
-    typedef boost::shared_ptr< SpMatrixT > SpMatrixSPtr;
 
     struct WEWeightingCalculation
     {
@@ -80,21 +69,21 @@ public:
 
     virtual void reset();
 
-    void setLeadfield( MatrixSPtr matrix );
+    void setLeadfield( WLMatrix::SPtr matrix );
 
-    const MatrixT& getLeadfield() const;
+    const WLMatrix::MatrixT& getLeadfield() const;
 
     bool hasLeadfield() const;
 
     bool calculateWeightningMatrix( WSourceReconstruction::WEWeightingCalculation::Enum type );
 
-    const SpMatrixT& getWeighting() const;
+    const WLSpMatrix::SpMatrixT& getWeighting() const;
 
     bool hasWeighting() const;
 
-    virtual bool calculateInverseSolution( const MatrixT& noiseCov, const MatrixT& dataCov, double snr );
+    virtual bool calculateInverseSolution( const WLMatrix::MatrixT& noiseCov, const WLMatrix::MatrixT& dataCov, double snr );
 
-    const MatrixT& getInverse() const;
+    const WLMatrix::MatrixT& getInverse() const;
 
     bool hasInverse() const;
 
@@ -103,11 +92,17 @@ public:
     static bool averageReference( WLEMData::DataT& dataOut, const WLEMData::DataT& dataIn );
 
 protected:
-    MatrixSPtr m_leadfield;
+    typedef boost::shared_mutex MutexT;
+    typedef boost::shared_lock< MutexT > SharedLockT;
+    typedef boost::unique_lock< MutexT > ExclusiveLockT;
 
-    SpMatrixSPtr m_weighting;
+    mutable MutexT m_lockData;
 
-    MatrixSPtr m_inverse;
+    WLMatrix::SPtr m_leadfield;
+
+    WLSpMatrix::SPtr m_weighting;
+
+    WLMatrix::SPtr m_inverse;
 };
 
 #endif  // WSOURCERECONSTRUCTION_H_

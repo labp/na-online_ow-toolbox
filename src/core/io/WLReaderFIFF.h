@@ -27,8 +27,11 @@
 
 #include <string>
 
+#include <boost/shared_ptr.hpp>
+
 #include <core/dataHandler/io/WReader.h>
 
+#include <libfiffio/common/LFMultipliers.h>
 #include <libfiffio/common/LFReturnCodes.h>
 #include <libfiffio/common/LFUnits.h>
 
@@ -40,12 +43,20 @@
 
 namespace LaBP
 {
-
     class WLReaderFIFF: public WLReader
     {
     public:
+        /**
+         * Shared pointer abbreviation to a instance of this class.
+         */
+        typedef boost::shared_ptr< WLReaderFIFF > SPtr;
 
-        static const string CLASS;
+        /**
+         * Shared pointer abbreviation to a const instance of this class.
+         */
+        typedef boost::shared_ptr< const WLReaderFIFF > ConstSPtr;
+
+        static const std::string CLASS;
 
         /**
          * Constructs a reader object.
@@ -65,7 +76,9 @@ namespace LaBP
     private:
         static ReturnCode::Enum getReturnCode( returncode_t rc );
 
-        static LaBP::WEUnit::Enum getChanUnit( fiffunits_t unit );
+        static WEUnit::Enum getChanUnit( fiffunits_t unit );
+
+        static WEExponent::Enum getChanUnitMul( fiffmultipliers_t unitMul );
     };
 }
 #endif /* WLREADERFIFF_H_ */

@@ -31,6 +31,8 @@
 #include <string>
 #include <set>
 
+#include <core/common/WException.h>
+
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMData.h"
 #include "core/util/WLRingBuffer.h"
@@ -180,7 +182,7 @@ private:
      *
      * \return Structure which contains a new EMM object and left sample count.
      */
-    LeftEpoch::SPtr processPreSamples( size_t eIndex );
+    LeftEpoch::SPtr processPreSamples( size_t eIndex ) throw( WException );
 
     /**
      * Fills the incomplete epoch from given EMM object.

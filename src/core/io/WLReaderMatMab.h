@@ -7,7 +7,7 @@
 #include <boost/shared_ptr.hpp>
 #include <Eigen/Core>
 
-#include "core/data/WLMatrixTypes.h"
+#include "core/data/WLDataTypes.h"
 #include "core/io/WLReader.h"
 
 class WLReaderMatMab: public WLReader
@@ -31,10 +31,10 @@ public:
     explicit WLReaderMatMab( std::string fname );
     virtual ~WLReaderMatMab();
 
-    ReturnCode::Enum read( LaBP::MatrixSPtr& matrix );
+    ReturnCode::Enum read( WLMatrix::SPtr& matrix );
 
 private:
-    ReturnCode::Enum readMab( LaBP::MatrixSPtr matrix, std::string fName, size_t rows, size_t cols );
+    ReturnCode::Enum readMab( WLMatrix::SPtr matrix, std::string fName, size_t rows, size_t cols );
 };
 
 #endif /* WLREADERMATMAB_H_ */

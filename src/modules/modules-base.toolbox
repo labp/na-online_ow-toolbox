@@ -1,11 +1,15 @@
 # LaBP Toolbox
 
-#ADD_MODULE( emdWriter )
+ADD_MODULE( alignment )
+ADD_MODULE( codeSnippets )
 ADD_MODULE( emMeasurement )
 ADD_MODULE( epochAveraging )
 ADD_MODULE( epochSeparation )
+ADD_MODULE( fiffWriter )
 ADD_MODULE( firFilter )
 ADD_MODULE( leadfieldInterpolation )
+ADD_MODULE( matReader )
+ADD_MODULE( matWriter )
 ADD_MODULE( mneRtClient )
 #ADD_MODULE( pca )
 ADD_MODULE( profilerLog )

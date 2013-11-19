@@ -103,7 +103,7 @@ WLReaderDIP::ReturnCode::Enum WLReaderDIP::read( boost::shared_ptr< WLEMMSurface
     if( surface->getFaces().empty() )
     {
         wlog::warn( "WReaderDIP" ) << "No faces found! Faces will be generated.";
-        WLGeometry::computeTriangulation( surface->getFaces(), *surface->getVertex() );
+        WLGeometry::computeTriangulation( &surface->getFaces(), *surface->getVertex() );
     }
 
     ifs.close();

@@ -112,7 +112,7 @@ WLReaderBND::ReturnCode::Enum WLReaderBND::read( boost::shared_ptr< WLEMMBemBoun
     if( boundary->getFaces().empty() )
     {
         wlog::warn( "WReaderBND" ) << "No faces found! Faces will be generated.";
-        WLGeometry::computeTriangulation( boundary->getFaces(), boundary->getVertex() );
+        WLGeometry::computeTriangulation( &boundary->getFaces(), boundary->getVertex() );
     }
 
     ifs.close();

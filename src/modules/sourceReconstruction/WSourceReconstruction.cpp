@@ -47,6 +47,8 @@ using Eigen::Triplet;
 using std::minus;
 using std::set;
 using std::transform;
+using WLMatrix::MatrixT;
+using WLSpMatrix::SpMatrixT;
 
 typedef Eigen::Triplet< double > TripletT;
 
@@ -62,19 +64,23 @@ WSourceReconstruction::~WSourceReconstruction()
 
 void WSourceReconstruction::reset()
 {
+    ExclusiveLockT lock(m_lockData);
+
     m_leadfield.reset();
     m_weighting.reset();
     m_inverse.reset();
 }
 
-void WSourceReconstruction::setLeadfield( MatrixSPtr matrix )
+void WSourceReconstruction::setLeadfield( WLMatrix::SPtr matrix )
 {
+    ExclusiveLockT lock(m_lockData);
+
     m_leadfield = matrix;
     m_weighting.reset();
     m_inverse.reset();
 }
 
-const WSourceReconstruction::MatrixT& WSourceReconstruction::getLeadfield() const
+const WLMatrix::MatrixT& WSourceReconstruction::getLeadfield() const
 {
     return *m_leadfield;
 }
@@ -87,6 +93,7 @@ bool WSourceReconstruction::hasLeadfield() const
 bool WSourceReconstruction::calculateWeightningMatrix( WSourceReconstruction::WEWeightingCalculation::Enum type )
 {
     WLTimeProfiler tp( CLASS, "calculateWeightningMatrix" );
+    ExclusiveLockT lock(m_lockData);
 
     if( !m_leadfield )
     {
@@ -141,7 +148,7 @@ bool WSourceReconstruction::calculateWeightningMatrix( WSourceReconstruction::WE
     }
 }
 
-const WSourceReconstruction::SpMatrixT& WSourceReconstruction::getWeighting() const
+const WLSpMatrix::SpMatrixT& WSourceReconstruction::getWeighting() const
 {
     return *m_weighting;
 }
@@ -151,7 +158,7 @@ bool WSourceReconstruction::hasWeighting() const
     return m_weighting.get() != NULL;
 }
 
-const WSourceReconstruction::MatrixT& WSourceReconstruction::getInverse() const
+const WLMatrix::MatrixT& WSourceReconstruction::getInverse() const
 {
     return *m_inverse;
 }
@@ -164,6 +171,7 @@ bool WSourceReconstruction::hasInverse() const
 bool WSourceReconstruction::calculateInverseSolution( const MatrixT& noiseCov, const MatrixT& dataCov, double snr )
 {
     wlog::debug( CLASS ) << "calculateInverseSolution() called!";
+    ExclusiveLockT lock(m_lockData);
     WLTimeProfiler tp( CLASS, "calculateInverseSolution" );
 
     if( !m_leadfield )

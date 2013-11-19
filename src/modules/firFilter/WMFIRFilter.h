@@ -42,7 +42,7 @@
  * Module to parameterize and process a FIR filter.
  * \ingroup modules
  */
-class WMFIRFilter: public LaBP::WLModuleDrawable
+class WMFIRFilter: public WLModuleDrawable
 {
 public:
     /**
@@ -105,8 +105,8 @@ protected:
     // Methods from WLEMMCommandProcessor
     // ----------------------------
     virtual bool processCompute( WLEMMeasurement::SPtr emm );
-    virtual bool processInit( WLEMMCommand::SPtr labp );
-    virtual bool processReset( WLEMMCommand::SPtr labp );
+    virtual bool processInit( WLEMMCommand::SPtr cmdIn );
+    virtual bool processReset( WLEMMCommand::SPtr cmdIn );
 
 private:
     // GUI event handler

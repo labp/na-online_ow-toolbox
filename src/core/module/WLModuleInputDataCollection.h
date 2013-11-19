@@ -30,6 +30,7 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <core/common/WException.h>
 #include <core/kernel/WModule.h>
 #include <core/kernel/WModuleInputConnector.h>
 
@@ -61,7 +62,7 @@ namespace LaBP
          * \param name The name of this connector.
          * \param description Short description of this connector.
          */
-        WLModuleInputDataCollection( boost::shared_ptr< WModule > module, std::string name, std::string description ) :
+        WLModuleInputDataCollection( WModule::SPtr module, std::string name, std::string description ) :
                         WModuleInputConnector( module, name, description )
         {
         }
@@ -79,7 +80,7 @@ namespace LaBP
          * \param reset resets the flag of updated() if true (default).
          * \return a data element or throws an exception if no data is available.
          */
-        virtual const boost::shared_ptr< T > getData( bool reset = true ) throw( char const* ) = 0;
+        virtual const boost::shared_ptr< T > getData( bool reset = true ) throw( WException ) = 0;
 
         /**
          * Adds an element to this collection.

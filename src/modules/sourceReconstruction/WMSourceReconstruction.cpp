@@ -33,7 +33,7 @@
 #include <core/kernel/WModule.h>
 
 // Input & output data
-#include "core/data/WLMatrixTypes.h"
+#include "core/data/WLDataTypes.h"
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMEnumTypes.h"
 #include "core/data/emd/WLEMData.h"
@@ -55,11 +55,15 @@
 #include "WMSourceReconstruction.h"
 #include "WMSourceReconstruction.xpm"
 
+using namespace LaBP;
+
+using std::set;
+using WLMatrix::MatrixT;
+
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMSourceReconstruction )
 
-WMSourceReconstruction::WMSourceReconstruction() :
-                m_range( -1 )
+WMSourceReconstruction::WMSourceReconstruction()
 {
 }
 
@@ -102,8 +106,16 @@ void WMSourceReconstruction::connectors()
 
 void WMSourceReconstruction::properties()
 {
-    LaBP::WLModuleDrawable::properties();
-    setTimerangeInformationOnly( true );
+    WLModuleDrawable::properties();
+    WLModuleDrawable::setTimerangeInformationOnly( true );
+    WLModuleDrawable::setViewModality( WEModalityType::SOURCE );
+    WLModuleDrawable::hideViewModalitySelection( true );
+    WLModuleDrawable::hideLabelChanged( true );
+
+    set< WEModalityType::Enum > modalities;
+    modalities.insert( WEModalityType::EEG );
+    modalities.insert( WEModalityType::MEG );
+    WLModuleDrawable::setComputeModalitySelection( modalities );
 
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
@@ -180,28 +192,33 @@ void WMSourceReconstruction::properties()
 void WMSourceReconstruction::moduleInit()
 {
     infoLog() << "Initializing module ...";
-    waitRestored();
-    initView( LaBP::WLEMDDrawable2D::WEGraphType::SINGLE );
-    handleImplementationChanged();
-    handleWeightingTypeChanged();
-    handleSnrChanged();
-    infoLog() << "Initializing module finished!";
-}
 
-void WMSourceReconstruction::moduleMain()
-{
     // init moduleState for using Events in mainLoop
     m_moduleState.setResetable( true, true ); // resetable, autoreset
     m_moduleState.add( m_input->getDataChangedCondition() ); // when inputdata changed
     m_moduleState.add( m_propCondition ); // when properties changed
 
-    WLEMMCommand::SPtr labpIn;
-
     ready(); // signal ready state
+    waitRestored();
 
+    viewInit( LaBP::WLEMDDrawable2D::WEGraphType::SINGLE );
+
+    infoLog() << "Initializing module finished!";
+
+    infoLog() << "Restoring module ...";
+
+    handleImplementationChanged();
+    handleWeightingTypeChanged();
+    handleSnrChanged();
+
+    infoLog() << "Restoring module finished!";
+}
+
+void WMSourceReconstruction::moduleMain()
+{
     moduleInit();
 
-    debugLog() << "Entering main loop";
+    WLEMMCommand::SPtr cmd;
     while( !m_shutdownFlag() )
     {
         if( m_input->isEmpty() ) // continue processing if data is available
@@ -236,17 +253,23 @@ void WMSourceReconstruction::moduleMain()
             handleImplementationChanged();
         }
 
-        labpIn.reset();
+        cmd.reset();
         if( !m_input->isEmpty() )
         {
-            labpIn = m_input->getData();
+            cmd = m_input->getData();
         }
-        const bool dataValid = ( labpIn );
+
+        if( m_lastModality != getCalculateModality() )
+        {
+            handleComputeModalityChanged( cmd );
+        }
+
+        const bool dataValid = ( cmd );
 
         // ---------- INPUTDATAUPDATEEVENT ----------
         if( dataValid ) // If there was an update on the inputconnector
         {
-            process( labpIn );
+            process( cmd );
         }
     }
 }
@@ -276,8 +299,8 @@ void WMSourceReconstruction::handleResetTrigger()
 {
     debugLog() << "handleResetTrigger() called!";
 
-    WLEMMCommand::SPtr labp( new WLEMMCommand( WLEMMCommand::Command::RESET ) );
-    processReset( labp );
+    WLEMMCommand::SPtr cmd( new WLEMMCommand( WLEMMCommand::Command::RESET ) );
+    processReset( cmd );
 
     m_resetModule->set( WPVBaseTypes::PV_TRIGGER_READY );
 }
@@ -307,6 +330,7 @@ void WMSourceReconstruction::handleWeightingTypeChanged()
 
 void WMSourceReconstruction::handleSnrChanged()
 {
+    WLTimeProfiler tp( "WMSourceReconstruction", "handleSnrChanged" );
     debugLog() << "handleSnrChanged() called!";
     if( !m_nCovarianceMatrix || !m_dCovarianceMatrix )
     {
@@ -331,8 +355,16 @@ void WMSourceReconstruction::handleSnrChanged()
     }
 }
 
-bool WMSourceReconstruction::inverseSolutionFromSubject( WLEMMeasurement::SPtr emm, LaBP::WEModalityType::Enum modality )
+void WMSourceReconstruction::handleComputeModalityChanged( WLEMMCommand::ConstSPtr cmd )
 {
+    debugLog() << "handleComputeModalityChanged()";
+    m_lastModality = getCalculateModality();
+    m_sourceReconstruction->reset();
+}
+
+bool WMSourceReconstruction::inverseSolutionFromSubject( WLEMMeasurement::SPtr emm, WEModalityType::Enum modality )
+{
+    WLTimeProfiler tp( "WMSourceReconstruction", "inverseSolutionFromSubject" );
     debugLog() << "inverseSolutionFromSubject() called!";
     LaBP::WLEMMSubject::SPtr subject = emm->getSubject();
     if( !subject )
@@ -342,13 +374,10 @@ bool WMSourceReconstruction::inverseSolutionFromSubject( WLEMMeasurement::SPtr e
         return false;
     }
 
-    WSourceReconstruction::MatrixSPtr leadfield;
+    WLMatrix::SPtr leadfield;
     try
     {
-        // TODO(pieloth)
-        leadfield.reset(
-                        new WSourceReconstruction::MatrixT(
-                                        subject->getLeadfield( modality ).cast< WSourceReconstruction::ScalarT >() ) );
+        leadfield.reset( new MatrixT( subject->getLeadfield( modality ) ) );
     }
     catch( const WException& ex )
     {
@@ -362,10 +391,10 @@ bool WMSourceReconstruction::inverseSolutionFromSubject( WLEMMeasurement::SPtr e
     m_leadfieldCols->set( leadfield->cols(), true );
     m_leadfieldStatus->set( WMSourceReconstruction::MATRIX_LOADED, true );
 
-    m_dCovarianceMatrix.reset( new WSourceReconstruction::MatrixT( leadfield->rows(), leadfield->rows() ) );
+    m_dCovarianceMatrix.reset( new MatrixT( leadfield->rows(), leadfield->rows() ) );
     m_dCovarianceMatrix->setIdentity();
 
-    m_nCovarianceMatrix.reset( new WSourceReconstruction::MatrixT( leadfield->rows(), leadfield->rows() ) );
+    m_nCovarianceMatrix.reset( new MatrixT( leadfield->rows(), leadfield->rows() ) );
     m_nCovarianceMatrix->setIdentity();
 
     handleWeightingTypeChanged();
@@ -383,23 +412,15 @@ bool WMSourceReconstruction::processCompute( WLEMMeasurement::SPtr emmIn )
     // The data is valid and we received an update. The data is not NULL but may be the same as in previous loops.
     debugLog() << "received data";
 
-    // TODO(pieloth) choose correct EMD
-    LaBP::WEModalityType::Enum modality = LaBP::WEModalityType::EEG;
-    if( m_range < 0 )
-    {
-        if( emmIn->hasModality( modality ) )
-        {
-            const WLEMData::ConstSPtr emd = emmIn->getModality( modality );
-            const float frequence = emd->getSampFreq();
-            const double samples = static_cast< double >( emd->getSamplesPerChan() );
-            m_range = samples / frequence;
-            setTimerange( m_range );
-        }
-    }
+    LaBP::WEModalityType::Enum modality = this->getCalculateModality();
 
     if( !m_sourceReconstruction->hasInverse() )
     {
-        inverseSolutionFromSubject( emmIn, modality );
+        if( !inverseSolutionFromSubject( emmIn, modality ) )
+        {
+            errorLog() << "Skip processing due to no inverse solution!";
+            return false;
+        }
     }
 
     sourceOut = m_sourceReconstruction->reconstruct( emmIn->getModality( modality ) );
@@ -412,7 +433,7 @@ bool WMSourceReconstruction::processCompute( WLEMMeasurement::SPtr emmIn )
     }
     emmOut->addModality( sourceOut );
 
-    updateView( emmOut );
+    viewUpdate( emmOut );
 
     WLEMMCommand::SPtr labp = WLEMMCommand::instance( WLEMMCommand::Command::COMPUTE );
     labp->setEmm( emmOut );
@@ -420,22 +441,22 @@ bool WMSourceReconstruction::processCompute( WLEMMeasurement::SPtr emmIn )
     return true;
 }
 
-bool WMSourceReconstruction::processInit( WLEMMCommand::SPtr labp )
+bool WMSourceReconstruction::processInit( WLEMMCommand::SPtr cmdIn )
 {
-    // TODO(pieloth) choose correct EMD
-    LaBP::WEModalityType::Enum modality = LaBP::WEModalityType::EEG;
-    if( labp->hasEmm() )
+    WLTimeProfiler tp( "WMSourceReconstruction", "processInit" );
+    LaBP::WEModalityType::Enum modality = this->getCalculateModality();
+    if( cmdIn->hasEmm() )
     {
-        inverseSolutionFromSubject( labp->getEmm(), modality );
+        inverseSolutionFromSubject( cmdIn->getEmm(), modality );
     }
 
-    m_output->updateData( labp );
-    return false;
+    m_output->updateData( cmdIn );
+    return true;
 }
 
-bool WMSourceReconstruction::processReset( WLEMMCommand::SPtr labp )
+bool WMSourceReconstruction::processReset( WLEMMCommand::SPtr cmdIn )
 {
-    resetView();
+    viewReset();
     m_sourceReconstruction->reset();
 
     m_leadfieldRows->set( 0, true );
@@ -453,7 +474,7 @@ bool WMSourceReconstruction::processReset( WLEMMCommand::SPtr labp )
     m_nCovarianceMatrix.reset();
     m_dCovarianceMatrix.reset();
 
-    m_output->updateData( labp );
+    m_output->updateData( cmdIn );
     return true;
 }
 

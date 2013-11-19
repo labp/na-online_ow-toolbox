@@ -26,19 +26,25 @@
 #define WMMNERTCLIENT_H
 
 #include <string>
+#include <vector>
+
+#include <boost/shared_ptr.hpp>
 
 #include <core/common/WPropertyTypes.h>
 
+#include "core/data/WLDataTypes.h"
 #include "core/data/WLEMMCommand.h"
+#include "core/data/WLEMMSurface.h"
+#include "core/data/WLEMMBemBoundary.h"
+#include "core/data/WLDigPoint.h"
 #include "core/module/WLModuleDrawable.h"
-#include "core/io/WLReaderExperiment.h"
 #include "WRtClient.h"
 
 /**
  * TODO
  * \ingroup modules
  */
-class WMMneRtClient: public LaBP::WLModuleDrawable
+class WMMneRtClient: public WLModuleDrawable
 {
 public:
     /**
@@ -119,6 +125,7 @@ private:
     void handleTrgConConnect();
     void handleTrgConDisconnect();
 
+    // Connection status strings //
     static const std::string STATUS_CON_CONNECTED;
     static const std::string STATUS_CON_DISCONNECTED;
     static const std::string STATUS_CON_ERROR;
@@ -139,48 +146,46 @@ private:
     static const int NO_CONNECTOR;
 
     WPropString m_simFile;
+    WPropInt m_blockSize;
 
+    // Streaming status strings //
     static const std::string STATUS_DATA_STREAMING;
     static const std::string STATUS_DATA_ERROR;
     static const std::string STATUS_DATA_NOT_STREAMING;
 
-    // Experiment loader //
-    WPropGroup m_propGrpExperiment;
+    // Additional data //
+    WPropGroup m_propGrpAdditional;
+
+    WPropFilename m_srcSpaceFile;
+    LaBP::WLEMMSurface::SPtr m_surface;
+    bool handleSurfaceFileChanged( std::string fName );
+
+    WPropFilename m_bemFile;
+    boost::shared_ptr< std::vector< LaBP::WLEMMBemBoundary::SPtr > > m_bems;
+    bool handleBemFileChanged( std::string fName );
+
+    WPropFilename m_digPointsFile;
+    std::vector< WLDigPoint > m_digPoints;
+    bool handleDigPointsFileChanged( std::string fName );
+
+    WPropFilename m_lfEEGFile;
+    WPropFilename m_lfMEGFile;
+    WLMatrix::SPtr m_leadfieldEEG;
+    WLMatrix::SPtr m_leadfieldMEG;
+    bool handleLfFileChanged( std::string fName, WLMatrix::SPtr& lf );
+
+    WPropString m_additionalStatus;
 
     LaBP::WLEMMSubject::SPtr m_subject;
 
-    bool m_isExpLoaded;
-    bool m_isFiffLoaded;
-
-    WPropFilename m_fiffFile;
-    WPropString m_fiffFileStatus;
-
-    WPropString m_expSubject;
-
-    WItemSelection::SPtr m_expBemFiles;
-    WPropSelection m_expBemFilesSelection;
-
-    WItemSelection::SPtr m_expSurfaces;
-    WPropSelection m_expSurfacesSelection;
-
-    WPropString m_expTrial;
-
-    WPropTrigger m_expLoadTrigger;
-    WPropString m_expLoadStatus;
-    void handleExperimentLoadChanged();
-    void handleExtractExpLoader( std::string fiffFile );
-    WLReaderExperiment::SPtr m_expReader;
-
-    // File status string //
-    static const std::string NO_DATA_LOADED;
-    static const std::string LOADING_DATA;
+    // File status strings //
+    static const std::string DATA_NOT_LOADED;
+    static const std::string DATA_LOADING;
     static const std::string DATA_LOADED;
     static const std::string DATA_ERROR;
-    static const std::string NO_FILE_LOADED;
-    static const std::string LOADING_FILE;
-    static const std::string FILE_LOADED;
-    static const std::string FILE_ERROR;
 };
+
+const int WMMneRtClient::NO_CONNECTOR = -1;
 
 const std::string WMMneRtClient::STATUS_CON_CONNECTED = "Connected";
 const std::string WMMneRtClient::STATUS_CON_DISCONNECTED = "Disconnected";
@@ -190,13 +195,8 @@ const std::string WMMneRtClient::STATUS_DATA_STREAMING = "Streaming";
 const std::string WMMneRtClient::STATUS_DATA_ERROR = "Error";
 const std::string WMMneRtClient::STATUS_DATA_NOT_STREAMING = "Not streaming";
 
-const std::string WMMneRtClient::NO_FILE_LOADED = "No file loaded.";
-const std::string WMMneRtClient::LOADING_FILE = "Loading file ...";
-const std::string WMMneRtClient::FILE_LOADED = "File successfully loaded.";
-const std::string WMMneRtClient::FILE_ERROR = "Could not load file.";
-
-const std::string WMMneRtClient::NO_DATA_LOADED = "No data loaded.";
-const std::string WMMneRtClient::LOADING_DATA = "Loading data ...";
+const std::string WMMneRtClient::DATA_NOT_LOADED = "No data loaded.";
+const std::string WMMneRtClient::DATA_LOADING = "Loading data ...";
 const std::string WMMneRtClient::DATA_LOADED = "Data successfully loaded.";
 const std::string WMMneRtClient::DATA_ERROR = "Could not load data.";
 

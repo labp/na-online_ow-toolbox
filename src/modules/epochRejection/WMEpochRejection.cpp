@@ -107,8 +107,9 @@ void WMEpochRejection::connectors()
  */
 void WMEpochRejection::properties()
 {
-    LaBP::WLModuleDrawable::properties();
-    LaBP::WLModuleDrawable::setTimerangeInformationOnly( true );
+    WLModuleDrawable::properties();
+    WLModuleDrawable::setTimerangeInformationOnly( true );
+    WLModuleDrawable::hideComputeModalitySelection( true );
 
     /* init property container */
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
@@ -148,14 +149,13 @@ void WMEpochRejection::properties()
 void WMEpochRejection::moduleInit()
 {
     infoLog() << "Initializing module ...";
+    waitRestored();
 
     m_epochCount->set( 0, true );
     m_epochCountValid->set( 0, true );
     m_epochCountInValid->set( 0, true );
 
-    waitRestored();
-
-    initView( LaBP::WLEMDDrawable2D::WEGraphType::SINGLE );
+    viewInit( LaBP::WLEMDDrawable2D::WEGraphType::SINGLE );
 
     infoLog() << "Initializing module finished!";
 }
@@ -314,7 +314,7 @@ bool WMEpochRejection::processCompute( WLEMMeasurement::SPtr emmIn )
     rejectProcess->finish(); // finish the process visualization
 
     // transfer the output to the view
-    updateView( emmIn ); // update the GUI component
+    viewUpdate( emmIn ); // update the GUI component
 
     // deliver to output-connector if there was no failure
     if( rejected == false )

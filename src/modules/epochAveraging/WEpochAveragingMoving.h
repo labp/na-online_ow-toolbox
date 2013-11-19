@@ -43,7 +43,7 @@
 class WEpochAveragingMoving: public WEpochAveraging
 {
 public:
-    static const string CLASS;
+    static const std::string CLASS;
 
     /**
      * Abbreviation for a shared pointer.

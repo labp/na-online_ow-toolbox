@@ -3,34 +3,48 @@
  */
 
 #include <cmath>
+#include <exception>
 #include <map>
+#include <string>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
+#include <Eigen/Core>
 
 #include <osg/Array>
 #include <osgUtil/DelaunayTriangulator>
 
+#include <core/common/WAssert.h>
+#include <core/common/WException.h>
 #include <core/common/WLogger.h>
+#include <core/common/math/WLinearAlgebraFunctions.h>
 #include <core/common/math/linearAlgebra/WMatrixFixed.h>
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 #include <core/graphicsEngine/WGEUtils.h>
 
+#include "core/util/profiler/WLTimeProfiler.h"
+
 #include "WLGeometry.h"
 
-bool WLGeometry::computeTriangulation( std::vector< WVector3i >& triangles, const std::vector< WPosition >& points,
+using namespace LaBP;
+
+bool WLGeometry::computeTriangulation( std::vector< WVector3i >* const triangles, const std::vector< WPosition >& points,
                 double transformationFactor )
 {
+    WLTimeProfiler tp( "WLGeometry", "computeTriangulation" );
+
+    const std::string SOURCE = "WLGeometry::computeTriangulation";
+
     // Using algorithm of core/graphicsEngine/WGEGeometryUtils.cpp
     if( points.size() < 3 )
     {
-        wlog::error( "WGeometry" ) << "computeTriangulation() The Delaunay triangulation needs at least 3 vertices!";
+        wlog::error( SOURCE ) << "The Delaunay triangulation needs at least 3 vertices!";
         return false;
     }
 
     osg::ref_ptr< osg::Vec3Array > osgPoints = wge::osgVec3Array( points );
-    wlog::debug( "WGeometry" ) << "computeTriangulation() osgPoints: " << osgPoints->size();
+    wlog::debug( SOURCE ) << "osgPoints: " << osgPoints->size();
 
     if( transformationFactor != 0.0 )
     {
@@ -61,21 +75,38 @@ bool WLGeometry::computeTriangulation( std::vector< WVector3i >& triangles, cons
         map[( *osgPoints )[index]] = index;
     }
 
-    osg::ref_ptr< osgUtil::DelaunayTriangulator > triangulator( new osgUtil::DelaunayTriangulator( osgPoints ) );
+    osg::ref_ptr< osgUtil::DelaunayTriangulator > triangulator;
 
-    bool triangulationResult = triangulator->triangulate();
-    if( !triangulationResult )
+    try
     {
-        wlog::error( "WGeometry" ) << "computeTriangulation() Something went wrong in triangulation.";
+        triangulator = new osgUtil::DelaunayTriangulator( osgPoints );
+        if( !triangulator->triangulate() )
+        {
+            wlog::error( SOURCE ) << "Something went wrong in triangulation.";
+            return false;
+        }
+    }
+    catch( const WException& e )
+    {
+        wlog::error( SOURCE ) << "Unexpected error: " << e.what() << "\n" << e.getBacktrace();
+        return false;
+    }
+    catch( const std::exception& e )
+    {
+        wlog::error( SOURCE ) << "Unexpected error: " << e.what();
+        return false;
+    }
+    catch( ... )
+    {
+        wlog::error( SOURCE ) << "Unexpected error!";
         return false;
     }
 
-    WAssert( triangulationResult, "Something went wrong in triangulation." );
-
-    osg::ref_ptr< const osg::DrawElementsUInt > osgTriangles( triangulator->getTriangles() );
-    wlog::debug( "WGeometry" ) << "computeTriangulation() osgTriangles: " << osgTriangles->size();
+    const osg::DrawElementsUInt* const osgTriangles = triangulator->getTriangles();
+    wlog::debug( SOURCE ) << "osgTriangles: " << osgTriangles->size();
+    WAssertDebug( osgTriangles->size() % 3 == 0, "triangles/3 != 0!" );
     size_t nbTriangles = osgTriangles->size() / 3;
-    triangles.reserve( nbTriangles );
+    triangles->reserve( nbTriangles );
 
     // Convert the new index of the osgTriangle to the original index stored in map.
     size_t vertID;
@@ -88,9 +119,9 @@ bool WLGeometry::computeTriangulation( std::vector< WVector3i >& triangles, cons
         triangle.y() = map[( *osgPoints )[( *osgTriangles )[vertID + 1]]];
         triangle.z() = map[( *osgPoints )[( *osgTriangles )[vertID + 2]]];
 
-        triangles.push_back( triangle );
+        triangles->push_back( triangle );
     }
-    wlog::debug( "WGeometry" ) << "computeTriangulation() triangles: " << triangles.size();
+    wlog::debug( SOURCE ) << "triangles: " << triangles->size();
     return true;
 }
 
@@ -166,4 +197,34 @@ double WLGeometry::distance( const Point& p1, const Point& p2 )
     double zd = p2.z() - p1.z();
 
     return sqrt( xd * xd + yd * yd + zd * zd );
+}
+
+void WLGeometry::transformPoints( std::vector< Point >* const out, const std::vector< Point >& in,
+                const WLMatrix4::Matrix4T& trans )
+{
+    out->reserve( in.size() );
+#ifdef LABP_FLOAT_COMPUTATION
+    WMatrix< double > owTrans( ( Eigen::MatrixXf )trans );
+#else
+    WMatrix< double > owTrans( ( Eigen::MatrixXd )trans );
+#endif
+    std::vector< Point >::const_iterator it;
+    for( it = in.begin(); it != in.end(); ++it )
+    {
+        const WPosition p = transformPosition3DWithMatrix4D( owTrans, *it );
+        out->push_back( p );
+    }
+
+}
+
+void WLGeometry::toBaseExponent( std::vector< Point >* const out, const std::vector< Point >& in, WEExponent::Enum exp )
+{
+    out->reserve( in.size() );
+    double factor = WEExponent::factor( exp );
+    std::vector< Point >::const_iterator it;
+    for( it = in.begin(); it != in.end(); ++it )
+    {
+        const Point p = *it * factor;
+        out->push_back( p );
+    }
 }

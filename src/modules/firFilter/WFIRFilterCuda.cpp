@@ -31,6 +31,7 @@
 
 #include "core/util/profiler/WLProfilerLogger.h"
 #include "core/util/profiler/WLTimeProfiler.h"
+#include "core/util/WLCudaMacros.h"
 
 #include "WFIRFilter.h"
 #include "WFIRFilterCuda.h"
@@ -38,13 +39,17 @@
 
 const std::string WFIRFilterCuda::CLASS = "WFIRFilterCuda";
 
+WFIRFilterCuda::WFIRFilterCuda() : WFIRFilter()
+{
+}
+
 WFIRFilterCuda::WFIRFilterCuda( WFIRFilter::WEFilterType::Enum filtertype, WFIRFilter::WEWindowsType::Enum windowtype, int order,
                 ScalarT sFreq, ScalarT cFreq1, ScalarT cFreq2 ) :
                 WFIRFilter( filtertype, windowtype, order, sFreq, cFreq1, cFreq2 )
 {
 }
 
-WFIRFilterCuda::WFIRFilterCuda( const char *pathToFcf ) :
+WFIRFilterCuda::WFIRFilterCuda( const std::string& pathToFcf ) :
                 WFIRFilter( pathToFcf )
 {
 }
@@ -58,19 +63,19 @@ void WFIRFilterCuda::filter( WLEMData::DataT& out, const WLEMData::DataT& in, co
     const WLEMData::DataT::Index samples = in.cols();
     const WLEMData::DataT::Index prevSamples = static_cast< WLEMData::DataT::Index >( m_coeffitients.size() );
 
-    CuScalarT *coeffs = ( CuScalarT* )malloc( prevSamples * sizeof(CuScalarT) );
-    CuScalarT *input = ( CuScalarT* )malloc( channels * samples * sizeof(CuScalarT) );
-    CuScalarT *previous = ( CuScalarT* )malloc( channels * prevSamples * sizeof(CuScalarT) );
-    CuScalarT *output = ( CuScalarT* )malloc( channels * samples * sizeof(CuScalarT) );
+    WLEMData::ScalarT *coeffs = ( WLEMData::ScalarT* )malloc( prevSamples * sizeof(WLEMData::ScalarT) );
+    WLEMData::ScalarT *input = ( WLEMData::ScalarT* )malloc( channels * samples * sizeof(WLEMData::ScalarT) );
+    WLEMData::ScalarT *previous = ( WLEMData::ScalarT* )malloc( channels * prevSamples * sizeof(WLEMData::ScalarT) );
+    WLEMData::ScalarT *output = ( WLEMData::ScalarT* )malloc( channels * samples * sizeof(WLEMData::ScalarT) );
 
     // CHANGE from for( size_t i = 0; i < 32; ++i ) to
-    CuScalarT* chanWriteTmp;
+    WLEMData::ScalarT* chanWriteTmp;
     for( WLEMData::DataT::Index c = 0; c < channels; ++c )
     {
         chanWriteTmp = input + c * samples;
         for( WLEMData::DataT::Index s = 0; s < samples; ++s )
         {
-            chanWriteTmp[s] = ( CuScalarT )( in( c, s ) );
+            chanWriteTmp[s] = ( in( c, s ) );
         }
     }
 
@@ -79,22 +84,22 @@ void WFIRFilterCuda::filter( WLEMData::DataT& out, const WLEMData::DataT& in, co
         chanWriteTmp = previous + c * prevSamples;
         for( WLEMData::DataT::Index s = 0; s < prevSamples; ++s )
         {
-            chanWriteTmp[s] = ( CuScalarT )( prev( c, s ) );
+            chanWriteTmp[s] = ( prev( c, s ) );
         }
     }
 
     for( WLEMData::DataT::Index s = 0; s < prevSamples; ++s )
     {
-        coeffs[s] = ( CuScalarT )m_coeffitients[s];
+        coeffs[s] = m_coeffitients[s];
     }
 
-    float time = cudaFirFilter( output, input, previous, channels, samples, coeffs, prevSamples );
+    float time = cudaFilter( output, input, previous, channels, samples, coeffs, prevSamples );
 
-    const CuScalarT* chanReadTmp;
+    const WLEMData::ScalarT* chanReadTmp;
     for( WLEMData::DataT::Index c = 0; c < in.rows(); ++c )
     {
         chanReadTmp = output + c * samples;
-        out.row( c ) = Eigen::Matrix< CuScalarT, 1, Eigen::Dynamic >::Map( chanReadTmp, samples ).cast< WLEMData::ScalarT >();
+        out.row( c ) = WLEMData::ChannelT::Map( chanReadTmp, samples );
     }
 
     free( output );
@@ -105,4 +110,72 @@ void WFIRFilterCuda::filter( WLEMData::DataT& out, const WLEMData::DataT& in, co
     WLTimeProfiler prfTimeKernel( CLASS, "filter_kernel", false );
     prfTimeKernel.setMilliseconds( time );
     wlprofiler::log() << prfTimeKernel;
+}
+
+float WFIRFilterCuda::cudaFilter( WLEMData::ScalarT* const output, const WLEMData::ScalarT* const input,
+                const WLEMData::ScalarT* const previous, size_t channels, size_t samples, const WLEMData::ScalarT* const coeffs,
+                size_t coeffSize )
+{
+    // CudaSafeCall (cudaSetDevice(0));
+
+    CuScalarT *dev_in = NULL;
+    size_t pitchIn;
+
+    CuScalarT *dev_prev = NULL;
+    size_t pitchPrev;
+
+    CuScalarT *dev_out = NULL;
+    size_t pitchOut;
+
+    CuScalarT *dev_co = NULL;
+
+    CudaSafeCall( cudaMallocPitch( &dev_in, &pitchIn, samples * sizeof(CuScalarT), channels ) );
+    CudaSafeCall(
+                    cudaMemcpy2D( dev_in, pitchIn, input, samples * sizeof(CuScalarT), samples * sizeof(CuScalarT), channels,
+                                    cudaMemcpyHostToDevice ) );
+
+    CudaSafeCall( cudaMallocPitch( &dev_prev, &pitchPrev, coeffSize * sizeof(CuScalarT), channels ) );
+    CudaSafeCall(
+                    cudaMemcpy2D( dev_prev, pitchPrev, previous, coeffSize * sizeof(CuScalarT), coeffSize * sizeof(CuScalarT),
+                                    channels, cudaMemcpyHostToDevice ) );
+
+    CudaSafeCall( cudaMallocPitch( &dev_out, &pitchOut, samples * sizeof(CuScalarT), channels ) );
+
+    CudaSafeCall( cudaMalloc( &dev_co, coeffSize * sizeof(CuScalarT) ) );
+    CudaSafeCall( cudaMemcpy( dev_co, coeffs, coeffSize * sizeof(CuScalarT), cudaMemcpyHostToDevice ) );
+
+    size_t threadsPerBlock = 32;
+    size_t blocksPerGrid = ( samples + threadsPerBlock - 1 ) / threadsPerBlock;
+    size_t sharedMem = coeffSize * sizeof(CuScalarT);
+
+    cudaEvent_t start, stop;
+    cudaEventCreate( &start );
+    cudaEventCreate( &stop );
+
+    cudaEventRecord( start, 0 );
+    cuFirFilter( blocksPerGrid, threadsPerBlock, sharedMem, dev_out, dev_in, dev_prev, channels, samples, dev_co, coeffSize,
+                    pitchOut, pitchIn, pitchPrev );
+
+    cudaEventRecord( stop, 0 );
+    cudaEventSynchronize( stop );
+
+    float elapsedTime;
+    cudaEventElapsedTime( &elapsedTime, start, stop );
+
+    cudaError_t error = cudaGetLastError();
+    if( error != cudaSuccess )
+    {
+        fprintf( stderr, "cudaFirFilter-Kernel failed: %s\n", cudaGetErrorString( error ) );
+    }
+
+    CudaSafeCall(
+                    cudaMemcpy2D( output, samples * sizeof(CuScalarT), dev_out, pitchOut, samples * sizeof(CuScalarT), channels,
+                                    cudaMemcpyDeviceToHost ) );
+
+    CudaSafeCall( cudaFree( ( void* )dev_in ) );
+    CudaSafeCall( cudaFree( ( void* )dev_prev ) );
+    CudaSafeCall( cudaFree( ( void* )dev_out ) );
+    CudaSafeCall( cudaFree( ( void* )dev_co ) );
+
+    return elapsedTime;
 }

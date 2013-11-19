@@ -50,7 +50,6 @@ W_LOADABLE_MODULE( WMEpochAveraging )
 
 WMEpochAveraging::WMEpochAveraging()
 {
-    m_frequence = 0.0;
 }
 
 WMEpochAveraging::~WMEpochAveraging()
@@ -92,8 +91,9 @@ void WMEpochAveraging::connectors()
 
 void WMEpochAveraging::properties()
 {
-    LaBP::WLModuleDrawable::properties();
-    LaBP::WLModuleDrawable::setTimerangeInformationOnly( true );
+    WLModuleDrawable::properties();
+    WLModuleDrawable::setTimerangeInformationOnly( true );
+    WLModuleDrawable::hideComputeModalitySelection( true );
 
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
@@ -106,7 +106,7 @@ void WMEpochAveraging::properties()
     m_epochCount = m_propGrpAverage->addProperty( "Epoch count:", "Epoch count which are computed.", 0 );
     m_epochCount->setPurpose( PV_PURPOSE_INFORMATION );
 
-    m_averageType = boost::shared_ptr< WItemSelection >( new WItemSelection() );
+    m_averageType = WItemSelection::SPtr( new WItemSelection() );
 
     boost::shared_ptr< WItemSelectionItemTyped< WEpochAveraging::SPtr > > item;
     WEpochAveraging::SPtr avg;
@@ -122,6 +122,7 @@ void WMEpochAveraging::properties()
     // getting the SelectorProperty from the list an add it to the properties
     m_averageTypeSelection = m_propGrpAverage->addProperty( "Average Type", "Choose a average type.",
                     m_averageType->getSelectorFirst(), boost::bind( &WMEpochAveraging::callbackAverageTypeChanged, this ) );
+    m_averageTypeSelection->changed( true );
 
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_averageTypeSelection );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_averageTypeSelection );
@@ -134,37 +135,38 @@ void WMEpochAveraging::properties()
                     static_cast< int >( avgMovingSize ) );
 
     m_resetAverage = m_propGrpAverage->addProperty( "(Re)set data", "(Re)set", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
-
-    m_frequence = 1000;
+    m_resetAverage->changed( true );
 }
 
 void WMEpochAveraging::moduleInit()
 {
     infoLog() << "Initializing module ...";
-    waitRestored();
 
-    initView( LaBP::WLEMDDrawable2D::WEGraphType::SINGLE );
-
-    callbackAverageTypeChanged();
-
-    infoLog() << "Initializing module finished!";
-}
-
-void WMEpochAveraging::moduleMain()
-{
     // init moduleState for using Events in mainLoop
     m_moduleState.setResetable( true, true ); // resetable, autoreset
     m_moduleState.add( m_input->getDataChangedCondition() ); // when inputdata changed
     m_moduleState.add( m_propCondition ); // when properties changed
 
-    WLEMMCommand::SPtr labpIn;
-
     ready(); // signal ready state
+    waitRestored();
 
+    viewInit( LaBP::WLEMDDrawable2D::WEGraphType::SINGLE );
+
+    infoLog() << "Initializing module finished!";
+
+    infoLog() << "Restoring module ...";
+
+    callbackAverageTypeChanged();
+    // handleResetAveragePressed(); ... called by callbackAverageTypeChanged
+
+    infoLog() << "Restoring module finished!";
+}
+
+void WMEpochAveraging::moduleMain()
+{
     moduleInit();
 
-    debugLog() << "Entering main loop";
-
+    WLEMMCommand::SPtr cmdIn;
     while( !m_shutdownFlag() )
     {
         if( m_input->isEmpty() ) // continue processing if data is available
@@ -185,24 +187,24 @@ void WMEpochAveraging::moduleMain()
             handleResetAveragePressed();
         }
 
-        labpIn.reset();
+        cmdIn.reset();
         if( !m_input->isEmpty() )
         {
-            labpIn = m_input->getData();
+            cmdIn = m_input->getData();
         }
-        const bool dataValid = ( labpIn );
+        const bool dataValid = ( cmdIn );
 
         // ---------- INPUTDATAUPDATEEVENT ----------
         if( dataValid ) // If there was an update on the inputconnector
         {
-            process( labpIn );
+            process( cmdIn );
         }
     }
 }
 
 void WMEpochAveraging::callbackAverageTypeChanged()
 {
-    debugLog() << "handleAverageTypeChanged() called!";
+    debugLog() << "callbackAverageTypeChanged() called!";
 
     m_averaging = m_averageTypeSelection->get().at( 0 )->getAs< WItemSelectionItemTyped< WEpochAveraging::SPtr > >()->getValue();
     if( typeid(WEpochAveragingTotal) == typeid(*m_averaging) )
@@ -213,7 +215,6 @@ void WMEpochAveraging::callbackAverageTypeChanged()
     {
         m_sizeMovingAverage->setHidden( false );
     }
-    handleResetAveragePressed();
 }
 
 void WMEpochAveraging::handleResetAveragePressed()
@@ -230,21 +231,6 @@ bool WMEpochAveraging::processCompute( WLEMMeasurement::SPtr emmIn )
 {
     WLTimeProfiler tp( "WMEpochAveraging", "processCompute" );
     WLEMMeasurement::SPtr emmOut;
-    double frequence;
-
-    // The data is valid and we received an update. The data is not NULL but may be the same as in previous loops.
-    debugLog() << "received data";
-
-    if( emmIn->hasModality( this->getViewModality() ) )
-    {
-        frequence = emmIn->getModality( this->getViewModality() )->getSampFreq();
-        if( frequence != m_frequence )
-        {
-            m_frequence = frequence;
-            double samples = emmIn->getModality( this->getViewModality() )->getSamplesPerChan();
-            this->setTimerange( samples / m_frequence );
-        }
-    }
 
     emmOut = m_averaging->getAverage( emmIn );
 
@@ -267,7 +253,7 @@ bool WMEpochAveraging::processCompute( WLEMMeasurement::SPtr emmIn )
         debugLog() << ss.str();
     }
 #endif // DEBUG
-    updateView( emmOut );
+    viewUpdate( emmOut );
 
     WLEMMCommand::SPtr labp = WLEMMCommand::instance( WLEMMCommand::Command::COMPUTE );
     labp->setEmm( emmOut );
@@ -276,29 +262,30 @@ bool WMEpochAveraging::processCompute( WLEMMeasurement::SPtr emmIn )
     return true;
 }
 
-bool WMEpochAveraging::processInit( WLEMMCommand::SPtr labp )
+bool WMEpochAveraging::processInit( WLEMMCommand::SPtr cmdIn )
 {
-    // TODO(pieloth)
-    m_output->updateData( labp );
-    return false;
+    // TODO(pieloth): set block size?!
+    m_output->updateData( cmdIn );
+    return true;
 }
 
-bool WMEpochAveraging::processReset( WLEMMCommand::SPtr labp )
+bool WMEpochAveraging::processReset( WLEMMCommand::SPtr cmdIn )
 {
-    resetView();
+    viewReset();
     m_averaging->reset();
     m_epochCount->set( m_averaging->getCount(), true );
     infoLog() << "Reset averaging!";
     m_averaging->setTBase( static_cast< size_t >( m_tbase->get() ), false );
     infoLog() << "Set tbase to " << m_averaging->getTBase();
 
-    WEpochAveragingMoving::SPtr avgMov = boost::shared_dynamic_cast< WEpochAveragingMoving >( m_averaging );
+    WEpochAveragingMoving::SPtr avgMov = m_averaging->getAs< WEpochAveragingMoving >();
     if( avgMov )
     {
         avgMov->setSize( m_sizeMovingAverage->get() );
         infoLog() << "Set moving average size to " << avgMov->getSize();
     }
 
-    m_output->updateData( labp );
-    return false;
+    m_input->clear();
+    m_output->updateData( cmdIn );
+    return true;
 }

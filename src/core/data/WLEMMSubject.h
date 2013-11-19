@@ -35,19 +35,13 @@
 
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
-#include "WLMatrixTypes.h"
+#include "WLDataTypes.h"
 #include "WLEMMEnumTypes.h"
 #include "WLEMMSurface.h"
 #include "WLEMMBemBoundary.h"
 
-/**
- *
- */
 namespace LaBP
 {
-    /**
-     *
-     */
     class WLEMMSubject
     {
     public:
@@ -103,8 +97,8 @@ namespace LaBP
         std::vector< WLEMMBemBoundary::SPtr >& getBemBoundaries() const;
         void setBemBoundaries( boost::shared_ptr< std::vector< WLEMMBemBoundary::SPtr > > bemBoundaries );
 
-        MatrixT& getLeadfield( WEModalityType::Enum modality ) const;
-        void setLeadfield( WEModalityType::Enum modality, MatrixSPtr leadfield );
+        WLMatrix::MatrixT& getLeadfield( WEModalityType::Enum modality ) const;
+        void setLeadfield( WEModalityType::Enum modality, WLMatrix::SPtr leadfield );
 
     private:
 
@@ -152,7 +146,7 @@ namespace LaBP
 
         std::map< WLEMMSurface::Hemisphere::Enum, WLEMMSurface::SPtr > m_surfaces;
 
-        std::map< WEModalityType::Enum, MatrixSPtr > m_leadfields;
+        std::map< WEModalityType::Enum, WLMatrix::SPtr > m_leadfields;
 
         boost::shared_ptr< std::vector< WLEMMBemBoundary::SPtr > > m_bemBoundaries;
 

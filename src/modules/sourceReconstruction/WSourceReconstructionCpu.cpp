@@ -28,7 +28,6 @@
 
 #include <core/common/WLogger.h>
 
-#include "core/data/WLMatrixTypes.h"
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDSource.h"
 
@@ -49,20 +48,23 @@ WSourceReconstructionCpu::~WSourceReconstructionCpu()
 
 WLEMDSource::SPtr WSourceReconstructionCpu::reconstruct( WLEMData::ConstSPtr emd )
 {
+    WLTimeProfiler tp(CLASS, "reconstruct");
     if( !m_inverse )
     {
         // TODO(pieloth): return code
         wlog::error( CLASS ) << "No inverse matrix set!";
     }
-   WLTimeProfiler tp(CLASS, "reconstruct");
+
 
     WLEMData::DataT emdData;
     WSourceReconstruction::averageReference( emdData, emd->getData() );
 
     WLTimeProfiler prfMatMul( CLASS, "reconstruct_matMul", false );
+    SharedLockT lock(m_lockData);
     prfMatMul.start();
     WLEMData::DataSPtr S( new WLEMData::DataT( *m_inverse * emdData ) );
     prfMatMul.stop();
+    lock.unlock();
     wlprofiler::log() << prfMatMul;
 
     const WLEMDSource::SPtr emdOut( new WLEMDSource( *emd ) );

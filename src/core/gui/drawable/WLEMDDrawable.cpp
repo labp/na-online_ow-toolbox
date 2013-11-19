@@ -27,7 +27,6 @@
 #include <osg/Group>
 
 #include <core/graphicsEngine/WGEGroupNode.h> // m_widget->getScene
-
 #include "WLEMDDrawable.h"
 
 namespace LaBP
@@ -35,7 +34,7 @@ namespace LaBP
     const std::string WLEMDDrawable::CLASS = "WLEMDDrawable";
 
     WLEMDDrawable::WLEMDDrawable( WCustomWidget::SPtr widget ) :
-                    m_widget( widget )
+                    boost::enable_shared_from_this< WLEMDDrawable >(), m_widget( widget )
     {
         m_modality = LaBP::WEModalityType::EEG;
         m_dataChanged = false;

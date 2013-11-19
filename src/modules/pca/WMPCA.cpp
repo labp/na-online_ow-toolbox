@@ -134,7 +134,7 @@ void WMPCA::moduleInit()
     infoLog() << "Initializing module ...";
     waitRestored();
 
-    initView( LaBP::WLEMDDrawable2D::WEGraphType::DYNAMIC ); // TODO(pieloth): No 3D needed!
+    viewInit( LaBP::WLEMDDrawable2D::WEGraphType::DYNAMIC ); // TODO(pieloth): No 3D needed!
     m_pca.reset( new WPCA( m_finalDimensions->get(), m_reverse->get() ) );
     infoLog() << "Initializing module finished!";
 }
@@ -198,7 +198,7 @@ void WMPCA::moduleMain()
             WLEMMCommand::SPtr labp( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
             labp->setEmm( emmOut );
             m_output->updateData( labp );
-            updateView( emmOut );
+            viewUpdate( emmOut );
         }
     }
 }

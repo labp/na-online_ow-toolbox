@@ -24,6 +24,7 @@
 
 #include <cmath>
 #include <set>
+#include <vector>
 
 #include <boost/shared_ptr.hpp>
 
@@ -87,11 +88,17 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
     LFIsotrak& isotrak = measinfo_in.GetLFIsotrak();
     LFArrayPtr< LFDigitisationPoint > &digPoints = isotrak.GetLFDigitisationPoint();
     boost::shared_ptr< std::vector< WVector3f > > itPos( new std::vector< WVector3f >() );
+    std::vector< WLDigPoint > digPointsOut;
+    digPointsOut.reserve( digPoints.size() );
     for( LFArrayPtr< LFDigitisationPoint >::size_type i = 0; i < digPoints.size(); ++i )
     {
         itPos->push_back( WVector3f( digPoints[i]->GetRr()[0], digPoints[i]->GetRr()[1], digPoints[i]->GetRr()[2] ) );
+        const WPosition pos( digPoints[i]->GetRr()[0], digPoints[i]->GetRr()[1], digPoints[i]->GetRr()[2] );
+        const WLDigPoint digPoint( pos, digPoints[i]->GetKind(), digPoints[i]->GetIdent() );
+        digPointsOut.push_back( digPoint );
     }
     subject_out->setIsotrak( itPos );
+    out->setDigPoints( digPointsOut );
     wlog::debug( CLASS ) << "Isotrak size: " << itPos->size();
 
     // Read raw data
@@ -112,6 +119,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
         size_t nValues = pBuf->GetSize();
         for( size_t j = 0; j < nValues; ++j )
         {
+            // scaleFactor: see FIFF spec. 1.3, 3.5.4 Raw data files, p. 15
             scaleFactor = channelInfos[current_channel]->GetRange() * channelInfos[current_channel]->GetCal();
             switch( pBuf->GetDataType() )
             {
@@ -194,6 +202,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
         float* eVec;
 
         fiffunits_t fiffUnit;
+        fiffmultipliers_t fiffUnitMul;
 
         size_t modChan = 0;
         WLEMData::DataT dataTmp( rawdatabuffers_out_ptr->rows(), rawdatabuffers_out_ptr->cols() );
@@ -230,14 +239,14 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
                 // Collect positions for EEG and MEG
                 if( mod == 1 || mod == 2 )
                 {
-                    const float scale = 1000; // convert to millimeter
                     pos = measinfo_in.GetLFChannelInfo()[chan]->GetR0();
-                    positions->push_back( WPosition( pos[0] * scale, pos[1] * scale, pos[2] * scale ) );
+                    positions->push_back( WPosition( pos[0], pos[1], pos[2] ) );
                 }
 
                 // Collect general data
                 dataTmp.row( modChan++ ) = ( dummy->getData().row( chan ) );
                 fiffUnit = measinfo_in.GetLFChannelInfo()[chan]->GetUnit();
+                fiffUnitMul = measinfo_in.GetLFChannelInfo()[chan]->GetUnitMul();
             }
         }
 
@@ -248,7 +257,9 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
         emd->setAnalogHighPass( dummy->getAnalogHighPass() );
         emd->setAnalogLowPass( dummy->getAnalogLowPass() );
         emd->setLineFreq( dummy->getLineFreq() );
-        emd->setChanUnitExp( LaBP::WEExponent::BASE ); // BASE because scaleFactor was multiplied
+
+        // scaleFactor was multiplied, so data is in unit_mul - see FIFF spec. 1.3, Table A.3, p. 28)
+        emd->setChanUnitExp( getChanUnitMul( fiffUnitMul ) );
         emd->setChanUnit( getChanUnit( fiffUnit ) );
         emd->setData( data );
 
@@ -370,12 +381,37 @@ LaBP::WEUnit::Enum WLReaderFIFF::getChanUnit( fiffunits_t unit )
     switch( unit )
     {
         case unit_V:
-            return LaBP::WEUnit::VOLT;
+            return WEUnit::VOLT;
         case unit_T:
-            return LaBP::WEUnit::TESLA;
+            return WEUnit::TESLA;
         case unit_T_m:
-            return LaBP::WEUnit::TESLA_PER_METER;
+            return WEUnit::TESLA_PER_METER;
         default:
-            return LaBP::WEUnit::UNKNOWN_UNIT;
+            wlog::warn( CLASS ) << "Unknown unit: " << unit;
+            return WEUnit::UNKNOWN_UNIT;
+    }
+}
+
+LaBP::WEExponent::Enum WLReaderFIFF::getChanUnitMul( fiffmultipliers_t unitMul )
+{
+    switch( unitMul )
+    {
+        case mul_k:
+            return WEExponent::KILO;
+        case mul_none:
+            return WEExponent::BASE;
+        case mul_m:
+            return WEExponent::MILLI;
+        case mul_mu:
+            return WEExponent::MICRO;
+        case mul_n:
+            return WEExponent::NANO;
+        case mul_p:
+            return WEExponent::PICO;
+        case mul_f:
+            return WEExponent::FEMTO;
+        default:
+            wlog::warn( CLASS ) << "Unknown unit_mul: " << unitMul;
+            return WEExponent::BASE;
     }
 }

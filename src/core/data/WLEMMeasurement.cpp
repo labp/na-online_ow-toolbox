@@ -32,9 +32,11 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <core/common/exceptions/WNotFound.h>
+
+#include "core/data/WLEMMEnumTypes.h"
+#include "core/data/WLEMMSubject.h"
 #include "core/data/emd/WLEMData.h"
-#include "WLEMMEnumTypes.h"
-#include "WLEMMSubject.h"
 
 #include "WLEMMeasurement.h"
 
@@ -42,6 +44,8 @@ const std::string WLEMMeasurement::CLASS = "WLEMMeasurement";
 
 WLEMMeasurement::WLEMMeasurement()
 {
+    m_transDevToFid.setIdentity();
+    m_transFidToACPC.setIdentity();
     m_eventChannels.reset( new EDataT() );
     m_subject.reset( new LaBP::WLEMMSubject() );
     m_profiler.reset( new WLLifetimeProfiler( CLASS, "lifetime" ) );
@@ -49,6 +53,8 @@ WLEMMeasurement::WLEMMeasurement()
 
 WLEMMeasurement::WLEMMeasurement( LaBP::WLEMMSubject::SPtr subject )
 {
+    m_transDevToFid.setIdentity();
+    m_transFidToACPC.setIdentity();
     m_subject = subject;
     m_eventChannels.reset( new EDataT() );
     m_profiler.reset( new WLLifetimeProfiler( CLASS, "lifetime" ) );
@@ -63,6 +69,9 @@ WLEMMeasurement::WLEMMeasurement( const WLEMMeasurement& emm )
     m_expDescription = emm.m_expDescription;
     m_experimenter = emm.m_experimenter;
     m_subject = emm.m_subject;
+    m_digPoints = emm.m_digPoints;
+    m_transDevToFid = emm.m_transDevToFid;
+    m_transFidToACPC = emm.m_transFidToACPC;
 }
 
 WLEMMeasurement::~WLEMMeasurement()
@@ -142,26 +151,14 @@ size_t WLEMMeasurement::getModalityCount() const
 
 WLEMData::SPtr WLEMMeasurement::getModality( size_t i )
 {
-    if( m_modalityList.size() )
-    {
-        return m_modalityList.at( i );
-    }
-    else
-    {
-        throw "Index out of range!";
-    }
+    // .at() throws an std::out_of_range
+    return m_modalityList.at( i );
 }
 
 WLEMData::ConstSPtr WLEMMeasurement::getModality( size_t i ) const
 {
-    if( m_modalityList.size() )
-    {
-        return m_modalityList.at( i );
-    }
-    else
-    {
-        throw "Index out of range!";
-    }
+    // .at() throws an std::out_of_range
+    return m_modalityList.at( i );
 }
 
 WLEMData::SPtr WLEMMeasurement::getModality( LaBP::WEModalityType::Enum type )
@@ -173,7 +170,7 @@ WLEMData::SPtr WLEMMeasurement::getModality( LaBP::WEModalityType::Enum type )
             return m_modalityList.at( i );
         }
     }
-    throw "Modality type not available!";
+    throw WNotFound( "Modality type not available!" );
 }
 
 WLEMData::ConstSPtr WLEMMeasurement::getModality( LaBP::WEModalityType::Enum type ) const
@@ -185,7 +182,7 @@ WLEMData::ConstSPtr WLEMMeasurement::getModality( LaBP::WEModalityType::Enum typ
             return m_modalityList.at( i );
         }
     }
-    throw "Modality type not available!";
+    throw WNotFound( "Modality type not available!" );
 }
 
 std::set< LaBP::WEModalityType::Enum > WLEMMeasurement::getModalityTypes() const
@@ -263,4 +260,48 @@ WLLifetimeProfiler::ConstSPtr WLEMMeasurement::getProfiler() const
 void WLEMMeasurement::setProfiler( WLLifetimeProfiler::SPtr profiler )
 {
     m_profiler = profiler;
+}
+
+const std::vector< WLDigPoint >& WLEMMeasurement::getDigPoints() const
+{
+    return m_digPoints;
+}
+
+void WLEMMeasurement::setDigPoints( const std::vector< WLDigPoint >& digPoints )
+{
+    m_digPoints = digPoints;
+}
+
+std::vector< WLDigPoint > WLEMMeasurement::getDigPoints( WLDigPoint::PointType::Enum kind ) const
+{
+    std::vector< WLDigPoint > digForKind;
+    std::vector< WLDigPoint >::const_iterator cit;
+    for( cit = m_digPoints.begin(); cit != m_digPoints.end(); ++cit )
+    {
+        if( cit->getKind() == kind )
+        {
+            digForKind.push_back( *cit );
+        }
+    }
+    return digForKind;
+}
+
+const WLMatrix4::Matrix4T& WLEMMeasurement::getDevToFidTransformation() const
+{
+    return m_transDevToFid;
+}
+
+void WLEMMeasurement::setDevToFidTransformation( const WLMatrix4::Matrix4T& mat )
+{
+    m_transDevToFid = mat;
+}
+
+const WLMatrix4::Matrix4T& WLEMMeasurement::getFidToACPCTransformation() const
+{
+    return m_transFidToACPC;
+}
+
+void WLEMMeasurement::setFidToACPCTransformation( const WLMatrix4::Matrix4T& mat )
+{
+    m_transFidToACPC = mat;
 }

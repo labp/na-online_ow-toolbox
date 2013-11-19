@@ -25,7 +25,8 @@
 #ifndef WLMODULEDRAWABLE_H
 #define WLMODULEDRAWABLE_H
 
-//#include <boost/enable_shared_from_this.hpp>
+#include <set>
+
 #include <boost/shared_ptr.hpp>
 
 #include <core/common/WProperties.h>
@@ -43,226 +44,151 @@
 /**
  * Virtual Implementation of WModule to let our modules use a VIEW including just 4 lines! of code
  */
-
-namespace LaBP
+class WLModuleDrawable: public WModule, public WLEMMCommandProcessor
 {
-    class WLModuleDrawable: public WModule, public WLEMMCommandProcessor
-    {
-    public:
-        /**
-         * Abbreviation for a shared pointer.
-         */
-        typedef boost::shared_ptr< WLModuleDrawable > SPtr;
+public:
+    /**
+     * Abbreviation for a shared pointer.
+     */
+    typedef boost::shared_ptr< WLModuleDrawable > SPtr;
 
-        /**
-         * Abbreviation for const shared pointer.
-         */
-        typedef boost::shared_ptr< const WLModuleDrawable > ConstSPtr;
+    /**
+     * Abbreviation for const shared pointer.
+     */
+    typedef boost::shared_ptr< const WLModuleDrawable > ConstSPtr;
 
-        /**
-         * standard constructor
-         */
-        WLModuleDrawable();
+    /**
+     * standard constructor
+     */
+    WLModuleDrawable();
 
-        /**
-         * destructor
-         */
-        virtual ~WLModuleDrawable();
+    /**
+     * destructor
+     */
+    virtual ~WLModuleDrawable();
 
-    protected:
-        // ----------------------------
-        // Methods from WLEMMCommandProcessor
-        // ----------------------------
-        virtual bool processTime( WLEMMCommand::SPtr labp );
-        virtual bool processMisc( WLEMMCommand::SPtr labp );
+protected:
+    // ----------------------------
+    // Methods from WLEMMCommandProcessor
+    // ----------------------------
+    virtual bool processTime( WLEMMCommand::SPtr cmdIn );
+    virtual bool processMisc( WLEMMCommand::SPtr cmdIn );
 
-        /**
-         * Output connector for a filtered WEEG2 dataset
-         */
-        LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output;
+    /**
+     * Output connector for a filtered WEEG2 dataset
+     */
+    LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output;
 
-        /**
-         * Initialize the properties for this module and load the widget
-         */
-        virtual void properties();
+    /**
+     * Initialize the properties for this module and load the widget
+     */
+    virtual void properties();
 
-        /**
-         * Sets the new data to draw.
-         */
-        void updateView( WLEMMeasurement::SPtr emm );
+    /**
+     * Sets the new data to draw.
+     */
+    void viewUpdate( WLEMMeasurement::SPtr emm );
 
-        /**
-         * Set which elements of the view we want to see: info panels, channels and/or head. Called it after ready()!
-         */
-        void initView( LaBP::WLEMDDrawable2D::WEGraphType::Enum graphType );
+    /**
+     * Set which elements of the view we want to see: info panels, channels and/or head. Called it after ready()!
+     */
+    void viewInit( LaBP::WLEMDDrawable2D::WEGraphType::Enum graphType );
 
-        /**
-         * Add commentaries here:
-         */
-        void resetView();
+    void viewReset();
 
-        /**
-         * Initializes the underlying algorithm with the values of WProperties. Called it after ready()!
-         */
-        virtual void moduleInit() = 0;
+    /**
+     * Initializes the underlying algorithm with the values of WProperties. Called it after ready()!
+     */
+    virtual void moduleInit() = 0;
 
-        /**
-         * Add commentaries here:
-         */
-        LaBP::WEModalityType::Enum getViewModality();
+    LaBP::WEModalityType::Enum getViewModality();
 
-        /**
-         * Add commentaries here:
-         */
-        LaBP::WEModalityType::Enum getCalculateModality();
+    void setViewModality( LaBP::WEModalityType::Enum mod );
 
-        /**
-         * Add commentaries here:
-         */
-        double getTimerange();
+    void hideViewModalitySelection( bool enable );
 
-        /**
-         * Add commentaries here:
-         */
-        void setTimerange( double value );
+    LaBP::WEModalityType::Enum getCalculateModality();
 
-        /**
-         * Add commentaries here:
-         */
-        void setTimerangeInformationOnly( bool enable );
+    double getTimerange();
 
-        void hideComputeModalitySelection( bool enable );
+    void setTimerange( double value );
 
-        /**
-         * Add commentaries here:
-         */
-        LaBP::WLEMDDrawable2D::SPtr m_drawable2D;
+    void setTimerangeInformationOnly( bool enable );
 
-        /**
-         * Add commentaries here:
-         */
-        LaBP::WLEMDDrawable3D::SPtr m_drawable3D;
+    void hideComputeModalitySelection( bool enable );
 
-    private:
-        /**
-         * Add commentaries here:
-         */
-        void createColorMap();
+    void setComputeModalitySelection( const std::set< LaBP::WEModalityType::Enum >& modalities );
 
-        /**
-         * Add commentaries here:
-         */
-        void callbackTimeRangeChanged();
+    void hideLabelChanged( bool enable );
 
-        /**
-         * Add commentaries here:
-         */
-        void callbackChannelHeightChanged();
+    LaBP::WLEMDDrawable2D::SPtr m_drawable2D;
 
-        /**
-         * Add commentaries here:
-         */
-        void callbackColorChanged();
+    LaBP::WLEMDDrawable3D::SPtr m_drawable3D;
 
-        /**
-         * Add commentaries here:
-         */
-        void callbackColorModeChanged();
+private:
+    void createColorMap();
 
-        /**
-         * Add commentaries here:
-         */
-        void callbackViewModalityChanged();
+    void callbackTimeRangeChanged();
 
-        /**
-         * Add commentaries here:
-         */
-        void callbackMin3DChanged();
+    void callbackChannelHeightChanged();
 
-        /**
-         * Add commentaries here:
-         */
-        void callbackMax3DChanged();
+    void callbackColorChanged();
 
-        /**
-         * Add commentaries here:
-         */
-        void callbackAmplitudeScaleChanged();
+    void callbackColorModeChanged();
 
-        /**
-         * Add commentaries here:
-         */
-        void callbackAutoSensitivityChanged();
+    void callbackViewModalityChanged();
 
-        void callbackLabelsChanged();
+    void callbackMin3DChanged();
 
-        LaBP::WLEMDDrawable2D::WEGraphType::Enum m_graphType;
+    void callbackMax3DChanged();
 
-        WPropGroup m_propView;
+    void callbackAmplitudeScaleChanged();
 
-        WPropBool m_autoSensitivity;
+    void callbackAutoSensitivityChanged();
 
-        WPropBool m_labelsOn;
+    void callbackLabelsChanged();
 
-        /**
-         * the width of the graph in seconds as property
-         */
-        WPropDouble m_timeRange;
+    LaBP::WLEMDDrawable2D::WEGraphType::Enum m_graphType;
 
-        /**
-         * the distance between two curves of the graph in pixel as property
-         */
-        WPropDouble m_channelHeight;
+    WPropGroup m_propView;
 
-        /**
-         * A Property used to show some selection to the user.
-         */
-        WPropSelection m_selectionColor;
+    WPropBool m_autoSensitivity;
 
-        /**
-         * A Property used to show some selection to the user.
-         */
-        WPropSelection m_selectionView;
+    WPropBool m_labelsOn;
 
-        /**
-         * A Property used to show some selection to the user.
-         */
-        WPropSelection m_selectionCalculate;
+    /**
+     * the width of the graph in seconds as property
+     */
+    WPropDouble m_timeRange;
 
-        /**
-         * A Property used to show some selection to the user.
-         */
-        WPropSelection m_selectionColorMode;
+    /**
+     * the distance between two curves of the graph in pixel as property
+     */
+    WPropDouble m_channelHeight;
 
-        /**
-         * Custom widget which is used by this module to display its data.
-         */
-        LaBP::WLEMDWidget::SPtr m_widget;
+    WPropSelection m_selectionColor;
 
-        /**
-         * Add commentaries here:
-         */
-        WPropDouble m_amplitudeScale;
+    WPropSelection m_selectionView;
 
-        /**
-         * Add commentaries here:
-         */
-        WPropDouble m_minSensitity3D;
+    WPropSelection m_selectionCalculate;
 
-        /**
-         * Add commentaries here:
-         */
-        WPropDouble m_maxSensitity3D;
+    WPropSelection m_selectionColorMode;
 
-        int m_autoScaleCounter;
+    LaBP::WLEMDWidget::SPtr m_widget;
 
-        static const int AUTO_SCALE_PACKETS;
+    WPropDouble m_amplitudeScale;
 
-        /**
-         * Add commentaries here:
-         */
-        LaBP::WLColorMap::SPtr m_colorMap;
-    };
-}
+    WPropDouble m_minSensitity3D;
+
+    WPropDouble m_maxSensitity3D;
+
+    int m_autoScaleCounter;
+
+    LaBP::WLColorMap::SPtr m_colorMap;
+
+    double m_range;
+
+    static const int AUTO_SCALE_PACKETS;
+};
 
 #endif  // WLMODULEDRAWABLE_H

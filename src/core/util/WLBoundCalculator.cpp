@@ -26,7 +26,6 @@
 
 #include <Eigen/Core>
 
-#include "core/data/WLMatrixTypes.h"
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMEnumTypes.h"
 #include "core/data/emd/WLEMData.h"
@@ -70,7 +69,6 @@ namespace LaBP
         const WLEMData::ChannelT::Index channels = data.rows();
         const WLEMData::SampleT::Index samples = data.cols();
 
-        // TODO(pieloth): use new ScalarT/SampleT
         WLEMData::SampleT average( channels );
         average.setZero();
 

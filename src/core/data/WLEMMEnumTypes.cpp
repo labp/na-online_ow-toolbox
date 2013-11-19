@@ -64,7 +64,30 @@ std::string LaBP::WEExponent::name( LaBP::WEExponent::Enum val )
             WAssert( false, "Unknown WEExponent!" );
             return UNDEFINED;
     }
+}
 
+double LaBP::WEExponent::factor( LaBP::WEExponent::Enum val )
+{
+    switch( val )
+    {
+        case LaBP::WEExponent::KILO:
+            return 1.0e+3;
+        case LaBP::WEExponent::BASE:
+            return 1.0;
+        case LaBP::WEExponent::MILLI:
+            return 1.0e-3;
+        case LaBP::WEExponent::MICRO:
+            return 1.0e-6;
+        case LaBP::WEExponent::NANO:
+            return 1.0e-9;
+        case LaBP::WEExponent::PICO:
+            return 1.0e-12;
+        case LaBP::WEExponent::FEMTO:
+            return 1.0e-15;
+        default:
+            WAssert( false, "Unknown WEExponent!" );
+            return 0.0;
+    }
 }
 
 std::vector< LaBP::WEModalityType::Enum > LaBP::WEModalityType::values()
@@ -94,7 +117,7 @@ std::string LaBP::WEModalityType::name( LaBP::WEModalityType::Enum val )
         case LaBP::WEModalityType::PCA:
             return "PCA";
         case LaBP::WEModalityType::SOURCE:
-                    return "Source";
+            return "Source";
         default:
             WAssert( false, "Unknown WEModalityType!" );
             return UNDEFINED;
@@ -117,7 +140,7 @@ std::string LaBP::WEModalityType::description( LaBP::WEModalityType::Enum val )
         case LaBP::WEModalityType::PCA:
             return "PCA measurement";
         case LaBP::WEModalityType::SOURCE:
-                    return "Source localization";
+            return "Source localization";
         default:
             WAssert( false, "Unknown WEModalityType!" );
             return UNDEFINED;
@@ -175,6 +198,7 @@ std::vector< LaBP::WESex::Enum > LaBP::WESex::values()
     modalities.push_back( LaBP::WESex::MALE );
     modalities.push_back( LaBP::WESex::FEMALE );
     modalities.push_back( LaBP::WESex::OTHER );
+    modalities.push_back( LaBP::WESex::UNKNOWN );
     return modalities;
 }
 
@@ -184,6 +208,7 @@ std::vector< LaBP::WEHand::Enum > LaBP::WEHand::values()
     modalities.push_back( LaBP::WEHand::RIGHT );
     modalities.push_back( LaBP::WEHand::LEFT );
     modalities.push_back( LaBP::WEHand::BOTH );
+    modalities.push_back( LaBP::WEHand::UNKNOWN );
     return modalities;
 }
 
@@ -197,6 +222,8 @@ std::vector< LaBP::WEBemType::Enum > LaBP::WEBemType::values()
     values.push_back( LaBP::WEBemType::OUTER_SKIN );
     values.push_back( LaBP::WEBemType::INNER_SKULL );
     values.push_back( LaBP::WEBemType::OUTER_SKULL );
+    values.push_back( LaBP::WEBemType::UNKNOWN );
+    values.push_back( LaBP::WEBemType::UNKNOWN2 );
     return values;
 }
 
@@ -218,6 +245,10 @@ std::string LaBP::WEBemType::name( LaBP::WEBemType::Enum val )
             return "inner_skull";
         case LaBP::WEBemType::OUTER_SKULL:
             return "outer_skull";
+        case LaBP::WEBemType::UNKNOWN:
+            return "Not known";
+        case LaBP::WEBemType::UNKNOWN2:
+            return "Undefined";
         default:
             WAssert( false, "Unknown WEBemType!" );
             return UNDEFINED;

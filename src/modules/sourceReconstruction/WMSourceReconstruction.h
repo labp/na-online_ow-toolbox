@@ -31,6 +31,7 @@
 #include <core/common/WPropertyTypes.h>
 #include <core/kernel/WModule.h>
 
+#include "core/data/WLDataTypes.h"
 #include "core/data/WLEMMCommand.h"
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMEnumTypes.h"
@@ -46,7 +47,7 @@
  * This module implements several onscreen status displays
  * \ingroup modules
  */
-class WMSourceReconstruction: public LaBP::WLModuleDrawable
+class WMSourceReconstruction: public WLModuleDrawable
 {
 public:
     /**
@@ -109,8 +110,8 @@ protected:
     // Methods from WLEMMCommandProcessor
     // ----------------------------
     virtual bool processCompute( WLEMMeasurement::SPtr emm );
-    virtual bool processInit( WLEMMCommand::SPtr labp );
-    virtual bool processReset( WLEMMCommand::SPtr labp );
+    virtual bool processInit( WLEMMCommand::SPtr cmdIn );
+    virtual bool processReset( WLEMMCommand::SPtr cmdIn );
 
 private:
     // TODO(pieloth): use OW classes
@@ -151,17 +152,18 @@ private:
     WPropDouble m_snr;
     void handleSnrChanged();
 
+    LaBP::WEModalityType::Enum m_lastModality;
+    void handleComputeModalityChanged( WLEMMCommand::ConstSPtr cmd );
+
     // Generate inverse solution //
     WPropString m_inverseStatus;
     WPropInt m_inverseRows;
     WPropInt m_inverseCols;
     bool inverseSolutionFromSubject( WLEMMeasurement::SPtr emm, LaBP::WEModalityType::Enum modality );
 
-    double m_range;
-
     // data and noise covariance matices //
-    WSourceReconstruction::MatrixSPtr m_nCovarianceMatrix;
-    WSourceReconstruction::MatrixSPtr m_dCovarianceMatrix;
+    WLMatrix::SPtr m_nCovarianceMatrix;
+    WLMatrix::SPtr m_dCovarianceMatrix;
 
     // File status string //
     static const std::string NO_MATRIX_LOADED;

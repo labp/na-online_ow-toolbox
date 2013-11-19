@@ -32,6 +32,7 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <core/common/WException.h>
 #include <core/common/WLogger.h>
 
 #include "WLModuleInputDataCollection.h"
@@ -68,7 +69,7 @@ namespace LaBP
          * \param name The name of this connector.
          * \param description Short description of this connector.
          */
-        WLModuleInputDataRingBuffer( size_t capacity, boost::shared_ptr< WModule > module, std::string name = "",
+        WLModuleInputDataRingBuffer( size_t capacity, WModule::SPtr module, std::string name = "",
                         std::string description = "" );
 
         /**
@@ -82,7 +83,7 @@ namespace LaBP
          * \param reset reset the flag of updated() if true (default).
          * \return the oldest element.
          */
-        const boost::shared_ptr< T > getData( bool reset = true ) throw( char const* );
+        const boost::shared_ptr< T > getData( bool reset = true ) throw( WException );
 
         /**
          * Adds an elements to the buffer.
@@ -152,14 +153,14 @@ template< typename T > const std::string LaBP::WLModuleInputDataRingBuffer< T >:
 template< typename T > const size_t LaBP::WLModuleInputDataRingBuffer< T >::MIN_BUFFER_SIZE = 2;
 
 template< typename T >
-LaBP::WLModuleInputDataRingBuffer< T >::WLModuleInputDataRingBuffer( size_t capacity, boost::shared_ptr< WModule > module,
+LaBP::WLModuleInputDataRingBuffer< T >::WLModuleInputDataRingBuffer( size_t capacity, WModule::SPtr module,
                 std::string name, std::string description ) :
                 LaBP::WLModuleInputDataCollection< T >( module, name, description )
 {
     m_capacity = capacity + 1 < MIN_BUFFER_SIZE ? MIN_BUFFER_SIZE : capacity + 1;
     m_read = 0;
     m_write = 0;
-    m_data = ( boost::shared_ptr< T >* )calloc( m_capacity, sizeof( boost::shared_ptr< T > ) );
+    m_data = ( boost::shared_ptr< T >* )calloc( m_capacity, sizeof(boost::shared_ptr< T >) );
     assert( m_data );
 }
 
@@ -201,7 +202,7 @@ size_t LaBP::WLModuleInputDataRingBuffer< T >::size()
 }
 
 template< typename T >
-const boost::shared_ptr< T > LaBP::WLModuleInputDataRingBuffer< T >::getData( bool reset ) throw( char const* )
+const boost::shared_ptr< T > LaBP::WLModuleInputDataRingBuffer< T >::getData( bool reset ) throw( WException )
 {
 #ifdef DEBUG
     wlog::debug( CLASS ) << "getData() called!";
@@ -215,7 +216,7 @@ const boost::shared_ptr< T > LaBP::WLModuleInputDataRingBuffer< T >::getData( bo
     if( m_read == m_write )
     {
         wlog::debug( CLASS ) << "getData(): m_read == m_write";
-        throw "No data!";
+        throw WException( "No data!" );
     }
 
     size_t nextElement = ( m_read + 1 ) % m_capacity;

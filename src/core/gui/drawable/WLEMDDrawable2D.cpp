@@ -53,7 +53,7 @@
 
 namespace LaBP
 {
-    const string WLEMDDrawable2D::CLASS = "WLEMDDrawable2D";
+    const std::string WLEMDDrawable2D::CLASS = "WLEMDDrawable2D";
 
     WLEMDDrawable2D::WLEMDDrawable2D( WCustomWidget::SPtr widget ) :
                     WLEMDDrawable( widget )

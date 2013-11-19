@@ -49,25 +49,29 @@ inline void __cublasSafeCall( cublasStatus err, const char *file, const int line
     }
 }
 
+using WLMatrix::MatrixT;
+
 const std::string WSourceReconstructionCuda::CLASS = "WSoureReconstructionCuda";
 
 WSourceReconstructionCuda::WSourceReconstructionCuda()
 {
     m_inverseChanged = false;
     m_A_dev = NULL;
+    cublasInit();
 }
 
 WSourceReconstructionCuda::~WSourceReconstructionCuda()
 {
     if( m_A_dev != NULL )
     {
+        ExclusiveLockT lock( m_lockData );
         CublasSafeCall( cublasFree( m_A_dev ) );
     }
+    cublasShutdown();
 }
 
 bool WSourceReconstructionCuda::calculateInverseSolution( const MatrixT& noiseCov, const MatrixT& dataCov, double snr )
 {
-    // TODO(pieloth): Do we need this wrapper?
     m_inverseChanged = WSourceReconstruction::calculateInverseSolution( noiseCov, dataCov, snr );
     return m_inverseChanged;
 }
@@ -75,13 +79,12 @@ bool WSourceReconstructionCuda::calculateInverseSolution( const MatrixT& noiseCo
 WLEMDSource::SPtr WSourceReconstructionCuda::reconstruct( WLEMData::ConstSPtr emd )
 {
     wlog::debug( CLASS ) << "reconstruct() called!";
+    WLTimeProfiler tp( CLASS, "reconstruct" );
     if( !m_inverse )
     {
         // TODO(pieloth): return code
         wlog::error( CLASS ) << "No inverse matrix set!";
     }
-
-    WLTimeProfiler tp( CLASS, "reconstruct" );
 
     // Calculare average reference //
     WLEMData::DataT emdData;
@@ -93,6 +96,7 @@ WLEMDSource::SPtr WSourceReconstructionCuda::reconstruct( WLEMData::ConstSPtr em
     cudaEventCreate( &startCalc );
     cudaEventCreate( &stopCalc );
 
+    SharedLockT lock( m_lockData );
     // Initialize matrix dimensions //
     const size_t ROWS_A = m_inverse->rows();
     const size_t COLS_A = m_inverse->cols();
@@ -108,7 +112,7 @@ WLEMDSource::SPtr WSourceReconstructionCuda::reconstruct( WLEMData::ConstSPtr em
     // const ScalarT* const A_host; Is needed only once
     const ScalarT* const B_host = emdData.data();
     // C_host is used for copy out in correct column order: MatrixSPtr == cuBLAS-Matrix
-    MatrixSPtr S( new MatrixT( ROWS_C, COLS_C ) );
+    WLMatrix::SPtr S( new MatrixT( ROWS_C, COLS_C ) );
     ScalarT* C_host = S->data();
 
     // Scalar* A_dev; Is needed only once
@@ -116,8 +120,6 @@ WLEMDSource::SPtr WSourceReconstructionCuda::reconstruct( WLEMData::ConstSPtr em
     ScalarT* C_dev;
 
     // Copy in //
-    cublasInit();
-
     if( m_inverse && m_inverseChanged )
     {
         const ScalarT* const A_host = m_inverse->data();
@@ -145,10 +147,10 @@ WLEMDSource::SPtr WSourceReconstructionCuda::reconstruct( WLEMData::ConstSPtr em
     // S = G * d
     cudaEventRecord( startCalc, 0 );
 
-//    cublasSgemm( 'n', 'n', ROWS_A, COLS_B, COLS_A, 1, m_A_dev, ROWS_A, B_dev, ROWS_B, 0, C_dev, ROWS_C );
-    cublasDgemm( 'n', 'n', ROWS_A, COLS_B, COLS_A, 1.0, m_A_dev, ROWS_A, B_dev, ROWS_B, 0.0, C_dev, ROWS_C );
+    cublasTgemm< ScalarT >( 'n', 'n', ROWS_A, COLS_B, COLS_A, 1.0, m_A_dev, ROWS_A, B_dev, ROWS_B, 0.0, C_dev, ROWS_C );
     CublasSafeCall( cublasGetError() );
 
+    lock.unlock();
     cudaEventRecord( stopCalc, 0 );
     cudaEventSynchronize( stopCalc );
     cudaEventElapsedTime( &elapsedTime, startCalc, stopCalc );

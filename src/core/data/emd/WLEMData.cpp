@@ -27,33 +27,45 @@
 #include <ostream> // std::endl
 #include <vector>
 
-#include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include <core/common/WLogger.h>
 
 #include "WLEMData.h"
 
-WLEMData::WLEMData()
+using namespace LaBP;
+
+WLEMData::WLEMData() :
+                boost::enable_shared_from_this< WLEMData >()
 {
     m_data.reset( new DataT() );
     m_chanNames.reset( new std::vector< std::string >() );
 }
 
-WLEMData::WLEMData( const WLEMData& emd )
+WLEMData::WLEMData( const WLEMData& emd ) :
+                boost::enable_shared_from_this< WLEMData >()
 {
     // C++11 supports "delegating constructors". So default initialization could be moved to default constructor.
     m_data.reset( new DataT() );
 
-    m_chanNames = emd.m_chanNames;
-    if( m_chanNames->empty() )
+    if( !emd.m_chanNames || emd.m_chanNames->empty() )
     {
         wlog::info( "WDataSetEMMEMD" ) << "No channel names available! Channels will be numbered.";
+        m_chanNames.reset( new std::vector< std::string >() );
+        // Using prefix to avoid ambiguous matchings in MNE library.
+        const std::string modName = WEModalityType::name( emd.getModalityType() );
+        std::stringstream sstream;
         const size_t chanSize = emd.getNrChans();
         for( size_t i = 0; i < chanSize; ++i )
         {
-            m_chanNames->push_back( boost::lexical_cast< std::string >( i ) );
+            sstream << modName << std::setw( 3 ) << std::setfill( '0' ) << i + 1;
+            m_chanNames->push_back( sstream.str() );
+            sstream.str( "" );
+            sstream.clear();
         }
+    } else
+    {
+        m_chanNames = emd.m_chanNames;
     }
     m_measurementDeviceName.assign( emd.getMeasurementDeviceName() );
     m_sampFreq = emd.getSampFreq();

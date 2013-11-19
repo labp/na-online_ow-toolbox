@@ -38,25 +38,19 @@
 #include "core/data/WLEMMSubject.h"
 #include "core/data/WLEMMSurface.h"
 #include "core/data/WLEMMBemBoundary.h"
-#include "core/data/WLMatrixTypes.h"
+#include "core/data/WLDataTypes.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 
 #include "core/module/WLModuleDrawable.h"
 
-#include "algorithms/WRegistration.h"
-#include "algorithms/WRegistrationICP.h"
-#include "algorithms/WRegistrationNaive.h"
-
 #include "core/io/WLReaderExperiment.h"
-
-using LaBP::MatrixSPtr;
 
 /**
  * This module implements several onscreen status displays. At the moment the main purpose
  * is the display of information from picking, i.e. what is picked.
  * \ingroup modules
  */
-class WMEmMeasurement: public LaBP::WLModuleDrawable
+class WMEmMeasurement: public WLModuleDrawable
 {
 public:
     /**
@@ -204,7 +198,7 @@ private:
     bool m_isElcLoaded;
 
     bool m_hasLeadfield;
-    MatrixSPtr m_leadfield;
+    WLMatrix::SPtr m_leadfield;
 
     WPropFilename m_elcFile;
 
@@ -249,18 +243,6 @@ private:
     WPropString m_volFileStatus;
 
     WPropInt m_volBoundaryCount;
-
-    // Registration settings //
-    WPropGroup m_propGrpRegistration;
-
-    WRegistration::MatrixTransformation m_regTransformation;
-
-    WRegistrationNaive m_regNaive;
-    WRegistrationICP m_regICP;
-    WPropTrigger m_regAlignTrigger;
-    WPropDouble m_regError;
-
-    void align();
 
     // Experiment loader //
     WPropGroup m_propGrpExperiment;

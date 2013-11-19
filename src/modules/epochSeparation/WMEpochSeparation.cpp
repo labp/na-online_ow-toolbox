@@ -46,8 +46,7 @@ using std::istringstream;
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMEpochSeparation )
 
-WMEpochSeparation::WMEpochSeparation() :
-                m_frequence( 1000 )
+WMEpochSeparation::WMEpochSeparation()
 {
 }
 
@@ -90,8 +89,9 @@ void WMEpochSeparation::connectors()
 
 void WMEpochSeparation::properties()
 {
-    LaBP::WLModuleDrawable::properties();
-    LaBP::WLModuleDrawable::setTimerangeInformationOnly( true );
+    WLModuleDrawable::properties();
+    WLModuleDrawable::setTimerangeInformationOnly( true );
+    WLModuleDrawable::hideComputeModalitySelection( true );
 
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
@@ -111,29 +111,31 @@ void WMEpochSeparation::properties()
 void WMEpochSeparation::moduleInit()
 {
     infoLog() << "Initializing module ...";
-    waitRestored();
-    initView( LaBP::WLEMDDrawable2D::WEGraphType::MULTI );
-    m_separation = WEpochSeparation::SPtr( new WEpochSeparation() );
-    handleResetTriggerPressed();
-    infoLog() << "Initializing module finished!";
-}
-
-void WMEpochSeparation::moduleMain()
-{
-    LaBP::WLModuleDrawable::
     // init moduleState for using Events in mainLoop
     m_moduleState.setResetable( true, true ); // resetable, autoreset
     m_moduleState.add( m_input->getDataChangedCondition() ); // when inputdata changed
     m_moduleState.add( m_propCondition ); // when properties changed
 
-    WLEMMCommand::SPtr labpIn;
-
     ready(); // signal ready state
+    waitRestored();
 
+    viewInit( LaBP::WLEMDDrawable2D::WEGraphType::MULTI );
+    m_separation = WEpochSeparation::SPtr( new WEpochSeparation() );
+
+    infoLog() << "Initializing module finished!";
+
+    infoLog() << "Restoring module ...";
+
+    handleResetTriggerPressed();
+
+    infoLog() << "Restoring module finished!";
+}
+
+void WMEpochSeparation::moduleMain()
+{
     moduleInit();
 
-    debugLog() << "Entering main loop";
-
+    WLEMMCommand::SPtr cmdIn;
     while( !m_shutdownFlag() )
     {
         if( m_input->isEmpty() ) // continue processing if data is available
@@ -154,17 +156,17 @@ void WMEpochSeparation::moduleMain()
             handleResetTriggerPressed();
         }
 
-        labpIn.reset();
+        cmdIn.reset();
         if( !m_input->isEmpty() )
         {
-            labpIn = m_input->getData();
+            cmdIn = m_input->getData();
         }
-        const bool dataValid = ( labpIn );
+        const bool dataValid = ( cmdIn );
 
         // ---------- INPUTDATAUPDATEEVENT ----------
         if( dataValid ) // If there was an update on the inputconnector
         {
-            process( labpIn );
+            process( cmdIn );
         }
     }
 }
@@ -186,20 +188,6 @@ bool WMEpochSeparation::processCompute( WLEMMeasurement::SPtr emmIn )
     WLTimeProfiler tp( "WMEpochSeparation", "processCompute" );
 
     WLEMMeasurement::SPtr emmOut;
-    double frequence;
-    // The data is valid and we received an update. The data is not NULL but may be the same as in previous loops.
-    debugLog() << "received data";
-
-    if( emmIn->hasModality( this->getViewModality() ) )
-    {
-        frequence = emmIn->getModality( this->getViewModality() )->getSampFreq();
-        if( frequence != m_frequence )
-        {
-            m_frequence = frequence;
-            double samples = m_preTrigger->get() + m_postTrigger->get() + 1;
-            this->setTimerange( samples / m_frequence );
-        }
-    }
 
     m_separation->extract( emmIn );
 
@@ -216,21 +204,20 @@ bool WMEpochSeparation::processCompute( WLEMMeasurement::SPtr emmIn )
     // Because updates are to fast to recognize changes, update the last EMM only.
     if( emmOut )
     {
-        updateView( emmOut );
+        viewUpdate( emmOut );
     }
     return true;
 }
 
-bool WMEpochSeparation::processInit( WLEMMCommand::SPtr labp )
+bool WMEpochSeparation::processInit( WLEMMCommand::SPtr cmdIn )
 {
-    // TODO(pieloth)
-    m_output->updateData( labp );
-    return false;
+    m_output->updateData( cmdIn );
+    return true;
 }
 
-bool WMEpochSeparation::processReset( WLEMMCommand::SPtr labp )
+bool WMEpochSeparation::processReset( WLEMMCommand::SPtr cmdIn )
 {
-    resetView();
+    viewReset();
     m_separation->reset();
 
     int preSamples = m_preTrigger->get();
@@ -262,10 +249,7 @@ bool WMEpochSeparation::processReset( WLEMMCommand::SPtr labp )
     infoLog() << "Trigger set: " << triggers.size();
     m_separation->setTriggerMask( triggers );
 
-    double samples = preSamples + postSamples + 1;
-    this->setTimerange( samples / m_frequence );
-
-    m_output->updateData( labp );
+    m_output->updateData( cmdIn );
 
     return true;
 }
