@@ -95,7 +95,7 @@ void LaBP::WLModuleOutputDataCollectionable< T >::updateData( boost::shared_ptr<
     {
         if( ( *it )->isInputConnector() )
         {
-            in = boost::shared_dynamic_cast< WLModuleInputDataCollection< T > >( ( *it ) );
+            in = boost::dynamic_pointer_cast< WLModuleInputDataCollection< T > >( ( *it ) );
             if( in )
             {
                 if( !( in->addData( WModuleOutputData< T >::m_data ) ) )
