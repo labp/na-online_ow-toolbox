@@ -103,7 +103,12 @@ WLIOStatus::ioStatus_t WLWriterMAT::writeMatrix( const WLMatrix::MatrixT& matrix
     }
 
     // Write data //
+#ifndef LABP_FLOAT_COMPUTATION
     const size_t bytes = WLMatFileIO::MATWriter::writeMatrixDouble( m_ofs, matrix, name );
+#else
+    const Eigen::MatrixXd matrixDbl = matrix.cast<double>();
+    const size_t bytes = WLMatFileIO::MATWriter::writeMatrixDouble( m_ofs, matrixDbl, name );
+#endif
     wlog::debug( CLASS ) << bytes << " bytes written to file.";
     // NOTE: min_bytes is only possible, if compression is not used!
     // min_byte = Tag(miMATRIX) + Tag(ArrayFlags)+Data(ArrayFlags)
