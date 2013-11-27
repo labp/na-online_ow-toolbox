@@ -331,7 +331,7 @@ void WWriterFiff::setChannelInfo( QList< FIFFLIB::FiffChInfo >* const chs, const
 
 void WWriterFiff::setChannelInfo( QList< FIFFLIB::FiffChInfo >* const chs, const WLEMDEEG* const eeg )
 {
-    const std::vector< std::string >& chNames = eeg->getChanNames();
+    const std::vector< std::string >& chNames = *eeg->getChanNames();
     const std::vector< WPosition >& pos = *eeg->getChannelPositions3d();
     for( size_t c = 0; c < eeg->getNrChans(); ++c )
     {
@@ -354,7 +354,7 @@ void WWriterFiff::setChannelInfo( QList< FIFFLIB::FiffChInfo >* const chs, const
 
 void WWriterFiff::setChannelInfo( QList< FIFFLIB::FiffChInfo >* const chs, const WLEMDMEG* const meg )
 {
-    const std::vector< std::string >& chNames = meg->getChanNames();
+    const std::vector< std::string >& chNames = *meg->getChanNames();
     const std::vector< WPosition >& pos = *meg->getChannelPositions3d();
     for( size_t c = 0; c < meg->getNrChans(); ++c )
     {

@@ -28,13 +28,15 @@
 #include <cstddef>
 #include <stdint.h>
 #include <string>
-#include <vector>
 
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include <Eigen/Core>
 
+#include <core/common/WDefines.h>
+
+#include "core/container/WLArrayList.h"
 #include "core/data/WLEMMEnumTypes.h"
 
 /**
@@ -139,10 +141,9 @@ public:
      */
     float getAnalogLowPass() const;
 
-    /**
-     * TODO(kaehler): Comments
-     */
-    std::vector< std::string >& getChanNames() const;
+    WLArrayList< std::string >::SPtr getChanNames();
+
+    WLArrayList< std::string >::ConstSPtr getChanNames() const;
 
     /**
      * TODO(kaehler): Comments
@@ -220,9 +221,9 @@ public:
      */
     void setAnalogLowPass( float analogLowPass );
 
-    /**
-     * TODO(kaehler): Comments
-     */
+    void setChanNames( WLArrayList< std::string >::SPtr chanNames );
+
+    OW_API_DEPRECATED
     void setChanNames( boost::shared_ptr< std::vector< std::string > > chanNames );
 
     /**
@@ -291,10 +292,7 @@ protected:
      */
     float m_lineFreq;
 
-    /**
-     * dynamic/static TODO(kaehler): array of channelnames
-     */
-    boost::shared_ptr< std::vector< std::string > > m_chanNames;
+    WLArrayList< std::string >::SPtr m_chanNames;
 
     /**
      * sampling frequency (unique within modality)

@@ -76,10 +76,10 @@ namespace LaBP
 
         virtual void osgNodeCallback( osg::NodeVisitor* nv );
 
-        void virtual osgAddLabels( const WLEMData* emd );
+        void virtual osgAddLabels( const WLEMData& emd );
 
-        virtual size_t maxChannels( const WLEMData* emd ) const;
-        virtual size_t getChannelBegin( const WLEMData* emd );
+        virtual size_t maxChannels( const WLEMData& emd ) const;
+        virtual size_t getChannelBegin( const WLEMData& emd );
 
         const ValueT m_labelWidth;
 

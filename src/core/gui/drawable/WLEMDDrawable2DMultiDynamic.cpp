@@ -101,7 +101,7 @@ namespace LaBP
                     wlog::debug( CLASS ) << "osgNodeCallback() - freq: " << emd->getSampFreq();
                     wlog::debug( CLASS ) << "osgNodeCallback() - secondsPerChan: " << emd->getLength();
 #endif // DEBUG
-                    osgAddLabels( emd );
+                    osgAddLabels( *emd );
                 }
 
                 m_animation->append( emmNode );
@@ -140,11 +140,11 @@ namespace LaBP
         // Every new packed come at the end of the widget!
         const WLEMData::DataT& emdData = emd->getData();
         const size_t channels_emd = emd->getNrChans();
-        const size_t channels_count = maxChannels( emd );
+        const size_t channels_count = maxChannels( *emd );
         wlog::debug( CLASS ) << "channels_count: " << channels_count;
 
         osg::ref_ptr< osg::Geode > channelGeode;
-        for( size_t channel = getChannelBegin( emd ), channelPos = 0; channelPos < channels_count && channel < channels_emd;
+        for( size_t channel = getChannelBegin( *emd ), channelPos = 0; channelPos < channels_count && channel < channels_emd;
                         ++channel, ++channelPos )
         {
             channelGeode = drawChannel( emdData.row( channel ) );

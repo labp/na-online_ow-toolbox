@@ -25,7 +25,6 @@
 #include <sstream>
 #include <string>
 #include <ostream> // std::endl
-#include <vector>
 
 #include <boost/shared_ptr.hpp>
 
@@ -39,7 +38,7 @@ WLEMData::WLEMData() :
                 boost::enable_shared_from_this< WLEMData >()
 {
     m_data.reset( new DataT() );
-    m_chanNames.reset( new std::vector< std::string >() );
+    m_chanNames = WLArrayList< std::string >::instance();
 }
 
 WLEMData::WLEMData( const WLEMData& emd ) :
@@ -51,7 +50,7 @@ WLEMData::WLEMData( const WLEMData& emd ) :
     if( !emd.m_chanNames || emd.m_chanNames->empty() )
     {
         wlog::info( "WDataSetEMMEMD" ) << "No channel names available! Channels will be numbered.";
-        m_chanNames.reset( new std::vector< std::string >() );
+        m_chanNames = WLArrayList< std::string >::instance();
         // Using prefix to avoid ambiguous matchings in MNE library.
         const std::string modName = WEModalityType::name( emd.getModalityType() );
         std::stringstream sstream;
@@ -63,7 +62,8 @@ WLEMData::WLEMData( const WLEMData& emd ) :
             sstream.str( "" );
             sstream.clear();
         }
-    } else
+    }
+    else
     {
         m_chanNames = emd.m_chanNames;
     }
@@ -102,9 +102,14 @@ float WLEMData::getAnalogLowPass() const
     return m_analogLowPass;
 }
 
-std::vector< std::string >& WLEMData::getChanNames() const
+WLArrayList< std::string >::SPtr WLEMData::getChanNames()
 {
-    return *m_chanNames;
+    return m_chanNames;
+}
+
+WLArrayList< std::string >::ConstSPtr WLEMData::getChanNames() const
+{
+    return m_chanNames;
 }
 
 LaBP::WEUnit::Enum WLEMData::getChanUnit() const
@@ -185,9 +190,14 @@ void WLEMData::setAnalogLowPass( float analogLowPass )
     m_analogLowPass = analogLowPass;
 }
 
-void WLEMData::setChanNames( boost::shared_ptr< std::vector< std::string > > chanNames )
+void WLEMData::setChanNames( WLArrayList< std::string >::SPtr chanNames )
 {
     m_chanNames = chanNames;
+}
+
+void WLEMData::setChanNames( boost::shared_ptr< std::vector< std::string > > chanNames )
+{
+    m_chanNames = WLArrayList< std::string >::instance( *chanNames );
 }
 
 void WLEMData::setChanUnit( LaBP::WEUnit::Enum chanUnit )

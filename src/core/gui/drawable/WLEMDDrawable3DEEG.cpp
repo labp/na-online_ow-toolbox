@@ -71,7 +71,7 @@ namespace LaBP
         }
     }
 
-    void WLEMDDrawable3DEEG::osgAddLabels( const std::vector< WPosition >* positions, const std::vector< std::string >& labels )
+    void WLEMDDrawable3DEEG::osgAddLabels( const std::vector< WPosition >& positions, const std::vector< std::string >& labels )
     {
         if( m_labelsChanged && m_labelsOn )
         {
@@ -82,14 +82,14 @@ namespace LaBP
             const osg::Vec3 text_offset( 0.0, 0.0, sphere_size );
             const float text_size = 14.0;
             const osg::Vec4 text_color( 0.0, 0.0, 0.0, 1.0 );
-            for( size_t channelID = 0; channelID < positions->size(); ++channelID )
+            for( size_t channelID = 0; channelID < positions.size(); ++channelID )
             {
                 std::string name = boost::lexical_cast< std::string >( channelID );
                 if( labels.size() > channelID )
                 {
                     name = labels.at( channelID );
                 }
-                osg::Vec3 pos = positions->at( channelID ) * 1000;
+                osg::Vec3 pos = positions.at( channelID ) * 1000;
                 // create text geode for the channel label
                 osg::ref_ptr< osgText::Text > text = new osgText::Text;
                 text->setText( name );
@@ -111,7 +111,7 @@ namespace LaBP
         m_labelsChanged = false;
     }
 
-    void WLEMDDrawable3DEEG::osgAddNodes( const std::vector< WPosition >* positions )
+    void WLEMDDrawable3DEEG::osgAddNodes( const std::vector< WPosition >& positions )
     {
         if( m_electrodesChanged )
         {
@@ -119,12 +119,12 @@ namespace LaBP
             m_rootGroup->removeChild( m_electrodesGeode );
             const float sphere_size = 3.0f;
             m_electrodesGeode = new osg::Geode;
-            const size_t count_max = positions->size();
+            const size_t count_max = positions.size();
             m_electrodesDrawables.clear();
             m_electrodesDrawables.reserve( count_max );
             for( size_t channelID = 0; channelID < count_max; ++channelID )
             {
-                osg::Vec3 pos = positions->at( channelID ) * m_zoomFactor;
+                osg::Vec3 pos = positions.at( channelID ) * m_zoomFactor;
                 // create sphere geode on electrode position
                 osg::ref_ptr< osg::ShapeDrawable > shape = new osg::ShapeDrawable( new osg::Sphere( pos, sphere_size ) );
                 shape->setDataVariance( osg::Object::DYNAMIC );
@@ -201,9 +201,9 @@ namespace LaBP
             m_state->setTextureAttributeAndModes( 0, m_colorMap->getAsTexture() );
         }
 
-        osgAddLabels( emd->getChannelPositions3d().get(), emd->getChanNames() );
+        osgAddLabels( *emd->getChannelPositions3d(), *emd->getChanNames() );
 
-        osgAddNodes( emd->getChannelPositions3d().get() );
+        osgAddNodes( *emd->getChannelPositions3d() );
         osgUpdateNodesColor( emd->getData() );
 
         osgAddSurface( *emd->getChannelPositions3d(), *emd->getFaces() );
