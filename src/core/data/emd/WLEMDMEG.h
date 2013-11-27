@@ -27,9 +27,11 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <core/common/WDefines.h> // OW_API_DEPRECATED
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
+#include "core/container/WLArrayList.h"
 #include "core/data/WLEMMEnumTypes.h"
 
 #include "WLEMData.h"
@@ -58,49 +60,57 @@ public:
     virtual LaBP::WEModalityType::Enum getModalityType() const;
 
     /**
-     * Returns the positions in millimeter. NOTE: The method does not modify any object data, but positions may modified indirectly!
+     * Returns the positions in millimeter.
      */
-    boost::shared_ptr< std::vector< WPosition > > getChannelPositions3d() const;
+    WLArrayList< WPosition >::SPtr getChannelPositions3d();
+
+    /**
+     * Returns the positions in millimeter.
+     */
+    WLArrayList< WPosition >::ConstSPtr getChannelPositions3d() const;
 
     /**
      * Sets the positions. Positions must be in millimeter.
      */
+    void setChannelPositions3d( WLArrayList< WPosition >::SPtr chanPos3d );
+
+    OW_API_DEPRECATED
     void setChannelPositions3d( boost::shared_ptr< std::vector< WPosition > > chanPos3d );
 
     /**
-     * Returns the faces. NOTE: The method does not modify any object data, but faces may modified indirectly!
+     * Returns the faces.
      */
-    std::vector< WVector3i >& getFaces() const;
+    WLArrayList< WVector3i >::SPtr getFaces();
+
+    WLArrayList< WVector3i >::ConstSPtr getFaces() const;
+
+    void setFaces( WLArrayList< WVector3i >::SPtr faces );
+
+    OW_API_DEPRECATED
     void setFaces( boost::shared_ptr< std::vector< WVector3i > > faces );
 
-    /**
-     * NOTE: The method does not modify any object data, but Ex may modified indirectly!
-     */
-    std::vector< WVector3f >& getEx() const;
-    void setEx( boost::shared_ptr< std::vector< WVector3f > > vec );
+    WLArrayList< WVector3f >::SPtr getEx();
+    WLArrayList< WVector3f >::ConstSPtr getEx() const;
+    void setEx( WLArrayList< WVector3f >::SPtr vec );
 
-    /**
-     * NOTE: The method does not modify any object data, but Ey may modified indirectly!
-     */
-    std::vector< WVector3f >& getEy() const;
-    void setEy( boost::shared_ptr< std::vector< WVector3f > > vec );
+    WLArrayList< WVector3f >::SPtr getEy();
+    WLArrayList< WVector3f >::ConstSPtr getEy() const;
+    void setEy( WLArrayList< WVector3f >::SPtr vec );
 
-    /**
-     * NOTE: The method does not modify any object data, but Ez may modified indirectly!
-     */
-    std::vector< WVector3f >& getEz() const;
-    void setEz( boost::shared_ptr< std::vector< WVector3f > > vec );
+    WLArrayList< WVector3f >::SPtr getEz();
+    WLArrayList< WVector3f >::ConstSPtr getEz() const;
+    void setEz( WLArrayList< WVector3f >::SPtr vec );
 
     LaBP::WEGeneralCoilType::Enum getChannelType( size_t channelId ) const;
 
 private:
-    boost::shared_ptr< std::vector< WPosition > > m_chanPos3d;
+    WLArrayList< WPosition >::SPtr m_chanPos3d;
 
-    boost::shared_ptr< std::vector< WVector3i > > m_faces;
+    WLArrayList< WVector3i >::SPtr m_faces;
 
-    boost::shared_ptr< std::vector< WVector3f > > m_eX;
-    boost::shared_ptr< std::vector< WVector3f > > m_eY;
-    boost::shared_ptr< std::vector< WVector3f > > m_eZ;
+    WLArrayList< WVector3f >::SPtr m_eX;
+    WLArrayList< WVector3f >::SPtr m_eY;
+    WLArrayList< WVector3f >::SPtr m_eZ;
 
     /*
      * member contains absolute position of channel with coordinate system in this position

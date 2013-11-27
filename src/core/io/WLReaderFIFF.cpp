@@ -39,6 +39,7 @@
 #include <core/common/WLogger.h>
 #include <core/common/WAssert.h>
 
+#include "core/container/WLArrayList.h"
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMSubject.h"
 #include "core/data/WLEMMEnumTypes.h"
@@ -193,13 +194,13 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
         // Collect data: measurement, positions, base vectors
         // TODO(pieloth): set channels size
 
-        boost::shared_ptr< std::vector< WPosition > > positions( new std::vector< WPosition >() );
-        float* pos;
+        WLArrayList< WPosition >::SPtr positions( new WLArrayList< WPosition >() );
+        const float* pos;
 
-        boost::shared_ptr< std::vector< WVector3f > > eX( new std::vector< WVector3f >() );
-        boost::shared_ptr< std::vector< WVector3f > > eY( new std::vector< WVector3f >() );
-        boost::shared_ptr< std::vector< WVector3f > > eZ( new std::vector< WVector3f >() );
-        float* eVec;
+        WLArrayList< WVector3f >::SPtr eX( new WLArrayList< WVector3f >() );
+        WLArrayList< WVector3f >::SPtr eY( new WLArrayList< WVector3f >() );
+        WLArrayList< WVector3f >::SPtr eZ( new WLArrayList< WVector3f >() );
+        const float* eVec;
 
         fiffunits_t fiffUnit;
         fiffmultipliers_t fiffUnitMul;

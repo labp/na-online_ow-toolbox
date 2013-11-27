@@ -36,12 +36,12 @@
 WLEMDMEG::WLEMDMEG() :
                 WLEMData()
 {
-    m_chanPos3d = boost::shared_ptr< std::vector< WPosition > >( new std::vector< WPosition >() );
-    m_faces = boost::shared_ptr< std::vector< WVector3i > >( new std::vector< WVector3i >() );
+    m_chanPos3d = WLArrayList< WPosition >::instance();
+    m_faces = WLArrayList< WVector3i >::instance();
 
-    m_eX.reset( new std::vector< WVector3f >() );
-    m_eY.reset( new std::vector< WVector3f >() );
-    m_eZ.reset( new std::vector< WVector3f >() );
+    m_eX = WLArrayList< WVector3f >::instance();
+    m_eY = WLArrayList< WVector3f >::instance();
+    m_eZ = WLArrayList< WVector3f >::instance();
 }
 
 WLEMDMEG::WLEMDMEG( const WLEMDMEG& meg ) :
@@ -69,52 +69,87 @@ LaBP::WEModalityType::Enum WLEMDMEG::getModalityType() const
     return LaBP::WEModalityType::MEG;
 }
 
-boost::shared_ptr< std::vector< WPosition > > WLEMDMEG::getChannelPositions3d() const
+WLArrayList< WPosition >::SPtr WLEMDMEG::getChannelPositions3d()
 {
     return m_chanPos3d;
 }
 
-void WLEMDMEG::setChannelPositions3d( boost::shared_ptr< std::vector< WPosition > > chanPos3d )
+WLArrayList< WPosition >::ConstSPtr WLEMDMEG::getChannelPositions3d() const
 {
-    this->m_chanPos3d = chanPos3d;
+    return m_chanPos3d;
 }
 
-std::vector< WVector3i >& WLEMDMEG::getFaces() const
+void WLEMDMEG::setChannelPositions3d( WLArrayList< WPosition >::SPtr chanPos3d )
 {
-    return *m_faces;
+    m_chanPos3d = chanPos3d;
+}
+
+void WLEMDMEG::setChannelPositions3d( boost::shared_ptr< std::vector< WPosition > > chanPos3d )
+{
+    m_chanPos3d = WLArrayList< WPosition >::instance( *chanPos3d );
+}
+
+WLArrayList< WVector3i >::SPtr WLEMDMEG::getFaces()
+{
+    return m_faces;
+}
+
+WLArrayList< WVector3i >::ConstSPtr WLEMDMEG::getFaces() const
+{
+    return m_faces;
 }
 
 void WLEMDMEG::setFaces( boost::shared_ptr< std::vector< WVector3i > > faces )
 {
+    m_faces = WLArrayList< WVector3i >::instance( *faces );
+}
+
+void WLEMDMEG::setFaces( WLArrayList< WVector3i >::SPtr faces )
+{
     m_faces = faces;
 }
 
-std::vector< WVector3f >& WLEMDMEG::getEx() const
+WLArrayList< WVector3f >::SPtr WLEMDMEG::getEx()
 {
-    return *m_eX;
+    return m_eX;
 }
 
-void WLEMDMEG::setEx( boost::shared_ptr< std::vector< WVector3f > > vec )
+WLArrayList< WVector3f >::ConstSPtr WLEMDMEG::getEx() const
+{
+    return m_eX;
+}
+
+void WLEMDMEG::setEx( WLArrayList< WVector3f >::SPtr vec )
 {
     m_eX = vec;
 }
 
-std::vector< WVector3f >& WLEMDMEG::getEy() const
+WLArrayList< WVector3f >::SPtr WLEMDMEG::getEy()
 {
-    return *m_eY;
+    return m_eY;
 }
 
-void WLEMDMEG::setEy( boost::shared_ptr< std::vector< WVector3f > > vec )
+WLArrayList< WVector3f >::ConstSPtr WLEMDMEG::getEy() const
+{
+    return m_eY;
+}
+
+void WLEMDMEG::setEy( WLArrayList< WVector3f >::SPtr vec )
 {
     m_eY = vec;
 }
 
-std::vector< WVector3f >& WLEMDMEG::getEz() const
+WLArrayList< WVector3f >::SPtr WLEMDMEG::getEz()
 {
-    return *m_eZ;
+    return m_eZ;
 }
 
-void WLEMDMEG::setEz( boost::shared_ptr< std::vector< WVector3f > > vec )
+WLArrayList< WVector3f >::ConstSPtr WLEMDMEG::getEz() const
+{
+    return m_eZ;
+}
+
+void WLEMDMEG::setEz( WLArrayList< WVector3f >::SPtr vec )
 {
     m_eZ = vec;
 }
