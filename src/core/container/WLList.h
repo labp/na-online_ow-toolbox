@@ -65,6 +65,12 @@ public:
 };
 
 template< typename T >
+WLList< T >::WLList() :
+                std::list< T >()
+{
+}
+
+template< typename T >
 WLList< T >::WLList( const std::list< T >& x ) :
                 std::list< T >( x )
 {
