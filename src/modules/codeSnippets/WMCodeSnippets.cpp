@@ -27,6 +27,8 @@
 #include <string>
 #include <vector>
 
+#include <Eigen/Core>
+
 #include <core/common/WException.h>
 #include <core/common/WRealtimeTimer.h>
 
@@ -37,7 +39,7 @@
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
-#include <Eigen/Core>
+#include "core/util/WLRingBuffer.h"
 
 #include "WMCodeSnippets.h"
 #include "WMCodeSnippets.xpm"
@@ -185,19 +187,19 @@ bool WMCodeSnippets::writeEmdPositions( WLEMMeasurement::ConstSPtr emm )
     if( emm->hasModality( WEModalityType::EEG ) )
     {
         WLEMDEEG::ConstSPtr emd = emm->getModality< const WLEMDEEG >( WEModalityType::EEG );
-        rc &= writeEmdPositions( emd->getChannelPositions3d().get(), "/tmp/positions_eeg.txt" );
+        rc &= writeEmdPositions( *emd->getChannelPositions3d(), "/tmp/positions_eeg.txt" );
     }
     if( emm->hasModality( WEModalityType::MEG ) )
     {
         WLEMDMEG::ConstSPtr emd = emm->getModality< const WLEMDMEG >( WEModalityType::MEG );
-        rc &= writeEmdPositions( emd->getChannelPositions3d().get(), "/tmp/positions_meg.txt" );
+        rc &= writeEmdPositions( *emd->getChannelPositions3d(), "/tmp/positions_meg.txt" );
     }
 
     WLEMMSubject::ConstSPtr subject = emm->getSubject();
     try
     {
         WLEMMSurface& surface = subject->getSurface( WLEMMSurface::Hemisphere::BOTH );
-        rc &= writeEmdPositions( surface.getVertex().get(), "/tmp/positions_src.txt" );
+        rc &= writeEmdPositions( *surface.getVertex(), "/tmp/positions_src.txt" );
 
         vector< WLEMMBemBoundary::SPtr >& bems = subject->getBemBoundaries();
         vector< WLEMMBemBoundary::SPtr >::const_iterator it = bems.begin();
@@ -205,8 +207,8 @@ bool WMCodeSnippets::writeEmdPositions( WLEMMeasurement::ConstSPtr emm )
         {
             if( ( *it )->getBemType() == WEBemType::OUTER_SKIN )
             {
-                vector< WPosition >& pos = ( *it )->getVertex();
-                rc &= writeEmdPositions( &pos, "/tmp/positions_skin.txt" );
+                const vector< WPosition >& pos = ( *it )->getVertex();
+                rc &= writeEmdPositions( pos, "/tmp/positions_skin.txt" );
                 break;
             }
         }
@@ -219,7 +221,7 @@ bool WMCodeSnippets::writeEmdPositions( WLEMMeasurement::ConstSPtr emm )
     return rc;
 }
 
-bool WMCodeSnippets::writeEmdPositions( vector< WPosition >* const positions, string fname )
+bool WMCodeSnippets::writeEmdPositions( const vector< WPosition >& positions, string fname )
 {
     ofstream fstream;
     fstream.open( fname.c_str(), ofstream::out );
@@ -245,8 +247,8 @@ bool WMCodeSnippets::writeEmdPositions( vector< WPosition >* const positions, st
             mat.setIdentity();
         }
 
-    vector< WPosition >::const_iterator it = positions->begin();
-    for( ; it != positions->end(); ++it )
+    vector< WPosition >::const_iterator it = positions.begin();
+    for( ; it != positions.end(); ++it )
     {
         Eigen::Vector4f vec( it->x(), it->y(), it->z(), 1.0 );
         vec = mat * vec;

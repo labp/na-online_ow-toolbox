@@ -110,7 +110,7 @@ private:
     WCondition::SPtr m_propCondition;
 
     bool writeEmdPositions( WLEMMeasurement::ConstSPtr emm );
-    bool writeEmdPositions( std::vector< WPosition >* const positions, std::string fname );
+    bool writeEmdPositions( const std::vector< WPosition >& positions, std::string fname );
 
     void emulateSinusWave();
 

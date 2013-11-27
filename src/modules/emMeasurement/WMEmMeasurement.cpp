@@ -541,10 +541,10 @@ bool WMEmMeasurement::readFiff( std::string fname )
             if( m_fiffEmm->hasModality( LaBP::WEModalityType::EEG ) )
             {
                 WLEMDEEG::SPtr eeg = m_fiffEmm->getModality< WLEMDEEG >( LaBP::WEModalityType::EEG );
-                if( eeg->getFaces().empty() )
+                if( eeg->getFaces()->empty() )
                 {
                     warnLog() << "No faces found! Faces will be generated.";
-                    WLGeometry::computeTriangulation( &eeg->getFaces(), *eeg->getChannelPositions3d(), -5 );
+                    WLGeometry::computeTriangulation( eeg->getFaces().get(), *eeg->getChannelPositions3d(), -5 );
                 }
             }
             infoLog() << "Modalities:\t" << m_fiffEmm->getModalityCount();

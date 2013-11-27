@@ -206,7 +206,7 @@ namespace LaBP
         osgAddNodes( emd->getChannelPositions3d().get() );
         osgUpdateNodesColor( emd->getData() );
 
-        osgAddSurface( *emd->getChannelPositions3d(), emd->getFaces() );
+        osgAddSurface( *emd->getChannelPositions3d(), *emd->getFaces() );
         osgUpdateSurfaceColor( emd->getData() );
 
         WLEMDDrawable3D::osgNodeCallback( nv );

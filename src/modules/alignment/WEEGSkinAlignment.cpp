@@ -26,6 +26,7 @@
 
 #include <core/common/WLogger.h>
 
+#include "core/container/WLArrayList.h"
 #include "core/data/WLDigPoint.h"
 #include "core/data/WLEMMBemBoundary.h"
 #include "core/data/WLEMMSubject.h"
@@ -116,7 +117,7 @@ double WEEGSkinAlignment::align( TransformationT* const matrix, WLEMMeasurement:
         wlog::error( CLASS ) << "align: No EEG data!";
         return NOT_CONVERGED;
     }
-    boost::shared_ptr< std::vector< WPosition > > fromPtr = eeg->getChannelPositions3d();
+    WLArrayList< WPosition >::ConstSPtr fromPtr = eeg->getChannelPositions3d();
 
     // Compute alignment
     // -----------------

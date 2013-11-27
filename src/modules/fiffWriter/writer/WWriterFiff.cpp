@@ -332,11 +332,11 @@ void WWriterFiff::setChannelInfo( QList< FIFFLIB::FiffChInfo >* const chs, const
 void WWriterFiff::setChannelInfo( QList< FIFFLIB::FiffChInfo >* const chs, const WLEMDEEG* const eeg )
 {
     const std::vector< std::string >& chNames = eeg->getChanNames();
-    std::vector< WPosition >* pos = eeg->getChannelPositions3d().get();
+    const std::vector< WPosition >& pos = *eeg->getChannelPositions3d();
     for( size_t c = 0; c < eeg->getNrChans(); ++c )
     {
         FiffChInfo chInfo;
-        const WPosition p = pos->at( c );
+        const WPosition p = pos.at( c );
         const Vector3d v( p.x(), p.y(), p.z() );
         setChannelInfo( &chInfo );
         chInfo.coil_type = FIFFV_COIL_EEG;

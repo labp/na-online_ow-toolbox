@@ -37,8 +37,8 @@
 WLEMDEEG::WLEMDEEG() :
                 WLEMData()
 {
-    m_chanPos3d = boost::shared_ptr< std::vector< WPosition > >( new std::vector< WPosition >() );
-    m_faces = boost::shared_ptr< std::vector< WVector3i > >( new std::vector< WVector3i >() );
+    m_chanPos3d = WLArrayList< WPosition >::instance();
+    m_faces = WLArrayList< WVector3i >::instance();
 }
 
 WLEMDEEG::WLEMDEEG( const WLEMDEEG& eeg ) :
@@ -69,22 +69,42 @@ LaBP::WEModalityType::Enum WLEMDEEG::getModalityType() const
     return LaBP::WEModalityType::EEG;
 }
 
-boost::shared_ptr< std::vector< WPosition > > WLEMDEEG::getChannelPositions3d() const
+WLArrayList< WPosition >::SPtr WLEMDEEG::getChannelPositions3d()
 {
     return m_chanPos3d;
 }
 
-void WLEMDEEG::setChannelPositions3d( boost::shared_ptr< std::vector< WPosition > > chanPos3d )
+WLArrayList< WPosition >::ConstSPtr WLEMDEEG::getChannelPositions3d() const
+{
+    return m_chanPos3d;
+}
+
+void WLEMDEEG::setChannelPositions3d( WLArrayList< WPosition >::SPtr chanPos3d )
 {
     m_chanPos3d = chanPos3d;
 }
 
-std::vector< WVector3i >& WLEMDEEG::getFaces() const
+void WLEMDEEG::setChannelPositions3d( boost::shared_ptr< std::vector< WPosition > > chanPos3d )
 {
-    return *m_faces;
+    m_chanPos3d = WLArrayList< WPosition >::instance( *chanPos3d );
+}
+
+WLArrayList< WVector3i >::SPtr WLEMDEEG::getFaces()
+{
+    return m_faces;
+}
+
+WLArrayList< WVector3i >::ConstSPtr WLEMDEEG::getFaces() const
+{
+    return m_faces;
 }
 
 void WLEMDEEG::setFaces( boost::shared_ptr< std::vector< WVector3i > > faces )
+{
+    m_faces = WLArrayList< WVector3i >::instance( *faces );
+}
+
+void WLEMDEEG::setFaces( WLArrayList< WVector3i >::SPtr faces )
 {
     m_faces = faces;
 }
