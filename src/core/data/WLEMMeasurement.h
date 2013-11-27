@@ -32,8 +32,10 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <core/common/WDefines.h>
 #include <core/common/exceptions/WNotFound.h>
 
+#include "core/container/WLList.h"
 #include "core/data/WLDataTypes.h"
 #include "core/data/WLDigPoint.h"
 #include "core/data/WLEMMEnumTypes.h"
@@ -263,11 +265,13 @@ public:
     WLLifetimeProfiler::ConstSPtr getProfiler() const;
     void setProfiler( WLLifetimeProfiler::SPtr profiler );
 
-    const std::vector< WLDigPoint >& getDigPoints() const;
+    WLList< WLDigPoint >::SPtr getDigPoints();
 
-    void setDigPoints( const std::vector< WLDigPoint >& digPoints );
+    WLList< WLDigPoint >::ConstSPtr getDigPoints() const;
 
-    std::vector< WLDigPoint > getDigPoints( WLDigPoint::PointType::Enum kind ) const;
+    WLList< WLDigPoint >::SPtr getDigPoints( WLDigPoint::PointType::Enum kind ) const;
+
+    void setDigPoints( WLList< WLDigPoint >::SPtr digPoints );
 
     const WLMatrix4::Matrix4T& getDevToFidTransformation() const;
 
@@ -291,7 +295,7 @@ private:
     std::string m_expDescription;
 
     /**
-     * list with modality specific measurements \ref WDataSetEMMEMD
+     * list with modality specific measurements WLEMData
      */
     std::vector< WLEMData::SPtr > m_modalityList;
 
@@ -305,12 +309,11 @@ private:
      */
     boost::shared_ptr< std::vector< EChannelT > > m_eventChannels;
 
-    std::vector< WLDigPoint > m_digPoints;
+    WLList< WLDigPoint >::SPtr m_digPoints;
 
     WLMatrix4::Matrix4T m_transDevToFid;
 
     WLMatrix4::Matrix4T m_transFidToACPC;
-
 };
 
 #endif  // WLEMMEASUREMENT_H

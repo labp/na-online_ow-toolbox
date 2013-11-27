@@ -59,6 +59,7 @@ WRtClient::WRtClient( const std::string& ip_address, const std::string& alias ) 
 
     m_chPosEeg.reset( new ChannelsPositionsT );
     m_facesEeg.reset( new FacesT );
+    m_digPoints = WLList< WLDigPoint >::instance();
 }
 
 WRtClient::~WRtClient()
@@ -488,17 +489,17 @@ boost::shared_ptr< WLEMMeasurement::EDataT > WRtClient::readEvents( const Eigen:
     return events;
 }
 
-bool WRtClient::setDigPointsAndEEG( const std::vector< WLDigPoint >& digPoints )
+bool WRtClient::setDigPointsAndEEG( const std::list< WLDigPoint >& digPoints )
 {
     wlog::info( CLASS ) << "Set user-defined digitization points and EEG positions.";
-    m_digPoints = digPoints;
-    wlog::info( CLASS ) << "Digitization points: " << m_digPoints.size();
+    m_digPoints = WLList< WLDigPoint >::instance( digPoints );
+    wlog::info( CLASS ) << "Digitization points: " << m_digPoints->size();
 
     m_chPosEeg->clear();
-    m_chPosEeg->reserve( m_digPoints.size() );
-    std::vector< WLDigPoint >::const_iterator it;
+    m_chPosEeg->reserve( m_digPoints->size() );
+    std::list< WLDigPoint >::const_iterator it;
     bool isFirst = true;
-    for( it = m_digPoints.begin(); it != m_digPoints.end(); ++it )
+    for( it = m_digPoints->begin(); it != m_digPoints->end(); ++it )
     {
         if( it->getKind() != WLDigPoint::PointType::EEG )
         {
@@ -528,7 +529,7 @@ bool WRtClient::setDigPointsAndEEG( const std::vector< WLDigPoint >& digPoints )
         wlog::info( CLASS ) << "EEG faces from digPoints: " << m_facesEeg->size();
     }
 
-    if( !m_digPoints.empty() && !m_chPosEeg->empty() && !m_facesEeg->empty() )
+    if( !m_digPoints->empty() && !m_chPosEeg->empty() && !m_facesEeg->empty() )
     {
         return true;
     }
@@ -550,17 +551,16 @@ bool WRtClient::preparePrototype( WLEMMeasurement* const emm )
         emm->setDevToFidTransformation( devToHead );
     }
 
-    if( m_digPoints.empty() )
+    if( m_digPoints->empty() )
     {
         const QList< FIFFLIB::FiffDigPoint >& digs = m_fiffInfo->dig;
-        m_digPoints.clear();
-        m_digPoints.reserve( digs.size() );
+        m_digPoints->clear();
         QList< FIFFLIB::FiffDigPoint >::ConstIterator it;
         for( it = digs.begin(); it != digs.end(); ++it )
         {
             const WPosition pos( it->r[0], it->r[1], it->r[2] );
             WLDigPoint dig( pos, it->kind, it->ident );
-            m_digPoints.push_back( dig );
+            m_digPoints->push_back( dig );
         }
         emm->setDigPoints( m_digPoints );
     }

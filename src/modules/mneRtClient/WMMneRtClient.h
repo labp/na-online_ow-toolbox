@@ -165,7 +165,7 @@ private:
     bool handleBemFileChanged( std::string fName );
 
     WPropFilename m_digPointsFile;
-    std::vector< WLDigPoint > m_digPoints;
+    std::list< WLDigPoint > m_digPoints;
     bool handleDigPointsFileChanged( std::string fName );
 
     WPropFilename m_lfEEGFile;

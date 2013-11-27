@@ -51,7 +51,7 @@ WLReaderDigPoints::~WLReaderDigPoints()
 {
 }
 
-WLReaderDigPoints::ReturnCode::Enum WLReaderDigPoints::read( std::vector< WLDigPoint >* const out )
+WLReaderDigPoints::ReturnCode::Enum WLReaderDigPoints::read( std::list< WLDigPoint >* const out )
 {
     QFile file( QString::fromStdString( m_fname ) );
 
@@ -100,7 +100,6 @@ WLReaderDigPoints::ReturnCode::Enum WLReaderDigPoints::read( std::vector< WLDigP
     wlog::debug( CLASS ) << "digPoints.size(): " << fiffDigs.size();
 
     out->clear();
-    out->reserve( fiffDigs.size() );
     QList< FiffDigPoint >::Iterator itDigs;
     for( itDigs = fiffDigs.begin(); itDigs != fiffDigs.end(); ++itDigs )
     {

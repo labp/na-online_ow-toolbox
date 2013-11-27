@@ -25,6 +25,7 @@
 #ifndef WRTCLIENT_H_
 #define WRTCLIENT_H_
 
+#include <list>
 #include <map>
 #include <string>
 #include <vector>
@@ -42,6 +43,7 @@
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
+#include "core/container/WLList.h"
 #include "core/data/WLDataTypes.h"
 #include "core/data/WLDigPoint.h"
 #include "core/data/WLEMMeasurement.h"
@@ -83,7 +85,7 @@ public:
     bool readData( WLEMMeasurement::SPtr& emmIn );
 
     // TODO(pieloth): Workaround for #227/#228
-    bool setDigPointsAndEEG( const std::vector< WLDigPoint >& digPoints );
+    bool setDigPointsAndEEG( const std::list< WLDigPoint >& digPoints );
 
 private:
     typedef std::vector< std::string > ChannelNamesT;
@@ -137,7 +139,7 @@ private:
 
     int m_blockSize;
 
-    std::vector< WLDigPoint > m_digPoints;
+    WLList< WLDigPoint >::SPtr m_digPoints;
 
     bool readEmd( WLEMData* const emd, const Eigen::RowVectorXi& picks, const Eigen::MatrixXf& rawData );
     WLEMDEEG::SPtr readEEG( const Eigen::MatrixXf& rawData );

@@ -26,7 +26,7 @@
 #define WLREADERDIGPOINTS_H_
 
 #include <string>
-#include <vector>
+#include <list>
 
 #include <boost/shared_ptr.hpp>
 
@@ -51,7 +51,7 @@ public:
     explicit WLReaderDigPoints( std::string fname );
     virtual ~WLReaderDigPoints();
 
-    ReturnCode::Enum read( std::vector< WLDigPoint >* const out );
+    ReturnCode::Enum read( std::list< WLDigPoint >* const out );
 };
 
 #endif  // WLREADERDIGPOINTS_H_

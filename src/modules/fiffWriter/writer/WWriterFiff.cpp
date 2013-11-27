@@ -189,16 +189,16 @@ bool WWriterFiff::beginFiff( const WLEMMeasurement* const emm )
 
 bool WWriterFiff::setDigPoint( FIFFLIB::FiffInfo* const info, const WLEMMeasurement* const emm )
 {
-    if( emm->getDigPoints().empty() )
+    if( emm->getDigPoints()->empty() )
     {
         wlog::debug( CLASS ) << "No digPoints to write!";
         return false;
     }
 
     QList<FiffDigPoint> digs;
-    const std::vector< WLDigPoint >& digPoints = emm->getDigPoints();
-    std::vector< WLDigPoint >::const_iterator it;
-    for( it = digPoints.begin(); it != digPoints.end(); ++it)
+    WLList< WLDigPoint >::ConstSPtr digPoints = emm->getDigPoints();
+    WLList< WLDigPoint >::const_iterator it;
+    for( it = digPoints->begin(); it != digPoints->end(); ++it)
     {
         FiffDigPoint digPoint;
         digPoint.ident = it->getIdent();

@@ -27,6 +27,7 @@
 #include <core/common/WLogger.h>
 
 #include "core/container/WLArrayList.h"
+#include "core/container/WLList.h"
 #include "core/data/WLDigPoint.h"
 #include "core/data/WLEMMBemBoundary.h"
 #include "core/data/WLEMMSubject.h"
@@ -128,10 +129,10 @@ bool WEEGSkinAlignment::extractFiducialPoints( WPosition* const lpa, WPosition* 
                 const WLEMMeasurement& emm )
 {
     WLTimeProfiler tp( CLASS, "extractFiducialPoints" );
-    std::vector< WLDigPoint > digPoints = emm.getDigPoints( WLDigPoint::PointType::CARDINAL );
+    WLList< WLDigPoint >::SPtr digPoints = emm.getDigPoints( WLDigPoint::PointType::CARDINAL );
     char count = 0;
-    std::vector< WLDigPoint >::const_iterator cit;
-    for( cit = digPoints.begin(); cit != digPoints.end() && count < 3; ++cit )
+    WLList< WLDigPoint >::const_iterator cit;
+    for( cit = digPoints->begin(); cit != digPoints->end() && count < 3; ++cit )
     {
         if( cit->checkCardinal( WLDigPoint::CardinalPoints::LPA ) )
         {

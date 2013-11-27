@@ -40,6 +40,7 @@
 #include <core/common/WAssert.h>
 
 #include "core/container/WLArrayList.h"
+#include "core/container/WLList.h"
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMSubject.h"
 #include "core/data/WLEMMEnumTypes.h"
@@ -89,14 +90,13 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
     LFIsotrak& isotrak = measinfo_in.GetLFIsotrak();
     LFArrayPtr< LFDigitisationPoint > &digPoints = isotrak.GetLFDigitisationPoint();
     boost::shared_ptr< std::vector< WVector3f > > itPos( new std::vector< WVector3f >() );
-    std::vector< WLDigPoint > digPointsOut;
-    digPointsOut.reserve( digPoints.size() );
+    WLList< WLDigPoint >::SPtr digPointsOut( new WLList< WLDigPoint >() );
     for( LFArrayPtr< LFDigitisationPoint >::size_type i = 0; i < digPoints.size(); ++i )
     {
         itPos->push_back( WVector3f( digPoints[i]->GetRr()[0], digPoints[i]->GetRr()[1], digPoints[i]->GetRr()[2] ) );
         const WPosition pos( digPoints[i]->GetRr()[0], digPoints[i]->GetRr()[1], digPoints[i]->GetRr()[2] );
         const WLDigPoint digPoint( pos, digPoints[i]->GetKind(), digPoints[i]->GetIdent() );
-        digPointsOut.push_back( digPoint );
+        digPointsOut->push_back( digPoint );
     }
     subject_out->setIsotrak( itPos );
     out->setDigPoints( digPointsOut );
