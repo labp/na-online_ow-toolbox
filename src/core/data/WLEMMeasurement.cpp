@@ -50,7 +50,7 @@ WLEMMeasurement::WLEMMeasurement()
     m_subject.reset( new LaBP::WLEMMSubject() );
     m_profiler.reset( new WLLifetimeProfiler( CLASS, "lifetime" ) );
 
-    m_digPoints = WLList<WLDigPoint>::instance();
+    m_digPoints = WLList< WLDigPoint >::instance();
 }
 
 WLEMMeasurement::WLEMMeasurement( LaBP::WLEMMSubject::SPtr subject )
@@ -60,7 +60,7 @@ WLEMMeasurement::WLEMMeasurement( LaBP::WLEMMSubject::SPtr subject )
     m_subject = subject;
     m_eventChannels.reset( new EDataT() );
     m_profiler.reset( new WLLifetimeProfiler( CLASS, "lifetime" ) );
-    m_digPoints = WLList<WLDigPoint>::instance();
+    m_digPoints = WLList< WLDigPoint >::instance();
 }
 
 WLEMMeasurement::WLEMMeasurement( const WLEMMeasurement& emm )
@@ -282,7 +282,7 @@ void WLEMMeasurement::setDigPoints( WLList< WLDigPoint >::SPtr digPoints )
 
 WLList< WLDigPoint >::SPtr WLEMMeasurement::getDigPoints( WLDigPoint::PointType::Enum kind ) const
 {
-    WLList< WLDigPoint >::SPtr digForKind;
+    WLList< WLDigPoint >::SPtr digForKind( new WLList< WLDigPoint >() );
     WLList< WLDigPoint >::const_iterator cit;
     for( cit = m_digPoints->begin(); cit != m_digPoints->end(); ++cit )
     {
