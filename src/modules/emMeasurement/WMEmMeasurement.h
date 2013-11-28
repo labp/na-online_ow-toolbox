@@ -40,7 +40,6 @@
 #include "core/data/WLEMMSurface.h"
 #include "core/data/WLEMMBemBoundary.h"
 #include "core/data/WLDataTypes.h"
-#include "core/module/WLModuleInputDataRingBuffer.h"
 
 #include "core/module/WLModuleDrawable.h"
 
@@ -120,8 +119,6 @@ private:
     //! a condition for the matrix selection
     WCondition::SPtr m_propCondition;
 
-    LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input;
-
     // FIFF file //
     void streamData();
 
@@ -197,9 +194,6 @@ private:
     bool readElc( std::string fname );
 
     bool m_isElcLoaded;
-
-    bool m_hasLeadfield;
-    WLMatrix::SPtr m_leadfield;
 
     WPropFilename m_elcFile;
 
