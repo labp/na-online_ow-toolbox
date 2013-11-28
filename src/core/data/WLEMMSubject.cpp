@@ -147,7 +147,15 @@ WLEMMSurface::SPtr WLEMMSubject::getSurface( WLEMMSurface::Hemisphere::Enum hemi
 
 WLEMMSurface::ConstSPtr WLEMMSubject::getSurface( WLEMMSurface::Hemisphere::Enum hemisphere ) const
 {
-    return getSurface( hemisphere );
+    // FIX(pieloth): Do not call getSurface to reduce redundant code -> atom loop.
+    if( m_surfaces.find( hemisphere ) != m_surfaces.end() )
+    {
+        return m_surfaces.find( hemisphere )->second;
+    }
+    else
+    {
+        throw WNotFound( "Requested surface not found!" );
+    }
 }
 
 void WLEMMSubject::setSurface( WLEMMSurface::SPtr surface )
@@ -169,7 +177,15 @@ WLMatrix::SPtr WLEMMSubject::getLeadfield( WEModalityType::Enum modality )
 
 WLMatrix::ConstSPtr WLEMMSubject::getLeadfield( WEModalityType::Enum modality ) const
 {
-    return getLeadfield( modality );
+    // FIX(pieloth): Do not call getLeadfield to reduce redundant code -> atom loop.
+    if( m_leadfields.find( modality ) != m_leadfields.end() )
+    {
+        return m_leadfields.find( modality )->second;
+    }
+    else
+    {
+        throw WNotFound( "Requested leadfield not found!" );
+    }
 }
 
 void WLEMMSubject::setLeadfield( WEModalityType::Enum modality, WLMatrix::SPtr leadfield )
