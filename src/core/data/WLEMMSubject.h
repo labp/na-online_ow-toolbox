@@ -29,132 +29,137 @@
 #include <string>
 
 #include <boost/shared_ptr.hpp>
-#include <boost/date_time.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
+// TODO(pieloth): Deactivated - no setter for birthday
+//#include <boost/date_time.hpp>
+//#include <boost/date_time/posix_time/posix_time.hpp>
 #include <Eigen/Core>
 
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
+
+#include "core/container/WLArrayList.h"
+#include "core/container/WLList.h"
 
 #include "WLDataTypes.h"
 #include "WLEMMEnumTypes.h"
 #include "WLEMMSurface.h"
 #include "WLEMMBemBoundary.h"
 
-namespace LaBP
+class WLEMMSubject
 {
-    class WLEMMSubject
-    {
-    public:
-        /**
-         * Abbreviation for a shared pointer.
-         */
-        typedef boost::shared_ptr< WLEMMSubject > SPtr;
+public:
+    /**
+     * Abbreviation for a shared pointer.
+     */
+    typedef boost::shared_ptr< WLEMMSubject > SPtr;
 
-        /**
-         * Abbreviation for const shared pointer.
-         */
-        typedef boost::shared_ptr< const WLEMMSubject > ConstSPtr;
+    /**
+     * Abbreviation for const shared pointer.
+     */
+    typedef boost::shared_ptr< const WLEMMSubject > ConstSPtr;
 
-        /**
-         *
-         */
-        WLEMMSubject();
+    /**
+     *
+     */
+    WLEMMSubject();
 
-        /**
-         *
-         */
-        virtual ~WLEMMSubject();
+    /**
+     *
+     */
+    virtual ~WLEMMSubject();
 
-        std::string getName();
-        void setName( std::string name );
+    std::string getName();
+    void setName( std::string name );
 
-        boost::shared_ptr< boost::gregorian::date > getBirthday();
+    // TODO(pieloth): Deactivated - no setter for birthday
+//        boost::gregorian::date getBirthday();
 
-        LaBP::WESex::Enum getSex();
-        void setSex( LaBP::WESex::Enum sex );
+    LaBP::WESex::Enum getSex();
+    void setSex( LaBP::WESex::Enum sex );
 
-        LaBP::WEHand::Enum getHand();
-        void setHand( LaBP::WEHand::Enum hand );
+    LaBP::WEHand::Enum getHand();
+    void setHand( LaBP::WEHand::Enum hand );
 
-        float getHeight();
-        void setHeight( float height );
+    float getHeight();
+    void setHeight( float height );
 
-        float getWeight();
-        void setWeight( float weight );
+    float getWeight();
+    void setWeight( float weight );
 
-        std::string getComment();
-        void setComment( std::string comment );
+    std::string getComment();
+    void setComment( std::string comment );
 
-        std::string getHisId();
-        void setHisId( std::string hisId );
+    std::string getHisId();
+    void setHisId( std::string hisId );
 
-        std::vector< WVector3f >& getIsotrak();
-        void setIsotrak( boost::shared_ptr< std::vector< WVector3f > > isotrak );
+    WLArrayList< WVector3f >::SPtr getIsotrak();
+    WLArrayList< WVector3f >::ConstSPtr getIsotrak() const;
+    void setIsotrak( WLArrayList< WVector3f >::SPtr isotrak );
 
-        WLEMMSurface& getSurface( WLEMMSurface::Hemisphere::Enum hemisphere ) const;
-        void setSurface( WLEMMSurface::SPtr surface );
+    LaBP::WLEMMSurface::SPtr getSurface( LaBP::WLEMMSurface::Hemisphere::Enum hemisphere );
+    LaBP::WLEMMSurface::ConstSPtr getSurface( LaBP::WLEMMSurface::Hemisphere::Enum hemisphere ) const;
+    void setSurface( LaBP::WLEMMSurface::SPtr surface );
 
-        std::vector< WLEMMBemBoundary::SPtr >& getBemBoundaries() const;
-        void setBemBoundaries( boost::shared_ptr< std::vector< WLEMMBemBoundary::SPtr > > bemBoundaries );
+    WLList< LaBP::WLEMMBemBoundary::SPtr >::SPtr getBemBoundaries();
+    WLList< LaBP::WLEMMBemBoundary::SPtr >::ConstSPtr getBemBoundaries() const;
+    void setBemBoundaries( WLList< LaBP::WLEMMBemBoundary::SPtr >::SPtr bemBoundaries );
 
-        WLMatrix::MatrixT& getLeadfield( WEModalityType::Enum modality ) const;
-        void setLeadfield( WEModalityType::Enum modality, WLMatrix::SPtr leadfield );
+    WLMatrix::SPtr getLeadfield( LaBP::WEModalityType::Enum modality );
+    WLMatrix::ConstSPtr getLeadfield( LaBP::WEModalityType::Enum modality ) const;
+    void setLeadfield( LaBP::WEModalityType::Enum modality, WLMatrix::SPtr leadfield );
 
-    private:
+private:
+    WLArrayList< WVector3f >::SPtr m_isotrak;
 
-        boost::shared_ptr< std::vector< WVector3f > > m_isotrak;
+    /**
+     * name of the subject
+     */
+    std::string m_name;
 
-        /**
-         * name of the subject
-         */
-        std::string m_name;
+    // TODO(pieloth): Deactivated - no setter for birthday
+//        /**
+//         * date of birth of subject
+//         */
+//        boost::gregorian::date m_birthday;
 
-        /**
-         * date of birth of subject
-         */
-        boost::shared_ptr< boost::gregorian::date > m_birthday;
+    /**
+     * sex determines whether subject is male, female, or another sex
+     */
+    LaBP::WESex::Enum m_sex;
 
-        /**
-         * sex determines whether subject is male, female, or another sex
-         */
-        LaBP::WESex::Enum m_sex;
+    /**
+     * hand determines whether subject is left-, right- or both-handed
+     */
+    LaBP::WEHand::Enum m_hand;
 
-        /**
-         * hand determines whether subject is left-, right- or both-handed
-         */
-        LaBP::WEHand::Enum m_hand;
+    /**
+     * height of subject in m
+     */
+    float m_height;
 
-        /**
-         * height of subject in m
-         */
-        float m_height;
+    /**
+     * weight of subject in kg
+     */
+    float m_weight;
 
-        /**
-         * weight of subject in kg
-         */
-        float m_weight;
+    /**
+     * comment about subject
+     */
+    std::string m_comment;
 
-        /**
-         * comment about subject
-         */
-        std::string m_comment;
+    /**
+     * ID used in the Hospital Information System
+     */
+    std::string m_hisId;
 
-        /**
-         * ID used in the Hospital Information System
-         */
-        std::string m_hisId;
+    std::map< LaBP::WLEMMSurface::Hemisphere::Enum, LaBP::WLEMMSurface::SPtr > m_surfaces;
 
-        std::map< WLEMMSurface::Hemisphere::Enum, WLEMMSurface::SPtr > m_surfaces;
+    std::map< LaBP::WEModalityType::Enum, WLMatrix::SPtr > m_leadfields;
 
-        std::map< WEModalityType::Enum, WLMatrix::SPtr > m_leadfields;
+    WLList< LaBP::WLEMMBemBoundary::SPtr >::SPtr m_bemBoundaries;
 
-        boost::shared_ptr< std::vector< WLEMMBemBoundary::SPtr > > m_bemBoundaries;
-
-        // TODO(fuchs): felder ergänzen
-        //      leadfield
-        //      volume conductor description
-        //      evtl. head digitization
-    };
-}
+    // TODO(fuchs): felder ergänzen
+    //      volume conductor description
+    //      evtl. head digitization
+};
 
 #endif  // WLEMMSUBJECT_H

@@ -33,6 +33,7 @@
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 #include <core/common/WPropertyTypes.h>
 
+#include "core/container/WLList.h"
 #include "core/data/WLEMMCommand.h"
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMSubject.h"
@@ -238,7 +239,7 @@ private:
 
     WPropFilename m_volFile;
 
-    boost::shared_ptr< std::vector< LaBP::WLEMMBemBoundary::SPtr > > m_volBoundaries;
+    WLList< LaBP::WLEMMBemBoundary::SPtr >::SPtr m_volBoundaries;
 
     WPropString m_volFileStatus;
 
@@ -246,7 +247,7 @@ private:
 
     // Experiment loader //
     WPropGroup m_propGrpExperiment;
-    LaBP::WLEMMSubject::SPtr m_subject;
+    WLEMMSubject::SPtr m_subject;
     bool m_isExpLoaded;
 
     void extractExpLoader( std::string fiffFile );

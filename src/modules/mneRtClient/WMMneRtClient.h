@@ -32,6 +32,7 @@
 
 #include <core/common/WPropertyTypes.h>
 
+#include "core/container/WLList.h"
 #include "core/data/WLDataTypes.h"
 #include "core/data/WLEMMCommand.h"
 #include "core/data/WLEMMSurface.h"
@@ -161,7 +162,7 @@ private:
     bool handleSurfaceFileChanged( std::string fName );
 
     WPropFilename m_bemFile;
-    boost::shared_ptr< std::vector< LaBP::WLEMMBemBoundary::SPtr > > m_bems;
+    WLList< LaBP::WLEMMBemBoundary::SPtr >::SPtr m_bems;
     bool handleBemFileChanged( std::string fName );
 
     WPropFilename m_digPointsFile;
@@ -176,7 +177,7 @@ private:
 
     WPropString m_additionalStatus;
 
-    LaBP::WLEMMSubject::SPtr m_subject;
+    WLEMMSubject::SPtr m_subject;
 
     // File status strings //
     static const std::string DATA_NOT_LOADED;

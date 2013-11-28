@@ -64,6 +64,7 @@
 #include "WMEmMeasurement.xpm"
 
 using std::string;
+using namespace LaBP;
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMEmMeasurement )
@@ -492,7 +493,7 @@ void WMEmMeasurement::generateData()
             a *= r / m;
             b *= r / m;
             c *= r / m;
-            eeg->getChannelPositions3d()->push_back( WPosition( a, b, abs( c ) ) * 0.001);
+            eeg->getChannelPositions3d()->push_back( WPosition( a, b, abs( c ) ) * 0.001 );
             eeg->getData().row( chan ) = channel;
         }
 
@@ -712,8 +713,8 @@ bool WMEmMeasurement::readVol( std::string fname )
         return false;
     }
 
-    m_volBoundaries.reset( new std::vector< boost::shared_ptr< LaBP::WLEMMBemBoundary > >() );
-    if( reader->read( m_volBoundaries ) == LaBP::WLReaderVOL::ReturnCode::SUCCESS )
+    m_volBoundaries = WLList< WLEMMBemBoundary::SPtr >::instance();
+    if( reader->read( m_volBoundaries.get() ) == LaBP::WLReaderVOL::ReturnCode::SUCCESS )
     {
         m_volBoundaryCount->set( m_volBoundaries->size(), true );
         m_volFileStatus->set( FILE_LOADED, true );
@@ -770,7 +771,7 @@ void WMEmMeasurement::handleExperimentLoadChanged()
     bool rc = false;
     m_expLoadStatus->set( LOADING_DATA, true );
 
-    m_subject.reset( new LaBP::WLEMMSubject() );
+    m_subject.reset( new WLEMMSubject() );
 
     const string bemFile = m_expBemFilesSelection->get().at( 0 )->getAs< WItemSelectionItemTyped< string > >()->getValue();
     rc |= m_expReader->readBem( bemFile, m_subject );

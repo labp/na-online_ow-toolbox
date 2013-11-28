@@ -52,23 +52,23 @@ public:
     WLReaderExperiment( std::string experimentPath, std::string subject ) throw( WDHNoSuchFile );
     virtual ~WLReaderExperiment();
 
-    static boost::filesystem::path getExperimentRootFromFiff(boost::filesystem::path fiffFile);
-    static std::string getSubjectFromFiff(boost::filesystem::path fiffFile);
-    static std::string getTrialFromFiff(boost::filesystem::path fiffFile);
+    static boost::filesystem::path getExperimentRootFromFiff( boost::filesystem::path fiffFile );
+    static std::string getSubjectFromFiff( boost::filesystem::path fiffFile );
+    static std::string getTrialFromFiff( boost::filesystem::path fiffFile );
 
     // BEM Layer //
     std::set< std::string > findBems();
-    bool readBem( std::string fname, LaBP::WLEMMSubject::SPtr subject ); // TODO evt return code
+    bool readBem( std::string fname, WLEMMSubject::SPtr subject ); // TODO evt return code
 
     // Source Space //
     std::set< std::string > findSurfaceKinds(); // TODO evt. Enum als Rückgabe
-    bool readSourceSpace( std::string surfaceKind, LaBP::WLEMMSubject::SPtr subject ); // TODO evt return code
+    bool readSourceSpace( std::string surfaceKind, WLEMMSubject::SPtr subject ); // TODO evt return code
 
     // Leadfield //
     std::set< std::string > findLeadfieldTrials();
-    bool readLeadFields( std::string surface, std::string bemName, std::string trial, LaBP::WLEMMSubject::SPtr subject );
+    bool readLeadFields( std::string surface, std::string bemName, std::string trial, WLEMMSubject::SPtr subject );
     bool readLeadField( std::string surface, std::string bemName, std::string trial, std::string modality,
-                    LaBP::WLEMMSubject::SPtr subject );
+                    WLEMMSubject::SPtr subject );
     bool readLeadFieldMat( const std::string& fName, WLMatrix::SPtr& matrix );
     bool readLeadFieldFiff( const std::string& fName, WLMatrix::SPtr& matrix );
 

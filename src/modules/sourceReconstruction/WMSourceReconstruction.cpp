@@ -366,7 +366,7 @@ bool WMSourceReconstruction::inverseSolutionFromSubject( WLEMMeasurement::SPtr e
 {
     WLTimeProfiler tp( "WMSourceReconstruction", "inverseSolutionFromSubject" );
     debugLog() << "inverseSolutionFromSubject() called!";
-    LaBP::WLEMMSubject::SPtr subject = emm->getSubject();
+    WLEMMSubject::SPtr subject = emm->getSubject();
     if( !subject )
     {
         m_leadfieldStatus->set( WMSourceReconstruction::NO_MATRIX_LOADED, true );
@@ -377,7 +377,7 @@ bool WMSourceReconstruction::inverseSolutionFromSubject( WLEMMeasurement::SPtr e
     WLMatrix::SPtr leadfield;
     try
     {
-        leadfield.reset( new MatrixT( subject->getLeadfield( modality ) ) );
+        leadfield = subject->getLeadfield( modality );
     }
     catch( const WException& ex )
     {

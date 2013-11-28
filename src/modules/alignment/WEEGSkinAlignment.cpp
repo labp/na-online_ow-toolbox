@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <list>
 #include <vector>
 
 #include <core/common/WLogger.h>
@@ -165,8 +166,8 @@ bool WEEGSkinAlignment::extractBEMSkinPoints( PointsT* const out, const WLEMMeas
 {
     WLTimeProfiler tp( CLASS, "extractBEMSkinPoints" );
     WLEMMSubject::ConstSPtr subject = emm.getSubject();
-    const std::vector< WLEMMBemBoundary::SPtr >& bems = subject->getBemBoundaries();
-    std::vector< WLEMMBemBoundary::SPtr >::const_iterator itBem;
+    const std::list< WLEMMBemBoundary::SPtr >& bems = *subject->getBemBoundaries();
+    std::list< WLEMMBemBoundary::SPtr >::const_iterator itBem;
     WLEMMBemBoundary::ConstSPtr bemSkin;
     for( itBem = bems.begin(); itBem != bems.end(); ++itBem )
     {

@@ -198,11 +198,11 @@ bool WMCodeSnippets::writeEmdPositions( WLEMMeasurement::ConstSPtr emm )
     WLEMMSubject::ConstSPtr subject = emm->getSubject();
     try
     {
-        WLEMMSurface& surface = subject->getSurface( WLEMMSurface::Hemisphere::BOTH );
-        rc &= writeEmdPositions( *surface.getVertex(), "/tmp/positions_src.txt" );
+        WLEMMSurface::ConstSPtr surface = subject->getSurface( WLEMMSurface::Hemisphere::BOTH );
+        rc &= writeEmdPositions( *surface->getVertex(), "/tmp/positions_src.txt" );
 
-        vector< WLEMMBemBoundary::SPtr >& bems = subject->getBemBoundaries();
-        vector< WLEMMBemBoundary::SPtr >::const_iterator it = bems.begin();
+        const std::list< WLEMMBemBoundary::SPtr >& bems = *subject->getBemBoundaries();
+        std::list< WLEMMBemBoundary::SPtr >::const_iterator it = bems.begin();
         for( ; it != bems.end(); ++it )
         {
             if( ( *it )->getBemType() == WEBemType::OUTER_SKIN )

@@ -26,8 +26,8 @@
 #define WLREADERVOL_H_
 
 #include <fstream>
+#include <list>
 #include <string>
-#include <vector>
 
 #include <boost/shared_ptr.hpp>
 
@@ -52,17 +52,15 @@ namespace LaBP
         virtual ~WLReaderVOL()
         {
         }
-        ;
 
-        ReturnCode::Enum read( boost::shared_ptr< std::vector< boost::shared_ptr< WLEMMBemBoundary > > > boundaries );
+        ReturnCode::Enum read( std::list< WLEMMBemBoundary::SPtr >* const boundaries );
 
     private:
         ReturnCode::Enum readNumBoundaries( std::string& line, size_t& count );
         ReturnCode::Enum readConductUnit( std::string& line, WEUnit::Enum& unit );
-        ReturnCode::Enum readConductivities( std::ifstream& ifs,
-                        std::vector< boost::shared_ptr< WLEMMBemBoundary > >& boundaries );
+        ReturnCode::Enum readConductivities( std::ifstream& ifs, std::list< WLEMMBemBoundary::SPtr >* const boundaries );
         ReturnCode::Enum readBndFiles( std::ifstream& ifs, std::string& line,
-                        std::vector< boost::shared_ptr< WLEMMBemBoundary > >& boundaries );
+                        std::list< WLEMMBemBoundary::SPtr >* const boundaries );
     };
 }
 #endif /* WLREADERVOL_H_ */

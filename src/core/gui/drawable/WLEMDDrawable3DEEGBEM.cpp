@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <list>
+
 #include <core/common/WColor.h>
 #include <core/common/WLogger.h>
 #include <core/graphicsEngine/WTriangleMesh.h>
@@ -71,8 +73,8 @@ void WLEMDDrawable3DEEGBEM::osgNodeCallback( osg::NodeVisitor* nv )
     WLEMDEEG::ConstSPtr emd = emm->getModality< const WLEMDEEG >( WEModalityType::EEG );
 
     WLEMMSubject::ConstSPtr subject = emm->getSubject();
-    const std::vector< WLEMMBemBoundary::SPtr >& bems = subject->getBemBoundaries();
-    std::vector< WLEMMBemBoundary::SPtr >::const_iterator itBem;
+    const std::list< WLEMMBemBoundary::SPtr >& bems = *subject->getBemBoundaries();
+    std::list< WLEMMBemBoundary::SPtr >::const_iterator itBem;
     WLEMMBemBoundary::ConstSPtr bemSkin;
     for( itBem = bems.begin(); itBem != bems.end(); ++itBem )
     {
@@ -128,53 +130,53 @@ void WLEMDDrawable3DEEGBEM::osgAddNodes( const std::vector< WPosition >& positio
 }
 
 void WLEMDDrawable3DEEGBEM::osgAddSurface( const std::vector< WPosition >& positions, const std::vector< WVector3i >& faces )
+{
+    // draw head surface
+    if( m_surfaceChanged )
     {
-        // draw head surface
-        if( m_surfaceChanged )
+        m_rootGroup->removeChild( m_surfaceGeode );
+
+        const size_t nbPositions = positions.size();
+        std::vector< WPosition > scaledPos;
+        scaledPos.reserve( nbPositions );
+        for( size_t i = 0; i < nbPositions; ++i )
         {
-            m_rootGroup->removeChild( m_surfaceGeode );
-
-            const size_t nbPositions = positions.size();
-            std::vector< WPosition > scaledPos;
-            scaledPos.reserve( nbPositions );
-            for( size_t i = 0; i < nbPositions; ++i )
-            {
-                scaledPos.push_back( positions[i] * m_zoomFactor );
-            }
-            boost::shared_ptr< WTriangleMesh > tri;
-            if( faces.size() > 0 )
-            {
-                osg::ref_ptr< osg::Vec3Array > vertices = wge::osgVec3Array( scaledPos );
-                std::vector< size_t > triangles;
-                triangles.resize( faces.size() * 3 );
-
-                for( size_t i = 0; i < faces.size(); ++i )
-                {
-                    triangles.push_back( faces.at( i ).x() );
-                    triangles.push_back( faces.at( i ).y() );
-                    triangles.push_back( faces.at( i ).z() );
-                }
-
-                tri = boost::shared_ptr< WTriangleMesh >( new WTriangleMesh( vertices, triangles ) );
-                m_surfaceGeometry = wge::convertToOsgGeometry( tri, defaultColor::LIGHTYELLOW, true );
-            }
-            else
-            {
-                tri = wge::triangulate( scaledPos, -0.005 );
-                m_surfaceGeometry = wge::convertToOsgGeometry( tri, defaultColor::LIGHTYELLOW, true );
-            }
-            osg::ref_ptr< osg::Vec4Array > colors = new osg::Vec4Array;
-            colors->push_back( osg::Vec4( defaultColor::LIGHTYELLOW ) );
-            m_surfaceGeometry->setColorArray( colors );
-            m_surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
-            m_surfaceGeometry->setStateSet( m_state );
-            osg::ref_ptr< osg::FloatArray > texCoords = new osg::FloatArray;
-            texCoords->assign( nbPositions, 0.5f );
-            m_surfaceGeometry->setTexCoordArray( 0, texCoords );
-            m_surfaceGeometry->setDataVariance( osg::Object::DYNAMIC );
-
-            m_surfaceGeode = new osg::Geode;
-            m_surfaceGeode->addDrawable( m_surfaceGeometry );
-            m_rootGroup->addChild( m_surfaceGeode );
+            scaledPos.push_back( positions[i] * m_zoomFactor );
         }
+        boost::shared_ptr< WTriangleMesh > tri;
+        if( faces.size() > 0 )
+        {
+            osg::ref_ptr< osg::Vec3Array > vertices = wge::osgVec3Array( scaledPos );
+            std::vector< size_t > triangles;
+            triangles.resize( faces.size() * 3 );
+
+            for( size_t i = 0; i < faces.size(); ++i )
+            {
+                triangles.push_back( faces.at( i ).x() );
+                triangles.push_back( faces.at( i ).y() );
+                triangles.push_back( faces.at( i ).z() );
+            }
+
+            tri = boost::shared_ptr< WTriangleMesh >( new WTriangleMesh( vertices, triangles ) );
+            m_surfaceGeometry = wge::convertToOsgGeometry( tri, defaultColor::LIGHTYELLOW, true );
+        }
+        else
+        {
+            tri = wge::triangulate( scaledPos, -0.005 );
+            m_surfaceGeometry = wge::convertToOsgGeometry( tri, defaultColor::LIGHTYELLOW, true );
+        }
+        osg::ref_ptr< osg::Vec4Array > colors = new osg::Vec4Array;
+        colors->push_back( osg::Vec4( defaultColor::LIGHTYELLOW ) );
+        m_surfaceGeometry->setColorArray( colors );
+        m_surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+        m_surfaceGeometry->setStateSet( m_state );
+        osg::ref_ptr< osg::FloatArray > texCoords = new osg::FloatArray;
+        texCoords->assign( nbPositions, 0.5f );
+        m_surfaceGeometry->setTexCoordArray( 0, texCoords );
+        m_surfaceGeometry->setDataVariance( osg::Object::DYNAMIC );
+
+        m_surfaceGeode = new osg::Geode;
+        m_surfaceGeode->addDrawable( m_surfaceGeometry );
+        m_rootGroup->addChild( m_surfaceGeode );
     }
+}

@@ -75,7 +75,7 @@ public:
     /**
      * TODO(kaehler): Comments
      */
-    explicit WLEMMeasurement( LaBP::WLEMMSubject::SPtr subject );
+    explicit WLEMMeasurement( WLEMMSubject::SPtr subject );
 
     /**
      * copy constructor, makes a shallow copy from object except the data vector
@@ -206,14 +206,14 @@ public:
      *
      * \return Experimenter as string
      */
-    LaBP::WLEMMSubject::SPtr getSubject();
+    WLEMMSubject::SPtr getSubject();
 
     /**
      * getter for subject
      *
      * \return Experimenter as string
      */
-    LaBP::WLEMMSubject::ConstSPtr getSubject() const;
+    WLEMMSubject::ConstSPtr getSubject() const;
 
     /**
      * setter for experimenter
@@ -234,7 +234,7 @@ public:
      *
      * \param subject Experimenter as string
      */
-    void setSubject( LaBP::WLEMMSubject::SPtr subject );
+    void setSubject( WLEMMSubject::SPtr subject );
 
     /**
      * Returns the event/stimuli channels.
@@ -302,7 +302,7 @@ private:
     /**
      * subject information
      */
-    LaBP::WLEMMSubject::SPtr m_subject;
+    WLEMMSubject::SPtr m_subject;
 
     /**
      * Event/Stimuli channels

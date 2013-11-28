@@ -70,7 +70,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
         return getReturnCode( ret );
 
     // Set subject information
-    LaBP::WLEMMSubject::SPtr subject_out( new LaBP::WLEMMSubject() );
+    WLEMMSubject::SPtr subject_out( new WLEMMSubject() );
     ReturnCode::Enum rc = Read( subject_out );
     if( rc != ReturnCode::SUCCESS )
         return rc;
@@ -89,7 +89,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
     // Read Isotrak
     LFIsotrak& isotrak = measinfo_in.GetLFIsotrak();
     LFArrayPtr< LFDigitisationPoint > &digPoints = isotrak.GetLFDigitisationPoint();
-    boost::shared_ptr< std::vector< WVector3f > > itPos( new std::vector< WVector3f >() );
+    WLArrayList< WVector3f >::SPtr itPos( new WLArrayList< WVector3f >() );
     WLList< WLDigPoint >::SPtr digPointsOut( new WLList< WLDigPoint >() );
     for( LFArrayPtr< LFDigitisationPoint >::size_type i = 0; i < digPoints.size(); ++i )
     {
@@ -320,7 +320,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
     return getReturnCode( ret );
 }
 
-WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( LaBP::WLEMMSubject::SPtr out )
+WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMSubject::SPtr out )
 {
     LFSubject data;
     returncode_t ret = LFInterface::fiffRead( data, m_fname.data() );

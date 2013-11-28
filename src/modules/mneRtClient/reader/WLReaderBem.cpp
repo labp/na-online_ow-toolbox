@@ -49,7 +49,7 @@ WLReaderBem::~WLReaderBem()
 {
 }
 
-bool WLReaderBem::read( std::vector< LaBP::WLEMMBemBoundary::SPtr >* const bems )
+bool WLReaderBem::read( std::list< LaBP::WLEMMBemBoundary::SPtr >* const bems )
 {
     QFile file( QString::fromStdString( m_fname ) );
     QList< MNESurface::SPtr > surfaces;

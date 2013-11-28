@@ -40,6 +40,8 @@
 
 #include "WLEMMeasurement.h"
 
+using namespace LaBP;
+
 const std::string WLEMMeasurement::CLASS = "WLEMMeasurement";
 
 WLEMMeasurement::WLEMMeasurement()
@@ -47,13 +49,13 @@ WLEMMeasurement::WLEMMeasurement()
     m_transDevToFid.setIdentity();
     m_transFidToACPC.setIdentity();
     m_eventChannels.reset( new EDataT() );
-    m_subject.reset( new LaBP::WLEMMSubject() );
+    m_subject.reset( new WLEMMSubject() );
     m_profiler.reset( new WLLifetimeProfiler( CLASS, "lifetime" ) );
 
     m_digPoints = WLList< WLDigPoint >::instance();
 }
 
-WLEMMeasurement::WLEMMeasurement( LaBP::WLEMMSubject::SPtr subject )
+WLEMMeasurement::WLEMMeasurement( WLEMMSubject::SPtr subject )
 {
     m_transDevToFid.setIdentity();
     m_transFidToACPC.setIdentity();
@@ -126,12 +128,12 @@ std::string WLEMMeasurement::getExpDescription() const
     return m_expDescription;
 }
 
-LaBP::WLEMMSubject::SPtr WLEMMeasurement::getSubject()
+WLEMMSubject::SPtr WLEMMeasurement::getSubject()
 {
     return m_subject;
 }
 
-LaBP::WLEMMSubject::ConstSPtr WLEMMeasurement::getSubject() const
+WLEMMSubject::ConstSPtr WLEMMeasurement::getSubject() const
 {
     return m_subject;
 }
@@ -220,7 +222,7 @@ void WLEMMeasurement::setExpDescription( std::string expDescription )
     m_expDescription = expDescription;
 }
 
-void WLEMMeasurement::setSubject( LaBP::WLEMMSubject::SPtr subject )
+void WLEMMeasurement::setSubject( WLEMMSubject::SPtr subject )
 {
     m_subject = subject;
 }
