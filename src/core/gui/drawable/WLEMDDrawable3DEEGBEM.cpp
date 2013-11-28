@@ -86,8 +86,8 @@ void WLEMDDrawable3DEEGBEM::osgNodeCallback( osg::NodeVisitor* nv )
     }
 
     std::vector< WPosition > bemPositions;
-    WLGeometry::toBaseExponent( &bemPositions, bemSkin->getVertex(), bemSkin->getVertexExponent() );
-    const std::vector< WVector3i >& bemFaces = bemSkin->getFaces();
+    WLGeometry::toBaseExponent( &bemPositions, *bemSkin->getVertex(), bemSkin->getVertexExponent() );
+    const std::vector< WVector3i >& bemFaces = *bemSkin->getFaces();
 
     osgAddSurface( bemPositions, bemFaces );
 

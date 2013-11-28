@@ -99,9 +99,9 @@ public:
     WLEMMSurface::ConstSPtr getSurface( WLEMMSurface::Hemisphere::Enum hemisphere ) const;
     void setSurface( WLEMMSurface::SPtr surface );
 
-    WLList< LaBP::WLEMMBemBoundary::SPtr >::SPtr getBemBoundaries();
-    WLList< LaBP::WLEMMBemBoundary::SPtr >::ConstSPtr getBemBoundaries() const;
-    void setBemBoundaries( WLList< LaBP::WLEMMBemBoundary::SPtr >::SPtr bemBoundaries );
+    WLList< WLEMMBemBoundary::SPtr >::SPtr getBemBoundaries();
+    WLList< WLEMMBemBoundary::SPtr >::ConstSPtr getBemBoundaries() const;
+    void setBemBoundaries( WLList< WLEMMBemBoundary::SPtr >::SPtr bemBoundaries );
 
     WLMatrix::SPtr getLeadfield( LaBP::WEModalityType::Enum modality );
     WLMatrix::ConstSPtr getLeadfield( LaBP::WEModalityType::Enum modality ) const;
@@ -155,7 +155,7 @@ private:
 
     std::map< LaBP::WEModalityType::Enum, WLMatrix::SPtr > m_leadfields;
 
-    WLList< LaBP::WLEMMBemBoundary::SPtr >::SPtr m_bemBoundaries;
+    WLList< WLEMMBemBoundary::SPtr >::SPtr m_bemBoundaries;
 
     // TODO(fuchs): felder ergänzen
     //      volume conductor description

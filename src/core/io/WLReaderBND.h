@@ -27,9 +27,6 @@
 
 #include <fstream>
 #include <string>
-#include <vector>
-
-#include <boost/shared_ptr.hpp>
 
 #include "core/data/WLEMMBemBoundary.h"
 #include "core/io/WLReader.h"
@@ -47,15 +44,15 @@ namespace LaBP
          */
         explicit WLReaderBND( std::string fname );
 
-        ReturnCode::Enum read( boost::shared_ptr< WLEMMBemBoundary > boundary );
+        ReturnCode::Enum read( WLEMMBemBoundary::SPtr boundary );
 
     private:
-        ReturnCode::Enum readType( std::string& line, boost::shared_ptr< WLEMMBemBoundary > boundary );
-        ReturnCode::Enum readUnit( std::string& line, boost::shared_ptr< WLEMMBemBoundary > boundary );
+        ReturnCode::Enum readType( std::string& line, WLEMMBemBoundary::SPtr boundary );
+        ReturnCode::Enum readUnit( std::string& line, WLEMMBemBoundary::SPtr boundary );
         ReturnCode::Enum readNumPos( std::string& line, size_t& count );
         ReturnCode::Enum readNumPoly( std::string& line, size_t& count );
-        ReturnCode::Enum readPositions( std::ifstream& ifs, size_t count, boost::shared_ptr< WLEMMBemBoundary > boundary );
-        ReturnCode::Enum readPolygons( std::ifstream& ifs, size_t count, boost::shared_ptr< WLEMMBemBoundary > boundary );
+        ReturnCode::Enum readPositions( std::ifstream& ifs, size_t count, WLEMMBemBoundary::SPtr boundary );
+        ReturnCode::Enum readPolygons( std::ifstream& ifs, size_t count, WLEMMBemBoundary::SPtr boundary );
     };
 }
 #endif /* WLREADERBND_H_ */

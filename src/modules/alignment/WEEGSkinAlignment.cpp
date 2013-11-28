@@ -183,7 +183,7 @@ bool WEEGSkinAlignment::extractBEMSkinPoints( PointsT* const out, const WLEMMeas
         return false;
     }
 
-    const std::vector< WPosition >& bemPosition = bemSkin->getVertex();
+    const std::vector< WPosition >& bemPosition = *bemSkin->getVertex();
     WPosition::ValueType min = std::numeric_limits< WPosition::ValueType >::max();
     WPosition::ValueType max = std::numeric_limits< WPosition::ValueType >::min();
     std::vector< WPosition >::const_iterator itPos;

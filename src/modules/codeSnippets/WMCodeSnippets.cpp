@@ -202,12 +202,12 @@ bool WMCodeSnippets::writeEmdPositions( WLEMMeasurement::ConstSPtr emm )
         rc &= writeEmdPositions( *surface->getVertex(), "/tmp/positions_src.txt" );
 
         const std::list< WLEMMBemBoundary::SPtr >& bems = *subject->getBemBoundaries();
-        std::list< WLEMMBemBoundary::SPtr >::const_iterator it = bems.begin();
-        for( ; it != bems.end(); ++it )
+        std::list< WLEMMBemBoundary::SPtr >::const_iterator it;
+        for( it = bems.begin(); it != bems.end(); ++it )
         {
             if( ( *it )->getBemType() == WEBemType::OUTER_SKIN )
             {
-                const vector< WPosition >& pos = ( *it )->getVertex();
+                const vector< WPosition >& pos = *( *it )->getVertex();
                 rc &= writeEmdPositions( pos, "/tmp/positions_skin.txt" );
                 break;
             }

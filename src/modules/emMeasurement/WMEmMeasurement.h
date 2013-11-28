@@ -239,7 +239,7 @@ private:
 
     WPropFilename m_volFile;
 
-    WLList< LaBP::WLEMMBemBoundary::SPtr >::SPtr m_volBoundaries;
+    WLList< WLEMMBemBoundary::SPtr >::SPtr m_volBoundaries;
 
     WPropString m_volFileStatus;
 

@@ -162,7 +162,7 @@ private:
     bool handleSurfaceFileChanged( std::string fName );
 
     WPropFilename m_bemFile;
-    WLList< LaBP::WLEMMBemBoundary::SPtr >::SPtr m_bems;
+    WLList< WLEMMBemBoundary::SPtr >::SPtr m_bems;
     bool handleBemFileChanged( std::string fName );
 
     WPropFilename m_digPointsFile;

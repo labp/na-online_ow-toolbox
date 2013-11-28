@@ -33,6 +33,8 @@
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
+#include "core/container/WLArrayList.h"
+
 #include "WLReaderBem.h"
 
 using namespace MNELIB;
@@ -49,7 +51,7 @@ WLReaderBem::~WLReaderBem()
 {
 }
 
-bool WLReaderBem::read( std::list< LaBP::WLEMMBemBoundary::SPtr >* const bems )
+bool WLReaderBem::read( std::list< WLEMMBemBoundary::SPtr >* const bems )
 {
     QFile file( QString::fromStdString( m_fname ) );
     QList< MNESurface::SPtr > surfaces;
@@ -66,7 +68,7 @@ bool WLReaderBem::read( std::list< LaBP::WLEMMBemBoundary::SPtr >* const bems )
         bem->setBemType( getTypeFromBemId( ( *it )->id ) );
         bem->setConductivity( ( *it )->sigma );
 
-        boost::shared_ptr< std::vector< WPosition > > vertex( new std::vector< WPosition > );
+        WLArrayList< WPosition >::SPtr vertex( new WLArrayList< WPosition > );
         const MNESurface::PointsT::Index nr_ver = ( *it )->rr.cols();
         const double factor = 1000;
         vertex->reserve( nr_ver );
@@ -79,7 +81,7 @@ bool WLReaderBem::read( std::list< LaBP::WLEMMBemBoundary::SPtr >* const bems )
         bem->setVertexExponent( WEExponent::MILLI );
         bem->setVertexUnit( WEUnit::METER );
 
-        boost::shared_ptr< std::vector< WVector3i > > faces( new std::vector< WVector3i > );
+        WLArrayList< WVector3i >::SPtr faces( new WLArrayList< WVector3i > );
         const MNESurface::PointsT::Index nr_tri = ( *it )->tris.cols();
         faces->reserve( nr_tri );
         for( MNESurface::TrianglesT::Index i = 0; i < nr_tri; ++i )
