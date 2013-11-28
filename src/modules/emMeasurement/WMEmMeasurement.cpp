@@ -676,9 +676,9 @@ bool WMEmMeasurement::readDip( std::string fname )
         stream.clear();
         stream.str( "" );
         stream << "DIP faces: ";
-        for( size_t i = 0; i < 5 && i < m_dipSurface->getFaces().size(); ++i )
+        for( size_t i = 0; i < 5 && i < m_dipSurface->getFaces()->size(); ++i )
         {
-            stream << m_dipSurface->getFaces().at( i ) << " ";
+            stream << m_dipSurface->getFaces()->at( i ) << " ";
         }
         debugLog() << stream.str();
 #endif // DEBUG
