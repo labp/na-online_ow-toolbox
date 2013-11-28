@@ -657,11 +657,11 @@ bool WMEmMeasurement::readDip( std::string fname )
         return false;
     }
 
-    m_dipSurface.reset( new LaBP::WLEMMSurface() );
+    m_dipSurface.reset( new WLEMMSurface() );
     if( reader->read( m_dipSurface ) == LaBP::WLReaderDIP::ReturnCode::SUCCESS )
     {
         m_dipPositionCount->set( m_dipSurface->getVertex()->size(), true );
-        m_dipFacesCount->set( m_dipSurface->getFaces().size(), true );
+        m_dipFacesCount->set( m_dipSurface->getFaces()->size(), true );
 
 #ifdef DEBUG
         debugLog() << "First data read from dip file ... ";

@@ -95,9 +95,9 @@ public:
     WLArrayList< WVector3f >::ConstSPtr getIsotrak() const;
     void setIsotrak( WLArrayList< WVector3f >::SPtr isotrak );
 
-    LaBP::WLEMMSurface::SPtr getSurface( LaBP::WLEMMSurface::Hemisphere::Enum hemisphere );
-    LaBP::WLEMMSurface::ConstSPtr getSurface( LaBP::WLEMMSurface::Hemisphere::Enum hemisphere ) const;
-    void setSurface( LaBP::WLEMMSurface::SPtr surface );
+    WLEMMSurface::SPtr getSurface( WLEMMSurface::Hemisphere::Enum hemisphere );
+    WLEMMSurface::ConstSPtr getSurface( WLEMMSurface::Hemisphere::Enum hemisphere ) const;
+    void setSurface( WLEMMSurface::SPtr surface );
 
     WLList< LaBP::WLEMMBemBoundary::SPtr >::SPtr getBemBoundaries();
     WLList< LaBP::WLEMMBemBoundary::SPtr >::ConstSPtr getBemBoundaries() const;
@@ -151,7 +151,7 @@ private:
      */
     std::string m_hisId;
 
-    std::map< LaBP::WLEMMSurface::Hemisphere::Enum, LaBP::WLEMMSurface::SPtr > m_surfaces;
+    std::map< WLEMMSurface::Hemisphere::Enum, WLEMMSurface::SPtr > m_surfaces;
 
     std::map< LaBP::WEModalityType::Enum, WLMatrix::SPtr > m_leadfields;
 

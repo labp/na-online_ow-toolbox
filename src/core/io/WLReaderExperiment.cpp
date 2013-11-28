@@ -40,6 +40,7 @@
 #include <core/common/WLogger.h>
 #include <core/dataHandler/exceptions/WDHNoSuchFile.h>
 
+#include "core/container/WLArrayList.h"
 #include "core/container/WLList.h"
 #include "core/data/WLDataTypes.h"
 #include "core/data/WLEMMBemBoundary.h"
@@ -326,21 +327,21 @@ bool WLReaderExperiment::readSourceSpace( std::string surfaceKind, WLEMMSubject:
     wlog::info( CLASS ) << "Combine left and right surface to BOTH.";
     WLEMMSurface::SPtr bothSurface( new WLEMMSurface( *rhSurface ) );
     bothSurface->setHemisphere( WLEMMSurface::Hemisphere::BOTH );
-    boost::shared_ptr< std::vector< WPosition > > bVertex = bothSurface->getVertex();
-    std::vector< WVector3i >& bFaces = bothSurface->getFaces();
+    WLArrayList< WPosition >::SPtr bVertex = bothSurface->getVertex();
+    WLArrayList< WVector3i >::SPtr bFaces = bothSurface->getFaces();
 
     bVertex->insert( bVertex->end(), lhSurface->getVertex()->begin(), lhSurface->getVertex()->end() );
     bVertex->insert( bVertex->end(), rhSurface->getVertex()->begin(), rhSurface->getVertex()->end() );
-    bFaces.insert( bFaces.end(), lhSurface->getFaces().begin(), lhSurface->getFaces().end() );
+    bFaces->insert( bFaces->end(), lhSurface->getFaces()->begin(), lhSurface->getFaces()->end() );
     // NOTE: remind offset of faces
     const int tmp = static_cast< int >( lhSurface->getVertex()->size() );
     WVector3i offset( tmp, tmp, tmp );
     WVector3i face;
-    for( std::vector< WVector3i >::const_iterator it = rhSurface->getFaces().begin(); it != rhSurface->getFaces().end(); ++it )
+    for( std::vector< WVector3i >::const_iterator it = rhSurface->getFaces()->begin(); it != rhSurface->getFaces()->end(); ++it )
     {
         face = *it;
         face += offset;
-        bFaces.push_back( face );
+        bFaces->push_back( face );
     }
     subject->setSurface( bothSurface );
     wlog::info( CLASS ) << "Successfully combine left and right surface!";

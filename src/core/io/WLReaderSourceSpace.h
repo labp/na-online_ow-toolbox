@@ -52,7 +52,7 @@ public:
     explicit WLReaderSourceSpace( std::string fname ) throw( WDHNoSuchFile );
     virtual ~WLReaderSourceSpace();
 
-    WLIOStatus::ioStatus_t read( LaBP::WLEMMSurface::SPtr& surface );
+    WLIOStatus::ioStatus_t read( WLEMMSurface::SPtr& surface );
 };
 
 #endif  // WLREADERSOURCESPACE_H_

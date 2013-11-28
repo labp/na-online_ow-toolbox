@@ -224,7 +224,7 @@ private:
 
     WPropFilename m_dipFile;
 
-    LaBP::WLEMMSurface::SPtr m_dipSurface;
+    WLEMMSurface::SPtr m_dipSurface;
 
     WPropString m_dipFileStatus;
 

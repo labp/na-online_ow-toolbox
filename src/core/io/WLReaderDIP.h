@@ -27,9 +27,7 @@
 
 #include <fstream>
 #include <string>
-#include <vector>
 
-#include <boost/shared_ptr.hpp>
 
 #include "core/data/WLEMMSurface.h"
 
@@ -48,14 +46,14 @@ namespace LaBP
          */
         explicit WLReaderDIP( std::string fname );
 
-        ReturnCode::Enum read( boost::shared_ptr< WLEMMSurface > surface );
+        ReturnCode::Enum read( WLEMMSurface::SPtr surface );
 
     private:
-        ReturnCode::Enum readUnit( std::string& line, boost::shared_ptr< WLEMMSurface > surface );
+        ReturnCode::Enum readUnit( std::string& line, WLEMMSurface::SPtr surface );
         ReturnCode::Enum readNumPos( std::string& line, size_t& count );
         ReturnCode::Enum readNumPoly( std::string& line, size_t& count );
-        ReturnCode::Enum readPositions( std::ifstream& ifs, size_t count, boost::shared_ptr< WLEMMSurface > surface );
-        ReturnCode::Enum readPolygons( std::ifstream& ifs, size_t count, boost::shared_ptr< WLEMMSurface > surface );
+        ReturnCode::Enum readPositions( std::ifstream& ifs, size_t count, WLEMMSurface::SPtr surface );
+        ReturnCode::Enum readPolygons( std::ifstream& ifs, size_t count, WLEMMSurface::SPtr surface );
     };
 }
 #endif /* WLREADERDIP_H_ */

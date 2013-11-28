@@ -92,7 +92,7 @@ namespace LaBP
         WLEMMSurface::ConstSPtr surf = subject->getSurface( WLEMMSurface::Hemisphere::BOTH );
 
         m_zoomFactor = WEExponent::factor( surf->getVertexExponent() ) * 1000;
-        osgAddSurface( *surf->getVertex(), surf->getFaces() );
+        osgAddSurface( *surf->getVertex(), *surf->getFaces() );
 
         osgUpdateSurfaceColor( emd->getData() );
 

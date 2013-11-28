@@ -23,7 +23,6 @@
 //---------------------------------------------------------------------------
 
 #include <string>
-#include <vector>
 
 #include <fiff/fiff_dir_entry.h>
 #include <fiff/fiff_dir_tree.h>
@@ -37,11 +36,12 @@
 
 #include <core/common/WLogger.h>
 
+#include "core/container/WLArrayList.h"
+
 #include "WLReaderSourceSpace.h"
 
 using std::string;
 using std::vector;
-using LaBP::WLEMMSurface;
 using namespace FIFFLIB;
 using namespace MNELIB;
 using namespace LaBP;
@@ -114,7 +114,7 @@ WLIOStatus::ioStatus_t WLReaderSourceSpace::read( WLEMMSurface::SPtr& surface )
     const QString RH = "rh";
 
     // Append left and right hemispheres: BOTH = LH|RH
-    boost::shared_ptr< vector< WPosition > > pos( new vector< WPosition >() );
+    WLArrayList< WPosition >::SPtr pos( new WLArrayList< WPosition >() );
     pos->reserve( sourceSpace[LH].np + sourceSpace[RH].np );
     for( size_t i = 0; i < sourceSpace[LH].np; ++i )
     {
@@ -129,7 +129,7 @@ WLIOStatus::ioStatus_t WLReaderSourceSpace::read( WLEMMSurface::SPtr& surface )
     surface->setVertex( pos );
     wlog::info( CLASS ) << "Vertices: " << pos->size();
 
-    boost::shared_ptr< vector< WVector3i > > faces( new vector< WVector3i >() );
+    WLArrayList< WVector3i >::SPtr faces( new WLArrayList< WVector3i >() );
     faces->reserve( sourceSpace[LH].ntri + sourceSpace[RH].ntri );
     for( size_t i = 0; i < sourceSpace[LH].ntri; ++i )
     {

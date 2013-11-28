@@ -98,7 +98,7 @@ private:
     bool handleLfFileChanged();
 
     WPropFilename m_propSrcSpaceFile;
-    LaBP::WLEMMSurface::SPtr m_surface;
+    WLEMMSurface::SPtr m_surface;
     bool handleSurfaceFileChanged();
 
     // ***************
