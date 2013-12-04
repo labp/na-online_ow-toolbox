@@ -315,3 +315,14 @@ void WLEMMeasurement::setFidToACPCTransformation( const WLMatrix4::Matrix4T& mat
 {
     m_transFidToACPC = mat;
 }
+
+std::ostream& operator<<( std::ostream &strm, const WLEMMeasurement& obj )
+{
+    strm << WLEMMeasurement::CLASS << ": modalities=[";
+    for( size_t m = 0; m < obj.getModalityCount(); ++m )
+    {
+        strm << *obj.getModality( m ) << ", ";
+    }
+    strm << "]";
+    return strm;
+}

@@ -25,6 +25,7 @@
 #ifndef WLEMMEASUREMENT_H
 #define WLEMMEASUREMENT_H
 
+#include <ostream>
 #include <string>
 #include <utility>
 #include <vector>
@@ -315,5 +316,7 @@ private:
 
     WLMatrix4::Matrix4T m_transFidToACPC;
 };
+
+std::ostream& operator<<( std::ostream &strm, const WLEMMeasurement& obj );
 
 #endif  // WLEMMEASUREMENT_H

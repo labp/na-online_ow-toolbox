@@ -26,6 +26,7 @@
 #define WLEMDATA_H
 
 #include <cstddef>
+#include <ostream>
 #include <stdint.h>
 #include <string>
 
@@ -45,6 +46,8 @@
 class WLEMData: public boost::enable_shared_from_this< WLEMData >
 {
 public:
+    static const std::string CLASS;
+
     /**
      * Abbreviation for a shared pointer.
      */
@@ -341,5 +344,7 @@ protected:
 
     // TODO(fuchs): snr estimate or/and noise covariance matrix for source localisation
 };
+
+std::ostream& operator<<( std::ostream &strm, const WLEMData& obj );
 
 #endif  // WLEMDATA_H

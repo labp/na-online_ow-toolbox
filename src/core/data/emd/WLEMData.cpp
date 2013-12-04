@@ -34,6 +34,8 @@
 
 using namespace LaBP;
 
+const std::string WLEMData::CLASS = "WLEMData";
+
 WLEMData::WLEMData() :
                 boost::enable_shared_from_this< WLEMData >()
 {
@@ -266,5 +268,11 @@ std::string WLEMData::dataToString( const DataT& data, size_t maxChannels, size_
         ss << "Channel " << i << ": " << channelToString( data.row( i ), maxSamples ) << std::endl;
     }
     return ss.str();
+}
+
+std::ostream& operator<<( std::ostream &strm, const WLEMData& obj )
+{
+    strm << WLEMData::CLASS << "::" << WEModalityType::name( obj.getModalityType() ) << ": data=" << obj.getNrChans() << "x" << obj.getSamplesPerChan();
+    return strm;
 }
 
