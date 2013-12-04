@@ -25,6 +25,8 @@
 #ifndef WLEMDMEG_H
 #define WLEMDMEG_H
 
+#include <vector>
+
 #include <boost/shared_ptr.hpp>
 
 #include <core/common/WDefines.h> // OW_API_DEPRECATED
@@ -101,7 +103,24 @@ public:
     WLArrayList< WVector3f >::ConstSPtr getEz() const;
     void setEz( WLArrayList< WVector3f >::SPtr vec );
 
-    LaBP::WEGeneralCoilType::Enum getChannelType( size_t channelId ) const;
+    inline LaBP::WEGeneralCoilType::Enum getChannelType( size_t channelId ) const;
+
+    /**
+     * Returns the channels indices for the requested coil type.
+     *
+     * @param type Requested coil type
+     * @return An array of indices for the requested coil type
+     */
+    std::vector< size_t > getPicks( LaBP::WEGeneralCoilType::Enum type ) const;
+
+    /**
+     * Returns the data of the requested coil type.
+     * Due to the copy effort, getPicks() is recommended for channels wise processing.
+     *
+     * @param type Requested coil type
+     * @return New data containing all channels of the requested coil type
+     */
+    DataSPtr getData( LaBP::WEGeneralCoilType::Enum type ) const; // This is a copy of channels, so the data is not changed.
 
 private:
     WLArrayList< WPosition >::SPtr m_chanPos3d;
@@ -111,6 +130,9 @@ private:
     WLArrayList< WVector3f >::SPtr m_eX;
     WLArrayList< WVector3f >::SPtr m_eY;
     WLArrayList< WVector3f >::SPtr m_eZ;
+
+    mutable std::vector<size_t> m_picksMag; // mutable to reset the picks after a data change and lazy load.
+    mutable std::vector<size_t> m_picksGrad; // mutable to reset the picks after a data change and lazy load.
 
     /*
      * member contains absolute position of channel with coordinate system in this position
@@ -131,5 +153,20 @@ private:
      *        float m_freq;
      */
 };
+
+LaBP::WEGeneralCoilType::Enum WLEMDMEG::getChannelType( size_t channelId ) const
+{
+    WAssert( channelId < m_data->size(), "Index out of bounds!" );
+    // Sequence: GGMGGMGGM ... 01 2 34 5
+    if( channelId > 1 && ( channelId - 2 ) % 3 == 0 )
+    {
+        return LaBP::WEGeneralCoilType::MAGNETOMETER;
+    }
+    else
+    {
+        return LaBP::WEGeneralCoilType::GRADIOMETER;
+
+    }
+}
 
 #endif  // WLEMDMEG_H

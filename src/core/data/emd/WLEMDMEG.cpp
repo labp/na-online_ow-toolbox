@@ -33,6 +33,8 @@
 #include "WLEMData.h"
 #include "WLEMDMEG.h"
 
+using namespace LaBP;
+
 WLEMDMEG::WLEMDMEG() :
                 WLEMData()
 {
@@ -154,17 +156,63 @@ void WLEMDMEG::setEz( WLArrayList< WVector3f >::SPtr vec )
     m_eZ = vec;
 }
 
-LaBP::WEGeneralCoilType::Enum WLEMDMEG::getChannelType( size_t channelId ) const
+WLEMDMEG::DataSPtr WLEMDMEG::getData( WEGeneralCoilType::Enum type ) const
 {
-    WAssert( channelId < m_data->size(), "Index out of bounds!" );
-    // Sequence: GGMGGMGGM ... 01 2 34 5
-    if( channelId > 1 && ( channelId - 2 ) % 3 == 0 )
+    if( getNrChans() % 3 != 0 )
     {
-        return LaBP::WEGeneralCoilType::MAGNETOMETER;
+        return WLEMDMEG::DataSPtr( new WLEMDMEG::DataT );
     }
-    else
-    {
-        return LaBP::WEGeneralCoilType::GRADIOMETER;
 
+    std::vector< size_t > picks = getPicks( type );
+    WLEMDMEG::DataSPtr dataPtr( new WLEMDMEG::DataT( picks.size(), getSamplesPerChan() ) );
+    WLEMDMEG::DataT& data = *dataPtr;
+
+    size_t row = 0;
+    std::vector< size_t >::const_iterator it;
+    for( it = picks.begin(); it != picks.end(); ++it )
+    {
+        data.row( row++ ) = m_data->row( *it );
+    }
+
+    return dataPtr;
+}
+
+std::vector< size_t > WLEMDMEG::getPicks( WEGeneralCoilType::Enum type ) const
+{
+    if( m_picksMag.size() + m_picksGrad.size() != getNrChans() )
+    {
+        m_picksGrad.clear();
+        m_picksMag.clear();
+        const size_t rows = getNrChans();
+        if( rows % 3 != 0 )
+        {
+            return std::vector< size_t >(); // empty vector
+        }
+
+        m_picksMag.reserve( rows / 3 );
+        m_picksMag.reserve( ( rows / 3 ) * 2 );
+
+        for( size_t ch = 0; ch < rows; ++ch )
+        {
+            switch( getChannelType( ch ) )
+            {
+                case WEGeneralCoilType::MAGNETOMETER:
+                    m_picksMag.push_back( ch );
+                    break;
+                case WEGeneralCoilType::GRADIOMETER:
+                    m_picksGrad.push_back( ch );
+                    break;
+            }
+        }
+    }
+
+    switch( type )
+    {
+        case WEGeneralCoilType::MAGNETOMETER:
+            return m_picksMag;
+        case WEGeneralCoilType::GRADIOMETER:
+            return m_picksGrad;
+        default:
+            return std::vector< size_t >(); // empty vector
     }
 }
