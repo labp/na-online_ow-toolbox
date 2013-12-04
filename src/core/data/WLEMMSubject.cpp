@@ -22,24 +22,26 @@
 //
 //---------------------------------------------------------------------------
 
-#include <map>
-#include <string>
-#include <vector>
+#include "WLEMMSubject.h"
 
 #include <boost/shared_ptr.hpp>
-
 #include <core/common/exceptions/WNotFound.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
+#include <iostream>
+#include <map>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "WLDataTypes.h"
+#include "WLEMMBemBoundary.h"
 #include "WLEMMEnumTypes.h"
 #include "WLEMMSurface.h"
-#include "WLEMMBemBoundary.h"
-
-#include "WLEMMSubject.h"
 
 using WLMatrix::MatrixT;
 using namespace LaBP;
+
+const std::string WLEMMSubject::CLASS = "WLEMMSubject";
 
 WLEMMSubject::WLEMMSubject() :
                 m_weight( -1.0 ), m_sex( WESex::UNKNOWN ), m_height( -1.0 ), m_hand( WEHand::UNKNOWN )
@@ -206,4 +208,16 @@ WLList< WLEMMBemBoundary::SPtr >::ConstSPtr WLEMMSubject::getBemBoundaries() con
 void WLEMMSubject::setBemBoundaries( WLList< WLEMMBemBoundary::SPtr >::SPtr bemBoundaries )
 {
     m_bemBoundaries = bemBoundaries;
+}
+
+std::ostream& operator<<( std::ostream &strm, const WLEMMSubject& obj )
+{
+    strm << WLEMMSubject::CLASS << ": ";
+    strm << "surface[" << WLEMMSurface::Hemisphere::LEFT << "]=" << obj.hasSurface( WLEMMSurface::Hemisphere::LEFT );
+    strm << ", surface[" << WLEMMSurface::Hemisphere::RIGHT << "]=" << obj.hasSurface( WLEMMSurface::Hemisphere::RIGHT );
+    strm << ", leadfield[EEG]=" << obj.hasLeadfield( WEModalityType::EEG );
+    strm << ", leadfield[MEG]=" << obj.hasLeadfield( WEModalityType::MEG );
+    strm << ", BEMs=" << obj.getBemBoundaries()->size();
+    strm << ", isotrak=" << obj.getIsotrak()->size();
+    return strm;
 }

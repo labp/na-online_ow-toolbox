@@ -34,6 +34,8 @@
 
 using namespace LaBP;
 
+const std::string WLEMMBemBoundary::CLASS = "WLEMMBemBoundary";
+
 WLEMMBemBoundary::WLEMMBemBoundary()
 {
     setVertexUnit( WEUnit::UNKNOWN_UNIT );
@@ -127,4 +129,12 @@ LaBP::WEUnit::Enum WLEMMBemBoundary::getConductivityUnit() const
 void WLEMMBemBoundary::setConductivityUnit( WEUnit::Enum unit )
 {
     m_conductivityUnit = unit;
+}
+
+std::ostream& operator<<( std::ostream &strm, const WLEMMBemBoundary& obj )
+{
+    strm << WLEMMBemBoundary::CLASS << ": type=" << WEBemType::name( obj.getBemType() );
+    strm << ", vertices=" << obj.getVertex()->size();
+    strm << ", faces=" << obj.getFaces()->size();
+    return strm;
 }

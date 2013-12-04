@@ -26,6 +26,7 @@
 #define WLEMMSUBJECT_H
 
 #include <map>
+#include <ostream>
 #include <string>
 
 #include <boost/shared_ptr.hpp>
@@ -47,6 +48,8 @@
 class WLEMMSubject
 {
 public:
+    static const std::string CLASS;
+
     /**
      * Abbreviation for a shared pointer.
      */
@@ -95,6 +98,7 @@ public:
     WLArrayList< WVector3f >::ConstSPtr getIsotrak() const;
     void setIsotrak( WLArrayList< WVector3f >::SPtr isotrak );
 
+    inline bool hasSurface( WLEMMSurface::Hemisphere::Enum hemisphere ) const;
     WLEMMSurface::SPtr getSurface( WLEMMSurface::Hemisphere::Enum hemisphere );
     WLEMMSurface::ConstSPtr getSurface( WLEMMSurface::Hemisphere::Enum hemisphere ) const;
     void setSurface( WLEMMSurface::SPtr surface );
@@ -103,6 +107,7 @@ public:
     WLList< WLEMMBemBoundary::SPtr >::ConstSPtr getBemBoundaries() const;
     void setBemBoundaries( WLList< WLEMMBemBoundary::SPtr >::SPtr bemBoundaries );
 
+    inline bool hasLeadfield( LaBP::WEModalityType::Enum modality ) const;
     WLMatrix::SPtr getLeadfield( LaBP::WEModalityType::Enum modality );
     WLMatrix::ConstSPtr getLeadfield( LaBP::WEModalityType::Enum modality ) const;
     void setLeadfield( LaBP::WEModalityType::Enum modality, WLMatrix::SPtr leadfield );
@@ -161,5 +166,17 @@ private:
     //      volume conductor description
     //      evtl. head digitization
 };
+
+bool WLEMMSubject::hasSurface( WLEMMSurface::Hemisphere::Enum hemisphere ) const
+{
+    return m_surfaces.find( hemisphere ) != m_surfaces.end();
+}
+
+bool WLEMMSubject::hasLeadfield( LaBP::WEModalityType::Enum modality ) const
+{
+    return m_leadfields.find( modality ) != m_leadfields.end();
+}
+
+std::ostream& operator<<( std::ostream &strm, const WLEMMSubject& obj );
 
 #endif  // WLEMMSUBJECT_H

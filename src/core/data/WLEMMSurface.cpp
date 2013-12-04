@@ -34,6 +34,8 @@
 
 using namespace LaBP;
 
+const std::string WLEMMSurface::CLASS = "WLEMMSurface";
+
 WLEMMSurface::WLEMMSurface()
 {
     setVertexUnit( WEUnit::UNKNOWN_UNIT );
@@ -122,4 +124,12 @@ WLEMMSurface::Hemisphere::Enum WLEMMSurface::getHemisphere() const
 void WLEMMSurface::setHemisphere( Hemisphere::Enum val )
 {
     m_hemisphere = val;
+}
+
+std::ostream& operator<<( std::ostream &strm, const WLEMMSurface& obj )
+{
+    strm << WLEMMSurface::CLASS << ": hemisphere=" << obj.getHemisphere();
+    strm << ", vertices=" << obj.getVertex()->size();
+    strm << ", faces=" << obj.getFaces()->size();
+    return strm;
 }

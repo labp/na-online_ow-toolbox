@@ -25,6 +25,9 @@
 #ifndef WLEMMBEMBOUNDARY_H_
 #define WLEMMBEMBOUNDARY_H_
 
+#include <ostream>
+#include <string>
+
 #include <boost/shared_ptr.hpp>
 
 #include <core/common/math/linearAlgebra/WPosition.h>
@@ -36,6 +39,8 @@
 class WLEMMBemBoundary
 {
 public:
+    static const std::string CLASS;
+
     /**
      * Abbreviation for a shared pointer.
      */
@@ -84,5 +89,7 @@ private:
     float m_conductivity;
     LaBP::WEUnit::Enum m_conductivityUnit;
 };
+
+std::ostream& operator<<( std::ostream &strm, const WLEMMBemBoundary& obj );
 
 #endif /* WLEMMBEMBOUNDARY_H_ */

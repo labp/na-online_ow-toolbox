@@ -25,6 +25,9 @@
 #ifndef WLEMMSURFACE_H_
 #define WLEMMSURFACE_H_
 
+#include <ostream>
+#include <string>
+
 #include <boost/shared_ptr.hpp>
 
 #include <core/common/math/linearAlgebra/WPosition.h>
@@ -37,6 +40,8 @@
 class WLEMMSurface
 {
 public:
+    static const std::string CLASS;
+
     /**
      * Abbreviation for a shared pointer.
      */
@@ -90,5 +95,7 @@ private:
 
     WLArrayList< WVector3i >::SPtr m_faces;
 };
+
+std::ostream& operator<<( std::ostream &strm, const WLEMMSurface& obj );
 
 #endif  // WLEMMSURFACE_H_

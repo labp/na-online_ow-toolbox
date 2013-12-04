@@ -324,5 +324,7 @@ std::ostream& operator<<( std::ostream &strm, const WLEMMeasurement& obj )
         strm << *obj.getModality( m ) << ", ";
     }
     strm << "]";
+    strm << ", digPoints=" << obj.getDigPoints()->size();
+    strm << ", eventChannels=" << obj.getEventChannelCount();
     return strm;
 }
