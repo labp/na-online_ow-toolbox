@@ -25,6 +25,7 @@
 #ifndef WLEMDMEG_H
 #define WLEMDMEG_H
 
+#include <ostream>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
@@ -122,6 +123,8 @@ public:
      */
     DataSPtr getData( LaBP::WEGeneralCoilType::Enum type ) const; // This is a copy of channels, so the data is not changed.
 
+    using WLEMData::getData;
+
 private:
     WLArrayList< WPosition >::SPtr m_chanPos3d;
 
@@ -153,6 +156,8 @@ private:
      *        float m_freq;
      */
 };
+
+std::ostream& operator<<( std::ostream &strm, const WLEMDMEG& obj );
 
 LaBP::WEGeneralCoilType::Enum WLEMDMEG::getChannelType( size_t channelId ) const
 {

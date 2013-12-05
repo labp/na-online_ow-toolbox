@@ -25,6 +25,7 @@
 #ifndef WLEMDEEG_H
 #define WLEMDEEG_H
 
+#include <ostream>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
@@ -115,5 +116,7 @@ private:
      */
     LaBP::WEPolarityType::Enum m_polarityType;
 };
+
+std::ostream& operator<<( std::ostream &strm, const WLEMDEEG& obj );
 
 #endif  // WLEMDEEG_H

@@ -216,3 +216,12 @@ std::vector< size_t > WLEMDMEG::getPicks( WEGeneralCoilType::Enum type ) const
             return std::vector< size_t >(); // empty vector
     }
 }
+
+std::ostream& operator<<( std::ostream &strm, const WLEMDMEG& obj )
+{
+    const WLEMData& emd = static_cast< const WLEMData& >( obj );
+    strm << emd;
+    strm << ", positions=" << obj.getChannelPositions3d()->size();
+    strm << ", faces=" << obj.getFaces()->size();
+    return strm;
+}
