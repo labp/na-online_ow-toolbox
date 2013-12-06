@@ -22,23 +22,17 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WBadEpoch.h"
+#include "core/data/WLEMMEnumTypes.h"
 
-// -----------constructor-----------------------------------------------------------------------------------
+#include <modules/epochRejection/WThresholdMEG.h>
 
-WBadEpoch::WBadEpoch( WLEMMeasurement::ConstSPtr pEmm )
+WThresholdMEG::WThresholdMEG(LaBP::WEGeneralCoilType::Enum coilType, double value ) :
+                WThreshold( LaBP::WEModalityType::MEG, value )
 {
-    m_emm = pEmm;
+    m_coilType = coilType;
 }
 
-WBadEpoch::~WBadEpoch()
+LaBP::WEGeneralCoilType::Enum WThresholdMEG::getCoilType() const
 {
-
-}
-
-// -----------getter and setter-----------------------------------------------------------------------------
-
-WLEMMeasurement::ConstSPtr WBadEpoch::getEMM()
-{
-    return m_emm;
+    return m_coilType;
 }

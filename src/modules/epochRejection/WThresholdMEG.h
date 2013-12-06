@@ -22,38 +22,44 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WBADEPOCH_H_
-#define WBADEPOCH_H_
+#ifndef WTHRESHOLDMEG_H_
+#define WTHRESHOLDMEG_H_
 
-#include <boost/shared_ptr.hpp>
+#include "core/data/WLEMMEnumTypes.h"
 
-#include "core/data/WLEMMeasurement.h"
+#include "WThreshold.h"
 
-class WBadEpoch
+using namespace LaBP;
+
+/**
+ * This class is a subclass of Threshold to specialize the MEG modality for their special channels.
+ */
+class WThresholdMEG: public WThreshold
 {
 public:
 
     /**
-     * Constructor
+     * Constructor to create the threshold object.
+     *
+     * @param modalityType The modality type.
+     * @param coilType The coil type.
+     * @param value The threshold value.
      */
-    WBadEpoch(WLEMMeasurement::ConstSPtr);
+    WThresholdMEG( LaBP::WEGeneralCoilType::Enum coilType, double value );
 
     /**
-     * Destructor
+     * Gets the coil type.
+     *
+     * @return The coil type.
      */
-    virtual ~WBadEpoch();
+    LaBP::WEGeneralCoilType::Enum getCoilType() const;
+
+protected:
 
     /**
-     * Returns the const pointer to the EMM object.
+     * The coil type.
      */
-    WLEMMeasurement::ConstSPtr getEMM();
-
-private:
-
-    /**
-     * The EMM object to store.
-     */
-    WLEMMeasurement::ConstSPtr m_emm;
+    LaBP::WEGeneralCoilType::Enum m_coilType;
 };
 
-#endif /* WBADEPOCH_H_ */
+#endif /* WTHRESHOLDMEG_H_ */

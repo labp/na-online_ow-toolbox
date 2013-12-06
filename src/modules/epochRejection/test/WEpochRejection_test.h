@@ -47,7 +47,7 @@ public:
         WLEMDEEG::SPtr modality( new WLEMDEEG() );
         emd->addModality( createModality( 10, 10, 2, modality ) );
 
-        TS_ASSERT_EQUALS( true, reject->getRejection( emd ) );
+        TS_ASSERT_EQUALS( true, reject->doRejection( emd ) );
         TS_ASSERT_EQUALS( 1, reject->getCount() );
     }
 
@@ -66,7 +66,7 @@ public:
         WLEMDEEG::SPtr modality( new WLEMDEEG() );
         emd->addModality( createModality( 10, 10, 0, modality ) );
 
-        TS_ASSERT_EQUALS( false, reject->getRejection( emd ) );
+        TS_ASSERT_EQUALS( false, reject->doRejection( emd ) );
         TS_ASSERT_EQUALS( 0, reject->getCount() );
 
     }
@@ -89,7 +89,7 @@ public:
         emd->addModality( createModality( 10, 10, 0, eogMod ) );
         emd->addModality( createModality( 10, 10, 5, megMod ) );
 
-        TS_ASSERT_EQUALS( true, reject->getRejection( emd ) );
+        TS_ASSERT_EQUALS( true, reject->doRejection( emd ) );
         TS_ASSERT_EQUALS( 2, reject->getCount() );
     }
 
@@ -111,7 +111,7 @@ public:
         emd->addModality( createModality( 10, 10, 0, eogMod ) );
         emd->addModality( createModality( 10, 10, 0, megMod ) );
 
-        TS_ASSERT_EQUALS( false, reject->getRejection( emd ) );
+        TS_ASSERT_EQUALS( false, reject->doRejection( emd ) );
         TS_ASSERT_EQUALS( 0, reject->getCount() );
     }
 

@@ -25,25 +25,26 @@
 #ifndef WEPOCHREJECTION_H_
 #define WEPOCHREJECTION_H_
 
+#include <boost/enable_shared_from_this.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include "core/data/WLEMMeasurement.h"
 
-class WEpochRejection
+class WEpochRejection: public boost::enable_shared_from_this< WEpochRejection >
 {
 public:
 
     static const std::string CLASS;
 
     /**
+     * Abbreviation for a shared pointer.
+     */
+    typedef boost::shared_ptr< WEpochRejection > SPtr;
+
+    /**
      * Destructor
      */
     virtual ~WEpochRejection();
-
-    /**
-     * Method for reseting and initializing the process.
-     */
-    virtual void initRejection();
 
     /**
      * This method receives the processing thresholds.
@@ -56,7 +57,7 @@ public:
      *
      * \return A boolean value, which specifies, whether or not the input object has to reject.
      */
-    virtual bool getRejection( const WLEMMeasurement::SPtr emm ) = 0;
+    virtual bool doRejection( const WLEMMeasurement::ConstSPtr emm ) = 0;
 
     /**
      * Defines the number of rejections for the current input.
@@ -77,13 +78,15 @@ protected:
      */
     virtual bool validModality( LaBP::WEModalityType::Enum modalityType );
 
-    double m_eegLevel;
+    virtual double getThreshold( LaBP::WEModalityType::Enum modalityType, size_t channelNo);
 
-    double m_eogLevel;
+    double m_eegThreshold;
 
-    double m_megGrad;
+    double m_eogThreshold;
 
-    double m_megMag;
+    double m_megGradThreshold;
+
+    double m_megMagThreshold;
 
     size_t m_rejCount;
 };

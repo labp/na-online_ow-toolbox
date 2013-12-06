@@ -26,17 +26,28 @@
 #include <map>
 #include <string>
 #include <stdio.h>
+#include <exception>
+
+#include <boost/foreach.hpp>
 
 #include "core/common/WLogger.h"
+#include "core/data/WLEMMEnumTypes.h"
 
 #include "WThresholdParser.h"
+#include "WThreshold.h"
 
 /**
  * Constructor
  */
 WThresholdParser::WThresholdParser()
 {
+    m_list.reset( new std::list< WThreshold >() );
 
+    m_patterns.reset( new std::map< std::string, LaBP::WEModalityType::Enum >() );
+    m_patterns->insert( ModiMap::value_type( MODALITY_EEG, LaBP::WEModalityType::EEG ) );
+    m_patterns->insert( ModiMap::value_type( MODALITY_EOG, LaBP::WEModalityType::EOG ) );
+    m_patterns->insert( ModiMap::value_type( MODALITY_MEG_GRAD, LaBP::WEModalityType::MEG ) );
+    m_patterns->insert( ModiMap::value_type( MODALITY_MEG_MAG, LaBP::WEModalityType::MEG ) );
 }
 
 /**
@@ -52,67 +63,111 @@ WThresholdParser::~WThresholdParser()
  *
  * \param fname
  *          The file name to the thresholds.
- * \retrun
+ * \return
  *          return true, when the parsing was successful, else false.
  */
-bool WThresholdParser::parse(std::string fname)
+bool WThresholdParser::parse( std::string fname )
 {
     this->init(); // init the parser.
 
-    std::map<std::string,double> values;
+    std::map< std::string, double > values;
     const char separator = ' ';
     std::ifstream fstream;  // file-Handle
     std::string line;
     size_t lineCount = 0;
+    bool rc = false;
 
     wlog::debug( CLASS ) << "start parsing: " << fname;
 
     // check whether or not the file is a vaild .cfg file.
-    if(fname.find(".cfg") ==  std::string::npos)
+    if( fname.find( ".cfg" ) == std::string::npos )
     {
         wlog::debug( CLASS ) << "invalid file";
-        return false;
+        return rc;
     }
 
-    // open the given file
-    fstream.open(fname.c_str(), std::ifstream::in);
-
-    if(!fstream || fstream.bad()) // test the file status
-        wlog::debug( CLASS ) << "file not open";
-
-    wlog::debug( CLASS ) << "start reading file";
-
-    while ( fstream.good() ) // while find data
+    try
     {
-        getline(fstream, line); // get next line from file
 
-        lineCount++;
+        // open the given file
+        fstream.open( fname.c_str(), std::ifstream::in );
 
-        if(isValidLine(line)) // test read line
+        if( !fstream || fstream.bad() )  // test the file status
+            wlog::debug( CLASS ) << "file not open";
+
+        wlog::debug( CLASS ) << "start reading file";
+
+        while( fstream.good() )  // while find data
         {
-            if(line.find_first_of(separator) != std::string::npos)
-            {
-                // split the line at the separators position
-                std::string label = line.substr(0,line.find_first_of(separator));
-                std::string value = line.substr(line.find_first_of(separator) + 1);
+            getline( fstream, line ); // get next line from file
 
-                // insert the value and label to the map
-                values.insert(std::map<std::string,double>::value_type(label,fromString<double>(value)));
+            lineCount++;
+
+            if( isValidLine( line ) ) // test read line
+            {
+                if( line.find_first_of( separator ) != std::string::npos )
+                {
+                    // split the line at the separators position
+                    std::string label = line.substr( 0, line.find_first_of( separator ) );
+                    std::string value = line.substr( line.find_first_of( separator ) + 1 );
+
+                    // insert the value and label to the map
+                    values.insert( std::map< std::string, double >::value_type( label, fromString< double >( value ) ) );
+
+                    /*
+                     boost::shared_ptr< WThreshold > threshold;
+
+                     switch( m_patterns->find( label )->second )
+                     {
+                     case LaBP::WEModalityType::EEG:
+                     threshold.reset( new WThreshold( LaBP::WEModalityType::EEG, ::atof( value.c_str() ) ) );
+                     break;
+                     case LaBP::WEModalityType::EOG:
+                     threshold.reset( new WThreshold( LaBP::WEModalityType::EOG, ::atof( value.c_str() ) ) );
+                     break;
+                     case LaBP::WEModalityType::MEG:
+                     if( label == MODALITY_MEG_GRAD )
+                     {
+                     threshold.reset(
+                     new WThresholdMEG( LaBP::WEGeneralCoilType::GRADIOMETER,
+                     ::atof( value.c_str() ) ) );
+                     }
+                     else
+                     if( label == MODALITY_MEG_MAG )
+                     {
+                     threshold.reset(
+                     new WThresholdMEG( LaBP::WEGeneralCoilType::MAGNETOMETER,
+                     ::atof( value.c_str() ) ) );
+                     }
+                     break;
+                     default:
+                     break;
+                     }
+
+                     m_list->push_back( *threshold.get() ); // add threshold to the list
+                     */
+                }
             }
         }
+
+        wlog::debug( CLASS ) << "file closed: " << lineCount << " lines read.";
+
+        this->m_thresholds = values; // assign values to the global member.
+
+        rc = true;
+    }
+    catch( std::exception& e )
+    {
+        wlog::debug( CLASS ) << "error happened during parsing: " << e.what();
     }
 
-    wlog::debug( CLASS ) << "file closed: " << lineCount << " lines read.";
-
-    this->m_thresholds = values; // assign values to the global member.
-
-    return true;
+    return rc;
 }
 
 /**
  * Method to return the threshold list.
  */
-std::map<std::string,double> WThresholdParser::getThresholds()
+std::map< std::string, double > WThresholdParser::getThresholds()
 {
     return this->m_thresholds;
 }
@@ -128,38 +183,61 @@ void WThresholdParser::init()
 /**
  * Method to define whether or not a line has to parse.
  */
-bool WThresholdParser::isValidLine(std::string line)
+bool WThresholdParser::isValidLine( std::string line )
 {
-    size_t i;
-    const size_t patternsize = 4;
-
-    std::string pattern[patternsize];
-    pattern[0] = "gradReject";
-    pattern[1] = "magReject";
-    pattern[2] = "eegReject";
-    pattern[3] = "eogReject";
-
-    for(i = 0; i < patternsize; i++) // test string for all pattern
+    BOOST_FOREACH(ModiMap::value_type it , *m_patterns.get())
     {
-        if(line.find(pattern[i]) != std::string::npos)
-            return true; // one pattern matched
+        if( line.find( it.first ) != std::string::npos )
+            return true;
     }
 
-    return false; // no match
+    return false;
+
+    /*
+     size_t i;
+     const size_t patternsize = 4;
+
+     std::string pattern[patternsize];
+     pattern[0] = "gradReject";
+     pattern[1] = "magReject";
+     pattern[2] = "eegReject";
+     pattern[3] = "eogReject";
+
+     for( i = 0; i < patternsize; i++ ) // test string for all pattern
+     {
+     if( line.find( pattern[i] ) != std::string::npos )
+     return true; // one pattern matched
+     }
+
+     return false; // no match
+     */
 }
 
 /**
  * Method to convert a string in to the given data type.
  */
-template<class T> T WThresholdParser::fromString(const std::string& s)
+template< class T > T WThresholdParser::fromString( const std::string& s )
 {
-     std::istringstream stream (s);
-     T t;
-     stream >> t;
-     return t;
+    std::istringstream stream( s );
+    T t;
+    stream >> t;
+    return t;
+}
+
+boost::shared_ptr< std::list< WThreshold > > WThresholdParser::getThresholdList() const
+{
+    return m_list;
 }
 
 /**
  * Class name.
  */
 const std::string WThresholdParser::CLASS = "WThresholdParser";
+
+/**
+ * Modality type patterns.
+ */
+const std::string WThresholdParser::MODALITY_EEG = "eegReject";
+const std::string WThresholdParser::MODALITY_EOG = "eogReject";
+const std::string WThresholdParser::MODALITY_MEG_GRAD = "gradReject";
+const std::string WThresholdParser::MODALITY_MEG_MAG = "magReject";

@@ -22,48 +22,53 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WEPOCHREJECTIONTOTAL_H_
-#define WEPOCHREJECTIONTOTAL_H_
+#ifndef WTHRESHOLD_H_
+#define WTHRESHOLD_H_
 
-#include <boost/shared_ptr.hpp>
+#include "core/data/WLEMMEnumTypes.h"
 
-#include "core/data/WLEMMeasurement.h"
+using namespace LaBP;
 
-#include "WEpochRejection.h"
-
-class WEpochRejectionTotal: public WEpochRejection
+/**
+ * The class represents a threshold object specified by a modality type and a value.
+ */
+class WThreshold
 {
 public:
 
-    static const std::string CLASS;
-
     /**
-     * A shared pointer on the class.
-     */
-    typedef boost::shared_ptr< WEpochRejectionTotal > SPtr;
-
-    /**
-     * Constructor
-     */
-    WEpochRejectionTotal();
-
-    /**
-     * Destructor
-     */
-    ~WEpochRejectionTotal();
-
-    /**
-     * Proceeds the rejection of the all modalities for the given input based on the
-     * user defined level values.
+     * Constructs the new threshold object
      *
-     * \return A boolean value, which specifies, whether or not the input object has to reject.
+     * @param modalityType The modality.
+     * @param value The threshold.
      */
-    bool doRejection( const WLEMMeasurement::ConstSPtr emm );
+    WThreshold(LaBP::WEModalityType::Enum modalityType, double value);
 
-private:
+    /**
+     * Gets the threshold value.
+     *
+     * @return The threshold.
+     */
+    double getValue() const;
 
-    bool calcRejection( const WLEMData::DataT& data, float threshold );
+    /**
+     * Gets the modality type for the thresholds usage.
+     *
+     * @return The modality type.
+     */
+    LaBP::WEModalityType::Enum getModaliyType() const;
 
+protected:
+
+    /**
+     * Threshold value.
+     */
+    double m_value;
+
+    /**
+     * Threshold modality type.
+     */
+    LaBP::WEModalityType::Enum m_modalityType;
 };
 
-#endif /* WEPOCHREJECTIONTOTAL_H_ */
+#endif /* WTHRESHOLD_H_ */

@@ -22,48 +22,20 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WEPOCHREJECTIONTOTAL_H_
-#define WEPOCHREJECTIONTOTAL_H_
+#include <modules/epochRejection/WThreshold.h>
 
-#include <boost/shared_ptr.hpp>
-
-#include "core/data/WLEMMeasurement.h"
-
-#include "WEpochRejection.h"
-
-class WEpochRejectionTotal: public WEpochRejection
+WThreshold::WThreshold(LaBP::WEModalityType::Enum modalityType, double value)
 {
-public:
+    m_modalityType = modalityType;
+    m_value = value;
+}
 
-    static const std::string CLASS;
+double WThreshold::getValue() const
+{
+    return m_value;
+}
 
-    /**
-     * A shared pointer on the class.
-     */
-    typedef boost::shared_ptr< WEpochRejectionTotal > SPtr;
-
-    /**
-     * Constructor
-     */
-    WEpochRejectionTotal();
-
-    /**
-     * Destructor
-     */
-    ~WEpochRejectionTotal();
-
-    /**
-     * Proceeds the rejection of the all modalities for the given input based on the
-     * user defined level values.
-     *
-     * \return A boolean value, which specifies, whether or not the input object has to reject.
-     */
-    bool doRejection( const WLEMMeasurement::ConstSPtr emm );
-
-private:
-
-    bool calcRejection( const WLEMData::DataT& data, float threshold );
-
-};
-
-#endif /* WEPOCHREJECTIONTOTAL_H_ */
+LaBP::WEModalityType::Enum WThreshold::getModaliyType() const
+{
+    return m_modalityType;
+}

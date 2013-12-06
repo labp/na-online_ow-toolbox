@@ -27,6 +27,7 @@
 #include <typeinfo>
 #include <vector>
 
+#include <boost/foreach.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include <core/common/WItemSelectionItemTyped.h>
@@ -43,14 +44,17 @@
 
 #include "core/util/profiler/WLTimeProfiler.h"
 
-#include "WMEpochRejection.h"
-#include "WMEpochRejection.xpm"
+#include "WBadChannelManager.h"
 #include "WBadEpochManager.h"
+#include "WMEpochRejection.h"
 #include "WEpochRejection.h"
 #include "WEpochRejectionSingle.h"
+#include "WEpochRejectionTotal.h"
+
+#include "WMEpochRejection.xpm"
 
 // This line is needed by the module loader to actually find your module.
-W_LOADABLE_MODULE (WMEpochRejection)
+W_LOADABLE_MODULE( WMEpochRejection )
 
 WMEpochRejection::WMEpochRejection()
 {
@@ -155,6 +159,8 @@ void WMEpochRejection::moduleInit()
     m_epochCountValid->set( 0, true );
     m_epochCountInValid->set( 0, true );
 
+    //m_thresholdMap.reset( new std::map< LaBP::WEModalityType::Enum, WPropDouble& >() );
+
     viewInit( LaBP::WLEMDDrawable2D::WEGraphType::SINGLE );
 
     infoLog() << "Initializing module finished!";
@@ -168,10 +174,9 @@ void WMEpochRejection::moduleMain()
     m_moduleState.add( m_propCondition ); // when properties changed
 
     WLEMMCommand::SPtr emmIn;
-    //LaBP::WLTimeProfiler::SPtr profiler( new LaBP::WLTimeProfiler( getName(), "process" ) );
-    //LaBP::WLTimeProfiler::SPtr profilerIn;
 
-    m_rejecting.reset( new WEpochRejectionSingle() );
+    m_rejectingTotal.reset( new WEpochRejectionTotal() );
+    m_rejectingSingle.reset( new WEpochRejectionSingle() );
     m_parser.reset( new WThresholdParser() );
 
     ready(); // signal ready state
@@ -190,6 +195,8 @@ void WMEpochRejection::moduleMain()
             if( m_parser->parse( m_rejectFile->get().string() ) ) // start parsing the file
             {
                 assignNewValues( m_parser->getThresholds() ); // assign the parsed values to the members
+
+                //setThresholds( ( m_thresholds = m_parser->getThresholdList() ) );
 
                 m_rejectFileStatus->set( WMEpochRejection::FILE_LOADED, true ); // show success notification
             }
@@ -232,9 +239,108 @@ void WMEpochRejection::moduleMain()
     }
 }
 
-/**
- * Method to assign the parsed value to the property members. The properties will be updated in the view.
- */
+bool WMEpochRejection::processCompute( WLEMMeasurement::SPtr emmIn )
+{
+    WLTimeProfiler tp( "WMEpochRejection", "processCompute" );
+    WLEMMeasurement::SPtr emmOut;
+    bool rejected;
+
+    // show process visualization
+    boost::shared_ptr< WProgress > rejectProcess = boost::shared_ptr< WProgress >( new WProgress( "Check data for rejecting." ) );
+    m_progress->addSubProgress( rejectProcess );
+
+    // ---------- PROCESSING ----------
+    // transfer the output to the view
+    viewUpdate( emmIn ); // update the GUI component
+    m_epochCount->set( m_epochCount->get() + 1, true ); // count number of received inputs
+    m_rejectingTotal->setThresholds( m_eegThreshold->get(), m_eogThreshold->get(), m_megGradThreshold->get(),
+                    m_megMagThreshold->get() ); // serve parameter for processing
+    m_rejectingSingle->setThresholds( m_eegThreshold->get(), m_eogThreshold->get(), m_megGradThreshold->get(),
+                    m_megMagThreshold->get() );
+
+    // apply rejected channels to the new EMD object
+    if( !WBadChannelManager::instance()->isMapEmpty() )
+    {
+        for( size_t i = 0; i < emmIn->getModalityCount(); ++i )
+        {
+            LaBP::WEModalityType::Enum modality = emmIn->getModality( i )->getModalityType();
+
+            emmIn->getModality( i )->setBadChannels( WBadChannelManager::instance()->getChannelList( modality ) );
+        }
+    }
+    rejected = m_rejectingTotal->doRejection( emmIn ); // call the rejection process on the input
+
+    // deliver to output-connector if there was no failure
+    if( rejected == false )
+    {
+        upadteOutput( emmIn );
+    }
+    else // In case of rejecting, every channel of the epoch has to test.
+    {
+        // store the epoch in the module
+        WBadEpochManager::instance()->getBuffer()->push_back( emmIn );
+
+        bool singleReject = singleReject = m_rejectingSingle->doRejection( emmIn );
+
+        if( singleReject )
+        {
+            // new bad channel found -> check stored epochs again
+            if( m_rejectingSingle->isBadChannelUpdated() )
+            {
+                WBadEpochManager::CircBuff::iterator it = WBadEpochManager::instance()->getBuffer()->begin();
+
+                // iterate all stored epochs
+                while( it != WBadEpochManager::instance()->getBuffer()->end() )
+                {
+                    if( !m_rejectingTotal->doRejection( *it ) ) // if there is no rejection
+                    {
+                        upadteOutput( *it ); // update output connector
+
+                        WBadEpochManager::instance()->getBuffer()->erase( it++ ); // delete the epoch after transfer to the next module
+                    }
+                    else
+                    {
+                        ++it;
+                    }
+                }
+            }
+        }
+        else
+        {
+            upadteOutput( emmIn );
+        }
+
+        m_epochCountInValid->set( m_epochCountInValid->get() + 1, true );
+    }
+
+    rejectProcess->finish(); // finish the process visualization
+
+    return true;
+}
+
+bool WMEpochRejection::processInit( WLEMMCommand::SPtr labp )
+{
+    m_output->updateData( labp );
+    return false;
+}
+
+bool WMEpochRejection::processReset( WLEMMCommand::SPtr labp )
+{
+    m_output->updateData( labp );
+    return false;
+}
+
+void WMEpochRejection::upadteOutput( WLEMMeasurement::SPtr emm )
+{
+    WLEMMCommand::SPtr cmd( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
+    cmd->setEmm( emm );
+
+    m_output->updateData( cmd ); // update the output-connector after processing
+    m_epochCountValid->set( m_epochCountValid->get() + 1, true ); // update valid epoch counter
+
+    debugLog() << "output connector updated";
+}
+
 void WMEpochRejection::assignNewValues( std::map< std::string, double > valueList )
 {
     // iterate all thresholds
@@ -260,9 +366,34 @@ void WMEpochRejection::assignNewValues( std::map< std::string, double > valueLis
     }
 }
 
-/**
- * Test a given String for a string pattern and return the equivalent enum object for better testing.
- */
+void WMEpochRejection::setThresholds( boost::shared_ptr< std::list< WThreshold > > thresholdList )
+{
+    BOOST_FOREACH(WThreshold threshold, *thresholdList.get())
+    {
+        /*
+         switch( threshold.getModaliyType() )
+         {
+         case LaBP::WEModalityType::EEG:
+         m_eegThreshold->set( threshold.getValue(), true );
+         break;
+         case LaBP::WEModalityType::EOG:
+         m_eogThreshold->set( threshold.getValue(), true );
+         break;
+         case LaBP::WEModalityType::MEG:
+         if(threshold != WThresholdMEG) break;
+         if( ( ( WThresholdMEG )threshold ).getCoilType() == LaBP::WEGeneralCoilType::MAGNETOMETER )
+         m_megMagThreshold->set( threshold.getValue(), true );
+         else
+         if( ( ( WThresholdMEG )threshold ).getCoilType() == LaBP::WEGeneralCoilType::GRADIOMETER )
+         m_megGradThreshold->set( threshold.getValue(), true );
+         break;
+         default:
+         break;
+         }
+         */
+    }
+}
+
 WMEpochRejection::modality_code WMEpochRejection::hashit( std::string const& inString )
 {
     if( inString == WMEpochRejection::EEG_LABEL )
@@ -277,86 +408,13 @@ WMEpochRejection::modality_code WMEpochRejection::hashit( std::string const& inS
     return eNULL;
 }
 
-bool WMEpochRejection::processCompute( WLEMMeasurement::SPtr emmIn )
-{
-    WLTimeProfiler tp( "WMEpochRejection", "processCompute" );
-    WLEMMeasurement::SPtr emmOut;
-    bool rejected;
-
-    // show process visualization
-    boost::shared_ptr< WProgress > rejectProcess = boost::shared_ptr< WProgress >( new WProgress( "Check data for rejecting." ) );
-    m_progress->addSubProgress( rejectProcess );
-
-    // time profiler for the main loop
-    /*
-     profilerIn = emmIn->getTimeProfiler()->clone();
-     profilerIn->stop();
-     profiler->addChild( profilerIn );
-     if( !profiler->isStarted() )
-     {
-     profiler->start();
-     }
-     */
-    // TimeProfiler to measure the processing time
-//            LaBP::WLTimeProfiler::SPtr rejProfiler = profiler->createAndAdd( WEpochRejection::CLASS, "rejecting" );
-//            rejProfiler->start();
-    // ---------- PROCESSING ----------
-    m_rejecting->initRejection();
-    m_rejecting->setThresholds( m_eegThreshold->get(), m_eogThreshold->get(), m_megGradThreshold->get(),
-                    m_megMagThreshold->get() ); // serve parameter for processing
-
-    rejected = m_rejecting->getRejection( emmIn ); // call the rejection process on the input
-
-//            rejProfiler->stopAndLog(); // stop process profiler
-
-    m_epochCount->set( m_epochCount->get() + 1, true ); // count number of received inputs
-
-    rejectProcess->finish(); // finish the process visualization
-
-    // transfer the output to the view
-    viewUpdate( emmIn ); // update the GUI component
-
-    // deliver to output-connector if there was no failure
-    if( rejected == false )
-    {
-        WLEMMCommand::SPtr cmd( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
-        cmd->setEmm( emmIn );
-
-        m_output->updateData( cmd ); // update the output-connector after processing
-        m_epochCountValid->set( m_epochCountValid->get() + 1, true );
-        debugLog() << "output connector updated";
-    }
-    else
-    {
-        // In case of rejecting the epoch, the single channels of the epoch have to test.
-
-        //WInvalidEpochManager::instance()->addEpoch( emmIn );
-
-        m_epochCountInValid->set( m_epochCountInValid->get() + 1, true );
-    }
-
-    return true;
-}
-
-bool WMEpochRejection::processInit( WLEMMCommand::SPtr labp )
-{
-    m_output->updateData( labp );
-    return false;
-}
-
-bool WMEpochRejection::processReset( WLEMMCommand::SPtr labp )
-{
-    m_output->updateData( labp );
-    return false;
-}
-
 // file status messages
 const std::string WMEpochRejection::NO_FILE_LOADED = "No file loaded.";
 const std::string WMEpochRejection::LOADING_FILE = "Loading file ...";
 const std::string WMEpochRejection::FILE_LOADED = "File successfully loaded.";
 const std::string WMEpochRejection::FILE_ERROR = "Could not load file.";
 
-// define standard values for the thresholds
+// default thresholds
 const double WMEpochRejection::EEG_THRESHOLD = 150e-6;
 const double WMEpochRejection::EOG_THRESHOLD = 80e-6;
 const double WMEpochRejection::MEG_MAG_THRESHOLD = 4e-12;

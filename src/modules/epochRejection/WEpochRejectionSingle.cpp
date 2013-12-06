@@ -37,6 +37,7 @@ const std::string WEpochRejectionSingle::CLASS = "WEpochRejectionSingle";
 WEpochRejectionSingle::WEpochRejectionSingle() :
                 WEpochRejection::WEpochRejection()
 {
+    m_BadChannelUpdated = false;
 }
 
 /**
@@ -46,24 +47,30 @@ WEpochRejectionSingle::~WEpochRejectionSingle()
 {
 }
 
+bool WEpochRejectionSingle::isBadChannelUpdated() const
+{
+    return m_BadChannelUpdated;
+}
+
 /**
  * Method to process the rejection on the data.
  */
-bool WEpochRejectionSingle::getRejection( const WLEMMeasurement::SPtr emm )
+bool WEpochRejectionSingle::doRejection( const WLEMMeasurement::ConstSPtr emm )
 {
     WLTimeProfiler tp( "WEpochRejectionSingle", "getRejection" );
     wlog::debug( CLASS ) << "starting single channel rejection";
 
     m_rejCount = 0;
 
-    WLEMData::SPtr modality;
-
+    // TODO: review the algorithm and include WBadChannelManager
     for( size_t mod = 0; mod < emm->getModalityCount(); ++mod ) // for all modalities
     {
         // get modality
-        modality = emm->getModality( mod );
+        WLEMData::ConstSPtr modality = emm->getModality( mod );
         const size_t channels = modality->getData().rows();
         size_t rejections = 0;
+        size_t channelNo = 0;
+        double threshold;
 
         // if wrong modality, next
         if( !validModality( modality->getModalityType() ) )
@@ -72,70 +79,22 @@ bool WEpochRejectionSingle::getRejection( const WLEMMeasurement::SPtr emm )
             continue;
         }
 
-        WLEMData::SampleT max = modality->getData().rowwise().maxCoeff(); // get the maximum for all channels
-        WLEMData::SampleT min = modality->getData().rowwise().minCoeff(); // get the minimum for all channels
-        WLEMData::SampleT diff = max - min; // calculate the difference for all channels
-
-        // definition of the threshold to use by the modality
-        switch( modality->getModalityType() )
+        // iterate all channels
+        for( size_t chan = 0; chan < channels; ++chan )
         {
-            case LaBP::WEModalityType::EEG:
-                // compare the difference with the given level value
+            ++channelNo;
 
-                for( size_t chan = 0; chan < channels; ++chan )
-                {
-                    if( diff( chan ) > m_eegLevel )
-                    {
-                        // collect the invalid channel
-                        //WBadChannelManager::instance()->addElement( modality->getModalityType(), chan );
+            threshold = getThreshold(modality->getModalityType(), channelNo);
 
-                        ++rejections; // counts the rejected for each modality
-                    }
-                }
-                break;
-            case LaBP::WEModalityType::EOG:
-                for( size_t chan = 0; chan < channels; ++chan )
-                {
-                    if( diff( chan ) > m_eogLevel )
-                    {
-                        // collect the invalid channel
-                        //WInvalidChannelManager::instance()->addChannel( modality->getModalityType(), chan );
+            //const WLEMData::ChannelT& row = modality->getData().row(chan); // get current channel
+            WLEMData::ScalarT max = modality->getData().row(chan).maxCoeff(); // maximum value
+            WLEMData::ScalarT min = modality->getData().row(chan).minCoeff(); // minimum value
+            WLEMData::ScalarT diff = max - min; // difference between maximum and minimum
 
-                        ++rejections; // counts the rejected for each modality
-                    }
-                }
-                break;
-            case LaBP::WEModalityType::MEG:
-
-                for( size_t chan = 0; chan < channels; ++chan )
-                {
-                    if( ( chan % 3 ) == 0 ) // magnetometer
-                    {
-                        if( diff( chan ) > m_megMag )
-                        {
-                            // collect the invalid channel
-                            WBadChannelManager::instance()->addElement( modality->getModalityType(), chan );
-
-                            ++rejections;
-                        }
-
-                    }
-                    else // gradiometer
-                    {
-                        if( diff( chan ) > m_megGrad )
-                        {
-                            // collect the invalid channel
-                            WBadChannelManager::instance()->addElement( modality->getModalityType(), chan );
-
-                            ++rejections;
-                        }
-                    }
-
-                }
-
-                break;
-            default:
-                ; // skip the modality
+            if(diff > threshold)
+            {
+                ++rejections;
+            }
         }
 
         // if least one channel has to reject, reject the whole input

@@ -26,15 +26,18 @@
 #define WLEMDATA_H
 
 #include <cstddef>
+#include <ostream>
 #include <stdint.h>
 #include <string>
-#include <vector>
 
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include <Eigen/Core>
 
+#include <core/common/WDefines.h>
+
+#include "core/container/WLArrayList.h"
 #include "core/data/WLEMMEnumTypes.h"
 
 /**
@@ -43,6 +46,8 @@
 class WLEMData: public boost::enable_shared_from_this< WLEMData >
 {
 public:
+    static const std::string CLASS;
+
     /**
      * Abbreviation for a shared pointer.
      */
@@ -139,10 +144,9 @@ public:
      */
     float getAnalogLowPass() const;
 
-    /**
-     * TODO(kaehler): Comments
-     */
-    std::vector< std::string >& getChanNames() const;
+    WLArrayList< std::string >::SPtr getChanNames();
+
+    WLArrayList< std::string >::ConstSPtr getChanNames() const;
 
     /**
      * TODO(kaehler): Comments
@@ -220,9 +224,9 @@ public:
      */
     void setAnalogLowPass( float analogLowPass );
 
-    /**
-     * TODO(kaehler): Comments
-     */
+    void setChanNames( WLArrayList< std::string >::SPtr chanNames );
+
+    OW_API_DEPRECATED
     void setChanNames( boost::shared_ptr< std::vector< std::string > > chanNames );
 
     /**
@@ -291,10 +295,7 @@ protected:
      */
     float m_lineFreq;
 
-    /**
-     * dynamic/static TODO(kaehler): array of channelnames
-     */
-    boost::shared_ptr< std::vector< std::string > > m_chanNames;
+    WLArrayList< std::string >::SPtr m_chanNames;
 
     /**
      * sampling frequency (unique within modality)
@@ -343,5 +344,7 @@ protected:
 
     // TODO(fuchs): snr estimate or/and noise covariance matrix for source localisation
 };
+
+std::ostream& operator<<( std::ostream &strm, const WLEMData& obj );
 
 #endif  // WLEMDATA_H

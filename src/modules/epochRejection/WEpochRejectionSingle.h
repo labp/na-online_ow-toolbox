@@ -57,8 +57,22 @@ public:
      *
      * \return A boolean value, which specifies, whether or not the input object has to reject.
      */
-    bool getRejection( const WLEMMeasurement::SPtr emm );
+    bool doRejection( const WLEMMeasurement::ConstSPtr emm );
 
+    /**
+     * Defines whether or not a new channel was added to the bad channel collection during the rejection process.
+     *
+     * @return True if a new bad channel was detected, else false.
+     */
+    bool isBadChannelUpdated() const;
+
+protected:
+
+    /**
+     * Flag to define whether or not a new bad channel was found and added to the bad channel manager.
+     * By default the flag is set to 'false'.
+     */
+    bool m_BadChannelUpdated;
 };
 
 #endif /* WEPOCHREJECTIONSINGLE_H_ */

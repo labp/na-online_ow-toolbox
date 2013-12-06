@@ -25,10 +25,14 @@
 #ifndef WTHRESHOLDPARSER_H_
 #define WTHRESHOLDPARSER_H_
 
-#include <boost/shared_ptr.hpp>
-
 #include <map>
 #include <string>
+#include <list>
+
+#include <boost/shared_ptr.hpp>
+
+#include "WThreshold.h"
+#include "WThresholdMEG.h"
 
 class WThresholdParser
 {
@@ -36,7 +40,16 @@ public:
 
     static const std::string CLASS;
 
+    static const std::string MODALITY_EEG;
+    static const std::string MODALITY_EOG;
+    static const std::string MODALITY_MEG_GRAD;
+    static const std::string MODALITY_MEG_MAG;
+
     typedef boost::shared_ptr< WThresholdParser > SPtr;
+
+    typedef std::map< std::string, LaBP::WEModalityType::Enum > ModiMap;
+
+    typedef boost::shared_ptr< ModiMap > ModiMapSPtr;
 
     /**
      * Constructor
@@ -51,12 +64,19 @@ public:
     /**
      * Method to parse a given .cfg file an return the containing threshold values.
      */
-    bool parse(std::string fname);
+    bool parse( std::string fname );
 
     /**
-     * Method to retrun the parsed values as a list of double values.
+     * Method to return the parsed values as a list of double values.
      */
-    std::map<std::string,double> getThresholds();
+    std::map< std::string, double > getThresholds();
+
+    /**
+     * Gets the parsed thresholds as pointer on a list.
+     *
+     * @return A shared pointer in the parsed list.
+     */
+    boost::shared_ptr< std::list< WThreshold > > getThresholdList() const;
 
 private:
 
@@ -70,17 +90,24 @@ private:
      *
      * \return true if a pattern was matched, else false.
      */
-    bool isValidLine(std::string line);
-
-    /**
-     * A Map with string as key and double as value, which contains the thresholds after parsing.
-     */
-    std::map<std::string,double> m_thresholds;
+    bool isValidLine( std::string line );
 
     /**
      * This method converts a string into the given type, specified in the type parameter T.
      */
-    template<class T> T fromString(const std::string& s);
+    template< class T > T fromString( const std::string& s );
+
+    /**
+     * A Map with string as key and double as value, which contains the thresholds after parsing.
+     */
+    std::map< std::string, double > m_thresholds;
+
+    /**
+     * A list of threshold objects.
+     */
+    boost::shared_ptr< std::list< WThreshold > > m_list;
+
+    ModiMapSPtr m_patterns;
 };
 
 #endif /* WTHRESHOLDPARSER_H_ */

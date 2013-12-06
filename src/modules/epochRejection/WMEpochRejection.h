@@ -41,6 +41,7 @@
 
 #include "WEpochRejection.h"
 #include "WEpochRejectionSingle.h"
+#include "WEpochRejectionTotal.h"
 #include "WThresholdParser.h"
 
 /**
@@ -107,10 +108,35 @@ protected:
     virtual bool processReset( WLEMMCommand::SPtr labp );
 
 private:
+
+    enum modality_code
+    {
+        eegReject, eogReject, gradReject, magReject, eNULL
+    };
+
     /**
-     * Method to assign the parsed value to the property members.
+     * Method to assign the parsed value to the property members. The properties will be updated in the view.
+     *
+     * @param valueList The threshold list to assign to the GUI property values.
      */
-    void assignNewValues(std::map<std::string,double> valueList);
+    void assignNewValues( std::map< std::string, double > valueList );
+
+    /**
+     * Tests a given string for a string pattern and returns the equivalent enum object for a better handling.
+     *
+     * @param inString The string to test.
+     * @return The enum object.
+     */
+    modality_code hashit( std::string const& inString );
+
+    void setThresholds( boost::shared_ptr< std::list< WThreshold > > );
+
+    /**
+     * Method for updating the modules output connector and some GUI fields.
+     *
+     * @param emm The EMM object for delivering to the output connector.
+     */
+    void upadteOutput( WLEMMeasurement::SPtr emm );
 
     /**
      * Input connector for a EMM data set.
@@ -183,14 +209,24 @@ private:
     WPropFilename m_rejectFile;
 
     /**
-     * The rejection process class.
+     * The rejection process class for testing the all channels in one process.
      */
-    WEpochRejectionSingle::SPtr m_rejecting;
+    WEpochRejection::SPtr m_rejectingTotal;
+
+    /**
+     * The rejection process class for testing all channels separately.
+     */
+    WEpochRejectionSingle::SPtr m_rejectingSingle;
 
     /**
      * The threshold parser class.
      */
     WThresholdParser::SPtr m_parser;
+
+    /**
+     * List containing the thresholds for processing.
+     */
+    //boost::shared_ptr< std::list< WThreshold > > m_thresholds;
 
     static const std::string NO_FILE_LOADED;
 
@@ -216,12 +252,6 @@ private:
 
     static const std::string MEG_GRAD_LABEL;
 
-    enum modality_code {eegReject,eogReject,gradReject,magReject,eNULL};
-
-    /**
-     * Test a given String for a string pattern and return the equivalent enum object for better testing.
-     */
-    modality_code hashit (std::string const& inString);
 };
 
 #endif  // WMEPOCHREJECTION_H

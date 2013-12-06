@@ -44,7 +44,8 @@ WEpochRejectionTotal::~WEpochRejectionTotal()
 /**
  * Method to process the rejection on the data.
  */
-bool WEpochRejectionTotal::getRejection( const WLEMMeasurement::SPtr emm )
+/*
+bool WEpochRejectionTotal::doRejection( const WLEMMeasurement::SPtr emm )
 {
     WLTimeProfiler tp( "WEpochRejectionTotal", "getRejection" );
     wlog::debug( CLASS ) << "starting rejection for all channels";
@@ -77,13 +78,13 @@ bool WEpochRejectionTotal::getRejection( const WLEMMeasurement::SPtr emm )
         switch( modality->getModalityType() )
         {
             case LaBP::WEModalityType::EEG:
-                if( diffMax > m_eegLevel )
+                if( diffMax > m_eegThreshold )
                 {
                     ++rejections; // counts the rejected for each modality
                 }
                 break;
             case LaBP::WEModalityType::EOG:
-                if( diffMax > m_eogLevel )
+                if( diffMax > m_eogThreshold )
                 {
                     ++rejections; // counts the rejected for each modality
                 }
@@ -94,4 +95,45 @@ bool WEpochRejectionTotal::getRejection( const WLEMMeasurement::SPtr emm )
     }
 
     return m_rejCount > 0;
+}
+*/
+
+bool WEpochRejectionTotal::doRejection( const WLEMMeasurement::ConstSPtr emm )
+{
+    size_t it;
+
+    for( it = 0; it < emm->getModalityCount(); ++it )
+    {
+        WLEMData::ConstSPtr modality = emm->getModality(it);
+
+        switch( modality->getModalityType() )
+        {
+            case LaBP::WEModalityType::EEG:
+                return calcRejection(modality->getData(), m_eegThreshold);
+            case LaBP::WEModalityType::MEG:
+                /*
+                threshold = m_magThreshold;
+                data = ( *it )->getmagData();
+                dog( data, threshold );
+                threshold = m_gradThreshold;
+                data = ( *it )->getGradData();
+                dog( data, threshold );
+                */
+                break;
+            case LaBP::WEModalityType::EOG:
+                return calcRejection(modality->getData(), m_eogThreshold);
+            default:
+                break;
+        }
+    }
+
+    return false;
+}
+
+bool WEpochRejectionTotal::calcRejection( const WLEMData::DataT& data, float threshold )
+{
+    // calculate the maximal difference between maximum peek and minimum peek over all channels
+    WLEMData::ScalarT diff = data.maxCoeff() - data.minCoeff();
+
+    return diff > threshold;
 }

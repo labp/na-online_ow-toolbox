@@ -28,7 +28,11 @@ const std::string WEpochRejection::CLASS = "WEpochRejection";
 
 WEpochRejection::WEpochRejection()
 {
-    initRejection();
+    m_eegThreshold = 0;
+    m_eogThreshold = 0;
+    m_megGradThreshold = 0;
+    m_megMagThreshold = 0;
+    m_rejCount = 0;
 }
 
 WEpochRejection::~WEpochRejection()
@@ -36,21 +40,12 @@ WEpochRejection::~WEpochRejection()
 
 }
 
-void WEpochRejection::initRejection()
-{
-    m_eegLevel = 0;
-    m_eogLevel = 0;
-    m_megGrad = 0;
-    m_megMag = 0;
-    m_rejCount = 0;
-}
-
 void WEpochRejection::setThresholds( double eegLevel, double eogLevel, double megGrad, double megMag )
 {
-    m_eegLevel = eegLevel;
-    m_eogLevel = eogLevel;
-    m_megGrad = megGrad;
-    m_megMag = megMag;
+    m_eegThreshold = eegLevel;
+    m_eogThreshold = eogLevel;
+    m_megGradThreshold = megGrad;
+    m_megMagThreshold = megMag;
 }
 
 size_t WEpochRejection::getCount() const
@@ -78,4 +73,26 @@ bool WEpochRejection::validModality( LaBP::WEModalityType::Enum modalityType )
     }
 
     return rc;
+}
+
+double WEpochRejection::getThreshold( LaBP::WEModalityType::Enum modalityType, size_t channelNo )
+{
+    switch( modalityType )
+    {
+        case LaBP::WEModalityType::EEG:
+            return m_eegThreshold;
+        case LaBP::WEModalityType::EOG:
+            return m_eogThreshold;
+        case LaBP::WEModalityType::MEG:
+            if( ( channelNo % 3 ) == 0 ) // magnetometer
+            {
+                return m_megMagThreshold;
+            }
+            else
+            {
+                return m_megGradThreshold; // gradiometer
+            }
+        default:
+            return 0;
+    }
 }
