@@ -57,9 +57,9 @@ WLEMData::SPtr WLEMDPCA::clone() const
     return pca;
 }
 
-LaBP::WEModalityType::Enum WLEMDPCA::getModalityType() const
+WLEModality::Enum WLEMDPCA::getModalityType() const
 {
-    return LaBP::WEModalityType::PCA;
+    return WLEModality::PCA;
 }
 
 void WLEMDPCA::setTransformationMatrix( boost::shared_ptr< MatrixT > new_trans )

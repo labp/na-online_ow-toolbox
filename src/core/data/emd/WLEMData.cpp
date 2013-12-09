@@ -54,7 +54,7 @@ WLEMData::WLEMData( const WLEMData& emd ) :
         wlog::info( "WDataSetEMMEMD" ) << "No channel names available! Channels will be numbered.";
         m_chanNames = WLArrayList< std::string >::instance();
         // Using prefix to avoid ambiguous matchings in MNE library.
-        const std::string modName = WEModalityType::name( emd.getModalityType() );
+        const std::string modName = WLEModality::name( emd.getModalityType() );
         std::stringstream sstream;
         const size_t chanSize = emd.getNrChans();
         for( size_t i = 0; i < chanSize; ++i )
@@ -272,7 +272,7 @@ std::string WLEMData::dataToString( const DataT& data, size_t maxChannels, size_
 
 std::ostream& operator<<( std::ostream &strm, const WLEMData& obj )
 {
-    strm << WLEMData::CLASS << "::" << WEModalityType::name( obj.getModalityType() ) << ": data=" << obj.getNrChans() << "x" << obj.getSamplesPerChan();
+    strm << WLEMData::CLASS << "::" << WLEModality::name( obj.getModalityType() ) << ": data=" << obj.getNrChans() << "x" << obj.getSamplesPerChan();
     return strm;
 }
 

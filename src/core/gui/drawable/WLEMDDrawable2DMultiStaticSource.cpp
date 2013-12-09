@@ -30,8 +30,8 @@
 #include <core/gui/WCustomWidget.h>
 
 #include "core/data/WLEMMeasurement.h"
-#include "core/data/WLEMMEnumTypes.h"
 #include "core/data/emd/WLEMDSource.h"
+#include "core/data/enum/WLEModality.h"
 
 #include "WLEMDDrawable2DMultiStatic.h"
 #include "WLEMDDrawable2DMultiStaticSource.h"
@@ -52,9 +52,9 @@ namespace LaBP
     void WLEMDDrawable2DMultiStaticSource::draw( WLEMMeasurement::SPtr emm )
     {
         bool success = false;
-        if( emm->hasModality( WEModalityType::SOURCE ) )
+        if( emm->hasModality( WLEModality::SOURCE ) )
         {
-            WLEMDSource::ConstSPtr emd = emm->getModality< WLEMDSource >( WEModalityType::SOURCE );
+            WLEMDSource::ConstSPtr emd = emm->getModality< WLEMDSource >( WLEModality::SOURCE );
             if( emd )
             {
                 setModality( emd->getOriginModalityType() );

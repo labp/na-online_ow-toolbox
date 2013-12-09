@@ -40,6 +40,7 @@
 
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMDEEG.h"
+#include "core/data/enum/WLEModality.h"
 
 #include "WLEMDDrawable3D.h"
 #include "WLEMDDrawable3DEEG.h"
@@ -52,7 +53,7 @@ namespace LaBP
         m_labelsChanged = true;
         m_labelsOn = true;
         m_electrodesChanged = true;
-        m_modality = WEModalityType::EEG;
+        m_modality = WLEModality::EEG;
     }
 
     WLEMDDrawable3DEEG::~WLEMDDrawable3DEEG()

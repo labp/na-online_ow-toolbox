@@ -81,7 +81,7 @@ namespace LaBP
         }
 
         WLEMMeasurement::ConstSPtr emm = m_emm;
-        WLEMDSource::ConstSPtr emd = emm->getModality< const WLEMDSource >( WEModalityType::SOURCE );
+        WLEMDSource::ConstSPtr emd = emm->getModality< const WLEMDSource >( WLEModality::SOURCE );
         WLEMMSubject::ConstSPtr subject = emm->getSubject();
 
         if( m_colorMapChanged )

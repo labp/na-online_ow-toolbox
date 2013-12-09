@@ -56,14 +56,14 @@ public:
 
     virtual WLEMData::SPtr clone() const;
 
-    virtual LaBP::WEModalityType::Enum getModalityType() const;
+    virtual WLEModality::Enum getModalityType() const;
 
-    LaBP::WEModalityType::Enum getOriginModalityType() const;
+    WLEModality::Enum getOriginModalityType() const;
 
-    void setOriginModalityType( LaBP::WEModalityType::Enum modality );
+    void setOriginModalityType( WLEModality::Enum modality );
 
 private:
-    LaBP::WEModalityType::Enum m_originModalityType;
+    WLEModality::Enum m_originModalityType;
 };
 
 #endif  // WLEMDSOURCE_H_

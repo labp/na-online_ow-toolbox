@@ -36,7 +36,7 @@ namespace LaBP
     WLEMDDrawable::WLEMDDrawable( WCustomWidget::SPtr widget ) :
                     boost::enable_shared_from_this< WLEMDDrawable >(), m_widget( widget )
     {
-        m_modality = LaBP::WEModalityType::EEG;
+        m_modality = WLEModality::UNKNOWN;
         m_dataChanged = false;
         m_modalityChanged = false;
         m_rootGroup = new osg::Group;
@@ -75,12 +75,12 @@ namespace LaBP
         m_dataChanged = false;
     }
 
-    LaBP::WEModalityType::Enum WLEMDDrawable::getModality() const
+    WLEModality::Enum WLEMDDrawable::getModality() const
     {
         return m_modality;
     }
 
-    bool WLEMDDrawable::setModality( WEModalityType::Enum modality )
+    bool WLEMDDrawable::setModality( WLEModality::Enum modality )
     {
         if( modality != m_modality )
         {

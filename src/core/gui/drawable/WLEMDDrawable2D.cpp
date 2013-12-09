@@ -300,14 +300,14 @@ namespace LaBP
         return setSelectedPixel( pos );
     }
 
-    WLEMDDrawable2D::SPtr WLEMDDrawable2D::getInstance( WCustomWidget::SPtr widget, LaBP::WEModalityType::Enum modality,
+    WLEMDDrawable2D::SPtr WLEMDDrawable2D::getInstance( WCustomWidget::SPtr widget, WLEModality::Enum modality,
                     WEGraphType::Enum type )
     {
         WLEMDDrawable2D::SPtr drawable2D;
         switch( type )
         {
             case WEGraphType::MULTI:
-                if( modality == LaBP::WEModalityType::SOURCE )
+                if( modality == WLEModality::SOURCE )
                 {
                     drawable2D.reset( new WLEMDDrawable2DMultiStaticSource( widget ) );
                 }
@@ -317,7 +317,7 @@ namespace LaBP
                 }
                 break;
             case WEGraphType::SINGLE:
-                if( modality == LaBP::WEModalityType::SOURCE )
+                if( modality == WLEModality::SOURCE )
                 {
                     drawable2D.reset( new WLEMDDrawable2DSingleSource( widget ) );
                 }
@@ -327,7 +327,7 @@ namespace LaBP
                 }
                 break;
             case WEGraphType::DYNAMIC:
-                if( modality == LaBP::WEModalityType::SOURCE )
+                if( modality == WLEModality::SOURCE )
                 {
                     drawable2D.reset( new WLEMDDrawable2DMultiDynamicSource( widget ) );
                 }
@@ -340,9 +340,9 @@ namespace LaBP
                 WAssert( false, "Unknown WEGraphType!" );
                 break;
         }
-        if( WLEMDMEG::isMegType( modality ) )
+        if( WLEModality::isMEG( modality ) )
         {
-            modality = WEModalityType::MEG;
+            modality = WLEModality::MEG;
         }
         drawable2D->setModality( modality );
         return drawable2D;

@@ -39,9 +39,9 @@
 #include "core/container/WLList.h"
 #include "core/data/WLDataTypes.h"
 #include "core/data/WLDigPoint.h"
-#include "core/data/WLEMMEnumTypes.h"
 #include "core/data/WLEMMSubject.h"
 #include "core/data/emd/WLEMData.h"
+#include "core/data/enum/WLEModality.h"
 #include "core/util/profiler/WLLifetimeProfiler.h"
 
 /**
@@ -134,18 +134,18 @@ public:
     /**
      * Returns the first occurrence of EMMEMD  with the given type or an empty shared pointer. Throws WNotFound if requested type is not available.
      */
-    WLEMData::SPtr getModality( LaBP::WEModalityType::Enum type );
+    WLEMData::SPtr getModality( WLEModality::Enum type );
 
     /**
      * Returns the first occurrence of EMMEMD  with the given type or an empty shared pointer. Throws WNotFound if requested type is not available.
      */
-    WLEMData::ConstSPtr getModality( LaBP::WEModalityType::Enum type ) const;
+    WLEMData::ConstSPtr getModality( WLEModality::Enum type ) const;
 
     /**
      * Returns the first occurrence of EMMEMD  with the given type or an empty shared pointer. Throws WNotFound if requested type is not available.
      */
     template< typename EMD >
-    boost::shared_ptr< EMD > getModality( LaBP::WEModalityType::Enum type )
+    boost::shared_ptr< EMD > getModality( WLEModality::Enum type )
     {
         WLEMData::SPtr emd = getModality( type );
         if( !emd )
@@ -159,7 +159,7 @@ public:
      * Returns the first occurrence of EMMEMD  with the given type or an empty shared pointer. Throws WNotFound if requested type is not available.
      */
     template< typename EMD >
-    boost::shared_ptr< const EMD > getModality( LaBP::WEModalityType::Enum type ) const
+    boost::shared_ptr< const EMD > getModality( WLEModality::Enum type ) const
     {
         WLEMData::ConstSPtr emd = getModality( type );
         if( !emd )
@@ -172,14 +172,14 @@ public:
     /**
      * Returns a set with available modality types.
      */
-    std::set< LaBP::WEModalityType::Enum > getModalityTypes() const;
+    std::set< WLEModality::Enum > getModalityTypes() const;
 
     /**
      * Checks if a modality type is available.
      *
      * \return true if modality type is available, false if not.
      */
-    bool hasModality( LaBP::WEModalityType::Enum type ) const;
+    bool hasModality( WLEModality::Enum type ) const;
 
     /**
      * swaps given modality with modality of the same modality type in list, there is only one list per modality at the time

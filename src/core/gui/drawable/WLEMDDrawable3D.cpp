@@ -80,37 +80,37 @@ namespace LaBP
     {
     }
 
-    WLEMDDrawable3D::SPtr WLEMDDrawable3D::getInstance( WCustomWidget::SPtr widget, LaBP::WEModalityType::Enum modality )
+    WLEMDDrawable3D::SPtr WLEMDDrawable3D::getInstance( WCustomWidget::SPtr widget, WLEModality::Enum modality )
     {
         WLEMDDrawable3D::SPtr drawable3D;
         switch( modality )
         {
-            case LaBP::WEModalityType::EEG:
+            case WLEModality::EEG:
                 drawable3D = WLEMDDrawable3D::SPtr( new WLEMDDrawable3DEEG( widget ) );
                 break;
-            case LaBP::WEModalityType::MEG:
+            case WLEModality::MEG:
                 drawable3D = WLEMDDrawable3D::SPtr( new WLEMDDrawable3DMEG( widget ) );
                 break;
-            case LaBP::WEModalityType::MEG_MAG:
+            case WLEModality::MEG_MAG:
                 drawable3D = WLEMDDrawable3D::SPtr( new WLEMDDrawable3DMEG( widget, modality ) );
                 break;
-            case LaBP::WEModalityType::MEG_GRAD:
+            case WLEModality::MEG_GRAD:
                 drawable3D = WLEMDDrawable3D::SPtr( new WLEMDDrawable3DMEG( widget, modality ) );
                 break;
-            case LaBP::WEModalityType::MEG_GRAD_MERGED:
+            case WLEModality::MEG_GRAD_MERGED:
                 drawable3D = WLEMDDrawable3D::SPtr( new WLEMDDrawable3DMEG( widget, modality ) );
                 break;
-            case LaBP::WEModalityType::SOURCE:
+            case WLEModality::SOURCE:
                 drawable3D = WLEMDDrawable3D::SPtr( new WLEMDDrawable3DSource( widget ) );
                 break;
             default:
                 drawable3D = WLEMDDrawable3D::SPtr( new WLEMDDrawable3DEmpty( widget ) );
-                wlog::warn( CLASS ) << "No 3D drawable available for modality: " << WEModalityType::name( modality );
+                wlog::warn( CLASS ) << "No 3D drawable available for modality: " << WLEModality::name( modality );
                 break;
         }
-        if( WLEMDMEG::isMegType( modality ) )
+        if( WLEModality::isMEG( modality ) )
         {
-            modality = WEModalityType::MEG;
+            modality = WLEModality::MEG;
         }
         drawable3D->setModality( modality );
         return drawable3D;

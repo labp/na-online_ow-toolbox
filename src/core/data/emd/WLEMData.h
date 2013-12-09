@@ -39,6 +39,7 @@
 
 #include "core/container/WLArrayList.h"
 #include "core/data/WLEMMEnumTypes.h"
+#include "core/data/enum/WLEModality.h"
 
 /**
  * Class for general modality. Saves information which are present for all modalities.
@@ -186,7 +187,7 @@ public:
     /**
      * TODO(kaehler): Comments
      */
-    virtual LaBP::WEModalityType::Enum getModalityType() const = 0;
+    virtual WLEModality::Enum getModalityType() const = 0;
 
     /**
      * TODO(kaehler): Comments

@@ -22,7 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
-#include "core/common/WLogger.h"
+#include <core/common/WLogger.h>
+
+#include "core/data/enum/WLEModality.h"
 #include "core/util/profiler/WLTimeProfiler.h"
 
 #include "WEpochRejection.h"
@@ -101,20 +103,20 @@ bool WEpochRejection::getRejection( const WLEMMeasurement::SPtr emm )
         // definition of the threshold to use by the modality
         switch( modality->getModalityType() )
         {
-            case LaBP::WEModalityType::EEG:
+            case WLEModality::EEG:
                 // compare the difference with the given level value
                 if( diff.maxCoeff() > m_eegLevel )
                 {
                     ++rejections; // counts the rejected for each modality
                 }
                 break;
-            case LaBP::WEModalityType::EOG:
+            case WLEModality::EOG:
                 if( diff.maxCoeff() > m_eogLevel )
                 {
                     ++rejections; // counts the rejected for each modality
                 }
                 break;
-            case LaBP::WEModalityType::MEG:
+            case WLEModality::MEG:
 
                 for( size_t chan = 0; chan < channels; chan++ )
                 {
@@ -164,19 +166,19 @@ size_t WEpochRejection::getCount()
  * Method to separate valid modalities from invalid modalities.
  * It returns false, if the modality has to skip else true.
  */
-bool WEpochRejection::validModality( LaBP::WEModalityType::Enum modalityType )
+bool WEpochRejection::validModality( WLEModality::Enum modalityType )
 {
     bool rc = false;
 
     switch( modalityType )
     {
-        case LaBP::WEModalityType::EEG:
+        case WLEModality::EEG:
             rc = true;
             break;
-        case LaBP::WEModalityType::EOG:
+        case WLEModality::EOG:
             rc = true;
             break;
-        case LaBP::WEModalityType::MEG:
+        case WLEModality::MEG:
             rc = true;
             break;
         default:

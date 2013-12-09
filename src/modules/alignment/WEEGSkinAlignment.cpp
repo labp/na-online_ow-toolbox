@@ -110,9 +110,9 @@ double WEEGSkinAlignment::align( TransformationT* const matrix, WLEMMeasurement:
     // Get EEG sensor positions
     // ------------------------
     WLEMDEEG::ConstSPtr eeg;
-    if( emm_ref.hasModality( WEModalityType::EEG ) )
+    if( emm_ref.hasModality( WLEModality::EEG ) )
     {
-        eeg = emm_ref.getModality< const WLEMDEEG >( WEModalityType::EEG );
+        eeg = emm_ref.getModality< const WLEMDEEG >( WLEModality::EEG );
     }
     else
     {

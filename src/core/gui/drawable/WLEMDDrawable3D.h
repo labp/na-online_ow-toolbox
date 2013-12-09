@@ -39,7 +39,7 @@
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 #include <core/gui/WCustomWidget.h>
 
-#include "core/data/WLEMMEnumTypes.h"
+#include "core/data/enum/WLEModality.h"
 #include "core/gui/colorMap/WLColorMap.h"
 
 #include "WLEMDDrawable.h"
@@ -72,7 +72,7 @@ namespace LaBP
          *
          * @return Instance of a WLEMDDrawable3D implementation.
          */
-        static WLEMDDrawable3D::SPtr getInstance( WCustomWidget::SPtr widget, LaBP::WEModalityType::Enum modality );
+        static WLEMDDrawable3D::SPtr getInstance( WCustomWidget::SPtr widget, WLEModality::Enum modality );
 
         /**
          * Constructor.

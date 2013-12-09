@@ -28,6 +28,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "core/data/WLEMMeasurement.h"
+#include "core/data/enum/WLEModality.h"
 
 class WEpochRejection
 {
@@ -45,7 +46,7 @@ public:
 
     void initRejection();
 
-    void setLevels(double eegLevel, double eogLevel, double megGrad, double megMag);
+    void setLevels( double eegLevel, double eogLevel, double megGrad, double megMag );
 
     /**
      * Proceeds the rejection of the all modalities for the given input based on the
@@ -53,7 +54,7 @@ public:
      *
      * \return A boolean value, which specifies, whether or not the input object has to reject.
      */
-    bool getRejection(const WLEMMeasurement::SPtr emm);
+    bool getRejection( const WLEMMeasurement::SPtr emm );
 
     /**
      * Defines the number of rejections for the current input.
@@ -65,7 +66,7 @@ public:
      *
      * \return false, if the modality has to skip else true.
      */
-    bool validModality(LaBP::WEModalityType::Enum modalityType);
+    bool validModality( WLEModality::Enum modalityType );
 
 private:
 

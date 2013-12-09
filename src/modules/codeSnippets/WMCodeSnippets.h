@@ -119,6 +119,8 @@ private:
     WPropTrigger m_trgGenerate;
 
     static void generateSinusWave( WLEMData::DataT* const in, float sr, float f, float amp, float offset = 0 );
+
+    void testExtract(WLEMMeasurement::SPtr emm);
 };
 
 #endif  // WMCODESNIPPETS_H_

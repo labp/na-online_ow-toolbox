@@ -58,7 +58,7 @@ public:
 
     virtual WLEMData::SPtr clone() const;
 
-    virtual LaBP::WEModalityType::Enum getModalityType() const;
+    virtual WLEModality::Enum getModalityType() const;
 
     LaBP::WEPolarityType::Enum getPolarityType() const;
 

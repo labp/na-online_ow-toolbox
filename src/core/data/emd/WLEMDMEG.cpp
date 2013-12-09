@@ -42,7 +42,7 @@ const std::string WLEMDMEG::CLASS = "WLEMDMEG";
 WLEMDMEG::WLEMDMEG() :
                 WLEMData()
 {
-    m_modality = WEModalityType::MEG;
+    m_modality = WLEModality::MEG;
     m_chanPos3d = WLArrayList< WPosition >::instance();
     m_faces = WLArrayList< WVector3i >::instance();
 
@@ -51,9 +51,9 @@ WLEMDMEG::WLEMDMEG() :
     m_eZ = WLArrayList< WVector3f >::instance();
 }
 
-WLEMDMEG::WLEMDMEG( WEModalityType::Enum modality )
+WLEMDMEG::WLEMDMEG( WLEModality::Enum modality )
 {
-    if( !isMegType( modality ) )
+    if( !WLEModality::isMEG( modality ) )
     {
         throw WPreconditionNotMet( "Modality must be MEG, gradiometer or magnetometer!" );
     }
@@ -88,7 +88,7 @@ WLEMData::SPtr WLEMDMEG::clone() const
     return meg;
 }
 
-LaBP::WEModalityType::Enum WLEMDMEG::getModalityType() const
+WLEModality::Enum WLEMDMEG::getModalityType() const
 {
     return m_modality;
 }
@@ -314,10 +314,10 @@ WLEMDMEG::CoilPicksT WLEMDMEG::coilPicks( const WLEMDMEG& meg, WEGeneralCoilType
     return picks;
 }
 
-bool WLEMDMEG::extractCoilModality( WLEMDMEG::SPtr& megOut, WLEMDMEG::ConstSPtr megIn, LaBP::WEModalityType::Enum type,
+bool WLEMDMEG::extractCoilModality( WLEMDMEG::SPtr& megOut, WLEMDMEG::ConstSPtr megIn, WLEModality::Enum type,
                 bool dataOnly )
 {
-    if( !isMegType( type ) )
+    if( !WLEModality::isMEG( type ) )
     {
         wlog::error( CLASS ) << "Requested extraction into a non-MEG type!";
         return false;
@@ -326,20 +326,20 @@ bool WLEMDMEG::extractCoilModality( WLEMDMEG::SPtr& megOut, WLEMDMEG::ConstSPtr 
     CoilPicksT picksAll;
     switch( type )
     {
-        case WEModalityType::MEG:
+        case WLEModality::MEG:
         {
             megOut.reset( new WLEMDMEG( *megIn ) );
             WLEMDMEG::DataSPtr data( new WLEMDMEG::DataT( megIn->getData() ) );
             megOut->setData( data );
             return true;
         }
-        case WEModalityType::MEG_MAG:
+        case WLEModality::MEG_MAG:
             picksAll = coilPicks( *megIn, WEGeneralCoilType::MAGNETOMETER );
             break;
-        case WEModalityType::MEG_GRAD:
+        case WLEModality::MEG_GRAD:
             picksAll = coilPicks( *megIn, WEGeneralCoilType::GRADIOMETER );
             break;
-        case WEModalityType::MEG_GRAD_MERGED:
+        case WLEModality::MEG_GRAD_MERGED:
             picksAll = coilPicks( *megIn, WEGeneralCoilType::GRADIOMETER );
             break;
         default:
@@ -356,7 +356,7 @@ bool WLEMDMEG::extractCoilModality( WLEMDMEG::SPtr& megOut, WLEMDMEG::ConstSPtr 
     }
 
     CoilPicksT picksFiltered;
-    if( type != WEModalityType::MEG_GRAD_MERGED )
+    if( type != WLEModality::MEG_GRAD_MERGED )
     {
         picksFiltered = picksAll;
     }
@@ -379,7 +379,7 @@ bool WLEMDMEG::extractCoilModality( WLEMDMEG::SPtr& megOut, WLEMDMEG::ConstSPtr 
     WLEMDMEG::ChannelT chan1, chan2;
     for( it = picksAll.begin(); it != picksAll.end(); ++it )
     {
-        if( type != WEModalityType::MEG_GRAD_MERGED )
+        if( type != WLEModality::MEG_GRAD_MERGED )
         {
             data.row( row++ ) = data_from.row( *it );
         }

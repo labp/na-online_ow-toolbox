@@ -47,6 +47,7 @@
 #include "core/data/WLEMMEnumTypes.h"
 #include "core/data/WLEMMSubject.h"
 #include "core/data/WLEMMSurface.h"
+#include "core/data/enum/WLEModality.h"
 
 #include "WLReaderDIP.h"
 #include "WLReaderMatMab.h"
@@ -401,15 +402,15 @@ bool WLReaderExperiment::readLeadField( std::string surface, std::string bemName
 {
     wlog::debug( CLASS ) << "readLeadField() called!";
 
-    WEModalityType::Enum modEnum;
+    WLEModality::Enum modEnum;
     if( m_MEG.compare( modality ) == 0 )
     {
-        modEnum = WEModalityType::MEG;
+        modEnum = WLEModality::MEG;
     }
     else
         if( m_EEG.compare( modality ) == 0 )
         {
-            modEnum = WEModalityType::EEG;
+            modEnum = WLEModality::EEG;
         }
         else
         {

@@ -36,6 +36,7 @@
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/gui/WCustomWidget.h>
 
+#include "core/data/enum/WLEModality.h"
 #include "WLEMDDrawable3D.h"
 
 namespace LaBP
@@ -55,7 +56,7 @@ namespace LaBP
 
         explicit WLEMDDrawable3DMEG( WCustomWidget::SPtr widget );
 
-        WLEMDDrawable3DMEG( WCustomWidget::SPtr widget, WEModalityType::Enum coilType );
+        WLEMDDrawable3DMEG( WCustomWidget::SPtr widget, WLEModality::Enum coilType );
 
         virtual ~WLEMDDrawable3DMEG();
         void setLabels( bool labelOn );
@@ -76,7 +77,7 @@ namespace LaBP
 
         bool m_electrodesChanged;
 
-        const WEModalityType::Enum m_coilType;
+        const WLEModality::Enum m_coilType;
 
         osg::ref_ptr< osg::Geode > m_electrodesGeode;
 

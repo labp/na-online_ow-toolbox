@@ -33,6 +33,8 @@
 #include <utility>
 #include <vector>
 
+#include "core/data/enum/WLEModality.h"
+
 #include "WLDataTypes.h"
 #include "WLEMMBemBoundary.h"
 #include "WLEMMEnumTypes.h"
@@ -165,7 +167,7 @@ void WLEMMSubject::setSurface( WLEMMSurface::SPtr surface )
     m_surfaces[surface->getHemisphere()] = surface;
 }
 
-WLMatrix::SPtr WLEMMSubject::getLeadfield( WEModalityType::Enum modality )
+WLMatrix::SPtr WLEMMSubject::getLeadfield( WLEModality::Enum modality )
 {
     if( m_leadfields.find( modality ) != m_leadfields.end() )
     {
@@ -177,7 +179,7 @@ WLMatrix::SPtr WLEMMSubject::getLeadfield( WEModalityType::Enum modality )
     }
 }
 
-WLMatrix::ConstSPtr WLEMMSubject::getLeadfield( WEModalityType::Enum modality ) const
+WLMatrix::ConstSPtr WLEMMSubject::getLeadfield( WLEModality::Enum modality ) const
 {
     // FIX(pieloth): Do not call getLeadfield to reduce redundant code -> atom loop.
     if( m_leadfields.find( modality ) != m_leadfields.end() )
@@ -190,7 +192,7 @@ WLMatrix::ConstSPtr WLEMMSubject::getLeadfield( WEModalityType::Enum modality ) 
     }
 }
 
-void WLEMMSubject::setLeadfield( WEModalityType::Enum modality, WLMatrix::SPtr leadfield )
+void WLEMMSubject::setLeadfield( WLEModality::Enum modality, WLMatrix::SPtr leadfield )
 {
     m_leadfields[modality] = leadfield;
 }
@@ -215,8 +217,8 @@ std::ostream& operator<<( std::ostream &strm, const WLEMMSubject& obj )
     strm << WLEMMSubject::CLASS << ": ";
     strm << "surface[" << WLEMMSurface::Hemisphere::LEFT << "]=" << obj.hasSurface( WLEMMSurface::Hemisphere::LEFT );
     strm << ", surface[" << WLEMMSurface::Hemisphere::RIGHT << "]=" << obj.hasSurface( WLEMMSurface::Hemisphere::RIGHT );
-    strm << ", leadfield[EEG]=" << obj.hasLeadfield( WEModalityType::EEG );
-    strm << ", leadfield[MEG]=" << obj.hasLeadfield( WEModalityType::MEG );
+    strm << ", leadfield[EEG]=" << obj.hasLeadfield( WLEModality::EEG );
+    strm << ", leadfield[MEG]=" << obj.hasLeadfield( WLEModality::MEG );
     strm << ", BEMs=" << obj.getBemBoundaries()->size();
     strm << ", isotrak=" << obj.getIsotrak()->size();
     return strm;

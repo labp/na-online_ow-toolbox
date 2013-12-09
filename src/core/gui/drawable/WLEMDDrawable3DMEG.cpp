@@ -39,23 +39,23 @@
 
 namespace LaBP
 {
-    WLEMDDrawable3DMEG::WLEMDDrawable3DMEG( WCustomWidget::SPtr widget, WEModalityType::Enum coilType ) :
+    WLEMDDrawable3DMEG::WLEMDDrawable3DMEG( WCustomWidget::SPtr widget, WLEModality::Enum coilType ) :
                     m_coilType( coilType ), WLEMDDrawable3D( widget )
     {
-        WAssertDebug( WLEMDMEG::isMegType(m_coilType), "No MEG modality!" );
+        WAssertDebug( WLEModality::isMEG(m_coilType), "No MEG modality!" );
         m_labelsChanged = true;
         m_labelsOn = true;
         m_electrodesChanged = true;
-        m_modality = WEModalityType::MEG;
+        m_modality = WLEModality::MEG;
     }
 
     WLEMDDrawable3DMEG::WLEMDDrawable3DMEG( WCustomWidget::SPtr widget ) :
-                    m_coilType( WEModalityType::MEG ), WLEMDDrawable3D( widget )
+                    m_coilType( WLEModality::MEG ), WLEMDDrawable3D( widget )
     {
         m_labelsChanged = true;
         m_labelsOn = true;
         m_electrodesChanged = true;
-        m_modality = WEModalityType::MEG;
+        m_modality = WLEModality::MEG;
     }
 
     WLEMDDrawable3DMEG::~WLEMDDrawable3DMEG()
@@ -202,9 +202,9 @@ namespace LaBP
             return;
         }
 
-        WLEMDMEG::ConstSPtr emd = m_emm->getModality< const WLEMDMEG >( WEModalityType::MEG );
+        WLEMDMEG::ConstSPtr emd = m_emm->getModality< const WLEMDMEG >( WLEModality::MEG );
 
-        if( m_coilType != WEModalityType::MEG )
+        if( m_coilType != WLEModality::MEG )
         {
             WLEMDMEG::SPtr meg;
             if( WLEMDMEG::extractCoilModality( meg, emd, m_coilType, false ) )

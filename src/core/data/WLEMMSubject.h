@@ -39,6 +39,7 @@
 
 #include "core/container/WLArrayList.h"
 #include "core/container/WLList.h"
+#include "core/data/enum/WLEModality.h"
 
 #include "WLDataTypes.h"
 #include "WLEMMEnumTypes.h"
@@ -98,7 +99,7 @@ public:
     WLArrayList< WVector3f >::ConstSPtr getIsotrak() const;
     void setIsotrak( WLArrayList< WVector3f >::SPtr isotrak );
 
-    inline bool hasSurface( WLEMMSurface::Hemisphere::Enum hemisphere ) const;
+    bool hasSurface( WLEMMSurface::Hemisphere::Enum hemisphere ) const;
     WLEMMSurface::SPtr getSurface( WLEMMSurface::Hemisphere::Enum hemisphere );
     WLEMMSurface::ConstSPtr getSurface( WLEMMSurface::Hemisphere::Enum hemisphere ) const;
     void setSurface( WLEMMSurface::SPtr surface );
@@ -107,10 +108,10 @@ public:
     WLList< WLEMMBemBoundary::SPtr >::ConstSPtr getBemBoundaries() const;
     void setBemBoundaries( WLList< WLEMMBemBoundary::SPtr >::SPtr bemBoundaries );
 
-    inline bool hasLeadfield( LaBP::WEModalityType::Enum modality ) const;
-    WLMatrix::SPtr getLeadfield( LaBP::WEModalityType::Enum modality );
-    WLMatrix::ConstSPtr getLeadfield( LaBP::WEModalityType::Enum modality ) const;
-    void setLeadfield( LaBP::WEModalityType::Enum modality, WLMatrix::SPtr leadfield );
+    bool hasLeadfield( WLEModality::Enum modality ) const;
+    WLMatrix::SPtr getLeadfield( WLEModality::Enum modality );
+    WLMatrix::ConstSPtr getLeadfield( WLEModality::Enum modality ) const;
+    void setLeadfield( WLEModality::Enum modality, WLMatrix::SPtr leadfield );
 
 private:
     WLArrayList< WVector3f >::SPtr m_isotrak;
@@ -158,7 +159,7 @@ private:
 
     std::map< WLEMMSurface::Hemisphere::Enum, WLEMMSurface::SPtr > m_surfaces;
 
-    std::map< LaBP::WEModalityType::Enum, WLMatrix::SPtr > m_leadfields;
+    std::map< WLEModality::Enum, WLMatrix::SPtr > m_leadfields;
 
     WLList< WLEMMBemBoundary::SPtr >::SPtr m_bemBoundaries;
 
@@ -167,12 +168,12 @@ private:
     //      evtl. head digitization
 };
 
-bool WLEMMSubject::hasSurface( WLEMMSurface::Hemisphere::Enum hemisphere ) const
+inline bool WLEMMSubject::hasSurface( WLEMMSurface::Hemisphere::Enum hemisphere ) const
 {
     return m_surfaces.find( hemisphere ) != m_surfaces.end();
 }
 
-bool WLEMMSubject::hasLeadfield( LaBP::WEModalityType::Enum modality ) const
+inline bool WLEMMSubject::hasLeadfield( WLEModality::Enum modality ) const
 {
     return m_leadfields.find( modality ) != m_leadfields.end();
 }

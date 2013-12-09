@@ -38,6 +38,7 @@
 #include "core/data/WLEMMEnumTypes.h"
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDSource.h"
+#include "core/data/enum/WLEModality.h"
 
 // Input & output connectors
 // TODO(pieloth): use OW classes
@@ -108,14 +109,11 @@ void WMSourceReconstruction::properties()
 {
     WLModuleDrawable::properties();
     WLModuleDrawable::setTimerangeInformationOnly( true );
-    WLModuleDrawable::setViewModality( WEModalityType::SOURCE );
+    WLModuleDrawable::setViewModality( WLEModality::SOURCE );
     WLModuleDrawable::hideViewModalitySelection( true );
     WLModuleDrawable::hideLabelChanged( true );
 
-    set< WEModalityType::Enum > modalities;
-    modalities.insert( WEModalityType::EEG );
-    modalities.insert( WEModalityType::MEG );
-    WLModuleDrawable::setComputeModalitySelection( modalities );
+    WLModuleDrawable::setComputeModalitySelection( WLEModality::valuesLocalizeable() );
 
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
@@ -362,7 +360,7 @@ void WMSourceReconstruction::handleComputeModalityChanged( WLEMMCommand::ConstSP
     m_sourceReconstruction->reset();
 }
 
-bool WMSourceReconstruction::inverseSolutionFromSubject( WLEMMeasurement::SPtr emm, WEModalityType::Enum modality )
+bool WMSourceReconstruction::inverseSolutionFromSubject( WLEMMeasurement::SPtr emm, WLEModality::Enum modality )
 {
     WLTimeProfiler tp( "WMSourceReconstruction", "inverseSolutionFromSubject" );
     debugLog() << "inverseSolutionFromSubject() called!";
@@ -412,7 +410,7 @@ bool WMSourceReconstruction::processCompute( WLEMMeasurement::SPtr emmIn )
     // The data is valid and we received an update. The data is not NULL but may be the same as in previous loops.
     debugLog() << "received data";
 
-    LaBP::WEModalityType::Enum modality = this->getCalculateModality();
+    WLEModality::Enum modality = this->getCalculateModality();
 
     if( !m_sourceReconstruction->hasInverse() )
     {
@@ -444,7 +442,7 @@ bool WMSourceReconstruction::processCompute( WLEMMeasurement::SPtr emmIn )
 bool WMSourceReconstruction::processInit( WLEMMCommand::SPtr cmdIn )
 {
     WLTimeProfiler tp( "WMSourceReconstruction", "processInit" );
-    LaBP::WEModalityType::Enum modality = this->getCalculateModality();
+    WLEModality::Enum modality = this->getCalculateModality();
     if( cmdIn->hasEmm() )
     {
         inverseSolutionFromSubject( cmdIn->getEmm(), modality );

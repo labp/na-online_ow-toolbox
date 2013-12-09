@@ -61,7 +61,7 @@ public:
 
     virtual WLEMData::SPtr clone() const;
 
-    virtual LaBP::WEModalityType::Enum getModalityType() const;
+    virtual WLEModality::Enum getModalityType() const;
 
     void setTransformationMatrix( boost::shared_ptr< MatrixT > );
     MatrixT& getTransformationMatrix();

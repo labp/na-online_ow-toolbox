@@ -42,7 +42,7 @@
 #include <core/gui/WCustomWidget.h>
 
 #include "core/data/WLEMMeasurement.h"
-#include "core/data/WLEMMEnumTypes.h"
+#include "core/data/enum/WLEModality.h"
 #include "core/gui/events/WLGUIEventManager.h"
 
 namespace LaBP
@@ -136,12 +136,12 @@ namespace LaBP
          *
          * @return modality
          */
-        virtual LaBP::WEModalityType::Enum getModality() const;
+        virtual WLEModality::Enum getModality() const;
 
         /**
          * Sets modality to draw.
          */
-        virtual bool setModality( LaBP::WEModalityType::Enum modality );
+        virtual bool setModality( WLEModality::Enum modality );
 
         /**
          * Returns the widget to fill.
@@ -174,7 +174,7 @@ namespace LaBP
         /**
          * Modality to draw.
          */
-        LaBP::WEModalityType::Enum m_modality;
+        WLEModality::Enum m_modality;
 
         /**
          * A flag to indicate a change of m_cb_emm.

@@ -35,6 +35,7 @@
 #include "core/data/WLEMMCommand.h"
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMEnumTypes.h"
+#include "core/data/enum/WLEModality.h"
 
 #include "core/module/WLEMMCommandProcessor.h"
 #include "core/module/WLModuleDrawable.h"
@@ -152,14 +153,14 @@ private:
     WPropDouble m_snr;
     void handleSnrChanged();
 
-    LaBP::WEModalityType::Enum m_lastModality;
+    WLEModality::Enum m_lastModality;
     void handleComputeModalityChanged( WLEMMCommand::ConstSPtr cmd );
 
     // Generate inverse solution //
     WPropString m_inverseStatus;
     WPropInt m_inverseRows;
     WPropInt m_inverseCols;
-    bool inverseSolutionFromSubject( WLEMMeasurement::SPtr emm, LaBP::WEModalityType::Enum modality );
+    bool inverseSolutionFromSubject( WLEMMeasurement::SPtr emm, WLEModality::Enum modality );
 
     // data and noise covariance matices //
     WLMatrix::SPtr m_nCovarianceMatrix;

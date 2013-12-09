@@ -54,9 +54,9 @@ WLEMDSource::~WLEMDSource()
 {
 }
 
-LaBP::WEModalityType::Enum WLEMDSource::getModalityType() const
+WLEModality::Enum WLEMDSource::getModalityType() const
 {
-    return LaBP::WEModalityType::SOURCE;
+    return WLEModality::SOURCE;
 }
 
 WLEMData::SPtr WLEMDSource::clone() const
@@ -65,12 +65,12 @@ WLEMData::SPtr WLEMDSource::clone() const
     return emd;
 }
 
-LaBP::WEModalityType::Enum WLEMDSource::getOriginModalityType() const
+WLEModality::Enum WLEMDSource::getOriginModalityType() const
 {
     return m_originModalityType;
 }
 
-void WLEMDSource::setOriginModalityType( LaBP::WEModalityType::Enum modality )
+void WLEMDSource::setOriginModalityType( WLEModality::Enum modality )
 {
     m_originModalityType = modality;
 }

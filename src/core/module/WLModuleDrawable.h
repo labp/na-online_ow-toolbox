@@ -35,6 +35,7 @@
 
 #include "core/data/WLEMMCommand.h"
 #include "core/data/WLEMMeasurement.h"
+#include "core/data/enum/WLEModality.h"
 #include "core/gui/colorMap/WLColorMap.h"
 #include "core/gui/drawable/WLEMDDrawable2D.h"
 #include "core/gui/drawable/WLEMDDrawable3D.h"
@@ -101,13 +102,13 @@ protected:
      */
     virtual void moduleInit() = 0;
 
-    LaBP::WEModalityType::Enum getViewModality();
+    WLEModality::Enum getViewModality();
 
-    void setViewModality( LaBP::WEModalityType::Enum mod );
+    void setViewModality( WLEModality::Enum mod );
 
     void hideViewModalitySelection( bool enable );
 
-    LaBP::WEModalityType::Enum getCalculateModality();
+    WLEModality::Enum getCalculateModality();
 
     double getTimerange();
 
@@ -117,7 +118,7 @@ protected:
 
     void hideComputeModalitySelection( bool enable );
 
-    void setComputeModalitySelection( const std::set< LaBP::WEModalityType::Enum >& modalities );
+    void setComputeModalitySelection( const std::set< WLEModality::Enum >& modalities );
 
     void hideLabelChanged( bool enable );
 

@@ -27,7 +27,6 @@
 #include <Eigen/Core>
 
 #include "core/data/WLEMMeasurement.h"
-#include "core/data/WLEMMEnumTypes.h"
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDMEG.h"
 #include "core/data/emd/WLEMDSource.h"
@@ -45,18 +44,17 @@ namespace LaBP
     {
     }
 
-    WLEMData::ScalarT WLBoundCalculator::getMax2D( WLEMMeasurement::ConstSPtr emm, LaBP::WEModalityType::Enum modality )
+    WLEMData::ScalarT WLBoundCalculator::getMax2D( WLEMMeasurement::ConstSPtr emm, WLEModality::Enum modality )
     {
-        if( modality == LaBP::WEModalityType::SOURCE && emm->hasModality( modality ) )
+        if( modality == WLEModality::SOURCE && emm->hasModality( modality ) )
         {
-            LaBP::WEModalityType::Enum origin_modality =
-                            emm->getModality< const WLEMDSource >( modality )->getOriginModalityType();
+            WLEModality::Enum origin_modality = emm->getModality< const WLEMDSource >( modality )->getOriginModalityType();
 
             return getMax( emm->getModality( origin_modality )->getData() );
         }
-        if( WLEMDMEG::isMegType( modality ) )
+        if( WLEModality::isMEG( modality ) )
         {
-            modality = WEModalityType::MEG;
+            modality = WLEModality::MEG;
         }
         if( emm->hasModality( modality ) )
         {
@@ -68,15 +66,15 @@ namespace LaBP
         }
     }
 
-    WLEMData::ScalarT WLBoundCalculator::getMax3D( WLEMMeasurement::ConstSPtr emm, LaBP::WEModalityType::Enum modality )
+    WLEMData::ScalarT WLBoundCalculator::getMax3D( WLEMMeasurement::ConstSPtr emm, WLEModality::Enum modality )
     {
         if( emm->hasModality( modality ) )
         {
             return getMax( emm->getModality( modality )->getData() );
         }
-        if( WLEMDMEG::isMegType( modality ) && modality != WEModalityType::MEG && emm->hasModality( WEModalityType::MEG ) )
+        if( WLEModality::isMEG( modality ) && modality != WLEModality::MEG && emm->hasModality( WLEModality::MEG ) )
         {
-            WLEMDMEG::ConstSPtr meg = emm->getModality< const WLEMDMEG >( WEModalityType::MEG );
+            WLEMDMEG::ConstSPtr meg = emm->getModality< const WLEMDMEG >( WLEModality::MEG );
             WLEMDMEG::SPtr megCoil;
             if( WLEMDMEG::extractCoilModality( megCoil, meg, modality, true ) )
             {

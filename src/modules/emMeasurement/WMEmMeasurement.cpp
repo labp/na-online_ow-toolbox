@@ -47,6 +47,7 @@
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMDEEG.h"
 #include "core/data/emd/WLEMDMEG.h"
+#include "core/data/enum/WLEModality.h"
 #include "core/data/WLEMMSubject.h"
 #include "core/data/WLEMMSurface.h"
 #include "core/data/WLEMMBemBoundary.h"
@@ -517,9 +518,9 @@ bool WMEmMeasurement::readFiff( std::string fname )
         m_fiffEmm.reset( new WLEMMeasurement() );
         if( fiffReader.Read( m_fiffEmm ) == LaBP::WLReaderFIFF::ReturnCode::SUCCESS )
         {
-            if( m_fiffEmm->hasModality( LaBP::WEModalityType::EEG ) )
+            if( m_fiffEmm->hasModality( WLEModality::EEG ) )
             {
-                WLEMDEEG::SPtr eeg = m_fiffEmm->getModality< WLEMDEEG >( LaBP::WEModalityType::EEG );
+                WLEMDEEG::SPtr eeg = m_fiffEmm->getModality< WLEMDEEG >( WLEModality::EEG );
                 if( eeg->getFaces()->empty() )
                 {
                     warnLog() << "No faces found! Faces will be generated.";
@@ -717,7 +718,7 @@ void WMEmMeasurement::setAdditionalInformation( WLEMMeasurement::SPtr emm )
         for( std::vector< WLEMData::SPtr >::iterator it = modalities.begin(); it != modalities.end(); ++it )
         {
             ( *it )->setChanNames( m_elcLabels ); // TODO(pieloth) m_elcLabels are specific for each modality
-            if( ( *it )->getModalityType() == LaBP::WEModalityType::EEG )
+            if( ( *it )->getModalityType() == WLEModality::EEG )
             {
                 WLEMDEEG::SPtr eeg = ( *it )->getAs< WLEMDEEG >();
                 eeg->setFaces( m_elcFaces );

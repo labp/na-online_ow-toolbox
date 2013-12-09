@@ -65,7 +65,7 @@ public:
 
     virtual WLEMData::SPtr clone() const;
 
-    virtual LaBP::WEModalityType::Enum getModalityType() const;
+    virtual WLEModality::Enum getModalityType() const;
 
     /**
      * Returns the positions in millimeter.
@@ -116,15 +116,7 @@ public:
     void setEz( WLArrayList< WVector3f >::SPtr vec );
 
     OW_API_DEPRECATED
-    inline LaBP::WEGeneralCoilType::Enum getChannelType( size_t channelId ) const;
-
-    /**
-     * Checks if modality belongs to a MEG type.
-     *
-     * @param modality modality type to check
-     * @return true if modality is MEG, gradiometer or magnetometer.
-     */
-    static inline bool isMegType( LaBP::WEModalityType::Enum modality );
+    LaBP::WEGeneralCoilType::Enum getChannelType( size_t channelId ) const;
 
     /**
      * Returns the channels indices for the requested coil type.
@@ -135,7 +127,7 @@ public:
      */
     static CoilPicksT coilPicks( const WLEMDMEG& meg, LaBP::WEGeneralCoilType::Enum type );
 
-    static bool extractCoilModality( WLEMDMEG::SPtr& megOut, WLEMDMEG::ConstSPtr megIn, LaBP::WEModalityType::Enum type,
+    static bool extractCoilModality( WLEMDMEG::SPtr& megOut, WLEMDMEG::ConstSPtr megIn, WLEModality::Enum type,
                     bool dataOnly = false );
 
     /**
@@ -160,10 +152,10 @@ public:
     using WLEMData::getData;
 
 protected:
-    WLEMDMEG( LaBP::WEModalityType::Enum modality );
+    WLEMDMEG( WLEModality::Enum modality );
 
 private:
-    LaBP::WEModalityType::Enum m_modality;
+    WLEModality::Enum m_modality;
 
     WLArrayList< WPosition >::SPtr m_chanPos3d;
 
@@ -200,13 +192,7 @@ private:
 
 std::ostream& operator<<( std::ostream &strm, const WLEMDMEG& obj );
 
-bool WLEMDMEG::isMegType( LaBP::WEModalityType::Enum modality )
-{
-    return modality == LaBP::WEModalityType::MEG || LaBP::WEModalityType::MEG_MAG || LaBP::WEModalityType::MEG_GRAD
-                    || LaBP::WEModalityType::MEG_GRAD_MERGED;
-}
-
-LaBP::WEGeneralCoilType::Enum WLEMDMEG::getChannelType( size_t channelId ) const
+inline LaBP::WEGeneralCoilType::Enum WLEMDMEG::getChannelType( size_t channelId ) const
 {
     WAssert( channelId < m_data->size(), "Index out of bounds!" );
     // Sequence: GGMGGMGGM ... 01 2 34 5

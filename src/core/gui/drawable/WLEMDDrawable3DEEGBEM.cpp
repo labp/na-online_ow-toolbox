@@ -32,6 +32,7 @@
 
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMDEEG.h"
+#include "core/data/enum/WLEModality.h"
 #include "core/gui/colorMap/WLColorMap.h"
 #include "core/gui/colorMap/WLColorMapClassic.h"
 #include "core/util/WLGeometry.h"
@@ -44,7 +45,7 @@ WLEMDDrawable3DEEGBEM::WLEMDDrawable3DEEGBEM( WCustomWidget::SPtr widget ) :
                 WLEMDDrawable3D( widget )
 {
     m_electrodesChanged = true;
-    m_modality = WEModalityType::EEG;
+    m_modality = WLEModality::EEG;
     m_colorMap = WLColorMap::SPtr( new WLColorMapClassic( 0, 1, WEColorMapMode::NORMAL ) );
 }
 
@@ -70,7 +71,7 @@ void WLEMDDrawable3DEEGBEM::osgNodeCallback( osg::NodeVisitor* nv )
     }
 
     WLEMMeasurement::ConstSPtr emm = m_emm;
-    WLEMDEEG::ConstSPtr emd = emm->getModality< const WLEMDEEG >( WEModalityType::EEG );
+    WLEMDEEG::ConstSPtr emd = emm->getModality< const WLEMDEEG >( WLEModality::EEG );
 
     WLEMMSubject::ConstSPtr subject = emm->getSubject();
     const std::list< WLEMMBemBoundary::SPtr >& bems = *subject->getBemBoundaries();

@@ -26,8 +26,8 @@
 #define WLBOUNDCALCULATOR_H_
 
 #include "core/data/WLEMMeasurement.h"
-#include "core/data/WLEMMEnumTypes.h"
 #include "core/data/emd/WLEMData.h"
+#include "core/data/enum/WLEModality.h"
 
 namespace LaBP
 {
@@ -35,8 +35,8 @@ namespace LaBP
     {
     public:
         explicit WLBoundCalculator( WLEMData::ScalarT alpha = 1.5 );
-        WLEMData::ScalarT getMax2D( WLEMMeasurement::ConstSPtr emm, LaBP::WEModalityType::Enum modality );
-        WLEMData::ScalarT getMax3D( WLEMMeasurement::ConstSPtr emm, LaBP::WEModalityType::Enum modality );
+        WLEMData::ScalarT getMax2D( WLEMMeasurement::ConstSPtr emm, WLEModality::Enum modality );
+        WLEMData::ScalarT getMax3D( WLEMMeasurement::ConstSPtr emm, WLEModality::Enum modality );
         WLEMData::ScalarT getMax( const WLEMData::DataT& data );
         virtual ~WLBoundCalculator();
 
