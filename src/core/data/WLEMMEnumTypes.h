@@ -124,7 +124,7 @@ namespace LaBP
     {
         enum Enum
         {
-            EEG = 0, ECG = 1, MEG = 2, EOG = 3, PCA = 4, SOURCE = 5
+            EEG = 0, ECG = 1, MEG = 2, EOG = 3, PCA = 4, SOURCE = 5, MEG_MAG = 6, MEG_GRAD = 7, MEG_GRAD_MERGED = 8
         };
         std::vector< Enum > values();
         std::string name( Enum val );

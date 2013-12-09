@@ -93,11 +93,13 @@ public:
     virtual ~WLEMMeasurement();
 
     /**
-     * add a Modality to the modality list
+     * Adds a modality to the modality list.
+     * NOTE: MEG_MAG, MEG_GRAD and MEG_GRAD_MERGE are not added!
      *
      * \param modality modality to add to list
+     * \return True, if modality was added.
      */
-    void addModality( WLEMData::SPtr modality );
+    bool addModality( WLEMData::SPtr modality );
 
     /**
      * getter for vector of modalities
@@ -110,8 +112,9 @@ public:
      * setter for Modality list
      *
      * \param list the new modality list
+     * \return Number of modalities which are added.
      */
-    void setModalityList( std::vector< WLEMData::SPtr > list );
+    size_t setModalityList( const std::vector< WLEMData::SPtr >& list );
 
     /**
      * Returns the number modalities.

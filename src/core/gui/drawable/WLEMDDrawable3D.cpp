@@ -46,6 +46,7 @@
 #include <core/graphicsEngine/WGEGeodeUtils.h>
 
 #include "core/data/WLEMMEnumTypes.h"
+#include "core/data/emd/WLEMDMEG.h"
 #include "core/gui/colorMap/WLColorMap.h"
 
 #include "WLEMDDrawable.h"
@@ -88,17 +89,30 @@ namespace LaBP
                 drawable3D = WLEMDDrawable3D::SPtr( new WLEMDDrawable3DEEG( widget ) );
                 break;
             case LaBP::WEModalityType::MEG:
-                // drawable3D = WLEMDDrawable3D::SPtr( new WLEMDDrawable3DMEG( widget ) );
-                drawable3D = WLEMDDrawable3D::SPtr( new WLEMDDrawable3DEmpty( widget ) );
+                drawable3D = WLEMDDrawable3D::SPtr( new WLEMDDrawable3DMEG( widget ) );
+                break;
+            case LaBP::WEModalityType::MEG_MAG:
+                drawable3D = WLEMDDrawable3D::SPtr( new WLEMDDrawable3DMEG( widget, modality ) );
+                break;
+            case LaBP::WEModalityType::MEG_GRAD:
+                drawable3D = WLEMDDrawable3D::SPtr( new WLEMDDrawable3DMEG( widget, modality ) );
+                break;
+            case LaBP::WEModalityType::MEG_GRAD_MERGED:
+                drawable3D = WLEMDDrawable3D::SPtr( new WLEMDDrawable3DMEG( widget, modality ) );
                 break;
             case LaBP::WEModalityType::SOURCE:
                 drawable3D = WLEMDDrawable3D::SPtr( new WLEMDDrawable3DSource( widget ) );
                 break;
             default:
                 drawable3D = WLEMDDrawable3D::SPtr( new WLEMDDrawable3DEmpty( widget ) );
+                wlog::warn( CLASS ) << "No 3D drawable available for modality: " << WEModalityType::name( modality );
                 break;
         }
-        drawable3D->m_modality = modality;
+        if( WLEMDMEG::isMegType( modality ) )
+        {
+            modality = WEModalityType::MEG;
+        }
+        drawable3D->setModality( modality );
         return drawable3D;
     }
 

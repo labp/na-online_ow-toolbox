@@ -40,6 +40,7 @@
 #include <core/graphicsEngine/WGEGroupNode.h>
 
 #include "core/data/emd/WLEMData.h"
+#include "core/data/emd/WLEMDMEG.h"
 #include "core/data/WLEMMEnumTypes.h"
 
 #include "WLEMDDrawable.h"
@@ -338,6 +339,10 @@ namespace LaBP
             default:
                 WAssert( false, "Unknown WEGraphType!" );
                 break;
+        }
+        if( WLEMDMEG::isMegType( modality ) )
+        {
+            modality = WEModalityType::MEG;
         }
         drawable2D->setModality( modality );
         return drawable2D;

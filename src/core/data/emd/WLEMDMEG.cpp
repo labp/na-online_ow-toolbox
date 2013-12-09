@@ -25,6 +25,8 @@
 #include <boost/shared_ptr.hpp>
 
 #include <core/common/WAssert.h>
+#include <core/common/WLogger.h>
+#include <core/common/exceptions/WPreconditionNotMet.h>
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
@@ -35,9 +37,28 @@
 
 using namespace LaBP;
 
+const std::string WLEMDMEG::CLASS = "WLEMDMEG";
+
 WLEMDMEG::WLEMDMEG() :
                 WLEMData()
 {
+    m_modality = WEModalityType::MEG;
+    m_chanPos3d = WLArrayList< WPosition >::instance();
+    m_faces = WLArrayList< WVector3i >::instance();
+
+    m_eX = WLArrayList< WVector3f >::instance();
+    m_eY = WLArrayList< WVector3f >::instance();
+    m_eZ = WLArrayList< WVector3f >::instance();
+}
+
+WLEMDMEG::WLEMDMEG( WEModalityType::Enum modality )
+{
+    if( !isMegType( modality ) )
+    {
+        throw WPreconditionNotMet( "Modality must be MEG, gradiometer or magnetometer!" );
+    }
+
+    m_modality = modality;
     m_chanPos3d = WLArrayList< WPosition >::instance();
     m_faces = WLArrayList< WVector3i >::instance();
 
@@ -49,6 +70,7 @@ WLEMDMEG::WLEMDMEG() :
 WLEMDMEG::WLEMDMEG( const WLEMDMEG& meg ) :
                 WLEMData( meg )
 {
+    m_modality = meg.m_modality;
     m_chanPos3d = meg.m_chanPos3d;
     m_faces = meg.m_faces;
     m_eX = meg.m_eX;
@@ -68,7 +90,7 @@ WLEMData::SPtr WLEMDMEG::clone() const
 
 LaBP::WEModalityType::Enum WLEMDMEG::getModalityType() const
 {
-    return LaBP::WEModalityType::MEG;
+    return m_modality;
 }
 
 WLArrayList< WPosition >::SPtr WLEMDMEG::getChannelPositions3d()
@@ -79,6 +101,28 @@ WLArrayList< WPosition >::SPtr WLEMDMEG::getChannelPositions3d()
 WLArrayList< WPosition >::ConstSPtr WLEMDMEG::getChannelPositions3d() const
 {
     return m_chanPos3d;
+}
+
+WLArrayList< WPosition >::ConstSPtr WLEMDMEG::getChannelPositions3d( LaBP::WEGeneralCoilType::Enum type ) const
+{
+    if( m_chanPos3d->size() % 3 != 0 || m_chanPos3d->empty() )
+    {
+        return WLArrayList< WPosition >::ConstSPtr( new WLArrayList< WPosition > );
+    }
+
+    std::vector< size_t > picks = getPicks( type );
+    WLArrayList< WPosition >::SPtr posPtr( new WLArrayList< WPosition > );
+    WLArrayList< WPosition >& positions = *posPtr;
+    positions.reserve( picks.size() );
+
+    size_t row = 0;
+    std::vector< size_t >::const_iterator it;
+    for( it = picks.begin(); it != picks.end(); ++it )
+    {
+        positions.push_back( m_chanPos3d->at( *it ) );
+    }
+
+    return posPtr;
 }
 
 void WLEMDMEG::setChannelPositions3d( WLArrayList< WPosition >::SPtr chanPos3d )
@@ -99,6 +143,28 @@ WLArrayList< WVector3i >::SPtr WLEMDMEG::getFaces()
 WLArrayList< WVector3i >::ConstSPtr WLEMDMEG::getFaces() const
 {
     return m_faces;
+}
+
+WLArrayList< WVector3i >::ConstSPtr WLEMDMEG::getFaces( LaBP::WEGeneralCoilType::Enum type ) const
+{
+    if( m_faces->size() % 3 != 0 || m_faces->empty() )
+    {
+        return WLArrayList< WVector3i >::ConstSPtr( new WLArrayList< WVector3i > );
+    }
+
+    std::vector< size_t > picks = getPicks( type );
+    WLArrayList< WVector3i >::SPtr facesPtr( new WLArrayList< WVector3i > );
+    WLArrayList< WVector3i >& faces = *facesPtr;
+    faces.reserve( picks.size() );
+
+    size_t row = 0;
+    std::vector< size_t >::const_iterator it;
+    for( it = picks.begin(); it != picks.end(); ++it )
+    {
+        faces.push_back( m_faces->at( *it ) );
+    }
+
+    return facesPtr;
 }
 
 void WLEMDMEG::setFaces( boost::shared_ptr< std::vector< WVector3i > > faces )
@@ -217,11 +283,186 @@ std::vector< size_t > WLEMDMEG::getPicks( WEGeneralCoilType::Enum type ) const
     }
 }
 
+WLEMDMEG::CoilPicksT WLEMDMEG::coilPicks( const WLEMDMEG& meg, WEGeneralCoilType::Enum type )
+{
+    CoilPicksT picks;
+    const size_t rows = meg.getNrChans();
+    if( rows % 3 != 0 )
+    {
+        wlog::error( CLASS ) << "channels % 3 != 0";
+        return picks; // empty vector
+    }
+
+    switch( type )
+    {
+        case WEGeneralCoilType::MAGNETOMETER:
+            picks.reserve( rows / 3 );
+            break;
+        case WEGeneralCoilType::GRADIOMETER:
+            picks.reserve( ( rows / 3 ) * 2 );
+            break;
+    }
+
+    for( size_t ch = 0; ch < rows; ++ch )
+    {
+        if( meg.getChannelType( ch ) == type )
+        {
+            picks.push_back( ch );
+        }
+    }
+
+    return picks;
+}
+
+bool WLEMDMEG::extractCoilModality( WLEMDMEG::SPtr& megOut, WLEMDMEG::ConstSPtr megIn, LaBP::WEModalityType::Enum type,
+                bool dataOnly )
+{
+    if( !isMegType( type ) )
+    {
+        wlog::error( CLASS ) << "Requested extraction into a non-MEG type!";
+        return false;
+    }
+
+    CoilPicksT picksAll;
+    switch( type )
+    {
+        case WEModalityType::MEG:
+        {
+            megOut.reset( new WLEMDMEG( *megIn ) );
+            WLEMDMEG::DataSPtr data( new WLEMDMEG::DataT( megIn->getData() ) );
+            megOut->setData( data );
+            return true;
+        }
+        case WEModalityType::MEG_MAG:
+            picksAll = coilPicks( *megIn, WEGeneralCoilType::MAGNETOMETER );
+            break;
+        case WEModalityType::MEG_GRAD:
+            picksAll = coilPicks( *megIn, WEGeneralCoilType::GRADIOMETER );
+            break;
+        case WEModalityType::MEG_GRAD_MERGED:
+            picksAll = coilPicks( *megIn, WEGeneralCoilType::GRADIOMETER );
+            break;
+        default:
+            wlog::error( CLASS ) << "Requested formation into a non-MEG type!";
+            return false;
+    }
+
+    megOut.reset( new WLEMDMEG( type ) );
+    if( picksAll.empty() )
+    {
+        megOut.reset( new WLEMDMEG( type ) );
+        wlog::warn( CLASS ) << "Requested extraction into the same type!";
+        return false;
+    }
+
+    CoilPicksT picksFiltered;
+    if( type != WEModalityType::MEG_GRAD_MERGED )
+    {
+        picksFiltered = picksAll;
+    }
+    else
+    {
+        picksFiltered.reserve( picksAll.size() / 2 );
+        for( size_t i = 0; i < picksAll.size(); i += 2 )
+        {
+            picksFiltered.push_back( picksAll[i] );
+        }
+    }
+
+    CoilPicksT::const_iterator it;
+
+    WLEMDMEG::DataSPtr dataPtr( new WLEMDMEG::DataT( picksFiltered.size(), megIn->getSamplesPerChan() ) );
+    WLEMDMEG::DataT& data = *dataPtr;
+
+    const WLEMDMEG::DataT& data_from = megIn->getData();
+    WLEMDMEG::DataT::Index row = 0;
+    WLEMDMEG::ChannelT chan1, chan2;
+    for( it = picksAll.begin(); it != picksAll.end(); ++it )
+    {
+        if( type != WEModalityType::MEG_GRAD_MERGED )
+        {
+            data.row( row++ ) = data_from.row( *it );
+        }
+        else
+        {
+            chan1 = data_from.row( *it );
+            chan2 = data_from.row( *( ++it ) );
+
+            chan1 = 0.5 * ( chan1.cwiseProduct( chan1 ) + chan2.cwiseProduct( chan2 ) );
+            data.row( row++ ) = chan1.cwiseSqrt();
+        }
+    }
+
+    megOut->setData( dataPtr );
+    if( dataOnly )
+    {
+        return true;
+    }
+
+    const WLArrayList< std::string >& chNames_from = *megIn->getChanNames();
+    WLArrayList< std::string >& chNames = *megOut->getChanNames();
+    chNames.reserve( picksFiltered.size() );
+    if( picksFiltered.size() <= chNames_from.size() )
+    {
+        for( it = picksFiltered.begin(); it != picksFiltered.end(); ++it )
+        {
+            chNames.push_back( chNames_from[*it] );
+        }
+    }
+
+    const WLArrayList< WPosition >& chPos_from = *megIn->getChannelPositions3d();
+    WLArrayList< WPosition >& chPos = *megOut->getChannelPositions3d();
+    chPos.reserve( picksFiltered.size() );
+    if( picksFiltered.size() <= chPos_from.size() )
+    {
+        for( it = picksFiltered.begin(); it != picksFiltered.end(); ++it )
+        {
+            chPos.push_back( chPos_from[*it] );
+        }
+    }
+
+    const WLArrayList< WVector3i >& chFaces_from = *megIn->getFaces();
+    WLArrayList< WVector3i >& chFaces = *megOut->getFaces();
+    chFaces.reserve( picksFiltered.size() );
+    if( picksFiltered.size() <= chFaces_from.size() )
+    {
+        for( it = picksFiltered.begin(); it != picksFiltered.end(); ++it )
+        {
+            chFaces.push_back( chFaces_from[*it] );
+        }
+    }
+
+    const WLArrayList< WVector3f >& eX_from = *megIn->getEx();
+    const WLArrayList< WVector3f >& eY_from = *megIn->getEy();
+    const WLArrayList< WVector3f >& eZ_from = *megIn->getEz();
+    WLArrayList< WVector3f >& eX = *megOut->getEx();
+    WLArrayList< WVector3f >& eY = *megOut->getEy();
+    WLArrayList< WVector3f >& eZ = *megOut->getEz();
+    eX.reserve( picksFiltered.size() );
+    eY.reserve( picksFiltered.size() );
+    eZ.reserve( picksFiltered.size() );
+    const bool eq = eX_from.size() == eY_from.size() && eX_from.size() == eZ_from.size();
+    if( picksFiltered.size() <= eX_from.size() && eq )
+    {
+        for( it = picksFiltered.begin(); it != picksFiltered.end(); ++it )
+        {
+            eX.push_back( eX_from[*it] );
+            eY.push_back( eY_from[*it] );
+            eZ.push_back( eZ_from[*it] );
+        }
+    }
+
+    return true;
+}
+
 std::ostream& operator<<( std::ostream &strm, const WLEMDMEG& obj )
 {
     const WLEMData& emd = static_cast< const WLEMData& >( obj );
     strm << emd;
     strm << ", positions=" << obj.getChannelPositions3d()->size();
     strm << ", faces=" << obj.getFaces()->size();
+    strm << ", ex=" << obj.getEx()->size();
+    strm << ", ey=" << obj.getEy()->size();
+    strm << ", ez=" << obj.getEz()->size();
     return strm;
 }

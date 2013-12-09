@@ -52,6 +52,7 @@ namespace LaBP
         m_labelsChanged = true;
         m_labelsOn = true;
         m_electrodesChanged = true;
+        m_modality = WEModalityType::EEG;
     }
 
     WLEMDDrawable3DEEG::~WLEMDDrawable3DEEG()
@@ -195,7 +196,7 @@ namespace LaBP
         }
 
         WLEMMeasurement::ConstSPtr emm = m_emm;
-        WLEMDEEG::ConstSPtr emd = emm->getModality< const WLEMDEEG >( WEModalityType::EEG );
+        WLEMDEEG::ConstSPtr emd = emm->getModality< const WLEMDEEG >( m_modality );
 
         if( m_colorMapChanged )
         {

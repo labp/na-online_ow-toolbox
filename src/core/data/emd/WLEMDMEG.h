@@ -26,6 +26,7 @@
 #define WLEMDMEG_H
 
 #include <ostream>
+#include <string>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
@@ -42,6 +43,8 @@
 class WLEMDMEG: public WLEMData
 {
 public:
+    static const std::string CLASS;
+
     /**
      * Abbreviation for a shared pointer.
      */
@@ -51,6 +54,8 @@ public:
      * Abbreviation for const shared pointer.
      */
     typedef boost::shared_ptr< const WLEMDMEG > ConstSPtr;
+
+    typedef std::vector< size_t > CoilPicksT;
 
     WLEMDMEG();
 
@@ -72,6 +77,9 @@ public:
      */
     WLArrayList< WPosition >::ConstSPtr getChannelPositions3d() const;
 
+    OW_API_DEPRECATED
+    WLArrayList< WPosition >::ConstSPtr getChannelPositions3d( LaBP::WEGeneralCoilType::Enum type ) const;
+
     /**
      * Sets the positions. Positions must be in millimeter.
      */
@@ -86,6 +94,9 @@ public:
     WLArrayList< WVector3i >::SPtr getFaces();
 
     WLArrayList< WVector3i >::ConstSPtr getFaces() const;
+
+    OW_API_DEPRECATED
+    WLArrayList< WVector3i >::ConstSPtr getFaces( LaBP::WEGeneralCoilType::Enum type ) const;
 
     void setFaces( WLArrayList< WVector3i >::SPtr faces );
 
@@ -104,7 +115,28 @@ public:
     WLArrayList< WVector3f >::ConstSPtr getEz() const;
     void setEz( WLArrayList< WVector3f >::SPtr vec );
 
+    OW_API_DEPRECATED
     inline LaBP::WEGeneralCoilType::Enum getChannelType( size_t channelId ) const;
+
+    /**
+     * Checks if modality belongs to a MEG type.
+     *
+     * @param modality modality type to check
+     * @return true if modality is MEG, gradiometer or magnetometer.
+     */
+    static inline bool isMegType( LaBP::WEModalityType::Enum modality );
+
+    /**
+     * Returns the channels indices for the requested coil type.
+     *
+     * @param meg data to pick from
+     * @param type Requested coil type
+     * @return An array of indices for the requested coil type
+     */
+    static CoilPicksT coilPicks( const WLEMDMEG& meg, LaBP::WEGeneralCoilType::Enum type );
+
+    static bool extractCoilModality( WLEMDMEG::SPtr& megOut, WLEMDMEG::ConstSPtr megIn, LaBP::WEModalityType::Enum type,
+                    bool dataOnly = false );
 
     /**
      * Returns the channels indices for the requested coil type.
@@ -112,6 +144,7 @@ public:
      * @param type Requested coil type
      * @return An array of indices for the requested coil type
      */
+    OW_API_DEPRECATED
     std::vector< size_t > getPicks( LaBP::WEGeneralCoilType::Enum type ) const;
 
     /**
@@ -121,11 +154,17 @@ public:
      * @param type Requested coil type
      * @return New data containing all channels of the requested coil type
      */
+    OW_API_DEPRECATED
     DataSPtr getData( LaBP::WEGeneralCoilType::Enum type ) const; // This is a copy of channels, so the data is not changed.
 
     using WLEMData::getData;
 
+protected:
+    WLEMDMEG( LaBP::WEModalityType::Enum modality );
+
 private:
+    LaBP::WEModalityType::Enum m_modality;
+
     WLArrayList< WPosition >::SPtr m_chanPos3d;
 
     WLArrayList< WVector3i >::SPtr m_faces;
@@ -134,8 +173,10 @@ private:
     WLArrayList< WVector3f >::SPtr m_eY;
     WLArrayList< WVector3f >::SPtr m_eZ;
 
-    mutable std::vector<size_t> m_picksMag; // mutable to reset the picks after a data change and lazy load.
-    mutable std::vector<size_t> m_picksGrad; // mutable to reset the picks after a data change and lazy load.
+    OW_API_DEPRECATED
+    mutable std::vector< size_t > m_picksMag; // mutable to reset the picks after a data change and lazy load.
+    OW_API_DEPRECATED
+    mutable std::vector< size_t > m_picksGrad; // mutable to reset the picks after a data change and lazy load.
 
     /*
      * member contains absolute position of channel with coordinate system in this position
@@ -158,6 +199,12 @@ private:
 };
 
 std::ostream& operator<<( std::ostream &strm, const WLEMDMEG& obj );
+
+bool WLEMDMEG::isMegType( LaBP::WEModalityType::Enum modality )
+{
+    return modality == LaBP::WEModalityType::MEG || LaBP::WEModalityType::MEG_MAG || LaBP::WEModalityType::MEG_GRAD
+                    || LaBP::WEModalityType::MEG_GRAD_MERGED;
+}
 
 LaBP::WEGeneralCoilType::Enum WLEMDMEG::getChannelType( size_t channelId ) const
 {

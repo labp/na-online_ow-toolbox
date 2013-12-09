@@ -25,8 +25,15 @@
 #ifndef WLEMDDRAWABLE3DMEG_H_
 #define WLEMDDRAWABLE3DMEG_H_
 
+#include <vector>
+
 #include <boost/shared_ptr.hpp>
 
+#include <osg/Geode>
+#include <osg/ShapeDrawable>
+#include <osg/ref_ptr>
+
+#include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/gui/WCustomWidget.h>
 
 #include "WLEMDDrawable3D.h"
@@ -47,10 +54,38 @@ namespace LaBP
         typedef boost::shared_ptr< const WLEMDDrawable3DMEG > ConstSPtr;
 
         explicit WLEMDDrawable3DMEG( WCustomWidget::SPtr widget );
+
+        WLEMDDrawable3DMEG( WCustomWidget::SPtr widget, WEModalityType::Enum coilType );
+
         virtual ~WLEMDDrawable3DMEG();
+        void setLabels( bool labelOn );
 
     protected:
+        virtual bool mustDraw() const;
+
         virtual void osgNodeCallback( osg::NodeVisitor* nv );
+
+    private:
+        void osgAddLabels( const std::vector< WPosition >& positions, const std::vector< std::string >& labels );
+
+        void osgAddNodes( const std::vector< WPosition >& positions );
+
+        void osgUpdateSurfaceColor( const WLEMData::DataT& data );
+
+        void osgUpdateNodesColor( const WLEMData::DataT& data );
+
+        bool m_electrodesChanged;
+
+        const WEModalityType::Enum m_coilType;
+
+        osg::ref_ptr< osg::Geode > m_electrodesGeode;
+
+        std::vector< osg::ref_ptr< osg::ShapeDrawable > > m_electrodesDrawables;
+
+        bool m_labelsChanged;
+        bool m_labelsOn;
+
+        osg::ref_ptr< osg::Geode > m_labesGeode;
     };
 } /* namespace LaBP */
 #endif  // WLEMDDRAWABLE3DMEG_H_

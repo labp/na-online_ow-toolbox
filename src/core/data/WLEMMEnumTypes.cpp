@@ -99,6 +99,9 @@ std::vector< LaBP::WEModalityType::Enum > LaBP::WEModalityType::values()
     modalities.push_back( LaBP::WEModalityType::MEG );
     modalities.push_back( LaBP::WEModalityType::PCA );
     modalities.push_back( LaBP::WEModalityType::SOURCE );
+    modalities.push_back( LaBP::WEModalityType::MEG_MAG );
+    modalities.push_back( LaBP::WEModalityType::MEG_GRAD );
+    modalities.push_back( LaBP::WEModalityType::MEG_GRAD_MERGED );
     return modalities;
 }
 
@@ -118,6 +121,12 @@ std::string LaBP::WEModalityType::name( LaBP::WEModalityType::Enum val )
             return "PCA";
         case LaBP::WEModalityType::SOURCE:
             return "Source";
+        case LaBP::WEModalityType::MEG_MAG:
+            return "MEG (mag.)";
+        case LaBP::WEModalityType::MEG_GRAD:
+            return "MEG (grad.)";
+        case LaBP::WEModalityType::MEG_GRAD_MERGED:
+            return "MEG (grad2)";
         default:
             WAssert( false, "Unknown WEModalityType!" );
             return UNDEFINED;
@@ -141,6 +150,12 @@ std::string LaBP::WEModalityType::description( LaBP::WEModalityType::Enum val )
             return "PCA measurement";
         case LaBP::WEModalityType::SOURCE:
             return "Source localization";
+        case LaBP::WEModalityType::MEG_MAG:
+            return "MEG measurement (magnetometer)";
+        case LaBP::WEModalityType::MEG_GRAD:
+            return "MEG measurement (gradiometer)";
+        case LaBP::WEModalityType::MEG_GRAD_MERGED:
+            return "MEG measurement (gradiometer merged)";
         default:
             WAssert( false, "Unknown WEModalityType!" );
             return UNDEFINED;

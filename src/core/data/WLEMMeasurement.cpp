@@ -32,6 +32,7 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <core/common/WLogger.h>
 #include <core/common/exceptions/WNotFound.h>
 
 #include "core/data/WLEMMEnumTypes.h"
@@ -111,9 +112,15 @@ WLEMMeasurement::SPtr WLEMMeasurement::newModalityData( WLEMData::SPtr modality 
     return emm;
 }
 
-void WLEMMeasurement::addModality( WLEMData::SPtr modality )
+bool WLEMMeasurement::addModality( WLEMData::SPtr modality )
 {
+    WEModalityType::Enum m = modality->getModalityType();
+    if( m == WEModalityType::MEG_MAG || m == WEModalityType::MEG_GRAD || m == WEModalityType::MEG_GRAD_MERGED )
+    {
+        return false;
+    }
     m_modalityList.push_back( modality );
+    return true;
 }
 
 // -----------getter and setter-----------------------------------------------------------------------------
@@ -143,10 +150,23 @@ std::vector< WLEMData::SPtr > WLEMMeasurement::getModalityList()
     return m_modalityList;
 }
 
-void WLEMMeasurement::setModalityList( std::vector< WLEMData::SPtr > list )
+size_t WLEMMeasurement::setModalityList( const std::vector< WLEMData::SPtr >&list )
 {
     m_modalityList.clear();
-    m_modalityList = list;
+    std::vector< WLEMData::SPtr >::const_iterator it;
+    for( it = list.begin(); it != list.end(); ++it )
+    {
+        const WEModalityType::Enum m = ( *it )->getModalityType();
+        if( m != WEModalityType::MEG_MAG && m != WEModalityType::MEG_GRAD && m != WEModalityType::MEG_GRAD_MERGED )
+        {
+            m_modalityList.push_back( ( *it ) );
+        }
+        else
+        {
+            wlog::warn( CLASS ) << "Skipping modality: " << WEModalityType::name( m );
+        }
+    }
+    return m_modalityList.size();
 }
 
 size_t WLEMMeasurement::getModalityCount() const
