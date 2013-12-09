@@ -115,12 +115,17 @@ WLEMMeasurement::SPtr WLEMMeasurement::newModalityData( WLEMData::SPtr modality 
 bool WLEMMeasurement::addModality( WLEMData::SPtr modality )
 {
     WLEModality::Enum m = modality->getModalityType();
-    if( m == WLEModality::MEG_MAG || m == WLEModality::MEG_GRAD || m == WLEModality::MEG_GRAD_MERGED )
+    if( !WLEModality::isMEGCoil( m ) )
     {
+        m_modalityList.push_back( modality );
+        return true;
+    }
+    else
+    {
+        wlog::warn( CLASS ) << "Skipping modality: " << WLEModality::name( m );
         return false;
     }
-    m_modalityList.push_back( modality );
-    return true;
+
 }
 
 // -----------getter and setter-----------------------------------------------------------------------------
@@ -157,7 +162,7 @@ size_t WLEMMeasurement::setModalityList( const std::vector< WLEMData::SPtr >&lis
     for( it = list.begin(); it != list.end(); ++it )
     {
         const WLEModality::Enum m = ( *it )->getModalityType();
-        if( m != WLEModality::MEG_MAG && m != WLEModality::MEG_GRAD && m != WLEModality::MEG_GRAD_MERGED )
+        if( !WLEModality::isMEGCoil( m ) )
         {
             m_modalityList.push_back( ( *it ) );
         }

@@ -22,13 +22,15 @@
 //
 //---------------------------------------------------------------------------
 
+#include <stdarg.h>
+
 #include <core/common/WAssert.h>
 
 #include "WLEModality.h"
 
-std::set< WLEModality::Enum > WLEModality::values()
+WLEModality::ContainerT WLEModality::values()
 {
-    std::set< WLEModality::Enum > modalities;
+    ContainerT modalities;
     modalities.insert( WLEModality::EEG );
     modalities.insert( WLEModality::ECG );
     modalities.insert( WLEModality::EOG );
@@ -101,9 +103,9 @@ std::string WLEModality::description( WLEModality::Enum val )
     }
 }
 
-std::set< WLEModality::Enum > WLEModality::valuesDevice()
+WLEModality::ContainerT WLEModality::valuesDevice()
 {
-    std::set< WLEModality::Enum > modalities;
+    ContainerT modalities;
     modalities.insert( WLEModality::EEG );
     modalities.insert( WLEModality::ECG );
     modalities.insert( WLEModality::EOG );
@@ -111,9 +113,9 @@ std::set< WLEModality::Enum > WLEModality::valuesDevice()
     return modalities;
 }
 
-std::set< WLEModality::Enum > WLEModality::valuesMEG()
+WLEModality::ContainerT WLEModality::valuesMEG()
 {
-    std::set< WLEModality::Enum > modalities;
+    ContainerT modalities;
     modalities.insert( WLEModality::MEG );
     modalities.insert( WLEModality::MEG_MAG );
     modalities.insert( WLEModality::MEG_GRAD );
@@ -121,17 +123,26 @@ std::set< WLEModality::Enum > WLEModality::valuesMEG()
     return modalities;
 }
 
-std::set< WLEModality::Enum > WLEModality::valuesComputed()
+WLEModality::ContainerT WLEModality::valuesMEGCoil()
 {
-    std::set< WLEModality::Enum > modalities;
+    ContainerT modalities;
+    modalities.insert( WLEModality::MEG_MAG );
+    modalities.insert( WLEModality::MEG_GRAD );
+    modalities.insert( WLEModality::MEG_GRAD_MERGED );
+    return modalities;
+}
+
+WLEModality::ContainerT WLEModality::valuesComputed()
+{
+    ContainerT modalities;
     modalities.insert( WLEModality::PCA );
     modalities.insert( WLEModality::SOURCE );
     return modalities;
 }
 
-std::set< WLEModality::Enum > WLEModality::valuesLocalizeable()
+WLEModality::ContainerT WLEModality::valuesLocalizeable()
 {
-    std::set< WLEModality::Enum > modalities;
+    ContainerT modalities;
     modalities.insert( WLEModality::EEG );
     modalities.insert( WLEModality::MEG );
     return modalities;

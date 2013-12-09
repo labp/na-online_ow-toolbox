@@ -340,7 +340,7 @@ namespace LaBP
                 WAssert( false, "Unknown WEGraphType!" );
                 break;
         }
-        if( WLEModality::isMEG( modality ) )
+        if( WLEModality::isMEGCoil( modality ) )
         {
             modality = WLEModality::MEG;
         }

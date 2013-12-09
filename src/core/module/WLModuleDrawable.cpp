@@ -120,16 +120,15 @@ void WLModuleDrawable::properties()
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_selectionColor );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_selectionColor );
 
-    const std::set< WLEModality::Enum > modalities = WLEModality::values();
-    std::set< WLEModality::Enum >::const_iterator itMod;
+    WLEModality::ContainerT modalities = WLEModality::valuesDevice();
+    WLEModality::ContainerT::const_iterator itMod;
 
     WItemSelection::SPtr calculateSelection( new WItemSelection() );
     for( itMod = modalities.begin(); itMod != modalities.end(); ++itMod )
     {
         calculateSelection->addItem(
                         WItemSelectionItemTyped< WLEModality::Enum >::SPtr(
-                                        new WItemSelectionItemTyped< WLEModality::Enum >( *itMod,
-                                                        WLEModality::name( *itMod ),
+                                        new WItemSelectionItemTyped< WLEModality::Enum >( *itMod, WLEModality::name( *itMod ),
                                                         WLEModality::description( *itMod ) ) ) );
     }
 
@@ -147,13 +146,15 @@ void WLModuleDrawable::properties()
     m_timeRange->setMin( 0.100 );
     m_timeRange->setMax( 4.0 );
 
+    modalities = WLEModality::valuesDevice();
+    WLEModality::ContainerT tmp = WLEModality::valuesMEGCoil();
+    modalities.insert( tmp.begin(), tmp.end() );
     WItemSelection::SPtr viewSelection( new WItemSelection() );
     for( itMod = modalities.begin(); itMod != modalities.end(); ++itMod )
     {
         viewSelection->addItem(
                         WItemSelectionItemTyped< WLEModality::Enum >::SPtr(
-                                        new WItemSelectionItemTyped< WLEModality::Enum >( *itMod,
-                                                        WLEModality::name( *itMod ),
+                                        new WItemSelectionItemTyped< WLEModality::Enum >( *itMod, WLEModality::name( *itMod ),
                                                         WLEModality::description( *itMod ) ) ) );
     }
 

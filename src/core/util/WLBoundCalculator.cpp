@@ -52,7 +52,7 @@ namespace LaBP
 
             return getMax( emm->getModality( origin_modality )->getData() );
         }
-        if( WLEModality::isMEG( modality ) )
+        if( WLEModality::isMEGCoil( modality ) )
         {
             modality = WLEModality::MEG;
         }
@@ -72,7 +72,7 @@ namespace LaBP
         {
             return getMax( emm->getModality( modality )->getData() );
         }
-        if( WLEModality::isMEG( modality ) && modality != WLEModality::MEG && emm->hasModality( WLEModality::MEG ) )
+        if( WLEModality::isMEGCoil( modality ) && emm->hasModality( WLEModality::MEG ) )
         {
             WLEMDMEG::ConstSPtr meg = emm->getModality< const WLEMDMEG >( WLEModality::MEG );
             WLEMDMEG::SPtr megCoil;

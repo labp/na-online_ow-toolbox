@@ -108,7 +108,7 @@ namespace LaBP
                 wlog::warn( CLASS ) << "No 3D drawable available for modality: " << WLEModality::name( modality );
                 break;
         }
-        if( WLEModality::isMEG( modality ) )
+        if( WLEModality::isMEGCoil( modality ) )
         {
             modality = WLEModality::MEG;
         }

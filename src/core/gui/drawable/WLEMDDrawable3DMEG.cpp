@@ -204,7 +204,7 @@ namespace LaBP
 
         WLEMDMEG::ConstSPtr emd = m_emm->getModality< const WLEMDMEG >( WLEModality::MEG );
 
-        if( m_coilType != WLEModality::MEG )
+        if( WLEModality::isMEGCoil( m_coilType ) )
         {
             WLEMDMEG::SPtr meg;
             if( WLEMDMEG::extractCoilModality( meg, emd, m_coilType, false ) )

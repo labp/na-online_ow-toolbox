@@ -39,20 +39,26 @@ namespace WLEModality
     {
         EEG = 0, ECG = 1, MEG = 2, EOG = 3, PCA = 4, SOURCE = 5, MEG_MAG = 6, MEG_GRAD = 7, MEG_GRAD_MERGED = 8, UNKNOWN = -1
     };
-    std::set< Enum > values();
+
+    typedef std::set< Enum > ContainerT;
+
+    ContainerT values();
     std::string name( Enum val );
     std::string description( Enum val );
 
-    std::set< Enum > valuesDevice();
+    ContainerT valuesDevice();
     bool isDevice( Enum );
 
-    std::set< Enum > valuesMEG();
+    ContainerT valuesMEG();
     bool isMEG( Enum );
 
-    std::set< Enum > valuesComputed();
+    ContainerT valuesMEGCoil();
+    bool isMEGCoil( Enum );
+
+    ContainerT valuesComputed();
     bool isComputed( Enum );
 
-    std::set< Enum > valuesLocalizeable();
+    ContainerT valuesLocalizeable();
     bool isLocalizeable( Enum );
 }
 
@@ -63,8 +69,12 @@ inline bool WLEModality::isDevice( WLEModality::Enum val )
 
 inline bool WLEModality::isMEG( WLEModality::Enum val )
 {
-    return val == WLEModality::MEG || val == WLEModality::MEG_MAG || val == WLEModality::MEG_GRAD
-                    || val == WLEModality::MEG_GRAD_MERGED;
+    return val == WLEModality::MEG || isMEGCoil( val );
+}
+
+inline bool WLEModality::isMEGCoil( WLEModality::Enum val )
+{
+    return val == WLEModality::MEG_MAG || val == WLEModality::MEG_GRAD || val == WLEModality::MEG_GRAD_MERGED;
 }
 
 inline bool WLEModality::isComputed( WLEModality::Enum val )
