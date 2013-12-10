@@ -22,6 +22,10 @@
 //
 //---------------------------------------------------------------------------
 
+#include <map>
+
+#include "core/data/emd/WLEMData.h"
+
 #include "WBadChannelManager.h"
 
 WBadChannelManager::WBadChannelManager()
@@ -45,7 +49,9 @@ void WBadChannelManager::addChannel( const LaBP::WEModalityType::Enum& mod, cons
 {
     if( m_map->find( mod ) == m_map->end() )
     {
-        m_map->insert( std::pair< LaBP::WEModalityType::Enum, ChannelList_SPtr >( mod, ChannelList_SPtr( new ChannelList ) ) );
+        m_map->insert(
+                        std::pair< LaBP::WEModalityType::Enum, WLEMData::ChannelListSPtr >( mod,
+                                        WLEMData::ChannelListSPtr( new WLEMData::ChannelList ) ) );
     }
     m_map->find( mod )->second->push_back( channel );
 }
@@ -68,12 +74,56 @@ bool WBadChannelManager::isMapEmpty() const
     return m_map->size() == 0;
 }
 
-WBadChannelManager::ChannelList_SPtr WBadChannelManager::getChannelList( const LaBP::WEModalityType::Enum& mod )
+bool WBadChannelManager::isChannelBad( const LaBP::WEModalityType::Enum& modality, const size_t channelNo ) const
+{
+    if(m_map->count(modality) == 0)
+        return false;
+
+    WLEMData::ChannelListSPtr list = m_map->find(modality)->second;
+    WLEMData::ChannelList::iterator it;
+
+    for(it = list->begin(); it != list->end(); ++it)
+    {
+        if(*it == channelNo)
+            return true;
+    }
+
+    return false;
+}
+
+bool WBadChannelManager::hasBadChannels( const LaBP::WEModalityType::Enum& modality ) const
+{
+    return m_map->count(modality) > 0;
+}
+
+size_t WBadChannelManager::countChannels() const
+{
+    size_t count = 0;
+
+    ChannelMap::iterator it;
+
+    for( it = m_map->begin(); it != m_map->end(); ++it )
+    {
+        count += it->second->size();
+    }
+
+    return count;
+}
+
+size_t WBadChannelManager::countChannels( const LaBP::WEModalityType::Enum& modality ) const
+{
+    if( m_map->count( modality ) == 0 )
+        return 0;
+
+    return m_map->find( modality )->second->size();
+}
+
+WLEMData::ChannelListSPtr WBadChannelManager::getChannelList( const LaBP::WEModalityType::Enum& mod )
 {
     if( m_map->count( mod ) > 0 )
     {
         return m_map->find( mod )->second;
     }
 
-    return ChannelList_SPtr();
+    return WLEMData::ChannelListSPtr();
 }

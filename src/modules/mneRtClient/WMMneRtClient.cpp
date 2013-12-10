@@ -489,7 +489,7 @@ bool WMMneRtClient::handleBemFileChanged( std::string fName )
         return false;
     }
 
-    m_bems.reset( new std::vector< LaBP::WLEMMBemBoundary::SPtr > );
+    m_bems = WLList< WLEMMBemBoundary::SPtr >::instance();
     if( reader->read( m_bems.get() ) )
     {
         m_additionalStatus->set( DATA_LOADED, true );

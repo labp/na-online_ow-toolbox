@@ -77,16 +77,16 @@ namespace LaBP
 
         virtual void osgNodeCallback( osg::NodeVisitor* nv );
 
-        void osgAddValueGrid( const WLEMData* emd );
+        void osgAddValueGrid( const WLEMData& emd );
 
         ValueT m_valueGridHeight;
         ValueT m_valueGridWidth;
         osg::ref_ptr< osg::Group > m_valueGridGroup;
 
-        virtual size_t maxChannels( const WLEMData* emd ) const;
+        virtual size_t maxChannels( const WLEMData& emd ) const;
 
     private:
-        void osgAddChannels( const WLEMData* emd );
+        void osgAddChannels( const WLEMData& emd );
     };
 
 } /* namespace LaBP */

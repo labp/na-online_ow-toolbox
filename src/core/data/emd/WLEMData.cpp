@@ -182,6 +182,11 @@ float WLEMData::getLength() const
     return getSamplesPerChan() / m_sampFreq;
 }
 
+WLEMData::ChannelListSPtr WLEMData::getBadChannels() const
+{
+    return m_badChannels;
+}
+
 void WLEMData::setAnalogHighPass( float analogHighPass )
 {
     m_analogHighPass = analogHighPass;
@@ -245,6 +250,11 @@ void WLEMData::setOrigIdx( uint16_t *origIdx )
 void WLEMData::setSampFreq( float sampFreq )
 {
     m_sampFreq = sampFreq;
+}
+
+void WLEMData::setBadChannels( WLEMData::ChannelListSPtr badChannels )
+{
+    m_badChannels = badChannels;
 }
 
 std::string WLEMData::channelToString( const ChannelT& data, size_t maxSamples )

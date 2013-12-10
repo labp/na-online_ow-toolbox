@@ -28,6 +28,8 @@
 #include <boost/shared_ptr.hpp>
 
 #include "core/data/WLEMMeasurement.h"
+#include "core/data/emd/WLEMData.h"
+#include "core/data/emd/WLEMDMEG.h"
 
 #include "WEpochRejection.h"
 
@@ -62,7 +64,23 @@ public:
 
 private:
 
-    bool calcRejection( const WLEMData::DataT& data, float threshold );
+    /**
+     * Calculates the difference from peek to peek for the given matrix and compares with the threshold.
+     *
+     * @param data The matrix.
+     * @param threshold The threshold.
+     * @return Returns true if the difference was larger than the threshold, else false.
+     */
+    bool calcRejection( const WLEMData::DataT& data, double threshold );
+
+    /**
+     * Calculates the difference from peek to peek for the given matrix and compares with the threshold.
+     *
+     * @param data The matrix.
+     * @param threshold The threshold.
+     * @return Returns true if the difference was larger than the threshold, else false.
+     */
+    bool calcRejection( const WLEMDMEG::DataSPtr data, double threshold );
 
 };
 

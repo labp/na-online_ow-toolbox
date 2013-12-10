@@ -64,6 +64,7 @@
 #include "WMEmMeasurement.xpm"
 
 using std::string;
+using namespace LaBP;
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMEmMeasurement )
@@ -76,7 +77,6 @@ WMEmMeasurement::WMEmMeasurement()
     m_isExpLoaded = false;
     m_isFiffLoaded = false;
     m_isVolLoaded = false;
-    m_hasLeadfield = false;
 }
 
 WMEmMeasurement::~WMEmMeasurement()
@@ -105,16 +105,11 @@ const std::string WMEmMeasurement::getDescription() const
 
 void WMEmMeasurement::connectors()
 {
-    m_input = LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr(
-                    new LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >( 8, shared_from_this(), "in",
-                                    "Expects a EMM-DataSet for filtering." ) );
-
     m_output = LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr(
                     new LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >( shared_from_this(), "out",
                                     "A loaded dataset." ) );
 
     // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
-    addConnector( m_input );
     addConnector( m_output );
 }
 
@@ -246,7 +241,6 @@ void WMEmMeasurement::moduleMain()
 {
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_propCondition );
-    m_moduleState.add( m_input->getDataChangedCondition() );
     m_moduleState.add( m_genDataTrigger->getCondition() );
     m_moduleState.add( m_genDataTriggerEnd->getCondition() );
 
@@ -256,11 +250,8 @@ void WMEmMeasurement::moduleMain()
 
     while( !m_shutdownFlag() )
     {
-        if( m_input->isEmpty() ) // continue processing if data is available
-        {
-            debugLog() << "Waiting for Events";
-            m_moduleState.wait(); // wait for events like inputdata or properties changed
-        }
+        debugLog() << "Waiting for Events";
+        m_moduleState.wait(); // wait for events like inputdata or properties changed
 
         if( m_shutdownFlag() )
         {
@@ -301,18 +292,6 @@ void WMEmMeasurement::moduleMain()
         if( ( m_expLoadTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED ) )
         {
             handleExperimentLoadChanged();
-        }
-
-        // ---------- INPUTDATAUPDATEEVENT ----------
-        WLEMMCommand::SPtr cmdIn;
-        if( !m_input->isEmpty() )
-        {
-            cmdIn = m_input->getData();
-        }
-        const bool dataValid = ( cmdIn );
-        if( dataValid ) // If there was an update on the inputconnector
-        {
-            process( cmdIn );
         }
     }
 }
@@ -492,7 +471,7 @@ void WMEmMeasurement::generateData()
             a *= r / m;
             b *= r / m;
             c *= r / m;
-            eeg->getChannelPositions3d()->push_back( WPosition( a, b, abs( c ) ) * 0.001);
+            eeg->getChannelPositions3d()->push_back( WPosition( a, b, abs( c ) ) * 0.001 );
             eeg->getData().row( chan ) = channel;
         }
 
@@ -541,10 +520,10 @@ bool WMEmMeasurement::readFiff( std::string fname )
             if( m_fiffEmm->hasModality( LaBP::WEModalityType::EEG ) )
             {
                 WLEMDEEG::SPtr eeg = m_fiffEmm->getModality< WLEMDEEG >( LaBP::WEModalityType::EEG );
-                if( eeg->getFaces().empty() )
+                if( eeg->getFaces()->empty() )
                 {
                     warnLog() << "No faces found! Faces will be generated.";
-                    WLGeometry::computeTriangulation( &eeg->getFaces(), *eeg->getChannelPositions3d(), -5 );
+                    WLGeometry::computeTriangulation( eeg->getFaces().get(), *eeg->getChannelPositions3d(), -5 );
                 }
             }
             infoLog() << "Modalities:\t" << m_fiffEmm->getModalityCount();
@@ -656,11 +635,11 @@ bool WMEmMeasurement::readDip( std::string fname )
         return false;
     }
 
-    m_dipSurface.reset( new LaBP::WLEMMSurface() );
+    m_dipSurface.reset( new WLEMMSurface() );
     if( reader->read( m_dipSurface ) == LaBP::WLReaderDIP::ReturnCode::SUCCESS )
     {
         m_dipPositionCount->set( m_dipSurface->getVertex()->size(), true );
-        m_dipFacesCount->set( m_dipSurface->getFaces().size(), true );
+        m_dipFacesCount->set( m_dipSurface->getFaces()->size(), true );
 
 #ifdef DEBUG
         debugLog() << "First data read from dip file ... ";
@@ -675,9 +654,9 @@ bool WMEmMeasurement::readDip( std::string fname )
         stream.clear();
         stream.str( "" );
         stream << "DIP faces: ";
-        for( size_t i = 0; i < 5 && i < m_dipSurface->getFaces().size(); ++i )
+        for( size_t i = 0; i < 5 && i < m_dipSurface->getFaces()->size(); ++i )
         {
-            stream << m_dipSurface->getFaces().at( i ) << " ";
+            stream << m_dipSurface->getFaces()->at( i ) << " ";
         }
         debugLog() << stream.str();
 #endif // DEBUG
@@ -712,8 +691,8 @@ bool WMEmMeasurement::readVol( std::string fname )
         return false;
     }
 
-    m_volBoundaries.reset( new std::vector< boost::shared_ptr< LaBP::WLEMMBemBoundary > >() );
-    if( reader->read( m_volBoundaries ) == LaBP::WLReaderVOL::ReturnCode::SUCCESS )
+    m_volBoundaries = WLList< WLEMMBemBoundary::SPtr >::instance();
+    if( reader->read( m_volBoundaries.get() ) == LaBP::WLReaderVOL::ReturnCode::SUCCESS )
     {
         m_volBoundaryCount->set( m_volBoundaries->size(), true );
         m_volFileStatus->set( FILE_LOADED, true );
@@ -770,7 +749,7 @@ void WMEmMeasurement::handleExperimentLoadChanged()
     bool rc = false;
     m_expLoadStatus->set( LOADING_DATA, true );
 
-    m_subject.reset( new LaBP::WLEMMSubject() );
+    m_subject.reset( new WLEMMSubject() );
 
     const string bemFile = m_expBemFilesSelection->get().at( 0 )->getAs< WItemSelectionItemTyped< string > >()->getValue();
     rc |= m_expReader->readBem( bemFile, m_subject );
@@ -778,16 +757,8 @@ void WMEmMeasurement::handleExperimentLoadChanged()
     const string surfaceType = m_expSurfacesSelection->get().at( 0 )->getAs< WItemSelectionItemTyped< string > >()->getValue();
     rc |= m_expReader->readSourceSpace( surfaceType, m_subject );
 
-    if( m_hasLeadfield )
-    {
-        infoLog() << "Using interpolated leadfield!";
-        m_subject->setLeadfield( LaBP::WEModalityType::EEG, m_leadfield );
-    }
-    else
-    {
-        const string trial = m_expTrial->get();
-        rc |= m_expReader->readLeadFields( surfaceType, bemFile, trial, m_subject );
-    }
+    const string trial = m_expTrial->get();
+    rc |= m_expReader->readLeadFields( surfaceType, bemFile, trial, m_subject );
 
     if( rc )
     {
@@ -889,29 +860,7 @@ bool WMEmMeasurement::processReset( WLEMMCommand::SPtr labp )
 
 bool WMEmMeasurement::processMisc( WLEMMCommand::SPtr labp )
 {
-    debugLog() << "processMisc() called!";
-    if( labp->getMiscCommand().find( "leadfield" ) == WLEMMCommand::MiscCommandT::npos )
-    {
-        WLModuleDrawable::processMisc( labp );
-        return true;
-    }
-
-    infoLog() << "[processMisc] received leadfield!";
-
-    m_leadfield = labp->getParameterAs< WLMatrix::SPtr >();
-    if( !m_leadfield )
-    {
-        m_hasLeadfield = false;
-        return false;
-    }
-    m_hasLeadfield = true;
-    if( m_isExpLoaded )
-    {
-        infoLog() << "Override leadfield from experiment!";
-        m_subject->setLeadfield( LaBP::WEModalityType::EEG, m_leadfield );
-        // TODO(pieloth): force a processInit
-    }
-
+    m_output->updateData( labp );
     return true;
 }
 

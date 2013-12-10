@@ -39,6 +39,8 @@
 #include <core/common/WLogger.h>
 #include <core/common/WAssert.h>
 
+#include "core/container/WLArrayList.h"
+#include "core/container/WLList.h"
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMSubject.h"
 #include "core/data/WLEMMEnumTypes.h"
@@ -68,7 +70,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
         return getReturnCode( ret );
 
     // Set subject information
-    LaBP::WLEMMSubject::SPtr subject_out( new LaBP::WLEMMSubject() );
+    WLEMMSubject::SPtr subject_out( new WLEMMSubject() );
     ReturnCode::Enum rc = Read( subject_out );
     if( rc != ReturnCode::SUCCESS )
         return rc;
@@ -87,15 +89,14 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
     // Read Isotrak
     LFIsotrak& isotrak = measinfo_in.GetLFIsotrak();
     LFArrayPtr< LFDigitisationPoint > &digPoints = isotrak.GetLFDigitisationPoint();
-    boost::shared_ptr< std::vector< WVector3f > > itPos( new std::vector< WVector3f >() );
-    std::vector< WLDigPoint > digPointsOut;
-    digPointsOut.reserve( digPoints.size() );
+    WLArrayList< WVector3f >::SPtr itPos( new WLArrayList< WVector3f >() );
+    WLList< WLDigPoint >::SPtr digPointsOut( new WLList< WLDigPoint >() );
     for( LFArrayPtr< LFDigitisationPoint >::size_type i = 0; i < digPoints.size(); ++i )
     {
         itPos->push_back( WVector3f( digPoints[i]->GetRr()[0], digPoints[i]->GetRr()[1], digPoints[i]->GetRr()[2] ) );
         const WPosition pos( digPoints[i]->GetRr()[0], digPoints[i]->GetRr()[1], digPoints[i]->GetRr()[2] );
         const WLDigPoint digPoint( pos, digPoints[i]->GetKind(), digPoints[i]->GetIdent() );
-        digPointsOut.push_back( digPoint );
+        digPointsOut->push_back( digPoint );
     }
     subject_out->setIsotrak( itPos );
     out->setDigPoints( digPointsOut );
@@ -193,13 +194,13 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
         // Collect data: measurement, positions, base vectors
         // TODO(pieloth): set channels size
 
-        boost::shared_ptr< std::vector< WPosition > > positions( new std::vector< WPosition >() );
-        float* pos;
+        WLArrayList< WPosition >::SPtr positions( new WLArrayList< WPosition >() );
+        const float* pos;
 
-        boost::shared_ptr< std::vector< WVector3f > > eX( new std::vector< WVector3f >() );
-        boost::shared_ptr< std::vector< WVector3f > > eY( new std::vector< WVector3f >() );
-        boost::shared_ptr< std::vector< WVector3f > > eZ( new std::vector< WVector3f >() );
-        float* eVec;
+        WLArrayList< WVector3f >::SPtr eX( new WLArrayList< WVector3f >() );
+        WLArrayList< WVector3f >::SPtr eY( new WLArrayList< WVector3f >() );
+        WLArrayList< WVector3f >::SPtr eZ( new WLArrayList< WVector3f >() );
+        const float* eVec;
 
         fiffunits_t fiffUnit;
         fiffmultipliers_t fiffUnitMul;
@@ -319,7 +320,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
     return getReturnCode( ret );
 }
 
-WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( LaBP::WLEMMSubject::SPtr out )
+WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMSubject::SPtr out )
 {
     LFSubject data;
     returncode_t ret = LFInterface::fiffRead( data, m_fname.data() );

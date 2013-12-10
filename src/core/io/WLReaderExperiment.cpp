@@ -40,6 +40,8 @@
 #include <core/common/WLogger.h>
 #include <core/dataHandler/exceptions/WDHNoSuchFile.h>
 
+#include "core/container/WLArrayList.h"
+#include "core/container/WLList.h"
 #include "core/data/WLDataTypes.h"
 #include "core/data/WLEMMBemBoundary.h"
 #include "core/data/WLEMMEnumTypes.h"
@@ -207,7 +209,7 @@ std::set< std::string > WLReaderExperiment::findBems()
     return volFiles;
 }
 
-bool WLReaderExperiment::readBem( std::string fname, LaBP::WLEMMSubject::SPtr subject )
+bool WLReaderExperiment::readBem( std::string fname, WLEMMSubject::SPtr subject )
 {
     wlog::debug( CLASS ) << "readBem() called!";
     path path( m_PATH_EXPERIMENT );
@@ -216,9 +218,9 @@ bool WLReaderExperiment::readBem( std::string fname, LaBP::WLEMMSubject::SPtr su
     path /= m_FOLDER_BEM;
     path /= fname;
 
-    boost::shared_ptr< vector< LaBP::WLEMMBemBoundary::SPtr > > bems( new vector< LaBP::WLEMMBemBoundary::SPtr >() );
+    WLList< WLEMMBemBoundary::SPtr >::SPtr bems( new WLList< WLEMMBemBoundary::SPtr >() );
     WLReaderVOL reader( path.string() );
-    WLReaderVOL::ReturnCode::Enum rc = reader.read( bems );
+    WLReaderVOL::ReturnCode::Enum rc = reader.read( bems.get() );
     if( rc == WLReaderVOL::ReturnCode::SUCCESS )
     {
         subject->setBemBoundaries( bems );
@@ -269,7 +271,7 @@ std::set< std::string > WLReaderExperiment::findSurfaceKinds()
     return surfaces;
 }
 
-bool WLReaderExperiment::readSourceSpace( std::string surfaceKind, LaBP::WLEMMSubject::SPtr subject )
+bool WLReaderExperiment::readSourceSpace( std::string surfaceKind, WLEMMSubject::SPtr subject )
 {
     wlog::debug( CLASS ) << "readBem() called!";
     bool rc = true;
@@ -325,21 +327,21 @@ bool WLReaderExperiment::readSourceSpace( std::string surfaceKind, LaBP::WLEMMSu
     wlog::info( CLASS ) << "Combine left and right surface to BOTH.";
     WLEMMSurface::SPtr bothSurface( new WLEMMSurface( *rhSurface ) );
     bothSurface->setHemisphere( WLEMMSurface::Hemisphere::BOTH );
-    boost::shared_ptr< std::vector< WPosition > > bVertex = bothSurface->getVertex();
-    std::vector< WVector3i >& bFaces = bothSurface->getFaces();
+    WLArrayList< WPosition >::SPtr bVertex = bothSurface->getVertex();
+    WLArrayList< WVector3i >::SPtr bFaces = bothSurface->getFaces();
 
     bVertex->insert( bVertex->end(), lhSurface->getVertex()->begin(), lhSurface->getVertex()->end() );
     bVertex->insert( bVertex->end(), rhSurface->getVertex()->begin(), rhSurface->getVertex()->end() );
-    bFaces.insert( bFaces.end(), lhSurface->getFaces().begin(), lhSurface->getFaces().end() );
+    bFaces->insert( bFaces->end(), lhSurface->getFaces()->begin(), lhSurface->getFaces()->end() );
     // NOTE: remind offset of faces
     const int tmp = static_cast< int >( lhSurface->getVertex()->size() );
     WVector3i offset( tmp, tmp, tmp );
     WVector3i face;
-    for( std::vector< WVector3i >::const_iterator it = rhSurface->getFaces().begin(); it != rhSurface->getFaces().end(); ++it )
+    for( std::vector< WVector3i >::const_iterator it = rhSurface->getFaces()->begin(); it != rhSurface->getFaces()->end(); ++it )
     {
         face = *it;
         face += offset;
-        bFaces.push_back( face );
+        bFaces->push_back( face );
     }
     subject->setSurface( bothSurface );
     wlog::info( CLASS ) << "Successfully combine left and right surface!";
@@ -386,8 +388,7 @@ std::set< std::string > WLReaderExperiment::findLeadfieldTrials()
     return trials;
 }
 
-bool WLReaderExperiment::readLeadFields( std::string surface, std::string bemName, std::string trial,
-                LaBP::WLEMMSubject::SPtr subject )
+bool WLReaderExperiment::readLeadFields( std::string surface, std::string bemName, std::string trial, WLEMMSubject::SPtr subject )
 {
     bool rc = true;
     rc &= readLeadField( surface, bemName, trial, m_EEG, subject );
@@ -396,7 +397,7 @@ bool WLReaderExperiment::readLeadFields( std::string surface, std::string bemNam
 }
 
 bool WLReaderExperiment::readLeadField( std::string surface, std::string bemName, std::string trial, std::string modality,
-                LaBP::WLEMMSubject::SPtr subject )
+                WLEMMSubject::SPtr subject )
 {
     wlog::debug( CLASS ) << "readLeadField() called!";
 

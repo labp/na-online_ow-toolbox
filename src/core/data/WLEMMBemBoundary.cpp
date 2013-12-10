@@ -1,97 +1,140 @@
-// TODO license
-
-#include <vector>
+//---------------------------------------------------------------------------
+//
+// Project: OpenWalnut ( http://www.openwalnut.org )
+//
+// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+// For more information see http://www.openwalnut.org/copying
+//
+// This file is part of OpenWalnut.
+//
+// OpenWalnut is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// OpenWalnut is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+//
+//---------------------------------------------------------------------------
 
 #include <boost/shared_ptr.hpp>
 
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
-#include "WLEMMEnumTypes.h"
+#include "core/container/WLArrayList.h"
 
+#include "WLEMMEnumTypes.h"
 #include "WLEMMBemBoundary.h"
 
-LaBP::WLEMMBemBoundary::WLEMMBemBoundary()
+using namespace LaBP;
+
+const std::string WLEMMBemBoundary::CLASS = "WLEMMBemBoundary";
+
+WLEMMBemBoundary::WLEMMBemBoundary()
 {
     setVertexUnit( WEUnit::UNKNOWN_UNIT );
     setVertexExponent( WEExponent::BASE );
 
     setConductivityUnit( WEUnit::UNKNOWN_UNIT );
 
-    m_vertex.reset( new std::vector< WPosition >( 0 ) );
-    m_faces.reset( new std::vector< WVector3i >( 0 ) );
+    m_vertex = WLArrayList< WPosition >::instance();
+    m_faces = WLArrayList< WVector3i >::instance();
 }
 
-LaBP::WLEMMBemBoundary::~WLEMMBemBoundary()
+WLEMMBemBoundary::~WLEMMBemBoundary()
 {
 }
 
-std::vector< WPosition >& LaBP::WLEMMBemBoundary::getVertex() const
+WLArrayList< WPosition >::SPtr WLEMMBemBoundary::getVertex()
 {
-    return *m_vertex;
+    return m_vertex;
 }
 
-void LaBP::WLEMMBemBoundary::setVertex( boost::shared_ptr< std::vector< WPosition > > vertex )
+WLArrayList< WPosition >::ConstSPtr WLEMMBemBoundary::getVertex() const
+{
+    return m_vertex;
+}
+
+void WLEMMBemBoundary::setVertex( WLArrayList< WPosition >::SPtr vertex )
 {
     m_vertex = vertex;
 }
 
-LaBP::WEUnit::Enum LaBP::WLEMMBemBoundary::getVertexUnit() const
+WEUnit::Enum WLEMMBemBoundary::getVertexUnit() const
 {
     return m_vertexUnit;
 }
 
-void LaBP::WLEMMBemBoundary::setVertexUnit( LaBP::WEUnit::Enum unit )
+void WLEMMBemBoundary::setVertexUnit( WEUnit::Enum unit )
 {
     m_vertexUnit = unit;
 }
 
-LaBP::WEExponent::Enum LaBP::WLEMMBemBoundary::getVertexExponent() const
+WEExponent::Enum WLEMMBemBoundary::getVertexExponent() const
 {
     return m_vertexExponent;
 }
 
-void LaBP::WLEMMBemBoundary::setVertexExponent( LaBP::WEExponent::Enum exponent )
+void WLEMMBemBoundary::setVertexExponent( LaBP::WEExponent::Enum exponent )
 {
     m_vertexExponent = exponent;
 }
 
-LaBP::WEBemType::Enum LaBP::WLEMMBemBoundary::getBemType() const
+WEBemType::Enum WLEMMBemBoundary::getBemType() const
 {
     return m_bemType;
 }
 
-void LaBP::WLEMMBemBoundary::setBemType( LaBP::WEBemType::Enum type )
+void WLEMMBemBoundary::setBemType( WEBemType::Enum type )
 {
     m_bemType = type;
 }
 
-std::vector< WVector3i >& LaBP::WLEMMBemBoundary::getFaces() const
+WLArrayList< WVector3i >::SPtr WLEMMBemBoundary::getFaces()
 {
-    return *m_faces;
+    return m_faces;
 }
 
-void LaBP::WLEMMBemBoundary::setFaces( boost::shared_ptr< std::vector< WVector3i > > faces )
+WLArrayList< WVector3i >::ConstSPtr WLEMMBemBoundary::getFaces() const
+{
+    return m_faces;
+}
+
+void WLEMMBemBoundary::setFaces( WLArrayList< WVector3i >::SPtr faces )
 {
     m_faces = faces;
 }
 
-float LaBP::WLEMMBemBoundary::getConductivity() const
+float WLEMMBemBoundary::getConductivity() const
 {
     return m_conductivity;
 }
 
-void LaBP::WLEMMBemBoundary::setConductivity( float conductivity )
+void WLEMMBemBoundary::setConductivity( float conductivity )
 {
     m_conductivity = conductivity;
 }
 
-LaBP::WEUnit::Enum LaBP::WLEMMBemBoundary::getConductivityUnit() const
+LaBP::WEUnit::Enum WLEMMBemBoundary::getConductivityUnit() const
 {
     return m_conductivityUnit;
 }
 
-void LaBP::WLEMMBemBoundary::setConductivityUnit( LaBP::WEUnit::Enum unit )
+void WLEMMBemBoundary::setConductivityUnit( WEUnit::Enum unit )
 {
     m_conductivityUnit = unit;
+}
+
+std::ostream& operator<<( std::ostream &strm, const WLEMMBemBoundary& obj )
+{
+    strm << WLEMMBemBoundary::CLASS << ": type=" << WEBemType::name( obj.getBemType() );
+    strm << ", vertices=" << obj.getVertex()->size();
+    strm << ", faces=" << obj.getFaces()->size();
+    return strm;
 }

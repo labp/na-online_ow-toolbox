@@ -1,4 +1,26 @@
-// TODO license
+//---------------------------------------------------------------------------
+//
+// Project: OpenWalnut ( http://www.openwalnut.org )
+//
+// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+// For more information see http://www.openwalnut.org/copying
+//
+// This file is part of OpenWalnut.
+//
+// OpenWalnut is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// OpenWalnut is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+//
+//---------------------------------------------------------------------------
 
 #include <vector>
 
@@ -10,82 +32,104 @@
 #include "WLEMMEnumTypes.h"
 #include "WLEMMSurface.h"
 
-LaBP::WLEMMSurface::WLEMMSurface()
+using namespace LaBP;
+
+const std::string WLEMMSurface::CLASS = "WLEMMSurface";
+
+WLEMMSurface::WLEMMSurface()
 {
     setVertexUnit( WEUnit::UNKNOWN_UNIT );
     setVertexExponent( WEExponent::BASE );
 
-    m_vertex.reset( new std::vector< WPosition >( 0 ) );
-    m_faces.reset( new std::vector< WVector3i >( 0 ) );
+    m_vertex = WLArrayList< WPosition >::instance();
+    m_faces = WLArrayList< WVector3i >::instance();
 }
 
-LaBP::WLEMMSurface::WLEMMSurface( boost::shared_ptr< std::vector< WPosition > > vertex, WEUnit::Enum vertexUnit,
-                WEExponent::Enum vertexExponent, boost::shared_ptr< std::vector< WVector3i > > faces,
-                Hemisphere::Enum hemisphere ) :
+WLEMMSurface::WLEMMSurface( WLArrayList< WPosition >::SPtr vertex, WEUnit::Enum vertexUnit, WEExponent::Enum vertexExponent,
+                WLArrayList< WVector3i >::SPtr faces, Hemisphere::Enum hemisphere ) :
                 m_vertex( vertex ), m_vertexUnit( vertexUnit ), m_vertexExponent( vertexExponent ), m_faces( faces ), m_hemisphere(
                                 hemisphere )
 {
 }
 
-LaBP::WLEMMSurface::WLEMMSurface( const WLEMMSurface& surface )
+WLEMMSurface::WLEMMSurface( const WLEMMSurface& surface )
 {
     m_hemisphere = surface.m_hemisphere;
     m_vertexUnit = surface.m_vertexUnit;
     m_vertexExponent = surface.m_vertexExponent;
 
-    m_vertex.reset( new std::vector< WPosition >( 0 ) );
-    m_faces.reset( new std::vector< WVector3i >( 0 ) );
+    m_vertex = WLArrayList< WPosition >::instance();
+    m_faces = WLArrayList< WVector3i >::instance();
 }
 
-LaBP::WLEMMSurface::~WLEMMSurface()
+WLEMMSurface::~WLEMMSurface()
 {
 }
 
-boost::shared_ptr< std::vector< WPosition > > LaBP::WLEMMSurface::getVertex() const
+WLArrayList< WPosition >::SPtr WLEMMSurface::getVertex()
 {
     return m_vertex;
 }
 
-void LaBP::WLEMMSurface::setVertex( boost::shared_ptr< std::vector< WPosition > > vertex )
+WLArrayList< WPosition >::ConstSPtr WLEMMSurface::getVertex() const
+{
+    return m_vertex;
+}
+
+void WLEMMSurface::setVertex( WLArrayList< WPosition >::SPtr vertex )
 {
     m_vertex = vertex;
 }
 
-LaBP::WEUnit::Enum LaBP::WLEMMSurface::getVertexUnit() const
+WEUnit::Enum WLEMMSurface::getVertexUnit() const
 {
     return m_vertexUnit;
 }
 
-void LaBP::WLEMMSurface::setVertexUnit( LaBP::WEUnit::Enum unit )
+void WLEMMSurface::setVertexUnit( WEUnit::Enum unit )
 {
     m_vertexUnit = unit;
 }
 
-LaBP::WEExponent::Enum LaBP::WLEMMSurface::getVertexExponent() const
+WEExponent::Enum WLEMMSurface::getVertexExponent() const
 {
     return m_vertexExponent;
 }
 
-void LaBP::WLEMMSurface::setVertexExponent( LaBP::WEExponent::Enum exponent )
+void WLEMMSurface::setVertexExponent( WEExponent::Enum exponent )
 {
     m_vertexExponent = exponent;
 }
 
-std::vector< WVector3i >& LaBP::WLEMMSurface::getFaces() const
+WLArrayList< WVector3i >::SPtr WLEMMSurface::getFaces()
 {
-    return *m_faces;
+    return m_faces;
 }
 
-void LaBP::WLEMMSurface::setFaces( boost::shared_ptr< std::vector< WVector3i > > faces )
+WLArrayList< WVector3i >::ConstSPtr WLEMMSurface::getFaces() const
+{
+    return m_faces;
+}
+
+void WLEMMSurface::setFaces( WLArrayList< WVector3i >::SPtr faces )
 {
     m_faces = faces;
 }
 
-LaBP::WLEMMSurface::Hemisphere::Enum LaBP::WLEMMSurface::getHemisphere() const
+WLEMMSurface::Hemisphere::Enum WLEMMSurface::getHemisphere() const
 {
     return m_hemisphere;
 }
-void LaBP::WLEMMSurface::setHemisphere( Hemisphere::Enum val )
+
+void WLEMMSurface::setHemisphere( Hemisphere::Enum val )
 {
     m_hemisphere = val;
+}
+
+std::ostream& operator<<( std::ostream &strm, const WLEMMSurface& obj )
+{
+    strm << WLEMMSurface::CLASS << ": hemisphere=" << obj.getHemisphere();
+    strm << ", vertices=" << obj.getVertex()->size();
+    strm << ", faces=" << obj.getFaces()->size();
+    return strm;
 }

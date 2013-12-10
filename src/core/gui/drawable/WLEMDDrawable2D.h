@@ -138,7 +138,7 @@ namespace LaBP
         void osgAddMarkLine();
         void osgAddTimeGrid();
 
-        virtual size_t maxChannels( const WLEMData* emd ) const = 0;
+        virtual size_t maxChannels( const WLEMData& emd ) const = 0;
 
         osg::ref_ptr< osg::Group > m_channelGroup;
         osg::ref_ptr< osg::Geode > m_markerGeode;

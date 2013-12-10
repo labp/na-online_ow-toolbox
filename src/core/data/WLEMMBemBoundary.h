@@ -1,68 +1,95 @@
-// TODO license
+//---------------------------------------------------------------------------
+//
+// Project: OpenWalnut ( http://www.openwalnut.org )
+//
+// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+// For more information see http://www.openwalnut.org/copying
+//
+// This file is part of OpenWalnut.
+//
+// OpenWalnut is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// OpenWalnut is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+//
+//---------------------------------------------------------------------------
 
 #ifndef WLEMMBEMBOUNDARY_H_
 #define WLEMMBEMBOUNDARY_H_
 
-#include <vector>
+#include <ostream>
+#include <string>
 
 #include <boost/shared_ptr.hpp>
 
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
+#include "core/container/WLArrayList.h"
 #include "WLEMMEnumTypes.h"
 
-namespace LaBP
+class WLEMMBemBoundary
 {
-    class WLEMMBemBoundary
-    {
-    public:
-        /**
-         * Abbreviation for a shared pointer.
-         */
-        typedef boost::shared_ptr< WLEMMBemBoundary > SPtr;
+public:
+    static const std::string CLASS;
 
-        /**
-         * Abbreviation for const shared pointer.
-         */
-        typedef boost::shared_ptr< const WLEMMBemBoundary > ConstSPtr;
+    /**
+     * Abbreviation for a shared pointer.
+     */
+    typedef boost::shared_ptr< WLEMMBemBoundary > SPtr;
 
-        WLEMMBemBoundary();
-        ~WLEMMBemBoundary();
+    /**
+     * Abbreviation for const shared pointer.
+     */
+    typedef boost::shared_ptr< const WLEMMBemBoundary > ConstSPtr;
 
-        std::vector< WPosition >& getVertex() const;
-        void setVertex( boost::shared_ptr< std::vector< WPosition > > vertex );
+    WLEMMBemBoundary();
+    ~WLEMMBemBoundary();
 
-        WEUnit::Enum getVertexUnit() const;
-        void setVertexUnit( WEUnit::Enum unit );
+    WLArrayList< WPosition >::SPtr getVertex();
+    WLArrayList< WPosition >::ConstSPtr getVertex() const;
+    void setVertex( WLArrayList< WPosition >::SPtr vertex );
 
-        WEExponent::Enum getVertexExponent() const;
-        void setVertexExponent( WEExponent::Enum exponent );
+    LaBP::WEUnit::Enum getVertexUnit() const;
+    void setVertexUnit( LaBP::WEUnit::Enum unit );
 
-        WEBemType::Enum getBemType() const;
-        void setBemType( WEBemType::Enum exponent );
+    LaBP::WEExponent::Enum getVertexExponent() const;
+    void setVertexExponent( LaBP::WEExponent::Enum exponent );
 
-        std::vector< WVector3i >& getFaces() const;
-        void setFaces( boost::shared_ptr< std::vector< WVector3i > > faces );
+    LaBP::WEBemType::Enum getBemType() const;
+    void setBemType( LaBP::WEBemType::Enum exponent );
 
-        float getConductivity() const;
-        void setConductivity( float conductivity );
+    WLArrayList< WVector3i >::SPtr getFaces();
+    WLArrayList< WVector3i >::ConstSPtr getFaces() const;
+    void setFaces( WLArrayList< WVector3i >::SPtr faces );
 
-        WEUnit::Enum getConductivityUnit() const;
-        void setConductivityUnit( WEUnit::Enum unit );
+    float getConductivity() const;
+    void setConductivity( float conductivity );
 
-    private:
-        boost::shared_ptr< std::vector< WPosition > > m_vertex;
+    LaBP::WEUnit::Enum getConductivityUnit() const;
+    void setConductivityUnit( LaBP::WEUnit::Enum unit );
 
-        WEUnit::Enum m_vertexUnit;
-        WEExponent::Enum m_vertexExponent;
-        WEBemType::Enum m_bemType;
+private:
+    WLArrayList< WPosition >::SPtr m_vertex;
 
-        boost::shared_ptr< std::vector< WVector3i > > m_faces;
+    LaBP::WEUnit::Enum m_vertexUnit;
+    LaBP::WEExponent::Enum m_vertexExponent;
+    LaBP::WEBemType::Enum m_bemType;
 
-        float m_conductivity;
-        WEUnit::Enum m_conductivityUnit;
-    };
-}
+    WLArrayList< WVector3i >::SPtr m_faces;
+
+    float m_conductivity;
+    LaBP::WEUnit::Enum m_conductivityUnit;
+};
+
+std::ostream& operator<<( std::ostream &strm, const WLEMMBemBoundary& obj );
 
 #endif /* WLEMMBEMBOUNDARY_H_ */

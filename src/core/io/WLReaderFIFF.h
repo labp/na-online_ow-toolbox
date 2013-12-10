@@ -71,7 +71,7 @@ namespace LaBP
         /**
          * Reads subject data only.
          */
-        ReturnCode::Enum Read( LaBP::WLEMMSubject::SPtr out );
+        ReturnCode::Enum Read( WLEMMSubject::SPtr out );
 
     private:
         static ReturnCode::Enum getReturnCode( returncode_t rc );

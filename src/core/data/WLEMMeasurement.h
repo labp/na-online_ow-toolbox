@@ -25,6 +25,7 @@
 #ifndef WLEMMEASUREMENT_H
 #define WLEMMEASUREMENT_H
 
+#include <ostream>
 #include <string>
 #include <utility>
 #include <vector>
@@ -32,8 +33,10 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <core/common/WDefines.h>
 #include <core/common/exceptions/WNotFound.h>
 
+#include "core/container/WLList.h"
 #include "core/data/WLDataTypes.h"
 #include "core/data/WLDigPoint.h"
 #include "core/data/WLEMMEnumTypes.h"
@@ -73,7 +76,7 @@ public:
     /**
      * TODO(kaehler): Comments
      */
-    explicit WLEMMeasurement( LaBP::WLEMMSubject::SPtr subject );
+    explicit WLEMMeasurement( WLEMMSubject::SPtr subject );
 
     /**
      * copy constructor, makes a shallow copy from object except the data vector
@@ -204,14 +207,14 @@ public:
      *
      * \return Experimenter as string
      */
-    LaBP::WLEMMSubject::SPtr getSubject();
+    WLEMMSubject::SPtr getSubject();
 
     /**
      * getter for subject
      *
      * \return Experimenter as string
      */
-    LaBP::WLEMMSubject::ConstSPtr getSubject() const;
+    WLEMMSubject::ConstSPtr getSubject() const;
 
     /**
      * setter for experimenter
@@ -232,7 +235,7 @@ public:
      *
      * \param subject Experimenter as string
      */
-    void setSubject( LaBP::WLEMMSubject::SPtr subject );
+    void setSubject( WLEMMSubject::SPtr subject );
 
     /**
      * Returns the event/stimuli channels.
@@ -263,11 +266,13 @@ public:
     WLLifetimeProfiler::ConstSPtr getProfiler() const;
     void setProfiler( WLLifetimeProfiler::SPtr profiler );
 
-    const std::vector< WLDigPoint >& getDigPoints() const;
+    WLList< WLDigPoint >::SPtr getDigPoints();
 
-    void setDigPoints( const std::vector< WLDigPoint >& digPoints );
+    WLList< WLDigPoint >::ConstSPtr getDigPoints() const;
 
-    std::vector< WLDigPoint > getDigPoints( WLDigPoint::PointType::Enum kind ) const;
+    WLList< WLDigPoint >::SPtr getDigPoints( WLDigPoint::PointType::Enum kind ) const;
+
+    void setDigPoints( WLList< WLDigPoint >::SPtr digPoints );
 
     const WLMatrix4::Matrix4T& getDevToFidTransformation() const;
 
@@ -291,26 +296,27 @@ private:
     std::string m_expDescription;
 
     /**
-     * list with modality specific measurements \ref WDataSetEMMEMD
+     * list with modality specific measurements WLEMData
      */
     std::vector< WLEMData::SPtr > m_modalityList;
 
     /**
      * subject information
      */
-    LaBP::WLEMMSubject::SPtr m_subject;
+    WLEMMSubject::SPtr m_subject;
 
     /**
      * Event/Stimuli channels
      */
     boost::shared_ptr< std::vector< EChannelT > > m_eventChannels;
 
-    std::vector< WLDigPoint > m_digPoints;
+    WLList< WLDigPoint >::SPtr m_digPoints;
 
     WLMatrix4::Matrix4T m_transDevToFid;
 
     WLMatrix4::Matrix4T m_transFidToACPC;
-
 };
+
+std::ostream& operator<<( std::ostream &strm, const WLEMMeasurement& obj );
 
 #endif  // WLEMMEASUREMENT_H

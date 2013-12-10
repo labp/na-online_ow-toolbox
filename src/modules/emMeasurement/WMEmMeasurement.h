@@ -33,13 +33,13 @@
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 #include <core/common/WPropertyTypes.h>
 
+#include "core/container/WLList.h"
 #include "core/data/WLEMMCommand.h"
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMSubject.h"
 #include "core/data/WLEMMSurface.h"
 #include "core/data/WLEMMBemBoundary.h"
 #include "core/data/WLDataTypes.h"
-#include "core/module/WLModuleInputDataRingBuffer.h"
 
 #include "core/module/WLModuleDrawable.h"
 
@@ -75,6 +75,20 @@ public:
      */
     virtual const std::string getDescription() const;
 
+    /**
+     * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
+     * should never be initialized or modified in some other way. A simple new instance is required.
+     *
+     * \return the prototype used to create every module in OpenWalnut.
+     */
+    virtual WModule::SPtr factory() const;
+
+    /**
+     * Get the icon for this module in XPM format.
+     * \return The icon.
+     */
+    virtual const char** getXPMIcon() const;
+
 protected:
     // ---------------------------------
     // Methods for WLEMMCommandProcessor
@@ -101,25 +115,9 @@ protected:
      */
     virtual void properties();
 
-    /**
-     * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
-     * should never be initialized or modified in some other way. A simple new instance is required.
-     *
-     * \return the prototype used to create every module in OpenWalnut.
-     */
-    virtual WModule::SPtr factory() const;
-
-    /**
-     * Get the icon for this module in XPM format.
-     * \return The icon.
-     */
-    virtual const char** getXPMIcon() const;
-
 private:
     //! a condition for the matrix selection
     WCondition::SPtr m_propCondition;
-
-    LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input;
 
     // FIFF file //
     void streamData();
@@ -197,9 +195,6 @@ private:
 
     bool m_isElcLoaded;
 
-    bool m_hasLeadfield;
-    WLMatrix::SPtr m_leadfield;
-
     WPropFilename m_elcFile;
 
     boost::shared_ptr< std::vector< std::string > > m_elcLabels;
@@ -223,7 +218,7 @@ private:
 
     WPropFilename m_dipFile;
 
-    LaBP::WLEMMSurface::SPtr m_dipSurface;
+    WLEMMSurface::SPtr m_dipSurface;
 
     WPropString m_dipFileStatus;
 
@@ -238,7 +233,7 @@ private:
 
     WPropFilename m_volFile;
 
-    boost::shared_ptr< std::vector< LaBP::WLEMMBemBoundary::SPtr > > m_volBoundaries;
+    WLList< WLEMMBemBoundary::SPtr >::SPtr m_volBoundaries;
 
     WPropString m_volFileStatus;
 
@@ -246,7 +241,7 @@ private:
 
     // Experiment loader //
     WPropGroup m_propGrpExperiment;
-    LaBP::WLEMMSubject::SPtr m_subject;
+    WLEMMSubject::SPtr m_subject;
     bool m_isExpLoaded;
 
     void extractExpLoader( std::string fiffFile );

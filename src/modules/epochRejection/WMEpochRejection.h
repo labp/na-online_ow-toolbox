@@ -209,6 +209,16 @@ private:
     WPropFilename m_rejectFile;
 
     /**
+     * Integer property to count the bad channels.
+     */
+    WPropInt m_badChannelCount;
+
+    /**
+     * Integer property to count the bad epochs.
+     */
+    WPropInt m_badEpochCount;
+
+    /**
      * The rejection process class for testing the all channels in one process.
      */
     WEpochRejection::SPtr m_rejectingTotal;

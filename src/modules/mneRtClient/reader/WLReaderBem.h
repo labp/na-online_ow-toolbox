@@ -26,7 +26,7 @@
 #define WLREADERBEM_H_
 
 #include <string>
-#include <vector>
+#include <list>
 
 #include <boost/shared_ptr.hpp>
 
@@ -53,7 +53,7 @@ public:
     explicit WLReaderBem( std::string fname ) throw( WDHNoSuchFile );
     virtual ~WLReaderBem();
 
-    bool read( std::vector< LaBP::WLEMMBemBoundary::SPtr >* const bems );
+    bool read( std::list< WLEMMBemBoundary::SPtr >* const bems );
 
 private:
     static LaBP::WEBemType::Enum getTypeFromBemId(int id);

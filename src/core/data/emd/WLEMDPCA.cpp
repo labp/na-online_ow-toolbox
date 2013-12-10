@@ -35,7 +35,6 @@
 WLEMDPCA::WLEMDPCA() :
                 WLEMData()
 {
-    m_chanNames.reset( new std::vector< std::string >() );
 }
 
 WLEMDPCA::WLEMDPCA( const WLEMDPCA& pca ) :
@@ -46,8 +45,6 @@ WLEMDPCA::WLEMDPCA( const WLEMDPCA& pca ) :
 WLEMDPCA::WLEMDPCA( const WLEMData& emd ) :
                 WLEMData( emd )
 {
-    // C++11 supports "delegating constructors". So default initialization could be moved to default constructor.
-    m_chanNames.reset( new std::vector< std::string >() );
 }
 
 WLEMDPCA::~WLEMDPCA()

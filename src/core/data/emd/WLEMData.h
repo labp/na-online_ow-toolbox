@@ -26,6 +26,7 @@
 #define WLEMDATA_H
 
 #include <cstddef>
+#include <list>
 #include <ostream>
 #include <stdint.h>
 #include <string>
@@ -57,6 +58,10 @@ public:
      * Abbreviation for const shared pointer.
      */
     typedef boost::shared_ptr< const WLEMData > ConstSPtr;
+
+    typedef std::list< size_t > ChannelList;
+
+    typedef boost::shared_ptr< std::list< size_t > > ChannelListSPtr;
 
     /**
      * Data type of single value aka "Channel c1 at time t1".
@@ -214,6 +219,9 @@ public:
      */
     float getLength() const;
 
+
+    virtual ChannelListSPtr getBadChannels() const;
+
     /**
      * TODO(kaehler): Comments
      */
@@ -273,6 +281,8 @@ public:
      * TODO(kaehler): Comments
      */
     void setSampFreq( float sampFreq );
+
+    void setBadChannels( ChannelListSPtr badChannels );
 
     static std::string channelToString( const ChannelT& data, size_t maxSamples );
 
@@ -341,6 +351,8 @@ protected:
      * Raw data of the measurement.
      */
     DataSPtr m_data;
+
+    ChannelListSPtr m_badChannels;
 
     // TODO(fuchs): snr estimate or/and noise covariance matrix for source localisation
 };

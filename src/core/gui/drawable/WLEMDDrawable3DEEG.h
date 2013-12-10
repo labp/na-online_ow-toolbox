@@ -64,9 +64,9 @@ namespace LaBP
         virtual void osgNodeCallback( osg::NodeVisitor* nv );
 
     private:
-        void osgAddLabels( const std::vector< WPosition >* positions, const std::vector< std::string >& labels );
+        void osgAddLabels( const std::vector< WPosition >& positions, const std::vector< std::string >& labels );
 
-        void osgAddNodes( const std::vector< WPosition >* positions );
+        void osgAddNodes( const std::vector< WPosition >& positions );
 
         void osgUpdateSurfaceColor( const WLEMData::DataT& data );
 

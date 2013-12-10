@@ -22,10 +22,13 @@
 //
 //---------------------------------------------------------------------------
 
+#include <list>
 #include <vector>
 
 #include <core/common/WLogger.h>
 
+#include "core/container/WLArrayList.h"
+#include "core/container/WLList.h"
 #include "core/data/WLDigPoint.h"
 #include "core/data/WLEMMBemBoundary.h"
 #include "core/data/WLEMMSubject.h"
@@ -116,7 +119,7 @@ double WEEGSkinAlignment::align( TransformationT* const matrix, WLEMMeasurement:
         wlog::error( CLASS ) << "align: No EEG data!";
         return NOT_CONVERGED;
     }
-    boost::shared_ptr< std::vector< WPosition > > fromPtr = eeg->getChannelPositions3d();
+    WLArrayList< WPosition >::ConstSPtr fromPtr = eeg->getChannelPositions3d();
 
     // Compute alignment
     // -----------------
@@ -127,10 +130,10 @@ bool WEEGSkinAlignment::extractFiducialPoints( WPosition* const lpa, WPosition* 
                 const WLEMMeasurement& emm )
 {
     WLTimeProfiler tp( CLASS, "extractFiducialPoints" );
-    std::vector< WLDigPoint > digPoints = emm.getDigPoints( WLDigPoint::PointType::CARDINAL );
+    WLList< WLDigPoint >::SPtr digPoints = emm.getDigPoints( WLDigPoint::PointType::CARDINAL );
     char count = 0;
-    std::vector< WLDigPoint >::const_iterator cit;
-    for( cit = digPoints.begin(); cit != digPoints.end() && count < 3; ++cit )
+    WLList< WLDigPoint >::const_iterator cit;
+    for( cit = digPoints->begin(); cit != digPoints->end() && count < 3; ++cit )
     {
         if( cit->checkCardinal( WLDigPoint::CardinalPoints::LPA ) )
         {
@@ -163,8 +166,8 @@ bool WEEGSkinAlignment::extractBEMSkinPoints( PointsT* const out, const WLEMMeas
 {
     WLTimeProfiler tp( CLASS, "extractBEMSkinPoints" );
     WLEMMSubject::ConstSPtr subject = emm.getSubject();
-    const std::vector< WLEMMBemBoundary::SPtr >& bems = subject->getBemBoundaries();
-    std::vector< WLEMMBemBoundary::SPtr >::const_iterator itBem;
+    const std::list< WLEMMBemBoundary::SPtr >& bems = *subject->getBemBoundaries();
+    std::list< WLEMMBemBoundary::SPtr >::const_iterator itBem;
     WLEMMBemBoundary::ConstSPtr bemSkin;
     for( itBem = bems.begin(); itBem != bems.end(); ++itBem )
     {
@@ -180,7 +183,7 @@ bool WEEGSkinAlignment::extractBEMSkinPoints( PointsT* const out, const WLEMMeas
         return false;
     }
 
-    const std::vector< WPosition >& bemPosition = bemSkin->getVertex();
+    const std::vector< WPosition >& bemPosition = *bemSkin->getVertex();
     WPosition::ValueType min = std::numeric_limits< WPosition::ValueType >::max();
     WPosition::ValueType max = std::numeric_limits< WPosition::ValueType >::min();
     std::vector< WPosition >::const_iterator itPos;

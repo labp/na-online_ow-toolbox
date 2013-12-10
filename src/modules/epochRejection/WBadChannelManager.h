@@ -30,6 +30,7 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include "core/data/emd/WLEMData.h"
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMEnumTypes.h"
 
@@ -42,19 +43,9 @@ class WBadChannelManager
 public:
 
     /**
-     * A std::list<T> with size_t values.
-     */
-    typedef std::list< size_t > ChannelList;
-
-    /**
-     * A boost shared pointer on an ChannelList.
-     */
-    typedef boost::shared_ptr< ChannelList > ChannelList_SPtr;
-
-    /**
      * A std::map<K,V> with a LaBP::WEModalityType as key and boost shared pointer on an ChannelList as value.
      */
-    typedef std::map< LaBP::WEModalityType::Enum, ChannelList_SPtr > ChannelMap;
+    typedef std::map< LaBP::WEModalityType::Enum, WLEMData::ChannelListSPtr > ChannelMap;
 
     /**
      * A boost shared pointer on an ChannelMap.
@@ -92,6 +83,38 @@ public:
     bool isMapEmpty() const;
 
     /**
+     * Gets true if the channel is a bad channel, else it returns false.
+     *
+     * @param The modality.
+     * @param The channel number.
+     * @return True / false.
+     */
+    bool isChannelBad( const LaBP::WEModalityType::Enum&, const size_t ) const;
+
+    /**
+     * Gets true if the modality has bad channels, else it returns false.
+     *
+     * @param The Modality.
+     * @return True / false.
+     */
+    bool hasBadChannels( const LaBP::WEModalityType::Enum& ) const;
+
+    /**
+     * Returns the number of all bad channels.
+     *
+     * @return Number of all bad channels.
+     */
+    size_t countChannels() const;
+
+    /**
+     * Returns the number of bad channels for the modality.
+     *
+     * @param The modality.
+     * @return The number of bad channels.
+     */
+    size_t countChannels( const LaBP::WEModalityType::Enum& ) const;
+
+    /**
      * This method returns a boost shared pointer on a ChannelList for the certain modality.
      * If there was not ChannelList in the collection, the method returns an empty pointer
      * (equals '0').
@@ -99,7 +122,7 @@ public:
      * @param The modality.
      * @return The ChannelList-pointer.
      */
-    ChannelList_SPtr getChannelList( const LaBP::WEModalityType::Enum& );
+    WLEMData::ChannelListSPtr getChannelList( const LaBP::WEModalityType::Enum& );
 
 protected:
 

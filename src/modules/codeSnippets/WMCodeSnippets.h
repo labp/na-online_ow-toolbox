@@ -60,6 +60,19 @@ public:
      */
     virtual const std::string getDescription() const;
 
+    /**
+     * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
+     * should never be initialized or modified in some other way. A simple new instance is required.
+     *
+     * \return the prototype used to create every module in OpenWalnut.
+     */
+    virtual WModule::SPtr factory() const;
+
+    /**
+     * Get the icon for this module in XPM format.
+     */
+    virtual const char** getXPMIcon() const;
+
 protected:
     virtual bool processCompute( WLEMMeasurement::SPtr emm );
     virtual bool processInit( WLEMMCommand::SPtr labp );
@@ -83,19 +96,6 @@ protected:
      */
     virtual void properties();
 
-    /**
-     * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
-     * should never be initialized or modified in some other way. A simple new instance is required.
-     *
-     * \return the prototype used to create every module in OpenWalnut.
-     */
-    virtual WModule::SPtr factory() const;
-
-    /**
-     * Get the icon for this module in XPM format.
-     */
-    virtual const char** getXPMIcon() const;
-
 private:
     /**
      * Output connector for a EMMCommand dataset
@@ -110,7 +110,7 @@ private:
     WCondition::SPtr m_propCondition;
 
     bool writeEmdPositions( WLEMMeasurement::ConstSPtr emm );
-    bool writeEmdPositions( std::vector< WPosition >* const positions, std::string fname );
+    bool writeEmdPositions( const std::vector< WPosition >& positions, std::string fname );
 
     void emulateSinusWave();
 

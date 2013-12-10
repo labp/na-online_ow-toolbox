@@ -22,24 +22,21 @@
 //
 //---------------------------------------------------------------------------
 
-#include <cstddef>
-#include <fstream>
-#include <string>
-#include <vector>
+#include "WLReaderDIP.h"
 
-#include <boost/shared_ptr.hpp>
-
+#include <boost/smart_ptr/shared_ptr.hpp>
 #include <core/common/exceptions/WTypeMismatch.h>
+#include <core/common/math/linearAlgebra/WMatrixFixed.h>
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 #include <core/common/WLogger.h>
 #include <core/common/WStringUtils.h>
+#include <cstddef>
+#include <vector>
 
-#include "core/data/WLEMMSurface.h"
-
-#include "core/util/WLGeometry.h"
-
-#include "WLReaderDIP.h"
+#include "../container/WLArrayList.h"
+#include "../data/WLEMMEnumTypes.h"
+#include "../util/WLGeometry.h"
 
 using namespace LaBP;
 using namespace std;
@@ -49,7 +46,7 @@ WLReaderDIP::WLReaderDIP( std::string fname ) :
 {
 }
 
-WLReaderDIP::ReturnCode::Enum WLReaderDIP::read( boost::shared_ptr< WLEMMSurface > surface )
+WLReaderDIP::ReturnCode::Enum WLReaderDIP::read( WLEMMSurface::SPtr surface )
 {
     ifstream ifs;
     ifs.open( m_fname.c_str(), ifstream::in );
@@ -100,17 +97,17 @@ WLReaderDIP::ReturnCode::Enum WLReaderDIP::read( boost::shared_ptr< WLEMMSurface
         rc = ReturnCode::ERROR_UNKNOWN;
     }
 
-    if( surface->getFaces().empty() )
+    if( surface->getFaces()->empty() )
     {
         wlog::warn( "WReaderDIP" ) << "No faces found! Faces will be generated.";
-        WLGeometry::computeTriangulation( &surface->getFaces(), *surface->getVertex() );
+        WLGeometry::computeTriangulation( surface->getFaces().get(), *surface->getVertex() );
     }
 
     ifs.close();
     return rc;
 }
 
-WLReaderDIP::ReturnCode::Enum WLReaderDIP::readUnit( string& line, boost::shared_ptr< WLEMMSurface > surface )
+WLReaderDIP::ReturnCode::Enum WLReaderDIP::readUnit( string& line, WLEMMSurface::SPtr surface )
 {
     vector< string > tokens = string_utils::tokenize( line );
     string unit = tokens.at( 1 );
@@ -145,11 +142,10 @@ WLReaderDIP::ReturnCode::Enum WLReaderDIP::readNumPoly( string& line, size_t& co
     return ReturnCode::SUCCESS;
 }
 
-WLReaderDIP::ReturnCode::Enum WLReaderDIP::readPositions( ifstream& ifs, size_t count,
-                boost::shared_ptr< WLEMMSurface > surface )
+WLReaderDIP::ReturnCode::Enum WLReaderDIP::readPositions( ifstream& ifs, size_t count, WLEMMSurface::SPtr surface )
 {
 
-    boost::shared_ptr< std::vector< WPosition > > pos( new vector< WPosition >() );
+    WLArrayList< WPosition >::SPtr pos( new WLArrayList< WPosition >() );
     pos->reserve( count );
 
     string line;
@@ -172,10 +168,9 @@ WLReaderDIP::ReturnCode::Enum WLReaderDIP::readPositions( ifstream& ifs, size_t 
     return ReturnCode::SUCCESS;
 }
 
-WLReaderDIP::ReturnCode::Enum WLReaderDIP::readPolygons( ifstream& ifs, size_t count,
-                boost::shared_ptr< WLEMMSurface > surface )
+WLReaderDIP::ReturnCode::Enum WLReaderDIP::readPolygons( ifstream& ifs, size_t count, WLEMMSurface::SPtr surface )
 {
-    boost::shared_ptr< std::vector< WVector3i > > faces( new vector< WVector3i >() );
+    WLArrayList< WVector3i >::SPtr faces( new WLArrayList< WVector3i >() );
     faces->reserve( count );
 
     string line;

@@ -137,6 +137,7 @@ void WMEpochRejection::properties()
     m_megMagThreshold = m_propGrpThresholds->addProperty( "MEG magnetometer Threshold",
                     "Threshold for the MEG magnetometer channels.", MEG_MAG_THRESHOLD );
 
+    /* counters */
     m_epochCount = m_propGrpEpoch->addProperty( "Epoch Count:", "Number of epochs.", 0 );
     m_epochCount->setPurpose( PV_PURPOSE_INFORMATION );
 
@@ -145,6 +146,12 @@ void WMEpochRejection::properties()
 
     m_epochCountInValid = m_propGrpEpoch->addProperty( "Invalid Epochs:", "Number of rejected epochs.", 0 );
     m_epochCountInValid->setPurpose( PV_PURPOSE_INFORMATION );
+
+    m_badChannelCount = m_propGrpEpoch->addProperty( "Bad Channels:", "Number of bad channels.", 0 );
+    m_badChannelCount->setPurpose( PV_PURPOSE_INFORMATION );
+
+    m_badEpochCount = m_propGrpEpoch->addProperty( "Bad Epochs:", "Number of bad epochs.", 0 );
+    m_badEpochCount->setPurpose( PV_PURPOSE_INFORMATION );
 }
 
 /**
@@ -158,6 +165,8 @@ void WMEpochRejection::moduleInit()
     m_epochCount->set( 0, true );
     m_epochCountValid->set( 0, true );
     m_epochCountInValid->set( 0, true );
+    m_badChannelCount->set(0, true);
+    m_badEpochCount->set(0, true);
 
     //m_thresholdMap.reset( new std::map< LaBP::WEModalityType::Enum, WPropDouble& >() );
 
@@ -267,8 +276,11 @@ bool WMEpochRejection::processCompute( WLEMMeasurement::SPtr emmIn )
 
             emmIn->getModality( i )->setBadChannels( WBadChannelManager::instance()->getChannelList( modality ) );
         }
+        debugLog() << "updated bad channels or emd object";
     }
-    rejected = m_rejectingTotal->doRejection( emmIn ); // call the rejection process on the input
+
+    // call the rejection process on the input
+    rejected = m_rejectingTotal->doRejection( emmIn );
 
     // deliver to output-connector if there was no failure
     if( rejected == false )
@@ -277,10 +289,16 @@ bool WMEpochRejection::processCompute( WLEMMeasurement::SPtr emmIn )
     }
     else // In case of rejecting, every channel of the epoch has to test.
     {
+        m_epochCountInValid->set( m_epochCountInValid->get() + 1, true );
+
         // store the epoch in the module
         WBadEpochManager::instance()->getBuffer()->push_back( emmIn );
 
-        bool singleReject = singleReject = m_rejectingSingle->doRejection( emmIn );
+        m_badEpochCount->set( WBadEpochManager::instance()->getBuffer()->size(), true );
+
+        bool singleReject = m_rejectingSingle->doRejection( emmIn );
+
+        m_badChannelCount->set( WBadChannelManager::instance()->countChannels(), true );
 
         if( singleReject )
         {
@@ -302,6 +320,8 @@ bool WMEpochRejection::processCompute( WLEMMeasurement::SPtr emmIn )
                     {
                         ++it;
                     }
+
+                    m_badEpochCount->set( WBadEpochManager::instance()->getBuffer()->size(), true );
                 }
             }
         }
@@ -309,8 +329,6 @@ bool WMEpochRejection::processCompute( WLEMMeasurement::SPtr emmIn )
         {
             upadteOutput( emmIn );
         }
-
-        m_epochCountInValid->set( m_epochCountInValid->get() + 1, true );
     }
 
     rejectProcess->finish(); // finish the process visualization
@@ -368,30 +386,30 @@ void WMEpochRejection::assignNewValues( std::map< std::string, double > valueLis
 
 void WMEpochRejection::setThresholds( boost::shared_ptr< std::list< WThreshold > > thresholdList )
 {
-    BOOST_FOREACH(WThreshold threshold, *thresholdList.get())
-    {
-        /*
-         switch( threshold.getModaliyType() )
-         {
-         case LaBP::WEModalityType::EEG:
-         m_eegThreshold->set( threshold.getValue(), true );
-         break;
-         case LaBP::WEModalityType::EOG:
-         m_eogThreshold->set( threshold.getValue(), true );
-         break;
-         case LaBP::WEModalityType::MEG:
-         if(threshold != WThresholdMEG) break;
-         if( ( ( WThresholdMEG )threshold ).getCoilType() == LaBP::WEGeneralCoilType::MAGNETOMETER )
-         m_megMagThreshold->set( threshold.getValue(), true );
-         else
-         if( ( ( WThresholdMEG )threshold ).getCoilType() == LaBP::WEGeneralCoilType::GRADIOMETER )
-         m_megGradThreshold->set( threshold.getValue(), true );
-         break;
-         default:
-         break;
-         }
-         */
-    }
+    /*
+     BOOST_FOREACH(WThreshold threshold, *thresholdList.get())
+     {
+     switch( threshold.getModaliyType() )
+     {
+     case LaBP::WEModalityType::EEG:
+     m_eegThreshold->set( threshold.getValue(), true );
+     break;
+     case LaBP::WEModalityType::EOG:
+     m_eogThreshold->set( threshold.getValue(), true );
+     break;
+     case LaBP::WEModalityType::MEG:
+     if(threshold != WThresholdMEG) break;
+     if( ( ( WThresholdMEG )threshold ).getCoilType() == LaBP::WEGeneralCoilType::MAGNETOMETER )
+     m_megMagThreshold->set( threshold.getValue(), true );
+     else
+     if( ( ( WThresholdMEG )threshold ).getCoilType() == LaBP::WEGeneralCoilType::GRADIOMETER )
+     m_megGradThreshold->set( threshold.getValue(), true );
+     break;
+     default:
+     break;
+     }
+     }
+     */
 }
 
 WMEpochRejection::modality_code WMEpochRejection::hashit( std::string const& inString )

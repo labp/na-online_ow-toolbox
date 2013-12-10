@@ -24,6 +24,7 @@
 
 #include "core/common/WLogger.h"
 #include "core/util/profiler/WLTimeProfiler.h"
+#include "core/data/emd/WLEMData.h"
 
 #include "WEpochRejection.h"
 #include "WEpochRejectionSingle.h"
@@ -52,17 +53,14 @@ bool WEpochRejectionSingle::isBadChannelUpdated() const
     return m_BadChannelUpdated;
 }
 
-/**
- * Method to process the rejection on the data.
- */
 bool WEpochRejectionSingle::doRejection( const WLEMMeasurement::ConstSPtr emm )
 {
     WLTimeProfiler tp( "WEpochRejectionSingle", "getRejection" );
     wlog::debug( CLASS ) << "starting single channel rejection";
 
     m_rejCount = 0;
+    m_BadChannelUpdated = false;
 
-    // TODO: review the algorithm and include WBadChannelManager
     for( size_t mod = 0; mod < emm->getModalityCount(); ++mod ) // for all modalities
     {
         // get modality
@@ -84,15 +82,25 @@ bool WEpochRejectionSingle::doRejection( const WLEMMeasurement::ConstSPtr emm )
         {
             ++channelNo;
 
-            threshold = getThreshold(modality->getModalityType(), channelNo);
+            // Check whether or not the channel is already a bad channel
+            if( WBadChannelManager::instance()->isChannelBad(modality->getModalityType(), channelNo) )
+            {
+                continue; // skip this channel for processing
+            }
 
-            //const WLEMData::ChannelT& row = modality->getData().row(chan); // get current channel
-            WLEMData::ScalarT max = modality->getData().row(chan).maxCoeff(); // maximum value
-            WLEMData::ScalarT min = modality->getData().row(chan).minCoeff(); // minimum value
+            threshold = getThreshold( modality->getModalityType(), channelNo );
+
+            WLEMData::ScalarT max = modality->getData().row( chan ).maxCoeff(); // maximum value
+            WLEMData::ScalarT min = modality->getData().row( chan ).minCoeff(); // minimum value
             WLEMData::ScalarT diff = max - min; // difference between maximum and minimum
 
-            if(diff > threshold)
+            if( diff > threshold )
             {
+                // add a bad channel to the manager
+                WBadChannelManager::instance()->addChannel( modality->getModalityType(), channelNo );
+
+                m_BadChannelUpdated = true;
+
                 ++rejections;
             }
         }

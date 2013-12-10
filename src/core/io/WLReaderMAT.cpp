@@ -112,11 +112,21 @@ WLIOStatus::ioStatus_t WLReaderMAT::readMatrix( WLMatrix::SPtr& matrix )
                 {
                     matrix.reset( new WLMatrix::MatrixT() );
                 }
+#ifndef LABP_FLOAT_COMPUTATION
                 if( WLMatFileIO::MATReader::readMatrixDouble( matrix.get(), *it, m_ifs, m_fileInfo ) )
                 {
                     rc = WLIOStatus::SUCCESS;
                     break;
                 }
+#else
+                Eigen::MatrixXd matrixDbl;
+                if( WLMatFileIO::MATReader::readMatrixDouble( &matrixDbl, *it, m_ifs, m_fileInfo ) )
+                {
+                    (*matrix) = matrixDbl.cast<WLMatrix::ScalarT>();
+                    rc = WLIOStatus::SUCCESS;
+                    break;
+                }
+#endif
             }
         }
     }

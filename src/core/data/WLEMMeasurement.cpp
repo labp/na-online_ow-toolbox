@@ -40,6 +40,8 @@
 
 #include "WLEMMeasurement.h"
 
+using namespace LaBP;
+
 const std::string WLEMMeasurement::CLASS = "WLEMMeasurement";
 
 WLEMMeasurement::WLEMMeasurement()
@@ -47,17 +49,20 @@ WLEMMeasurement::WLEMMeasurement()
     m_transDevToFid.setIdentity();
     m_transFidToACPC.setIdentity();
     m_eventChannels.reset( new EDataT() );
-    m_subject.reset( new LaBP::WLEMMSubject() );
+    m_subject.reset( new WLEMMSubject() );
     m_profiler.reset( new WLLifetimeProfiler( CLASS, "lifetime" ) );
+
+    m_digPoints = WLList< WLDigPoint >::instance();
 }
 
-WLEMMeasurement::WLEMMeasurement( LaBP::WLEMMSubject::SPtr subject )
+WLEMMeasurement::WLEMMeasurement( WLEMMSubject::SPtr subject )
 {
     m_transDevToFid.setIdentity();
     m_transFidToACPC.setIdentity();
     m_subject = subject;
     m_eventChannels.reset( new EDataT() );
     m_profiler.reset( new WLLifetimeProfiler( CLASS, "lifetime" ) );
+    m_digPoints = WLList< WLDigPoint >::instance();
 }
 
 WLEMMeasurement::WLEMMeasurement( const WLEMMeasurement& emm )
@@ -123,12 +128,12 @@ std::string WLEMMeasurement::getExpDescription() const
     return m_expDescription;
 }
 
-LaBP::WLEMMSubject::SPtr WLEMMeasurement::getSubject()
+WLEMMSubject::SPtr WLEMMeasurement::getSubject()
 {
     return m_subject;
 }
 
-LaBP::WLEMMSubject::ConstSPtr WLEMMeasurement::getSubject() const
+WLEMMSubject::ConstSPtr WLEMMeasurement::getSubject() const
 {
     return m_subject;
 }
@@ -217,7 +222,7 @@ void WLEMMeasurement::setExpDescription( std::string expDescription )
     m_expDescription = expDescription;
 }
 
-void WLEMMeasurement::setSubject( LaBP::WLEMMSubject::SPtr subject )
+void WLEMMeasurement::setSubject( WLEMMSubject::SPtr subject )
 {
     m_subject = subject;
 }
@@ -262,25 +267,30 @@ void WLEMMeasurement::setProfiler( WLLifetimeProfiler::SPtr profiler )
     m_profiler = profiler;
 }
 
-const std::vector< WLDigPoint >& WLEMMeasurement::getDigPoints() const
+WLList< WLDigPoint >::SPtr WLEMMeasurement::getDigPoints()
 {
     return m_digPoints;
 }
 
-void WLEMMeasurement::setDigPoints( const std::vector< WLDigPoint >& digPoints )
+WLList< WLDigPoint >::ConstSPtr WLEMMeasurement::getDigPoints() const
+{
+    return m_digPoints;
+}
+
+void WLEMMeasurement::setDigPoints( WLList< WLDigPoint >::SPtr digPoints )
 {
     m_digPoints = digPoints;
 }
 
-std::vector< WLDigPoint > WLEMMeasurement::getDigPoints( WLDigPoint::PointType::Enum kind ) const
+WLList< WLDigPoint >::SPtr WLEMMeasurement::getDigPoints( WLDigPoint::PointType::Enum kind ) const
 {
-    std::vector< WLDigPoint > digForKind;
-    std::vector< WLDigPoint >::const_iterator cit;
-    for( cit = m_digPoints.begin(); cit != m_digPoints.end(); ++cit )
+    WLList< WLDigPoint >::SPtr digForKind( new WLList< WLDigPoint >() );
+    WLList< WLDigPoint >::const_iterator cit;
+    for( cit = m_digPoints->begin(); cit != m_digPoints->end(); ++cit )
     {
         if( cit->getKind() == kind )
         {
-            digForKind.push_back( *cit );
+            digForKind->push_back( *cit );
         }
     }
     return digForKind;
@@ -304,4 +314,17 @@ const WLMatrix4::Matrix4T& WLEMMeasurement::getFidToACPCTransformation() const
 void WLEMMeasurement::setFidToACPCTransformation( const WLMatrix4::Matrix4T& mat )
 {
     m_transFidToACPC = mat;
+}
+
+std::ostream& operator<<( std::ostream &strm, const WLEMMeasurement& obj )
+{
+    strm << WLEMMeasurement::CLASS << ": modalities=[";
+    for( size_t m = 0; m < obj.getModalityCount(); ++m )
+    {
+        strm << *obj.getModality( m ) << ", ";
+    }
+    strm << "]";
+    strm << ", digPoints=" << obj.getDigPoints()->size();
+    strm << ", eventChannels=" << obj.getEventChannelCount();
+    return strm;
 }

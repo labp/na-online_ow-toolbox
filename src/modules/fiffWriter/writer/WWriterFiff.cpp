@@ -189,16 +189,16 @@ bool WWriterFiff::beginFiff( const WLEMMeasurement* const emm )
 
 bool WWriterFiff::setDigPoint( FIFFLIB::FiffInfo* const info, const WLEMMeasurement* const emm )
 {
-    if( emm->getDigPoints().empty() )
+    if( emm->getDigPoints()->empty() )
     {
         wlog::debug( CLASS ) << "No digPoints to write!";
         return false;
     }
 
     QList<FiffDigPoint> digs;
-    const std::vector< WLDigPoint >& digPoints = emm->getDigPoints();
-    std::vector< WLDigPoint >::const_iterator it;
-    for( it = digPoints.begin(); it != digPoints.end(); ++it)
+    WLList< WLDigPoint >::ConstSPtr digPoints = emm->getDigPoints();
+    WLList< WLDigPoint >::const_iterator it;
+    for( it = digPoints->begin(); it != digPoints->end(); ++it)
     {
         FiffDigPoint digPoint;
         digPoint.ident = it->getIdent();
@@ -331,12 +331,12 @@ void WWriterFiff::setChannelInfo( QList< FIFFLIB::FiffChInfo >* const chs, const
 
 void WWriterFiff::setChannelInfo( QList< FIFFLIB::FiffChInfo >* const chs, const WLEMDEEG* const eeg )
 {
-    const std::vector< std::string >& chNames = eeg->getChanNames();
-    std::vector< WPosition >* pos = eeg->getChannelPositions3d().get();
+    const std::vector< std::string >& chNames = *eeg->getChanNames();
+    const std::vector< WPosition >& pos = *eeg->getChannelPositions3d();
     for( size_t c = 0; c < eeg->getNrChans(); ++c )
     {
         FiffChInfo chInfo;
-        const WPosition p = pos->at( c );
+        const WPosition p = pos.at( c );
         const Vector3d v( p.x(), p.y(), p.z() );
         setChannelInfo( &chInfo );
         chInfo.coil_type = FIFFV_COIL_EEG;
@@ -354,13 +354,13 @@ void WWriterFiff::setChannelInfo( QList< FIFFLIB::FiffChInfo >* const chs, const
 
 void WWriterFiff::setChannelInfo( QList< FIFFLIB::FiffChInfo >* const chs, const WLEMDMEG* const meg )
 {
-    const std::vector< std::string >& chNames = meg->getChanNames();
-    std::vector< WPosition >* pos = meg->getChannelPositions3d().get();
+    const std::vector< std::string >& chNames = *meg->getChanNames();
+    const std::vector< WPosition >& pos = *meg->getChannelPositions3d();
     for( size_t c = 0; c < meg->getNrChans(); ++c )
     {
         FiffChInfo chInfo;
         setChannelInfo( &chInfo );
-        const WPosition p = pos->at( c );
+        const WPosition p = pos.at( c );
         const Vector3d v( p.x(), p.y(), p.z() );
         chInfo.loc.setZero();
         chInfo.loc( 0, 0 ) = v.x();

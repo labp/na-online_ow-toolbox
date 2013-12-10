@@ -32,6 +32,7 @@
 
 #include <core/common/WPropertyTypes.h>
 
+#include "core/container/WLList.h"
 #include "core/data/WLDataTypes.h"
 #include "core/data/WLEMMCommand.h"
 #include "core/data/WLEMMSurface.h"
@@ -69,6 +70,20 @@ public:
      */
     virtual const std::string getDescription() const;
 
+    /**
+     * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
+     * should never be initialized or modified in some other way. A simple new instance is required.
+     *
+     * \return the prototype used to create every module in OpenWalnut.
+     */
+    virtual WModule::SPtr factory() const;
+
+    /**
+     * Get the icon for this module in XPM format.
+     * \return The icon.
+     */
+    virtual const char** getXPMIcon() const;
+
 protected:
     // ---------------------------------
     // Methods for WLEMMCommandProcessor
@@ -93,20 +108,6 @@ protected:
      * Initialize the properties for this module.
      */
     virtual void properties();
-
-    /**
-     * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
-     * should never be initialized or modified in some other way. A simple new instance is required.
-     *
-     * \return the prototype used to create every module in OpenWalnut.
-     */
-    virtual WModule::SPtr factory() const;
-
-    /**
-     * Get the icon for this module in XPM format.
-     * \return The icon.
-     */
-    virtual const char** getXPMIcon() const;
 
 private:
     //! a condition for the matrix selection
@@ -157,15 +158,15 @@ private:
     WPropGroup m_propGrpAdditional;
 
     WPropFilename m_srcSpaceFile;
-    LaBP::WLEMMSurface::SPtr m_surface;
+    WLEMMSurface::SPtr m_surface;
     bool handleSurfaceFileChanged( std::string fName );
 
     WPropFilename m_bemFile;
-    boost::shared_ptr< std::vector< LaBP::WLEMMBemBoundary::SPtr > > m_bems;
+    WLList< WLEMMBemBoundary::SPtr >::SPtr m_bems;
     bool handleBemFileChanged( std::string fName );
 
     WPropFilename m_digPointsFile;
-    std::vector< WLDigPoint > m_digPoints;
+    std::list< WLDigPoint > m_digPoints;
     bool handleDigPointsFileChanged( std::string fName );
 
     WPropFilename m_lfEEGFile;
@@ -176,7 +177,7 @@ private:
 
     WPropString m_additionalStatus;
 
-    LaBP::WLEMMSubject::SPtr m_subject;
+    WLEMMSubject::SPtr m_subject;
 
     // File status strings //
     static const std::string DATA_NOT_LOADED;

@@ -105,18 +105,18 @@ namespace LaBP
         }
     }
 
-    size_t WLEMDDrawable2DMultiChannel::getChannelBegin( const WLEMData* emd )
+    size_t WLEMDDrawable2DMultiChannel::getChannelBegin( const WLEMData& emd )
     {
-        const size_t channels_emd = emd->getNrChans();
+        const size_t channels_emd = emd.getNrChans();
         const size_t channels_max = maxChannels( emd );
         m_channelBegin = m_channelBegin + channels_max < channels_emd ? m_channelBegin : channels_emd - channels_max;
         return m_channelBegin;
     }
 
-    size_t WLEMDDrawable2DMultiChannel::maxChannels( const WLEMData* emd ) const
+    size_t WLEMDDrawable2DMultiChannel::maxChannels( const WLEMData& emd ) const
     {
         size_t channels = ( m_widget->height() / ( m_channelHeight ) );
-        channels = channels < emd->getNrChans() ? channels : emd->getNrChans();
+        channels = channels < emd.getNrChans() ? channels : emd.getNrChans();
         return channels;
     }
 
@@ -128,9 +128,9 @@ namespace LaBP
         m_channelBeginChanged = false;
     }
 
-    void WLEMDDrawable2DMultiChannel::osgAddLabels( const WLEMData* emd )
+    void WLEMDDrawable2DMultiChannel::osgAddLabels( const WLEMData& emd )
     {
-        if( m_labelsText->getNumChildren() != emd->getNrChans() || m_channelHeightChanged )
+        if( m_labelsText->getNumChildren() != emd.getNrChans() || m_channelHeightChanged )
         {
             // Because GL_DEPTH_TEST is OFF this, order is important:
             // 1. graph data
@@ -169,15 +169,15 @@ namespace LaBP
             osg::ref_ptr< osg::Geode > labelGeode;
             osg::ref_ptr< osgText::Text > labelText;
             std::string labelName;
-            const size_t channels_emd = emd->getNrChans();
+            const size_t channels_emd = emd.getNrChans();
             const size_t channels_count = maxChannels( emd );
             for( size_t channel = getChannelBegin( emd ), channelPos = 0; channelPos < channels_count && channel < channels_emd;
                             ++channel, ++channelPos )
             {
                 labelName = boost::lexical_cast< std::string >( channel );
-                if( emd->getChanNames().size() > channel )
+                if( emd.getChanNames()->size() > channel )
                 {
-                    labelName = emd->getChanNames().at( channel );
+                    labelName = emd.getChanNames()->at( channel );
                 }
                 labelText = new osgText::Text;
                 labelText->setText( labelName );

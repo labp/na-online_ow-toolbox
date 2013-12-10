@@ -82,17 +82,17 @@ namespace LaBP
 
         WLEMMeasurement::ConstSPtr emm = m_emm;
         WLEMDSource::ConstSPtr emd = emm->getModality< const WLEMDSource >( WEModalityType::SOURCE );
-        LaBP::WLEMMSubject::ConstSPtr subject = emm->getSubject();
+        WLEMMSubject::ConstSPtr subject = emm->getSubject();
 
         if( m_colorMapChanged )
         {
             m_state->setTextureAttributeAndModes( 0, m_colorMap->getAsTexture() );
         }
 
-        const WLEMMSurface& surf = subject->getSurface( WLEMMSurface::Hemisphere::BOTH );
+        WLEMMSurface::ConstSPtr surf = subject->getSurface( WLEMMSurface::Hemisphere::BOTH );
 
-        m_zoomFactor = WEExponent::factor( surf.getVertexExponent() ) * 1000;
-        osgAddSurface( *surf.getVertex(), surf.getFaces() );
+        m_zoomFactor = WEExponent::factor( surf->getVertexExponent() ) * 1000;
+        osgAddSurface( *surf->getVertex(), *surf->getFaces() );
 
         osgUpdateSurfaceColor( emd->getData() );
 

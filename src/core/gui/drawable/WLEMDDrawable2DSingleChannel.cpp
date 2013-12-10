@@ -69,12 +69,12 @@ namespace LaBP
         return m_emm.get() && m_emm->hasModality( m_modality );
     }
 
-    size_t WLEMDDrawable2DSingleChannel::maxChannels( const WLEMData* emd ) const
+    size_t WLEMDDrawable2DSingleChannel::maxChannels( const WLEMData& emd ) const
     {
-        return emd->getNrChans();
+        return emd.getNrChans();
     }
 
-    void WLEMDDrawable2DSingleChannel::osgAddChannels( const WLEMData* emd )
+    void WLEMDDrawable2DSingleChannel::osgAddChannels( const WLEMData& emd )
     {
         m_rootGroup->removeChild( m_channelGroup );
         m_channelGroup = new osg::Group;
@@ -82,7 +82,7 @@ namespace LaBP
         const ValueT x_pos = m_xOffset;
         const ValueT y_pos = m_widget->height() / 2;
         const ValueT width = m_widget->width() - x_pos;
-        const ValueT x_scale = width / emd->getSamplesPerChan();
+        const ValueT x_scale = width / emd.getSamplesPerChan();
         const ValueT y_scale = ( m_widget->height() / 2 ) / m_amplitudeScale;
 
         osg::ref_ptr< osg::MatrixTransform > panTransform = new osg::MatrixTransform;
@@ -90,11 +90,11 @@ namespace LaBP
         // TODO(pieloth): dynamic shift scale ... width / m_timeRange
         // TODO(pieloth): dynamic shift scale ... x_pos * width / m_timeRange,
         panTransform->setMatrix( osg::Matrix::translate( x_pos, y_pos, 0.0 ) );
-        const WLEMData::DataT& emdData = emd->getData();
+        const WLEMData::DataT& emdData = emd.getData();
         const size_t channels_begin = 0;
         const size_t channels_count = maxChannels( emd );
         osg::ref_ptr< osg::Geode > channelGeode;
-        for( size_t channel = channels_begin, channelPos = 0; channelPos < channels_count && channel < emd->getNrChans();
+        for( size_t channel = channels_begin, channelPos = 0; channelPos < channels_count && channel < emd.getNrChans();
                         ++channel, ++channelPos )
         {
             channelGeode = drawChannel( emdData.row( channel ) );
@@ -110,7 +110,7 @@ namespace LaBP
         m_rootGroup->addChild( m_channelGroup );
     }
 
-    void WLEMDDrawable2DSingleChannel::osgAddValueGrid( const WLEMData* emd )
+    void WLEMDDrawable2DSingleChannel::osgAddValueGrid( const WLEMData& emd )
     {
         const ValueT height = m_widget->height();
         const ValueT width = m_widget->width();
@@ -156,7 +156,7 @@ namespace LaBP
 
             // Find maximum
             LaBP::WLBoundCalculator bc;
-            WLEMData::ScalarT max = bc.getMax( emd->getData() );
+            WLEMData::ScalarT max = bc.getMax( emd.getData() );
 
             const ValueT y_scale = ( ( m_widget->height() / 2 ) / m_amplitudeScale );
             for( ValueT yPos = y_zero_pos + ( y_scale * max ); yPos > height * 0.9; yPos = y_zero_pos + ( y_scale * max ) )
@@ -258,8 +258,8 @@ namespace LaBP
 
         WLEMMeasurement::ConstSPtr emm = m_emm;
         WLEMData::ConstSPtr emd = emm->getModality( m_modality );
-        osgAddChannels( emd.get() );
-        osgAddValueGrid( emd.get() );
+        osgAddChannels( *emd );
+        osgAddValueGrid( *emd );
 
         WLEMDDrawable2D::osgNodeCallback( nv );
     }
