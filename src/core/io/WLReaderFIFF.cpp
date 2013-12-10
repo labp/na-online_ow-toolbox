@@ -279,8 +279,8 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
                 WLEMDMEG::SPtr meg = emd->getAs< WLEMDMEG >();
                 meg->setChannelPositions3d( positions );
                 meg->setEx( eX );
-                meg->setEx( eY );
-                meg->setEx( eZ );
+                meg->setEy( eY );
+                meg->setEz( eZ );
                 wlog::debug( CLASS ) << "MEG positions: " << meg->getChannelPositions3d()->size();
                 break;
             }
