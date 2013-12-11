@@ -3,6 +3,7 @@
 ADD_MODULE( alignment )
 ADD_MODULE( codeSnippets )
 ADD_MODULE( emMeasurement )
+ADD_MODULE( emmSimulator )
 ADD_MODULE( epochAveraging )
 ADD_MODULE( epochSeparation )
 ADD_MODULE( fiffWriter )
