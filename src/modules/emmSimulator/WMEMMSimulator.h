@@ -36,6 +36,11 @@
 #include "core/data/WLEMMeasurement.h"
 #include "core/module/WLModuleDrawable.h"
 
+/**
+ * Simulates a streaming of EMM data. Splits an EMM object into blocks.
+ *
+ * \author pieloth
+ */
 class WMEMMSimulator: public WLModuleDrawable
 {
 public:
@@ -87,10 +92,10 @@ private:
         };
         static std::string name( EStreaming::Enum val );
     };
-    EStreaming::Enum m_state;
-    WPropString m_propState;
+    EStreaming::Enum m_status;
+    WPropString m_propStatus;
 
-    void updateState( EStreaming::Enum state );
+    void updateStatus( EStreaming::Enum status );
 
     void stream();
     void reset();
@@ -100,5 +105,11 @@ private:
     void handleStartTrg();
     void callbackStopTrg();
 };
+
+inline void WMEMMSimulator::updateStatus( EStreaming::Enum status )
+{
+    m_status = status;
+    m_propStatus->set( EStreaming::name( status ), true );
+}
 
 #endif  // WMEMMSIMULATOR_H_

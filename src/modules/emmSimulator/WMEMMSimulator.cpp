@@ -54,7 +54,7 @@ std::string WMEMMSimulator::EStreaming::name( EStreaming::Enum val )
 
 WMEMMSimulator::WMEMMSimulator()
 {
-    m_state = EStreaming::NO_DATA;
+    m_status = EStreaming::NO_DATA;
 }
 
 WMEMMSimulator::~WMEMMSimulator()
@@ -111,8 +111,8 @@ void WMEMMSimulator::properties()
     m_trgStop = m_properties->addProperty( "Stop:", "Stop streaming.", WPVBaseTypes::PV_TRIGGER_READY,
                     boost::bind( &WMEMMSimulator::callbackStopTrg, this ) );
 
-    m_propState = m_properties->addProperty( "Status:", "Status of streaming.", EStreaming::name( EStreaming::NO_DATA ) );
-    m_propState->setPurpose( PV_PURPOSE_INFORMATION );
+    m_propStatus = m_properties->addProperty( "Status:", "Status of streaming.", EStreaming::name( EStreaming::NO_DATA ) );
+    m_propStatus->setPurpose( PV_PURPOSE_INFORMATION );
 
     m_propBlocksSent = m_properties->addProperty( "Blocks sent:", "Number of blocks which have been sent into processing chain.",
                     0 );
@@ -130,7 +130,7 @@ void WMEMMSimulator::moduleInit()
     ready(); // signal ready state
     waitRestored();
 
-    viewInit( WLEMDDrawable2D::WEGraphType::MULTI );
+    viewInit( WLEMDDrawable2D::WEGraphType::DYNAMIC );
 }
 
 void WMEMMSimulator::moduleMain()
@@ -144,7 +144,7 @@ void WMEMMSimulator::moduleMain()
 
         if( m_shutdownFlag() )
         {
-            updateState( EStreaming::STOP_REQUEST );
+            updateStatus( EStreaming::STOP_REQUEST );
             break;
         }
 
@@ -164,17 +164,11 @@ void WMEMMSimulator::moduleMain()
     }
 }
 
-void WMEMMSimulator::updateState( EStreaming::Enum state )
-{
-    m_state = state;
-    m_propState->set( EStreaming::name( state ), true );
-}
-
 void WMEMMSimulator::reset()
 {
     debugLog() << "reset() called!";
     EStreaming::Enum state = !m_data ? EStreaming::NO_DATA : EStreaming::READY;
-    updateState( state );
+    updateStatus( state );
     m_propBlockSize->set( 1000, true );
     m_propBlocksSent->set( 0, true );
 }
@@ -182,12 +176,12 @@ void WMEMMSimulator::reset()
 void WMEMMSimulator::handleStartTrg()
 {
     debugLog() << "handleStartTrg() called!";
-    if( m_state == EStreaming::READY )
+    if( m_status == EStreaming::READY )
     {
         infoLog() << "Start streaming ...";
-        updateState( EStreaming::STREAMING );
+        updateStatus( EStreaming::STREAMING );
         stream();
-        updateState( EStreaming::READY );
+        updateStatus( EStreaming::READY );
         infoLog() << "Finished streaming!";
     }
     else
@@ -201,14 +195,14 @@ void WMEMMSimulator::callbackStopTrg()
 {
     debugLog() << "callbackStopTrg() called!";
     infoLog() << "Requesting streaming stop ...";
-    updateState( EStreaming::STOP_REQUEST );
+    updateStatus( EStreaming::STOP_REQUEST );
     m_trgStop->set( WPVBaseTypes::PV_TRIGGER_READY, true );
 }
 
 bool WMEMMSimulator::processCompute( WLEMMeasurement::SPtr emm )
 {
     m_data = emm;
-    updateState( EStreaming::READY );
+    updateStatus( EStreaming::READY );
     if(m_propAutoStart->get())
     {
         handleStartTrg();
@@ -237,7 +231,7 @@ void WMEMMSimulator::stream()
     WLEMMeasurement::SPtr emm;
     WLEMMCommand::SPtr cmd;
     size_t blocksSent = 0;
-    while( m_state == EStreaming::STREAMING && packetizer.hasNext() )
+    while( m_status == EStreaming::STREAMING && packetizer.hasNext() )
     {
         // start
         waitTimer.reset();
