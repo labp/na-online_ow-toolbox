@@ -231,7 +231,7 @@ void WMEMMSimulator::stream()
     WLEMMeasurement::SPtr emm;
     WLEMMCommand::SPtr cmd;
     size_t blocksSent = 0;
-    while( m_status == EStreaming::STREAMING && packetizer.hasNext() )
+    while( m_status == EStreaming::STREAMING && packetizer.hasNext() && !m_shutdownFlag() )
     {
         // start
         waitTimer.reset();
