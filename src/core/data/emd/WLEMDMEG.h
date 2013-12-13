@@ -123,6 +123,15 @@ public:
      */
     DataSPtr getData( LaBP::WEGeneralCoilType::Enum type ) const; // This is a copy of channels, so the data is not changed.
 
+    /**
+     * Returns the data of the requested coil type without the bad channels.
+     * Due to the copy effort, getPicks() is recommended for channels wise processing.
+     *
+     * @param type Requested coil type.
+     * @return New data containing all channels of the requested coil type with out the bad channels.
+     */
+    DataSPtr getDataBadChannels( LaBP::WEGeneralCoilType::Enum type ) const;
+
     using WLEMData::getData;
 
 private:
@@ -134,8 +143,8 @@ private:
     WLArrayList< WVector3f >::SPtr m_eY;
     WLArrayList< WVector3f >::SPtr m_eZ;
 
-    mutable std::vector<size_t> m_picksMag; // mutable to reset the picks after a data change and lazy load.
-    mutable std::vector<size_t> m_picksGrad; // mutable to reset the picks after a data change and lazy load.
+    mutable std::vector< size_t > m_picksMag; // mutable to reset the picks after a data change and lazy load.
+    mutable std::vector< size_t > m_picksGrad; // mutable to reset the picks after a data change and lazy load.
 
     /*
      * member contains absolute position of channel with coordinate system in this position

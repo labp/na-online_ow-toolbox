@@ -177,6 +177,32 @@ WLEMDMEG::DataSPtr WLEMDMEG::getData( WEGeneralCoilType::Enum type ) const
     return dataPtr;
 }
 
+WLEMDMEG::DataSPtr WLEMDMEG::getDataBadChannels( LaBP::WEGeneralCoilType::Enum type ) const
+{
+    if( getNrChans() % 3 != 0 )
+    {
+        return WLEMDMEG::DataSPtr( new WLEMDMEG::DataT );
+    }
+
+    std::vector< size_t > picks = getPicks( type );
+    WLEMDMEG::DataSPtr dataPtr( new WLEMDMEG::DataT( picks.size(), getSamplesPerChan() ) );
+    WLEMDMEG::DataT& data = *dataPtr;
+
+    size_t row = 0;
+    std::vector< size_t >::const_iterator it;
+    for( it = picks.begin(); it != picks.end(); ++it )
+    {
+        if( isBadChannel( *it + 1 ) )
+        {
+            continue;
+        }
+
+        data.row( row++ ) = m_data->row( *it );
+    }
+
+    return dataPtr;
+}
+
 std::vector< size_t > WLEMDMEG::getPicks( WEGeneralCoilType::Enum type ) const
 {
     if( m_picksMag.size() + m_picksGrad.size() != getNrChans() )

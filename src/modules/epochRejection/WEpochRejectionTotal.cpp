@@ -60,18 +60,18 @@ bool WEpochRejectionTotal::doRejection( const WLEMMeasurement::ConstSPtr emm )
         switch( modality->getModalityType() )
         {
             case LaBP::WEModalityType::EEG:
-                rejection = rejection || calcRejection( modality->getData(), m_eegThreshold );
+                rejection = rejection || calcRejection( modality->getDataBadChannels(), m_eegThreshold );
                 break;
             case LaBP::WEModalityType::MEG:
 
                 meg = boost::static_pointer_cast< const WLEMDMEG >( modality );
 
-                rejection = rejection || calcRejection( meg->getData( LaBP::WEGeneralCoilType::MAGNETOMETER ), m_megMagThreshold );
-                rejection = rejection || calcRejection( meg->getData( LaBP::WEGeneralCoilType::GRADIOMETER ), m_megGradThreshold );
+                rejection = rejection || calcRejection( meg->getDataBadChannels( LaBP::WEGeneralCoilType::MAGNETOMETER ), m_megMagThreshold );
+                rejection = rejection || calcRejection( meg->getDataBadChannels( LaBP::WEGeneralCoilType::GRADIOMETER ), m_megGradThreshold );
 
                 break;
             case LaBP::WEModalityType::EOG:
-                rejection = rejection || calcRejection( modality->getData(), m_eogThreshold );
+                rejection = rejection || calcRejection( modality->getDataBadChannels(), m_eogThreshold );
                 break;
             default:
                 break;
@@ -91,7 +91,7 @@ bool WEpochRejectionTotal::calcRejection( const WLEMData::DataT& data, double th
     return diff > threshold;
 }
 
-bool WEpochRejectionTotal::calcRejection( const WLEMDMEG::DataSPtr data, double threshold )
+bool WEpochRejectionTotal::calcRejection( const WLEMData::DataSPtr data, double threshold )
 {
     // calculate the maximal difference between maximum peek and minimum peek over all channels
     WLEMData::ScalarT diff = data->maxCoeff() - data->minCoeff();

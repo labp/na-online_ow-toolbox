@@ -107,6 +107,8 @@ protected:
     virtual bool processInit( WLEMMCommand::SPtr labp );
     virtual bool processReset( WLEMMCommand::SPtr labp );
 
+    void updateBadChannels( WLEMMeasurement::SPtr emm );
+
 private:
 
     enum modality_code
@@ -237,7 +239,6 @@ private:
      * List containing the thresholds for processing.
      */
     //boost::shared_ptr< std::list< WThreshold > > m_thresholds;
-
     static const std::string NO_FILE_LOADED;
 
     static const std::string LOADING_FILE;

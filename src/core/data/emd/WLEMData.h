@@ -135,6 +135,13 @@ public:
     virtual DataT& getData() const;
 
     /**
+     * Returns the data without the bad channels. NOTE: The method does not modify any object data, but data may modified indirectly!
+     *
+     * @return The data.
+     */
+    virtual DataSPtr getDataBadChannels() const;
+
+    /**
      * TODO(kaehler): Comments
      */
     virtual void setData( DataSPtr data );
@@ -201,6 +208,13 @@ public:
     virtual size_t getSamplesPerChan() const;
 
     /**
+     * Returns the bad channel list.
+     *
+     * @return Bad channel list.
+     */
+    virtual ChannelListSPtr getBadChannels() const;
+
+    /**
      * TODO(kaehler): Comments
      */
     uint16_t *getOrigIdx() const;
@@ -218,9 +232,6 @@ public:
      * @return data length in seconds.
      */
     float getLength() const;
-
-
-    virtual ChannelListSPtr getBadChannels() const;
 
     /**
      * TODO(kaehler): Comments
@@ -288,6 +299,14 @@ public:
 
     static std::string dataToString( const DataT& data, size_t maxChannels, size_t maxSamples );
 
+    /**
+     * Returns true if the channel number is listed in the bad channel list.
+     *
+     * @param channelNo The channel number.
+     * @return True / false.
+     */
+    bool isBadChannel( size_t channelNo ) const;
+
 protected:
     /**
      * name of the measurement device
@@ -352,6 +371,9 @@ protected:
      */
     DataSPtr m_data;
 
+    /**
+     * List of the bad channels.
+     */
     ChannelListSPtr m_badChannels;
 
     // TODO(fuchs): snr estimate or/and noise covariance matrix for source localisation

@@ -41,6 +41,8 @@ WLEMData::WLEMData() :
 {
     m_data.reset( new DataT() );
     m_chanNames = WLArrayList< std::string >::instance();
+
+    m_badChannels.reset( new ChannelList() );
 }
 
 WLEMData::WLEMData( const WLEMData& emd ) :
@@ -78,6 +80,8 @@ WLEMData::WLEMData( const WLEMData& emd ) :
     m_CoordSystem = emd.getCoordSystem();
     m_dataBuffSizePerChan = emd.getDataBuffSizePerChan(); // TODO check
     m_dataOffsetIdx = emd.getDataOffsetIdx();
+
+    m_badChannels.reset( new ChannelList() );
 }
 
 WLEMData::~WLEMData()
@@ -87,6 +91,25 @@ WLEMData::~WLEMData()
 WLEMData::DataT& WLEMData::getData() const
 {
     return *m_data;
+}
+
+WLEMData::DataSPtr WLEMData::getDataBadChannels() const
+{
+    WLEMData::DataSPtr dataPtr( new WLEMData::DataT( m_data->rows() - m_badChannels->size(), getSamplesPerChan() ) );
+    WLEMData::DataT& data = *dataPtr;
+
+    size_t row = 0, it;
+    for( it = 0; it < getNrChans(); ++it )
+    {
+        if( isBadChannel( it + 1 ) )
+        {
+            continue;
+        }
+
+        data.row( row++ ) = m_data->row( it );
+    }
+
+    return dataPtr;
 }
 
 void WLEMData::setData( DataSPtr data )
@@ -280,9 +303,23 @@ std::string WLEMData::dataToString( const DataT& data, size_t maxChannels, size_
     return ss.str();
 }
 
+bool WLEMData::isBadChannel( size_t channelNo ) const
+{
+    ChannelList::iterator it;
+
+    for( it = m_badChannels->begin(); it != m_badChannels->end(); ++it )
+    {
+        if( *it == channelNo )
+            return true;
+    }
+
+    return false;
+}
+
 std::ostream& operator<<( std::ostream &strm, const WLEMData& obj )
 {
-    strm << WLEMData::CLASS << "::" << WEModalityType::name( obj.getModalityType() ) << ": data=" << obj.getNrChans() << "x" << obj.getSamplesPerChan();
+    strm << WLEMData::CLASS << "::" << WEModalityType::name( obj.getModalityType() ) << ": data=" << obj.getNrChans() << "x"
+                    << obj.getSamplesPerChan();
     return strm;
 }
 

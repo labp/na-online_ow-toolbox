@@ -165,8 +165,8 @@ void WMEpochRejection::moduleInit()
     m_epochCount->set( 0, true );
     m_epochCountValid->set( 0, true );
     m_epochCountInValid->set( 0, true );
-    m_badChannelCount->set(0, true);
-    m_badEpochCount->set(0, true);
+    m_badChannelCount->set( 0, true );
+    m_badEpochCount->set( 0, true );
 
     //m_thresholdMap.reset( new std::map< LaBP::WEModalityType::Enum, WPropDouble& >() );
 
@@ -267,17 +267,8 @@ bool WMEpochRejection::processCompute( WLEMMeasurement::SPtr emmIn )
     m_rejectingSingle->setThresholds( m_eegThreshold->get(), m_eogThreshold->get(), m_megGradThreshold->get(),
                     m_megMagThreshold->get() );
 
-    // apply rejected channels to the new EMD object
-    if( !WBadChannelManager::instance()->isMapEmpty() )
-    {
-        for( size_t i = 0; i < emmIn->getModalityCount(); ++i )
-        {
-            LaBP::WEModalityType::Enum modality = emmIn->getModality( i )->getModalityType();
-
-            emmIn->getModality( i )->setBadChannels( WBadChannelManager::instance()->getChannelList( modality ) );
-        }
-        debugLog() << "updated bad channels or emd object";
-    }
+    // apply rejected channels to the EMD object
+    updateBadChannels( emmIn );
 
     // call the rejection process on the input
     rejected = m_rejectingTotal->doRejection( emmIn );
@@ -305,6 +296,9 @@ bool WMEpochRejection::processCompute( WLEMMeasurement::SPtr emmIn )
             // new bad channel found -> check stored epochs again
             if( m_rejectingSingle->isBadChannelUpdated() )
             {
+                // update the rejected channel list
+                updateBadChannels( emmIn );
+
                 WBadEpochManager::CircBuff::iterator it = WBadEpochManager::instance()->getBuffer()->begin();
 
                 // iterate all stored epochs
@@ -424,6 +418,20 @@ WMEpochRejection::modality_code WMEpochRejection::hashit( std::string const& inS
         return magReject;
 
     return eNULL;
+}
+
+void WMEpochRejection::updateBadChannels( WLEMMeasurement::SPtr emm )
+{
+    if( !WBadChannelManager::instance()->isMapEmpty() )
+    {
+        for( size_t i = 0; i < emm->getModalityCount(); ++i )
+        {
+            LaBP::WEModalityType::Enum modality = emm->getModality( i )->getModalityType();
+
+            emm->getModality( i )->setBadChannels( WBadChannelManager::instance()->getChannelList( modality ) );
+        }
+        debugLog() << "updated bad channels for emd object";
+    }
 }
 
 // file status messages
