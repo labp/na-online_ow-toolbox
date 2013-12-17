@@ -49,6 +49,7 @@
 #include "core/data/emd/WLEMDEEG.h"
 #include "core/data/emd/WLEMDEOG.h"
 #include "core/data/emd/WLEMDMEG.h"
+#include "core/data/enum/WLEModality.h"
 
 #include "WLReaderFIFF.h"
 
@@ -266,20 +267,20 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
 
         switch( emd->getModalityType() )
         {
-            case LaBP::WEModalityType::EEG: // Set specific EEG data
+            case WLEModality::EEG: // Set specific EEG data
             {
                 WLEMDEEG::SPtr eeg = emd->getAs< WLEMDEEG >();
                 eeg->setChannelPositions3d( positions );
                 wlog::debug( CLASS ) << "EEG positions: " << positions->size();
                 break;
             }
-            case LaBP::WEModalityType::MEG: // Set specific MEG data
+            case WLEModality::MEG: // Set specific MEG data
             {
                 WLEMDMEG::SPtr meg = emd->getAs< WLEMDMEG >();
                 meg->setChannelPositions3d( positions );
                 meg->setEx( eX );
-                meg->setEx( eY );
-                meg->setEx( eZ );
+                meg->setEy( eY );
+                meg->setEz( eZ );
                 wlog::debug( CLASS ) << "MEG positions: " << meg->getChannelPositions3d()->size();
                 break;
             }

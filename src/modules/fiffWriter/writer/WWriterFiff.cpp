@@ -132,17 +132,17 @@ bool WWriterFiff::beginFiff( const WLEMMeasurement* const emm )
     float sfreq = 0;
     QList< FiffChInfo > chs;
     WLEMDEEG::ConstSPtr eeg;
-    if( m_pickEEG && emm->hasModality( WEModalityType::EEG ) )
+    if( m_pickEEG && emm->hasModality( WLEModality::EEG ) )
     {
-        eeg = emm->getModality< const WLEMDEEG >( WEModalityType::EEG );
+        eeg = emm->getModality< const WLEMDEEG >( WLEModality::EEG );
         info.nchan += eeg->getNrChans();
         sfreq = eeg->getSampFreq();
         setChannelInfo( &chs, eeg.get() );
     }
     WLEMDMEG::ConstSPtr meg;
-    if( m_pickMEG && emm->hasModality( WEModalityType::MEG ) )
+    if( m_pickMEG && emm->hasModality( WLEModality::MEG ) )
     {
-        meg = emm->getModality< const WLEMDMEG >( WEModalityType::MEG );
+        meg = emm->getModality< const WLEMDMEG >( WLEModality::MEG );
         info.nchan += meg->getNrChans();
         sfreq = sfreq == 0 ? meg->getSampFreq() : sfreq;
         setChannelInfo( &chs, meg.get() );
@@ -226,18 +226,18 @@ bool WWriterFiff::writeData( const WLEMMeasurement* const emm )
     size_t samples = 0;
     WLEMData::ConstSPtr eeg;
     size_t nchanEEG = 0;
-    if( m_pickEEG && emm->hasModality( WEModalityType::EEG ) )
+    if( m_pickEEG && emm->hasModality( WLEModality::EEG ) )
     {
-        eeg = emm->getModality( WEModalityType::EEG );
+        eeg = emm->getModality( WLEModality::EEG );
         nchanEEG = eeg->getNrChans();
         nchan += nchanEEG;
         samples = eeg->getSamplesPerChan();
     }
     WLEMData::ConstSPtr meg;
     size_t nchanMEG = 0;
-    if( m_pickMEG && emm->hasModality( WEModalityType::MEG ) )
+    if( m_pickMEG && emm->hasModality( WLEModality::MEG ) )
     {
-        meg = emm->getModality( WEModalityType::MEG );
+        meg = emm->getModality( WLEModality::MEG );
         nchanMEG = meg->getNrChans();
         nchan += nchanMEG;
         if( samples > 0 && samples != meg->getSamplesPerChan() )

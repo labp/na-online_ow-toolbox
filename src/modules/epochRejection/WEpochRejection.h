@@ -78,16 +78,38 @@ protected:
      */
     virtual bool validModality( LaBP::WEModalityType::Enum modalityType );
 
+    /**
+     * Method to return the threshold for the current processing step based on the modality and the channel number.
+     *
+     * @param modalityType The modality.
+     * @param channelNo The channel number.
+     * @return Returns the threshold.
+     */
     virtual double getThreshold( LaBP::WEModalityType::Enum modalityType, size_t channelNo);
 
+    /**
+     * EEG threshold.
+     */
     double m_eegThreshold;
 
+    /**
+     * EOG threshold.
+     */
     double m_eogThreshold;
 
+    /**
+     * MEG gradiometer threshold.
+     */
     double m_megGradThreshold;
 
+    /**
+     * MEG magnetometer threshold.
+     */
     double m_megMagThreshold;
 
+    /**
+     * Counts the number of rejections in on processing step.
+     */
     size_t m_rejCount;
 };
 

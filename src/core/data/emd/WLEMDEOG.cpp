@@ -51,7 +51,7 @@ WLEMData::SPtr WLEMDEOG::clone() const
     return eog;
 }
 
-LaBP::WEModalityType::Enum WLEMDEOG::getModalityType() const
+WLEModality::Enum WLEMDEOG::getModalityType() const
 {
-    return LaBP::WEModalityType::EOG;
+    return WLEModality::EOG;
 }

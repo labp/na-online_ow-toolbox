@@ -62,7 +62,7 @@ public:
 
     LaBP::WEPolarityType::Enum getPolarityType() const;
 
-    virtual LaBP::WEModalityType::Enum getModalityType() const;
+    virtual WLEModality::Enum getModalityType() const;
 
     /**
      * Returns the positions in millimeter.

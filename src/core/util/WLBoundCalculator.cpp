@@ -27,8 +27,8 @@
 #include <Eigen/Core>
 
 #include "core/data/WLEMMeasurement.h"
-#include "core/data/WLEMMEnumTypes.h"
 #include "core/data/emd/WLEMData.h"
+#include "core/data/emd/WLEMDMEG.h"
 #include "core/data/emd/WLEMDSource.h"
 
 #include "WLBoundCalculator.h"
@@ -44,24 +44,51 @@ namespace LaBP
     {
     }
 
-    WLEMData::ScalarT WLBoundCalculator::getMax2D( WLEMMeasurement::ConstSPtr emm, LaBP::WEModalityType::Enum modality )
+    WLEMData::ScalarT WLBoundCalculator::getMax2D( WLEMMeasurement::ConstSPtr emm, WLEModality::Enum modality )
     {
-        if( modality == LaBP::WEModalityType::SOURCE )
+        if( modality == WLEModality::SOURCE && emm->hasModality( modality ) )
         {
-            LaBP::WEModalityType::Enum origin_modality =
-                            emm->getModality< const WLEMDSource >( modality )->getOriginModalityType();
+            WLEModality::Enum origin_modality = emm->getModality< const WLEMDSource >( modality )->getOriginModalityType();
 
             return getMax( emm->getModality( origin_modality )->getData() );
         }
-        else
+        if( WLEModality::isMEGCoil( modality ) )
+        {
+            modality = WLEModality::MEG;
+        }
+        if( emm->hasModality( modality ) )
         {
             return getMax( emm->getModality( modality )->getData() );
         }
+        else
+        {
+            return 0;
+        }
     }
 
-    WLEMData::ScalarT WLBoundCalculator::getMax3D( WLEMMeasurement::ConstSPtr emm, LaBP::WEModalityType::Enum modality )
+    WLEMData::ScalarT WLBoundCalculator::getMax3D( WLEMMeasurement::ConstSPtr emm, WLEModality::Enum modality )
     {
-        return getMax( emm->getModality( modality )->getData() );
+        if( emm->hasModality( modality ) )
+        {
+            return getMax( emm->getModality( modality )->getData() );
+        }
+        if( WLEModality::isMEGCoil( modality ) && emm->hasModality( WLEModality::MEG ) )
+        {
+            WLEMDMEG::ConstSPtr meg = emm->getModality< const WLEMDMEG >( WLEModality::MEG );
+            WLEMDMEG::SPtr megCoil;
+            if( WLEMDMEG::extractCoilModality( megCoil, meg, modality, true ) )
+            {
+                return getMax( megCoil->getData() );
+            }
+            else
+            {
+                return 0;
+            }
+        }
+        else
+        {
+            return 0;
+        }
     }
 
     WLEMData::ScalarT WLBoundCalculator::getMax( const WLEMData::DataT& data )

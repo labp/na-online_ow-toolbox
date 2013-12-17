@@ -26,6 +26,7 @@
 #define WLEMDMEG_H
 
 #include <ostream>
+#include <string>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
@@ -42,6 +43,8 @@
 class WLEMDMEG: public WLEMData
 {
 public:
+    static const std::string CLASS;
+
     /**
      * Abbreviation for a shared pointer.
      */
@@ -52,6 +55,8 @@ public:
      */
     typedef boost::shared_ptr< const WLEMDMEG > ConstSPtr;
 
+    typedef std::vector< size_t > CoilPicksT;
+
     WLEMDMEG();
 
     explicit WLEMDMEG( const WLEMDMEG& meg );
@@ -60,7 +65,7 @@ public:
 
     virtual WLEMData::SPtr clone() const;
 
-    virtual LaBP::WEModalityType::Enum getModalityType() const;
+    virtual WLEModality::Enum getModalityType() const;
 
     /**
      * Returns the positions in millimeter.
@@ -71,6 +76,9 @@ public:
      * Returns the positions in millimeter.
      */
     WLArrayList< WPosition >::ConstSPtr getChannelPositions3d() const;
+
+    OW_API_DEPRECATED
+    WLArrayList< WPosition >::ConstSPtr getChannelPositions3d( LaBP::WEGeneralCoilType::Enum type ) const;
 
     /**
      * Sets the positions. Positions must be in millimeter.
@@ -86,6 +94,9 @@ public:
     WLArrayList< WVector3i >::SPtr getFaces();
 
     WLArrayList< WVector3i >::ConstSPtr getFaces() const;
+
+    OW_API_DEPRECATED
+    WLArrayList< WVector3i >::ConstSPtr getFaces( LaBP::WEGeneralCoilType::Enum type ) const;
 
     void setFaces( WLArrayList< WVector3i >::SPtr faces );
 
@@ -104,7 +115,20 @@ public:
     WLArrayList< WVector3f >::ConstSPtr getEz() const;
     void setEz( WLArrayList< WVector3f >::SPtr vec );
 
-    inline LaBP::WEGeneralCoilType::Enum getChannelType( size_t channelId ) const;
+    OW_API_DEPRECATED
+    LaBP::WEGeneralCoilType::Enum getChannelType( size_t channelId ) const;
+
+    /**
+     * Returns the channels indices for the requested coil type.
+     *
+     * @param meg data to pick from
+     * @param type Requested coil type
+     * @return An array of indices for the requested coil type
+     */
+    static CoilPicksT coilPicks( const WLEMDMEG& meg, LaBP::WEGeneralCoilType::Enum type );
+
+    static bool extractCoilModality( WLEMDMEG::SPtr& megOut, WLEMDMEG::ConstSPtr megIn, WLEModality::Enum type,
+                    bool dataOnly = false );
 
     /**
      * Returns the channels indices for the requested coil type.
@@ -112,6 +136,7 @@ public:
      * @param type Requested coil type
      * @return An array of indices for the requested coil type
      */
+    OW_API_DEPRECATED
     std::vector< size_t > getPicks( LaBP::WEGeneralCoilType::Enum type ) const;
 
     /**
@@ -121,6 +146,7 @@ public:
      * @param type Requested coil type
      * @return New data containing all channels of the requested coil type
      */
+    OW_API_DEPRECATED
     DataSPtr getData( LaBP::WEGeneralCoilType::Enum type ) const; // This is a copy of channels, so the data is not changed.
 
     /**
@@ -135,6 +161,8 @@ public:
     using WLEMData::getData;
 
 private:
+    WLEModality::Enum m_modality;
+
     WLArrayList< WPosition >::SPtr m_chanPos3d;
 
     WLArrayList< WVector3i >::SPtr m_faces;
@@ -143,7 +171,9 @@ private:
     WLArrayList< WVector3f >::SPtr m_eY;
     WLArrayList< WVector3f >::SPtr m_eZ;
 
+    OW_API_DEPRECATED
     mutable std::vector< size_t > m_picksMag; // mutable to reset the picks after a data change and lazy load.
+    OW_API_DEPRECATED
     mutable std::vector< size_t > m_picksGrad; // mutable to reset the picks after a data change and lazy load.
 
     /*
@@ -168,7 +198,7 @@ private:
 
 std::ostream& operator<<( std::ostream &strm, const WLEMDMEG& obj );
 
-LaBP::WEGeneralCoilType::Enum WLEMDMEG::getChannelType( size_t channelId ) const
+inline LaBP::WEGeneralCoilType::Enum WLEMDMEG::getChannelType( size_t channelId ) const
 {
     WAssert( channelId < m_data->size(), "Index out of bounds!" );
     // Sequence: GGMGGMGGM ... 01 2 34 5

@@ -46,6 +46,7 @@
 #include <core/graphicsEngine/WGEGeodeUtils.h>
 
 #include "core/data/WLEMMEnumTypes.h"
+#include "core/data/emd/WLEMDMEG.h"
 #include "core/gui/colorMap/WLColorMap.h"
 
 #include "WLEMDDrawable.h"
@@ -79,26 +80,39 @@ namespace LaBP
     {
     }
 
-    WLEMDDrawable3D::SPtr WLEMDDrawable3D::getInstance( WCustomWidget::SPtr widget, LaBP::WEModalityType::Enum modality )
+    WLEMDDrawable3D::SPtr WLEMDDrawable3D::getInstance( WCustomWidget::SPtr widget, WLEModality::Enum modality )
     {
         WLEMDDrawable3D::SPtr drawable3D;
         switch( modality )
         {
-            case LaBP::WEModalityType::EEG:
+            case WLEModality::EEG:
                 drawable3D = WLEMDDrawable3D::SPtr( new WLEMDDrawable3DEEG( widget ) );
                 break;
-            case LaBP::WEModalityType::MEG:
-                // drawable3D = WLEMDDrawable3D::SPtr( new WLEMDDrawable3DMEG( widget ) );
-                drawable3D = WLEMDDrawable3D::SPtr( new WLEMDDrawable3DEmpty( widget ) );
+            case WLEModality::MEG:
+                drawable3D = WLEMDDrawable3D::SPtr( new WLEMDDrawable3DMEG( widget ) );
                 break;
-            case LaBP::WEModalityType::SOURCE:
+            case WLEModality::MEG_MAG:
+                drawable3D = WLEMDDrawable3D::SPtr( new WLEMDDrawable3DMEG( widget, modality ) );
+                break;
+            case WLEModality::MEG_GRAD:
+                drawable3D = WLEMDDrawable3D::SPtr( new WLEMDDrawable3DMEG( widget, modality ) );
+                break;
+            case WLEModality::MEG_GRAD_MERGED:
+                drawable3D = WLEMDDrawable3D::SPtr( new WLEMDDrawable3DMEG( widget, modality ) );
+                break;
+            case WLEModality::SOURCE:
                 drawable3D = WLEMDDrawable3D::SPtr( new WLEMDDrawable3DSource( widget ) );
                 break;
             default:
                 drawable3D = WLEMDDrawable3D::SPtr( new WLEMDDrawable3DEmpty( widget ) );
+                wlog::warn( CLASS ) << "No 3D drawable available for modality: " << WLEModality::name( modality );
                 break;
         }
-        drawable3D->m_modality = modality;
+        if( WLEModality::isMEGCoil( modality ) )
+        {
+            modality = WLEModality::MEG;
+        }
+        drawable3D->setModality( modality );
         return drawable3D;
     }
 

@@ -48,9 +48,9 @@ WLEMData::SPtr WLEMDECG::clone() const
     return ecg;
 }
 
-LaBP::WEModalityType::Enum WLEMDECG::getModalityType() const
+WLEModality::Enum WLEMDECG::getModalityType() const
 {
-    return LaBP::WEModalityType::ECG;
+    return WLEModality::ECG;
 }
 
 LaBP::WEPolarityType::Enum WLEMDECG::getPolarityType() const

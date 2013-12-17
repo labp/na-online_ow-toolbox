@@ -50,7 +50,7 @@ bool WEpochRejectionTotal::doRejection( const WLEMMeasurement::ConstSPtr emm )
     size_t it;
     bool rejection = false;
 
-    wlog::debug( CLASS ) << "starting total channel rejection";
+    wlog::debug( CLASS ) << "starting total channel rejection.";
 
     for( it = 0; it < emm->getModalityCount(); ++it )
     {
@@ -78,7 +78,7 @@ bool WEpochRejectionTotal::doRejection( const WLEMMeasurement::ConstSPtr emm )
         }
     }
 
-    wlog::debug( CLASS ) << "finished total channel rejection: " << rejection;
+    wlog::debug( CLASS ) << "finished total channel rejection.";
 
     return rejection;
 }

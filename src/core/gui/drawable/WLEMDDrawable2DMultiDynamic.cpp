@@ -35,6 +35,7 @@
 #include <core/common/WRealtimeTimer.h>
 
 #include "core/data/emd/WLEMData.h"
+#include "core/data/enum/WLEModality.h"
 
 #include "WLEMDDrawable2DMultiDynamic.h"
 
@@ -92,7 +93,7 @@ namespace LaBP
                 osg::ref_ptr< WLAnimationSideScroll::EMMNode > emmNode = m_emmQueue.front();
                 m_emmQueue.pop();
                 WLEMMeasurement::SPtr emm = emmNode->getEmm();
-                const WEModalityType::Enum modality = m_modality;
+                const WLEModality::Enum modality = m_modality;
                 if( emm->hasModality( modality ) )
                 {
                     const WLEMData* const emd = emm->getModality( modality ).get();
@@ -113,7 +114,7 @@ namespace LaBP
 
     osg::ref_ptr< WLAnimationSideScroll::EMMNode > WLEMDDrawable2DMultiDynamic::createEmdNode( WLEMMeasurement::SPtr emm )
     {
-        const WEModalityType::Enum modality = m_modality;
+        const WLEModality::Enum modality = m_modality;
         if( !emm->hasModality( modality ) )
         {
             wlog::error( CLASS ) << "createEmdNode() - Modality not available!";

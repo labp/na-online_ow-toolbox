@@ -311,7 +311,7 @@ bool WMMatReader::handleGenerateEMM()
         if( m_leadfield->rows() == eeg->getNrChans() )
         {
             infoLog() << "Set leadfield for EEG.";
-            subject->setLeadfield( WEModalityType::EEG, m_leadfield );
+            subject->setLeadfield( WLEModality::EEG, m_leadfield );
         }
         else
         {

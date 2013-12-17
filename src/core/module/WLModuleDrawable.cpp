@@ -120,14 +120,16 @@ void WLModuleDrawable::properties()
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_selectionColor );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_selectionColor );
 
+    WLEModality::ContainerT modalities = WLEModality::valuesDevice();
+    WLEModality::ContainerT::const_iterator itMod;
+
     WItemSelection::SPtr calculateSelection( new WItemSelection() );
-    std::vector< WEModalityType::Enum > modalities_m = WEModalityType::values();
-    for( std::vector< WEModalityType::Enum >::iterator it = modalities_m.begin(); it != modalities_m.end(); ++it )
+    for( itMod = modalities.begin(); itMod != modalities.end(); ++itMod )
     {
         calculateSelection->addItem(
-                        WItemSelectionItemTyped< WEModalityType::Enum >::SPtr(
-                                        new WItemSelectionItemTyped< WEModalityType::Enum >( *it, WEModalityType::name( *it ),
-                                                        WEModalityType::description( *it ) ) ) );
+                        WItemSelectionItemTyped< WLEModality::Enum >::SPtr(
+                                        new WItemSelectionItemTyped< WLEModality::Enum >( *itMod, WLEModality::name( *itMod ),
+                                                        WLEModality::description( *itMod ) ) ) );
     }
 
     m_selectionCalculate = m_propView->addProperty( "Compute modality", "Select a modality to compute.",
@@ -144,14 +146,16 @@ void WLModuleDrawable::properties()
     m_timeRange->setMin( 0.100 );
     m_timeRange->setMax( 4.0 );
 
+    modalities = WLEModality::valuesDevice();
+    WLEModality::ContainerT tmp = WLEModality::valuesMEGCoil();
+    modalities.insert( tmp.begin(), tmp.end() );
     WItemSelection::SPtr viewSelection( new WItemSelection() );
-    std::vector< WEModalityType::Enum > modalities = WEModalityType::values();
-    for( std::vector< WEModalityType::Enum >::iterator it = modalities.begin(); it != modalities.end(); ++it )
+    for( itMod = modalities.begin(); itMod != modalities.end(); ++itMod )
     {
         viewSelection->addItem(
-                        WItemSelectionItemTyped< WEModalityType::Enum >::SPtr(
-                                        new WItemSelectionItemTyped< WEModalityType::Enum >( *it, WEModalityType::name( *it ),
-                                                        WEModalityType::description( *it ) ) ) );
+                        WItemSelectionItemTyped< WLEModality::Enum >::SPtr(
+                                        new WItemSelectionItemTyped< WLEModality::Enum >( *itMod, WLEModality::name( *itMod ),
+                                                        WLEModality::description( *itMod ) ) ) );
     }
 
     m_selectionView = m_propView->addProperty( "View modality", "Select a to visualize", viewSelection->getSelectorFirst(),
@@ -171,25 +175,26 @@ void WLModuleDrawable::properties()
                     boost::bind( &WLModuleDrawable::callbackMax3DChanged, this ), true );
 }
 
-WEModalityType::Enum WLModuleDrawable::getViewModality()
+WLEModality::Enum WLModuleDrawable::getViewModality()
 {
-    return m_selectionView->get().at( 0 )->getAs< WItemSelectionItemTyped< WEModalityType::Enum > >()->getValue();
+    return m_selectionView->get().at( 0 )->getAs< WItemSelectionItemTyped< WLEModality::Enum > >()->getValue();
 }
 
-void WLModuleDrawable::setViewModality( WEModalityType::Enum mod )
+void WLModuleDrawable::setViewModality( WLEModality::Enum mod )
 {
     // TODO(pieloth): dirty hack. Find a way just to select a item in the current selection.
     m_propView->removeProperty( m_selectionView );
 
     WItemSelection::SPtr viewSelection( new WItemSelection() );
-    std::vector< WEModalityType::Enum > modalities = WEModalityType::values();
+    std::set< WLEModality::Enum > modalities = WLEModality::values();
+    std::set< WLEModality::Enum >::iterator it;
     size_t selected = 0;
-    for( std::vector< WEModalityType::Enum >::iterator it = modalities.begin(); it != modalities.end(); ++it )
+    for( it = modalities.begin(); it != modalities.end(); ++it )
     {
         viewSelection->addItem(
-                        WItemSelectionItemTyped< WEModalityType::Enum >::SPtr(
-                                        new WItemSelectionItemTyped< WEModalityType::Enum >( *it, WEModalityType::name( *it ),
-                                                        WEModalityType::description( *it ) ) ) );
+                        WItemSelectionItemTyped< WLEModality::Enum >::SPtr(
+                                        new WItemSelectionItemTyped< WLEModality::Enum >( *it, WLEModality::name( *it ),
+                                                        WLEModality::description( *it ) ) ) );
         if( *it != mod )
         {
             ++selected;
@@ -208,10 +213,10 @@ void WLModuleDrawable::hideViewModalitySelection( bool enable )
     m_selectionView->setHidden( enable );
 }
 
-WEModalityType::Enum WLModuleDrawable::getCalculateModality()
+WLEModality::Enum WLModuleDrawable::getCalculateModality()
 {
-    WEModalityType::Enum modality;
-    modality = m_selectionCalculate->get().at( 0 )->getAs< WItemSelectionItemTyped< WEModalityType::Enum > >()->getValue();
+    WLEModality::Enum modality;
+    modality = m_selectionCalculate->get().at( 0 )->getAs< WItemSelectionItemTyped< WLEModality::Enum > >()->getValue();
     return modality;
 }
 
@@ -220,18 +225,18 @@ void WLModuleDrawable::hideComputeModalitySelection( bool enable )
     m_selectionCalculate->setHidden( enable );
 }
 
-void WLModuleDrawable::setComputeModalitySelection( const set< WEModalityType::Enum >& modalities )
+void WLModuleDrawable::setComputeModalitySelection( const set< WLEModality::Enum >& modalities )
 {
     // TODO(pieloth): dirty hack. Find a way just to remove a item in the current selection.
     m_propView->removeProperty( m_selectionCalculate );
 
     WItemSelection::SPtr calculateSelection( new WItemSelection() );
-    for( set< WEModalityType::Enum >::iterator it = modalities.begin(); it != modalities.end(); ++it )
+    for( set< WLEModality::Enum >::iterator it = modalities.begin(); it != modalities.end(); ++it )
     {
         calculateSelection->addItem(
-                        WItemSelectionItemTyped< WEModalityType::Enum >::SPtr(
-                                        new WItemSelectionItemTyped< WEModalityType::Enum >( *it, WEModalityType::name( *it ),
-                                                        WEModalityType::description( *it ) ) ) );
+                        WItemSelectionItemTyped< WLEModality::Enum >::SPtr(
+                                        new WItemSelectionItemTyped< WLEModality::Enum >( *it, WLEModality::name( *it ),
+                                                        WLEModality::description( *it ) ) ) );
     }
 
     m_selectionCalculate = m_propView->addProperty( "Compute modality", "Select a modality to compute.",
@@ -348,7 +353,7 @@ void WLModuleDrawable::viewUpdate( WLEMMeasurement::SPtr emm )
     // Set 2D time grid
     if( m_range < 0 )
     {
-        LaBP::WEModalityType::Enum modality = this->getViewModality();
+        WLEModality::Enum modality = this->getViewModality();
         if( emm->hasModality( modality ) )
         {
             const WLEMData::ConstSPtr emd = emm->getModality( modality );

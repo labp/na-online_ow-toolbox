@@ -25,6 +25,7 @@
 #ifndef WDATASETEMMENUMTYPES_H
 #define WDATASETEMMENUMTYPES_H
 
+#include <set>
 #include <string>
 #include <vector>
 
@@ -90,17 +91,11 @@ namespace LaBP
     {
         enum Enum
         {
-            KILO = 3,
-            BASE = 0,
-            MILLI = -3,
-            MICRO = -6,
-            NANO = -9,
-            PICO = -12,
-            FEMTO = -15
+            KILO = 3, BASE = 0, MILLI = -3, MICRO = -6, NANO = -9, PICO = -12, FEMTO = -15
         };
         std::vector< Enum > values();
         std::string name( Enum val );
-        double factor( Enum val);
+        double factor( Enum val );
 
     }
 
@@ -114,21 +109,6 @@ namespace LaBP
             HEAD, DEVICE, AC_PC
         };
         std::vector< Enum > values();
-    }
-
-    /**
-     * TODO(kaehler): Comments
-     */
-
-    namespace WEModalityType
-    {
-        enum Enum
-        {
-            EEG = 0, ECG = 1, MEG = 2, EOG = 3, PCA = 4, SOURCE = 5
-        };
-        std::vector< Enum > values();
-        std::string name( Enum val );
-        std::string description( Enum val );
     }
 
     /**

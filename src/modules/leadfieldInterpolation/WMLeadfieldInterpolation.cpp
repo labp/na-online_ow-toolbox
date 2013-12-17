@@ -244,7 +244,7 @@ bool WMLeadfieldInterpolation::readFiff( const std::string& fname )
         m_fiffEmm.reset( new WLEMMeasurement() );
         if( fiffReader.Read( m_fiffEmm ) == WLReaderFIFF::ReturnCode::SUCCESS )
         {
-            if( !m_fiffEmm->hasModality( WEModalityType::EEG ) )
+            if( !m_fiffEmm->hasModality( WLEModality::EEG ) )
             {
                 errorLog() << "No EEG found!";
                 // TODO(pieloth): Support for other modalities.
@@ -299,7 +299,7 @@ bool WMLeadfieldInterpolation::interpolate()
         return false;
     }
 
-    if( !m_fiffEmm->hasModality( WEModalityType::EEG ) )
+    if( !m_fiffEmm->hasModality( WLEModality::EEG ) )
     {
         errorLog() << "No EEG available!";
         m_start->set( WPVBaseTypes::PV_TRIGGER_READY, true );
@@ -309,13 +309,13 @@ bool WMLeadfieldInterpolation::interpolate()
     WLeadfieldInterpolation li;
     li.prepareHDLeadfield( m_fwdSolution );
     const std::vector< WPosition >& eeg_pos =
-                    *( m_fiffEmm->getModality( WEModalityType::EEG )->getAs< WLEMDEEG >()->getChannelPositions3d() );
+                    *( m_fiffEmm->getModality( WLEModality::EEG )->getAs< WLEMDEEG >()->getChannelPositions3d() );
     WLeadfieldInterpolation::PositionsSPtr eegPosTrans( new WLeadfieldInterpolation::PositionsT );
     WLGeometry::transformPoints( eegPosTrans.get(), eeg_pos, m_fiffEmm->getFidToACPCTransformation() );
     li.setSensorPositions( eegPosTrans );
 
     m_leadfieldInterpolated.reset(
-                    new MatrixT( m_fiffEmm->getModality( WEModalityType::EEG )->getNrChans(), m_fwdSolution->nsource ) );
+                    new MatrixT( m_fiffEmm->getModality( WLEModality::EEG )->getNrChans(), m_fwdSolution->nsource ) );
     bool success = li.interpolate( m_leadfieldInterpolated );
     if( success )
     {
@@ -338,7 +338,7 @@ bool WMLeadfieldInterpolation::processCompute( WLEMMeasurement::SPtr emm )
     if( m_leadfieldInterpolated )
     {
         // TODO NOTE: Manipulation of a incoming packet!!!
-        emm->getSubject()->setLeadfield( WEModalityType::EEG, m_leadfieldInterpolated );
+        emm->getSubject()->setLeadfield( WLEModality::EEG, m_leadfieldInterpolated );
     }
     else
         if( m_fwdSolution )
@@ -347,7 +347,7 @@ bool WMLeadfieldInterpolation::processCompute( WLEMMeasurement::SPtr emm )
             m_status->set( COMPUTING, true );
             if( interpolate() )
             {
-                emm->getSubject()->setLeadfield( WEModalityType::EEG, m_leadfieldInterpolated );
+                emm->getSubject()->setLeadfield( WLEModality::EEG, m_leadfieldInterpolated );
                 m_status->set( SUCCESS, true );
             }
             else
@@ -380,7 +380,7 @@ bool WMLeadfieldInterpolation::processInit( WLEMMCommand::SPtr cmdIn )
         if( interpolate() )
         {
             WLEMMeasurement::SPtr emm = cmdIn->getEmm();
-            emm->getSubject()->setLeadfield( WEModalityType::EEG, m_leadfieldInterpolated );
+            emm->getSubject()->setLeadfield( WLEModality::EEG, m_leadfieldInterpolated );
             m_status->set( SUCCESS, true );
         }
         else

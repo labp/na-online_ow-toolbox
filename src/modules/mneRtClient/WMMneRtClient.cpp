@@ -207,14 +207,14 @@ void WMMneRtClient::moduleInit()
     {
         if( handleLfFileChanged( m_lfEEGFile->get().string(), m_leadfieldEEG ) )
         {
-            m_subject->setLeadfield( WEModalityType::EEG, m_leadfieldEEG );
+            m_subject->setLeadfield( WLEModality::EEG, m_leadfieldEEG );
         }
     }
     if( m_lfMEGFile->changed( true ) )
     {
         if( handleLfFileChanged( m_lfMEGFile->get().string(), m_leadfieldMEG ) )
         {
-            m_subject->setLeadfield( WEModalityType::MEG, m_leadfieldMEG );
+            m_subject->setLeadfield( WLEModality::MEG, m_leadfieldMEG );
         }
     }
 
@@ -275,14 +275,14 @@ void WMMneRtClient::moduleMain()
         {
             if( handleLfFileChanged( m_lfEEGFile->get().string(), m_leadfieldEEG ) )
             {
-                m_subject->setLeadfield( WEModalityType::EEG, m_leadfieldEEG );
+                m_subject->setLeadfield( WLEModality::EEG, m_leadfieldEEG );
             }
         }
         if( m_lfMEGFile->changed( true ) )
         {
             if( handleLfFileChanged( m_lfMEGFile->get().string(), m_leadfieldMEG ) )
             {
-                m_subject->setLeadfield( WEModalityType::MEG, m_leadfieldMEG );
+                m_subject->setLeadfield( WLEModality::MEG, m_leadfieldMEG );
             }
         }
     }

@@ -31,8 +31,9 @@
 #include <core/kernel/WModule.h>
 
 #include "core/data/WLEMMCommand.h"
-#include "core/data/emd/WLEMData.h"
 #include "core/data/WLEMMeasurement.h"
+#include "core/data/emd/WLEMData.h"
+#include "core/data/enum/WLEModality.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 #include "core/util/profiler/WLTimeProfiler.h"
@@ -81,7 +82,7 @@ void WMPCA::connectors()
     m_output = LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr(
                     new LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >( shared_from_this(), "out",
                                     "Provides a filtered EMM-DataSet" ) );
-    addConnector( m_output );
+    addConnector (m_output);
 }
 
 void WMPCA::properties()
@@ -109,14 +110,13 @@ void WMPCA::properties()
                     boost::bind( &WMPCA::callbackPCATypeChanged, this ) );
 
     m_processModality = boost::shared_ptr< WItemSelection >( new WItemSelection() );
-    std::vector< LaBP::WEModalityType::Enum > mEnums = LaBP::WEModalityType::values();
-    for( std::vector< LaBP::WEModalityType::Enum >::iterator it = mEnums.begin(); it != mEnums.end(); ++it )
+    std::set< WLEModality::Enum > mEnums = WLEModality::values();
+    for( std::set< WLEModality::Enum >::iterator it = mEnums.begin(); it != mEnums.end(); ++it )
     {
         m_processModality->addItem(
-                        boost::shared_ptr< WItemSelectionItemTyped< LaBP::WEModalityType::Enum > >(
-                                        new WItemSelectionItemTyped< LaBP::WEModalityType::Enum >( *it,
-                                                        LaBP::WEModalityType::name( *it ),
-                                                        LaBP::WEModalityType::name( *it ) ) ) );
+                        boost::shared_ptr< WItemSelectionItemTyped< WLEModality::Enum > >(
+                                        new WItemSelectionItemTyped< WLEModality::Enum >( *it, WLEModality::name( *it ),
+                                                        WLEModality::name( *it ) ) ) );
     }
 
     // getting the SelectorProperty from the list an add it to the properties
@@ -186,8 +186,8 @@ void WMPCA::moduleMain()
 
 //            for( size_t mod = 0; mod < m_emm->getModalityCount(); ++mod )
 //            {
-            LaBP::WEModalityType::Enum mod = m_processModalitySelection->get().at( 0 )->getAs<
-                            WItemSelectionItemTyped< LaBP::WEModalityType::Enum > >()->getValue();
+            WLEModality::Enum mod =
+                            m_processModalitySelection->get().at( 0 )->getAs< WItemSelectionItemTyped< WLEModality::Enum > >()->getValue();
             WLEMData::SPtr emdIn = emmIn->getModality( mod );
             WLEMData::SPtr emdOut = m_pca->processData( emdIn );
 

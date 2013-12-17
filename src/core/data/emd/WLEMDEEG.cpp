@@ -64,9 +64,9 @@ LaBP::WEPolarityType::Enum WLEMDEEG::getPolarityType() const
     return m_polarityType;
 }
 
-LaBP::WEModalityType::Enum WLEMDEEG::getModalityType() const
+WLEModality::Enum WLEMDEEG::getModalityType() const
 {
-    return LaBP::WEModalityType::EEG;
+    return WLEModality::EEG;
 }
 
 WLArrayList< WPosition >::SPtr WLEMDEEG::getChannelPositions3d()

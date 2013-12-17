@@ -22,6 +22,11 @@
 //
 //---------------------------------------------------------------------------
 
+#include <core/common/WLogger.h>
+
+#include "core/data/enum/WLEModality.h"
+#include "core/util/profiler/WLTimeProfiler.h"
+
 #include "WEpochRejection.h"
 
 const std::string WEpochRejection::CLASS = "WEpochRejection";

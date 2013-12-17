@@ -146,15 +146,45 @@ bool WMCodeSnippets::processCompute( WLEMMeasurement::SPtr emm )
 {
     WLEMMCommand::SPtr cmd = WLEMMCommand::instance( WLEMMCommand::Command::COMPUTE );
 
-    if( m_writePos->get() )
-    {
-        writeEmdPositions( emm );
-        m_writePos->set( false, true );
-    }
+    testExtract( emm );
+//    if( m_writePos->get() )
+//    {
+//        writeEmdPositions( emm );
+//        m_writePos->set( false, true );
+//    }
 
     cmd->setEmm( emm );
     m_output->updateData( cmd );
     return true;
+}
+
+void WMCodeSnippets::testExtract( WLEMMeasurement::SPtr emm )
+{
+    if( !emm->hasModality( WLEModality::MEG ) )
+    {
+        errorLog() << "No MEG.";
+    }
+
+    WLEMDMEG::SPtr meg = emm->getModality< WLEMDMEG >( WLEModality::MEG );
+    infoLog() << *meg;
+
+    WLEMDMEG::SPtr tmp;
+    if( WLEMDMEG::extractCoilModality( tmp, meg, WLEModality::MEG ) )
+        infoLog() << *tmp;
+    else
+        errorLog() << "Could not extract!";
+    if( WLEMDMEG::extractCoilModality( tmp, meg, WLEModality::MEG_MAG ) )
+        infoLog() << *tmp;
+    else
+        errorLog() << "Could not extract!";
+    if( WLEMDMEG::extractCoilModality( tmp, meg, WLEModality::MEG_GRAD ) )
+        infoLog() << *tmp;
+    else
+        errorLog() << "Could not extract!";
+    if( WLEMDMEG::extractCoilModality( tmp, meg, WLEModality::MEG_GRAD_MERGED ) )
+        infoLog() << *tmp;
+    else
+        errorLog() << "Could not extract!";
 }
 
 bool WMCodeSnippets::processInit( WLEMMCommand::SPtr labp )
@@ -184,14 +214,14 @@ bool WMCodeSnippets::processReset( WLEMMCommand::SPtr labp )
 bool WMCodeSnippets::writeEmdPositions( WLEMMeasurement::ConstSPtr emm )
 {
     bool rc = true;
-    if( emm->hasModality( WEModalityType::EEG ) )
+    if( emm->hasModality( WLEModality::EEG ) )
     {
-        WLEMDEEG::ConstSPtr emd = emm->getModality< const WLEMDEEG >( WEModalityType::EEG );
+        WLEMDEEG::ConstSPtr emd = emm->getModality< const WLEMDEEG >( WLEModality::EEG );
         rc &= writeEmdPositions( *emd->getChannelPositions3d(), "/tmp/positions_eeg.txt" );
     }
-    if( emm->hasModality( WEModalityType::MEG ) )
+    if( emm->hasModality( WLEModality::MEG ) )
     {
-        WLEMDMEG::ConstSPtr emd = emm->getModality< const WLEMDMEG >( WEModalityType::MEG );
+        WLEMDMEG::ConstSPtr emd = emm->getModality< const WLEMDMEG >( WLEModality::MEG );
         rc &= writeEmdPositions( *emd->getChannelPositions3d(), "/tmp/positions_meg.txt" );
     }
 

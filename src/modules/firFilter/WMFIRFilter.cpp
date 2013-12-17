@@ -388,16 +388,16 @@ bool WMFIRFilter::processInit( WLEMMCommand::SPtr cmdIn )
         WLEMData::ConstSPtr emd;
 
         float samplFreqEeg = 0.0;
-        if( emm->hasModality( LaBP::WEModalityType::EEG ) )
+        if( emm->hasModality( WLEModality::EEG ) )
         {
-            emd = emm->getModality( LaBP::WEModalityType::EEG );
+            emd = emm->getModality( WLEModality::EEG );
             samplFreqEeg = emd->getSampFreq();
         }
 
         float samplFreqMeg = 0.0;
-        if( emm->hasModality( LaBP::WEModalityType::MEG ) )
+        if( emm->hasModality( WLEModality::MEG ) )
         {
-            emd = emm->getModality( LaBP::WEModalityType::MEG );
+            emd = emm->getModality( WLEModality::MEG );
             samplFreqMeg = emd->getSampFreq();
         }
 

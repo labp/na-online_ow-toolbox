@@ -22,7 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
-#include <vector>
+#include <set>
 
 #include <core/common/WException.h>
 #include <core/common/WItemSelection.h>
@@ -93,14 +93,14 @@ void WMMatWriter::properties()
     m_propMatFile->changed( true );
 
     WItemSelection::SPtr modSelection( new WItemSelection() );
-    std::vector< WEModalityType::Enum > modalities = WEModalityType::values();
-    std::vector< WEModalityType::Enum >::iterator it;
+    const std::set< WLEModality::Enum > modalities = WLEModality::values();
+    std::set< WLEModality::Enum >::const_iterator it;
     for( it = modalities.begin(); it != modalities.end(); ++it )
     {
         modSelection->addItem(
-                        WItemSelectionItemTyped< WEModalityType::Enum >::SPtr(
-                                        new WItemSelectionItemTyped< WEModalityType::Enum >( *it, WEModalityType::name( *it ),
-                                                        WEModalityType::description( *it ) ) ) );
+                        WItemSelectionItemTyped< WLEModality::Enum >::SPtr(
+                                        new WItemSelectionItemTyped< WLEModality::Enum >( *it, WLEModality::name( *it ),
+                                                        WLEModality::description( *it ) ) ) );
     }
 
     m_selModality = m_properties->addProperty( "Modality:", "Modality to write.", modSelection->getSelectorFirst(),
@@ -216,8 +216,8 @@ bool WMMatWriter::writeData( WLEMMeasurement::ConstSPtr emmIn )
         return false;
     }
 
-    WEModalityType::Enum mod =
-                    m_selModality->get().at( 0 )->getAs< WItemSelectionItemTyped< WEModalityType::Enum > >()->getValue();
+    WLEModality::Enum mod =
+                    m_selModality->get().at( 0 )->getAs< WItemSelectionItemTyped< WLEModality::Enum > >()->getValue();
     if( !emmIn->hasModality( mod ) )
     {
         errorLog() << "Modality data not available!";

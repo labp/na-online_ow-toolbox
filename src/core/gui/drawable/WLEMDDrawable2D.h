@@ -37,7 +37,7 @@
 #include <core/gui/WCustomWidget.h>
 
 #include "core/data/emd/WLEMData.h"
-#include "core/data/WLEMMEnumTypes.h"
+#include "core/data/enum/WLEModality.h"
 
 #include "WLEMDDrawable.h"
 
@@ -86,7 +86,7 @@ namespace LaBP
          *
          * @return Instance of a WLEMDDrawable2D implementation.
          */
-        static WLEMDDrawable2D::SPtr getInstance( WCustomWidget::SPtr widget, LaBP::WEModalityType::Enum modality,
+        static WLEMDDrawable2D::SPtr getInstance( WCustomWidget::SPtr widget, WLEModality::Enum modality,
                         WEGraphType::Enum type = WEGraphType::MULTI );
 
         /**

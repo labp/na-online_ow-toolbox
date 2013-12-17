@@ -38,6 +38,7 @@
 #include "core/data/WLEMMEnumTypes.h"
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDPCA.h"
+#include "core/data/enum/WLEModality.h"
 
 #include "WPCA.h"
 
@@ -95,7 +96,7 @@ WLEMData::SPtr WPCA::processData( WLEMData::SPtr emdIn )
      data_in[1][9] = 0.9;
      */
 
-    if( !m_reverse && emdIn->getModalityType() != LaBP::WEModalityType::PCA ) // EEG, MEG ... to PCA
+    if( !m_reverse && emdIn->getModalityType() != WLEModality::PCA ) // EEG, MEG ... to PCA
     {
         wlog::debug( CLASS ) << "EEG, MEG ... to PCA";
         WLEMData::DataT& dataIn = emdIn->getData();
@@ -132,7 +133,7 @@ WLEMData::SPtr WPCA::processData( WLEMData::SPtr emdIn )
         return pcaOut;
     }
     else
-        if( m_reverse && emdIn->getModalityType() == LaBP::WEModalityType::PCA ) // PCA to EEG, MEG, ...
+        if( m_reverse && emdIn->getModalityType() == WLEModality::PCA ) // PCA to EEG, MEG, ...
         {
             wlog::debug( CLASS ) << "PCA to EEG, MEG ...";
             WLEMDPCA::SPtr pcaIn = emdIn->getAs< WLEMDPCA >();

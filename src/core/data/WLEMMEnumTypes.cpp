@@ -29,6 +29,8 @@
 
 #include "WLEMMEnumTypes.h"
 
+using namespace LaBP;
+
 std::vector< LaBP::WEExponent::Enum > LaBP::WEExponent::values()
 {
     std::vector< LaBP::WEExponent::Enum > exponents;
@@ -88,64 +90,6 @@ double LaBP::WEExponent::factor( LaBP::WEExponent::Enum val )
             WAssert( false, "Unknown WEExponent!" );
             return 0.0;
     }
-}
-
-std::vector< LaBP::WEModalityType::Enum > LaBP::WEModalityType::values()
-{
-    std::vector< LaBP::WEModalityType::Enum > modalities;
-    modalities.push_back( LaBP::WEModalityType::EEG );
-    modalities.push_back( LaBP::WEModalityType::ECG );
-    modalities.push_back( LaBP::WEModalityType::EOG );
-    modalities.push_back( LaBP::WEModalityType::MEG );
-    modalities.push_back( LaBP::WEModalityType::PCA );
-    modalities.push_back( LaBP::WEModalityType::SOURCE );
-    return modalities;
-}
-
-std::string LaBP::WEModalityType::name( LaBP::WEModalityType::Enum val )
-{
-    switch( val )
-    {
-        case LaBP::WEModalityType::EEG:
-            return "EEG";
-        case LaBP::WEModalityType::ECG:
-            return "ECG";
-        case LaBP::WEModalityType::EOG:
-            return "EOG";
-        case LaBP::WEModalityType::MEG:
-            return "MEG";
-        case LaBP::WEModalityType::PCA:
-            return "PCA";
-        case LaBP::WEModalityType::SOURCE:
-            return "Source";
-        default:
-            WAssert( false, "Unknown WEModalityType!" );
-            return UNDEFINED;
-    }
-
-}
-
-std::string LaBP::WEModalityType::description( LaBP::WEModalityType::Enum val )
-{
-    switch( val )
-    {
-        case LaBP::WEModalityType::EEG:
-            return "EEG measurement";
-        case LaBP::WEModalityType::ECG:
-            return "ECG measurement";
-        case LaBP::WEModalityType::EOG:
-            return "EOG measurement";
-        case LaBP::WEModalityType::MEG:
-            return "MEG measurement";
-        case LaBP::WEModalityType::PCA:
-            return "PCA measurement";
-        case LaBP::WEModalityType::SOURCE:
-            return "Source localization";
-        default:
-            WAssert( false, "Unknown WEModalityType!" );
-            return UNDEFINED;
-    }
-
 }
 
 std::vector< LaBP::WEPolarityType::Enum > LaBP::WEPolarityType::values()

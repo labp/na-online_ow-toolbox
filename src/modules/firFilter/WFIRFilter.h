@@ -34,6 +34,7 @@
 
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMData.h"
+#include "core/data/enum/WLEModality.h"
 
 class WFIRFilter
 {
@@ -131,7 +132,7 @@ private:
 
     void normalizeCoeff( std::vector< ScalarT >* pCoeff );
 
-    std::map< LaBP::WEModalityType::Enum, WLEMData::DataT > m_prevData;
+    std::map< WLEModality::Enum, WLEMData::DataT > m_prevData;
     WLEMMeasurement::EDataT m_prevEvents;
 };
 
