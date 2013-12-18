@@ -203,7 +203,12 @@ bool WMEMMSimulator::processCompute( WLEMMeasurement::SPtr emm )
 {
     m_data = emm;
     updateStatus( EStreaming::READY );
-    if(m_propAutoStart->get())
+
+    WLEMMCommand::SPtr cmd = WLEMMCommand::instance( WLEMMCommand::Command::INIT );
+    cmd->setEmm( emm );
+    m_output->updateData( cmd );
+
+    if( m_propAutoStart->get() )
     {
         handleStartTrg();
     }
