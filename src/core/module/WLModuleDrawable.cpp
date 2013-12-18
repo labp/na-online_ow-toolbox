@@ -188,17 +188,19 @@ void WLModuleDrawable::setViewModality( WLEModality::Enum mod )
     WItemSelection::SPtr viewSelection( new WItemSelection() );
     std::set< WLEModality::Enum > modalities = WLEModality::values();
     std::set< WLEModality::Enum >::iterator it;
-    size_t selected = 0;
+    size_t count = 0;
+    size_t selected;
     for( it = modalities.begin(); it != modalities.end(); ++it )
     {
         viewSelection->addItem(
                         WItemSelectionItemTyped< WLEModality::Enum >::SPtr(
                                         new WItemSelectionItemTyped< WLEModality::Enum >( *it, WLEModality::name( *it ),
                                                         WLEModality::description( *it ) ) ) );
-        if( *it != mod )
+        if( *it == mod )
         {
-            ++selected;
+            selected = count;
         }
+        ++count;
     }
 
     m_selectionView = m_propView->addProperty( "View modality", "Select a to visualize", viewSelection->getSelector( selected ),

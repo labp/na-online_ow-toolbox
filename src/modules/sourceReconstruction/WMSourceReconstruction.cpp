@@ -112,7 +112,6 @@ void WMSourceReconstruction::properties()
     WLModuleDrawable::setViewModality( WLEModality::SOURCE );
     WLModuleDrawable::hideViewModalitySelection( true );
     WLModuleDrawable::hideLabelChanged( true );
-
     WLModuleDrawable::setComputeModalitySelection( WLEModality::valuesLocalizeable() );
 
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
