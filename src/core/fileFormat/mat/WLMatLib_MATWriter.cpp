@@ -26,13 +26,13 @@
 
 #include <core/common/WLogger.h>
 
-#include "WLMatFileIO.h"
+#include "WLMatLib.h"
 
 using std::ofstream;
 
 // TODO(pieloth): Actually there must be a ofs.good() after each write to return the correct written bytes!
 
-bool WLMatFileIO::MATWriter::writeHeader( ofstream& ofs, const std::string& description )
+bool WLMatLib::MATWriter::writeHeader( ofstream& ofs, const std::string& description )
 {
     if( !ofs || ofs.bad() )
     {
@@ -67,7 +67,7 @@ bool WLMatFileIO::MATWriter::writeHeader( ofstream& ofs, const std::string& desc
     return true;
 }
 
-size_t WLMatFileIO::MATWriter::writeTagField( std::ofstream& ofs, const mDataType_t& dataType, const mNumBytes_t numBytes )
+size_t WLMatLib::MATWriter::writeTagField( std::ofstream& ofs, const mDataType_t& dataType, const mNumBytes_t numBytes )
 {
     if( !ofs || ofs.bad() )
     {
@@ -81,7 +81,7 @@ size_t WLMatFileIO::MATWriter::writeTagField( std::ofstream& ofs, const mDataTyp
     return sizeof( dataType ) + sizeof( numBytes );
 }
 
-size_t WLMatFileIO::MATWriter::writeMatrixDouble( std::ofstream& ofs, const Eigen::MatrixXd& matrix,
+size_t WLMatLib::MATWriter::writeMatrixDouble( std::ofstream& ofs, const Eigen::MatrixXd& matrix,
                 const std::string& arrayName )
 {
     if( !ofs || ofs.bad() )
