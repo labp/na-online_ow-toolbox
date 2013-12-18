@@ -258,12 +258,12 @@ public:
     /**
      * Returns the event/stimuli channel.
      */
-    EChannelT& getEventChannel( int i ) const;
+    EChannelT& getEventChannel( WLChanIdxT i ) const;
 
     /**
      * Returns number of event channels.
      */
-    size_t getEventChannelCount() const;
+    WLChanNrT getEventChannelCount() const;
 
     WLLifetimeProfiler::SPtr getProfiler();
     WLLifetimeProfiler::ConstSPtr getProfiler() const;

@@ -267,12 +267,12 @@ void WLEMMeasurement::addEventChannel( EChannelT& data )
     m_eventChannels->push_back( data );
 }
 
-WLEMMeasurement::EChannelT& WLEMMeasurement::getEventChannel( int i ) const
+WLEMMeasurement::EChannelT& WLEMMeasurement::getEventChannel( WLChanIdxT i ) const
 {
     return m_eventChannels->at( i );
 }
 
-size_t WLEMMeasurement::getEventChannelCount() const
+WLChanNrT WLEMMeasurement::getEventChannelCount() const
 {
     return m_eventChannels->size();
 }

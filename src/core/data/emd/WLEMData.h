@@ -38,6 +38,7 @@
 #include <core/common/WDefines.h>
 
 #include "core/container/WLArrayList.h"
+#include "core/data/WLDataTypes.h"
 #include "core/data/WLEMMEnumTypes.h"
 #include "core/data/enum/WLEModality.h"
 
@@ -177,7 +178,7 @@ public:
     /**
      * TODO(kaehler): Comments
      */
-    float getLineFreq();
+    WLFreqT getLineFreq();
 
     /**
      * TODO(kaehler): Comments
@@ -192,9 +193,9 @@ public:
     /**
      * TODO(kaehler): Comments
      */
-    virtual size_t getNrChans() const;
+    virtual WLChanNrT getNrChans() const;
 
-    virtual size_t getSamplesPerChan() const;
+    virtual WLSampleNrT getSamplesPerChan() const;
 
     /**
      * TODO(kaehler): Comments
@@ -206,7 +207,7 @@ public:
      *
      * @return sampling frequency in Hz
      */
-    float getSampFreq() const;
+    WLFreqT getSampFreq() const;
 
     /**
      * Returns the data length in seconds using samples and frequency.
@@ -218,12 +219,12 @@ public:
     /**
      * TODO(kaehler): Comments
      */
-    void setAnalogHighPass( float analogHighPass );
+    void setAnalogHighPass( WLFreqT analogHighPass );
 
     /**
      * TODO(kaehler): Comments
      */
-    void setAnalogLowPass( float analogLowPass );
+    void setAnalogLowPass( WLFreqT analogLowPass );
 
     void setChanNames( WLArrayList< std::string >::SPtr chanNames );
 
@@ -258,7 +259,7 @@ public:
     /**
      * TODO(kaehler): Comments
      */
-    void setLineFreq( float lineFreq );
+    void setLineFreq( WLFreqT lineFreq );
 
     /**
      * TODO(kaehler): Comments
@@ -273,7 +274,7 @@ public:
     /**
      * TODO(kaehler): Comments
      */
-    void setSampFreq( float sampFreq );
+    void setSampFreq( WLFreqT sampFreq );
 
     static std::string channelToString( const ChannelT& data, size_t maxSamples );
 
@@ -294,14 +295,14 @@ protected:
     /**
      * power line frequency
      */
-    float m_lineFreq;
+    WLFreqT m_lineFreq;
 
     WLArrayList< std::string >::SPtr m_chanNames;
 
     /**
      * sampling frequency (unique within modality)
      */
-    float m_sampFreq;
+    WLFreqT m_sampFreq;
 
     /**
      * real world unit of the modality
@@ -316,12 +317,12 @@ protected:
     /**
      * cutoff frequency of highpass filter in analog processing chain
      */
-    float m_analogHighPass;
+    WLFreqT m_analogHighPass;
 
     /**
      * cutoff frequency of lowpass filter in analog processing chain
      */
-    float m_analogLowPass;
+    WLFreqT m_analogLowPass;
 
     /**
      * type of coordinate system used for m_chanPositions

@@ -22,14 +22,16 @@
 //
 //---------------------------------------------------------------------------
 
+#ifndef WLDATATYPES_H_
+#define WLDATATYPES_H_
+
 #include <boost/shared_ptr.hpp>
 
 // NOTE: Needs Eigen v3.1 or higher for sparse matrices, see README
 #include <Eigen/Core>
 #include <Eigen/SparseCore>
 
-#ifndef WLDATATYPES_H_
-#define WLDATATYPES_H_
+#include "core/fileFormat/fiff/WLFiffLib.h"
 
 /**
  * Replacement for a scalar type used for computations.
@@ -88,5 +90,11 @@ namespace WLSpMatrix
     typedef boost::shared_ptr< SpMatrixT > SPtr;
     typedef boost::shared_ptr< const SpMatrixT > ConstSPtr;
 }
+
+typedef WLFiffLib::freq_t WLFreqT;
+typedef WLFiffLib::ichan_t WLChanIdxT;
+typedef WLFiffLib::nchan_t WLChanNrT;
+typedef WLFiffLib::isamples_t WLSampleIdxT;
+typedef WLFiffLib::nsamples_t WLSampleNrT;
 
 #endif  // WLDATATYPES_H_

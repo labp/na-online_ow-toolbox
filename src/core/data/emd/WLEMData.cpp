@@ -149,7 +149,7 @@ std::string WLEMData::getMeasurementDeviceName() const
     return m_measurementDeviceName;
 }
 
-size_t WLEMData::getNrChans() const
+WLChanNrT WLEMData::getNrChans() const
 {
     if( m_data )
     {
@@ -158,7 +158,7 @@ size_t WLEMData::getNrChans() const
     return 0;
 }
 
-size_t WLEMData::getSamplesPerChan() const
+WLSampleNrT WLEMData::getSamplesPerChan() const
 {
     if( m_data )
     {
@@ -172,7 +172,7 @@ uint16_t *WLEMData::getOrigIdx() const
     return m_origIdx;
 }
 
-float WLEMData::getSampFreq() const
+WLFreqT WLEMData::getSampFreq() const
 {
     return m_sampFreq;
 }
@@ -182,12 +182,12 @@ float WLEMData::getLength() const
     return getSamplesPerChan() / m_sampFreq;
 }
 
-void WLEMData::setAnalogHighPass( float analogHighPass )
+void WLEMData::setAnalogHighPass( WLFreqT analogHighPass )
 {
     m_analogHighPass = analogHighPass;
 }
 
-void WLEMData::setAnalogLowPass( float analogLowPass )
+void WLEMData::setAnalogLowPass( WLFreqT analogLowPass )
 {
     m_analogLowPass = analogLowPass;
 }
@@ -242,7 +242,7 @@ void WLEMData::setOrigIdx( uint16_t *origIdx )
     m_origIdx = origIdx;
 }
 
-void WLEMData::setSampFreq( float sampFreq )
+void WLEMData::setSampFreq( WLFreqT sampFreq )
 {
     m_sampFreq = sampFreq;
 }

@@ -51,6 +51,9 @@
 #include "core/data/emd/WLEMDMEG.h"
 #include "core/data/enum/WLEModality.h"
 
+#include "core/fileFormat/fiff/WLFiffChType.h"
+#include "core/fileFormat/fiff/WLFiffCoilType.h"
+
 #include "WLReaderFIFF.h"
 
 using namespace LaBP;
@@ -80,7 +83,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
     // Create temporary EMMEMD
     WLEMDEEG::SPtr dummy( new WLEMDEEG() );
     LFMeasurementInfo& measinfo_in = data.GetLFMeasurement().GetLFMeasurementInfo();
-    int32_t nChannels = measinfo_in.GetNumberOfChannels();
+    WLFiffLib::nchan_t nChannels = measinfo_in.GetNumberOfChannels();
     wlog::debug( CLASS ) << "Channels: " << nChannels;
     dummy->setSampFreq( measinfo_in.GetSamplingFrequency() );
     dummy->setAnalogHighPass( measinfo_in.GetHighpass() );
@@ -99,6 +102,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
         const WLDigPoint digPoint( pos, digPoints[i]->GetKind(), digPoints[i]->GetIdent() );
         digPointsOut->push_back( digPoint );
     }
+
     subject_out->setIsotrak( itPos );
     out->setDigPoints( digPointsOut );
     wlog::debug( CLASS ) << "Isotrak size: " << itPos->size();
@@ -112,7 +116,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
         nBuffers_out += rawdatabuffers_in[i]->GetSize();
     nBuffers_out /= nChannels;
     WLEMData::DataT rawdatabuffers_out( nChannels, nBuffers_out );
-    int32_t current_channel = 0, current_buffer_out = 0;
+    WLFiffLib::ichan_t current_channel = 0, current_buffer_out = 0;
     LFArrayPtr< LFChannelInfo > &channelInfos = measinfo_in.GetLFChannelInfo();
     double scaleFactor;
     for( size_t i = 0; i < nBuffers_in; ++i )
@@ -154,14 +158,14 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
     dummy->setData( rawdatabuffers_out_ptr );
 
     // Collect available modalities and coils
-    std::set< int32_t > modalities;
-    for( int32_t chan = 0; chan < nChannels; ++chan )
+    std::set< WLFiffLib::ch_type_t > modalities;
+    for( WLFiffLib::nchan_t chan = 0; chan < nChannels; ++chan )
     {
         modalities.insert( measinfo_in.GetLFChannelInfo()[chan]->GetKind() );
     }
 
     // Create modality objects //
-    int32_t mod;
+    WLFiffLib::ch_type_t mod;
     while( !modalities.empty() )
     {
         mod = *modalities.begin();
@@ -170,20 +174,22 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
         // See FIFF PDF B.3 Channel Types
         switch( mod )
         {
-            case 1: // MEG channel
+            case WLFiffLib::ChType::MAGN: // MEG channel
                 wlog::debug( CLASS ) << "Creating MEG modality ...";
                 emd.reset( new WLEMDMEG() );
                 break;
-            case 2: // EEG channel
+            case WLFiffLib::ChType::EL: // EEG channel
                 wlog::debug( CLASS ) << "Creating EEG modality ...";
                 emd.reset( new WLEMDEEG() );
                 break;
-//            case 3: // Stimulus channel
-            case 202: // EOG channel
+            case WLFiffLib::ChType::STIM: // Stimulus channel
+                wlog::debug( CLASS ) << "Stim channel is processed later ...";
+                continue;
+            case WLFiffLib::ChType::EOG: // EOG channel
                 wlog::debug( CLASS ) << "Creating EOG modality ...";
                 emd.reset( new WLEMDEOG() );
                 break;
-            case 402: // ECG channel
+            case WLFiffLib::ChType::ECG: // ECG channel
                 wlog::debug( CLASS ) << "Creating ECG modality ...";
                 emd.reset( new WLEMDECG() );
                 break;
@@ -208,11 +214,11 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
 
         size_t modChan = 0;
         WLEMData::DataT dataTmp( rawdatabuffers_out_ptr->rows(), rawdatabuffers_out_ptr->cols() );
-        for( size_t chan = 0; chan < dummy->getNrChans(); ++chan )
+        for( WLFiffLib::nchan_t chan = 0; chan < dummy->getNrChans(); ++chan )
         {
             if( measinfo_in.GetLFChannelInfo()[chan]->GetKind() == mod )
             {
-                if( mod == 1 )
+                if( mod == WLFiffLib::ChType::MAGN )
                 {
                     // TODO convert to millimeter?
                     eVec = measinfo_in.GetLFChannelInfo()[chan]->GetEx();
@@ -225,21 +231,28 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
                     eZ->push_back( WVector3f( eVec[0], eVec[1], eVec[2] ) );
 
                     // Check sequence
-                    const int32_t coil_type = measinfo_in.GetLFChannelInfo()[chan]->GetCoilType();
+                    const WLFiffLib::coil_type_t coil_type = measinfo_in.GetLFChannelInfo()[chan]->GetCoilType();
                     // TODO(pieloth): check meg coil order
                     if( modChan > 1 && ( modChan - 2 ) % 3 == 0 )
                     {
-                        WAssert( coil_type == 3021 || coil_type == 3022 || coil_type == 3024,
+                        WAssert(
+                                        coil_type == WLFiffLib::CoilType::VV_MAG_W || coil_type == WLFiffLib::CoilType::VV_MAG_T1
+                                                        || coil_type == WLFiffLib::CoilType::VV_MAG_T2
+                                                        || coil_type == WLFiffLib::CoilType::VV_MAG_T3,
                                         "Wrong order! Coil type should be magentometer!" );
                     }
                     else
                     {
-                        WAssert( coil_type == 3012 || coil_type == 3013 || coil_type == 3014,
+                        WAssert(
+                                        coil_type == WLFiffLib::CoilType::VV_PLANAR_W
+                                                        || coil_type == WLFiffLib::CoilType::VV_PLANAR_T1
+                                                        || coil_type == WLFiffLib::CoilType::VV_PLANAR_T2
+                                                        || coil_type == WLFiffLib::CoilType::VV_PLANAR_T3,
                                         "Wrong order! Coil type should be gradiometer!" );
                     }
                 }
                 // Collect positions for EEG and MEG
-                if( mod == 1 || mod == 2 )
+                if( mod == WLFiffLib::ChType::MAGN || mod == WLFiffLib::ChType::EL )
                 {
                     pos = measinfo_in.GetLFChannelInfo()[chan]->GetR0();
                     positions->push_back( WPosition( pos[0], pos[1], pos[2] ) );
