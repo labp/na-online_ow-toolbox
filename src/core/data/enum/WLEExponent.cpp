@@ -94,7 +94,7 @@ double WLEExponent::factor( Enum val )
     }
 }
 
-WLEExponent::Enum WLEExponent::convertFIFF( WLFiffLib::unitm_t unitm )
+WLEExponent::Enum WLEExponent::fromFIFF( WLFiffLib::unitm_t unitm )
 {
     switch( unitm )
     {

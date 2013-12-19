@@ -74,7 +74,7 @@ namespace WLEBemType
         }
     }
 
-    Enum convertFIFF( WLFiffLib::bem_surf_type_t bem )
+    Enum fromFIFF( WLFiffLib::bem_surf_type_t bem )
     {
         switch( bem )
         {
@@ -94,7 +94,7 @@ namespace WLEBemType
         }
     }
 
-    Enum convertBND( std::string bemName )
+    Enum fromBND( std::string bemName )
     {
         const ContainerT bems = values();
         ContainerT::const_iterator it;

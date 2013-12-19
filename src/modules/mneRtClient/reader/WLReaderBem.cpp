@@ -65,7 +65,7 @@ bool WLReaderBem::read( std::list< WLEMMBemBoundary::SPtr >* const bems )
     for( it = surfaces.begin(); it != surfaces.end(); ++it )
     {
         WLEMMBemBoundary::SPtr bem( new WLEMMBemBoundary() );
-        bem->setBemType( WLEBemType::convertFIFF( ( *it )->id ) );
+        bem->setBemType( WLEBemType::fromFIFF( ( *it )->id ) );
         bem->setConductivity( ( *it )->sigma );
 
         WLArrayList< WPosition >::SPtr vertex( new WLArrayList< WPosition > );

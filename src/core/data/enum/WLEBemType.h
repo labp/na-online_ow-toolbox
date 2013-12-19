@@ -74,7 +74,7 @@ namespace WLEBemType
      * \param unit FIFF unitm value
      * \return WLEBemType::Enum or WLEBemType::UNKNOWN if unknown.
      */
-    Enum convertFIFF( WLFiffLib::bem_surf_type_t bem );
+    Enum fromFIFF( WLFiffLib::bem_surf_type_t bem );
 
     /**
      * Converts a BND bem name to a WLEBemType enum.
@@ -82,7 +82,7 @@ namespace WLEBemType
      * \param unit FIFF unitm value
      * \return WLEBemType::Enum or WLEBemType::UNKNOWN if unknown.
      */
-    Enum convertBND( std::string bemName );
+    Enum fromBND( std::string bemName );
 
 } /* namespace WLEBemType */
 

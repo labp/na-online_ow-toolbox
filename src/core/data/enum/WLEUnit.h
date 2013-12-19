@@ -72,7 +72,7 @@ namespace WLEUnit
      * \param unit FIFF unit value
      * \return WLEUnit::Enum or WLEUnit::NONE if unknown.
      */
-    Enum convertFIFF( WLFiffLib::unit_t unit );
+    Enum fromFIFF( WLFiffLib::unit_t unit );
 }
 
 inline std::ostream& operator<<( std::ostream &strm, const WLEUnit::Enum& obj )

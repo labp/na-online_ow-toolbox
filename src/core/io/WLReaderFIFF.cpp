@@ -212,7 +212,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
         const float* eVec;
 
         WLFiffLib::unit_t fiffUnit = WLFiffLib::Unit::NONE;
-        WLFiffLib::unitm_t fiffUnitMul;
+        WLFiffLib::unitm_t fiffUnitMul = WLFiffLib::UnitMultiplier::NONE;
 
         size_t modChan = 0;
         WLEMData::DataT dataTmp( rawdatabuffers_out_ptr->rows(), rawdatabuffers_out_ptr->cols() );
@@ -276,8 +276,8 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
         emd->setLineFreq( dummy->getLineFreq() );
 
         // scaleFactor was multiplied, so data is in unit_mul - see FIFF spec. 1.3, Table A.3, p. 28)
-        emd->setChanUnitExp( WLEExponent::convertFIFF( fiffUnitMul ) );
-        emd->setChanUnit( WLEUnit::convertFIFF( fiffUnit ) );
+        emd->setChanUnitExp( WLEExponent::fromFIFF( fiffUnitMul ) );
+        emd->setChanUnit( WLEUnit::fromFIFF( fiffUnit ) );
         emd->setData( data );
 
         switch( emd->getModalityType() )

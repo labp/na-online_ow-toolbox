@@ -58,7 +58,7 @@ namespace WLECoordSystem
         }
     }
 
-    Enum convertFIFF( WLFiffLib::coord_system_t coord )
+    Enum fromFIFF( WLFiffLib::coord_system_t coord )
     {
         switch( coord )
         {

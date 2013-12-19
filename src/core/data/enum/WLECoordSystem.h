@@ -69,7 +69,7 @@ namespace WLECoordSystem
      * \param unit FIFF unitm value
      * \return WLECoordSystem::Enum or WLECoordSystem::UNKNOWN if unknown.
      */
-    Enum convertFIFF( WLFiffLib::coord_system_t coord );
+    Enum fromFIFF( WLFiffLib::coord_system_t coord );
 
 } /* namespace WLECoordSystem */
 

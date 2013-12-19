@@ -81,7 +81,7 @@ namespace WLEExponent
      * \param unit FIFF unitm value
      * \return WLEExponent::Enum or WLEExponent::BASE if unknown.
      */
-    Enum convertFIFF( WLFiffLib::unitm_t unitm );
+    Enum fromFIFF( WLFiffLib::unitm_t unitm );
 } /* namespace WLEExponent */
 
 inline std::ostream& operator<<( std::ostream &strm, const WLEExponent::Enum& obj )

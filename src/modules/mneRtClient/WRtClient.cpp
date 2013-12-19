@@ -575,8 +575,8 @@ bool WRtClient::preparePrototype( WLEMData* const emd, const Eigen::RowVectorXi&
 {
     const FIFFLIB::FiffChInfo fiffInfo = m_fiffInfo->chs[picks[0]];
     emd->setSampFreq( m_fiffInfo->sfreq );
-    emd->setChanUnit( WLEUnit::convertFIFF( fiffInfo.unit ) );
-    emd->setChanUnitExp( WLEExponent::convertFIFF( fiffInfo.unit_mul ) );
+    emd->setChanUnit( WLEUnit::fromFIFF( fiffInfo.unit ) );
+    emd->setChanUnitExp( WLEExponent::fromFIFF( fiffInfo.unit_mul ) );
 
     readChannelNames( emd, picks );
     if( readChannelPositions( emd, picks ) )

@@ -66,7 +66,7 @@ std::string WLEUnit::name( Enum val )
     }
 }
 
-WLEUnit::Enum WLEUnit::convertFIFF( WLFiffLib::unit_t unit )
+WLEUnit::Enum WLEUnit::fromFIFF( WLFiffLib::unit_t unit )
 {
     switch( unit )
     {

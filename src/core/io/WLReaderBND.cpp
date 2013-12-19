@@ -127,7 +127,7 @@ WLReaderBND::ReturnCode::Enum WLReaderBND::readType( string& line, WLEMMBemBound
     vector< string > tokens = string_utils::tokenize( line );
     string type = tokens.at( 1 );
     wlog::debug( CLASS ) << "Type: " << type;
-    WLEBemType::Enum bem = WLEBemType::convertBND( type );
+    WLEBemType::Enum bem = WLEBemType::fromBND( type );
     if( bem != WLEBemType::UNKNOWN )
     {
         boundary->setBemType( bem );
