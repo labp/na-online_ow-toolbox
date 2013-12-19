@@ -40,6 +40,7 @@
 #include "core/container/WLArrayList.h"
 #include "core/data/WLDataTypes.h"
 #include "core/data/WLEMMEnumTypes.h"
+#include "core/data/enum/WLEExponent.h"
 #include "core/data/enum/WLEModality.h"
 #include "core/data/enum/WLEUnit.h"
 
@@ -140,12 +141,12 @@ public:
     /**
      * TODO(kaehler): Comments
      */
-    float getAnalogHighPass() const;
+    WLFreqT getAnalogHighPass() const;
 
     /**
      * TODO(kaehler): Comments
      */
-    float getAnalogLowPass() const;
+    WLFreqT getAnalogLowPass() const;
 
     WLArrayList< std::string >::SPtr getChanNames();
 
@@ -155,10 +156,9 @@ public:
 
     void setChanUnit( WLEUnit::Enum chanUnit );
 
-    /**
-     * TODO(kaehler): Comments
-     */
-    LaBP::WEExponent::Enum getChanUnitExp() const;
+    WLEExponent::Enum getChanUnitExp() const;
+
+    void setChanUnitExp( WLEExponent::Enum chanUnitExp );
 
     /**
      * TODO(kaehler): Comments
@@ -234,11 +234,6 @@ public:
     /**
      * TODO(kaehler): Comments
      */
-    void setChanUnitExp( LaBP::WEExponent::Enum chanUnitExp );
-
-    /**
-     * TODO(kaehler): Comments
-     */
     void setCoordSystem( LaBP::WECoordSystemName::Enum coordSystem );
 
     /**
@@ -304,7 +299,7 @@ protected:
     /**
      * data is in unit m_chanUnit * 10^m_chanUnitExp
      */
-    LaBP::WEExponent::Enum m_chanUnitExp;
+    WLEExponent::Enum m_chanUnitExp;
 
     /**
      * cutoff frequency of highpass filter in analog processing chain

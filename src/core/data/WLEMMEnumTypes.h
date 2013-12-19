@@ -92,6 +92,7 @@ namespace LaBP
      */
     namespace WEExponent
     {
+        OW_API_DEPRECATED
         enum Enum
         {
             KILO = 3, BASE = 0, MILLI = -3, MICRO = -6, NANO = -9, PICO = -12, FEMTO = -15

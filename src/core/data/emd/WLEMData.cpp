@@ -94,12 +94,12 @@ void WLEMData::setData( DataSPtr data )
     m_data = data;
 }
 
-float WLEMData::getAnalogHighPass() const
+WLFreqT WLEMData::getAnalogHighPass() const
 {
     return m_analogHighPass;
 }
 
-float WLEMData::getAnalogLowPass() const
+WLFreqT WLEMData::getAnalogLowPass() const
 {
     return m_analogLowPass;
 }
@@ -124,9 +124,14 @@ void WLEMData::setChanUnit( WLEUnit::Enum chanUnit )
     m_chanUnit = chanUnit;
 }
 
-LaBP::WEExponent::Enum WLEMData::getChanUnitExp() const
+WLEExponent::Enum WLEMData::getChanUnitExp() const
 {
     return m_chanUnitExp;
+}
+
+void WLEMData::setChanUnitExp( WLEExponent::Enum chanUnitExp )
+{
+    m_chanUnitExp = chanUnitExp;
 }
 
 LaBP::WECoordSystemName::Enum WLEMData::getCoordSystem() const
@@ -144,7 +149,7 @@ uint32_t WLEMData::getDataOffsetIdx() const
     return m_dataOffsetIdx;
 }
 
-float WLEMData::getLineFreq()
+WLFreqT WLEMData::getLineFreq()
 {
     return m_lineFreq;
 }
@@ -205,11 +210,6 @@ void WLEMData::setChanNames( WLArrayList< std::string >::SPtr chanNames )
 void WLEMData::setChanNames( boost::shared_ptr< std::vector< std::string > > chanNames )
 {
     m_chanNames = WLArrayList< std::string >::instance( *chanNames );
-}
-
-void WLEMData::setChanUnitExp( LaBP::WEExponent::Enum chanUnitExp )
-{
-    m_chanUnitExp = chanUnitExp;
 }
 
 void WLEMData::setCoordSystem( LaBP::WECoordSystemName::Enum coordSystem )

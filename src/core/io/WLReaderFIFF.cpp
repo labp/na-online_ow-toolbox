@@ -54,6 +54,7 @@
 #include "core/fileFormat/fiff/WLFiffChType.h"
 #include "core/fileFormat/fiff/WLFiffCoilType.h"
 #include "core/fileFormat/fiff/WLFiffUnit.h"
+#include "core/fileFormat/fiff/WLFiffUnitMultiplier.h"
 
 #include "WLReaderFIFF.h"
 
@@ -211,7 +212,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
         const float* eVec;
 
         WLFiffLib::unit_t fiffUnit = WLFiffLib::Unit::NONE;
-        fiffmultipliers_t fiffUnitMul;
+        WLFiffLib::unitm_t fiffUnitMul;
 
         size_t modChan = 0;
         WLEMData::DataT dataTmp( rawdatabuffers_out_ptr->rows(), rawdatabuffers_out_ptr->cols() );
@@ -262,7 +263,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
                 // Collect general data
                 dataTmp.row( modChan++ ) = ( dummy->getData().row( chan ) );
                 fiffUnit = static_cast< WLFiffLib::unit_t >( measinfo_in.GetLFChannelInfo()[chan]->GetUnit() );
-                fiffUnitMul = measinfo_in.GetLFChannelInfo()[chan]->GetUnitMul();
+                fiffUnitMul = static_cast< WLFiffLib::unitm_t >( measinfo_in.GetLFChannelInfo()[chan]->GetUnitMul() );
             }
         }
 
@@ -275,7 +276,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
         emd->setLineFreq( dummy->getLineFreq() );
 
         // scaleFactor was multiplied, so data is in unit_mul - see FIFF spec. 1.3, Table A.3, p. 28)
-        emd->setChanUnitExp( getChanUnitMul( fiffUnitMul ) );
+        emd->setChanUnitExp( WLEExponent::convertFIFF( fiffUnitMul ) );
         emd->setChanUnit( WLEUnit::convertFIFF( fiffUnit ) );
         emd->setData( data );
 
@@ -390,28 +391,4 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::getReturnCode( returncode_t rc )
             return ReturnCode::ERROR_UNKNOWN;
     }
 
-}
-
-LaBP::WEExponent::Enum WLReaderFIFF::getChanUnitMul( fiffmultipliers_t unitMul )
-{
-    switch( unitMul )
-    {
-        case mul_k:
-            return WEExponent::KILO;
-        case mul_none:
-            return WEExponent::BASE;
-        case mul_m:
-            return WEExponent::MILLI;
-        case mul_mu:
-            return WEExponent::MICRO;
-        case mul_n:
-            return WEExponent::NANO;
-        case mul_p:
-            return WEExponent::PICO;
-        case mul_f:
-            return WEExponent::FEMTO;
-        default:
-            wlog::warn( CLASS ) << "Unknown unit_mul: " << unitMul;
-            return WEExponent::BASE;
-    }
 }
