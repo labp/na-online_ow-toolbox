@@ -134,9 +134,14 @@ void WLEMData::setChanUnitExp( WLEExponent::Enum chanUnitExp )
     m_chanUnitExp = chanUnitExp;
 }
 
-LaBP::WECoordSystemName::Enum WLEMData::getCoordSystem() const
+WLECoordSystem::Enum WLEMData::getCoordSystem() const
 {
     return m_CoordSystem;
+}
+
+void WLEMData::setCoordSystem( WLECoordSystem::Enum coordSystem )
+{
+    m_CoordSystem = coordSystem;
 }
 
 uint32_t WLEMData::getDataBuffSizePerChan() const
@@ -210,11 +215,6 @@ void WLEMData::setChanNames( WLArrayList< std::string >::SPtr chanNames )
 void WLEMData::setChanNames( boost::shared_ptr< std::vector< std::string > > chanNames )
 {
     m_chanNames = WLArrayList< std::string >::instance( *chanNames );
-}
-
-void WLEMData::setCoordSystem( LaBP::WECoordSystemName::Enum coordSystem )
-{
-    m_CoordSystem = coordSystem;
 }
 
 void WLEMData::setDataBuffSizePerChan( uint32_t dataBuffSizePerChan )

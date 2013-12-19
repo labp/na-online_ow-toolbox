@@ -40,6 +40,7 @@
 #include "core/container/WLArrayList.h"
 #include "core/data/WLDataTypes.h"
 #include "core/data/WLEMMEnumTypes.h"
+#include "core/data/enum/WLECoordSystem.h"
 #include "core/data/enum/WLEExponent.h"
 #include "core/data/enum/WLEModality.h"
 #include "core/data/enum/WLEUnit.h"
@@ -160,10 +161,9 @@ public:
 
     void setChanUnitExp( WLEExponent::Enum chanUnitExp );
 
-    /**
-     * TODO(kaehler): Comments
-     */
-    LaBP::WECoordSystemName::Enum getCoordSystem() const;
+    WLECoordSystem::Enum getCoordSystem() const;
+
+    void setCoordSystem( WLECoordSystem::Enum coordSystem );
 
     /**
      * TODO(kaehler): Comments
@@ -230,11 +230,6 @@ public:
 
     OW_API_DEPRECATED
     void setChanNames( boost::shared_ptr< std::vector< std::string > > chanNames );
-
-    /**
-     * TODO(kaehler): Comments
-     */
-    void setCoordSystem( LaBP::WECoordSystemName::Enum coordSystem );
 
     /**
      * TODO(kaehler): Comments
@@ -314,7 +309,7 @@ protected:
     /**
      * type of coordinate system used for m_chanPositions
      */
-    LaBP::WECoordSystemName::Enum m_CoordSystem;
+    WLECoordSystem::Enum m_CoordSystem;
 
     /**
      * size of data buffer per channel in samples

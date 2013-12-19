@@ -108,6 +108,7 @@ namespace LaBP
      */
     namespace WECoordSystemName
     {
+        OW_API_DEPRECATED
         enum Enum
         {
             HEAD, DEVICE, AC_PC
