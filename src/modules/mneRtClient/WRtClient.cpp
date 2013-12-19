@@ -575,8 +575,8 @@ bool WRtClient::preparePrototype( WLEMData* const emd, const Eigen::RowVectorXi&
 {
     const FIFFLIB::FiffChInfo fiffInfo = m_fiffInfo->chs[picks[0]];
     emd->setSampFreq( m_fiffInfo->sfreq );
-    emd->setChanUnit( getChanUnit( fiffInfo.unit ) );
-    emd->setChanUnitExp( getChanUnitMul( fiffInfo.unit_mul ) );
+    emd->setChanUnit( WLEUnit::convertFIFF( fiffInfo.unit ) );
+    emd->setChanUnitExp( WLEExponent::convertFIFF( fiffInfo.unit_mul ) );
 
     readChannelNames( emd, picks );
     if( readChannelPositions( emd, picks ) )
@@ -755,45 +755,5 @@ bool WRtClient::readChannelFaces( WLEMData* const emd, const Eigen::RowVectorXi&
         wlog::warn( CLASS ) << "Counted " << nzero
                         << " (0,0,0) position - assumed incorrect EEG positions! Triangulation is skipped!";
         return false;
-    }
-}
-
-LaBP::WEUnit::Enum WRtClient::getChanUnit( FIFFLIB::fiff_int_t unit )
-{
-    switch( unit )
-    {
-        case FIFF_UNIT_V:
-            return WEUnit::VOLT;
-        case FIFF_UNIT_T:
-            return WEUnit::TESLA;
-        case FIFF_UNIT_T_M:
-            return WEUnit::TESLA_PER_METER;
-        default:
-            wlog::warn( CLASS ) << "Unknown unit: " << unit;
-            return WEUnit::UNKNOWN_UNIT;
-    }
-}
-
-WEExponent::Enum WRtClient::getChanUnitMul( FIFFLIB::fiff_int_t unitMul )
-{
-    switch( unitMul )
-    {
-        case FIFF_UNITM_K:
-            return WEExponent::KILO;
-        case FIFF_UNITM_NONE:
-            return WEExponent::BASE;
-        case FIFF_UNITM_M:
-            return WEExponent::MILLI;
-        case FIFF_UNITM_MU:
-            return WEExponent::MICRO;
-        case FIFF_UNITM_N:
-            return WEExponent::NANO;
-        case FIFF_UNITM_P:
-            return WEExponent::PICO;
-        case FIFF_UNITM_F:
-            return WEExponent::FEMTO;
-        default:
-            wlog::warn( CLASS ) << "Unknown unit_mul: " << unitMul;
-            return WEExponent::BASE;
     }
 }

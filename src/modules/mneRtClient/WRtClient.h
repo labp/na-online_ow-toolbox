@@ -97,10 +97,6 @@ private:
     typedef std::vector< WVector3i > FacesT;
     typedef boost::shared_ptr< FacesT > FacesSPtr;
 
-    static LaBP::WEUnit::Enum getChanUnit( FIFFLIB::fiff_int_t unit );
-
-    static LaBP::WEExponent::Enum getChanUnitMul( FIFFLIB::fiff_int_t unitMul );
-
     bool m_isStreaming;
     bool m_isConnected;
 
