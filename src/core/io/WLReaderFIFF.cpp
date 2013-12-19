@@ -53,6 +53,7 @@
 
 #include "core/fileFormat/fiff/WLFiffChType.h"
 #include "core/fileFormat/fiff/WLFiffCoilType.h"
+#include "core/fileFormat/fiff/WLFiffUnit.h"
 
 #include "WLReaderFIFF.h"
 
@@ -209,7 +210,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
         WLArrayList< WVector3f >::SPtr eZ( new WLArrayList< WVector3f >() );
         const float* eVec;
 
-        fiffunits_t fiffUnit;
+        WLFiffLib::unit_t fiffUnit = WLFiffLib::Unit::NONE;
         fiffmultipliers_t fiffUnitMul;
 
         size_t modChan = 0;
@@ -260,7 +261,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
 
                 // Collect general data
                 dataTmp.row( modChan++ ) = ( dummy->getData().row( chan ) );
-                fiffUnit = measinfo_in.GetLFChannelInfo()[chan]->GetUnit();
+                fiffUnit = static_cast< WLFiffLib::unit_t >( measinfo_in.GetLFChannelInfo()[chan]->GetUnit() );
                 fiffUnitMul = measinfo_in.GetLFChannelInfo()[chan]->GetUnitMul();
             }
         }
@@ -275,7 +276,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
 
         // scaleFactor was multiplied, so data is in unit_mul - see FIFF spec. 1.3, Table A.3, p. 28)
         emd->setChanUnitExp( getChanUnitMul( fiffUnitMul ) );
-        emd->setChanUnit( getChanUnit( fiffUnit ) );
+        emd->setChanUnit( WLEUnit::convertFIFF( fiffUnit ) );
         emd->setData( data );
 
         switch( emd->getModalityType() )
@@ -389,22 +390,6 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::getReturnCode( returncode_t rc )
             return ReturnCode::ERROR_UNKNOWN;
     }
 
-}
-
-LaBP::WEUnit::Enum WLReaderFIFF::getChanUnit( fiffunits_t unit )
-{
-    switch( unit )
-    {
-        case unit_V:
-            return WEUnit::VOLT;
-        case unit_T:
-            return WEUnit::TESLA;
-        case unit_T_m:
-            return WEUnit::TESLA_PER_METER;
-        default:
-            wlog::warn( CLASS ) << "Unknown unit: " << unit;
-            return WEUnit::UNKNOWN_UNIT;
-    }
 }
 
 LaBP::WEExponent::Enum WLReaderFIFF::getChanUnitMul( fiffmultipliers_t unitMul )

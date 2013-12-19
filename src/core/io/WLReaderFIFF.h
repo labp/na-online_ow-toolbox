@@ -76,8 +76,6 @@ namespace LaBP
     private:
         static ReturnCode::Enum getReturnCode( returncode_t rc );
 
-        static WEUnit::Enum getChanUnit( fiffunits_t unit );
-
         static WEExponent::Enum getChanUnitMul( fiffmultipliers_t unitMul );
     };
 }

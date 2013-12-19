@@ -114,9 +114,14 @@ WLArrayList< std::string >::ConstSPtr WLEMData::getChanNames() const
     return m_chanNames;
 }
 
-LaBP::WEUnit::Enum WLEMData::getChanUnit() const
+WLEUnit::Enum WLEMData::getChanUnit() const
 {
     return m_chanUnit;
+}
+
+void WLEMData::setChanUnit( WLEUnit::Enum chanUnit )
+{
+    m_chanUnit = chanUnit;
 }
 
 LaBP::WEExponent::Enum WLEMData::getChanUnitExp() const
@@ -177,7 +182,7 @@ WLFreqT WLEMData::getSampFreq() const
     return m_sampFreq;
 }
 
-float WLEMData::getLength() const
+WLTimeT WLEMData::getLength() const
 {
     return getSamplesPerChan() / m_sampFreq;
 }
@@ -200,11 +205,6 @@ void WLEMData::setChanNames( WLArrayList< std::string >::SPtr chanNames )
 void WLEMData::setChanNames( boost::shared_ptr< std::vector< std::string > > chanNames )
 {
     m_chanNames = WLArrayList< std::string >::instance( *chanNames );
-}
-
-void WLEMData::setChanUnit( LaBP::WEUnit::Enum chanUnit )
-{
-    m_chanUnit = chanUnit;
 }
 
 void WLEMData::setChanUnitExp( LaBP::WEExponent::Enum chanUnitExp )
@@ -272,7 +272,8 @@ std::string WLEMData::dataToString( const DataT& data, size_t maxChannels, size_
 
 std::ostream& operator<<( std::ostream &strm, const WLEMData& obj )
 {
-    strm << WLEMData::CLASS << "::" << WLEModality::name( obj.getModalityType() ) << ": data=" << obj.getNrChans() << "x" << obj.getSamplesPerChan();
+    strm << WLEMData::CLASS << "::" << WLEModality::name( obj.getModalityType() ) << ": data=" << obj.getNrChans() << "x"
+                    << obj.getSamplesPerChan();
     return strm;
 }
 

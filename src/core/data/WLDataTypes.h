@@ -96,5 +96,6 @@ typedef WLFiffLib::ichan_t WLChanIdxT;
 typedef WLFiffLib::nchan_t WLChanNrT;
 typedef WLFiffLib::isamples_t WLSampleIdxT;
 typedef WLFiffLib::nsamples_t WLSampleNrT;
+typedef WLFiffLib::time_t WLTimeT;
 
 #endif  // WLDATATYPES_H_

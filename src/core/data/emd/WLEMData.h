@@ -41,6 +41,7 @@
 #include "core/data/WLDataTypes.h"
 #include "core/data/WLEMMEnumTypes.h"
 #include "core/data/enum/WLEModality.h"
+#include "core/data/enum/WLEUnit.h"
 
 /**
  * Class for general modality. Saves information which are present for all modalities.
@@ -150,10 +151,9 @@ public:
 
     WLArrayList< std::string >::ConstSPtr getChanNames() const;
 
-    /**
-     * TODO(kaehler): Comments
-     */
-    LaBP::WEUnit::Enum getChanUnit() const;
+    WLEUnit::Enum getChanUnit() const;
+
+    void setChanUnit( WLEUnit::Enum chanUnit );
 
     /**
      * TODO(kaehler): Comments
@@ -214,7 +214,7 @@ public:
      *
      * @return data length in seconds.
      */
-    float getLength() const;
+    WLTimeT getLength() const;
 
     /**
      * TODO(kaehler): Comments
@@ -230,11 +230,6 @@ public:
 
     OW_API_DEPRECATED
     void setChanNames( boost::shared_ptr< std::vector< std::string > > chanNames );
-
-    /**
-     * TODO(kaehler): Comments
-     */
-    void setChanUnit( LaBP::WEUnit::Enum chanUnit );
 
     /**
      * TODO(kaehler): Comments
@@ -304,10 +299,7 @@ protected:
      */
     WLFreqT m_sampFreq;
 
-    /**
-     * real world unit of the modality
-     */
-    LaBP::WEUnit::Enum m_chanUnit;
+    WLEUnit::Enum m_chanUnit;
 
     /**
      * data is in unit m_chanUnit * 10^m_chanUnitExp

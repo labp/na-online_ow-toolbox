@@ -29,6 +29,8 @@
 #include <string>
 #include <vector>
 
+#include <core/common/WDefines.h>
+
 /**
  * TODO(kaehler): Comments
  */
@@ -77,6 +79,7 @@ namespace LaBP
      */
     namespace WEUnit
     {
+        OW_API_DEPRECATED
         enum Enum
         {
             SIEMENS_PER_METER, METER, VOLT, TESLA, TESLA_PER_METER, UNKNOWN_UNIT, UNITLESS

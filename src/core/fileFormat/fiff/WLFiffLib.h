@@ -45,5 +45,6 @@ namespace WLFiffLib
     typedef int32 ncoil_t;
     typedef int32 isamples_t;
     typedef int32 nsamples_t;
+    typedef float time_t;
 } /* namespace WLFiffLib */
 #endif  // WLFIFFLIB_H_
