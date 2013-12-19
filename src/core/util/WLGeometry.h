@@ -34,7 +34,7 @@
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
 #include "core/data/WLDataTypes.h"
-#include "core/data/WLEMMEnumTypes.h"
+#include "core/data/enum/WLEExponent.h"
 
 namespace WLGeometry
 {
@@ -60,7 +60,7 @@ namespace WLGeometry
 
     void transformPoints( std::vector< Point >* const out, const std::vector< Point >& in, const WLMatrix4::Matrix4T& trans );
 
-    void toBaseExponent( std::vector< Point >* const out, const std::vector< Point >& in, LaBP::WEExponent::Enum exp );
+    void toBaseExponent( std::vector< Point >* const out, const std::vector< Point >& in, WLEExponent::Enum exp );
 }
 
 #endif /* WLGEOMETRY_H_ */

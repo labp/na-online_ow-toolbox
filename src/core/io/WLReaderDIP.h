@@ -39,6 +39,8 @@ namespace LaBP
     class WLReaderDIP: public WLReader
     {
     public:
+        static const std::string CLASS;
+
         /**
          * Constructs a reader object.
          *

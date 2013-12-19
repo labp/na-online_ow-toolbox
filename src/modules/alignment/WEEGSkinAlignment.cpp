@@ -202,7 +202,7 @@ bool WEEGSkinAlignment::extractBEMSkinPoints( PointsT* const out, const WLEMMeas
     const WPosition::ValueType z_threashold = min + ( max - min ) * 0.25;
     wlog::debug( CLASS ) << "icpAlign: BEM z_threashold: " << z_threashold;
 
-    const double factor = WEExponent::factor( bemSkin->getVertexExponent() );
+    const double factor = WLEExponent::factor( bemSkin->getVertexExponent() );
 
     out->reserve( bemPosition.size() );
     for( itPos = bemPosition.begin(); itPos != bemPosition.end(); ++itPos )

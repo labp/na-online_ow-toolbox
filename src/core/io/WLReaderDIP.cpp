@@ -41,6 +41,8 @@
 using namespace LaBP;
 using namespace std;
 
+const std::string WLReaderDIP::CLASS = "WLReaderDIP";
+
 WLReaderDIP::WLReaderDIP( std::string fname ) :
                 WLReader( fname )
 {
@@ -93,13 +95,13 @@ WLReaderDIP::ReturnCode::Enum WLReaderDIP::read( WLEMMSurface::SPtr surface )
     }
     catch( WTypeMismatch& e )
     {
-        wlog::error( "WReaderDIP" ) << e.what();
+        wlog::error( CLASS ) << e.what();
         rc = ReturnCode::ERROR_UNKNOWN;
     }
 
     if( surface->getFaces()->empty() )
     {
-        wlog::warn( "WReaderDIP" ) << "No faces found! Faces will be generated.";
+        wlog::warn( CLASS ) << "No faces found! Faces will be generated.";
         WLGeometry::computeTriangulation( surface->getFaces().get(), *surface->getVertex() );
     }
 
@@ -111,16 +113,16 @@ WLReaderDIP::ReturnCode::Enum WLReaderDIP::readUnit( string& line, WLEMMSurface:
 {
     vector< string > tokens = string_utils::tokenize( line );
     string unit = tokens.at( 1 );
-    wlog::debug( "WReaderDIP" ) << "Unit: " << unit;
+    wlog::debug( CLASS ) << "Unit: " << unit;
     if( unit.find( "mm" ) != string::npos )
     {
-        surface->setVertexUnit( WEUnit::METER );
-        surface->setVertexExponent( WEExponent::MILLI );
+        surface->setVertexUnit( WLEUnit::METER );
+        surface->setVertexExponent( WLEExponent::MILLI );
         return ReturnCode::SUCCESS;
     }
     else
     {
-        wlog::warn( "WReaderDIP" ) << "Unknown unit.";
+        wlog::warn( CLASS ) << "Unknown unit.";
         return ReturnCode::ERROR_UNKNOWN;
     }
 
@@ -138,7 +140,7 @@ WLReaderDIP::ReturnCode::Enum WLReaderDIP::readNumPoly( string& line, size_t& co
 {
     vector< string > tokens = string_utils::tokenize( line );
     count = string_utils::fromString< size_t >( tokens.at( 1 ) );
-    wlog::debug( "WReaderDIP" ) << "Number of polygons: " << count;
+    wlog::debug( CLASS ) << "Number of polygons: " << count;
     return ReturnCode::SUCCESS;
 }
 

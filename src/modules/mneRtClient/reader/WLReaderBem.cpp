@@ -78,8 +78,8 @@ bool WLReaderBem::read( std::list< WLEMMBemBoundary::SPtr >* const bems )
             vertex->push_back( pos );
         }
         bem->setVertex( vertex );
-        bem->setVertexExponent( WEExponent::MILLI );
-        bem->setVertexUnit( WEUnit::METER );
+        bem->setVertexExponent( WLEExponent::MILLI );
+        bem->setVertexUnit( WLEUnit::METER );
 
         WLArrayList< WVector3i >::SPtr faces( new WLArrayList< WVector3i > );
         const MNESurface::PointsT::Index nr_tri = ( *it )->tris.cols();

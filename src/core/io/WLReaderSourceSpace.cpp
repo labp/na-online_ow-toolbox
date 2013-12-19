@@ -44,7 +44,6 @@ using std::string;
 using std::vector;
 using namespace FIFFLIB;
 using namespace MNELIB;
-using namespace LaBP;
 
 const string WLReaderSourceSpace::CLASS = "WLReaderSourceSpace";
 
@@ -108,7 +107,7 @@ WLIOStatus::ioStatus_t WLReaderSourceSpace::read( WLEMMSurface::SPtr& surface )
     }
 
     // Convert to LaBP type
-    surface->setVertexExponent( LaBP::WEExponent::MILLI );
+    surface->setVertexExponent( WLEExponent::MILLI );
     surface->setHemisphere( WLEMMSurface::Hemisphere::BOTH );
     const QString LH = "lh";
     const QString RH = "rh";

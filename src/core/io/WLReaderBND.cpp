@@ -37,7 +37,8 @@
 
 #include "core/container/WLArrayList.h"
 #include "core/data/WLEMMBemBoundary.h"
-#include "core/data/WLEMMEnumTypes.h"
+#include "core/data/enum/WLEUnit.h"
+#include "core/data/enum/WLEExponent.h"
 
 #include "core/util/WLGeometry.h"
 
@@ -146,8 +147,8 @@ WLReaderBND::ReturnCode::Enum WLReaderBND::readUnit( string& line, WLEMMBemBound
     wlog::debug( CLASS ) << "Unit: " << unit;
     if( unit.find( "mm" ) != string::npos )
     {
-        boundary->setVertexUnit( WEUnit::METER );
-        boundary->setVertexExponent( WEExponent::MILLI );
+        boundary->setVertexUnit( WLEUnit::METER );
+        boundary->setVertexExponent( WLEExponent::MILLI );
         return ReturnCode::SUCCESS;
     }
     else

@@ -38,10 +38,10 @@ const std::string WLEMMBemBoundary::CLASS = "WLEMMBemBoundary";
 
 WLEMMBemBoundary::WLEMMBemBoundary()
 {
-    setVertexUnit( WEUnit::UNKNOWN_UNIT );
-    setVertexExponent( WEExponent::BASE );
+    setVertexUnit( WLEUnit::NONE );
+    setVertexExponent( WLEExponent::UNKNOWN );
 
-    setConductivityUnit( WEUnit::UNKNOWN_UNIT );
+    setConductivityUnit( WLEUnit::NONE );
 
     m_vertex = WLArrayList< WPosition >::instance();
     m_faces = WLArrayList< WVector3i >::instance();
@@ -66,22 +66,22 @@ void WLEMMBemBoundary::setVertex( WLArrayList< WPosition >::SPtr vertex )
     m_vertex = vertex;
 }
 
-WEUnit::Enum WLEMMBemBoundary::getVertexUnit() const
+WLEUnit::Enum WLEMMBemBoundary::getVertexUnit() const
 {
     return m_vertexUnit;
 }
 
-void WLEMMBemBoundary::setVertexUnit( WEUnit::Enum unit )
+void WLEMMBemBoundary::setVertexUnit( WLEUnit::Enum unit )
 {
     m_vertexUnit = unit;
 }
 
-WEExponent::Enum WLEMMBemBoundary::getVertexExponent() const
+WLEExponent::Enum WLEMMBemBoundary::getVertexExponent() const
 {
     return m_vertexExponent;
 }
 
-void WLEMMBemBoundary::setVertexExponent( LaBP::WEExponent::Enum exponent )
+void WLEMMBemBoundary::setVertexExponent( WLEExponent::Enum exponent )
 {
     m_vertexExponent = exponent;
 }
@@ -121,12 +121,12 @@ void WLEMMBemBoundary::setConductivity( float conductivity )
     m_conductivity = conductivity;
 }
 
-LaBP::WEUnit::Enum WLEMMBemBoundary::getConductivityUnit() const
+WLEUnit::Enum WLEMMBemBoundary::getConductivityUnit() const
 {
     return m_conductivityUnit;
 }
 
-void WLEMMBemBoundary::setConductivityUnit( WEUnit::Enum unit )
+void WLEMMBemBoundary::setConductivityUnit( WLEUnit::Enum unit )
 {
     m_conductivityUnit = unit;
 }
