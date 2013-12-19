@@ -40,8 +40,8 @@ WLEMMBemBoundary::WLEMMBemBoundary()
 {
     setVertexUnit( WLEUnit::NONE );
     setVertexExponent( WLEExponent::UNKNOWN );
-
     setConductivityUnit( WLEUnit::NONE );
+    setBemType( WLEBemType::UNDEFINED );
 
     m_vertex = WLArrayList< WPosition >::instance();
     m_faces = WLArrayList< WVector3i >::instance();
@@ -86,12 +86,12 @@ void WLEMMBemBoundary::setVertexExponent( WLEExponent::Enum exponent )
     m_vertexExponent = exponent;
 }
 
-WEBemType::Enum WLEMMBemBoundary::getBemType() const
+WLEBemType::Enum WLEMMBemBoundary::getBemType() const
 {
     return m_bemType;
 }
 
-void WLEMMBemBoundary::setBemType( WEBemType::Enum type )
+void WLEMMBemBoundary::setBemType( WLEBemType::Enum type )
 {
     m_bemType = type;
 }
@@ -133,7 +133,7 @@ void WLEMMBemBoundary::setConductivityUnit( WLEUnit::Enum unit )
 
 std::ostream& operator<<( std::ostream &strm, const WLEMMBemBoundary& obj )
 {
-    strm << WLEMMBemBoundary::CLASS << ": type=" << WEBemType::name( obj.getBemType() );
+    strm << WLEMMBemBoundary::CLASS << ": type=" << obj.getBemType();
     strm << ", vertices=" << obj.getVertex()->size();
     strm << ", faces=" << obj.getFaces()->size();
     return strm;

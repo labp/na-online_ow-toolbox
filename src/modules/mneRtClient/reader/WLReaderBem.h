@@ -54,9 +54,6 @@ public:
     virtual ~WLReaderBem();
 
     bool read( std::list< WLEMMBemBoundary::SPtr >* const bems );
-
-private:
-    static LaBP::WEBemType::Enum getTypeFromBemId(int id);
 };
 
 #endif  // WLREADERBEM_H_

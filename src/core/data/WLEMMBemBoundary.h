@@ -35,8 +35,8 @@
 
 #include "core/container/WLArrayList.h"
 #include "core/data/enum/WLEExponent.h"
+#include "core/data/enum/WLEBemType.h"
 #include "core/data/enum/WLEUnit.h"
-#include "WLEMMEnumTypes.h"
 
 class WLEMMBemBoundary
 {
@@ -66,8 +66,8 @@ public:
     WLEExponent::Enum getVertexExponent() const;
     void setVertexExponent( WLEExponent::Enum exponent );
 
-    LaBP::WEBemType::Enum getBemType() const;
-    void setBemType( LaBP::WEBemType::Enum exponent );
+    WLEBemType::Enum getBemType() const;
+    void setBemType( WLEBemType::Enum exponent );
 
     WLArrayList< WVector3i >::SPtr getFaces();
     WLArrayList< WVector3i >::ConstSPtr getFaces() const;
@@ -84,7 +84,7 @@ private:
 
     WLEUnit::Enum m_vertexUnit;
     WLEExponent::Enum m_vertexExponent;
-    LaBP::WEBemType::Enum m_bemType;
+    WLEBemType::Enum m_bemType;
 
     WLArrayList< WVector3i >::SPtr m_faces;
 

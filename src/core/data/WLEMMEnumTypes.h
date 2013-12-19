@@ -84,6 +84,7 @@ namespace LaBP
         {
             SIEMENS_PER_METER, METER, VOLT, TESLA, TESLA_PER_METER, UNKNOWN_UNIT, UNITLESS
         };
+        OW_API_DEPRECATED
         std::vector< Enum > values();
     }
 
@@ -97,8 +98,11 @@ namespace LaBP
         {
             KILO = 3, BASE = 0, MILLI = -3, MICRO = -6, NANO = -9, PICO = -12, FEMTO = -15
         };
+        OW_API_DEPRECATED
         std::vector< Enum > values();
+        OW_API_DEPRECATED
         std::string name( Enum val );
+        OW_API_DEPRECATED
         double factor( Enum val );
 
     }
@@ -113,6 +117,7 @@ namespace LaBP
         {
             HEAD, DEVICE, AC_PC
         };
+        OW_API_DEPRECATED
         std::vector< Enum > values();
     }
 
@@ -141,11 +146,14 @@ namespace LaBP
 
     namespace WEBemType
     {
+        OW_API_DEPRECATED
         enum Enum
         {
             BRAIN, SKULL, SKIN, INNER_SKIN, OUTER_SKIN, INNER_SKULL, OUTER_SKULL, UNKNOWN, UNKNOWN2
         };
+        OW_API_DEPRECATED
         std::vector< Enum > values();
+        OW_API_DEPRECATED
         std::string name( Enum val );
     }
 

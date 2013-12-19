@@ -171,7 +171,7 @@ bool WEEGSkinAlignment::extractBEMSkinPoints( PointsT* const out, const WLEMMeas
     WLEMMBemBoundary::ConstSPtr bemSkin;
     for( itBem = bems.begin(); itBem != bems.end(); ++itBem )
     {
-        if( ( *itBem )->getBemType() == WEBemType::OUTER_SKIN )
+        if( ( *itBem )->getBemType() == WLEBemType::OUTER_SKIN || ( *itBem )->getBemType() == WLEBemType::HEAD )
         {
             bemSkin = *itBem;
             break;

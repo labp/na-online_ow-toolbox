@@ -37,8 +37,9 @@
 
 #include "core/container/WLArrayList.h"
 #include "core/data/WLEMMBemBoundary.h"
-#include "core/data/enum/WLEUnit.h"
+#include "core/data/enum/WLEBemType.h"
 #include "core/data/enum/WLEExponent.h"
+#include "core/data/enum/WLEUnit.h"
 
 #include "core/util/WLGeometry.h"
 
@@ -126,18 +127,17 @@ WLReaderBND::ReturnCode::Enum WLReaderBND::readType( string& line, WLEMMBemBound
     vector< string > tokens = string_utils::tokenize( line );
     string type = tokens.at( 1 );
     wlog::debug( CLASS ) << "Type: " << type;
-    vector< WEBemType::Enum > types = WEBemType::values();
-    for( vector< WEBemType::Enum >::iterator it = types.begin(); it != types.end(); ++it )
+    WLEBemType::Enum bem = WLEBemType::convertBND( type );
+    if( bem != WLEBemType::UNKNOWN )
     {
-        if( type.find( WEBemType::name( *it ) ) != string::npos )
-        {
-            boundary->setBemType( *it );
-            return ReturnCode::SUCCESS;
-        }
+        boundary->setBemType( bem );
+        return ReturnCode::SUCCESS;
     }
-
-    wlog::warn( CLASS ) << "Unknown BEM type.";
-    return ReturnCode::ERROR_UNKNOWN;
+    else
+    {
+        wlog::error( CLASS ) << "Unknown BEM type.";
+        return ReturnCode::ERROR_UNKNOWN;
+    }
 }
 
 WLReaderBND::ReturnCode::Enum WLReaderBND::readUnit( string& line, WLEMMBemBoundary::SPtr boundary )
@@ -175,8 +175,7 @@ WLReaderBND::ReturnCode::Enum WLReaderBND::readNumPoly( string& line, size_t& co
     return ReturnCode::SUCCESS;
 }
 
-WLReaderBND::ReturnCode::Enum WLReaderBND::readPositions( ifstream& ifs, size_t count,
-                WLEMMBemBoundary::SPtr boundary )
+WLReaderBND::ReturnCode::Enum WLReaderBND::readPositions( ifstream& ifs, size_t count, WLEMMBemBoundary::SPtr boundary )
 {
 
     WLArrayList< WPosition >::SPtr pos( new WLArrayList< WPosition >() );
@@ -203,8 +202,7 @@ WLReaderBND::ReturnCode::Enum WLReaderBND::readPositions( ifstream& ifs, size_t 
     return ReturnCode::SUCCESS;
 }
 
-WLReaderBND::ReturnCode::Enum WLReaderBND::readPolygons( ifstream& ifs, size_t count,
-                WLEMMBemBoundary::SPtr surface )
+WLReaderBND::ReturnCode::Enum WLReaderBND::readPolygons( ifstream& ifs, size_t count, WLEMMBemBoundary::SPtr surface )
 {
     WLArrayList< WVector3i >::SPtr faces( new WLArrayList< WVector3i >() );
     faces->reserve( count );
