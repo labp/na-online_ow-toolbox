@@ -25,6 +25,7 @@
 #ifndef WLEEXPONENT_H_
 #define WLEEXPONENT_H_
 
+#include <ostream>
 #include <set>
 #include <string>
 
@@ -82,4 +83,11 @@ namespace WLEExponent
      */
     Enum convertFIFF( WLFiffLib::unitm_t unitm );
 } /* namespace WLEExponent */
+
+inline std::ostream& operator<<( std::ostream &strm, const WLEExponent::Enum& obj )
+{
+    strm << WLEExponent::name( obj );
+    return strm;
+}
+
 #endif  // WLEEXPONENT_H_

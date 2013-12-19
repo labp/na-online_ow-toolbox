@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <core/common/WAssert.h>
 #include <core/common/WLogger.h>
 
 #include "WLECoordSystem.h"
@@ -37,6 +38,24 @@ namespace WLECoordSystem
         con.insert( AC_PC );
 
         return con;
+    }
+
+    std::string name( Enum val )
+    {
+        switch( val )
+        {
+            case HEAD:
+                return "Head";
+            case DEVICE:
+                return "Device";
+            case AC_PC:
+                return "AC PC";
+            case UNKNOWN:
+                return "UNKNOWN";
+            default:
+                WAssert( false, "Unknown WLECoordSystem!" );
+                return WLECoordSystem::name( UNKNOWN );
+        }
     }
 
     Enum convertFIFF( WLFiffLib::coord_system_t coord )

@@ -25,7 +25,9 @@
 #ifndef WLECOORDSYSTEM_H_
 #define WLECOORDSYSTEM_H_
 
+#include <ostream>
 #include <set>
+#include <string>
 
 #include "core/fileFormat/fiff/WLFiffCoordSystem.h"
 
@@ -54,6 +56,14 @@ namespace WLECoordSystem
     ContainerT values();
 
     /**
+     * Gets the name of the enum value.
+     *
+     * \param val WLECoordSystem::Enum
+     * \return A string.
+     */
+    std::string name( Enum val );
+
+    /**
      * Converts a FIFF coord value to a WLECoordSystem enum.
      *
      * \param unit FIFF unitm value
@@ -62,4 +72,11 @@ namespace WLECoordSystem
     Enum convertFIFF( WLFiffLib::coord_system_t coord );
 
 } /* namespace WLECoordSystem */
+
+inline std::ostream& operator<<( std::ostream &strm, const WLECoordSystem::Enum& obj )
+{
+    strm << WLECoordSystem::name( obj );
+    return strm;
+}
+
 #endif  // WLECOORDSYSTEM_H_

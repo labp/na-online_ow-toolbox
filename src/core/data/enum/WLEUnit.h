@@ -25,7 +25,9 @@
 #ifndef WLEUNIT_H_
 #define WLEUNIT_H_
 
+#include <ostream>
 #include <set>
+#include <string>
 
 #include "core/fileFormat/fiff/WLFiffUnit.h"
 
@@ -57,12 +59,26 @@ namespace WLEUnit
     ContainerT values();
 
     /**
+     * Gets the name of the enum value.
+     *
+     * \param val WLEUnit::Enum
+     * \return A string.
+     */
+    std::string name( Enum val );
+
+    /**
      * Converts a FIFF unit value to a WLEUnit enum.
      *
      * \param unit FIFF unit value
      * \return WLEUnit::Enum or WLEUnit::NONE if unknown.
      */
     Enum convertFIFF( WLFiffLib::unit_t unit );
+}
+
+inline std::ostream& operator<<( std::ostream &strm, const WLEUnit::Enum& obj )
+{
+    strm << WLEUnit::name( obj );
+    return strm;
 }
 
 #endif  // WLEUNIT_H_

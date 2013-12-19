@@ -25,6 +25,7 @@
 #ifndef WLEMODALITY_H_
 #define WLEMODALITY_H_
 
+#include <ostream>
 #include <set>
 #include <string>
 
@@ -85,6 +86,12 @@ inline bool WLEModality::isComputed( WLEModality::Enum val )
 inline bool WLEModality::isLocalizeable( WLEModality::Enum val )
 {
     return val == WLEModality::EEG || val == WLEModality::MEG;
+}
+
+inline std::ostream& operator<<( std::ostream &strm, const WLEModality::Enum& obj )
+{
+    strm << WLEModality::name( obj );
+    return strm;
 }
 
 #endif  // WLEMODALITY_H_

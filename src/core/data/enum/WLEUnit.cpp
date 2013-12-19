@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <core/common/WAssert.h>
 #include <core/common/WLogger.h>
 
 #include "WLEUnit.h"
@@ -39,6 +40,30 @@ WLEUnit::ContainerT WLEUnit::values()
     con.insert( WLEUnit::SIEMENS_PER_METER );
 
     return con;
+}
+
+std::string WLEUnit::name( Enum val )
+{
+    switch( val )
+    {
+        case NONE:
+            return "(none)";
+        case UNITLESS:
+            return "(-)";
+        case METER:
+            return "m";
+        case VOLT:
+            return "V";
+        case TESLA:
+            return "T";
+        case TESLA_PER_METER:
+            return "T/m";
+        case SIEMENS_PER_METER:
+            return "S/m";
+        default:
+            WAssert( false, "Unknown WLEUnit!" );
+            return WLEUnit::name( WLEUnit::NONE );
+    }
 }
 
 WLEUnit::Enum WLEUnit::convertFIFF( WLFiffLib::unit_t unit )
