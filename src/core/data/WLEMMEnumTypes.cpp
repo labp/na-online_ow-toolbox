@@ -31,67 +31,6 @@
 
 using namespace LaBP;
 
-std::vector< LaBP::WEExponent::Enum > LaBP::WEExponent::values()
-{
-    std::vector< LaBP::WEExponent::Enum > exponents;
-//    exponents.push_back( LaBP::WEExponent::KILO );
-    exponents.push_back( LaBP::WEExponent::BASE );
-    exponents.push_back( LaBP::WEExponent::MILLI );
-    exponents.push_back( LaBP::WEExponent::MICRO );
-    exponents.push_back( LaBP::WEExponent::NANO );
-    exponents.push_back( LaBP::WEExponent::PICO );
-    exponents.push_back( LaBP::WEExponent::FEMTO );
-    return exponents;
-}
-
-std::string LaBP::WEExponent::name( LaBP::WEExponent::Enum val )
-{
-    switch( val )
-    {
-        case LaBP::WEExponent::KILO:
-            return "10^3";
-        case LaBP::WEExponent::BASE:
-            return "1";
-        case LaBP::WEExponent::MILLI:
-            return "10^-3";
-        case LaBP::WEExponent::MICRO:
-            return "10^-6";
-        case LaBP::WEExponent::NANO:
-            return "10^-9";
-        case LaBP::WEExponent::PICO:
-            return "10^-12";
-        case LaBP::WEExponent::FEMTO:
-            return "10^-15";
-        default:
-            WAssert( false, "Unknown WEExponent!" );
-            return UNDEFINED;
-    }
-}
-
-double LaBP::WEExponent::factor( LaBP::WEExponent::Enum val )
-{
-    switch( val )
-    {
-        case LaBP::WEExponent::KILO:
-            return 1.0e+3;
-        case LaBP::WEExponent::BASE:
-            return 1.0;
-        case LaBP::WEExponent::MILLI:
-            return 1.0e-3;
-        case LaBP::WEExponent::MICRO:
-            return 1.0e-6;
-        case LaBP::WEExponent::NANO:
-            return 1.0e-9;
-        case LaBP::WEExponent::PICO:
-            return 1.0e-12;
-        case LaBP::WEExponent::FEMTO:
-            return 1.0e-15;
-        default:
-            WAssert( false, "Unknown WEExponent!" );
-            return 0.0;
-    }
-}
-
 std::vector< LaBP::WEPolarityType::Enum > LaBP::WEPolarityType::values()
 {
     std::vector< LaBP::WEPolarityType::Enum > options;
@@ -114,28 +53,6 @@ std::vector< LaBP::WESpecificCoilType::Enum > LaBP::WESpecificCoilType::values()
     return modalities;
 }
 
-std::vector< LaBP::WEUnit::Enum > LaBP::WEUnit::values()
-{
-    std::vector< LaBP::WEUnit::Enum > values;
-    values.push_back( LaBP::WEUnit::SIEMENS_PER_METER );
-    values.push_back( LaBP::WEUnit::METER );
-    values.push_back( LaBP::WEUnit::VOLT );
-    values.push_back( LaBP::WEUnit::TESLA );
-    values.push_back( LaBP::WEUnit::TESLA_PER_METER );
-    values.push_back( LaBP::WEUnit::UNKNOWN_UNIT );
-    values.push_back( LaBP::WEUnit::UNITLESS );
-    return values;
-}
-
-std::vector< LaBP::WECoordSystemName::Enum > LaBP::WECoordSystemName::values()
-{
-    std::vector< LaBP::WECoordSystemName::Enum > modalities;
-    modalities.push_back( LaBP::WECoordSystemName::HEAD );
-    modalities.push_back( LaBP::WECoordSystemName::DEVICE );
-    modalities.push_back( LaBP::WECoordSystemName::AC_PC );
-    return modalities;
-}
-
 std::vector< LaBP::WESex::Enum > LaBP::WESex::values()
 {
     std::vector< LaBP::WESex::Enum > modalities;
@@ -154,47 +71,4 @@ std::vector< LaBP::WEHand::Enum > LaBP::WEHand::values()
     modalities.push_back( LaBP::WEHand::BOTH );
     modalities.push_back( LaBP::WEHand::UNKNOWN );
     return modalities;
-}
-
-std::vector< LaBP::WEBemType::Enum > LaBP::WEBemType::values()
-{
-    std::vector< LaBP::WEBemType::Enum > values;
-    values.push_back( LaBP::WEBemType::BRAIN );
-    values.push_back( LaBP::WEBemType::SKULL );
-    values.push_back( LaBP::WEBemType::SKIN );
-    values.push_back( LaBP::WEBemType::INNER_SKIN );
-    values.push_back( LaBP::WEBemType::OUTER_SKIN );
-    values.push_back( LaBP::WEBemType::INNER_SKULL );
-    values.push_back( LaBP::WEBemType::OUTER_SKULL );
-    values.push_back( LaBP::WEBemType::UNKNOWN );
-    values.push_back( LaBP::WEBemType::UNKNOWN2 );
-    return values;
-}
-
-std::string LaBP::WEBemType::name( LaBP::WEBemType::Enum val )
-{
-    switch( val )
-    {
-        case LaBP::WEBemType::BRAIN:
-            return "Brain";
-        case LaBP::WEBemType::SKULL:
-            return "Skull";
-        case LaBP::WEBemType::SKIN:
-            return "Skin";
-        case LaBP::WEBemType::INNER_SKIN:
-            return "inner_skin";
-        case LaBP::WEBemType::OUTER_SKIN:
-            return "outer_skin";
-        case LaBP::WEBemType::INNER_SKULL:
-            return "inner_skull";
-        case LaBP::WEBemType::OUTER_SKULL:
-            return "outer_skull";
-        case LaBP::WEBemType::UNKNOWN:
-            return "Not known";
-        case LaBP::WEBemType::UNKNOWN2:
-            return "Undefined";
-        default:
-            WAssert( false, "Unknown WEBemType!" );
-            return UNDEFINED;
-    }
 }

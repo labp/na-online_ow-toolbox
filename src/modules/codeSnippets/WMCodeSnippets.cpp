@@ -235,7 +235,7 @@ bool WMCodeSnippets::writeEmdPositions( WLEMMeasurement::ConstSPtr emm )
         std::list< WLEMMBemBoundary::SPtr >::const_iterator it;
         for( it = bems.begin(); it != bems.end(); ++it )
         {
-            if( ( *it )->getBemType() == WEBemType::OUTER_SKIN )
+            if( ( *it )->getBemType() == WLEBemType::OUTER_SKIN || ( *it )->getBemType() == WLEBemType::HEAD )
             {
                 const vector< WPosition >& pos = *( *it )->getVertex();
                 rc &= writeEmdPositions( pos, "/tmp/positions_skin.txt" );
