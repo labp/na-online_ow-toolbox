@@ -29,7 +29,7 @@
 #include <set>
 #include <string>
 
-#include "core/fileFormat/fiff/WLFiffUnit.h"
+#include "core/dataFormat/fiff/WLFiffUnit.h"
 
 /**
  * Enumeration for units, compatible with FIFF enum(units).

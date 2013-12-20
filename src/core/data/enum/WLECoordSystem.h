@@ -29,7 +29,7 @@
 #include <set>
 #include <string>
 
-#include "core/fileFormat/fiff/WLFiffCoordSystem.h"
+#include "core/dataFormat/fiff/WLFiffCoordSystem.h"
 
 /**
  * Enumeration for coordinate systems, compatible with FIFF enum(coord).

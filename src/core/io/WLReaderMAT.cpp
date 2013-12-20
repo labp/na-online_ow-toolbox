@@ -26,7 +26,7 @@
 
 #include <core/common/WLogger.h>
 
-#include "core/fileFormat/mat/WLMatLib.h"
+#include "core/dataFormat/mat/WLMatLib.h"
 
 #include "WLReaderMAT.h"
 

@@ -31,7 +31,7 @@
 #include <Eigen/Core>
 #include <Eigen/SparseCore>
 
-#include "core/fileFormat/fiff/WLFiffLib.h"
+#include "core/dataFormat/fiff/WLFiffLib.h"
 
 /**
  * Replacement for a scalar type used for computations.

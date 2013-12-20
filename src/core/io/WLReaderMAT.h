@@ -35,7 +35,7 @@
 #include <core/dataHandler/io/WReader.h>
 
 #include "core/data/WLDataTypes.h"
-#include "core/fileFormat/mat/WLMatLib.h"
+#include "core/dataFormat/mat/WLMatLib.h"
 
 #include "WLIOStatus.h"
 

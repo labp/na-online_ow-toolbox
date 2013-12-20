@@ -29,7 +29,7 @@
 #include <set>
 #include <string>
 
-#include "core/fileFormat/fiff/WLFiffBEMSurfType.h"
+#include "core/dataFormat/fiff/WLFiffBEMSurfType.h"
 
 /**
  * Enumeration for BEM surfaces, compatible with FIFF enum(bem_surf_id).

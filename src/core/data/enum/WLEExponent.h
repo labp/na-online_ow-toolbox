@@ -29,7 +29,7 @@
 #include <set>
 #include <string>
 
-#include "core/fileFormat/fiff/WLFiffUnitMultiplier.h"
+#include "core/dataFormat/fiff/WLFiffUnitMultiplier.h"
 
 /**
  * Enumeration for exponents, compatible with FIFF enum(unitm).

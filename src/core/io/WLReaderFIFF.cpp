@@ -51,10 +51,10 @@
 #include "core/data/emd/WLEMDMEG.h"
 #include "core/data/enum/WLEModality.h"
 
-#include "core/fileFormat/fiff/WLFiffChType.h"
-#include "core/fileFormat/fiff/WLFiffCoilType.h"
-#include "core/fileFormat/fiff/WLFiffUnit.h"
-#include "core/fileFormat/fiff/WLFiffUnitMultiplier.h"
+#include "core/dataFormat/fiff/WLFiffChType.h"
+#include "core/dataFormat/fiff/WLFiffCoilType.h"
+#include "core/dataFormat/fiff/WLFiffUnit.h"
+#include "core/dataFormat/fiff/WLFiffUnitMultiplier.h"
 
 #include "WLReaderFIFF.h"
 
