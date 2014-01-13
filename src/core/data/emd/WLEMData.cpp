@@ -34,11 +34,20 @@
 
 const std::string WLEMData::CLASS = "WLEMData";
 
+const WLFreqT WLEMData::UNDEFINED_FREQ = -1;
+
 WLEMData::WLEMData() :
                 boost::enable_shared_from_this< WLEMData >()
 {
     m_data.reset( new DataT() );
     m_chanNames = WLArrayList< std::string >::instance();
+    m_chanUnit = WLEUnit::NONE;
+    m_chanUnitExp = WLEExponent::UNKNOWN;
+    m_sampFreq = UNDEFINED_FREQ;
+    m_lineFreq = UNDEFINED_FREQ;
+    m_analogHighPass = UNDEFINED_FREQ;
+    m_analogLowPass = UNDEFINED_FREQ;
+    m_CoordSystem = WLECoordSystem::UNKNOWN;
 }
 
 WLEMData::WLEMData( const WLEMData& emd ) :
@@ -69,13 +78,12 @@ WLEMData::WLEMData( const WLEMData& emd ) :
     }
     m_measurementDeviceName.assign( emd.getMeasurementDeviceName() );
     m_sampFreq = emd.getSampFreq();
+    m_lineFreq = emd.getLineFreq();
     m_chanUnit = emd.getChanUnit();
     m_chanUnitExp = emd.getChanUnitExp();
     m_analogHighPass = emd.getAnalogHighPass();
     m_analogLowPass = emd.getAnalogLowPass();
     m_CoordSystem = emd.getCoordSystem();
-    m_dataBuffSizePerChan = emd.getDataBuffSizePerChan(); // TODO check
-    m_dataOffsetIdx = emd.getDataOffsetIdx();
 }
 
 WLEMData::~WLEMData()
@@ -142,17 +150,7 @@ void WLEMData::setCoordSystem( WLECoordSystem::Enum coordSystem )
     m_CoordSystem = coordSystem;
 }
 
-uint32_t WLEMData::getDataBuffSizePerChan() const
-{
-    return m_dataBuffSizePerChan;
-}
-
-uint32_t WLEMData::getDataOffsetIdx() const
-{
-    return m_dataOffsetIdx;
-}
-
-WLFreqT WLEMData::getLineFreq()
+WLFreqT WLEMData::getLineFreq() const
 {
     return m_lineFreq;
 }
@@ -178,11 +176,6 @@ WLSampleNrT WLEMData::getSamplesPerChan() const
         return m_data->cols();
     }
     return 0;
-}
-
-uint16_t *WLEMData::getOrigIdx() const
-{
-    return m_origIdx;
 }
 
 WLFreqT WLEMData::getSampFreq() const
@@ -215,16 +208,6 @@ void WLEMData::setChanNames( boost::shared_ptr< std::vector< std::string > > cha
     m_chanNames = WLArrayList< std::string >::instance( *chanNames );
 }
 
-void WLEMData::setDataBuffSizePerChan( uint32_t dataBuffSizePerChan )
-{
-    m_dataBuffSizePerChan = dataBuffSizePerChan;
-}
-
-void WLEMData::setDataOffsetIdx( uint32_t dataOffsetIdx )
-{
-    m_dataOffsetIdx = dataOffsetIdx;
-}
-
 void WLEMData::setLineFreq( float lineFreq )
 {
     m_lineFreq = lineFreq;
@@ -233,11 +216,6 @@ void WLEMData::setLineFreq( float lineFreq )
 void WLEMData::setMeasurementDeviceName( std::string measurementDeviceName )
 {
     m_measurementDeviceName = measurementDeviceName;
-}
-
-void WLEMData::setOrigIdx( uint16_t *origIdx )
-{
-    m_origIdx = origIdx;
 }
 
 void WLEMData::setSampFreq( WLFreqT sampFreq )

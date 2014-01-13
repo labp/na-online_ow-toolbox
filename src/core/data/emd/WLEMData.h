@@ -52,6 +52,8 @@ class WLEMData: public boost::enable_shared_from_this< WLEMData >
 public:
     static const std::string CLASS;
 
+    static const WLFreqT UNDEFINED_FREQ;
+
     /**
      * Abbreviation for a shared pointer.
      */
@@ -167,17 +169,7 @@ public:
     /**
      * TODO(kaehler): Comments
      */
-    uint32_t getDataBuffSizePerChan() const;
-
-    /**
-     * TODO(kaehler): Comments
-     */
-    uint32_t getDataOffsetIdx() const;
-
-    /**
-     * TODO(kaehler): Comments
-     */
-    WLFreqT getLineFreq();
+    WLFreqT getLineFreq() const;
 
     /**
      * TODO(kaehler): Comments
@@ -195,11 +187,6 @@ public:
     virtual WLChanNrT getNrChans() const;
 
     virtual WLSampleNrT getSamplesPerChan() const;
-
-    /**
-     * TODO(kaehler): Comments
-     */
-    uint16_t *getOrigIdx() const;
 
     /**
      * Returns sampling frequency in Hz.
@@ -233,27 +220,12 @@ public:
     /**
      * TODO(kaehler): Comments
      */
-    void setDataBuffSizePerChan( uint32_t dataBuffSizePerChan );
-
-    /**
-     * TODO(kaehler): Comments
-     */
-    void setDataOffsetIdx( uint32_t dataOffsetIdx );
-
-    /**
-     * TODO(kaehler): Comments
-     */
     void setLineFreq( WLFreqT lineFreq );
 
     /**
      * TODO(kaehler): Comments
      */
     void setMeasurementDeviceName( std::string measurementDeviceName );
-
-    /**
-     * TODO(kaehler): Comments
-     */
-    void setOrigIdx( uint16_t *origIdx );
 
     /**
      * TODO(kaehler): Comments
@@ -265,67 +237,25 @@ public:
     static std::string dataToString( const DataT& data, size_t maxChannels, size_t maxSamples );
 
 protected:
-    /**
-     * name of the measurement device
-     */
-    std::string m_measurementDeviceName;
+    std::string m_measurementDeviceName; /**< name of the measurement device */
 
-    /**
-     * channel number in the measurement device defined by m_measurementDeviceName doxygen \ref
-     * has one index for channel
-     */
-    uint16_t *m_origIdx;
-
-    /**
-     * power line frequency
-     */
-    WLFreqT m_lineFreq;
+    WLFreqT m_lineFreq; /**< power line frequency */
 
     WLArrayList< std::string >::SPtr m_chanNames;
 
-    /**
-     * sampling frequency (unique within modality)
-     */
-    WLFreqT m_sampFreq;
+    WLFreqT m_sampFreq; /**<sampling frequency (unique within modality) */
 
     WLEUnit::Enum m_chanUnit;
 
-    /**
-     * data is in unit m_chanUnit * 10^m_chanUnitExp
-     */
-    WLEExponent::Enum m_chanUnitExp;
+    WLEExponent::Enum m_chanUnitExp; /**< data is in unit m_chanUnit * 10^m_chanUnitExp */
 
-    /**
-     * cutoff frequency of highpass filter in analog processing chain
-     */
-    WLFreqT m_analogHighPass;
+    WLFreqT m_analogHighPass; /**< cutoff frequency of highpass filter in analog processing chain */
 
-    /**
-     * cutoff frequency of lowpass filter in analog processing chain
-     */
-    WLFreqT m_analogLowPass;
+    WLFreqT m_analogLowPass; /**< cutoff frequency of lowpass filter in analog processing chain */
 
-    /**
-     * type of coordinate system used for m_chanPositions
-     */
-    WLECoordSystem::Enum m_CoordSystem;
+    WLECoordSystem::Enum m_CoordSystem; /**< type of coordinate system used for m_chanPositions */
 
-    /**
-     * size of data buffer per channel in samples
-     */
-    uint32_t m_dataBuffSizePerChan;
-
-    /**
-     * offset in samples of current data block to the start of measurement
-     */
-    uint32_t m_dataOffsetIdx;
-
-    /**
-     * Raw data of the measurement.
-     */
-    DataSPtr m_data;
-
-    // TODO(fuchs): snr estimate or/and noise covariance matrix for source localisation
+    DataSPtr m_data; /**< Raw data of the measurement. */
 };
 
 std::ostream& operator<<( std::ostream &strm, const WLEMData& obj );
