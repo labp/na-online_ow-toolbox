@@ -74,29 +74,6 @@ namespace LaBP
         };
         std::vector< Enum > values();
     }
-
-    /**
-     * TODO(kaehler): Comments
-     */
-    namespace WESex
-    {
-        enum Enum
-        {
-            MALE, FEMALE, OTHER, UNKNOWN
-        };
-        std::vector< Enum > values();
-    }
-    /**
-     * TODO(kaehler): Comments
-     */
-    namespace WEHand
-    {
-        enum Enum
-        {
-            RIGHT, LEFT, BOTH, UNKNOWN
-        };
-        std::vector< Enum > values();
-    }
 }
 
 #endif  // WDATASETEMMENUMTYPES_H

@@ -77,11 +77,6 @@ public:
     // TODO(pieloth): Deactivated - no setter for birthday
 //        boost::gregorian::date getBirthday();
 
-    LaBP::WESex::Enum getSex();
-    void setSex( LaBP::WESex::Enum sex );
-
-    LaBP::WEHand::Enum getHand();
-    void setHand( LaBP::WEHand::Enum hand );
 
     float getHeight();
     void setHeight( float height );
@@ -126,16 +121,6 @@ private:
 //         * date of birth of subject
 //         */
 //        boost::gregorian::date m_birthday;
-
-    /**
-     * sex determines whether subject is male, female, or another sex
-     */
-    LaBP::WESex::Enum m_sex;
-
-    /**
-     * hand determines whether subject is left-, right- or both-handed
-     */
-    LaBP::WEHand::Enum m_hand;
 
     /**
      * height of subject in m

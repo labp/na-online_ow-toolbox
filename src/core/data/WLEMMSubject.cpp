@@ -46,7 +46,7 @@ using namespace LaBP;
 const std::string WLEMMSubject::CLASS = "WLEMMSubject";
 
 WLEMMSubject::WLEMMSubject() :
-                m_weight( -1.0 ), m_sex( WESex::UNKNOWN ), m_height( -1.0 ), m_hand( WEHand::UNKNOWN )
+                m_weight( -1.0 ), m_height( -1.0 )
 {
     m_isotrak = WLArrayList< WVector3f >::instance();
     m_bemBoundaries = WLList< WLEMMBemBoundary::SPtr >::instance();
@@ -59,15 +59,6 @@ WLEMMSubject::~WLEMMSubject()
 std::string WLEMMSubject::getName()
 {
     return m_name;
-}
-
-WESex::Enum WLEMMSubject::getSex()
-{
-    return m_sex;
-}
-WEHand::Enum WLEMMSubject::getHand()
-{
-    return m_hand;
 }
 
 float WLEMMSubject::getHeight()
@@ -109,14 +100,6 @@ void WLEMMSubject::setHisId( std::string hisId )
     m_hisId = hisId;
 }
 
-void WLEMMSubject::setSex( WESex::Enum sex )
-{
-    m_sex = sex;
-}
-void WLEMMSubject::setHand( WEHand::Enum hand )
-{
-    m_hand = hand;
-}
 void WLEMMSubject::setName( std::string name )
 {
     m_name = name;
