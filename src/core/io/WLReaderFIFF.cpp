@@ -343,35 +343,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMSubject::SPtr out )
         return getReturnCode( ret );
     out->setName( data.GetFirstName() + "" + data.GetMiddleName() + "" + data.GetLastName() );
     out->setHisId( data.GetHIS_ID() );
-    out->setHeight( data.GetHeight() );
-    out->setWeight( data.GetWeight() );
     out->setComment( data.GetComment() );
-    // sex and hand is not used, because these values are not documented in the FIFF standard v1.3.
-//    switch( data.GetSex() )
-//    {
-//        case LFSubject::sex_m:
-//            out->setSex( LaBP::WESex::MALE );
-//            break;
-//        case LFSubject::sex_f:
-//            out->setSex( LaBP::WESex::FEMALE );
-//            break;
-//        default:
-//            out->setSex( LaBP::WESex::OTHER );
-//            break;
-//    }
-//    switch( data.GetHand() )
-//    {
-//        case LFSubject::hand_right:
-//            out->setHand( LaBP::WEHand::RIGHT );
-//            break;
-//        case LFSubject::hand_left:
-//            out->setHand( LaBP::WEHand::LEFT );
-//            break;
-//        default:
-//            out->setHand( LaBP::WEHand::BOTH );
-//            break;
-//    }
-    //TODO(Evfimevskiy): data.GetBirthday();
     return getReturnCode( ret );
 }
 

@@ -60,28 +60,12 @@ public:
      */
     typedef boost::shared_ptr< const WLEMMSubject > ConstSPtr;
 
-    /**
-     *
-     */
     WLEMMSubject();
 
-    /**
-     *
-     */
     virtual ~WLEMMSubject();
 
     std::string getName();
     void setName( std::string name );
-
-    // TODO(pieloth): Deactivated - no setter for birthday
-//        boost::gregorian::date getBirthday();
-
-
-    float getHeight();
-    void setHeight( float height );
-
-    float getWeight();
-    void setWeight( float weight );
 
     std::string getComment();
     void setComment( std::string comment );
@@ -110,46 +94,17 @@ public:
 private:
     WLArrayList< WVector3f >::SPtr m_isotrak;
 
-    /**
-     * name of the subject
-     */
-    std::string m_name;
+    std::string m_name; /**< name of the subject */
 
-    // TODO(pieloth): Deactivated - no setter for birthday
-//        /**
-//         * date of birth of subject
-//         */
-//        boost::gregorian::date m_birthday;
+    std::string m_comment; /**< comment about subject */
 
-    /**
-     * height of subject in m
-     */
-    float m_height;
-
-    /**
-     * weight of subject in kg
-     */
-    float m_weight;
-
-    /**
-     * comment about subject
-     */
-    std::string m_comment;
-
-    /**
-     * ID used in the Hospital Information System
-     */
-    std::string m_hisId;
+    std::string m_hisId; /**< ID used in the Hospital Information System */
 
     std::map< WLEMMSurface::Hemisphere::Enum, WLEMMSurface::SPtr > m_surfaces;
 
     std::map< WLEModality::Enum, WLMatrix::SPtr > m_leadfields;
 
     WLList< WLEMMBemBoundary::SPtr >::SPtr m_bemBoundaries;
-
-    // TODO(fuchs): felder ergänzen
-    //      volume conductor description
-    //      evtl. head digitization
 };
 
 inline bool WLEMMSubject::hasSurface( WLEMMSurface::Hemisphere::Enum hemisphere ) const

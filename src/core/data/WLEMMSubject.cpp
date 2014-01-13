@@ -43,8 +43,7 @@ using WLMatrix::MatrixT;
 
 const std::string WLEMMSubject::CLASS = "WLEMMSubject";
 
-WLEMMSubject::WLEMMSubject() :
-                m_weight( -1.0 ), m_height( -1.0 )
+WLEMMSubject::WLEMMSubject()
 {
     m_isotrak = WLArrayList< WVector3f >::instance();
     m_bemBoundaries = WLList< WLEMMBemBoundary::SPtr >::instance();
@@ -59,16 +58,6 @@ std::string WLEMMSubject::getName()
     return m_name;
 }
 
-float WLEMMSubject::getHeight()
-{
-    return m_height;
-}
-
-float WLEMMSubject::getWeight()
-{
-    return m_weight;
-}
-
 std::string WLEMMSubject::getComment()
 {
     return m_comment;
@@ -76,16 +65,6 @@ std::string WLEMMSubject::getComment()
 std::string WLEMMSubject::getHisId()
 {
     return m_hisId;
-}
-
-void WLEMMSubject::setHeight( float height )
-{
-    m_height = height;
-}
-
-void WLEMMSubject::setWeight( float weight )
-{
-    m_weight = weight;
 }
 
 void WLEMMSubject::setComment( std::string comment )
