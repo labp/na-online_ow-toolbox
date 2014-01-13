@@ -51,7 +51,6 @@
 #include "core/data/WLEMMSubject.h"
 #include "core/data/WLEMMSurface.h"
 #include "core/data/WLEMMBemBoundary.h"
-#include "core/data/WLEMMEnumTypes.h"
 #include "core/data/WLDataTypes.h"
 
 #include "core/io/WLReaderELC.h"

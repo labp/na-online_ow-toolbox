@@ -37,11 +37,9 @@
 
 #include "WLDataTypes.h"
 #include "WLEMMBemBoundary.h"
-#include "WLEMMEnumTypes.h"
 #include "WLEMMSurface.h"
 
 using WLMatrix::MatrixT;
-using namespace LaBP;
 
 const std::string WLEMMSubject::CLASS = "WLEMMSubject";
 

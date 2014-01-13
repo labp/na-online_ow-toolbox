@@ -472,7 +472,7 @@ std::string WFIRFilter::WEFilterType::name( WFIRFilter::WEFilterType::Enum value
             return "Lowpass";
         default:
             WAssert( false, "Unknown WEFilterType!" );
-            return LaBP::UNDEFINED;
+            return "ERROR: Undefined!";
     }
 }
 
@@ -504,7 +504,7 @@ std::string WFIRFilter::WEWindowsType::name( WFIRFilter::WEWindowsType::Enum val
             return "Hanning";
         default:
             WAssert( false, "Unknown WEWindowsType!" );
-            return LaBP::UNDEFINED;
+            return "ERROR: Undefined!";
     }
 }
 

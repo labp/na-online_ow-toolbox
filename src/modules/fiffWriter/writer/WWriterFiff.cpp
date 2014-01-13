@@ -52,7 +52,6 @@ using FIFFLIB::FiffCoordTrans;
 using FIFFLIB::FiffDigPoint;
 using FIFFLIB::FiffInfo;
 using FIFFLIB::FiffStream;
-using namespace LaBP;
 
 const string WWriterFiff::CLASS = "WWriterFiff";
 

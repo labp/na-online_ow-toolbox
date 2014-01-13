@@ -39,7 +39,6 @@
 
 #include "core/container/WLArrayList.h"
 #include "core/data/WLDataTypes.h"
-#include "core/data/WLEMMEnumTypes.h"
 #include "core/data/enum/WLECoordSystem.h"
 #include "core/data/enum/WLEExponent.h"
 #include "core/data/enum/WLEModality.h"

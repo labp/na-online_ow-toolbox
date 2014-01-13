@@ -41,8 +41,6 @@
 
 #include "WLEMMeasurement.h"
 
-using namespace LaBP;
-
 const std::string WLEMMeasurement::CLASS = "WLEMMeasurement";
 
 WLEMMeasurement::WLEMMeasurement()

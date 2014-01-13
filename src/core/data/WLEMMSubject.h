@@ -42,7 +42,6 @@
 #include "core/data/enum/WLEModality.h"
 
 #include "WLDataTypes.h"
-#include "WLEMMEnumTypes.h"
 #include "WLEMMSurface.h"
 #include "WLEMMBemBoundary.h"
 

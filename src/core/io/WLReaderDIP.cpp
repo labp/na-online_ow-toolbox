@@ -35,7 +35,6 @@
 #include <vector>
 
 #include "../container/WLArrayList.h"
-#include "../data/WLEMMEnumTypes.h"
 #include "../util/WLGeometry.h"
 
 using namespace LaBP;

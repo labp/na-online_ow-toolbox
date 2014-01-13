@@ -37,7 +37,6 @@
 
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMSubject.h"
-#include "core/data/WLEMMEnumTypes.h"
 
 #include "core/io/WLReader.h"
 

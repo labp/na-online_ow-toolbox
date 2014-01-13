@@ -39,7 +39,6 @@
 #include "core/data/emd/WLEMData.h"
 #include "core/data/WLEMMCommand.h"
 #include "core/data/WLEMMeasurement.h"
-#include "core/data/WLEMMEnumTypes.h"
 #include "core/gui/drawable/WLEMDDrawable.h"
 #include "core/gui/drawable/WLEMDDrawable2D.h"
 #include "core/gui/drawable/WLEMDDrawable2DMultiChannel.h"

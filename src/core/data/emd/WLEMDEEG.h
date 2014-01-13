@@ -35,7 +35,6 @@
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
 #include "core/container/WLArrayList.h"
-#include "core/data/WLEMMEnumTypes.h"
 
 #include "WLEMData.h"
 

@@ -29,10 +29,7 @@
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
-#include "WLEMMEnumTypes.h"
 #include "WLEMMSurface.h"
-
-using namespace LaBP;
 
 const std::string WLEMMSurface::CLASS = "WLEMMSurface";
 

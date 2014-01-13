@@ -38,7 +38,6 @@
 #include "WLReaderBem.h"
 
 using namespace MNELIB;
-using namespace LaBP;
 
 const std::string WLReaderBem::CLASS = "WLReaderBem";
 

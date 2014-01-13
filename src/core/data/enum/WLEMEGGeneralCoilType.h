@@ -22,25 +22,42 @@
 //
 //---------------------------------------------------------------------------
 
+#ifndef WLEMEGGENERALCOILTYPE_H_
+#define WLEMEGGENERALCOILTYPE_H_
+
+#include <ostream>
+#include <set>
 #include <string>
-#include <vector>
 
-#include <core/common/WAssert.h>
-
-#include "WLEMMEnumTypes.h"
-
-using namespace LaBP;
-
-std::vector< LaBP::WEGeneralCoilType::Enum > LaBP::WEGeneralCoilType::values()
+namespace WLEMEGGeneralCoilType
 {
-    std::vector< LaBP::WEGeneralCoilType::Enum > modalities;
-    modalities.push_back( LaBP::WEGeneralCoilType::MAGNETOMETER );
-    modalities.push_back( LaBP::WEGeneralCoilType::GRADIOMETER );
-    return modalities;
+    enum Enum
+    {
+        MAGNETOMETER, GRADIOMETER
+    };
+
+    typedef std::set< Enum > ContainerT;
+
+    /**
+     * Gets all enum values.
+     *
+     * \return Container with all enum values.
+     */
+    ContainerT values();
+
+    /**
+     * Gets the name of the enum value.
+     *
+     * \param val WLEMEGGeneralCoilType::Enum
+     * \return A string.
+     */
+    std::string name( Enum val );
 }
 
-std::vector< LaBP::WESpecificCoilType::Enum > LaBP::WESpecificCoilType::values()
+inline std::ostream& operator<<( std::ostream &strm, const WLEMEGGeneralCoilType::Enum& obj )
 {
-    std::vector< LaBP::WESpecificCoilType::Enum > modalities;
-    return modalities;
+    strm << WLEMEGGeneralCoilType::name( obj );
+    return strm;
 }
+
+#endif  // WLEMEGGENERALCOILTYPE_H_

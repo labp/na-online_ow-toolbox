@@ -30,12 +30,8 @@
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
-#include "core/data/WLEMMEnumTypes.h"
-
 #include "WLEMData.h"
 #include "WLEMDMEG.h"
-
-using namespace LaBP;
 
 const std::string WLEMDMEG::CLASS = "WLEMDMEG";
 
@@ -103,7 +99,7 @@ WLArrayList< WPosition >::ConstSPtr WLEMDMEG::getChannelPositions3d() const
     return m_chanPos3d;
 }
 
-WLArrayList< WPosition >::ConstSPtr WLEMDMEG::getChannelPositions3d( LaBP::WEGeneralCoilType::Enum type ) const
+WLArrayList< WPosition >::ConstSPtr WLEMDMEG::getChannelPositions3d( WLEMEGGeneralCoilType::Enum type ) const
 {
     if( m_chanPos3d->size() % 3 != 0 || m_chanPos3d->empty() )
     {
@@ -145,7 +141,7 @@ WLArrayList< WVector3i >::ConstSPtr WLEMDMEG::getFaces() const
     return m_faces;
 }
 
-WLArrayList< WVector3i >::ConstSPtr WLEMDMEG::getFaces( LaBP::WEGeneralCoilType::Enum type ) const
+WLArrayList< WVector3i >::ConstSPtr WLEMDMEG::getFaces( WLEMEGGeneralCoilType::Enum type ) const
 {
     if( m_faces->size() % 3 != 0 || m_faces->empty() )
     {
@@ -222,7 +218,7 @@ void WLEMDMEG::setEz( WLArrayList< WVector3f >::SPtr vec )
     m_eZ = vec;
 }
 
-WLEMDMEG::DataSPtr WLEMDMEG::getData( WEGeneralCoilType::Enum type ) const
+WLEMDMEG::DataSPtr WLEMDMEG::getData( WLEMEGGeneralCoilType::Enum type ) const
 {
     if( getNrChans() % 3 != 0 )
     {
@@ -243,7 +239,7 @@ WLEMDMEG::DataSPtr WLEMDMEG::getData( WEGeneralCoilType::Enum type ) const
     return dataPtr;
 }
 
-std::vector< size_t > WLEMDMEG::getPicks( WEGeneralCoilType::Enum type ) const
+std::vector< size_t > WLEMDMEG::getPicks( WLEMEGGeneralCoilType::Enum type ) const
 {
     if( m_picksMag.size() + m_picksGrad.size() != getNrChans() )
     {
@@ -262,10 +258,10 @@ std::vector< size_t > WLEMDMEG::getPicks( WEGeneralCoilType::Enum type ) const
         {
             switch( getChannelType( ch ) )
             {
-                case WEGeneralCoilType::MAGNETOMETER:
+                case WLEMEGGeneralCoilType::MAGNETOMETER:
                     m_picksMag.push_back( ch );
                     break;
-                case WEGeneralCoilType::GRADIOMETER:
+                case WLEMEGGeneralCoilType::GRADIOMETER:
                     m_picksGrad.push_back( ch );
                     break;
             }
@@ -274,16 +270,16 @@ std::vector< size_t > WLEMDMEG::getPicks( WEGeneralCoilType::Enum type ) const
 
     switch( type )
     {
-        case WEGeneralCoilType::MAGNETOMETER:
+        case WLEMEGGeneralCoilType::MAGNETOMETER:
             return m_picksMag;
-        case WEGeneralCoilType::GRADIOMETER:
+        case WLEMEGGeneralCoilType::GRADIOMETER:
             return m_picksGrad;
         default:
             return std::vector< size_t >(); // empty vector
     }
 }
 
-WLEMDMEG::CoilPicksT WLEMDMEG::coilPicks( const WLEMDMEG& meg, WEGeneralCoilType::Enum type )
+WLEMDMEG::CoilPicksT WLEMDMEG::coilPicks( const WLEMDMEG& meg, WLEMEGGeneralCoilType::Enum type )
 {
     CoilPicksT picks;
     const size_t rows = meg.getNrChans();
@@ -295,10 +291,10 @@ WLEMDMEG::CoilPicksT WLEMDMEG::coilPicks( const WLEMDMEG& meg, WEGeneralCoilType
 
     switch( type )
     {
-        case WEGeneralCoilType::MAGNETOMETER:
+        case WLEMEGGeneralCoilType::MAGNETOMETER:
             picks.reserve( rows / 3 );
             break;
-        case WEGeneralCoilType::GRADIOMETER:
+        case WLEMEGGeneralCoilType::GRADIOMETER:
             picks.reserve( ( rows / 3 ) * 2 );
             break;
     }
@@ -334,13 +330,13 @@ bool WLEMDMEG::extractCoilModality( WLEMDMEG::SPtr& megOut, WLEMDMEG::ConstSPtr 
             return true;
         }
         case WLEModality::MEG_MAG:
-            picksAll = coilPicks( *megIn, WEGeneralCoilType::MAGNETOMETER );
+            picksAll = coilPicks( *megIn, WLEMEGGeneralCoilType::MAGNETOMETER );
             break;
         case WLEModality::MEG_GRAD:
-            picksAll = coilPicks( *megIn, WEGeneralCoilType::GRADIOMETER );
+            picksAll = coilPicks( *megIn, WLEMEGGeneralCoilType::GRADIOMETER );
             break;
         case WLEModality::MEG_GRAD_MERGED:
-            picksAll = coilPicks( *megIn, WEGeneralCoilType::GRADIOMETER );
+            picksAll = coilPicks( *megIn, WLEMEGGeneralCoilType::GRADIOMETER );
             break;
         default:
             wlog::error( CLASS ) << "Requested formation into a non-MEG type!";

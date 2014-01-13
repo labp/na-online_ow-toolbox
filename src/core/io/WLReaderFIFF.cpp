@@ -43,7 +43,6 @@
 #include "core/container/WLList.h"
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMSubject.h"
-#include "core/data/WLEMMEnumTypes.h"
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDECG.h"
 #include "core/data/emd/WLEMDEEG.h"

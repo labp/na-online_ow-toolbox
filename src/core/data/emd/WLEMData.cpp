@@ -32,8 +32,6 @@
 
 #include "WLEMData.h"
 
-using namespace LaBP;
-
 const std::string WLEMData::CLASS = "WLEMData";
 
 WLEMData::WLEMData() :

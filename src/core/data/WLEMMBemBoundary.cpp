@@ -29,10 +29,7 @@
 
 #include "core/container/WLArrayList.h"
 
-#include "WLEMMEnumTypes.h"
 #include "WLEMMBemBoundary.h"
-
-using namespace LaBP;
 
 const std::string WLEMMBemBoundary::CLASS = "WLEMMBemBoundary";
 

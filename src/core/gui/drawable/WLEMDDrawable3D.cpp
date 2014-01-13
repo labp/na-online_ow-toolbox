@@ -45,7 +45,6 @@
 #include <core/graphicsEngine/WGEUtils.h>
 #include <core/graphicsEngine/WGEGeodeUtils.h>
 
-#include "core/data/WLEMMEnumTypes.h"
 #include "core/data/emd/WLEMDMEG.h"
 #include "core/gui/colorMap/WLColorMap.h"
 

@@ -35,6 +35,7 @@ namespace WLFiffLib
     {
         const coil_type_t NONE = 0;
         const coil_type_t EEG = 1;
+        const coil_type_t EEG_BIPOLAR = 5;
         const coil_type_t VV_PLANAR_W = 3011;
         const coil_type_t VV_PLANAR_T1 = 3012;
         const coil_type_t VV_PLANAR_T2 = 3013;

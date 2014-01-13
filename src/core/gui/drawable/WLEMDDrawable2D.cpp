@@ -41,7 +41,6 @@
 
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDMEG.h"
-#include "core/data/WLEMMEnumTypes.h"
 
 #include "WLEMDDrawable.h"
 #include "WLEMDDrawable2D.h"

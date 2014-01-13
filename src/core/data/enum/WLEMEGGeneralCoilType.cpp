@@ -22,47 +22,30 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WDATASETEMMENUMTYPES_H
-#define WDATASETEMMENUMTYPES_H
+#include <core/common/WAssert.h>
 
-#include <set>
-#include <string>
-#include <vector>
+#include "WLEMEGGeneralCoilType.h"
 
-#include <core/common/WDefines.h>
-
-/**
- * TODO(kaehler): Comments
- */
-namespace LaBP
+WLEMEGGeneralCoilType::ContainerT WLEMEGGeneralCoilType::values()
 {
+    ContainerT con;
 
-    const std::string UNDEFINED = "UNDEFINED";
+    con.insert( WLEMEGGeneralCoilType::MAGNETOMETER );
+    con.insert( WLEMEGGeneralCoilType::GRADIOMETER );
 
-    /**
-     * TODO(kaehler): Comments
-     */
-    namespace WEGeneralCoilType
-    {
-
-        enum Enum
-        {
-            MAGNETOMETER, GRADIOMETER
-        };
-        std::vector< Enum > values();
-    }
-
-    /**
-     * TODO(kaehler): Comments
-     */
-    namespace WESpecificCoilType
-    {
-        enum Enum
-        {
-        // TODO(kaehler): Tabelle übertragen
-        };
-        std::vector< Enum > values();
-    }
+    return con;
 }
 
-#endif  // WDATASETEMMENUMTYPES_H
+std::string WLEMEGGeneralCoilType::name( Enum val )
+{
+    switch( val )
+    {
+        case MAGNETOMETER:
+            return "magnetometer";
+        case GRADIOMETER:
+            return "gradiometer";
+        default:
+            WAssert( false, "Unknown WLEMEGGeneralCoilType!" );
+            return "ERROR: Unknown!";
+    }
+}

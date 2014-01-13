@@ -46,8 +46,6 @@
 
 const std::string WRtClient::CLASS = "WRtClient";
 
-using namespace LaBP;
-
 WRtClient::WRtClient( const std::string& ip_address, const std::string& alias ) :
                 m_ipAddress( ip_address ), m_alias( alias )
 {

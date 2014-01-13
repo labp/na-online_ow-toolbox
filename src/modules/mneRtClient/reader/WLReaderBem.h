@@ -33,7 +33,6 @@
 #include <core/dataHandler/io/WReader.h>
 
 #include "core/data/WLEMMBemBoundary.h"
-#include "core/data/WLEMMEnumTypes.h"
 
 class WLReaderBem: public WReader
 {

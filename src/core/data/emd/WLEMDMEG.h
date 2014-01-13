@@ -36,7 +36,7 @@
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
 #include "core/container/WLArrayList.h"
-#include "core/data/WLEMMEnumTypes.h"
+#include "core/data/enum/WLEMEGGeneralCoilType.h"
 
 #include "WLEMData.h"
 
@@ -78,7 +78,7 @@ public:
     WLArrayList< WPosition >::ConstSPtr getChannelPositions3d() const;
 
     OW_API_DEPRECATED
-    WLArrayList< WPosition >::ConstSPtr getChannelPositions3d( LaBP::WEGeneralCoilType::Enum type ) const;
+    WLArrayList< WPosition >::ConstSPtr getChannelPositions3d( WLEMEGGeneralCoilType::Enum type ) const;
 
     /**
      * Sets the positions. Positions must be in millimeter.
@@ -96,7 +96,7 @@ public:
     WLArrayList< WVector3i >::ConstSPtr getFaces() const;
 
     OW_API_DEPRECATED
-    WLArrayList< WVector3i >::ConstSPtr getFaces( LaBP::WEGeneralCoilType::Enum type ) const;
+    WLArrayList< WVector3i >::ConstSPtr getFaces( WLEMEGGeneralCoilType::Enum type ) const;
 
     void setFaces( WLArrayList< WVector3i >::SPtr faces );
 
@@ -116,7 +116,7 @@ public:
     void setEz( WLArrayList< WVector3f >::SPtr vec );
 
     OW_API_DEPRECATED
-    LaBP::WEGeneralCoilType::Enum getChannelType( size_t channelId ) const;
+    WLEMEGGeneralCoilType::Enum getChannelType( size_t channelId ) const;
 
     /**
      * Returns the channels indices for the requested coil type.
@@ -125,7 +125,7 @@ public:
      * @param type Requested coil type
      * @return An array of indices for the requested coil type
      */
-    static CoilPicksT coilPicks( const WLEMDMEG& meg, LaBP::WEGeneralCoilType::Enum type );
+    static CoilPicksT coilPicks( const WLEMDMEG& meg, WLEMEGGeneralCoilType::Enum type );
 
     static bool extractCoilModality( WLEMDMEG::SPtr& megOut, WLEMDMEG::ConstSPtr megIn, WLEModality::Enum type,
                     bool dataOnly = false );
@@ -137,7 +137,7 @@ public:
      * @return An array of indices for the requested coil type
      */
     OW_API_DEPRECATED
-    std::vector< size_t > getPicks( LaBP::WEGeneralCoilType::Enum type ) const;
+    std::vector< size_t > getPicks( WLEMEGGeneralCoilType::Enum type ) const;
 
     /**
      * Returns the data of the requested coil type.
@@ -147,7 +147,7 @@ public:
      * @return New data containing all channels of the requested coil type
      */
     OW_API_DEPRECATED
-    DataSPtr getData( LaBP::WEGeneralCoilType::Enum type ) const; // This is a copy of channels, so the data is not changed.
+    DataSPtr getData( WLEMEGGeneralCoilType::Enum type ) const; // This is a copy of channels, so the data is not changed.
 
     using WLEMData::getData;
 
@@ -192,17 +192,17 @@ private:
 
 std::ostream& operator<<( std::ostream &strm, const WLEMDMEG& obj );
 
-inline LaBP::WEGeneralCoilType::Enum WLEMDMEG::getChannelType( size_t channelId ) const
+inline WLEMEGGeneralCoilType::Enum WLEMDMEG::getChannelType( size_t channelId ) const
 {
     WAssert( channelId < m_data->size(), "Index out of bounds!" );
     // Sequence: GGMGGMGGM ... 01 2 34 5
     if( channelId > 1 && ( channelId - 2 ) % 3 == 0 )
     {
-        return LaBP::WEGeneralCoilType::MAGNETOMETER;
+        return WLEMEGGeneralCoilType::MAGNETOMETER;
     }
     else
     {
-        return LaBP::WEGeneralCoilType::GRADIOMETER;
+        return WLEMEGGeneralCoilType::GRADIOMETER;
 
     }
 }

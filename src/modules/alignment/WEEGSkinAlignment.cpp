@@ -36,8 +36,6 @@
 #include "core/util/profiler/WLTimeProfiler.h"
 #include "WEEGSkinAlignment.h"
 
-using namespace LaBP;
-
 const std::string WEEGSkinAlignment::CLASS = "WEEGSkinAlignment";
 
 WEEGSkinAlignment::WEEGSkinAlignment( int maxIterations ) :

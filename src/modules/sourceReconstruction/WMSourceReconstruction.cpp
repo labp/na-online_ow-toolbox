@@ -35,7 +35,6 @@
 // Input & output data
 #include "core/data/WLDataTypes.h"
 #include "core/data/WLEMMeasurement.h"
-#include "core/data/WLEMMEnumTypes.h"
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDSource.h"
 #include "core/data/enum/WLEModality.h"
@@ -55,8 +54,6 @@
 
 #include "WMSourceReconstruction.h"
 #include "WMSourceReconstruction.xpm"
-
-using namespace LaBP;
 
 using std::set;
 using WLMatrix::MatrixT;
