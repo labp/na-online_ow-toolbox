@@ -305,7 +305,7 @@ void WLEMMeasurement::setDigPoints( WLList< WLDigPoint >::SPtr digPoints )
     m_digPoints = digPoints;
 }
 
-WLList< WLDigPoint >::SPtr WLEMMeasurement::getDigPoints( WLDigPoint::PointType::Enum kind ) const
+WLList< WLDigPoint >::SPtr WLEMMeasurement::getDigPoints( WLEPointType::Enum kind ) const
 {
     WLList< WLDigPoint >::SPtr digForKind( new WLList< WLDigPoint >() );
     WLList< WLDigPoint >::const_iterator cit;

@@ -33,6 +33,8 @@
 #include "core/data/WLEMMBemBoundary.h"
 #include "core/data/WLEMMSubject.h"
 #include "core/data/emd/WLEMDEEG.h"
+#include "core/data/enum/WLEPointType.h"
+#include "core/data/enum/WLECardinalPoint.h"
 #include "core/util/profiler/WLTimeProfiler.h"
 #include "WEEGSkinAlignment.h"
 
@@ -128,22 +130,22 @@ bool WEEGSkinAlignment::extractFiducialPoints( WPosition* const lpa, WPosition* 
                 const WLEMMeasurement& emm )
 {
     WLTimeProfiler tp( CLASS, "extractFiducialPoints" );
-    WLList< WLDigPoint >::SPtr digPoints = emm.getDigPoints( WLDigPoint::PointType::CARDINAL );
+    WLList< WLDigPoint >::SPtr digPoints = emm.getDigPoints( WLEPointType::CARDINAL );
     char count = 0;
     WLList< WLDigPoint >::const_iterator cit;
     for( cit = digPoints->begin(); cit != digPoints->end() && count < 3; ++cit )
     {
-        if( cit->checkCardinal( WLDigPoint::CardinalPoints::LPA ) )
+        if( cit->checkCardinal( WLECardinalPoint::LPA ) )
         {
             *lpa = cit->getPoint();
             ++count;
         }
-        if( cit->checkCardinal( WLDigPoint::CardinalPoints::NASION ) )
+        if( cit->checkCardinal( WLECardinalPoint::NASION ) )
         {
             *nasion = cit->getPoint();
             ++count;
         }
-        if( cit->checkCardinal( WLDigPoint::CardinalPoints::RPA ) )
+        if( cit->checkCardinal( WLECardinalPoint::RPA ) )
         {
             *rpa = cit->getPoint();
             ++count;

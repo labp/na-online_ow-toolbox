@@ -32,6 +32,11 @@
 
 #include <core/common/math/linearAlgebra/WPosition.h>
 
+#include "core/data/WLDataTypes.h"
+#include "core/data/enum/WLEPointType.h"
+#include "core/data/enum/WLECardinalPoint.h"
+#include "core/dataFormat/fiff/WLFiffLib.h"
+
 class WLDigPoint
 {
 public:
@@ -47,45 +52,23 @@ public:
 
     typedef WPosition PointT;
 
-    /**
-     * FIFF specification: B9. Point definitions
-     */
-    struct PointType
-    {
-        enum Enum
-        {
-            CARDINAL = 1, HPI = 2, EEG = 3, ECG = 3, EXTRA = 4, HEAD_SURFACE = 5, UNKNOWN = -1
-        };
-    };
-
-    /**
-     * FIFF specification: B10. Cardinal points for brain
-     */
-    struct CardinalPoints
-    {
-        enum Enum
-        {
-            LPA = 1, NASION = 2, RPA = 3
-        };
-    };
-
     static const std::string CLASS;
 
     WLDigPoint();
 
-    WLDigPoint( const PointT& pos, PointType::Enum kind, int ident );
+    WLDigPoint( const PointT& pos, WLEPointType::Enum kind, WLIdentT ident );
 
-    WLDigPoint( const PointT& pos, int kind, int ident );
+    WLDigPoint( const PointT& pos, WLFiffLib::kind_t kind, WLFiffLib::ident_t ident );
 
     virtual ~WLDigPoint();
 
-    PointType::Enum getKind() const;
+    WLEPointType::Enum getKind() const;
 
-    void setKind( PointType::Enum kind );
+    void setKind( WLEPointType::Enum kind );
 
-    int getIdent() const;
+    WLIdentT getIdent() const;
 
-    void setIdent( int ident );
+    void setIdent( WLIdentT ident );
 
     const PointT& getPoint() const;
 
@@ -96,12 +79,12 @@ public:
      *
      * \return true, if kind is cardinal and ident matches.
      */
-    bool checkCardinal( CardinalPoints::Enum ident ) const;
+    bool checkCardinal( WLECardinalPoint::Enum ident ) const;
 
 private:
-    PointType::Enum m_kind;
+    WLEPointType::Enum m_kind;
 
-    int m_ident;
+    WLIdentT m_ident;
 
     PointT m_point;
 };

@@ -22,31 +22,37 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLFIFFLIB_H_
-#define WLFIFFLIB_H_
+#include <core/common/WAssert.h>
 
-#include <boost/cstdint.hpp>
+#include "WLECardinalPoint.h"
 
-namespace WLFiffLib
+namespace WLECardinalPoint
 {
-    typedef int16_t int16;
-    typedef uint16_t uint16;
 
-    typedef int32_t int32;
-    typedef uint32_t uint32;
+    ContainerT values()
+    {
+        ContainerT con;
 
-    typedef uint64_t uint64;
+        con.insert( LPA );
+        con.insert( NASION );
+        con.insert( RPA );
 
-    typedef int32 enum_t;
-    typedef float freq_t;
-    typedef int32 ichan_t;
-    typedef int32 nchan_t;
-    typedef int32 icoil_t;
-    typedef int32 ncoil_t;
-    typedef int32 isamples_t;
-    typedef int32 nsamples_t;
-    typedef float time_t;
-    typedef int32 ident_t;
-    typedef int32 kind_t;
-} /* namespace WLFiffLib */
-#endif  // WLFIFFLIB_H_
+        return con;
+    }
+
+    std::string name( Enum val )
+    {
+        switch( val )
+        {
+            case LPA:
+                return "Left pre-auricular";
+            case NASION:
+                return "Nasion";
+            case RPA:
+                return "Right pre-auricular";
+            default:
+                WAssert( false, "Unknown WLECardinalPoint!" );
+                return "ERROR: Undefined!";
+        }
+    }
+}

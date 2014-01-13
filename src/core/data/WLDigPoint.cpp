@@ -29,66 +29,42 @@
 const std::string WLDigPoint::CLASS = "WLDigPoint";
 
 WLDigPoint::WLDigPoint() :
-                m_kind( PointType::UNKNOWN ), m_ident( -1 )
+                m_kind( WLEPointType::UNKNOWN ), m_ident( -1 )
 {
 }
 
-WLDigPoint::WLDigPoint( const PointT& pos, PointType::Enum kind, int ident ) :
+WLDigPoint::WLDigPoint( const PointT& pos, WLEPointType::Enum kind, WLIdentT ident ) :
                 m_point( pos ), m_kind( kind ), m_ident( ident )
 {
 }
 
-WLDigPoint::WLDigPoint( const PointT& pos, int kind, int ident )
+WLDigPoint::WLDigPoint( const PointT& pos, WLFiffLib::kind_t kind, WLFiffLib::ident_t ident )
 {
     m_point = pos;
     m_ident = ident;
-    // Note: Change this when adding a new enum entry.
-    switch( kind )
-    {
-        case 1:
-            m_kind = PointType::CARDINAL;
-            break;
-        case 2:
-            m_kind = PointType::HPI;
-            break;
-        case 3:
-            // Note: Could be ECG
-            m_kind = PointType::EEG;
-            wlog::debug( CLASS ) << "Kind could be EEG or ECG. Using EEG!";
-            break;
-        case 4:
-            m_kind = PointType::EXTRA;
-            break;
-        case 5:
-            m_kind = PointType::HEAD_SURFACE;
-            break;
-        default:
-            wlog::warn( CLASS ) << "Unknown kind!";
-            m_kind = PointType::UNKNOWN;
-            break;
-    }
+    m_kind = WLEPointType::fromFIFF(kind);
 }
 
 WLDigPoint::~WLDigPoint()
 {
 }
 
-WLDigPoint::PointType::Enum WLDigPoint::getKind() const
+WLEPointType::Enum WLDigPoint::getKind() const
 {
     return m_kind;
 }
 
-void WLDigPoint::setKind( PointType::Enum kind )
+void WLDigPoint::setKind( WLEPointType::Enum kind )
 {
     m_kind = kind;
 }
 
-int WLDigPoint::getIdent() const
+WLFiffLib::ident_t WLDigPoint::getIdent() const
 {
     return m_ident;
 }
 
-void WLDigPoint::setIdent( int ident )
+void WLDigPoint::setIdent( WLFiffLib::ident_t ident )
 {
     m_ident = ident;
 }
@@ -103,9 +79,9 @@ void WLDigPoint::setPoint( const PointT& pos )
     m_point = pos;
 }
 
-bool WLDigPoint::checkCardinal( CardinalPoints::Enum ident ) const
+bool WLDigPoint::checkCardinal( WLECardinalPoint::Enum ident ) const
 {
-    return m_kind == PointType::CARDINAL && ident == m_ident;
+    return m_kind == WLEPointType::CARDINAL && ident == m_ident;
 }
 
 std::ostream& operator<<( std::ostream &strm, const WLDigPoint& obj )

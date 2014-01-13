@@ -22,31 +22,51 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLFIFFLIB_H_
-#define WLFIFFLIB_H_
+#ifndef WLECARDINALPOINT_H_
+#define WLECARDINALPOINT_H_
 
-#include <boost/cstdint.hpp>
+#include <ostream>
+#include <set>
+#include <string>
 
-namespace WLFiffLib
+#include "core/dataFormat/fiff/WLFiffCardinalPointType.h"
+
+/**
+ * Enumeration for cardinal points (brain), compatible with FIFF enum(cardinal_point).
+ *
+ * \author pieloth
+ */
+namespace WLECardinalPoint
 {
-    typedef int16_t int16;
-    typedef uint16_t uint16;
+    enum Enum
+    {
+        LPA = WLFiffLib::CardinalPointType::LPA,
+        NASION = WLFiffLib::CardinalPointType::NASIO,
+        RPA = WLFiffLib::CardinalPointType::RPA
+    };
 
-    typedef int32_t int32;
-    typedef uint32_t uint32;
+    typedef std::set< Enum > ContainerT;
 
-    typedef uint64_t uint64;
+    /**
+     * Gets all enum values.
+     *
+     * \return Container with all enum values.
+     */
+    ContainerT values();
 
-    typedef int32 enum_t;
-    typedef float freq_t;
-    typedef int32 ichan_t;
-    typedef int32 nchan_t;
-    typedef int32 icoil_t;
-    typedef int32 ncoil_t;
-    typedef int32 isamples_t;
-    typedef int32 nsamples_t;
-    typedef float time_t;
-    typedef int32 ident_t;
-    typedef int32 kind_t;
-} /* namespace WLFiffLib */
-#endif  // WLFIFFLIB_H_
+    /**
+     * Gets the name of the enum value.
+     *
+     * \param val WLECardinalPoint::Enum
+     * \return A string.
+     */
+    std::string name( Enum val );
+}
+
+inline std::ostream& operator<<( std::ostream &strm, const WLECardinalPoint::Enum& obj )
+{
+    strm << WLECardinalPoint::name( obj );
+    return strm;
+}
+
+#endif  // WLECARDINALPOINT_H_

@@ -42,6 +42,7 @@
 #include "core/data/WLEMMSubject.h"
 #include "core/data/emd/WLEMData.h"
 #include "core/data/enum/WLEModality.h"
+#include "core/data/enum/WLEPointType.h"
 #include "core/util/profiler/WLLifetimeProfiler.h"
 
 /**
@@ -273,7 +274,7 @@ public:
 
     WLList< WLDigPoint >::ConstSPtr getDigPoints() const;
 
-    WLList< WLDigPoint >::SPtr getDigPoints( WLDigPoint::PointType::Enum kind ) const;
+    WLList< WLDigPoint >::SPtr getDigPoints( WLEPointType::Enum kind ) const;
 
     void setDigPoints( WLList< WLDigPoint >::SPtr digPoints );
 

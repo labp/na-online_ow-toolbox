@@ -41,6 +41,7 @@
 
 #include "core/data/WLDataTypes.h"
 #include "core/data/WLDigPoint.h"
+#include "core/data/enum/WLEPointType.h"
 #include "core/util/WLGeometry.h"
 #include "WRtClient.h"
 
@@ -499,7 +500,7 @@ bool WRtClient::setDigPointsAndEEG( const std::list< WLDigPoint >& digPoints )
     bool isFirst = true;
     for( it = m_digPoints->begin(); it != m_digPoints->end(); ++it )
     {
-        if( it->getKind() != WLDigPoint::PointType::EEG )
+        if( it->getKind() != WLEPointType::EEG_ECG )
         {
             continue;
         }

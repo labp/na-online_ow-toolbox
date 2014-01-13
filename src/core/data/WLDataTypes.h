@@ -91,11 +91,12 @@ namespace WLSpMatrix
     typedef boost::shared_ptr< const SpMatrixT > ConstSPtr;
 }
 
-typedef WLFiffLib::freq_t WLFreqT;
-typedef WLFiffLib::ichan_t WLChanIdxT;
-typedef WLFiffLib::nchan_t WLChanNrT;
-typedef WLFiffLib::isamples_t WLSampleIdxT;
-typedef WLFiffLib::nsamples_t WLSampleNrT;
-typedef WLFiffLib::time_t WLTimeT;
+typedef WLFiffLib::freq_t WLFreqT; /**< Type for frequencies: Hz, kHz and more.*/
+typedef WLFiffLib::ident_t WLIdentT; /**< Type for decimal identification, running numbers and more. */
+typedef WLFiffLib::ichan_t WLChanIdxT; /**< Index type for channels. */
+typedef WLFiffLib::nchan_t WLChanNrT; /**< Type for number of channels (size, count). */
+typedef WLFiffLib::isamples_t WLSampleIdxT; /**< Index type for samples. */
+typedef WLFiffLib::nsamples_t WLSampleNrT; /**< Type for number of samples (size, count). */
+typedef WLFiffLib::time_t WLTimeT; /**< Type for time values: ms, s, min and more. */
 
 #endif  // WLDATATYPES_H_
