@@ -31,14 +31,6 @@
 
 using namespace LaBP;
 
-std::vector< LaBP::WEPolarityType::Enum > LaBP::WEPolarityType::values()
-{
-    std::vector< LaBP::WEPolarityType::Enum > options;
-    options.push_back( LaBP::WEPolarityType::BIPOLAR );
-    options.push_back( LaBP::WEPolarityType::UNIPOLAR );
-    return options;
-}
-
 std::vector< LaBP::WEGeneralCoilType::Enum > LaBP::WEGeneralCoilType::values()
 {
     std::vector< LaBP::WEGeneralCoilType::Enum > modalities;

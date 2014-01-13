@@ -60,8 +60,6 @@ public:
 
     virtual WLEMData::SPtr clone() const;
 
-    LaBP::WEPolarityType::Enum getPolarityType() const;
-
     virtual WLEModality::Enum getModalityType() const;
 
     /**
@@ -98,23 +96,6 @@ private:
     WLArrayList< WPosition >::SPtr m_chanPos3d;
 
     WLArrayList< WVector3i >::SPtr m_faces;
-
-    /**
-     * TODO(kaehler): unipolar --> Point3D  m_pos[5].x
-     * float m_chanPos2D[nrChan][2]
-     * float m_referencePos[3]
-     * bool m_isAverageReference // false als default value
-     */
-
-    /**
-     * TODO(kaehler): bipolar
-     * float m_posPair[nrChans][2*3] // xyz xyz
-     */
-
-    /**
-     * type of polarity, can be unipolar or bipolar
-     */
-    LaBP::WEPolarityType::Enum m_polarityType;
 };
 
 std::ostream& operator<<( std::ostream &strm, const WLEMDEEG& obj );

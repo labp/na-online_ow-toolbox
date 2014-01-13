@@ -27,8 +27,6 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "core/data/WLEMMEnumTypes.h"
-
 #include "WLEMData.h"
 
 class WLEMDECG: public WLEMData
@@ -59,27 +57,5 @@ public:
     virtual WLEMData::SPtr clone() const;
 
     virtual WLEModality::Enum getModalityType() const;
-
-    LaBP::WEPolarityType::Enum getPolarityType() const;
-
-    void setPolarityType( LaBP::WEPolarityType::Enum polarityType );
-
-private:
-
-    /**
-     * TODO(kaehler):
-     * one commen reference electrode for all channels
-     * member contains position for each channel (2d, 3d) the common reference position and the tesselation
-     */
-    // Unipolar m_unipoar;
-    /**
-     * TODO(kaehler):
-     * member contains a list of positions of electrode pairs
-     */
-    // Bipoler m_bipolar;
-    /**
-     * TODO(kaehler): doxygen \ref
-     */
-    LaBP::WEPolarityType::Enum m_polarityType;
 };
 #endif  // WLEMDECG_H

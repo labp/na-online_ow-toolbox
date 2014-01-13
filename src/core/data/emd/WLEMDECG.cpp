@@ -22,8 +22,6 @@
 //
 //---------------------------------------------------------------------------
 
-#include "core/data/WLEMMEnumTypes.h"
-
 #include "WLEMData.h"
 #include "WLEMDECG.h"
 
@@ -35,7 +33,6 @@ WLEMDECG::WLEMDECG() :
 WLEMDECG::WLEMDECG( const WLEMDECG& ecg ) :
                 WLEMData( ecg )
 {
-    m_polarityType = ecg.getPolarityType();
 }
 
 WLEMDECG::~WLEMDECG()
@@ -51,14 +48,4 @@ WLEMData::SPtr WLEMDECG::clone() const
 WLEModality::Enum WLEMDECG::getModalityType() const
 {
     return WLEModality::ECG;
-}
-
-LaBP::WEPolarityType::Enum WLEMDECG::getPolarityType() const
-{
-    return m_polarityType;
-}
-
-void WLEMDECG::setPolarityType( LaBP::WEPolarityType::Enum polarityType )
-{
-    m_polarityType = polarityType;
 }

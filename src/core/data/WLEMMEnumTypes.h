@@ -42,17 +42,6 @@ namespace LaBP
     /**
      * TODO(kaehler): Comments
      */
-    namespace WEPolarityType
-    {
-        enum Enum
-        {
-            BIPOLAR, UNIPOLAR
-        };
-        std::vector< Enum > values();
-    }
-    /**
-     * TODO(kaehler): Comments
-     */
     namespace WEGeneralCoilType
     {
 
