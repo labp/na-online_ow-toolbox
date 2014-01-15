@@ -43,6 +43,7 @@
 #include <core/common/WPropertyTypes.h>
 #include <core/common/WRealtimeTimer.h>
 
+#include "core/module/WLConstantsModule.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMDEEG.h"
@@ -95,7 +96,7 @@ const char** WMEmMeasurement::getXPMIcon() const
 
 const std::string WMEmMeasurement::getName() const
 {
-    return "EM-Measurement";
+    return WLConstantsModule::NAME_PREFIX + " EM-Measurement";
 }
 
 const std::string WMEmMeasurement::getDescription() const

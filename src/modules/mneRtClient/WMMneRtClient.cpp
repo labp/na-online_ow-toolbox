@@ -34,6 +34,7 @@
 #include "core/data/WLEMMeasurement.h"
 #include "core/io/WLReaderLeadfield.h"
 #include "core/io/WLReaderSourceSpace.h"
+#include "core/module/WLConstantsModule.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
 #include "reader/WLReaderDigPoints.h"
@@ -72,7 +73,7 @@ const char** WMMneRtClient::getXPMIcon() const
 
 const std::string WMMneRtClient::getName() const
 {
-    return "MNE Realtime Client";
+    return WLConstantsModule::NAME_PREFIX + " MNE Realtime Client";
 }
 
 const std::string WMMneRtClient::getDescription() const

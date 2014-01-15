@@ -25,6 +25,7 @@
 #include <core/common/WRealtimeTimer.h>
 
 #include "core/gui/drawable/WLEMDDrawable2D.h"
+#include "core/module/WLConstantsModule.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
 #include "WPacketizerEMM.h"
@@ -63,7 +64,7 @@ WMEMMSimulator::~WMEMMSimulator()
 
 const std::string WMEMMSimulator::getName() const
 {
-    return "EMM Simulator";
+    return WLConstantsModule::NAME_PREFIX + " EMM Simulator";
 }
 
 const std::string WMEMMSimulator::getDescription() const

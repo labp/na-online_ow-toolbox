@@ -28,6 +28,8 @@
 
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDEEG.h"
+#include "core/module/WLConstantsModule.h"
+
 
 #include "WMEMMGenerator.h"
 #include "WMEMMGenerator.xpm"
@@ -64,7 +66,7 @@ WMEMMGenerator::~WMEMMGenerator()
 
 const std::string WMEMMGenerator::getName() const
 {
-    return "EMM Generator";
+    return WLConstantsModule::NAME_PREFIX + " EMM Generator";
 }
 
 const std::string WMEMMGenerator::getDescription() const

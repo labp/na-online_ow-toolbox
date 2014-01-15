@@ -36,6 +36,7 @@
 #include "core/data/emd/WLEMDMEG.h"
 #include "core/data/WLEMMSubject.h"
 #include "core/data/WLEMMSurface.h"
+#include "core/module/WLConstantsModule.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
@@ -62,7 +63,7 @@ WMCodeSnippets::~WMCodeSnippets()
 
 const string WMCodeSnippets::getName() const
 {
-    return "Code Snippets";
+    return WLConstantsModule::NAME_PREFIX + " Code Snippets";
 }
 
 const string WMCodeSnippets::getDescription() const

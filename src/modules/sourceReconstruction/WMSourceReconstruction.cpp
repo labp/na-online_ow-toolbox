@@ -38,7 +38,7 @@
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDSource.h"
 #include "core/data/enum/WLEModality.h"
-
+#include "core/module/WLConstantsModule.h"
 // Input & output connectors
 // TODO(pieloth): use OW classes
 #include "core/module/WLModuleInputDataRingBuffer.h"
@@ -81,12 +81,12 @@ const char** WMSourceReconstruction::getXPMIcon() const
 
 const std::string WMSourceReconstruction::getName() const
 {
-    return "Source Reconstruction";
+    return WLConstantsModule::NAME_PREFIX + " Source Reconstruction";
 }
 
 const std::string WMSourceReconstruction::getDescription() const
 {
-    return "TODO - Source Reconstruction. Module supports LaBP data types only!"; // TODO(pieloth) description
+    return "Estimates a source distribution according to a linear source reconstruction algorithm.";
 }
 
 void WMSourceReconstruction::connectors()

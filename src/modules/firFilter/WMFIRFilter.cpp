@@ -38,6 +38,7 @@
 
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMData.h"
+#include "core/module/WLConstantsModule.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 #include "core/util/profiler/WLTimeProfiler.h"
@@ -76,12 +77,12 @@ const char** WMFIRFilter::getXPMIcon() const
 
 const std::string WMFIRFilter::getName() const
 {
-    return "FIR Filter";
+    return WLConstantsModule::NAME_PREFIX + " FIR Filter";
 }
 
 const std::string WMFIRFilter::getDescription() const
 {
-    return "FIR filter implementations: Lowpass, Highpass, Bandpass, Bandstop. Module supports LaBP data types only!";
+    return "Filters the signals according to lowpass, highpass, bandpass and bandstop characteristic.";
 }
 
 void WMFIRFilter::connectors()

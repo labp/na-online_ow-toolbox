@@ -34,6 +34,7 @@
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMData.h"
 #include "core/data/enum/WLEModality.h"
+#include "core/module/WLConstantsModule.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 #include "core/util/profiler/WLTimeProfiler.h"
@@ -64,7 +65,7 @@ const char** WMPCA::getXPMIcon() const
 
 const std::string WMPCA::getName() const
 {
-    return "PCA";
+    return WLConstantsModule::NAME_PREFIX + " PCA";
 }
 
 const std::string WMPCA::getDescription() const

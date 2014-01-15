@@ -31,6 +31,7 @@
 
 #include "core/data/WLEMMCommand.h"
 #include "core/data/emd/WLEMData.h"
+#include "core/module/WLConstantsModule.h"
 
 #include "WMMatWriter.xpm"
 #include "WMMatWriter.h"
@@ -55,7 +56,7 @@ WMMatWriter::~WMMatWriter()
 
 const std::string WMMatWriter::getName() const
 {
-    return "MAT-File Writer";
+    return WLConstantsModule::NAME_PREFIX + " MAT-File Writer";
 }
 
 const std::string WMMatWriter::getDescription() const

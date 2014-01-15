@@ -35,6 +35,7 @@
 #include "core/data/WLDataTypes.h"
 #include "core/io/WLReaderBND.h"
 #include "core/io/WLReaderFIFF.h"
+#include "core/module/WLConstantsModule.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/util/profiler/WLTimeProfiler.h"
 #include "core/util/WLGeometry.h"
@@ -68,13 +69,13 @@ WMLeadfieldInterpolation::~WMLeadfieldInterpolation()
 
 const std::string WMLeadfieldInterpolation::getName() const
 {
-    return "Leadfield Interpolation";
+    return WLConstantsModule::NAME_PREFIX + " Leadfield Interpolation";
 }
 
 const std::string WMLeadfieldInterpolation::getDescription() const
 {
-    // TODO(pieloth): module description
-    return "TODO";
+    return "Calculates an interpolated leadfield at each digitized electrode position by "
+                    "averaging the leadfield columns of the electrode's nearest neighbors in the BEM layer.";
 }
 
 WModule::SPtr WMLeadfieldInterpolation::factory() const

@@ -27,6 +27,7 @@
 #include <core/graphicsEngine/WGEZoomTrackballManipulator.h>
 #include <core/kernel/WKernel.h>
 
+#include "core/module/WLConstantsModule.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 #include "core/util/profiler/WLTimeProfiler.h"
@@ -51,12 +52,12 @@ WMAlignment::~WMAlignment()
 
 const std::string WMAlignment::getName() const
 {
-    return "Alignment";
+    return WLConstantsModule::NAME_PREFIX + " Alignment";
 }
 
 const std::string WMAlignment::getDescription() const
 {
-    return "Alignment and registration for Fiducial and AC-PC coordinate system.";
+    return "A semi-automatic coordinate transformation between the EEG sensor positions and the head model.";
 }
 
 WModule::SPtr WMAlignment::factory() const
