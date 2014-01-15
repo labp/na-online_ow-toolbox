@@ -22,18 +22,22 @@
 //
 //---------------------------------------------------------------------------
 
-#include <cublas.h>
-#include <cuda_runtime.h>   // time measurement
 #include <cstddef>  // NULL macro
 #include <cstdio>   // stderr stream
 #include <cstdlib>  // malloc
 #include <string>   // CLASS variable
+
+#include <cublas.h>
+#include <cuda_runtime.h>   // time measurement
+
 #include <boost/shared_ptr.hpp>
 
 #include <core/common/WLogger.h>
+#include <core/common/exceptions/WPreconditionNotMet.h>
 
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDSource.h"
+#include "core/exception/WLBadAllocException.h"
 #include "core/util/profiler/WLProfilerLogger.h"
 #include "core/util/profiler/WLTimeProfiler.h"
 
@@ -82,8 +86,7 @@ WLEMDSource::SPtr WSourceReconstructionCuda::reconstruct( WLEMData::ConstSPtr em
     WLTimeProfiler tp( CLASS, "reconstruct" );
     if( !m_inverse )
     {
-        // TODO(pieloth): return code
-        wlog::error( CLASS ) << "No inverse matrix set!";
+        throw WPreconditionNotMet( "No inverse matrix set!" );
     }
 
     // Calculare average reference //
@@ -125,8 +128,9 @@ WLEMDSource::SPtr WSourceReconstructionCuda::reconstruct( WLEMData::ConstSPtr em
         const ScalarT* const A_host = m_inverse->data();
         if( A_host == NULL )
         {
-            // TODO(pieloth): return code
-            wlog::error( CLASS ) << "Could not allocate memory for inverse matrix!";
+            cudaEventDestroy( startCalc );
+            cudaEventDestroy( stopCalc );
+            throw WLBadAllocException( "Could not allocate memory for inverse matrix!" );
         }
         if( m_A_dev != NULL )
         {

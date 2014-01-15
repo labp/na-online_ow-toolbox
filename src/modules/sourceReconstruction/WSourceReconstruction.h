@@ -87,6 +87,14 @@ public:
 
     bool hasInverse() const;
 
+    /**
+     * Reconstructs a source distribution.
+     *
+     * @param emd Inputs data for source reconstruction.
+     * @return estimated source distribution
+     * @throws WPreconditionNotMet No inverse solution available.
+     * @throws WLBadAllocException
+     */
     virtual WLEMDSource::SPtr reconstruct( WLEMData::ConstSPtr emd ) = 0;
 
     static bool averageReference( WLEMData::DataT& dataOut, const WLEMData::DataT& dataIn );

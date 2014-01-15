@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <exception>
 #include <string>
 #include <set>
 
@@ -417,7 +418,15 @@ bool WMSourceReconstruction::processCompute( WLEMMeasurement::SPtr emmIn )
         }
     }
 
-    sourceOut = m_sourceReconstruction->reconstruct( emmIn->getModality( modality ) );
+    try
+    {
+        sourceOut = m_sourceReconstruction->reconstruct( emmIn->getModality( modality ) );
+    }
+    catch( const std::exception& e )
+    {
+        errorLog() << e.what();
+        return false;
+    }
     infoLog() << "Matrix: " << sourceOut->getNrChans() << " x " << sourceOut->getSamplesPerChan();
     // Create output
     emmOut = emmIn->clone();

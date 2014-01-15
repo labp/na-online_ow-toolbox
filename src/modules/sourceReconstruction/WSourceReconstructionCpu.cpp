@@ -27,6 +27,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include <core/common/WLogger.h>
+#include <core/common/exceptions/WPreconditionNotMet.h>
 
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDSource.h"
@@ -48,19 +49,17 @@ WSourceReconstructionCpu::~WSourceReconstructionCpu()
 
 WLEMDSource::SPtr WSourceReconstructionCpu::reconstruct( WLEMData::ConstSPtr emd )
 {
-    WLTimeProfiler tp(CLASS, "reconstruct");
+    WLTimeProfiler tp( CLASS, "reconstruct" );
     if( !m_inverse )
     {
-        // TODO(pieloth): return code
-        wlog::error( CLASS ) << "No inverse matrix set!";
+        throw WPreconditionNotMet( "No inverse matrix set!" );
     }
-
 
     WLEMData::DataT emdData;
     WSourceReconstruction::averageReference( emdData, emd->getData() );
 
     WLTimeProfiler prfMatMul( CLASS, "reconstruct_matMul", false );
-    SharedLockT lock(m_lockData);
+    SharedLockT lock( m_lockData );
     prfMatMul.start();
     WLEMData::DataSPtr S( new WLEMData::DataT( *m_inverse * emdData ) );
     prfMatMul.stop();
