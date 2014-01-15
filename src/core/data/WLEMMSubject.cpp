@@ -22,22 +22,19 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WLEMMSubject.h"
+#include <map>
+#include <ostream>
+#include <string>
 
-#include <boost/shared_ptr.hpp>
 #include <core/common/exceptions/WNotFound.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
-#include <iostream>
-#include <map>
-#include <string>
-#include <utility>
-#include <vector>
 
-#include "core/data/enum/WLEModality.h"
-
+#include "enum/WLEModality.h"
 #include "WLDataTypes.h"
 #include "WLEMMBemBoundary.h"
 #include "WLEMMSurface.h"
+
+#include "WLEMMSubject.h"
 
 using WLMatrix::MatrixT;
 

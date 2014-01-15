@@ -30,17 +30,13 @@
 #include <string>
 
 #include <boost/shared_ptr.hpp>
-// TODO(pieloth): Deactivated - no setter for birthday
-//#include <boost/date_time.hpp>
-//#include <boost/date_time/posix_time/posix_time.hpp>
-#include <Eigen/Core>
 
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
 #include "core/container/WLArrayList.h"
 #include "core/container/WLList.h"
-#include "core/data/enum/WLEModality.h"
 
+#include "enum/WLEModality.h"
 #include "WLDataTypes.h"
 #include "WLEMMSurface.h"
 #include "WLEMMBemBoundary.h"
