@@ -31,6 +31,7 @@
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 
+#include <core/common/WException.h>
 #include <core/common/WItemSelectionItemTyped.h>
 #include <core/common/WPathHelper.h>
 #include <core/common/WPropertyHelper.h>
@@ -362,8 +363,16 @@ bool WMFIRFilter::processCompute( WLEMMeasurement::SPtr emmIn )
         debugLog() << "EMD samples per channel: " << nbSamlesPerChan;
         debugLog() << "Input pieces:\n" << WLEMData::dataToString( ( *emdIn )->getData(), 5, 10 );
 #endif // DEBUG
-        WLEMData::SPtr emdOut = m_firFilter->filter( ( *emdIn ) );
-        emmOut->addModality( emdOut );
+        try
+        {
+            WLEMData::SPtr emdOut = m_firFilter->filter( ( *emdIn ) );
+            emmOut->addModality( emdOut );
+        }
+        catch( const WException& e )
+        {
+            errorLog() << e.what();
+            return false;
+        }
 
 #ifdef DEBUG
         // Show some filtered pieces

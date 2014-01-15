@@ -2,7 +2,7 @@
 //
 // Project: OpenWalnut ( http://www.openwalnut.org )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS, Copyright 2010 RRZK University of Cologne
+// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
 // For more information see http://www.openwalnut.org/copying
 //
 // This file is part of OpenWalnut.
@@ -22,24 +22,45 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFIRFILTERCUDA_CUH_
-#define WFIRFILTERCUDA_CUH_
+#ifndef WLCUDAMACROSNVCC_H_
+#define WLCUDAMACROSNVCC_H_
 
-#include "core/util/WLCudaMacrosNVCC.h"
+#ifdef LABP_FLOAT_COMPUTATION
+typedef float CuScalarT;
+#else
+typedef double CuScalarT;
+#endif  // LABP_FLOAT_COMPUTATION
 
-/**
- * Wrapper for the CUDA Kernel call.
- */
-extern "C" void cuFirFilter( const size_t GRID, const size_t BLOCK, const size_t SHARED,
-                CuScalarT* const output,
-                const CuScalarT* const input,
-                const CuScalarT* const previous,
-                size_t channels,
-                size_t samples,
-                const CuScalarT* const coeffs,
-                size_t coeffSize,
-                size_t pitchOut,
-                size_t pitchIn,
-                size_t pitchPrev );
+#ifdef FOUND_CUDA
 
-#endif  // WFIRFILTERCUDA_CUH_
+#include <stdio.h>
+#include <cuda_runtime_api.h>
+#include <driver_types.h>
+
+// to prevent IDE complains about unknown cuda-keywords
+#ifdef __CDT_PARSER__
+#define __global__
+#define __device__
+#define __host__
+#define __shared__
+#define __syncthreads();
+#define CUDA_KERNEL_DIM( ... )
+
+#else
+#define CUDA_KERNEL_DIM( ... )  <<< __VA_ARGS__ >>>
+
+#endif
+
+#define CuSafeCall( err )     __CuSafeCall( err, __FILE__, __LINE__ )
+
+inline void __CuSafeCall( cudaError_t err, const char *file, const int line )
+{
+    if( err != cudaSuccess )
+    {
+        fprintf( stderr, "CuSafeCall() failed at %s:%i : %s\n", file, line, cudaGetErrorString( err ) );
+    }
+}
+
+#endif  // FOUND_CUDA
+
+#endif  // WLCUDAMACROSNVCC_H_

@@ -22,7 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
-#include "core/util/WLCudaMacros.h"
+#include "core/util/WLCudaMacrosNVCC.h"
 
 #include "WFIRFilterCuda.cuh"
 

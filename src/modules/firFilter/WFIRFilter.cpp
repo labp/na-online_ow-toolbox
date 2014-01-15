@@ -31,6 +31,7 @@
 #include <vector>
 
 #include <core/common/WAssert.h>
+#include <core/common/WException.h>
 #include <core/common/WLogger.h>
 
 #include "core/data/WLEMMeasurement.h"
@@ -81,13 +82,19 @@ WLEMData::SPtr WFIRFilter::filter( const WLEMData::ConstSPtr emdIn )
     WLEMData::DataSPtr out( new WLEMData::DataT( in.rows(), in.cols() ) );
 
     const WLEMData::DataT& prevData = getPreviousData( emdIn );
-    filter( *out, in, prevData );
+    const bool success = filter( *out, in, prevData );
     storePreviousData( emdIn );
 
-    WLEMData::SPtr emdOut = emdIn->clone();
-    emdOut->setData( out );
-
-    return emdOut;
+    if( success )
+    {
+        WLEMData::SPtr emdOut = emdIn->clone();
+        emdOut->setData( out );
+        return emdOut;
+    }
+    else
+    {
+        throw WException( "Data not filtered!" );
+    }
 }
 
 void WFIRFilter::doPostProcessing( WLEMMeasurement::SPtr emmOut, WLEMMeasurement::ConstSPtr emmIn )
