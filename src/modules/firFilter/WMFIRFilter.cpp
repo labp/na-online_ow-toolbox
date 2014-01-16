@@ -367,6 +367,10 @@ bool WMFIRFilter::processCompute( WLEMMeasurement::SPtr emmIn )
         {
             WLEMData::SPtr emdOut = m_firFilter->filter( ( *emdIn ) );
             emmOut->addModality( emdOut );
+#ifdef DEBUG
+            // Show some filtered pieces
+            debugLog() << "Filtered pieces:\n" << WLEMData::dataToString( emdOut->getData(), 5, 10 );
+#endif // DEBUG
         }
         catch( const WException& e )
         {
@@ -374,10 +378,6 @@ bool WMFIRFilter::processCompute( WLEMMeasurement::SPtr emmIn )
             return false;
         }
 
-#ifdef DEBUG
-        // Show some filtered pieces
-        debugLog() << "Filtered pieces:\n" << WLEMData::dataToString( emdOut->getData(), 5, 10 );
-#endif // DEBUG
     }
     m_firFilter->doPostProcessing( emmOut, emmIn );
 
