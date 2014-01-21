@@ -69,6 +69,9 @@ WLModuleDrawable::WLModuleDrawable()
 
 WLModuleDrawable::~WLModuleDrawable()
 {
+    m_drawable2D.reset();
+    m_drawable3D.reset();
+
     WKernel::getRunningKernel()->getGui()->closeCustomWidget( m_widget->getTitle() );
 }
 

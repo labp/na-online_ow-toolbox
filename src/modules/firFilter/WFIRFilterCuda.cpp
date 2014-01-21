@@ -58,6 +58,10 @@ WFIRFilterCuda::WFIRFilterCuda( const std::string& pathToFcf ) :
 {
 }
 
+WFIRFilterCuda::~WFIRFilterCuda()
+{
+}
+
 bool WFIRFilterCuda::filter( WLEMData::DataT& out, const WLEMData::DataT& in, const WLEMData::DataT& prev )
 {
     wlog::debug( CLASS ) << "filter() called!";
@@ -114,7 +118,7 @@ bool WFIRFilterCuda::filter( WLEMData::DataT& out, const WLEMData::DataT& in, co
     }
     catch( const WException& e )
     {
-        wlog::error(CLASS) << e.what();
+        wlog::error( CLASS ) << e.what();
         rc = false;
     }
 
@@ -229,6 +233,6 @@ float WFIRFilterCuda::cudaFilter( WLEMData::ScalarT* const output, const WLEMDat
     }
     else
     {
-        throw WException("Error in cudaFilter()");
+        throw WException( "Error in cudaFilter()" );
     }
 }

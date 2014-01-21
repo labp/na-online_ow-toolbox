@@ -55,6 +55,8 @@ public:
 
     explicit WFIRFilterCuda( const std::string& pathToFcf );
 
+    virtual ~WFIRFilterCuda();
+
 protected:
     virtual bool filter( WLEMData::DataT& out, const WLEMData::DataT& in, const WLEMData::DataT& prev );
 

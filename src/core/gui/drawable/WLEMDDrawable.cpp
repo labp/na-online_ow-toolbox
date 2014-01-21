@@ -54,8 +54,8 @@ namespace LaBP
     WLEMDDrawable::~WLEMDDrawable()
     {
         m_rootGroup->removeUpdateCallback( m_callbackDelegator );
-        m_widget->getScene()->remove( m_rootGroup );
         m_widget->getViewer()->getView()->removeEventHandler( m_handlerDelegator );
+        m_widget->getScene()->remove( m_rootGroup );
     }
 
     void WLEMDDrawable::redraw()
