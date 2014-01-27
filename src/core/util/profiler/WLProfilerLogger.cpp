@@ -22,36 +22,12 @@
 //
 //---------------------------------------------------------------------------
 
-#include <iostream>
-
-#include <core/common/WLogger.h>
-
-#include "WLProfiler.h"
 #include "WLProfilerLogger.h"
 
 WLProfilerLogger::WLProfilerLogger()
 {
-    // TODO(pieloth): may open a file handler
 }
 
 WLProfilerLogger::~WLProfilerLogger()
 {
-}
-
-WLProfilerLogger& WLProfilerLogger::instance()
-{
-    // Destructor is called when application is being closed.
-    static WLProfilerLogger instance;
-    return instance;
-}
-
-WLProfilerLogger& WLProfilerLogger::operator <<( WLProfiler const& profiler )
-{
-    wlog::info( profiler.getName() ) <<  profiler;
-    return *this;
-}
-
-WLProfilerLogger& wlprofiler::log()
-{
-    return WLProfilerLogger::instance();
 }

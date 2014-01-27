@@ -32,6 +32,8 @@
 
 /**
  * Base class for profiler measurements.
+ *
+ * \author pieloth
  */
 class WLProfiler
 {
@@ -117,6 +119,24 @@ protected:
  * \param strm Output stream
  * \param profiler Profiler to write
  */
-std::ostream& operator<<( std::ostream &strm, const WLProfiler& profiler );
+inline std::ostream& operator<<( std::ostream &strm, const WLProfiler& profiler )
+{
+    return profiler.write( strm );
+}
+
+inline std::string WLProfiler::getSource() const
+{
+    return m_source;
+}
+
+inline std::string WLProfiler::getAction() const
+{
+    return m_action;
+}
+
+inline bool WLProfiler::isAutoLog() const
+{
+    return m_autoLog;
+}
 
 #endif  // WLPROFILER_H_

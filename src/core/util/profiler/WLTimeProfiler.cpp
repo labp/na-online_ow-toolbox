@@ -24,9 +24,6 @@
 
 #include <string>
 
-#include <core/common/WLogger.h>
-#include <core/common/WRealtimeTimer.h>
-
 #include "WLProfilerLogger.h"
 #include "WLTimeProfiler.h"
 
@@ -60,16 +57,6 @@ WLTimeProfiler::~WLTimeProfiler()
         stop();
         wlprofiler::log() << *this;
     }
-}
-
-std::ostream& WLTimeProfiler::write( std::ostream& strm ) const
-{
-    return strm << m_source << "::" << m_action << ": " << getMilliseconds() << " ms";
-}
-
-std::string WLTimeProfiler::getName() const
-{
-    return WLTimeProfiler::CLASS;
 }
 
 double WLTimeProfiler::getMilliseconds() const
@@ -108,11 +95,6 @@ WLTimeProfiler::TimeT WLTimeProfiler::start( bool reset )
     return m_elapsed;
 }
 
-bool WLTimeProfiler::isStarted()
-{
-    return m_isStarted;
-}
-
 WLTimeProfiler::TimeT WLTimeProfiler::stop()
 {
     if( m_isStarted )
@@ -122,15 +104,4 @@ WLTimeProfiler::TimeT WLTimeProfiler::stop()
     m_isStarted = false;
     m_isStopped = true;
     return m_elapsed;
-}
-
-bool WLTimeProfiler::isStopped()
-{
-    return m_isStopped;
-}
-
-WLTimeProfiler::SPtr WLTimeProfiler::clone() const
-{
-    WLTimeProfiler::SPtr profiler( new WLTimeProfiler( *this ) );
-    return profiler;
 }

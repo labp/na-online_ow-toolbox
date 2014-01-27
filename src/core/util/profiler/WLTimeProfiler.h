@@ -25,6 +25,7 @@
 #ifndef WLTIMEPROFILER_H_
 #define WLTIMEPROFILER_H_
 
+#include <ostream>
 #include <string>
 
 #include <boost/shared_ptr.hpp>
@@ -35,6 +36,8 @@
 
 /**
  * Explicit time measurement with start and stop method. An instance relates to a class and an action.
+ *
+ * \author pieloth
  */
 class WLTimeProfiler: public WLProfiler
 {
@@ -100,7 +103,7 @@ public:
      *
      * \return time stamp when the measurement was started.
      */
-    TimeT start( bool reset = true);
+    TimeT start( bool reset = true );
 
     /**
      * Indicates if the measurement is started.
@@ -138,5 +141,31 @@ private:
 
     TimeT m_elapsed;
 };
+
+inline std::ostream& WLTimeProfiler::write( std::ostream& strm ) const
+{
+    return strm << m_source << "::" << m_action << ": " << getMilliseconds() << " ms";
+}
+
+inline std::string WLTimeProfiler::getName() const
+{
+    return WLTimeProfiler::CLASS;
+}
+
+inline bool WLTimeProfiler::isStarted()
+{
+    return m_isStarted;
+}
+
+inline bool WLTimeProfiler::isStopped()
+{
+    return m_isStopped;
+}
+
+inline WLTimeProfiler::SPtr WLTimeProfiler::clone() const
+{
+    WLTimeProfiler::SPtr profiler( new WLTimeProfiler( *this ) );
+    return profiler;
+}
 
 #endif  // WLTIMEPROFILER_H_
