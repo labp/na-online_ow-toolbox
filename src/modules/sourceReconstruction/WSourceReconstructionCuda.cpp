@@ -174,8 +174,6 @@ WLEMDSource::SPtr WSourceReconstructionCuda::reconstruct( WLEMData::ConstSPtr em
     CublasSafeCall( cublasFree( B_dev ) );
     CublasSafeCall( cublasFree( C_dev ) );
 
-    CublasSafeCall( cublasShutdown() );
-
     cudaEventDestroy( startCalc );
     cudaEventDestroy( stopCalc );
 
