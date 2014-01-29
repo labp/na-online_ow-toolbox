@@ -27,31 +27,34 @@
 
 #include <string>
 
-#include <boost/shared_ptr.hpp>
+#include <osg/ref_ptr>
+
+#include <core/gui/WCustomWidgetEventHandler.h>
 
 #include "core/gui/drawable/WLEMDDrawable2DMultiChannel.h"
 
-#include "WLGUIMouseEventListener.h"
-
-class WL2DChannelScrollHandler: public WLGUIMouseEventListener
+/**
+ * Scrolls over the channels in the 2D view.
+ *
+ * \author pieloth
+ */
+class WL2DChannelScrollHandler: public WCustomWidgetEventHandler
 {
 public:
     /**
-     * Abbreviation for a shared pointer on a instance of this class.
+     * Abbreviation for a osg::ref_ptr on a instance of this class.
      */
-    typedef boost::shared_ptr< WL2DChannelScrollHandler > SPtr;
-
-    /**
-     * Abbreviation for a const shared pointer on a instance of this class.
-     */
-    typedef boost::shared_ptr< const WL2DChannelScrollHandler > ConstSPtr;
+    typedef osg::ref_ptr< WL2DChannelScrollHandler > RefPtr;
 
     static const std::string CLASS;
 
     explicit WL2DChannelScrollHandler( LaBP::WLEMDDrawable2DMultiChannel::SPtr initiator );
+
     virtual ~WL2DChannelScrollHandler();
 
-    virtual void mouseEventOccurred( const WLGUIMouseEvent& e );
+    virtual void handleScroll( GUIEvents::ScrollingMotion motion, float deltaX, float deltaY );
+
+    void setDrawable( LaBP::WLEMDDrawable2DMultiChannel::SPtr drawable );
 
 private:
     LaBP::WLEMDDrawable2DMultiChannel::SPtr m_initiator;

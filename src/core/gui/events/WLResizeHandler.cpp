@@ -22,35 +22,30 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLGUIMOUSEEVENTLISTENER_H_
-#define WLGUIMOUSEEVENTLISTENER_H_
+#include <string>
 
-#include <boost/shared_ptr.hpp>
+#include <core/common/WLogger.h>
 
-class WLGUIMouseEvent;
+#include "WLResizeHandler.h"
 
-/**
- * A listener for mouse events or receiver for mouse notifications aka observer pattern.
- */
-class WLGUIMouseEventListener
+const std::string WLResizeHandler::CLASS = "WLResizeHandler";
+
+WLResizeHandler::WLResizeHandler( LaBP::WLEMDDrawable::SPtr drawable ) :
+                WCustomWidgetEventHandler( drawable->getWidget() ), m_drawable( drawable )
 {
-public:
-    /**
-     * Abbreviation for a shared pointer.
-     */
-    typedef boost::shared_ptr< WLGUIMouseEventListener > SPtr;
+    m_preselection |= GUIEvents::RESIZE;
+}
 
-    /**
-     * Abbreviation for const shared pointer.
-     */
-    typedef boost::shared_ptr< const WLGUIMouseEventListener > ConstSPtr;
+WLResizeHandler::~WLResizeHandler()
+{
+}
 
-    virtual ~WLGUIMouseEventListener();
+void WLResizeHandler::handleResize( int xPos, int yPos, int width, int height )
+{
+    m_drawable->redraw();
+}
 
-    /**
-     * Implementation of the action. Is called by a GUI element.
-     */
-    virtual void mouseEventOccurred( const WLGUIMouseEvent& e ) = 0;
-};
-
-#endif  // WLGUIMOUSEEVENTLISTENER_H_
+void WLResizeHandler::setDrawable( LaBP::WLEMDDrawable::SPtr drawable )
+{
+    m_drawable = drawable;
+}

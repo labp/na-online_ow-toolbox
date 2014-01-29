@@ -26,41 +26,40 @@
 
 #include <core/common/WLogger.h>
 
-#include "WLGUIMouseEvent.h"
 #include "WL2DChannelScrollHandler.h"
 
 const std::string WL2DChannelScrollHandler::CLASS = "WL2DChannelScrollHandler";
 
 WL2DChannelScrollHandler::WL2DChannelScrollHandler( LaBP::WLEMDDrawable2DMultiChannel::SPtr initiator ) :
-                m_initiator( initiator )
+                WCustomWidgetEventHandler( initiator->getWidget() ), m_initiator( initiator )
 {
+    m_preselection |= GUIEvents::SCROLL;
 }
 
 WL2DChannelScrollHandler::~WL2DChannelScrollHandler()
 {
 }
 
-void WL2DChannelScrollHandler::mouseEventOccurred( const WLGUIMouseEvent& e )
+void WL2DChannelScrollHandler::handleScroll( GUIEvents::ScrollingMotion motion, float deltaX, float deltaY )
 {
-    const WLGUIMouseEvent::Event::Enum event = e.getEvent();
-    switch( event )
+    if( deltaY < 0.0 ) // down
     {
-        case WLGUIMouseEvent::Event::SCROLL_DOWN:
-        {
-            const size_t channelNr = m_initiator->getChannelBegin();
-            m_initiator->setChannelBegin( channelNr + 1 );
-            return;
-        }
-        case WLGUIMouseEvent::Event::SCROLL_UP:
-        {
-            const size_t channelNr = m_initiator->getChannelBegin();
-            if( channelNr > 0 )
-            {
-                m_initiator->setChannelBegin( channelNr - 1 );
-            }
-            return;
-        }
-        default:
-            return;
+        const size_t channelNr = m_initiator->getChannelBegin();
+        m_initiator->setChannelBegin( channelNr + 1 );
+        return;
     }
+    if( deltaY > 0.0 ) // up
+    {
+        const size_t channelNr = m_initiator->getChannelBegin();
+        if( channelNr > 0 )
+        {
+            m_initiator->setChannelBegin( channelNr - 1 );
+        }
+        return;
+    }
+}
+
+void WL2DChannelScrollHandler::setDrawable( LaBP::WLEMDDrawable2DMultiChannel::SPtr drawable )
+{
+    m_initiator = drawable;
 }

@@ -45,16 +45,12 @@ namespace LaBP
         m_rootGroup->addUpdateCallback( m_callbackDelegator );
         m_widget->getScene()->insert( m_rootGroup );
 
-        m_handlerDelegator = new WLEMDDrawableEventHandlerDelegator( this );
-        m_widget->getViewer()->getView()->addEventHandler( m_handlerDelegator );
-
         m_draw = false;
     }
 
     WLEMDDrawable::~WLEMDDrawable()
     {
         m_rootGroup->removeUpdateCallback( m_callbackDelegator );
-        m_widget->getViewer()->getView()->removeEventHandler( m_handlerDelegator );
         m_widget->getScene()->remove( m_rootGroup );
     }
 
@@ -103,26 +99,6 @@ namespace LaBP
 
     WLEMDDrawable::WLEMDDrawableCallbackDelegator::~WLEMDDrawableCallbackDelegator()
     {
-    }
-
-    void WLEMDDrawable::WLEMDDrawableCallbackDelegator::operator()( osg::Node* node, osg::NodeVisitor* nv )
-    {
-        m_drawable->osgNodeCallback( nv );
-    }
-
-    WLEMDDrawable::WLEMDDrawableEventHandlerDelegator::WLEMDDrawableEventHandlerDelegator( WLGUIEventManager* handler ) :
-                    m_handler( handler )
-    {
-    }
-
-    WLEMDDrawable::WLEMDDrawableEventHandlerDelegator::~WLEMDDrawableEventHandlerDelegator()
-    {
-    }
-
-    bool WLEMDDrawable::WLEMDDrawableEventHandlerDelegator::handle( const osgGA::GUIEventAdapter& ea,
-                    osgGA::GUIActionAdapter& aa )
-    {
-        return m_handler->dispatchEvent( ea );
     }
 
 } /* namespace LaBP */

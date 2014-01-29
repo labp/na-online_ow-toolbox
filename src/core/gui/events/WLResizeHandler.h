@@ -22,9 +22,41 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WLGUIEventListener.h"
+#ifndef WLRESIZEHANDLER_H_
+#define WLRESIZEHANDLER_H_
 
-WLGUIEventListener::~WLGUIEventListener()
+#include <string>
+
+#include <osg/ref_ptr>
+
+#include <core/gui/WCustomWidgetEventHandler.h>
+
+#include "core/gui/drawable/WLEMDDrawable.h"
+
+/**
+ * Catches a resize and force a redraw.
+ *
+ * \author pieloth
+ */
+class WLResizeHandler: public WCustomWidgetEventHandler
 {
-}
+public:
+    /**
+     * Abbreviation for a osg::ref_ptr on a instance of this class.
+     */
+    typedef osg::ref_ptr< WLResizeHandler > RefPtr;
 
+    static const std::string CLASS;
+
+    WLResizeHandler( LaBP::WLEMDDrawable::SPtr drawable );
+    virtual ~WLResizeHandler();
+
+    virtual void handleResize( int xPos, int yPos, int width, int height );
+
+    void setDrawable( LaBP::WLEMDDrawable::SPtr drawable );
+
+private:
+    LaBP::WLEMDDrawable::SPtr m_drawable;
+};
+
+#endif  // WLRESIZEHANDLER_H_

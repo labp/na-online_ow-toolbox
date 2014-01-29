@@ -25,50 +25,51 @@
 #include <string>
 #include <utility>  // for pair<>
 
-#include <osgGA/GUIActionAdapter>
-
 #include <core/common/WLogger.h>
 #include <core/gui/WCustomWidget.h>
 
 #include "core/gui/drawable/WLEMDDrawable2D.h"
 #include "core/gui/drawable/WLEMDDrawable3D.h"
-#include "core/gui/events/WLGUIMouseEvent.h"
 
 #include "WLMarkTimePositionHandler.h"
 
-namespace LaBP
+const std::string WLMarkTimePositionHandler::CLASS = "WLMarkTimePosition";
+
+WLMarkTimePositionHandler::WLMarkTimePositionHandler( LaBP::WLEMDDrawable2D::SPtr initiator, LaBP::WLEMDDrawable3D::SPtr acceptor,
+                WModuleOutputData< WLEMMCommand >::SPtr output ) :
+                WCustomWidgetEventHandler( initiator->getWidget() ), m_initiator( initiator ), m_acceptor( acceptor ), m_output(
+                                output )
 {
-    std::string WLMarkTimePositionHandler::CLASS = "WLMarkTimePosition";
+    m_preselection |= GUIEvents::LEFT_MOUSE_BUTTON;
+}
 
-    WLMarkTimePositionHandler::WLMarkTimePositionHandler( LaBP::WLEMDDrawable2D::SPtr initiator,
-                    LaBP::WLEMDDrawable3D::SPtr acceptor, WModuleOutputData< WLEMMCommand >::SPtr output ) :
-                    m_initiator( initiator ), m_acceptor( acceptor ), m_output( output )
+WLMarkTimePositionHandler::~WLMarkTimePositionHandler()
+{
+}
+
+void WLMarkTimePositionHandler::handlePush( WVector2f mousePos, int button )
+{
+    if( button != GUIEvents::LEFT_MOUSE_BUTTON || !m_initiator->hasData() )
     {
+        return;
     }
 
-    WLMarkTimePositionHandler::~WLMarkTimePositionHandler()
-    {
-    }
+    const float x_pos = mousePos.x();
+    std::pair< boost::shared_ptr< WLEMMeasurement >, size_t > data = m_initiator->getSelectedData( x_pos );
+    wlog::debug( CLASS ) << "called handle with pixels: " << x_pos << " and time: " << data.second;
+    m_initiator->setSelectedPixel( x_pos );
 
-    void WLMarkTimePositionHandler::mouseEventOccurred( const WLGUIMouseEvent& e )
-    {
-        if( e.getEvent() == WLGUIMouseEvent::Event::CLICK_LEFT )
-        {
-            if( m_initiator->hasData() )
-            {
-                const float x_pos = e.getOsgEventAdapter().getX();
-                std::pair< boost::shared_ptr< WLEMMeasurement >, size_t > data = m_initiator->getSelectedData( x_pos );
-                wlog::debug( CLASS ) << "called handle with pixels: " << x_pos << " and time: " << data.second;
-                m_initiator->setSelectedPixel( x_pos );
+    m_acceptor->setSelectedSample( data.second );
+    m_acceptor->draw( data.first );
 
-                m_acceptor->setSelectedSample( data.second );
-                m_acceptor->draw( data.first );
+    WLEMMCommand::SPtr emmCmd( new WLEMMCommand( WLEMMCommand::Command::TIME_UPDATE ) );
+    WLEMMCommand::ParamT param = m_initiator->getSelectedTime();
+    emmCmd->setParameter( param );
+    m_output->updateData( emmCmd );
+}
 
-                WLEMMCommand::SPtr emmCmd( new WLEMMCommand( WLEMMCommand::Command::TIME_UPDATE ) );
-                WLEMMCommand::ParamT param = m_initiator->getSelectedTime();
-                emmCmd->setParameter( param );
-                m_output->updateData( emmCmd );
-            }
-        }
-    }
-} /* namespace LaBP */
+void WLMarkTimePositionHandler::setDrawables( LaBP::WLEMDDrawable2D::SPtr drawable2D, LaBP::WLEMDDrawable3D::SPtr drawable3D )
+{
+    m_initiator = drawable2D;
+    m_acceptor = drawable3D;
+}
