@@ -48,6 +48,11 @@ namespace LaBP
 
     WLAnimationSideScroll::~WLAnimationSideScroll()
     {
+        while( !m_listPAT.empty() )
+        {
+            m_listPAT.pop_front();
+            m_groupPAT->removeChild( 0, 1 );
+        }
     }
 
     double WLAnimationSideScroll::getXTranslation() const
