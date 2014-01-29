@@ -57,9 +57,11 @@ public:
 
     virtual ~WLMarkTimePositionHandler();
 
-    virtual void handlePush( WVector2f mousePos, int button );
-
     void setDrawables( LaBP::WLEMDDrawable2D::SPtr drawable2D, LaBP::WLEMDDrawable3D::SPtr drawable3D );
+
+    virtual void handleDrag( WVector2f mousePos, int buttonMask );
+
+    virtual void handlePush( WVector2f mousePos, int button );
 
 private:
     LaBP::WLEMDDrawable2D::SPtr m_initiator;

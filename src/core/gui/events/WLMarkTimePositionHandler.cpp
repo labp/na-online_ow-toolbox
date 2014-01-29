@@ -25,6 +25,7 @@
 #include <string>
 #include <utility>  // for pair<>
 
+#include <core/common/WException.h>
 #include <core/common/WLogger.h>
 #include <core/gui/WCustomWidget.h>
 
@@ -41,10 +42,41 @@ WLMarkTimePositionHandler::WLMarkTimePositionHandler( LaBP::WLEMDDrawable2D::SPt
                                 output )
 {
     m_preselection |= GUIEvents::LEFT_MOUSE_BUTTON;
+    m_preselection |= GUIEvents::DRAG;
 }
 
 WLMarkTimePositionHandler::~WLMarkTimePositionHandler()
 {
+}
+
+void WLMarkTimePositionHandler::setDrawables( LaBP::WLEMDDrawable2D::SPtr drawable2D, LaBP::WLEMDDrawable3D::SPtr drawable3D )
+{
+    m_initiator = drawable2D;
+    m_acceptor = drawable3D;
+}
+
+void WLMarkTimePositionHandler::handleDrag( WVector2f mousePos, int buttonMask )
+{
+    if( buttonMask != GUIEvents::LEFT_MOUSE_BUTTON || !m_initiator->hasData() )
+    {
+        return;
+    }
+
+    const float x_pos = mousePos.x();
+    try
+    {
+        std::pair< WLEMMeasurement::SPtr, size_t > data = m_initiator->getSelectedData( x_pos );
+        wlog::debug( CLASS ) << "called handle with pixels: " << x_pos << " and time: " << data.second;
+        m_initiator->setSelectedPixel( x_pos );
+
+        m_acceptor->setSelectedSample( data.second );
+        m_acceptor->draw( data.first );
+    }
+    catch( const WException& e )
+    {
+        wlog::warn( CLASS ) << e.what();
+    }
+
 }
 
 void WLMarkTimePositionHandler::handlePush( WVector2f mousePos, int button )
@@ -55,21 +87,23 @@ void WLMarkTimePositionHandler::handlePush( WVector2f mousePos, int button )
     }
 
     const float x_pos = mousePos.x();
-    std::pair< boost::shared_ptr< WLEMMeasurement >, size_t > data = m_initiator->getSelectedData( x_pos );
-    wlog::debug( CLASS ) << "called handle with pixels: " << x_pos << " and time: " << data.second;
-    m_initiator->setSelectedPixel( x_pos );
+    try
+    {
+        std::pair< WLEMMeasurement::SPtr, size_t > data = m_initiator->getSelectedData( x_pos );
+        wlog::debug( CLASS ) << "called handle with pixels: " << x_pos << " and time: " << data.second;
+        m_initiator->setSelectedPixel( x_pos );
 
-    m_acceptor->setSelectedSample( data.second );
-    m_acceptor->draw( data.first );
+        m_acceptor->setSelectedSample( data.second );
+        m_acceptor->draw( data.first );
+    }
+    catch( const WException& e )
+    {
+        wlog::warn( CLASS ) << e.what();
+        return;
+    }
 
     WLEMMCommand::SPtr emmCmd( new WLEMMCommand( WLEMMCommand::Command::TIME_UPDATE ) );
     WLEMMCommand::ParamT param = m_initiator->getSelectedTime();
     emmCmd->setParameter( param );
     m_output->updateData( emmCmd );
-}
-
-void WLMarkTimePositionHandler::setDrawables( LaBP::WLEMDDrawable2D::SPtr drawable2D, LaBP::WLEMDDrawable3D::SPtr drawable3D )
-{
-    m_initiator = drawable2D;
-    m_acceptor = drawable3D;
 }

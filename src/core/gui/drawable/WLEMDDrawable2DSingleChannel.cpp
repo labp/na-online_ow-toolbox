@@ -33,11 +33,14 @@
 #include <osg/MatrixTransform>
 #include <osgText/Text>
 
+#include <core/common/WAssert.h>
 #include <core/common/WLogger.h>
+#include <core/common/exceptions/WOutOfBounds.h>
 #include <core/gui/WCustomWidget.h>
 
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMData.h"
+#include "core/exception/WLNoDataException.h"
 #include "core/util/WLBoundCalculator.h"
 
 #include "WLEMDDrawable2DSingleChannel.h"
@@ -229,20 +232,30 @@ namespace LaBP
 
     std::pair< WLEMMeasurement::SPtr, size_t > WLEMDDrawable2DSingleChannel::getSelectedData( ValueT pixel ) const
     {
-        size_t sample = 0;
-
-        WLEMMeasurement::SPtr emm = m_emm;
-
-        if( pixel > m_xOffset )
+        if( !m_emm )
         {
-            const ValueT width = m_widget->width() - m_xOffset;
-            const ValueT relPix = pixel - m_xOffset;
+            throw WLNoDataException( "No EMM available!" );
+        }
+
+        const ValueT width = m_widget->width();
+        const WLEMMeasurement::SPtr emm = m_emm;
+        if( m_xOffset <= pixel && pixel < width )
+        {
+            size_t sample = 0;
+            const ValueT rel_width = width - m_xOffset;
+            const ValueT rel_pix = pixel - m_xOffset;
             const size_t samples_total = emm->getModality( m_modality )->getSamplesPerChan();
 
-            sample = relPix * samples_total / width;
+            sample = rel_pix * samples_total / rel_width;
+
+            wlog::debug( CLASS ) << "selected sample: " << sample;
+            WAssertDebug( 0 <= sample && sample < samples_total, "0 <= sample && sample < samples_total" );
+            return std::make_pair( emm, sample );
         }
-        wlog::debug( CLASS ) << "selected sample: " << sample;
-        return std::make_pair( emm, sample );
+        else
+        {
+            throw WOutOfBounds( "Pixel out of bounds!" );
+        }
     }
 
     void WLEMDDrawable2DSingleChannel::osgNodeCallback( osg::NodeVisitor* nv )

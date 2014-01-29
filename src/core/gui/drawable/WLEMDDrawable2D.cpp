@@ -36,6 +36,7 @@
 
 #include <core/common/WAssert.h>
 #include <core/common/WColor.h>
+#include <core/common/WException.h>
 #include <core/gui/WCustomWidget.h>
 #include <core/graphicsEngine/WGEGroupNode.h>
 
@@ -78,6 +79,11 @@ namespace LaBP
         osg::ref_ptr< osg::StateSet > state = m_rootGroup->getOrCreateStateSet();
         state->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
         state->setMode( GL_DEPTH_TEST, osg::StateAttribute::OFF );
+
+        // NOTE: Disable backtrace print for getSelectedData()!
+#ifndef DEBUG
+        WException::disableBacktrace();
+#endif
     }
 
     WLEMDDrawable2D::~WLEMDDrawable2D()

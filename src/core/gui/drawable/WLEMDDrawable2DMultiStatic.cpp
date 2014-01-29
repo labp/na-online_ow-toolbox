@@ -26,7 +26,11 @@
 #include <utility>  // for pair<>
 #include <osg/MatrixTransform>
 
+#include <core/common/WAssert.h>
 #include <core/common/WLogger.h>
+#include <core/common/exceptions/WOutOfBounds.h>
+
+#include "core/exception/WLNoDataException.h"
 
 #include "WLEMDDrawable2DMultiStatic.h"
 
@@ -57,21 +61,30 @@ namespace LaBP
 
     std::pair< WLEMMeasurement::SPtr, size_t > WLEMDDrawable2DMultiStatic::getSelectedData( ValueT pixel ) const
     {
-        size_t sample = 0;
-        const ValueT x_offset = m_xOffset;
-
-        WLEMMeasurement::SPtr emm = m_emm;
-
-        if( pixel > x_offset )
+        if( !m_emm )
         {
-            const ValueT width = m_widget->width() - x_offset;
-            const ValueT relPix = pixel - x_offset;
+            throw WLNoDataException( "No EMM available!" );
+        }
+
+        const ValueT width = m_widget->width();
+        const WLEMMeasurement::SPtr emm = m_emm;
+        if( m_xOffset <= pixel && pixel < width )
+        {
+            size_t sample = 0;
+            const ValueT rel_width = width - m_xOffset;
+            const ValueT rel_pix = pixel - m_xOffset;
             const size_t samples_total = emm->getModality( m_modality )->getSamplesPerChan();
 
-            sample = relPix * samples_total / width;
+            sample = rel_pix * samples_total / rel_width;
+
+            wlog::debug( CLASS ) << "selected sample: " << sample;
+            WAssertDebug( 0 <= sample && sample < samples_total, "0 <= sample && sample < samples_total" );
+            return std::make_pair( emm, sample );
         }
-        wlog::debug( CLASS ) << "selected sample: " << sample;
-        return std::make_pair( emm, sample );
+        else
+        {
+            throw WOutOfBounds( "Pixel out of bounds!" );
+        }
     }
 
     void WLEMDDrawable2DMultiStatic::osgNodeCallback( osg::NodeVisitor* nv )

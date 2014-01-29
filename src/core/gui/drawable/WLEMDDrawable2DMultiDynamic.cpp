@@ -33,9 +33,11 @@
 
 #include <core/common/WLogger.h>
 #include <core/common/WRealtimeTimer.h>
+#include <core/common/exceptions/WOutOfBounds.h>
 
 #include "core/data/emd/WLEMData.h"
 #include "core/data/enum/WLEModality.h"
+#include "core/exception/WLNoDataException.h"
 
 #include "WLEMDDrawable2DMultiDynamic.h"
 
@@ -171,9 +173,14 @@ namespace LaBP
         const std::list< osg::ref_ptr< WLAnimationSideScroll::EMMNode > >& nodes = m_animation->getNodes();
         if( nodes.empty() )
         {
-            wlog::error( CLASS ) << "getSelectedData() - No data to select!";
             m_animation->setPause( false );
-            return std::make_pair( WLEMMeasurement::SPtr(), 0 );
+            throw WLNoDataException( "No data to select for pixel!"/* + pixel*/ );
+        }
+
+        const ValueT width = m_widget->width();
+        if( !( m_xOffset <= pixel && pixel < width ) )
+        {
+            throw WOutOfBounds( "Pixel out of bounds!" );
         }
 
         const ValueT pixelPerBlock = getPixelPerBlock( m_blockLength );
@@ -191,9 +198,8 @@ namespace LaBP
 
         if( !emmNode.valid() )
         {
-            wlog::error( CLASS ) << "getSelectedData() - No data found for pixel: " << pixel;
             m_animation->setPause( false );
-            return std::make_pair( WLEMMeasurement::SPtr(), 0 );
+            throw WLNoDataException( "No data found for pixel!"/* + pixel*/ );
         }
 
         WLEMMeasurement::SPtr emm = emmNode->getEmm();
