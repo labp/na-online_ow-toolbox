@@ -222,11 +222,10 @@ namespace LaBP
              */
             void operator()( osg::Node* node, osg::NodeVisitor* nv );
 
-        private:
             /**
              * WLEMDDrawable to wrap.
              */
-            WLEMDDrawable* const m_drawable;
+            WLEMDDrawable* m_drawable;
         };
 
         /**
@@ -237,7 +236,8 @@ namespace LaBP
 
     inline void WLEMDDrawable::WLEMDDrawableCallbackDelegator::operator()( osg::Node* node, osg::NodeVisitor* nv )
     {
-        m_drawable->osgNodeCallback( nv );
+        if( m_drawable != NULL )
+            m_drawable->osgNodeCallback( nv );
     }
 
 } /* namespace LaBP */

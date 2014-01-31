@@ -51,6 +51,11 @@ WLEMDDrawable3DEEGBEM::WLEMDDrawable3DEEGBEM( WCustomWidget::SPtr widget ) :
 
 WLEMDDrawable3DEEGBEM::~WLEMDDrawable3DEEGBEM()
 {
+    if( m_electrodesGeode.valid() )
+    {
+        m_rootGroup->remove( m_electrodesGeode );
+        m_electrodesGeode = NULL;
+    }
 }
 
 bool WLEMDDrawable3DEEGBEM::mustDraw() const

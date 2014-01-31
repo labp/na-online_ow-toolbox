@@ -267,6 +267,8 @@ void WMSourceReconstruction::moduleMain()
             process( cmd );
         }
     }
+
+    viewCleanup();
 }
 
 void WMSourceReconstruction::handleImplementationChanged( void )

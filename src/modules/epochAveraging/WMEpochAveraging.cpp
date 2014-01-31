@@ -201,6 +201,8 @@ void WMEpochAveraging::moduleMain()
             process( cmdIn );
         }
     }
+
+    viewCleanup();
 }
 
 void WMEpochAveraging::callbackAverageTypeChanged()

@@ -68,27 +68,6 @@ WLModuleDrawable::WLModuleDrawable()
 
 WLModuleDrawable::~WLModuleDrawable()
 {
-    if( m_widget.get() != NULL )
-    {
-        if( m_scrollHandler.valid() )
-        {
-            m_widget->getViewer()->getView()->removeEventHandler( m_scrollHandler );
-        }
-        if( m_clickHandler.valid() )
-        {
-            m_widget->getViewer()->getView()->removeEventHandler( m_clickHandler );
-        }
-        if( m_resize2dHandler.valid() )
-        {
-            m_widget->getViewer()->getView()->removeEventHandler( m_resize2dHandler );
-        }
-        if( m_resize3dHandler.valid() )
-        {
-            m_widget->getViewer()->getView()->removeEventHandler( m_resize3dHandler );
-        }
-
-        WKernel::getRunningKernel()->getGui()->closeCustomWidget( m_widget->getTitle() );
-    }
 }
 
 void WLModuleDrawable::properties()
@@ -454,6 +433,42 @@ void WLModuleDrawable::viewReset()
     callbackLabelsChanged();
 
     m_clickHandler->setDrawables( m_drawable2D, m_drawable3D );
+}
+
+void WLModuleDrawable::viewCleanup()
+{
+    debugLog() << "viewCleanup() called!";
+    if( !m_widget )
+    {
+        debugLog() << "Nothing to cleanup.";
+        return;
+    }
+
+    if( m_scrollHandler.valid() )
+    {
+        m_widget->getViewer()->getView()->removeEventHandler( m_scrollHandler );
+        m_scrollHandler = NULL;
+    }
+    if( m_clickHandler.valid() )
+    {
+        m_widget->getViewer()->getView()->removeEventHandler( m_clickHandler );
+        m_clickHandler = NULL;
+    }
+    if( m_resize2dHandler.valid() )
+    {
+        m_widget->getViewer()->getView()->removeEventHandler( m_resize2dHandler );
+        m_resize2dHandler = NULL;
+    }
+    if( m_resize3dHandler.valid() )
+    {
+        m_widget->getViewer()->getView()->removeEventHandler( m_resize3dHandler );
+        m_resize3dHandler = NULL;
+    }
+
+    WKernel::getRunningKernel()->getGui()->closeCustomWidget( m_widget->getTitle() );
+    m_drawable2D.reset();
+    m_drawable3D.reset();
+    m_widget.reset();
 }
 
 double WLModuleDrawable::getTimerange()

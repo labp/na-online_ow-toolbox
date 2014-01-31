@@ -163,6 +163,8 @@ void WMEMMSimulator::moduleMain()
             process( cmdIn );
         }
     }
+
+    viewCleanup();
 }
 
 void WMEMMSimulator::reset()

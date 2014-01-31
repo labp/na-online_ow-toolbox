@@ -101,6 +101,11 @@ protected:
     void viewReset();
 
     /**
+     * Must be called from derived classes in moduleMain after receiving a shutdown.
+     */
+    void viewCleanup();
+
+    /**
      * Initializes the underlying algorithm with the values of WProperties. Called it after ready()!
      */
     virtual void moduleInit() = 0;

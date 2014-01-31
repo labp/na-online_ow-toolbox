@@ -295,6 +295,8 @@ void WMEmMeasurement::moduleMain()
             handleExperimentLoadChanged();
         }
     }
+
+    viewCleanup();
 }
 
 void WMEmMeasurement::streamData()

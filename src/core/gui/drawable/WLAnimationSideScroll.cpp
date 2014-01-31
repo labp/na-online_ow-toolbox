@@ -48,6 +48,9 @@ namespace LaBP
 
     WLAnimationSideScroll::~WLAnimationSideScroll()
     {
+        m_pause = true;
+        m_listPAT.clear();
+        m_groupPAT = NULL;
     }
 
     double WLAnimationSideScroll::getXTranslation() const

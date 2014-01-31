@@ -287,6 +287,8 @@ void WMMneRtClient::moduleMain()
             }
         }
     }
+
+    viewCleanup();
 }
 
 void WMMneRtClient::handleTrgConConnect()

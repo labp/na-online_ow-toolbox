@@ -254,6 +254,8 @@ void WMFIRFilter::moduleMain()
             process( cmdIn );
         }
     }
+
+    viewCleanup();
 }
 
 void WMFIRFilter::callbackCoeffFileChanged( void )

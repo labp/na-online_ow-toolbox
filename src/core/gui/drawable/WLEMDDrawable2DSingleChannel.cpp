@@ -58,6 +58,11 @@ namespace LaBP
 
     WLEMDDrawable2DSingleChannel::~WLEMDDrawable2DSingleChannel()
     {
+        if( m_valueGridGroup.valid() )
+        {
+            m_rootGroup->remove( m_valueGridGroup );
+            m_valueGridGroup = NULL;
+        }
     }
 
     void WLEMDDrawable2DSingleChannel::draw( WLEMMeasurement::SPtr emm )

@@ -58,6 +58,16 @@ namespace LaBP
 
     WLEMDDrawable3DEEG::~WLEMDDrawable3DEEG()
     {
+        if( m_labesGeode.valid() )
+        {
+            m_rootGroup->remove( m_labesGeode );
+            m_labesGeode = NULL;
+        }
+        if( m_electrodesGeode.valid() )
+        {
+            m_rootGroup->remove( m_electrodesGeode );
+            m_electrodesGeode = NULL;
+        }
     }
 
     bool WLEMDDrawable3DEEG::mustDraw() const

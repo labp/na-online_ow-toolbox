@@ -50,7 +50,10 @@ namespace LaBP
     WLEMDDrawable::~WLEMDDrawable()
     {
         m_rootGroup->removeUpdateCallback( m_callbackDelegator );
+        m_callbackDelegator->m_drawable = NULL;
+        m_callbackDelegator = NULL;
         m_widget->getScene()->remove( m_rootGroup );
+        m_rootGroup = NULL;
     }
 
     void WLEMDDrawable::redraw()

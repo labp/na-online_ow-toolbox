@@ -87,6 +87,21 @@ namespace LaBP
 
     WLEMDDrawable2D::~WLEMDDrawable2D()
     {
+        if( m_markerGeode.valid() )
+        {
+            m_rootGroup->remove( m_markerGeode );
+            m_markerGeode = NULL;
+        }
+        if( m_timeGridGroup.valid() )
+        {
+            m_rootGroup->remove( m_timeGridGroup );
+            m_timeGridGroup = NULL;
+        }
+        if( m_channelGroup.valid() )
+        {
+            m_rootGroup->remove( m_channelGroup );
+            m_channelGroup = NULL;
+        }
     }
 
     bool WLEMDDrawable2D::mustDraw() const

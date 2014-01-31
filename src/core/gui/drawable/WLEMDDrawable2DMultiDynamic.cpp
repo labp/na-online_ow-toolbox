@@ -63,6 +63,11 @@ namespace LaBP
     WLEMDDrawable2DMultiDynamic::~WLEMDDrawable2DMultiDynamic()
     {
         delete m_animation;
+        if( m_osgChannelBlocks.valid() )
+        {
+            m_rootGroup->remove( m_osgChannelBlocks );
+            m_osgChannelBlocks = NULL;
+        }
     }
 
     bool WLEMDDrawable2DMultiDynamic::setTimeRange( ValueT timeRange )

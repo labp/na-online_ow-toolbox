@@ -171,6 +171,8 @@ void WMEpochSeparation::moduleMain()
             process( cmdIn );
         }
     }
+
+    viewCleanup();
 }
 
 void WMEpochSeparation::handleResetTriggerPressed()

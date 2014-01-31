@@ -66,6 +66,17 @@ namespace LaBP
 
     WLEMDDrawable2DMultiChannel::~WLEMDDrawable2DMultiChannel()
     {
+        if( m_labelsBackground.valid() )
+        {
+            m_rootGroup->remove( m_labelsBackground );
+            m_labelsBackground = NULL;
+        }
+
+        if( m_labelsText.valid() )
+        {
+            m_rootGroup->remove( m_labelsText );
+            m_labelsText = NULL;
+        }
     }
 
     size_t WLEMDDrawable2DMultiChannel::getChannelBegin() const
