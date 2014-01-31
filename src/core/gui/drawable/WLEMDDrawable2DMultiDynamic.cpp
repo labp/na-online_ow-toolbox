@@ -26,6 +26,7 @@
 #include <list>
 #include <string>
 #include <utility>  // for pair<>
+#include <osg/Group>
 #include <osgGA/Export>
 #include <osgGA/GUIEventHandler>
 #include <osgGA/GUIEventAdapter>
@@ -34,6 +35,7 @@
 #include <core/common/WLogger.h>
 #include <core/common/WRealtimeTimer.h>
 #include <core/common/exceptions/WOutOfBounds.h>
+#include <core/graphicsEngine/WGEGroupNode.h>
 
 #include "core/data/emd/WLEMData.h"
 #include "core/data/enum/WLEModality.h"
@@ -48,8 +50,8 @@ namespace LaBP
     WLEMDDrawable2DMultiDynamic::WLEMDDrawable2DMultiDynamic( WCustomWidget::SPtr widget ) :
                     WLEMDDrawable2DMultiChannel( widget )
     {
-        m_osgChannelBlocks = new osg::MatrixTransform;
-        m_rootGroup->addChild( m_osgChannelBlocks );
+        m_osgChannelBlocks = new WGEGroupNode;
+        m_rootGroup->insert( m_osgChannelBlocks );
         m_blockLength = 0;
 
         m_animation = new WLAnimationSideScroll( m_osgChannelBlocks );
@@ -174,7 +176,7 @@ namespace LaBP
         if( nodes.empty() )
         {
             m_animation->setPause( false );
-            throw WLNoDataException( "No data to select for pixel!"/* + pixel*/ );
+            throw WLNoDataException( "No data to select for pixel!"/* + pixel*/);
         }
 
         const ValueT width = m_widget->width();
@@ -199,7 +201,7 @@ namespace LaBP
         if( !emmNode.valid() )
         {
             m_animation->setPause( false );
-            throw WLNoDataException( "No data found for pixel!"/* + pixel*/ );
+            throw WLNoDataException( "No data found for pixel!"/* + pixel*/);
         }
 
         WLEMMeasurement::SPtr emm = emmNode->getEmm();

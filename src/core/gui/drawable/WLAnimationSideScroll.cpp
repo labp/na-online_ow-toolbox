@@ -48,11 +48,6 @@ namespace LaBP
 
     WLAnimationSideScroll::~WLAnimationSideScroll()
     {
-        while( !m_listPAT.empty() )
-        {
-            m_listPAT.pop_front();
-            m_groupPAT->removeChild( 0, 1 );
-        }
     }
 
     double WLAnimationSideScroll::getXTranslation() const
@@ -145,8 +140,8 @@ namespace LaBP
             osg::Vec3d translation = m_translation * ( partLength / length );
 
             // Translate all blocks
-            std::list< osg::ref_ptr< EMMNode > >::iterator it = m_listPAT.begin();
-            for( ; it != m_listPAT.end(); ++it )
+            std::list< osg::ref_ptr< EMMNode > >::iterator it;
+            for( it = m_listPAT.begin(); it != m_listPAT.end(); ++it )
             {
                 const osg::Vec3d& pos = ( *it )->getPosition();
                 const osg::Vec3d posNew = pos + translation;

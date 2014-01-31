@@ -27,7 +27,7 @@
 
 #include <queue>
 
-#include <osg/MatrixTransform>
+#include <core/graphicsEngine/WGEGroupNode.h>
 
 #include "core/gui/drawable/WLAnimationSideScroll.h"
 #include "WLEMDDrawable2DMultiChannel.h"
@@ -102,7 +102,7 @@ namespace LaBP
          */
         inline ValueT getPixelPerSeconds() const;
 
-        osg::ref_ptr< osg::MatrixTransform > m_osgChannelBlocks;
+        osg::ref_ptr< WGEGroupNode > m_osgChannelBlocks;
     };
 
 } /* namespace LaBP */

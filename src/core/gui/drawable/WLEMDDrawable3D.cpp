@@ -27,9 +27,9 @@
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
+
 #include <osg/Array>
 #include <osg/Geode>
-#include <osg/Group>
 #include <osg/LightModel>
 #include <osg/ref_ptr>
 #include <osg/Drawable>

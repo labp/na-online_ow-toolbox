@@ -30,12 +30,12 @@
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include <osg/Group>
 #include <osg/Node>
 #include <osg/NodeCallback>
 #include <osg/NodeVisitor>
 #include <osg/ref_ptr>
 
+#include <core/graphicsEngine/WGEGroupNode.h>
 #include <core/gui/WCustomWidget.h>
 
 #include "core/data/WLEMMeasurement.h"
@@ -163,7 +163,7 @@ namespace LaBP
         /**
          * Root node for all OSG objects which are added to the widget. osgNodeCallback() is applied to this node.
          */
-        osg::ref_ptr< osg::Group > m_rootGroup;
+        osg::ref_ptr< WGEGroupNode > m_rootGroup;
 
         /**
          * Modality to draw.

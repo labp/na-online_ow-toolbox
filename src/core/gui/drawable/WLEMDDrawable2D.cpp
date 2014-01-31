@@ -28,7 +28,6 @@
 #include <osg/Array>
 #include <osg/Geode>
 #include <osg/Geometry>
-#include <osg/Group>
 #include <osg/Matrix>
 #include <osg/MatrixTransform>
 #include <osg/PrimitiveSet>
@@ -174,7 +173,7 @@ namespace LaBP
             m_timeGridHight = height;
 
             m_rootGroup->removeChild( m_timeGridGroup );
-            m_timeGridGroup = new osg::Group;
+            m_timeGridGroup = new WGEGroupNode;
 
             const ValueT pxPerSec = ( width - m_xOffset ) / getTimeRange();
             const ValueT deltaT = pxPerSec * 0.05;

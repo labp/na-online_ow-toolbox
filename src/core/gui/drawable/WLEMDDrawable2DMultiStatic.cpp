@@ -29,6 +29,7 @@
 #include <core/common/WAssert.h>
 #include <core/common/WLogger.h>
 #include <core/common/exceptions/WOutOfBounds.h>
+#include <core/graphicsEngine/WGEGroupNode.h>
 
 #include "core/exception/WLNoDataException.h"
 
@@ -107,7 +108,7 @@ namespace LaBP
     void WLEMDDrawable2DMultiStatic::osgAddChannels( const WLEMData& emd )
     {
         m_rootGroup->removeChild( m_channelGroup );
-        m_channelGroup = new osg::Group;
+        m_channelGroup = new WGEGroupNode;
 
         const ValueT x_pos = m_xOffset;
         const ValueT y_pos = m_widget->height() - m_yOffset;

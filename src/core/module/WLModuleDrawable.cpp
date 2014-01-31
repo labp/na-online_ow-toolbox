@@ -68,10 +68,27 @@ WLModuleDrawable::WLModuleDrawable()
 
 WLModuleDrawable::~WLModuleDrawable()
 {
-    m_drawable2D.reset();
-    m_drawable3D.reset();
+    if( m_widget.get() != NULL )
+    {
+        if( m_scrollHandler.valid() )
+        {
+            m_widget->getViewer()->getView()->removeEventHandler( m_scrollHandler );
+        }
+        if( m_clickHandler.valid() )
+        {
+            m_widget->getViewer()->getView()->removeEventHandler( m_clickHandler );
+        }
+        if( m_resize2dHandler.valid() )
+        {
+            m_widget->getViewer()->getView()->removeEventHandler( m_resize2dHandler );
+        }
+        if( m_resize3dHandler.valid() )
+        {
+            m_widget->getViewer()->getView()->removeEventHandler( m_resize3dHandler );
+        }
 
-    WKernel::getRunningKernel()->getGui()->closeCustomWidget( m_widget->getTitle() );
+        WKernel::getRunningKernel()->getGui()->closeCustomWidget( m_widget->getTitle() );
+    }
 }
 
 void WLModuleDrawable::properties()

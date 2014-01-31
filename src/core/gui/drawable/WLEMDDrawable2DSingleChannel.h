@@ -30,8 +30,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <osg/Group>
-
+#include <core/graphicsEngine/WGEGroupNode.h>
 #include <core/gui/WCustomWidget.h>
 
 #include "core/data/emd/WLEMData.h"
@@ -81,7 +80,7 @@ namespace LaBP
 
         ValueT m_valueGridHeight;
         ValueT m_valueGridWidth;
-        osg::ref_ptr< osg::Group > m_valueGridGroup;
+        osg::ref_ptr< WGEGroupNode > m_valueGridGroup;
 
         virtual size_t maxChannels( const WLEMData& emd ) const;
 

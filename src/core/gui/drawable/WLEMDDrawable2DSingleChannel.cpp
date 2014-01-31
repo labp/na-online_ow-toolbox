@@ -80,7 +80,7 @@ namespace LaBP
     void WLEMDDrawable2DSingleChannel::osgAddChannels( const WLEMData& emd )
     {
         m_rootGroup->removeChild( m_channelGroup );
-        m_channelGroup = new osg::Group;
+        m_channelGroup = new WGEGroupNode;
 
         const ValueT x_pos = m_xOffset;
         const ValueT y_pos = m_widget->height() / 2;
@@ -123,7 +123,7 @@ namespace LaBP
             m_valueGridHeight = height;
 
             m_rootGroup->removeChild( m_valueGridGroup );
-            m_valueGridGroup = new osg::Group;
+            m_valueGridGroup = new WGEGroupNode;
 
             // Draw 0 line and add text
             osg::ref_ptr< osg::Geometry > line = new osg::Geometry;

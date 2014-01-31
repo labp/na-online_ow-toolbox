@@ -24,9 +24,8 @@
 
 #include <string>
 
-#include <osg/Group>
+#include <core/graphicsEngine/WGEGroupNode.h>
 
-#include <core/graphicsEngine/WGEGroupNode.h> // m_widget->getScene
 #include "WLEMDDrawable.h"
 
 namespace LaBP
@@ -39,7 +38,7 @@ namespace LaBP
         m_modality = WLEModality::UNKNOWN;
         m_dataChanged = false;
         m_modalityChanged = false;
-        m_rootGroup = new osg::Group;
+        m_rootGroup = new WGEGroupNode;
 
         m_callbackDelegator = new WLEMDDrawableCallbackDelegator( this );
         m_rootGroup->addUpdateCallback( m_callbackDelegator );
