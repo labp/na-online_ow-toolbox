@@ -437,6 +437,9 @@ bool WMSourceReconstruction::processCompute( WLEMMeasurement::SPtr emmIn )
         emmOut->addModality( emmIn->getModality( i ) );
     }
     emmOut->addModality( sourceOut );
+    boost::shared_ptr< WLEMMeasurement::EDataT > events = emmIn->getEventChannels();
+    boost::shared_ptr< WLEMMeasurement::EDataT > eventsOut = emmOut->getEventChannels();
+    eventsOut->assign( events->begin(), events->end() );
 
     viewUpdate( emmOut );
 

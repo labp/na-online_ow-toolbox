@@ -105,6 +105,10 @@ WLEMMeasurement::SPtr WEpochAveragingMoving::getAverage( WLEMMeasurement::ConstS
         dataOut *= divFactor;
     }
 
+    boost::shared_ptr< WLEMMeasurement::EDataT > events = emmIn->getEventChannels();
+    boost::shared_ptr< WLEMMeasurement::EDataT > eventsOut = emmOut->getEventChannels();
+    eventsOut->assign( events->begin(), events->end() );
+
     return emmOut;
 }
 

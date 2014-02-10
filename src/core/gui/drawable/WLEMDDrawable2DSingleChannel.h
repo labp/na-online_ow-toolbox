@@ -30,6 +30,9 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <osg/Geode>
+#include <osg/ref_ptr>
+
 #include <core/graphicsEngine/WGEGroupNode.h>
 #include <core/gui/WCustomWidget.h>
 
@@ -78,14 +81,20 @@ namespace LaBP
 
         void osgAddValueGrid( const WLEMData& emd );
 
+        virtual size_t maxChannels( const WLEMData& emd ) const;
+
         ValueT m_valueGridHeight;
         ValueT m_valueGridWidth;
         osg::ref_ptr< WGEGroupNode > m_valueGridGroup;
 
-        virtual size_t maxChannels( const WLEMData& emd ) const;
-
     private:
         void osgAddChannels( const WLEMData& emd );
+
+        void osgSetTrigger( const WLEMMeasurement::EDataT& events );
+
+        osg::ref_ptr< osg::Geode > m_triggerGeode;
+
+        osg::ref_ptr< WLColorArray > m_triggerColors;
     };
 
 } /* namespace LaBP */

@@ -42,6 +42,11 @@ namespace LaBP
     WLEMDDrawable2DMultiStatic::WLEMDDrawable2DMultiStatic( WCustomWidget::SPtr widget ) :
                     WLEMDDrawable2DMultiChannel( widget )
     {
+        m_triggerColors = new WLColorArray;
+        m_triggerColors->push_back( WColor( 0.5, 1.0, 0.5, 0.4 ) );
+
+        osg::ref_ptr< osg::StateSet > state = m_rootGroup->getOrCreateStateSet();
+        state->setMode( GL_BLEND, osg::StateAttribute::ON );
     }
 
     WLEMDDrawable2DMultiStatic::~WLEMDDrawable2DMultiStatic()
@@ -101,6 +106,7 @@ namespace LaBP
         WLEMData::ConstSPtr emd = emm->getModality( m_modality );
         osgAddLabels( *emd );
         osgAddChannels( *emd );
+        osgSetTrigger( *( emm->getEventChannels() ) );
 
         WLEMDDrawable2DMultiChannel::osgNodeCallback( nv );
     }
@@ -141,6 +147,67 @@ namespace LaBP
 
         m_channelGroup->addChild( panTransform );
         m_rootGroup->addChild( m_channelGroup );
+    }
+
+    void WLEMDDrawable2DMultiStatic::osgSetTrigger( const WLEMMeasurement::EDataT& events )
+    {
+        const ValueT pxWidth = static_cast< ValueT >( m_widget->width() - m_xOffset );
+
+        // delete old trigger
+        if( m_triggerGeode.valid() )
+        {
+            m_rootGroup->removeChild( m_triggerGeode );
+            m_triggerGeode = NULL;
+        }
+
+        // find new trigger
+        WLEMMeasurement::EDataT::const_iterator chanIt;
+        for( chanIt = events.begin(); chanIt != events.end(); ++chanIt )
+        {
+            const WLEMMeasurement::EChannelT channel = *chanIt;
+            for( size_t i = 0; i < channel.size(); ++i )
+            {
+                if( channel[i] > 0 )
+                {
+                    const size_t start = i;
+                    do
+                    {
+                        ++i;
+                    } while( channel[start] == channel[i] && i < channel.size() );
+
+                    const ValueT pxStart = static_cast< ValueT >( start ) / static_cast< ValueT >( channel.size() ) * pxWidth
+                                    + m_xOffset;
+                    const ValueT pxEnd = static_cast< ValueT >( i - 1 ) / static_cast< ValueT >( channel.size() ) * pxWidth
+                                    + m_xOffset;
+
+                    // draw new trigger
+                    osg::ref_ptr< osg::Geometry > geometry = new osg::Geometry;
+
+                    osg::ref_ptr< osg::Vec2Array > vertices = new osg::Vec2Array();
+                    vertices->reserve( 4 );
+                    vertices->push_back( osg::Vec2( pxStart, 0.0 ) );
+                    vertices->push_back( osg::Vec2( pxStart, m_widget->height() ) );
+                    vertices->push_back( osg::Vec2( pxEnd, m_widget->height() ) );
+                    vertices->push_back( osg::Vec2( pxEnd, 0.0 ) );
+
+                    geometry->setVertexArray( vertices );
+                    geometry->setColorArray( m_triggerColors );
+                    geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+                    geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUADS, 0, vertices->size() ) );
+
+                    if( !m_triggerGeode.valid() )
+                    {
+                        m_triggerGeode = new osg::Geode();
+                    }
+                    m_triggerGeode->addDrawable( geometry );
+                }
+            }
+        }
+
+        if( m_triggerGeode.valid() )
+        {
+            m_rootGroup->addChild( m_triggerGeode );
+        }
     }
 
 } /* namespace LaBP */
