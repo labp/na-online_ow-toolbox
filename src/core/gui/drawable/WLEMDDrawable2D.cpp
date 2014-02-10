@@ -160,7 +160,7 @@ namespace LaBP
             osg::ref_ptr< osg::Geometry > geometry = new osg::Geometry;
 
             osg::ref_ptr< osg::Vec2Array > vertices = new osg::Vec2Array();
-            vertices->reserve( 2 );
+            vertices->reserve( 6 );
             vertices->push_back( osg::Vec2( m_selectedPixel - 1, 0.0f ) );
             vertices->push_back( osg::Vec2( m_selectedPixel - 1, m_widget->height() ) );
             vertices->push_back( osg::Vec2( m_selectedPixel, 0.0f ) );
@@ -222,6 +222,7 @@ namespace LaBP
             // Create background rectangle for labels //
             osg::ref_ptr< osg::Vec3Array > bgVertices = new osg::Vec3Array;
             const ValueT z = -1.0f;
+            bgVertices->reserve( 4 );
             bgVertices->push_back( osg::Vec3( m_xOffset, height - 16, z ) );
             bgVertices->push_back( osg::Vec3( m_xOffset, height, z ) );
             bgVertices->push_back( osg::Vec3( m_xOffset + 95, height, z ) );
