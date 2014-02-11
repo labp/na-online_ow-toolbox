@@ -76,6 +76,8 @@ private:
      * A shared pointer on a circular buffer, containing BadEpoch objects.
      */
     CircBuffSPtr m_buffer;
+
+    static WBadEpochManager *m_instance;
 };
 
 #endif /* WBADEPOCHMANAGER_H_ */

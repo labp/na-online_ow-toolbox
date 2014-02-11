@@ -62,6 +62,10 @@ public:
      */
     bool doRejection( const WLEMMeasurement::ConstSPtr emm );
 
+protected:
+
+    void initRejection();
+
 private:
 
     /**

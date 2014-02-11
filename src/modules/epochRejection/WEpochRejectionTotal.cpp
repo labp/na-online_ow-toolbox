@@ -27,6 +27,7 @@
 #include "core/common/WLogger.h"
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDMEG.h"
+#include "core/data/enum/WLEModality.h"
 #include "core/util/profiler/WLTimeProfiler.h"
 
 #include "WEpochRejection.h"
@@ -45,6 +46,13 @@ WEpochRejectionTotal::~WEpochRejectionTotal()
 
 }
 
+
+void WEpochRejectionTotal::initRejection()
+{
+    m_rejCount = 0;
+}
+
+
 bool WEpochRejectionTotal::doRejection( const WLEMMeasurement::ConstSPtr emm )
 {
     size_t it;
@@ -52,33 +60,49 @@ bool WEpochRejectionTotal::doRejection( const WLEMMeasurement::ConstSPtr emm )
 
     wlog::debug( CLASS ) << "starting total channel rejection.";
 
+    initRejection();
+
     for( it = 0; it < emm->getModalityCount(); ++it )
     {
         WLEMData::ConstSPtr modality = emm->getModality( it );
         WLEMDMEG::ConstSPtr meg;
 
+        if( !validModality( modality->getModalityType() ) ) // if wrong modality, next
+        {
+            //wlog::debug( CLASS ) << "invalid modality: " << modality->getModalityType();
+            continue;
+        }
+
         switch( modality->getModalityType() )
         {
-            case LaBP::WEModalityType::EEG:
-                rejection = rejection || calcRejection( modality->getDataBadChannels(), m_eegThreshold );
+            case WLEModality::EEG:
+                rejection |= calcRejection( modality->getDataBadChannels(), m_eegThreshold );
                 break;
-            case LaBP::WEModalityType::MEG:
+            case WLEModality::MEG:
 
                 meg = boost::static_pointer_cast< const WLEMDMEG >( modality );
 
-                rejection = rejection || calcRejection( meg->getDataBadChannels( LaBP::WEGeneralCoilType::MAGNETOMETER ), m_megMagThreshold );
-                rejection = rejection || calcRejection( meg->getDataBadChannels( LaBP::WEGeneralCoilType::GRADIOMETER ), m_megGradThreshold );
+                rejection |= calcRejection( meg->getDataBadChannels( LaBP::WEGeneralCoilType::MAGNETOMETER ), m_megMagThreshold );
+
+                rejection |= calcRejection( meg->getDataBadChannels( LaBP::WEGeneralCoilType::GRADIOMETER ), m_megGradThreshold );
 
                 break;
-            case LaBP::WEModalityType::EOG:
-                rejection = rejection || calcRejection( modality->getDataBadChannels(), m_eogThreshold );
+            case WLEModality::EOG:
+                rejection |= calcRejection( modality->getDataBadChannels(), m_eogThreshold );
                 break;
             default:
                 break;
         }
+
+        if( rejection )
+        {
+            wlog::debug( CLASS ) << "modality rejected: " << modality->getModalityType();
+            ++m_rejCount;
+            break;
+        }
     }
 
-    wlog::debug( CLASS ) << "finished total channel rejection.";
+    wlog::debug( CLASS ) << "finished total channel rejection (result [true/false]: " << rejection << ").";
 
     return rejection;
 }

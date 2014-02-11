@@ -62,7 +62,7 @@ public:
 
     typedef std::list< size_t > ChannelList;
 
-    typedef boost::shared_ptr< std::list< size_t > > ChannelListSPtr;
+    typedef boost::shared_ptr< ChannelList > ChannelListSPtr;
 
     /**
      * Data type of single value aka "Channel c1 at time t1".

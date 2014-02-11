@@ -39,6 +39,7 @@
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMCommand.h"
 #include "core/data/emd/WLEMData.h"
+#include "core/data/enum/WLEModality.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
@@ -132,9 +133,9 @@ void WMEpochRejection::properties()
     /* Thresholds */
     m_eegThreshold = m_propGrpThresholds->addProperty( "EEG threshold", "Threshold for the EEG modality.", EEG_THRESHOLD );
     m_eogThreshold = m_propGrpThresholds->addProperty( "EOG threshold", "Threshold for the EOG modality.", EOG_THRESHOLD );
-    m_megGradThreshold = m_propGrpThresholds->addProperty( "MEG gradiometer Threshold",
+    m_megGradThreshold = m_propGrpThresholds->addProperty( "MEG gradiometer threshold",
                     "Threshold for the MEG gradiometer channels.", MEG_GRAD_THRESHOLD );
-    m_megMagThreshold = m_propGrpThresholds->addProperty( "MEG magnetometer Threshold",
+    m_megMagThreshold = m_propGrpThresholds->addProperty( "MEG magnetometer threshold",
                     "Threshold for the MEG magnetometer channels.", MEG_MAG_THRESHOLD );
 
     /* counters */
@@ -160,7 +161,11 @@ void WMEpochRejection::properties()
 void WMEpochRejection::moduleInit()
 {
     infoLog() << "Initializing module ...";
-    waitRestored();
+
+    // init moduleState for using Events in mainLoop
+    m_moduleState.setResetable( true, true ); // resetable, autoreset
+    m_moduleState.add( m_input->getDataChangedCondition() ); // when inputdata changed
+    m_moduleState.add( m_propCondition ); // when properties changed
 
     m_epochCount->set( 0, true );
     m_epochCountValid->set( 0, true );
@@ -168,7 +173,20 @@ void WMEpochRejection::moduleInit()
     m_badChannelCount->set( 0, true );
     m_badEpochCount->set( 0, true );
 
-    //m_thresholdMap.reset( new std::map< LaBP::WEModalityType::Enum, WPropDouble& >() );
+    m_rejectingTotal.reset( new WEpochRejectionTotal() );
+    m_rejectingSingle.reset( new WEpochRejectionSingle() );
+    m_parser.reset( new WThresholdParser() );
+
+    // modality-property field -matching for parsing.
+    m_modalityLabelMap.reset( new ModalityUIFiledMap() );
+    m_modalityLabelMap->insert( ModalityUIFiledMap::value_type( WLEModality::EEG, m_eegThreshold ) );
+    m_modalityLabelMap->insert( ModalityUIFiledMap::value_type( WLEModality::EOG, m_eogThreshold ) );
+    m_modalityLabelMap->insert( ModalityUIFiledMap::value_type( WLEModality::MEG_GRAD, m_megGradThreshold ) );
+    m_modalityLabelMap->insert( ModalityUIFiledMap::value_type( WLEModality::MEG_MAG, m_megMagThreshold ) );
+    m_thresholds.reset( new WThreshold::WThreshold_List() );
+
+    ready(); // signal ready state
+    waitRestored();
 
     viewInit( LaBP::WLEMDDrawable2D::WEGraphType::SINGLE );
 
@@ -177,20 +195,9 @@ void WMEpochRejection::moduleInit()
 
 void WMEpochRejection::moduleMain()
 {
-    // init moduleState for using Events in mainLoop
-    m_moduleState.setResetable( true, true ); // resetable, autoreset
-    m_moduleState.add( m_input->getDataChangedCondition() ); // when inputdata changed
-    m_moduleState.add( m_propCondition ); // when properties changed
+    moduleInit();
 
     WLEMMCommand::SPtr emmIn;
-
-    m_rejectingTotal.reset( new WEpochRejectionTotal() );
-    m_rejectingSingle.reset( new WEpochRejectionSingle() );
-    m_parser.reset( new WThresholdParser() );
-
-    ready(); // signal ready state
-
-    moduleInit();
 
     debugLog() << "Entering main loop";
 
@@ -203,9 +210,9 @@ void WMEpochRejection::moduleMain()
 
             if( m_parser->parse( m_rejectFile->get().string() ) ) // start parsing the file
             {
-                assignNewValues( m_parser->getThresholds() ); // assign the parsed values to the members
+                //assignNewValues( m_parser->getThresholds() ); // assign the parsed values to the members
 
-                //setThresholds( ( m_thresholds = m_parser->getThresholdList() ) );
+                setThresholds( ( m_thresholds = m_parser->getThresholdList() ) );
 
                 m_rejectFileStatus->set( WMEpochRejection::FILE_LOADED, true ); // show success notification
             }
@@ -251,8 +258,7 @@ void WMEpochRejection::moduleMain()
 bool WMEpochRejection::processCompute( WLEMMeasurement::SPtr emmIn )
 {
     WLTimeProfiler tp( "WMEpochRejection", "processCompute" );
-    WLEMMeasurement::SPtr emmOut;
-    bool rejected;
+    //WLEMMeasurement::SPtr emmOut;
 
     // show process visualization
     boost::shared_ptr< WProgress > rejectProcess = boost::shared_ptr< WProgress >( new WProgress( "Check data for rejecting." ) );
@@ -271,14 +277,11 @@ bool WMEpochRejection::processCompute( WLEMMeasurement::SPtr emmIn )
     updateBadChannels( emmIn );
 
     // call the rejection process on the input
-    rejected = m_rejectingTotal->doRejection( emmIn );
-
-    // deliver to output-connector if there was no failure
-    if( rejected == false )
+    if( m_rejectingTotal->doRejection( emmIn ) == false )
     {
         upadteOutput( emmIn );
     }
-    else // In case of rejecting, every channel of the epoch has to test.
+    else // In case of rejecting, each channel of the epoch has to test.
     {
         m_epochCountInValid->set( m_epochCountInValid->get() + 1, true );
 
@@ -293,30 +296,29 @@ bool WMEpochRejection::processCompute( WLEMMeasurement::SPtr emmIn )
 
         if( singleReject )
         {
-            // new bad channel found -> check stored epochs again
-            if( m_rejectingSingle->isBadChannelUpdated() )
+            WBadEpochManager::CircBuff::iterator it;
+
+            // mapping the detected bad channels on the WBadChannelManagers collection
+            WBadChannelManager::instance()->merge( m_rejectingSingle->getRejectedMap() );
+
+            // iterate all stored epochs
+            for( it = WBadEpochManager::instance()->getBuffer()->begin(); it != WBadEpochManager::instance()->getBuffer()->end();
+                            ++it )
             {
-                // update the rejected channel list
-                updateBadChannels( emmIn );
+                updateBadChannels( *it );
 
-                WBadEpochManager::CircBuff::iterator it = WBadEpochManager::instance()->getBuffer()->begin();
-
-                // iterate all stored epochs
-                while( it != WBadEpochManager::instance()->getBuffer()->end() )
+                if( !m_rejectingTotal->doRejection( *it ) ) // if there is no rejection
                 {
-                    if( !m_rejectingTotal->doRejection( *it ) ) // if there is no rejection
-                    {
-                        upadteOutput( *it ); // update output connector
+                    upadteOutput( *it ); // update output connector
 
-                        WBadEpochManager::instance()->getBuffer()->erase( it++ ); // delete the epoch after transfer to the next module
-                    }
-                    else
-                    {
-                        ++it;
-                    }
+                    debugLog() << "output from circular ring buffer.";
 
-                    m_badEpochCount->set( WBadEpochManager::instance()->getBuffer()->size(), true );
+                    WBadEpochManager::instance()->getBuffer()->erase( it ); // delete the epoch after transfer to the next module
+
+                    m_epochCountInValid->set( m_epochCountInValid->get() - 1, true ); // update invalid epoch counter
                 }
+
+                m_badEpochCount->set( WBadEpochManager::instance()->getBuffer()->size(), true );
             }
         }
         else
@@ -338,8 +340,11 @@ bool WMEpochRejection::processInit( WLEMMCommand::SPtr labp )
 
 bool WMEpochRejection::processReset( WLEMMCommand::SPtr labp )
 {
+    viewReset();
+
+    m_input->clear();
     m_output->updateData( labp );
-    return false;
+    return true;
 }
 
 void WMEpochRejection::upadteOutput( WLEMMeasurement::SPtr emm )
@@ -380,30 +385,17 @@ void WMEpochRejection::assignNewValues( std::map< std::string, double > valueLis
 
 void WMEpochRejection::setThresholds( boost::shared_ptr< std::list< WThreshold > > thresholdList )
 {
-    /*
-     BOOST_FOREACH(WThreshold threshold, *thresholdList.get())
-     {
-     switch( threshold.getModaliyType() )
-     {
-     case LaBP::WEModalityType::EEG:
-     m_eegThreshold->set( threshold.getValue(), true );
-     break;
-     case LaBP::WEModalityType::EOG:
-     m_eogThreshold->set( threshold.getValue(), true );
-     break;
-     case LaBP::WEModalityType::MEG:
-     if(threshold != WThresholdMEG) break;
-     if( ( ( WThresholdMEG )threshold ).getCoilType() == LaBP::WEGeneralCoilType::MAGNETOMETER )
-     m_megMagThreshold->set( threshold.getValue(), true );
-     else
-     if( ( ( WThresholdMEG )threshold ).getCoilType() == LaBP::WEGeneralCoilType::GRADIOMETER )
-     m_megGradThreshold->set( threshold.getValue(), true );
-     break;
-     default:
-     break;
-     }
-     }
-     */
+    if( m_modalityLabelMap == 0 )
+        return;
+
+    BOOST_FOREACH(WThreshold threshold, *thresholdList.get())
+    {
+        if( m_modalityLabelMap->count( threshold.getModaliyType() ) )
+        {
+            m_modalityLabelMap->at( threshold.getModaliyType() )->set( threshold.getValue(), true );
+        }
+    }
+
 }
 
 WMEpochRejection::modality_code WMEpochRejection::hashit( std::string const& inString )
@@ -426,11 +418,13 @@ void WMEpochRejection::updateBadChannels( WLEMMeasurement::SPtr emm )
     {
         for( size_t i = 0; i < emm->getModalityCount(); ++i )
         {
-            LaBP::WEModalityType::Enum modality = emm->getModality( i )->getModalityType();
+            WLEModality::Enum modality = emm->getModality( i )->getModalityType();
 
-            emm->getModality( i )->setBadChannels( WBadChannelManager::instance()->getChannelList( modality ) );
+            if( WBadChannelManager::instance()->hasBadChannels( modality ) )
+            {
+                emm->getModality( i )->setBadChannels( WBadChannelManager::instance()->getChannelList( modality ) );
+            }
         }
-        debugLog() << "updated bad channels for emd object";
     }
 }
 

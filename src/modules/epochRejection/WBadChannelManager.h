@@ -32,7 +32,7 @@
 
 #include "core/data/emd/WLEMData.h"
 #include "core/data/WLEMMeasurement.h"
-#include "core/data/WLEMMEnumTypes.h"
+#include "core/data/enum/WLEModality.h"
 
 /**
  * The WBadChannelManager is used to store channel numbers distinguished by their modality types.
@@ -43,14 +43,24 @@ class WBadChannelManager
 public:
 
     /**
-     * A std::map<K,V> with a LaBP::WEModalityType as key and boost shared pointer on an ChannelList as value.
+     * A std::map<K,V> with a WLEModality::Enum as key and boost shared pointer on an ChannelList as value.
      */
-    typedef std::map< LaBP::WEModalityType::Enum, WLEMData::ChannelListSPtr > ChannelMap;
+    typedef std::map< WLEModality::Enum, WLEMData::ChannelListSPtr > ChannelMap;
+
+    /**
+     * A constant ChannelMap.
+     */
+    typedef const ChannelMap ConstChannelMap;
 
     /**
      * A boost shared pointer on an ChannelMap.
      */
     typedef boost::shared_ptr< ChannelMap > ChannelMap_SPtr;
+
+    /**
+     * A boost shared pointer on an constant ChannelMap.
+     */
+    typedef boost::shared_ptr< ConstChannelMap > ChannelMap_ConstSPtr;
 
     /**
      * Returns a static pointer on a WBadChannelManager object. This pointer can be used to do operations on the inherited map.
@@ -65,7 +75,7 @@ public:
      * @param The modality as key.
      * @param The channel number to insert.
      */
-    void addChannel( const LaBP::WEModalityType::Enum&, const size_t& );
+    void addChannel( const WLEModality::Enum&, const size_t& );
 
     /**
      * This method removes a certain channel number form the collection.
@@ -73,7 +83,7 @@ public:
      * @param The modality as key.
      * @param The channel number to remove.
      */
-    void removeChannel( const LaBP::WEModalityType::Enum&, const size_t& );
+    void removeChannel( const WLEModality::Enum&, const size_t& );
 
     /**
      * Gets true if the ChannelMap is empty, else it returns false.
@@ -89,7 +99,7 @@ public:
      * @param The channel number.
      * @return True / false.
      */
-    bool isChannelBad( const LaBP::WEModalityType::Enum&, const size_t ) const;
+    bool isChannelBad( const WLEModality::Enum&, const size_t ) const;
 
     /**
      * Gets true if the modality has bad channels, else it returns false.
@@ -97,7 +107,7 @@ public:
      * @param The Modality.
      * @return True / false.
      */
-    bool hasBadChannels( const LaBP::WEModalityType::Enum& ) const;
+    bool hasBadChannels( const WLEModality::Enum& ) const;
 
     /**
      * Returns the number of all bad channels.
@@ -112,17 +122,48 @@ public:
      * @param The modality.
      * @return The number of bad channels.
      */
-    size_t countChannels( const LaBP::WEModalityType::Enum& ) const;
+    size_t countChannels( const WLEModality::Enum& ) const;
 
     /**
      * This method returns a boost shared pointer on a ChannelList for the certain modality.
      * If there was not ChannelList in the collection, the method returns an empty pointer
      * (equals '0').
+     * Note: The list is only a copy.
      *
      * @param The modality.
      * @return The ChannelList-pointer.
      */
-    WLEMData::ChannelListSPtr getChannelList( const LaBP::WEModalityType::Enum& );
+    WLEMData::ChannelListSPtr getChannelList( const WLEModality::Enum& );
+
+    /**
+     * This method returns the whole bad channel map as shared pointer.
+     * Note: The map is only a copy.
+     *
+     * @return The ChannelMap pointer.
+     */
+    WBadChannelManager::ChannelMap_SPtr getChannelMap();
+
+    /**
+     * This method merges the given ChannelMap on the managers current ChannelMap.
+     * In doing so the manager maps internal the ChannelLists on the maps.
+     *
+     * @param The ChannelMap
+     */
+    void merge( ChannelMap_SPtr );
+
+    /**
+     * This method merges the given ChannelList on the managers current ChannelMap for the modality.
+     * In doing so the manager maps internal the ChannelLists on the maps.
+     *
+     * @param The modality.
+     * @param The channel list.
+     */
+    void merge( const WLEModality::Enum&, WLEMData::ChannelListSPtr );
+
+    /**
+     * This method clears the collections of the channel map.
+     */
+    void reset();
 
 protected:
 
@@ -149,6 +190,11 @@ private:
      * The private destructor.
      */
     ~WBadChannelManager();
+
+    /**
+     * The static class instance for singleton.
+     */
+    static WBadChannelManager *m_instance;
 };
 
 #endif /* WBADCHANNELMANAGER_H_ */

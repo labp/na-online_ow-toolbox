@@ -27,8 +27,10 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include "core/data/enum/WLEModality.h"
 #include "core/data/WLEMMeasurement.h"
 
+#include "WBadChannelManager.h"
 #include "WEpochRejection.h"
 
 class WEpochRejectionSingle: public WEpochRejection
@@ -59,20 +61,16 @@ public:
      */
     bool doRejection( const WLEMMeasurement::ConstSPtr emm );
 
-    /**
-     * Defines whether or not a new channel was added to the bad channel collection during the rejection process.
-     *
-     * @return True if a new bad channel was detected, else false.
-     */
-    bool isBadChannelUpdated() const;
+    WBadChannelManager::ChannelMap_SPtr getRejectedMap();
 
 protected:
 
-    /**
-     * Flag to define whether or not a new bad channel was found and added to the bad channel manager.
-     * By default the flag is set to 'false'.
-     */
-    bool m_BadChannelUpdated;
+    void initRejection();
+
+    void noteBadChannel( const WLEModality::Enum&, const size_t );
+
+    WBadChannelManager::ChannelMap_SPtr m_rejectedMap;
+
 };
 
 #endif /* WEPOCHREJECTIONSINGLE_H_ */

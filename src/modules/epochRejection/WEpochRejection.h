@@ -29,6 +29,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "core/data/WLEMMeasurement.h"
+#include "core/data/enum/WLEModality.h"
 
 class WEpochRejection: public boost::enable_shared_from_this< WEpochRejection >
 {
@@ -76,7 +77,7 @@ protected:
      *
      * \return false, if the modality has to skip else true.
      */
-    virtual bool validModality( LaBP::WEModalityType::Enum modalityType );
+    virtual bool validModality( WLEModality::Enum modalityType );
 
     /**
      * Method to return the threshold for the current processing step based on the modality and the channel number.
@@ -85,7 +86,9 @@ protected:
      * @param channelNo The channel number.
      * @return Returns the threshold.
      */
-    virtual double getThreshold( LaBP::WEModalityType::Enum modalityType, size_t channelNo);
+    virtual double getThreshold( WLEModality::Enum modalityType, size_t channelNo);
+
+    virtual void initRejection() = 0;
 
     /**
      * EEG threshold.

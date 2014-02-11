@@ -26,6 +26,8 @@
 
 #include "WBadEpochManager.h"
 
+WBadEpochManager* WBadEpochManager::m_instance = 0;
+
 WBadEpochManager::WBadEpochManager()
 {
     m_buffer.reset( new boost::circular_buffer< WLEMMeasurement::SPtr >( 5 ) );
@@ -38,9 +40,10 @@ WBadEpochManager::~WBadEpochManager()
 
 WBadEpochManager *WBadEpochManager::instance()
 {
-    static WBadEpochManager _instance;
+    if( m_instance == 0 )
+        m_instance = new WBadEpochManager();
 
-    return &_instance;
+    return m_instance;
 }
 
 WBadEpochManager::CircBuffSPtr WBadEpochManager::getBuffer()
@@ -48,7 +51,7 @@ WBadEpochManager::CircBuffSPtr WBadEpochManager::getBuffer()
     return m_buffer;
 }
 
-void WBadEpochManager::setBuffer(WBadEpochManager::CircBuffSPtr buffer)
+void WBadEpochManager::setBuffer( WBadEpochManager::CircBuffSPtr buffer )
 {
     m_buffer = buffer;
 }

@@ -101,7 +101,7 @@ WLEMData::DataSPtr WLEMData::getDataBadChannels() const
     size_t row = 0, it;
     for( it = 0; it < getNrChans(); ++it )
     {
-        if( isBadChannel( it + 1 ) )
+        if( isBadChannel( it ) )
         {
             continue;
         }
@@ -305,20 +305,13 @@ std::string WLEMData::dataToString( const DataT& data, size_t maxChannels, size_
 
 bool WLEMData::isBadChannel( size_t channelNo ) const
 {
-    ChannelList::iterator it;
-
-    for( it = m_badChannels->begin(); it != m_badChannels->end(); ++it )
-    {
-        if( *it == channelNo )
-            return true;
-    }
-
-    return false;
+    return !(std::find( m_badChannels->begin(), m_badChannels->end(), channelNo ) == m_badChannels->end());
 }
 
 std::ostream& operator<<( std::ostream &strm, const WLEMData& obj )
 {
-    strm << WLEMData::CLASS << "::" << WLEModality::name( obj.getModalityType() ) << ": data=" << obj.getNrChans() << "x" << obj.getSamplesPerChan();
+    strm << WLEMData::CLASS << "::" << WLEModality::name( obj.getModalityType() ) << ": data=" << obj.getNrChans() << "x"
+                    << obj.getSamplesPerChan();
     return strm;
 }
 

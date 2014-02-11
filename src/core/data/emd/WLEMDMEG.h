@@ -61,6 +61,8 @@ public:
 
     explicit WLEMDMEG( const WLEMDMEG& meg );
 
+    WLEMDMEG( WLEModality::Enum modality );
+
     virtual ~WLEMDMEG();
 
     virtual WLEMData::SPtr clone() const;
@@ -157,6 +159,14 @@ public:
      * @return New data containing all channels of the requested coil type with out the bad channels.
      */
     DataSPtr getDataBadChannels( LaBP::WEGeneralCoilType::Enum type ) const;
+
+    /**
+     * Returns the number of bad channels for the given coil type.
+     *
+     * @param type The coil type.
+     * @return The number of bad channels.
+     */
+    size_t getNrBadChans( LaBP::WEGeneralCoilType::Enum type ) const;
 
     using WLEMData::getData;
 

@@ -25,9 +25,11 @@
 #ifndef WTHRESHOLD_H_
 #define WTHRESHOLD_H_
 
-#include "core/data/WLEMMEnumTypes.h"
+#include <list>
 
-using namespace LaBP;
+#include <boost/shared_ptr.hpp>
+
+#include "core/data/enum/WLEModality.h"
 
 /**
  * The class represents a threshold object specified by a modality type and a value.
@@ -36,13 +38,17 @@ class WThreshold
 {
 public:
 
+    typedef std::list< WThreshold > WThreshold_List;
+
+    typedef boost::shared_ptr< WThreshold_List > WThreshold_List_SPtr;
+
     /**
      * Constructs the new threshold object
      *
      * @param modalityType The modality.
      * @param value The threshold.
      */
-    WThreshold(LaBP::WEModalityType::Enum modalityType, double value);
+    WThreshold(WLEModality::Enum modalityType, double value);
 
     /**
      * Gets the threshold value.
@@ -56,7 +62,7 @@ public:
      *
      * @return The modality type.
      */
-    LaBP::WEModalityType::Enum getModaliyType() const;
+    WLEModality::Enum getModaliyType() const;
 
 protected:
 
@@ -68,7 +74,7 @@ protected:
     /**
      * Threshold modality type.
      */
-    LaBP::WEModalityType::Enum m_modalityType;
+    WLEModality::Enum m_modalityType;
 };
 
 #endif /* WTHRESHOLD_H_ */

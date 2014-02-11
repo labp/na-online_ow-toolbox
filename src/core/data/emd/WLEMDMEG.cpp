@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <boost/foreach.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include <core/common/WAssert.h>
@@ -251,19 +252,21 @@ WLEMDMEG::DataSPtr WLEMDMEG::getDataBadChannels( LaBP::WEGeneralCoilType::Enum t
     }
 
     std::vector< size_t > picks = getPicks( type );
-    WLEMDMEG::DataSPtr dataPtr( new WLEMDMEG::DataT( picks.size(), getSamplesPerChan() ) );
+    WLEMDMEG::DataSPtr dataPtr( new WLEMDMEG::DataT( picks.size() - getNrBadChans( type ), getSamplesPerChan() ) );
     WLEMDMEG::DataT& data = *dataPtr;
 
     size_t row = 0;
-    std::vector< size_t >::const_iterator it;
-    for( it = picks.begin(); it != picks.end(); ++it )
+
+    BOOST_FOREACH(size_t it, picks)
     {
-        if( isBadChannel( *it +1 ) )
+        if( isBadChannel( it ) )
         {
             continue;
         }
 
-        data.row( row++ ) = m_data->row( *it );
+        data.row( row ) = m_data->row( it );
+
+        ++row;
     }
 
     return dataPtr;
@@ -340,8 +343,7 @@ WLEMDMEG::CoilPicksT WLEMDMEG::coilPicks( const WLEMDMEG& meg, WEGeneralCoilType
     return picks;
 }
 
-bool WLEMDMEG::extractCoilModality( WLEMDMEG::SPtr& megOut, WLEMDMEG::ConstSPtr megIn, WLEModality::Enum type,
-                bool dataOnly )
+bool WLEMDMEG::extractCoilModality( WLEMDMEG::SPtr& megOut, WLEMDMEG::ConstSPtr megIn, WLEModality::Enum type, bool dataOnly )
 {
     if( !WLEModality::isMEG( type ) )
     {
@@ -479,6 +481,22 @@ bool WLEMDMEG::extractCoilModality( WLEMDMEG::SPtr& megOut, WLEMDMEG::ConstSPtr 
     }
 
     return true;
+}
+
+size_t WLEMDMEG::getNrBadChans( LaBP::WEGeneralCoilType::Enum type ) const
+{
+    size_t count = 0;
+    std::vector< size_t > picks = getPicks( type );
+
+    for( size_t i = 0; i < picks.size(); ++i )
+    {
+        if( isBadChannel( picks.at( i ) ) )
+        {
+            ++count;
+        }
+    }
+
+    return count;
 }
 
 std::ostream& operator<<( std::ostream &strm, const WLEMDMEG& obj )

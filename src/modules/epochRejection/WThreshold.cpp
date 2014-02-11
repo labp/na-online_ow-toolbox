@@ -22,9 +22,11 @@
 //
 //---------------------------------------------------------------------------
 
+#include "core/data/enum/WLEModality.h"
+
 #include <modules/epochRejection/WThreshold.h>
 
-WThreshold::WThreshold(LaBP::WEModalityType::Enum modalityType, double value)
+WThreshold::WThreshold(WLEModality::Enum modalityType, double value)
 {
     m_modalityType = modalityType;
     m_value = value;
@@ -35,7 +37,7 @@ double WThreshold::getValue() const
     return m_value;
 }
 
-LaBP::WEModalityType::Enum WThreshold::getModaliyType() const
+WLEModality::Enum WThreshold::getModaliyType() const
 {
     return m_modalityType;
 }

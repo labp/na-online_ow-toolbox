@@ -38,28 +38,30 @@ const std::string WEpochRejectionSingle::CLASS = "WEpochRejectionSingle";
 WEpochRejectionSingle::WEpochRejectionSingle() :
                 WEpochRejection::WEpochRejection()
 {
-    m_BadChannelUpdated = false;
+    m_rejectedMap.reset( new WBadChannelManager::ChannelMap() );
 }
 
-/**
- * Destructor
- */
 WEpochRejectionSingle::~WEpochRejectionSingle()
 {
 }
 
-bool WEpochRejectionSingle::isBadChannelUpdated() const
+void WEpochRejectionSingle::initRejection()
 {
-    return m_BadChannelUpdated;
+    m_rejCount = 0;
+    m_rejectedMap->clear();
+}
+
+WBadChannelManager::ChannelMap_SPtr WEpochRejectionSingle::getRejectedMap()
+{
+    return m_rejectedMap;
 }
 
 bool WEpochRejectionSingle::doRejection( const WLEMMeasurement::ConstSPtr emm )
 {
-    WLTimeProfiler tp( "WEpochRejectionSingle", "getRejection" );
+    WLTimeProfiler tp( "WEpochRejectionSingle", "doRejection" );
     wlog::debug( CLASS ) << "starting single channel rejection";
 
-    m_rejCount = 0;
-    m_BadChannelUpdated = false;
+    initRejection();
 
     for( size_t mod = 0; mod < emm->getModalityCount(); ++mod ) // for all modalities
     {
@@ -73,7 +75,7 @@ bool WEpochRejectionSingle::doRejection( const WLEMMeasurement::ConstSPtr emm )
         // if wrong modality, next
         if( !validModality( modality->getModalityType() ) )
         {
-            wlog::debug( CLASS ) << "invalid modality";
+            //wlog::debug( CLASS ) << "invalid modality: " << modality->getModalityType();
             continue;
         }
 
@@ -83,7 +85,7 @@ bool WEpochRejectionSingle::doRejection( const WLEMMeasurement::ConstSPtr emm )
             ++channelNo;
 
             // Check whether or not the channel is already a bad channel
-            if( WBadChannelManager::instance()->isChannelBad(modality->getModalityType(), channelNo) )
+            if( WBadChannelManager::instance()->isChannelBad( modality->getModalityType(), channelNo ) )
             {
                 continue; // skip this channel for processing
             }
@@ -96,22 +98,36 @@ bool WEpochRejectionSingle::doRejection( const WLEMMeasurement::ConstSPtr emm )
 
             if( diff > threshold )
             {
-                // add a bad channel to the manager
-                WBadChannelManager::instance()->addChannel( modality->getModalityType(), channelNo );
+                // mark the channel as bad and keep them in the local collection.
+                noteBadChannel(modality->getModalityType(), chan);
 
-                m_BadChannelUpdated = true;
+                ++rejections; // count rejections per modality
 
-                ++rejections;
+                wlog::debug( CLASS ) << "Channel rejection: modality " << modality->getModalityType() << ", channel "
+                                << channelNo;
             }
         }
 
-        // if least one channel has to reject, reject the whole input
-        if( rejections > 0 )
-        {
-            wlog::debug( CLASS ) << "Epochs rejected for " << modality->getModalityType() << ": " << rejections;
-            ++m_rejCount;
-        }
+        wlog::debug( CLASS ) << "Channels rejected for " << modality->getModalityType() << ": " << rejections;
+
+        m_rejCount += rejections; // count the rejected channels for all modalities.
     }
 
+    wlog::debug( CLASS ) << "end of single channel rejection.";
+
     return m_rejCount > 0;
+}
+
+void WEpochRejectionSingle::noteBadChannel( const WLEModality::Enum& mod, const size_t channel )
+{
+    if(m_rejectedMap == 0)
+        return;
+
+    if( m_rejectedMap->find( mod ) == m_rejectedMap->end() )
+    {
+        m_rejectedMap->insert(
+                        std::pair< WLEModality::Enum, WLEMData::ChannelListSPtr >( mod,
+                                        WLEMData::ChannelListSPtr( new WLEMData::ChannelList ) ) );
+    }
+    m_rejectedMap->at( mod )->push_back( channel );
 }

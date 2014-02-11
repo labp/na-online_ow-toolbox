@@ -26,6 +26,7 @@
 #define WMEPOCHREJECTION_H
 
 #include <list>
+#include <map>
 #include <string>
 
 #include <boost/shared_ptr.hpp>
@@ -50,6 +51,11 @@
 class WMEpochRejection: public WLModuleDrawable
 {
 public:
+
+    typedef std::map< WLEModality::Enum, WPropDouble > ModalityUIFiledMap;
+
+    typedef boost::shared_ptr< ModalityUIFiledMap > ModalityUIFiledMap_SPtr;
+
     /**
      * standard constructor
      */
@@ -234,6 +240,13 @@ private:
      * The threshold parser class.
      */
     WThresholdParser::SPtr m_parser;
+
+    WThreshold::WThreshold_List_SPtr m_thresholds;
+
+    /**
+     * Map to match a modality with its property field.
+     */
+    ModalityUIFiledMap_SPtr m_modalityLabelMap;
 
     /**
      * List containing the thresholds for processing.

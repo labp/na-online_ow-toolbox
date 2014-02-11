@@ -58,19 +58,28 @@ size_t WEpochRejection::getCount() const
     return m_rejCount;
 }
 
-bool WEpochRejection::validModality( LaBP::WEModalityType::Enum modalityType )
+bool WEpochRejection::validModality( WLEModality::Enum modalityType )
 {
     bool rc = false;
 
     switch( modalityType )
     {
-        case LaBP::WEModalityType::EEG:
+        case WLEModality::EEG:
             rc = true;
             break;
-        case LaBP::WEModalityType::EOG:
+        case WLEModality::EOG:
             rc = true;
             break;
-        case LaBP::WEModalityType::MEG:
+        case WLEModality::MEG:
+            rc = true;
+            break;
+        case WLEModality::MEG_GRAD:
+            rc = true;
+            break;
+        case WLEModality::MEG_MAG:
+            rc = true;
+            break;
+        case WLEModality::MEG_GRAD_MERGED:
             rc = true;
             break;
         default:
@@ -80,15 +89,28 @@ bool WEpochRejection::validModality( LaBP::WEModalityType::Enum modalityType )
     return rc;
 }
 
-double WEpochRejection::getThreshold( LaBP::WEModalityType::Enum modalityType, size_t channelNo )
+double WEpochRejection::getThreshold( WLEModality::Enum modalityType, size_t channelNo )
 {
     switch( modalityType )
     {
-        case LaBP::WEModalityType::EEG:
+        case WLEModality::EEG:
             return m_eegThreshold;
-        case LaBP::WEModalityType::EOG:
+        case WLEModality::EOG:
             return m_eogThreshold;
-        case LaBP::WEModalityType::MEG:
+        case WLEModality::MEG:
+            if( ( channelNo % 3 ) == 0 ) // magnetometer
+            {
+                return m_megMagThreshold;
+            }
+            else
+            {
+                return m_megGradThreshold; // gradiometer
+            }
+        case WLEModality::MEG_GRAD:
+            return m_megGradThreshold;
+        case WLEModality::MEG_MAG:
+            return m_megMagThreshold;
+        case WLEModality::MEG_GRAD_MERGED:
             if( ( channelNo % 3 ) == 0 ) // magnetometer
             {
                 return m_megMagThreshold;
