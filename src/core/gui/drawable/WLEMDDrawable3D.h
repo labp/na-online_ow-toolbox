@@ -36,7 +36,7 @@
 
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
-#include <core/gui/WCustomWidget.h>
+#include <core/ui/WCustomWidget.h>
 
 #include "core/data/enum/WLEModality.h"
 #include "core/gui/colorMap/WLColorMap.h"

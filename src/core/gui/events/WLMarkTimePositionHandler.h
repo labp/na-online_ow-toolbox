@@ -29,7 +29,7 @@
 
 #include <osg/ref_ptr>
 
-#include <core/gui/WCustomWidgetEventHandler.h>
+#include <core/ui/WCustomWidgetEventHandler.h>
 
 #include <core/kernel/WModuleOutputData.h>
 

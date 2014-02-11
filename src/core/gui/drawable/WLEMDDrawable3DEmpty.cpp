@@ -26,7 +26,7 @@
 
 #include <osgText/Text>
 
-#include <core/gui/WCustomWidget.h>
+#include <core/ui/WCustomWidget.h>
 
 #include "WLEMDDrawable3DEmpty.h"
 

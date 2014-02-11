@@ -25,7 +25,7 @@
 #include <boost/shared_ptr.hpp>
 #include <osg/Array>
 
-#include <core/gui/WCustomWidget.h>
+#include <core/ui/WCustomWidget.h>
 
 #include "core/data/WLEMMSubject.h"
 #include "core/data/WLEMMSurface.h"

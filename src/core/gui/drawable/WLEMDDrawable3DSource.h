@@ -27,7 +27,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <core/gui/WCustomWidget.h>
+#include <core/ui/WCustomWidget.h>
 
 #include "core/data/emd/WLEMData.h"
 

@@ -30,8 +30,7 @@
 #include <core/common/WCondition.h>
 #include <core/common/WPropertyTypes.h>
 #include <core/common/math/linearAlgebra/WPosition.h>
-#include <core/gui/WCustomWidget.h>
-#include <core/gui/WGUI.h>
+#include <core/ui/WCustomWidget.h>
 #include <core/kernel/WModule.h>
 
 #include "core/data/WLDataTypes.h"

@@ -33,7 +33,7 @@
 #include <osg/Geode>
 #include <osg/PositionAttitudeTransform>
 
-#include <core/gui/WCustomWidget.h>
+#include <core/ui/WCustomWidget.h>
 
 #include "core/data/emd/WLEMData.h"
 

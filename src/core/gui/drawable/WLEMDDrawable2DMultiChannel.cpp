@@ -34,7 +34,7 @@
 #include <osgText/Text>
 
 #include <core/common/WLogger.h>
-#include <core/gui/WCustomWidget.h>
+#include <core/ui/WCustomWidget.h>
 
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMData.h"

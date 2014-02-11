@@ -27,7 +27,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include <core/common/WLogger.h>
-#include <core/gui/WCustomWidget.h>
+#include <core/ui/WCustomWidget.h>
 
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMDSource.h"

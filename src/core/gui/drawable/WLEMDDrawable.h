@@ -36,7 +36,7 @@
 #include <osg/ref_ptr>
 
 #include <core/graphicsEngine/WGEGroupNode.h>
-#include <core/gui/WCustomWidget.h>
+#include <core/ui/WCustomWidget.h>
 
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/enum/WLEModality.h"

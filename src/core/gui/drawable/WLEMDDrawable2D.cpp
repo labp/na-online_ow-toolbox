@@ -36,7 +36,7 @@
 #include <core/common/WAssert.h>
 #include <core/common/WColor.h>
 #include <core/common/WException.h>
-#include <core/gui/WCustomWidget.h>
+#include <core/ui/WCustomWidget.h>
 #include <core/graphicsEngine/WGEGroupNode.h>
 
 #include "core/data/emd/WLEMData.h"

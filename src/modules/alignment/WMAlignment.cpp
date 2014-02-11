@@ -26,6 +26,7 @@
 
 #include <core/graphicsEngine/WGEZoomTrackballManipulator.h>
 #include <core/kernel/WKernel.h>
+#include <core/ui/WUI.h>
 
 #include "core/module/WLConstantsModule.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
@@ -47,7 +48,7 @@ WMAlignment::WMAlignment()
 
 WMAlignment::~WMAlignment()
 {
-    WKernel::getRunningKernel()->getGui()->closeCustomWidget( m_widget );
+    WKernel::getRunningKernel()->getUI()->closeCustomWidget( m_widget );
 }
 
 const std::string WMAlignment::getName() const
@@ -108,7 +109,7 @@ void WMAlignment::properties()
 
 void WMAlignment::viewInit()
 {
-    m_widget = WKernel::getRunningKernel()->getGui()->openCustomWidget( getName(), WGECamera::ORTHOGRAPHIC,
+    m_widget = WKernel::getRunningKernel()->getUI()->openCustomWidget( getName(), WGECamera::ORTHOGRAPHIC,
                     m_shutdownFlag.getCondition() );
     m_widget->getViewer()->setCameraManipulator( new WGEZoomTrackballManipulator() );
 

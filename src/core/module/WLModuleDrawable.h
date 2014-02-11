@@ -30,7 +30,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include <core/common/WProperties.h>
-#include <core/gui/WLEMDWidget.h>
+#include <core/ui/WLEMDWidget.h>
 #include <core/kernel/WModule.h>
 
 #include "core/data/WLEMMCommand.h"

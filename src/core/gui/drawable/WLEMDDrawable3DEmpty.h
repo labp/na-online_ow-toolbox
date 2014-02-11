@@ -29,7 +29,7 @@
 #include <osg/Geode>
 #include <osg/ref_ptr>
 
-#include <core/gui/WCustomWidget.h>
+#include <core/ui/WCustomWidget.h>
 
 #include "core/data/WLEMMeasurement.h"
 

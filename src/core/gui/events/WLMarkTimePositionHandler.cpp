@@ -27,7 +27,7 @@
 
 #include <core/common/WException.h>
 #include <core/common/WLogger.h>
-#include <core/gui/WCustomWidget.h>
+#include <core/ui/WCustomWidget.h>
 
 #include "core/gui/drawable/WLEMDDrawable2D.h"
 #include "core/gui/drawable/WLEMDDrawable3D.h"

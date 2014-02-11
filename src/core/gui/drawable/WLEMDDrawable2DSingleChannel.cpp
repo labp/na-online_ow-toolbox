@@ -36,7 +36,7 @@
 #include <core/common/WAssert.h>
 #include <core/common/WLogger.h>
 #include <core/common/exceptions/WOutOfBounds.h>
-#include <core/gui/WCustomWidget.h>
+#include <core/ui/WCustomWidget.h>
 
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMData.h"

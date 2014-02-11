@@ -35,7 +35,7 @@
 #include <osg/ShapeDrawable>
 
 #include <core/common/math/linearAlgebra/WPosition.h>
-#include <core/gui/WCustomWidget.h>
+#include <core/ui/WCustomWidget.h>
 
 
 #include "WLEMDDrawable3D.h"

@@ -31,8 +31,8 @@
 
 #include <core/common/WItemSelectionItemTyped.h>
 #include <core/dataHandler/WDataSet.h>
-#include <core/gui/WCustomWidget.h>
-#include <core/gui/WGUI.h>
+#include <core/ui/WCustomWidget.h>
+#include <core/ui/WUI.h>
 #include <core/kernel/WKernel.h>
 
 #include "core/data/emd/WLEMData.h"
@@ -335,7 +335,7 @@ void WLModuleDrawable::viewInit( WLEMDDrawable2D::WEGraphType::Enum graphType )
 
     m_graphType = graphType;
 
-    m_widget = WKernel::getRunningKernel()->getGui()->openCustomEMDWidget( getName(), WGECamera::TWO_D,
+    m_widget = WKernel::getRunningKernel()->getUI()->openCustomEMDWidget( getName(), WGECamera::TWO_D,
                     m_shutdownFlag.getCondition() );
 
     createColorMap();
@@ -465,7 +465,7 @@ void WLModuleDrawable::viewCleanup()
         m_resize3dHandler = NULL;
     }
 
-    WKernel::getRunningKernel()->getGui()->closeCustomWidget( m_widget->getTitle() );
+    WKernel::getRunningKernel()->getUI()->closeCustomWidget( m_widget->getTitle() );
     m_drawable2D.reset();
     m_drawable3D.reset();
     m_widget.reset();
