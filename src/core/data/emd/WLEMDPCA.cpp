@@ -27,8 +27,6 @@
 
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
-#include "core/data/WLEMMEnumTypes.h"
-
 #include "WLEMData.h"
 #include "WLEMDPCA.h"
 

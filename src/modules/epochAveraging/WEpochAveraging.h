@@ -31,6 +31,7 @@
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/shared_ptr.hpp>
 
+#include "core/data/WLDataTypes.h"
 #include "core/data/WLEMMeasurement.h"
 
 /**
@@ -106,7 +107,7 @@ protected:
      */
     size_t m_count;
 
-    size_t m_tbase;
+    WLSampleNrT m_tbase;
 
     /**
      * Does a baseline correction for each channel using m_tbase samples for mean.

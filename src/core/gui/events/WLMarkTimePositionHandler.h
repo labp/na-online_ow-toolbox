@@ -27,43 +27,46 @@
 
 #include <string>
 
-#include <boost/shared_ptr.hpp>
+#include <osg/ref_ptr>
+
+#include <core/gui/WCustomWidgetEventHandler.h>
 
 #include <core/kernel/WModuleOutputData.h>
 
 #include "core/data/WLEMMCommand.h"
-#include "core/gui/events/WLGUIMouseEvent.h"
-#include "core/gui/events/WLGUIMouseEventListener.h"
 #include "core/gui/drawable/WLEMDDrawable2D.h"
 #include "core/gui/drawable/WLEMDDrawable3D.h"
 
-namespace LaBP
+/**
+ * Marks the 2D view at the position, informs the 3D view and connected modules about the new time position.
+ *
+ * \author pieloth
+ */
+class WLMarkTimePositionHandler: public WCustomWidgetEventHandler
 {
-    class WLMarkTimePositionHandler: public WLGUIMouseEventListener
-    {
-    public:
-        /**
-         * Abbreviation for a shared pointer on a instance of this class.
-         */
-        typedef boost::shared_ptr< WLMarkTimePositionHandler > SPtr;
+public:
+    /**
+     * Abbreviation for a osg::ref_ptr on a instance of this class.
+     */
+    typedef osg::ref_ptr< WLMarkTimePositionHandler > RefPtr;
 
-        /**
-         * Abbreviation for a const shared pointer on a instance of this class.
-         */
-        typedef boost::shared_ptr< const WLMarkTimePositionHandler > ConstSPtr;
+    static const std::string CLASS;
 
-        static std::string CLASS;
+    WLMarkTimePositionHandler( LaBP::WLEMDDrawable2D::SPtr initiator, LaBP::WLEMDDrawable3D::SPtr acceptor,
+                    WModuleOutputData< WLEMMCommand >::SPtr output );
 
-        WLMarkTimePositionHandler( LaBP::WLEMDDrawable2D::SPtr initiator, LaBP::WLEMDDrawable3D::SPtr acceptor,
-                        WModuleOutputData< WLEMMCommand >::SPtr output );
-        virtual ~WLMarkTimePositionHandler();
-        virtual void mouseEventOccurred( const WLGUIMouseEvent& e );
+    virtual ~WLMarkTimePositionHandler();
 
-    private:
-        LaBP::WLEMDDrawable2D::SPtr m_initiator;
-        LaBP::WLEMDDrawable3D::SPtr m_acceptor;
-        WModuleOutputData< WLEMMCommand >::SPtr m_output;
-    };
+    void setDrawables( LaBP::WLEMDDrawable2D::SPtr drawable2D, LaBP::WLEMDDrawable3D::SPtr drawable3D );
 
-} /* namespace LaBP */
+    virtual void handleDrag( WVector2f mousePos, int buttonMask );
+
+    virtual void handlePush( WVector2f mousePos, int button );
+
+private:
+    LaBP::WLEMDDrawable2D::SPtr m_initiator;
+    LaBP::WLEMDDrawable3D::SPtr m_acceptor;
+    WModuleOutputData< WLEMMCommand >::SPtr m_output;
+};
+
 #endif  // WLMARKTIMEPOSITIONHANDLER_H_

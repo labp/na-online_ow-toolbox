@@ -27,8 +27,6 @@
 
 #include "WLGeometry.h"
 
-using namespace LaBP;
-
 bool WLGeometry::computeTriangulation( std::vector< WVector3i >* const triangles, const std::vector< WPosition >& points,
                 double transformationFactor )
 {
@@ -217,10 +215,10 @@ void WLGeometry::transformPoints( std::vector< Point >* const out, const std::ve
 
 }
 
-void WLGeometry::toBaseExponent( std::vector< Point >* const out, const std::vector< Point >& in, WEExponent::Enum exp )
+void WLGeometry::toBaseExponent( std::vector< Point >* const out, const std::vector< Point >& in, WLEExponent::Enum exp )
 {
     out->reserve( in.size() );
-    double factor = WEExponent::factor( exp );
+    double factor = WLEExponent::factor( exp );
     std::vector< Point >::const_iterator it;
     for( it = in.begin(); it != in.end(); ++it )
     {

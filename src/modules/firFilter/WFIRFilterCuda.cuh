@@ -25,7 +25,7 @@
 #ifndef WFIRFILTERCUDA_CUH_
 #define WFIRFILTERCUDA_CUH_
 
-#include "core/util/WLCudaMacros.h"
+#include "core/util/WLCudaMacrosNVCC.h"
 
 /**
  * Wrapper for the CUDA Kernel call.

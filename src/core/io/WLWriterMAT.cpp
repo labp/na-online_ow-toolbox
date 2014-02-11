@@ -27,7 +27,8 @@
 
 #include <core/common/WLogger.h>
 
-#include "WLMatFileIO.h"
+#include "core/dataFormat/mat/WLMatLib.h"
+
 #include "WLWriterMAT.h"
 
 using std::ofstream;
@@ -73,7 +74,7 @@ WLIOStatus::ioStatus_t WLWriterMAT::init()
     const std::string time_format = "%Y-%m-%dT%H:%M:%S";
     strftime( timeString, 20, time_format.c_str(), localtime( &timer ) );
 
-    if( WLMatFileIO::MATWriter::writeHeader( m_ofs, DESCRIPTION + ", " + timeString ) )
+    if( WLMatLib::MATWriter::writeHeader( m_ofs, DESCRIPTION + ", " + timeString ) )
     {
         m_isInitialized = true;
         return WLIOStatus::SUCCESS;
@@ -104,16 +105,16 @@ WLIOStatus::ioStatus_t WLWriterMAT::writeMatrix( const WLMatrix::MatrixT& matrix
 
     // Write data //
 #ifndef LABP_FLOAT_COMPUTATION
-    const size_t bytes = WLMatFileIO::MATWriter::writeMatrixDouble( m_ofs, matrix, name );
+    const size_t bytes = WLMatLib::MATWriter::writeMatrixDouble( m_ofs, matrix, name );
 #else
     const Eigen::MatrixXd matrixDbl = matrix.cast<double>();
-    const size_t bytes = WLMatFileIO::MATWriter::writeMatrixDouble( m_ofs, matrixDbl, name );
+    const size_t bytes = WLMatLib::MATWriter::writeMatrixDouble( m_ofs, matrixDbl, name );
 #endif
     wlog::debug( CLASS ) << bytes << " bytes written to file.";
     // NOTE: min_bytes is only possible, if compression is not used!
     // min_byte = Tag(miMATRIX) + Tag(ArrayFlags)+Data(ArrayFlags)
     // min_byte += Tag(Dim)+Data(Dim) + SmallElement(ArrayName) + Tag(matrix)+Data(matrix)
-    const size_t min_bytes = 8 + 2 * 8 + 2 * 8 + 8 + 8 + matrix.rows() * matrix.cols() * sizeof(WLMatFileIO::miDouble_t);
+    const size_t min_bytes = 8 + 2 * 8 + 2 * 8 + 8 + 8 + matrix.rows() * matrix.cols() * sizeof(WLMatLib::miDouble_t);
     if( min_bytes <= bytes )
     {
         return WLIOStatus::SUCCESS;

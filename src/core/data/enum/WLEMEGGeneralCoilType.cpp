@@ -22,30 +22,30 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
+#include <core/common/WAssert.h>
 
-#include "WLGUIMouseEvent.h"
+#include "WLEMEGGeneralCoilType.h"
 
-WLGUIMouseEvent::WLGUIMouseEvent( Event::Enum event, const osgGA::GUIEventAdapter& ea ) :
-                WLGUIEvent( WLGUIEvent::EventType::MOUSE, ea ), m_event( event )
+WLEMEGGeneralCoilType::ContainerT WLEMEGGeneralCoilType::values()
 {
+    ContainerT con;
+
+    con.insert( WLEMEGGeneralCoilType::MAGNETOMETER );
+    con.insert( WLEMEGGeneralCoilType::GRADIOMETER );
+
+    return con;
 }
 
-WLGUIMouseEvent::~WLGUIMouseEvent()
+std::string WLEMEGGeneralCoilType::name( Enum val )
 {
-}
-
-WLGUIMouseEvent::Event::Enum WLGUIMouseEvent::getEvent() const
-{
-    return m_event;
-}
-
-void WLGUIMouseEvent::setMiscEvent( std::string miscEvent )
-{
-    m_miscEvent = miscEvent;
-}
-
-std::string WLGUIMouseEvent::getMiscEvent() const
-{
-    return m_miscEvent;
+    switch( val )
+    {
+        case MAGNETOMETER:
+            return "magnetometer";
+        case GRADIOMETER:
+            return "gradiometer";
+        default:
+            WAssert( false, "Unknown WLEMEGGeneralCoilType!" );
+            return "ERROR: Unknown!";
+    }
 }

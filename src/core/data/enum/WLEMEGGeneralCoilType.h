@@ -22,9 +22,42 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WLGUIMouseEventListener.h"
+#ifndef WLEMEGGENERALCOILTYPE_H_
+#define WLEMEGGENERALCOILTYPE_H_
 
-WLGUIMouseEventListener::~WLGUIMouseEventListener()
+#include <ostream>
+#include <set>
+#include <string>
+
+namespace WLEMEGGeneralCoilType
 {
+    enum Enum
+    {
+        MAGNETOMETER, GRADIOMETER
+    };
+
+    typedef std::set< Enum > ContainerT;
+
+    /**
+     * Gets all enum values.
+     *
+     * \return Container with all enum values.
+     */
+    ContainerT values();
+
+    /**
+     * Gets the name of the enum value.
+     *
+     * \param val WLEMEGGeneralCoilType::Enum
+     * \return A string.
+     */
+    std::string name( Enum val );
 }
 
+inline std::ostream& operator<<( std::ostream &strm, const WLEMEGGeneralCoilType::Enum& obj )
+{
+    strm << WLEMEGGeneralCoilType::name( obj );
+    return strm;
+}
+
+#endif  // WLEMEGGENERALCOILTYPE_H_

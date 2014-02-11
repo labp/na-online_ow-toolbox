@@ -25,31 +25,18 @@
 #ifndef WLCUDAMACROS_H_
 #define WLCUDAMACROS_H_
 
-#ifdef LABP_FLOAT_COMPUTATION
-typedef float CuScalarT;
-#else
-typedef double CuScalarT;
-#endif  // LABP_FLOAT_COMPUTATION
-
-
 #ifdef FOUND_CUDA
 
-#include <cstdio>
-#include <cuda_runtime.h>
+#include <sstream>
+#include <string>
 
-// to prevent IDE complains about unknown cuda-keywords
-#ifdef __CDT_PARSER__
-#define __global__
-#define __device__
-#define __host__
-#define __shared__
-#define __syncthreads();
-#define CUDA_KERNEL_DIM( ... )
+#include <cuda_runtime_api.h>
+#include <driver_types.h>
 
-#else
-#define CUDA_KERNEL_DIM( ... )  <<< __VA_ARGS__ >>>
+#include <core/common/WLogger.h>
+#include <core/common/WException.h>
 
-#endif
+#include "core/exception/WLBadAllocException.h"
 
 #define CudaSafeCall( err )     __cudaSafeCall( err, __FILE__, __LINE__ )
 
@@ -57,7 +44,26 @@ inline void __cudaSafeCall( cudaError_t err, const char *file, const int line )
 {
     if( err != cudaSuccess )
     {
-        fprintf( stderr, "cudaSafeCall() failed at %s:%i : %s\n", file, line, cudaGetErrorString( err ) );
+        wlog::error( "CudaSafeCall" ) << "Failed at " << file << ":" << line << " " << cudaGetErrorString( err );
+    }
+}
+
+#define CudaThrowsCall( err )     __cudaThrowsCall( err, __FILE__, __LINE__ )
+
+inline void __cudaThrowsCall( cudaError_t err, const char *file, const int line )
+{
+    if( err != cudaSuccess )
+    {
+        std::stringstream sstream;
+        sstream << "Failed at " << file << ":" << line << " " << cudaGetErrorString( err );
+        const std::string msg(sstream.str());
+        switch( err )
+        {
+            case cudaErrorMemoryAllocation:
+                throw WLBadAllocException( msg );
+            default:
+                throw WException( msg );
+        }
     }
 }
 

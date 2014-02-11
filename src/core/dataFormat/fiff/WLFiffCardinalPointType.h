@@ -22,29 +22,20 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLGUIEVENTLISTENER_H_
-#define WLGUIEVENTLISTENER_H_
+#ifndef WLFIFFCARDINALPOINTTYPE_H_
+#define WLFIFFCARDINALPOINTTYPE_H_
 
-#include <boost/shared_ptr.hpp>
+#include "WLFiffLib.h"
 
-class WLGUIEvent;
-
-class WLGUIEventListener
+namespace WLFiffLib
 {
-public:
-    /**
-     * Abbreviation for a shared pointer.
-     */
-    typedef boost::shared_ptr< WLGUIEventListener > SPtr;
+    typedef enum_t cardinal_point_type_t;
 
-    /**
-     * Abbreviation for const shared pointer.
-     */
-    typedef boost::shared_ptr< const WLGUIEventListener > ConstSPtr;
-
-    virtual ~WLGUIEventListener();
-
-    virtual void eventOccurred( const WLGUIEvent& e ) = 0;
-};
-
-#endif  // WLGUIEVENTLISTENER_H_
+    namespace CardinalPointType
+    {
+        const cardinal_point_type_t LPA = 1;
+        const cardinal_point_type_t NASIO = 2;
+        const cardinal_point_type_t RPA = 3;
+    }
+} /* namespace WLFiffLib */
+#endif  // WLFIFFCARDINALPOINTTYPE_H_

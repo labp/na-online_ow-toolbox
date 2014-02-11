@@ -27,9 +27,9 @@
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
+
 #include <osg/Array>
 #include <osg/Geode>
-#include <osg/Group>
 #include <osg/LightModel>
 #include <osg/ref_ptr>
 #include <osg/Drawable>
@@ -45,7 +45,6 @@
 #include <core/graphicsEngine/WGEUtils.h>
 #include <core/graphicsEngine/WGEGeodeUtils.h>
 
-#include "core/data/WLEMMEnumTypes.h"
 #include "core/data/emd/WLEMDMEG.h"
 #include "core/gui/colorMap/WLColorMap.h"
 

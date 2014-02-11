@@ -33,10 +33,10 @@
 #include "core/data/WLEMMBemBoundary.h"
 #include "core/data/WLEMMSubject.h"
 #include "core/data/emd/WLEMDEEG.h"
+#include "core/data/enum/WLEPointType.h"
+#include "core/data/enum/WLECardinalPoint.h"
 #include "core/util/profiler/WLTimeProfiler.h"
 #include "WEEGSkinAlignment.h"
-
-using namespace LaBP;
 
 const std::string WEEGSkinAlignment::CLASS = "WEEGSkinAlignment";
 
@@ -130,22 +130,22 @@ bool WEEGSkinAlignment::extractFiducialPoints( WPosition* const lpa, WPosition* 
                 const WLEMMeasurement& emm )
 {
     WLTimeProfiler tp( CLASS, "extractFiducialPoints" );
-    WLList< WLDigPoint >::SPtr digPoints = emm.getDigPoints( WLDigPoint::PointType::CARDINAL );
+    WLList< WLDigPoint >::SPtr digPoints = emm.getDigPoints( WLEPointType::CARDINAL );
     char count = 0;
     WLList< WLDigPoint >::const_iterator cit;
     for( cit = digPoints->begin(); cit != digPoints->end() && count < 3; ++cit )
     {
-        if( cit->checkCardinal( WLDigPoint::CardinalPoints::LPA ) )
+        if( cit->checkCardinal( WLECardinalPoint::LPA ) )
         {
             *lpa = cit->getPoint();
             ++count;
         }
-        if( cit->checkCardinal( WLDigPoint::CardinalPoints::NASION ) )
+        if( cit->checkCardinal( WLECardinalPoint::NASION ) )
         {
             *nasion = cit->getPoint();
             ++count;
         }
-        if( cit->checkCardinal( WLDigPoint::CardinalPoints::RPA ) )
+        if( cit->checkCardinal( WLECardinalPoint::RPA ) )
         {
             *rpa = cit->getPoint();
             ++count;
@@ -171,7 +171,7 @@ bool WEEGSkinAlignment::extractBEMSkinPoints( PointsT* const out, const WLEMMeas
     WLEMMBemBoundary::ConstSPtr bemSkin;
     for( itBem = bems.begin(); itBem != bems.end(); ++itBem )
     {
-        if( ( *itBem )->getBemType() == WEBemType::OUTER_SKIN )
+        if( ( *itBem )->getBemType() == WLEBemType::OUTER_SKIN || ( *itBem )->getBemType() == WLEBemType::HEAD )
         {
             bemSkin = *itBem;
             break;
@@ -202,7 +202,7 @@ bool WEEGSkinAlignment::extractBEMSkinPoints( PointsT* const out, const WLEMMeas
     const WPosition::ValueType z_threashold = min + ( max - min ) * 0.25;
     wlog::debug( CLASS ) << "icpAlign: BEM z_threashold: " << z_threashold;
 
-    const double factor = WEExponent::factor( bemSkin->getVertexExponent() );
+    const double factor = WLEExponent::factor( bemSkin->getVertexExponent() );
 
     out->reserve( bemPosition.size() );
     for( itPos = bemPosition.begin(); itPos != bemPosition.end(); ++itPos )

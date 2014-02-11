@@ -33,6 +33,7 @@
 #include <core/kernel/WModule.h>
 
 #include "core/data/WLEMMeasurement.h"
+#include "core/module/WLConstantsModule.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
@@ -68,12 +69,12 @@ const char** WMEpochAveraging::getXPMIcon() const
 
 const std::string WMEpochAveraging::getName() const
 {
-    return "Epoch Averaging";
+    return WLConstantsModule::NAME_PREFIX + " Epoch Averaging";
 }
 
 const std::string WMEpochAveraging::getDescription() const
 {
-    return "Calculates the average of the input epochs. Module supports LaBP data types only!";
+    return "Calculates moving or total average of incoming epochs.";
 }
 
 void WMEpochAveraging::connectors()
@@ -200,6 +201,8 @@ void WMEpochAveraging::moduleMain()
             process( cmdIn );
         }
     }
+
+    viewCleanup();
 }
 
 void WMEpochAveraging::callbackAverageTypeChanged()

@@ -36,6 +36,7 @@
 #include "core/data/emd/WLEMDMEG.h"
 #include "core/data/WLEMMSubject.h"
 #include "core/data/WLEMMSurface.h"
+#include "core/module/WLConstantsModule.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
@@ -62,7 +63,7 @@ WMCodeSnippets::~WMCodeSnippets()
 
 const string WMCodeSnippets::getName() const
 {
-    return "Code Snippets";
+    return WLConstantsModule::NAME_PREFIX + " Code Snippets";
 }
 
 const string WMCodeSnippets::getDescription() const
@@ -235,7 +236,7 @@ bool WMCodeSnippets::writeEmdPositions( WLEMMeasurement::ConstSPtr emm )
         std::list< WLEMMBemBoundary::SPtr >::const_iterator it;
         for( it = bems.begin(); it != bems.end(); ++it )
         {
-            if( ( *it )->getBemType() == WEBemType::OUTER_SKIN )
+            if( ( *it )->getBemType() == WLEBemType::OUTER_SKIN || ( *it )->getBemType() == WLEBemType::HEAD )
             {
                 const vector< WPosition >& pos = *( *it )->getVertex();
                 rc &= writeEmdPositions( pos, "/tmp/positions_skin.txt" );

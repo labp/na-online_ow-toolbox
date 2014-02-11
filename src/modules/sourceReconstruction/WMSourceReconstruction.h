@@ -34,7 +34,6 @@
 #include "core/data/WLDataTypes.h"
 #include "core/data/WLEMMCommand.h"
 #include "core/data/WLEMMeasurement.h"
-#include "core/data/WLEMMEnumTypes.h"
 #include "core/data/enum/WLEModality.h"
 
 #include "core/module/WLEMMCommandProcessor.h"

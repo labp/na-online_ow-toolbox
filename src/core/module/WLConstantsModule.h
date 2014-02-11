@@ -22,52 +22,15 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLGUIMOUSEEVENT_H_
-#define WLGUIMOUSEEVENT_H_
+
+#ifndef WLCONSTANTSMODULE_H_
+#define WLCONSTANTSMODULE_H_
 
 #include <string>
 
-#include <boost/shared_ptr.hpp>
-
-#include "WLGUIEvent.h"
-
-/**
- * Class for mouse event notifications.
- */
-class WLGUIMouseEvent: public WLGUIEvent
+namespace WLConstantsModule
 {
-public:
-    /**
-     * Abbreviation for a shared pointer.
-     */
-    typedef boost::shared_ptr< WLGUIMouseEvent > SPtr;
+    const std::string NAME_PREFIX = "NA-Online:";
+}
 
-    /**
-     * Abbreviation for const shared pointer.
-     */
-    typedef boost::shared_ptr< const WLGUIMouseEvent > ConstSPtr;
-
-    struct Event
-    {
-        enum Enum
-        {
-            CLICK_LEFT, CLICK_MIDDLE, CLICK_CENTER, SCROLL_UP, SCROLL_DOWN, MISC
-        };
-    };
-
-    WLGUIMouseEvent( Event::Enum event, const osgGA::GUIEventAdapter& ea );
-    virtual ~WLGUIMouseEvent();
-
-    Event::Enum getEvent() const;
-
-    void setMiscEvent( std::string miscEvent );
-
-    std::string getMiscEvent() const;
-
-private:
-    const Event::Enum m_event;
-
-    std::string m_miscEvent;
-};
-
-#endif  // WLGUIMOUSEEVENT_H_
+#endif  // WLCONSTANTSMODULE_H_

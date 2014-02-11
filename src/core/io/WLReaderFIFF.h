@@ -37,7 +37,6 @@
 
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMSubject.h"
-#include "core/data/WLEMMEnumTypes.h"
 
 #include "core/io/WLReader.h"
 
@@ -75,10 +74,6 @@ namespace LaBP
 
     private:
         static ReturnCode::Enum getReturnCode( returncode_t rc );
-
-        static WEUnit::Enum getChanUnit( fiffunits_t unit );
-
-        static WEExponent::Enum getChanUnitMul( fiffmultipliers_t unitMul );
     };
 }
 #endif /* WLREADERFIFF_H_ */

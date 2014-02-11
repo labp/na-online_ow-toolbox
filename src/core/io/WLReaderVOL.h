@@ -57,7 +57,7 @@ namespace LaBP
 
     private:
         ReturnCode::Enum readNumBoundaries( std::string& line, size_t& count );
-        ReturnCode::Enum readConductUnit( std::string& line, WEUnit::Enum& unit );
+        ReturnCode::Enum readConductUnit( std::string& line, WLEUnit::Enum& unit );
         ReturnCode::Enum readConductivities( std::ifstream& ifs, std::list< WLEMMBemBoundary::SPtr >* const boundaries );
         ReturnCode::Enum readBndFiles( std::ifstream& ifs, std::string& line,
                         std::list< WLEMMBemBoundary::SPtr >* const boundaries );

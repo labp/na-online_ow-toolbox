@@ -22,35 +22,4 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLGUIMOUSEEVENTLISTENER_H_
-#define WLGUIMOUSEEVENTLISTENER_H_
-
-#include <boost/shared_ptr.hpp>
-
-class WLGUIMouseEvent;
-
-/**
- * A listener for mouse events or receiver for mouse notifications aka observer pattern.
- */
-class WLGUIMouseEventListener
-{
-public:
-    /**
-     * Abbreviation for a shared pointer.
-     */
-    typedef boost::shared_ptr< WLGUIMouseEventListener > SPtr;
-
-    /**
-     * Abbreviation for const shared pointer.
-     */
-    typedef boost::shared_ptr< const WLGUIMouseEventListener > ConstSPtr;
-
-    virtual ~WLGUIMouseEventListener();
-
-    /**
-     * Implementation of the action. Is called by a GUI element.
-     */
-    virtual void mouseEventOccurred( const WLGUIMouseEvent& e ) = 0;
-};
-
-#endif  // WLGUIMOUSEEVENTLISTENER_H_
+#include "WLFiffUnit.h"

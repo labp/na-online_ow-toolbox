@@ -34,8 +34,8 @@
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
 #include "core/container/WLArrayList.h"
-
-#include "WLEMMEnumTypes.h"
+#include "core/data/enum/WLEUnit.h"
+#include "core/data/enum/WLEExponent.h"
 
 class WLEMMSurface
 {
@@ -61,7 +61,7 @@ public:
     };
 
     WLEMMSurface();
-    WLEMMSurface( WLArrayList< WPosition >::SPtr vertex, LaBP::WEUnit::Enum vertexUnit, LaBP::WEExponent::Enum vertexExponent,
+    WLEMMSurface( WLArrayList< WPosition >::SPtr vertex, WLEUnit::Enum vertexUnit, WLEExponent::Enum vertexExponent,
                     WLArrayList< WVector3i >::SPtr faces, Hemisphere::Enum hemisphere );
 
     WLEMMSurface( const WLEMMSurface& surface );
@@ -72,11 +72,11 @@ public:
     WLArrayList< WPosition >::ConstSPtr getVertex() const;
     void setVertex( WLArrayList< WPosition >::SPtr vertex );
 
-    LaBP::WEUnit::Enum getVertexUnit() const;
-    void setVertexUnit( LaBP::WEUnit::Enum unit );
+    WLEUnit::Enum getVertexUnit() const;
+    void setVertexUnit( WLEUnit::Enum unit );
 
-    LaBP::WEExponent::Enum getVertexExponent() const;
-    void setVertexExponent( LaBP::WEExponent::Enum exponent );
+    WLEExponent::Enum getVertexExponent() const;
+    void setVertexExponent( WLEExponent::Enum exponent );
 
     WLArrayList< WVector3i >::SPtr getFaces();
     WLArrayList< WVector3i >::ConstSPtr getFaces() const;
@@ -90,8 +90,8 @@ private:
 
     Hemisphere::Enum m_hemisphere;
 
-    LaBP::WEUnit::Enum m_vertexUnit;
-    LaBP::WEExponent::Enum m_vertexExponent;
+    WLEUnit::Enum m_vertexUnit;
+    WLEExponent::Enum m_vertexExponent;
 
     WLArrayList< WVector3i >::SPtr m_faces;
 };

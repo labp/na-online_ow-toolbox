@@ -28,6 +28,9 @@
 #include <string>
 #include <utility>  // for pair <>
 
+#include <osg/Geode>
+#include <osg/ref_ptr>
+
 #include "WLEMDDrawable2DMultiChannel.h"
 
 namespace LaBP
@@ -62,6 +65,13 @@ namespace LaBP
         virtual void osgAddChannels( const WLEMData& emd );
 
         WLEMMeasurement::SPtr m_emm;
+
+    private:
+        void osgSetTrigger( const WLEMMeasurement::EDataT& events );
+
+        osg::ref_ptr< osg::Geode > m_triggerGeode;
+
+        osg::ref_ptr< WLColorArray > m_triggerColors;
     };
 
 } /* namespace LaBP */

@@ -34,7 +34,7 @@
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
-#include "core/data/WLEMMEnumTypes.h"
+#include "core/data/enum/WLEExponent.h"
 #include "core/io/WLReader.h"
 
 namespace LaBP
@@ -58,7 +58,7 @@ namespace LaBP
                         boost::shared_ptr< std::vector< WVector3i > > facesOut );
 
     private:
-        ReturnCode::Enum readUnit( std::string& line, WEExponent::Enum& exp );
+        ReturnCode::Enum readUnit( std::string& line, WLEExponent::Enum& exp );
         ReturnCode::Enum readNumPos( std::string& line, size_t& count );
         ReturnCode::Enum readNumPoly( std::string& line, size_t& count );
         ReturnCode::Enum readPositions( std::ifstream& ifs, size_t count, boost::shared_ptr< std::vector< WPosition > > posOut );
@@ -66,7 +66,7 @@ namespace LaBP
                         boost::shared_ptr< std::vector< std::string > > labelsOut );
         ReturnCode::Enum readPolygons( std::ifstream& ifs, size_t count, boost::shared_ptr< std::vector< WVector3i > > facesOut );
 
-        void convertToMilli( boost::shared_ptr< std::vector< WPosition > > pos, WEExponent::Enum& exp );
+        void convertToMilli( boost::shared_ptr< std::vector< WPosition > > pos, WLEExponent::Enum& exp );
     };
 }
 #endif /* WLREADERELC_H_ */

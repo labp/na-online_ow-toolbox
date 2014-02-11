@@ -24,9 +24,8 @@
 
 #include <string>
 
-#include <osg/Group>
+#include <core/graphicsEngine/WGEGroupNode.h>
 
-#include <core/graphicsEngine/WGEGroupNode.h> // m_widget->getScene
 #include "WLEMDDrawable.h"
 
 namespace LaBP
@@ -39,14 +38,11 @@ namespace LaBP
         m_modality = WLEModality::UNKNOWN;
         m_dataChanged = false;
         m_modalityChanged = false;
-        m_rootGroup = new osg::Group;
+        m_rootGroup = new WGEGroupNode;
 
         m_callbackDelegator = new WLEMDDrawableCallbackDelegator( this );
         m_rootGroup->addUpdateCallback( m_callbackDelegator );
         m_widget->getScene()->insert( m_rootGroup );
-
-        m_handlerDelegator = new WLEMDDrawableEventHandlerDelegator( this );
-        m_widget->getViewer()->getView()->addEventHandler( m_handlerDelegator );
 
         m_draw = false;
     }
@@ -54,8 +50,10 @@ namespace LaBP
     WLEMDDrawable::~WLEMDDrawable()
     {
         m_rootGroup->removeUpdateCallback( m_callbackDelegator );
+        m_callbackDelegator->m_drawable = NULL;
+        m_callbackDelegator = NULL;
         m_widget->getScene()->remove( m_rootGroup );
-        m_widget->getViewer()->getView()->removeEventHandler( m_handlerDelegator );
+        m_rootGroup = NULL;
     }
 
     void WLEMDDrawable::redraw()
@@ -103,26 +101,6 @@ namespace LaBP
 
     WLEMDDrawable::WLEMDDrawableCallbackDelegator::~WLEMDDrawableCallbackDelegator()
     {
-    }
-
-    void WLEMDDrawable::WLEMDDrawableCallbackDelegator::operator()( osg::Node* node, osg::NodeVisitor* nv )
-    {
-        m_drawable->osgNodeCallback( nv );
-    }
-
-    WLEMDDrawable::WLEMDDrawableEventHandlerDelegator::WLEMDDrawableEventHandlerDelegator( WLGUIEventManager* handler ) :
-                    m_handler( handler )
-    {
-    }
-
-    WLEMDDrawable::WLEMDDrawableEventHandlerDelegator::~WLEMDDrawableEventHandlerDelegator()
-    {
-    }
-
-    bool WLEMDDrawable::WLEMDDrawableEventHandlerDelegator::handle( const osgGA::GUIEventAdapter& ea,
-                    osgGA::GUIActionAdapter& aa )
-    {
-        return m_handler->dispatchEvent( ea );
     }
 
 } /* namespace LaBP */

@@ -22,30 +22,30 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WLMatFileIO.h"
+#include "WLMatLib.h"
 
-bool WLMatFileIO::ArrayFlags::isComplex( const mArrayFlags_t& data )
+bool WLMatLib::ArrayFlags::isComplex( const mArrayFlags_t& data )
 {
     return data & ArrayFlags::MASK_COMPLEX;
 }
 
-bool WLMatFileIO::ArrayFlags::isGlobal( const mArrayFlags_t& data )
+bool WLMatLib::ArrayFlags::isGlobal( const mArrayFlags_t& data )
 {
     return data & ArrayFlags::MASK_GLOBAL;
 }
 
-bool WLMatFileIO::ArrayFlags::isLogical( const mArrayFlags_t& data )
+bool WLMatLib::ArrayFlags::isLogical( const mArrayFlags_t& data )
 {
     return data & ArrayFlags::MASK_LOGICAL;
 }
 
-WLMatFileIO::mArrayType_t WLMatFileIO::ArrayFlags::getArrayType( const mArrayFlags_t& data )
+WLMatLib::mArrayType_t WLMatLib::ArrayFlags::getArrayType( const mArrayFlags_t& data )
 {
     const mArrayFlags_t tmp = data & ArrayFlags::MASK_GET_CLASS;
     return tmp & ArrayFlags::MASK_GET_CLASS;
 }
 
-bool WLMatFileIO::ArrayTypes::isNumericArray( const mArrayType_t& type )
+bool WLMatLib::ArrayTypes::isNumericArray( const mArrayType_t& type )
 {
     if( type == ArrayTypes::mxDOUBLE_CLASS || type == ArrayTypes::mxSINGLE_CLASS )
     {

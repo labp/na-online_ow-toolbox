@@ -29,7 +29,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/shared_ptr.hpp> // dynamic pointer cast
 #include <core/common/WItemSelectionItemTyped.h>
 #include <core/dataHandler/WDataSet.h>
 #include <core/gui/WCustomWidget.h>
@@ -39,15 +38,14 @@
 #include "core/data/emd/WLEMData.h"
 #include "core/data/WLEMMCommand.h"
 #include "core/data/WLEMMeasurement.h"
-#include "core/data/WLEMMEnumTypes.h"
 #include "core/gui/drawable/WLEMDDrawable.h"
 #include "core/gui/drawable/WLEMDDrawable2D.h"
 #include "core/gui/drawable/WLEMDDrawable2DMultiChannel.h"
 #include "core/gui/drawable/WLEMDDrawable3D.h"
 #include "core/gui/drawable/WLEMDDrawable3DEEG.h"
-#include "core/gui/events/WLGUIEvent.h"
-#include "core/gui/events/WLMarkTimePositionHandler.h"
 #include "core/gui/events/WL2DChannelScrollHandler.h"
+#include "core/gui/events/WLMarkTimePositionHandler.h"
+#include "core/gui/events/WLResizeHandler.h"
 #include "core/gui/colorMap/WLColorMap.h"
 #include "core/util/WLBoundCalculator.h"
 
@@ -70,7 +68,6 @@ WLModuleDrawable::WLModuleDrawable()
 
 WLModuleDrawable::~WLModuleDrawable()
 {
-    WKernel::getRunningKernel()->getGui()->closeCustomWidget( m_widget->getTitle() );
 }
 
 void WLModuleDrawable::properties()
@@ -188,17 +185,19 @@ void WLModuleDrawable::setViewModality( WLEModality::Enum mod )
     WItemSelection::SPtr viewSelection( new WItemSelection() );
     std::set< WLEModality::Enum > modalities = WLEModality::values();
     std::set< WLEModality::Enum >::iterator it;
-    size_t selected = 0;
+    size_t count = 0;
+    size_t selected;
     for( it = modalities.begin(); it != modalities.end(); ++it )
     {
         viewSelection->addItem(
                         WItemSelectionItemTyped< WLEModality::Enum >::SPtr(
                                         new WItemSelectionItemTyped< WLEModality::Enum >( *it, WLEModality::name( *it ),
                                                         WLEModality::description( *it ) ) ) );
-        if( *it != mod )
+        if( *it == mod )
         {
-            ++selected;
+            selected = count;
         }
+        ++count;
     }
 
     m_selectionView = m_propView->addProperty( "View modality", "Select a to visualize", viewSelection->getSelector( selected ),
@@ -319,6 +318,7 @@ void WLModuleDrawable::callbackChannelHeightChanged()
 
 void WLModuleDrawable::callbackLabelsChanged()
 {
+    // TODO(pieloth): what is with meg?
     WLEMDDrawable3DEEG::SPtr drawable = m_drawable3D->getAs< WLEMDDrawable3DEEG >();
     if( drawable )
     {
@@ -340,7 +340,29 @@ void WLModuleDrawable::viewInit( WLEMDDrawable2D::WEGraphType::Enum graphType )
 
     createColorMap();
 
-    viewReset();
+    WCustomWidget::SPtr widget2D = m_widget->getSubWidget( WLEMDWidget::WEWidgetType::EMD_2D );
+    m_drawable2D = WLEMDDrawable2D::getInstance( widget2D, getViewModality(), m_graphType );
+    WLEMDDrawable2DMultiChannel::SPtr drawable = m_drawable2D->getAs< WLEMDDrawable2DMultiChannel >();
+    if( drawable )
+    {
+        drawable->setChannelHeight( static_cast< WLEMDDrawable::ValueT >( m_channelHeight->get() ) );
+        m_scrollHandler = new WL2DChannelScrollHandler( drawable );
+        widget2D->addEventHandler( m_scrollHandler );
+    }
+    m_drawable2D->setTimeRange( m_timeRange->get() );
+    m_drawable2D->setAmplitudeScale( m_amplitudeScale->get() );
+    m_resize2dHandler = new WLResizeHandler( m_drawable2D );
+    widget2D->addEventHandler( m_resize2dHandler );
+
+    WCustomWidget::SPtr widget3D = m_widget->getSubWidget( WLEMDWidget::WEWidgetType::EMD_3D );
+    m_drawable3D = WLEMDDrawable3D::getInstance( widget3D, getViewModality() );
+    m_drawable3D->setColorMap( m_colorMap );
+    m_resize3dHandler = new WLResizeHandler( m_drawable3D );
+    widget3D->addEventHandler( m_resize3dHandler );
+    callbackLabelsChanged();
+
+    m_clickHandler = new WLMarkTimePositionHandler( m_drawable2D, m_drawable3D, m_output );
+    widget2D->addEventHandler( m_clickHandler );
 }
 
 void WLModuleDrawable::viewUpdate( WLEMMeasurement::SPtr emm )
@@ -363,17 +385,6 @@ void WLModuleDrawable::viewUpdate( WLEMMeasurement::SPtr emm )
             setTimerange( m_range );
         }
     }
-
-//    if( emm->hasModality( this->getViewModality() ) )
-//    {
-//        frequence = emm->getModality( this->getViewModality() )->getSampFreq();
-//        if( frequence != m_frequence )
-//        {
-//            m_frequence = frequence;
-//            double samples = emm->getModality( this->getViewModality() )->getSamplesPerChan();
-//            this->setTimerange( samples / m_frequence );
-//        }
-//    }
 
     bool autoScale = m_autoSensitivity->get() && m_autoScaleCounter > 0;
 
@@ -403,35 +414,61 @@ void WLModuleDrawable::viewReset()
     debugLog() << "viewReset() called!";
     m_range = -1;
 
-// Avoid memory leak due to circular references drawables <-> listener
-    if( m_drawable2D )
-    {
-        m_drawable2D->clearListeners();
-    }
-    if( m_drawable3D )
-    {
-        m_drawable3D->clearListeners();
-    }
-
     WCustomWidget::SPtr widget2D = m_widget->getSubWidget( WLEMDWidget::WEWidgetType::EMD_2D );
     m_drawable2D = WLEMDDrawable2D::getInstance( widget2D, getViewModality(), m_graphType );
     WLEMDDrawable2DMultiChannel::SPtr drawable = m_drawable2D->getAs< WLEMDDrawable2DMultiChannel >();
     if( drawable )
     {
         drawable->setChannelHeight( static_cast< WLEMDDrawable::ValueT >( m_channelHeight->get() ) );
-        WL2DChannelScrollHandler::SPtr handler( new WL2DChannelScrollHandler( drawable ) );
-        drawable->addMouseEventListener( handler );
+        m_scrollHandler->setDrawable( drawable );
     }
     m_drawable2D->setTimeRange( m_timeRange->get() );
     m_drawable2D->setAmplitudeScale( m_amplitudeScale->get() );
+    m_resize2dHandler->setDrawable( m_drawable2D );
 
     WCustomWidget::SPtr widget3D = m_widget->getSubWidget( WLEMDWidget::WEWidgetType::EMD_3D );
     m_drawable3D = WLEMDDrawable3D::getInstance( widget3D, getViewModality() );
     m_drawable3D->setColorMap( m_colorMap );
+    m_resize3dHandler->setDrawable( m_drawable3D );
     callbackLabelsChanged();
 
-    WLMarkTimePositionHandler::SPtr handler( new WLMarkTimePositionHandler( m_drawable2D, m_drawable3D, m_output ) );
-    m_drawable2D->addMouseEventListener( handler );
+    m_clickHandler->setDrawables( m_drawable2D, m_drawable3D );
+}
+
+void WLModuleDrawable::viewCleanup()
+{
+    debugLog() << "viewCleanup() called!";
+    if( !m_widget )
+    {
+        debugLog() << "Nothing to cleanup.";
+        return;
+    }
+
+    if( m_scrollHandler.valid() )
+    {
+        m_widget->getViewer()->getView()->removeEventHandler( m_scrollHandler );
+        m_scrollHandler = NULL;
+    }
+    if( m_clickHandler.valid() )
+    {
+        m_widget->getViewer()->getView()->removeEventHandler( m_clickHandler );
+        m_clickHandler = NULL;
+    }
+    if( m_resize2dHandler.valid() )
+    {
+        m_widget->getViewer()->getView()->removeEventHandler( m_resize2dHandler );
+        m_resize2dHandler = NULL;
+    }
+    if( m_resize3dHandler.valid() )
+    {
+        m_widget->getViewer()->getView()->removeEventHandler( m_resize3dHandler );
+        m_resize3dHandler = NULL;
+    }
+
+    WKernel::getRunningKernel()->getGui()->closeCustomWidget( m_widget->getTitle() );
+    m_drawable2D.reset();
+    m_drawable3D.reset();
+    m_widget.reset();
 }
 
 double WLModuleDrawable::getTimerange()
@@ -460,7 +497,6 @@ void WLModuleDrawable::setTimerangeInformationOnly( bool enable )
 
 void WLModuleDrawable::createColorMap()
 {
-// create color map
     const WEColorMap::Enum color_map =
                     m_selectionColor->get().at( 0 )->getAs< WItemSelectionItemTyped< WEColorMap::Enum > >()->getValue();
     const WEColorMapMode::Enum color_mode = m_selectionColorMode->get().at( 0 )->getAs<
@@ -481,5 +517,5 @@ bool WLModuleDrawable::processTime( WLEMMCommand::SPtr labp )
 bool WLModuleDrawable::processMisc( WLEMMCommand::SPtr labp )
 {
     m_output->updateData( labp );
-    return false;
+    return true;
 }

@@ -29,8 +29,6 @@
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
-#include "core/data/WLEMMEnumTypes.h"
-
 #include "WLEMData.h"
 #include "WLEMDEEG.h"
 
@@ -46,7 +44,6 @@ WLEMDEEG::WLEMDEEG( const WLEMDEEG& eeg ) :
 {
     m_chanPos3d = eeg.m_chanPos3d;
     m_faces = eeg.m_faces;
-    m_polarityType = eeg.getPolarityType();
 }
 
 WLEMDEEG::~WLEMDEEG()
@@ -57,11 +54,6 @@ WLEMData::SPtr WLEMDEEG::clone() const
 {
     WLEMDEEG::SPtr eeg( new WLEMDEEG( *this ) );
     return eeg;
-}
-
-LaBP::WEPolarityType::Enum WLEMDEEG::getPolarityType() const
-{
-    return m_polarityType;
 }
 
 WLEModality::Enum WLEMDEEG::getModalityType() const

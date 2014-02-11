@@ -31,6 +31,7 @@
 #include <vector>
 
 #include <core/common/WAssert.h>
+#include <core/common/WException.h>
 #include <core/common/WLogger.h>
 
 #include "core/data/WLEMMeasurement.h"
@@ -81,13 +82,19 @@ WLEMData::SPtr WFIRFilter::filter( const WLEMData::ConstSPtr emdIn )
     WLEMData::DataSPtr out( new WLEMData::DataT( in.rows(), in.cols() ) );
 
     const WLEMData::DataT& prevData = getPreviousData( emdIn );
-    filter( *out, in, prevData );
+    const bool success = filter( *out, in, prevData );
     storePreviousData( emdIn );
 
-    WLEMData::SPtr emdOut = emdIn->clone();
-    emdOut->setData( out );
-
-    return emdOut;
+    if( success )
+    {
+        WLEMData::SPtr emdOut = emdIn->clone();
+        emdOut->setData( out );
+        return emdOut;
+    }
+    else
+    {
+        throw WException( "Data not filtered!" );
+    }
 }
 
 void WFIRFilter::doPostProcessing( WLEMMeasurement::SPtr emmOut, WLEMMeasurement::ConstSPtr emmIn )
@@ -472,7 +479,7 @@ std::string WFIRFilter::WEFilterType::name( WFIRFilter::WEFilterType::Enum value
             return "Lowpass";
         default:
             WAssert( false, "Unknown WEFilterType!" );
-            return LaBP::UNDEFINED;
+            return "ERROR: Undefined!";
     }
 }
 
@@ -504,7 +511,7 @@ std::string WFIRFilter::WEWindowsType::name( WFIRFilter::WEWindowsType::Enum val
             return "Hanning";
         default:
             WAssert( false, "Unknown WEWindowsType!" );
-            return LaBP::UNDEFINED;
+            return "ERROR: Undefined!";
     }
 }
 

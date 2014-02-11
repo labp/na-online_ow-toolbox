@@ -34,23 +34,3 @@ WLProfiler::WLProfiler( std::string source, std::string action, bool autoLog ) :
 WLProfiler::~WLProfiler()
 {
 }
-
-std::ostream& operator<<( std::ostream &strm, const WLProfiler& profiler )
-{
-    return profiler.write( strm );
-}
-
-std::string WLProfiler::getSource() const
-{
-    return m_source;
-}
-
-std::string WLProfiler::getAction() const
-{
-    return m_action;
-}
-
-bool WLProfiler::isAutoLog() const
-{
-    return m_autoLog;
-}

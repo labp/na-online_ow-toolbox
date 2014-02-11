@@ -28,6 +28,7 @@
 
 #include <core/common/WPathHelper.h>
 
+#include "core/module/WLConstantsModule.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 #include "core/util/profiler/WLTimeProfiler.h"
@@ -55,13 +56,12 @@ WMFiffWriter::~WMFiffWriter()
 
 const std::string WMFiffWriter::getName() const
 {
-    return "FIFF Writer";
+    return WLConstantsModule::NAME_PREFIX + " FIFF Writer";
 }
 
 const std::string WMFiffWriter::getDescription() const
 {
-    // TODO(pieloth): module description
-    return "TODO";
+    return "Creates and opens a FIFF file and writes incoming EMM data into it.";
 }
 
 WModule::SPtr WMFiffWriter::factory() const

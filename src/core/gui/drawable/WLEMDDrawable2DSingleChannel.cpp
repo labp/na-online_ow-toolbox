@@ -33,11 +33,14 @@
 #include <osg/MatrixTransform>
 #include <osgText/Text>
 
+#include <core/common/WAssert.h>
 #include <core/common/WLogger.h>
+#include <core/common/exceptions/WOutOfBounds.h>
 #include <core/gui/WCustomWidget.h>
 
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMData.h"
+#include "core/exception/WLNoDataException.h"
 #include "core/util/WLBoundCalculator.h"
 
 #include "WLEMDDrawable2DSingleChannel.h"
@@ -51,10 +54,21 @@ namespace LaBP
     {
         m_valueGridWidth = -1;
         m_valueGridHeight = -1;
+
+        m_triggerColors = new WLColorArray;
+        m_triggerColors->push_back( WColor( 0.5, 1.0, 0.5, 0.4 ) );
+
+        osg::ref_ptr< osg::StateSet > state = m_rootGroup->getOrCreateStateSet();
+        state->setMode( GL_BLEND, osg::StateAttribute::ON );
     }
 
     WLEMDDrawable2DSingleChannel::~WLEMDDrawable2DSingleChannel()
     {
+        if( m_valueGridGroup.valid() )
+        {
+            m_rootGroup->remove( m_valueGridGroup );
+            m_valueGridGroup = NULL;
+        }
     }
 
     void WLEMDDrawable2DSingleChannel::draw( WLEMMeasurement::SPtr emm )
@@ -77,7 +91,7 @@ namespace LaBP
     void WLEMDDrawable2DSingleChannel::osgAddChannels( const WLEMData& emd )
     {
         m_rootGroup->removeChild( m_channelGroup );
-        m_channelGroup = new osg::Group;
+        m_channelGroup = new WGEGroupNode;
 
         const ValueT x_pos = m_xOffset;
         const ValueT y_pos = m_widget->height() / 2;
@@ -120,7 +134,7 @@ namespace LaBP
             m_valueGridHeight = height;
 
             m_rootGroup->removeChild( m_valueGridGroup );
-            m_valueGridGroup = new osg::Group;
+            m_valueGridGroup = new WGEGroupNode;
 
             // Draw 0 line and add text
             osg::ref_ptr< osg::Geometry > line = new osg::Geometry;
@@ -229,20 +243,30 @@ namespace LaBP
 
     std::pair< WLEMMeasurement::SPtr, size_t > WLEMDDrawable2DSingleChannel::getSelectedData( ValueT pixel ) const
     {
-        size_t sample = 0;
-
-        WLEMMeasurement::SPtr emm = m_emm;
-
-        if( pixel > m_xOffset )
+        if( !m_emm )
         {
-            const ValueT width = m_widget->width() - m_xOffset;
-            const ValueT relPix = pixel - m_xOffset;
+            throw WLNoDataException( "No EMM available!" );
+        }
+
+        const ValueT width = m_widget->width();
+        const WLEMMeasurement::SPtr emm = m_emm;
+        if( m_xOffset <= pixel && pixel < width )
+        {
+            size_t sample = 0;
+            const ValueT rel_width = width - m_xOffset;
+            const ValueT rel_pix = pixel - m_xOffset;
             const size_t samples_total = emm->getModality( m_modality )->getSamplesPerChan();
 
-            sample = relPix * samples_total / width;
+            sample = rel_pix * samples_total / rel_width;
+
+            wlog::debug( CLASS ) << "selected sample: " << sample;
+            WAssertDebug( 0 <= sample && sample < samples_total, "0 <= sample && sample < samples_total" );
+            return std::make_pair( emm, sample );
         }
-        wlog::debug( CLASS ) << "selected sample: " << sample;
-        return std::make_pair( emm, sample );
+        else
+        {
+            throw WOutOfBounds( "Pixel out of bounds!" );
+        }
     }
 
     void WLEMDDrawable2DSingleChannel::osgNodeCallback( osg::NodeVisitor* nv )
@@ -260,8 +284,70 @@ namespace LaBP
         WLEMData::ConstSPtr emd = emm->getModality( m_modality );
         osgAddChannels( *emd );
         osgAddValueGrid( *emd );
+        osgSetTrigger( *( emm->getEventChannels() ) );
 
         WLEMDDrawable2D::osgNodeCallback( nv );
+    }
+
+    void WLEMDDrawable2DSingleChannel::osgSetTrigger( const WLEMMeasurement::EDataT& events )
+    {
+        const ValueT pxWidth = static_cast< ValueT >( m_widget->width() - m_xOffset );
+
+        // delete old trigger
+        if( m_triggerGeode.valid() )
+        {
+            m_rootGroup->removeChild( m_triggerGeode );
+            m_triggerGeode = NULL;
+        }
+
+        // find new trigger
+        WLEMMeasurement::EDataT::const_iterator chanIt;
+        for( chanIt = events.begin(); chanIt != events.end(); ++chanIt )
+        {
+            const WLEMMeasurement::EChannelT channel = *chanIt;
+            for( size_t i = 0; i < channel.size(); ++i )
+            {
+                if( channel[i] > 0 )
+                {
+                    const size_t start = i;
+                    do
+                    {
+                        ++i;
+                    } while( channel[start] == channel[i] && i < channel.size() );
+
+                    const ValueT pxStart = static_cast< ValueT >( start ) / static_cast< ValueT >( channel.size() ) * pxWidth
+                                    + m_xOffset;
+                    const ValueT pxEnd = static_cast< ValueT >( i - 1 ) / static_cast< ValueT >( channel.size() ) * pxWidth
+                                    + m_xOffset;
+
+                    // draw new trigger
+                    osg::ref_ptr< osg::Geometry > geometry = new osg::Geometry;
+
+                    osg::ref_ptr< osg::Vec2Array > vertices = new osg::Vec2Array();
+                    vertices->reserve( 4 );
+                    vertices->push_back( osg::Vec2( pxStart, 0.0 ) );
+                    vertices->push_back( osg::Vec2( pxStart, m_widget->height() ) );
+                    vertices->push_back( osg::Vec2( pxEnd, m_widget->height() ) );
+                    vertices->push_back( osg::Vec2( pxEnd, 0.0 ) );
+
+                    geometry->setVertexArray( vertices );
+                    geometry->setColorArray( m_triggerColors );
+                    geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+                    geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUADS, 0, vertices->size() ) );
+
+                    if( !m_triggerGeode.valid() )
+                    {
+                        m_triggerGeode = new osg::Geode();
+                    }
+                    m_triggerGeode->addDrawable( geometry );
+                }
+            }
+        }
+
+        if( m_triggerGeode.valid() )
+        {
+            m_rootGroup->addChild( m_triggerGeode );
+        }
     }
 
 } /* namespace LaBP */

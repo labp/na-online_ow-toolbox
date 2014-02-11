@@ -32,8 +32,6 @@
 #include <core/common/WAssert.h>
 #include <core/common/WLogger.h>
 
-#include "core/data/WLEMMEnumTypes.h"
-
 #include "WLColorMap.h"
 #include "WLColorMapClassic.h"
 #include "WLColorMapHot.h"
@@ -179,7 +177,7 @@ namespace LaBP
                 return "Blue-Red";
             default:
                 WAssert( false, "Unknown WEColorMap!" );
-                return UNDEFINED;
+                return "ERROR: Unknown!";
         }
     }
 
@@ -209,7 +207,7 @@ namespace LaBP
                 return "Unipolar";
             default:
                 WAssert( false, "Unknown WEColorMapMode!" );
-                return UNDEFINED;
+                return "ERROR: Unknown!";
         }
     }
 

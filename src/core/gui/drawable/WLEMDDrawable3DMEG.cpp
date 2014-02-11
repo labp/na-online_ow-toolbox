@@ -60,6 +60,16 @@ namespace LaBP
 
     WLEMDDrawable3DMEG::~WLEMDDrawable3DMEG()
     {
+        if( m_labesGeode.valid() )
+        {
+            m_rootGroup->remove( m_labesGeode );
+            m_labesGeode = NULL;
+        }
+        if( m_electrodesGeode.valid() )
+        {
+            m_rootGroup->remove( m_electrodesGeode );
+            m_electrodesGeode = NULL;
+        }
     }
 
     bool WLEMDDrawable3DMEG::mustDraw() const

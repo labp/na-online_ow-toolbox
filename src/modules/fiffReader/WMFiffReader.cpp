@@ -30,6 +30,7 @@
 
 #include "core/data/emd/WLEMDEEG.h"
 #include "core/data/enum/WLEModality.h"
+#include "core/module/WLConstantsModule.h"
 #include "core/io/WLReaderFIFF.h"
 #include "core/util/WLGeometry.h"
 
@@ -89,7 +90,7 @@ WMFiffReader::~WMFiffReader()
 
 const std::string WMFiffReader::getName() const
 {
-    return "FIFF Reader";
+    return WLConstantsModule::NAME_PREFIX + " FIFF Reader";
 }
 
 const std::string WMFiffReader::getDescription() const

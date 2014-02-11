@@ -29,23 +29,20 @@
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
-#include "WLEMMEnumTypes.h"
 #include "WLEMMSurface.h"
-
-using namespace LaBP;
 
 const std::string WLEMMSurface::CLASS = "WLEMMSurface";
 
 WLEMMSurface::WLEMMSurface()
 {
-    setVertexUnit( WEUnit::UNKNOWN_UNIT );
-    setVertexExponent( WEExponent::BASE );
+    setVertexUnit( WLEUnit::NONE );
+    setVertexExponent( WLEExponent::UNKNOWN );
 
     m_vertex = WLArrayList< WPosition >::instance();
     m_faces = WLArrayList< WVector3i >::instance();
 }
 
-WLEMMSurface::WLEMMSurface( WLArrayList< WPosition >::SPtr vertex, WEUnit::Enum vertexUnit, WEExponent::Enum vertexExponent,
+WLEMMSurface::WLEMMSurface( WLArrayList< WPosition >::SPtr vertex, WLEUnit::Enum vertexUnit, WLEExponent::Enum vertexExponent,
                 WLArrayList< WVector3i >::SPtr faces, Hemisphere::Enum hemisphere ) :
                 m_vertex( vertex ), m_vertexUnit( vertexUnit ), m_vertexExponent( vertexExponent ), m_faces( faces ), m_hemisphere(
                                 hemisphere )
@@ -81,22 +78,22 @@ void WLEMMSurface::setVertex( WLArrayList< WPosition >::SPtr vertex )
     m_vertex = vertex;
 }
 
-WEUnit::Enum WLEMMSurface::getVertexUnit() const
+WLEUnit::Enum WLEMMSurface::getVertexUnit() const
 {
     return m_vertexUnit;
 }
 
-void WLEMMSurface::setVertexUnit( WEUnit::Enum unit )
+void WLEMMSurface::setVertexUnit( WLEUnit::Enum unit )
 {
     m_vertexUnit = unit;
 }
 
-WEExponent::Enum WLEMMSurface::getVertexExponent() const
+WLEExponent::Enum WLEMMSurface::getVertexExponent() const
 {
     return m_vertexExponent;
 }
 
-void WLEMMSurface::setVertexExponent( WEExponent::Enum exponent )
+void WLEMMSurface::setVertexExponent( WLEExponent::Enum exponent )
 {
     m_vertexExponent = exponent;
 }

@@ -55,7 +55,7 @@ WFIRFilterCpu::~WFIRFilterCpu()
 {
 }
 
-void WFIRFilterCpu::filter( WLEMData::DataT& out, const WLEMData::DataT& in, const WLEMData::DataT& prevData )
+bool WFIRFilterCpu::filter( WLEMData::DataT& out, const WLEMData::DataT& in, const WLEMData::DataT& prevData )
 {
     wlog::debug( CLASS ) << "filter() called!";
     WLTimeProfiler prfTime( CLASS, "filter" );
@@ -79,4 +79,6 @@ void WFIRFilterCpu::filter( WLEMData::DataT& out, const WLEMData::DataT& in, con
             }
         }
     }
+
+    return true;
 }

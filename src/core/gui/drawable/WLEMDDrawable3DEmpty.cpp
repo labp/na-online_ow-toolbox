@@ -39,6 +39,11 @@ namespace LaBP
 
     WLEMDDrawable3DEmpty::~WLEMDDrawable3DEmpty()
     {
+        if( m_textGeode.valid() )
+        {
+            m_rootGroup->remove( m_textGeode );
+            m_textGeode = NULL;
+        }
     }
 
     void WLEMDDrawable3DEmpty::draw( WLEMMeasurement::SPtr emm )

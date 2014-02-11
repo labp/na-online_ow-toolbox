@@ -26,6 +26,7 @@
 #include <list>
 #include <string>
 #include <utility>  // for pair<>
+#include <osg/Group>
 #include <osgGA/Export>
 #include <osgGA/GUIEventHandler>
 #include <osgGA/GUIEventAdapter>
@@ -33,9 +34,12 @@
 
 #include <core/common/WLogger.h>
 #include <core/common/WRealtimeTimer.h>
+#include <core/common/exceptions/WOutOfBounds.h>
+#include <core/graphicsEngine/WGEGroupNode.h>
 
 #include "core/data/emd/WLEMData.h"
 #include "core/data/enum/WLEModality.h"
+#include "core/exception/WLNoDataException.h"
 
 #include "WLEMDDrawable2DMultiDynamic.h"
 
@@ -46,8 +50,8 @@ namespace LaBP
     WLEMDDrawable2DMultiDynamic::WLEMDDrawable2DMultiDynamic( WCustomWidget::SPtr widget ) :
                     WLEMDDrawable2DMultiChannel( widget )
     {
-        m_osgChannelBlocks = new osg::MatrixTransform;
-        m_rootGroup->addChild( m_osgChannelBlocks );
+        m_osgChannelBlocks = new WGEGroupNode;
+        m_rootGroup->insert( m_osgChannelBlocks );
         m_blockLength = 0;
 
         m_animation = new WLAnimationSideScroll( m_osgChannelBlocks );
@@ -59,6 +63,11 @@ namespace LaBP
     WLEMDDrawable2DMultiDynamic::~WLEMDDrawable2DMultiDynamic()
     {
         delete m_animation;
+        if( m_osgChannelBlocks.valid() )
+        {
+            m_rootGroup->remove( m_osgChannelBlocks );
+            m_osgChannelBlocks = NULL;
+        }
     }
 
     bool WLEMDDrawable2DMultiDynamic::setTimeRange( ValueT timeRange )
@@ -171,9 +180,14 @@ namespace LaBP
         const std::list< osg::ref_ptr< WLAnimationSideScroll::EMMNode > >& nodes = m_animation->getNodes();
         if( nodes.empty() )
         {
-            wlog::error( CLASS ) << "getSelectedData() - No data to select!";
             m_animation->setPause( false );
-            return std::make_pair( WLEMMeasurement::SPtr(), 0 );
+            throw WLNoDataException( "No data to select for pixel!"/* + pixel*/);
+        }
+
+        const ValueT width = m_widget->width();
+        if( !( m_xOffset <= pixel && pixel < width ) )
+        {
+            throw WOutOfBounds( "Pixel out of bounds!" );
         }
 
         const ValueT pixelPerBlock = getPixelPerBlock( m_blockLength );
@@ -191,9 +205,8 @@ namespace LaBP
 
         if( !emmNode.valid() )
         {
-            wlog::error( CLASS ) << "getSelectedData() - No data found for pixel: " << pixel;
             m_animation->setPause( false );
-            return std::make_pair( WLEMMeasurement::SPtr(), 0 );
+            throw WLNoDataException( "No data found for pixel!"/* + pixel*/);
         }
 
         WLEMMeasurement::SPtr emm = emmNode->getEmm();

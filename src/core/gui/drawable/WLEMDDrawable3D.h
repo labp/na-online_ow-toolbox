@@ -31,7 +31,6 @@
 #include <boost/shared_ptr.hpp>
 #include <osg/Projection>
 #include <osg/Geometry>
-#include <osg/Group>
 #include <osg/ref_ptr>
 #include <osg/StateSet>
 

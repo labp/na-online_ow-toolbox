@@ -35,9 +35,9 @@
 #include <core/dataHandler/io/WReader.h>
 
 #include "core/data/WLDataTypes.h"
+#include "core/dataFormat/mat/WLMatLib.h"
 
 #include "WLIOStatus.h"
-#include "WLMatFileIO.h"
 
 /**
  * Reads a matrix from a MATLAB MAT-file.
@@ -88,8 +88,8 @@ private:
 
     bool m_isInitialized;
 
-    WLMatFileIO::FileInfo_t m_fileInfo;
-    std::list< WLMatFileIO::ElementInfo_t > m_elements;
+    WLMatLib::FileInfo_t m_fileInfo;
+    std::list< WLMatLib::ElementInfo_t > m_elements;
 
 };
 

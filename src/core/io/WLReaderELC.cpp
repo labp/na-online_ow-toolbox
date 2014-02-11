@@ -36,8 +36,6 @@
 #include <core/common/WLogger.h>
 #include <core/common/WStringUtils.h>
 
-#include "core/data/WLEMMEnumTypes.h"
-
 #include "core/util/WLGeometry.h"
 
 #include "WLReaderELC.h"
@@ -68,7 +66,7 @@ WLReaderELC::ReturnCode::Enum WLReaderELC::read( boost::shared_ptr< std::vector<
     size_t countPos = 0, countPoly = 0;
     bool hasPos = false, hasLabels = false, hasFaces = false;
     ReturnCode::Enum rc = ReturnCode::ERROR_UNKNOWN;
-    WEExponent::Enum exp = WEExponent::BASE;
+    WLEExponent::Enum exp = WLEExponent::BASE;
     try
     {
         while( getline( ifs, line ) && ( !hasPos || !hasLabels || !hasFaces ) )
@@ -105,7 +103,7 @@ WLReaderELC::ReturnCode::Enum WLReaderELC::read( boost::shared_ptr< std::vector<
                                     rc = readPolygons( ifs, countPoly, facesOut );
                                 }
         }
-        if( exp != WEExponent::MILLI )
+        if( exp != WLEExponent::MILLI )
         {
             convertToMilli( posOut, exp );
         }
@@ -126,12 +124,11 @@ WLReaderELC::ReturnCode::Enum WLReaderELC::read( boost::shared_ptr< std::vector<
     return rc;
 }
 
-void WLReaderELC::convertToMilli( boost::shared_ptr< std::vector< WPosition > > pos, WEExponent::Enum& exp )
+void WLReaderELC::convertToMilli( boost::shared_ptr< std::vector< WPosition > > pos, WLEExponent::Enum& exp )
 {
-    wlog::info( CLASS ) << "Points will be converted from " << WEExponent::name( exp ) << " to "
-                    << WEExponent::name( WEExponent::MILLI );
-    const double fromFactor = pow( 10.0, ( int )exp );
-    const double toFactor = pow( 10.0, ( int )WEExponent::MILLI );
+    wlog::info( CLASS ) << "Points will be converted from " << exp << " to " << WLEExponent::MILLI;
+    const double fromFactor = WLEExponent::factor( exp );
+    const double toFactor = WLEExponent::factor( WLEExponent::MILLI );
     const double factor = fromFactor / toFactor;
     wlog::info( CLASS ) << "Factor: " << factor;
 
@@ -141,20 +138,20 @@ void WLReaderELC::convertToMilli( boost::shared_ptr< std::vector< WPosition > > 
     }
 }
 
-WLReaderELC::ReturnCode::Enum WLReaderELC::readUnit( string& line, WEExponent::Enum& exp )
+WLReaderELC::ReturnCode::Enum WLReaderELC::readUnit( string& line, WLEExponent::Enum& exp )
 {
     vector< string > tokens = string_utils::tokenize( line );
     string unit = tokens.at( 1 );
     wlog::debug( CLASS ) << "Unit: " << unit;
     if( unit.find( "mm" ) != string::npos )
     {
-        exp = WEExponent::MILLI;
+        exp = WLEExponent::MILLI;
         return ReturnCode::SUCCESS;
     }
     else
         if( unit.find( "m" ) != string::npos )
         {
-            exp = WEExponent::BASE;
+            exp = WLEExponent::BASE;
             return ReturnCode::SUCCESS;
         }
         else

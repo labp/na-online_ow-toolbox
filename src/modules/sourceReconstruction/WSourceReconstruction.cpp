@@ -35,7 +35,6 @@
 #include <core/common/WAssert.h>
 #include <core/common/WLogger.h>
 
-#include "core/data/WLEMMEnumTypes.h"
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDSource.h"
 #include "core/util/profiler/WLTimeProfiler.h"
@@ -285,6 +284,6 @@ std::string WSourceReconstruction::WEWeightingCalculation::name( WSourceReconstr
             return "WMN";
         default:
             WAssert( false, "Unknown WEWeightingCalculation!" );
-            return LaBP::UNDEFINED;
+            return "ERROR: Undefined!";
     }
 }

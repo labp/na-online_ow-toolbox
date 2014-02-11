@@ -30,20 +30,16 @@
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include <osg/Group>
 #include <osg/Node>
 #include <osg/NodeCallback>
 #include <osg/NodeVisitor>
 #include <osg/ref_ptr>
-#include <osgGA/GUIEventHandler>
-#include <osgGA/GUIEventAdapter>
-#include <osgGA/GUIActionAdapter>
 
+#include <core/graphicsEngine/WGEGroupNode.h>
 #include <core/gui/WCustomWidget.h>
 
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/enum/WLEModality.h"
-#include "core/gui/events/WLGUIEventManager.h"
 
 namespace LaBP
 {
@@ -55,9 +51,7 @@ namespace LaBP
      * All functions which access and modify the OSG tree must have the prefix osg and must be called from osgNodeCallback()!
      * Otherwise OSG could produce a segmentation fault.
      */
-    class WLEMDDrawable: public boost::enable_shared_from_this< WLEMDDrawable >,
-                    public WLGUIEventManager,
-                    public osgGA::GUIEventHandler
+    class WLEMDDrawable: public boost::enable_shared_from_this< WLEMDDrawable >
     {
     public:
         /**
@@ -169,7 +163,7 @@ namespace LaBP
         /**
          * Root node for all OSG objects which are added to the widget. osgNodeCallback() is applied to this node.
          */
-        osg::ref_ptr< osg::Group > m_rootGroup;
+        osg::ref_ptr< WGEGroupNode > m_rootGroup;
 
         /**
          * Modality to draw.
@@ -204,6 +198,11 @@ namespace LaBP
         {
         public:
             /**
+             * Abbreviation for a osg::ref_ptr on a instance of this class.
+             */
+            typedef osg::ref_ptr< WLEMDDrawableCallbackDelegator > RefPtr;
+
+            /**
              * Constructor
              *
              * @param drawable Object to delegate the callback to.
@@ -223,37 +222,23 @@ namespace LaBP
              */
             void operator()( osg::Node* node, osg::NodeVisitor* nv );
 
-        private:
             /**
              * WLEMDDrawable to wrap.
              */
-            WLEMDDrawable* const m_drawable;
+            WLEMDDrawable* m_drawable;
         };
 
         /**
          * Wrapper to register an instance of this class as a callback.
          */
-        WLEMDDrawableCallbackDelegator* m_callbackDelegator;
-
-        /**
-         * Event delegator class to prevent double destructor call of WLGUIEventHandler.
-         */
-        class WLEMDDrawableEventHandlerDelegator: public osgGA::GUIEventHandler
-        {
-        public:
-            explicit WLEMDDrawableEventHandlerDelegator( WLGUIEventManager* handler );
-            virtual ~WLEMDDrawableEventHandlerDelegator();
-
-            virtual bool handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa );
-
-        private:
-            WLGUIEventManager* const m_handler;
-        };
-
-        /**
-         * This handler is registered to the viewer instead of this-pointer. Otherwise the destructor is called twice!
-         */
-        WLEMDDrawableEventHandlerDelegator* m_handlerDelegator;
+        WLEMDDrawableCallbackDelegator::RefPtr m_callbackDelegator;
     };
+
+    inline void WLEMDDrawable::WLEMDDrawableCallbackDelegator::operator()( osg::Node* node, osg::NodeVisitor* nv )
+    {
+        if( m_drawable != NULL )
+            m_drawable->osgNodeCallback( nv );
+    }
+
 } /* namespace LaBP */
 #endif  // WLEMDDRAWABLE_H_

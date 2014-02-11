@@ -31,9 +31,9 @@
 
 #include <osg/Array>
 #include <osg/Geode>
-#include <osg/Group>
 #include <osg/ref_ptr>
 
+#include <core/graphicsEngine/WGEGroupNode.h>
 #include <core/gui/WCustomWidget.h>
 
 #include "core/data/emd/WLEMData.h"
@@ -86,8 +86,8 @@ namespace LaBP
          *
          * @return Instance of a WLEMDDrawable2D implementation.
          */
-        static WLEMDDrawable2D::SPtr getInstance( WCustomWidget::SPtr widget, WLEModality::Enum modality,
-                        WEGraphType::Enum type = WEGraphType::MULTI );
+        static WLEMDDrawable2D::SPtr getInstance( WCustomWidget::SPtr widget, WLEModality::Enum modality, WEGraphType::Enum type =
+                        WEGraphType::MULTI );
 
         /**
          * Constructor.
@@ -126,6 +126,16 @@ namespace LaBP
 
         virtual bool setSelectedTime( float relative );
 
+        /**
+         * Gets a pair of EMM with the relative index for a x-coordinate.
+         * Mapping between on screen data and internal data.
+         *
+         * \param pixel x-coordinate given in pixel.
+         * \return A pair of EMM and the relative index for this block.
+         *
+         * \throws WOutOfBounds if pixel is out of view
+         * \throws WLNoDataException if drawable has no data.
+         */
         virtual std::pair< WLEMMeasurement::SPtr, size_t > getSelectedData( ValueT pixel ) const = 0;
 
     protected:
@@ -140,9 +150,9 @@ namespace LaBP
 
         virtual size_t maxChannels( const WLEMData& emd ) const = 0;
 
-        osg::ref_ptr< osg::Group > m_channelGroup;
+        osg::ref_ptr< WGEGroupNode > m_channelGroup;
         osg::ref_ptr< osg::Geode > m_markerGeode;
-        osg::ref_ptr< osg::Group > m_timeGridGroup;
+        osg::ref_ptr< WGEGroupNode > m_timeGridGroup;
         ValueT m_timeGridWidth;
         ValueT m_timeGridHight;
 

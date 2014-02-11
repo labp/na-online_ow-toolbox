@@ -26,7 +26,6 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "core/data/WLEMMEnumTypes.h"
 #include "WLEMData.h"
 #include "WLEMDSource.h"
 

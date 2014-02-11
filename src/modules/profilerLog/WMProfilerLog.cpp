@@ -28,6 +28,7 @@
 
 #include "core/data/WLEMMCommand.h"
 #include "core/data/WLEMMeasurement.h"
+#include "core/module/WLConstantsModule.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 #include "core/util/profiler/WLLifetimeProfiler.h"
@@ -60,7 +61,7 @@ const char** WMProfilerLog::getXPMIcon() const
 
 const std::string WMProfilerLog::getName() const
 {
-    return "Profile Logger";
+    return WLConstantsModule::NAME_PREFIX + " Profile Logger";
 }
 
 const std::string WMProfilerLog::getDescription() const

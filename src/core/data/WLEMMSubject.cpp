@@ -22,31 +22,25 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WLEMMSubject.h"
+#include <map>
+#include <ostream>
+#include <string>
 
-#include <boost/shared_ptr.hpp>
 #include <core/common/exceptions/WNotFound.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
-#include <iostream>
-#include <map>
-#include <string>
-#include <utility>
-#include <vector>
 
-#include "core/data/enum/WLEModality.h"
-
+#include "enum/WLEModality.h"
 #include "WLDataTypes.h"
 #include "WLEMMBemBoundary.h"
-#include "WLEMMEnumTypes.h"
 #include "WLEMMSurface.h"
 
+#include "WLEMMSubject.h"
+
 using WLMatrix::MatrixT;
-using namespace LaBP;
 
 const std::string WLEMMSubject::CLASS = "WLEMMSubject";
 
-WLEMMSubject::WLEMMSubject() :
-                m_weight( -1.0 ), m_sex( WESex::UNKNOWN ), m_height( -1.0 ), m_hand( WEHand::UNKNOWN )
+WLEMMSubject::WLEMMSubject()
 {
     m_isotrak = WLArrayList< WVector3f >::instance();
     m_bemBoundaries = WLList< WLEMMBemBoundary::SPtr >::instance();
@@ -61,25 +55,6 @@ std::string WLEMMSubject::getName()
     return m_name;
 }
 
-WESex::Enum WLEMMSubject::getSex()
-{
-    return m_sex;
-}
-WEHand::Enum WLEMMSubject::getHand()
-{
-    return m_hand;
-}
-
-float WLEMMSubject::getHeight()
-{
-    return m_height;
-}
-
-float WLEMMSubject::getWeight()
-{
-    return m_weight;
-}
-
 std::string WLEMMSubject::getComment()
 {
     return m_comment;
@@ -87,16 +62,6 @@ std::string WLEMMSubject::getComment()
 std::string WLEMMSubject::getHisId()
 {
     return m_hisId;
-}
-
-void WLEMMSubject::setHeight( float height )
-{
-    m_height = height;
-}
-
-void WLEMMSubject::setWeight( float weight )
-{
-    m_weight = weight;
 }
 
 void WLEMMSubject::setComment( std::string comment )
@@ -109,14 +74,6 @@ void WLEMMSubject::setHisId( std::string hisId )
     m_hisId = hisId;
 }
 
-void WLEMMSubject::setSex( WESex::Enum sex )
-{
-    m_sex = sex;
-}
-void WLEMMSubject::setHand( WEHand::Enum hand )
-{
-    m_hand = hand;
-}
 void WLEMMSubject::setName( std::string name )
 {
     m_name = name;

@@ -71,6 +71,10 @@ WLEMMeasurement::SPtr WEpochAveragingTotal::getAverage( WLEMMeasurement::ConstSP
         emmOut->addModality( emdOut );
     }
 
+    boost::shared_ptr< WLEMMeasurement::EDataT > events = emm->getEventChannels();
+    boost::shared_ptr< WLEMMeasurement::EDataT > eventsOut = emmOut->getEventChannels();
+    eventsOut->assign( events->begin(), events->end() );
+
     return emmOut;
 }
 

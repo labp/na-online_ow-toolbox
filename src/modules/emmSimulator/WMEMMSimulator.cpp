@@ -25,6 +25,7 @@
 #include <core/common/WRealtimeTimer.h>
 
 #include "core/gui/drawable/WLEMDDrawable2D.h"
+#include "core/module/WLConstantsModule.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
 #include "WPacketizerEMM.h"
@@ -63,7 +64,7 @@ WMEMMSimulator::~WMEMMSimulator()
 
 const std::string WMEMMSimulator::getName() const
 {
-    return "EMM Simulator";
+    return WLConstantsModule::NAME_PREFIX + " EMM Simulator";
 }
 
 const std::string WMEMMSimulator::getDescription() const
@@ -162,6 +163,8 @@ void WMEMMSimulator::moduleMain()
             process( cmdIn );
         }
     }
+
+    viewCleanup();
 }
 
 void WMEMMSimulator::reset()
@@ -203,7 +206,12 @@ bool WMEMMSimulator::processCompute( WLEMMeasurement::SPtr emm )
 {
     m_data = emm;
     updateStatus( EStreaming::READY );
-    if(m_propAutoStart->get())
+
+    WLEMMCommand::SPtr cmd = WLEMMCommand::instance( WLEMMCommand::Command::INIT );
+    cmd->setEmm( emm );
+    m_output->updateData( cmd );
+
+    if( m_propAutoStart->get() )
     {
         handleStartTrg();
     }
@@ -231,7 +239,7 @@ void WMEMMSimulator::stream()
     WLEMMeasurement::SPtr emm;
     WLEMMCommand::SPtr cmd;
     size_t blocksSent = 0;
-    while( m_status == EStreaming::STREAMING && packetizer.hasNext() )
+    while( m_status == EStreaming::STREAMING && packetizer.hasNext() && !m_shutdownFlag() )
     {
         // start
         waitTimer.reset();

@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <exception>
 #include <string>
 #include <set>
 
@@ -35,11 +36,10 @@
 // Input & output data
 #include "core/data/WLDataTypes.h"
 #include "core/data/WLEMMeasurement.h"
-#include "core/data/WLEMMEnumTypes.h"
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDSource.h"
 #include "core/data/enum/WLEModality.h"
-
+#include "core/module/WLConstantsModule.h"
 // Input & output connectors
 // TODO(pieloth): use OW classes
 #include "core/module/WLModuleInputDataRingBuffer.h"
@@ -55,8 +55,6 @@
 
 #include "WMSourceReconstruction.h"
 #include "WMSourceReconstruction.xpm"
-
-using namespace LaBP;
 
 using std::set;
 using WLMatrix::MatrixT;
@@ -84,12 +82,12 @@ const char** WMSourceReconstruction::getXPMIcon() const
 
 const std::string WMSourceReconstruction::getName() const
 {
-    return "Source Reconstruction";
+    return WLConstantsModule::NAME_PREFIX + " Source Reconstruction";
 }
 
 const std::string WMSourceReconstruction::getDescription() const
 {
-    return "TODO - Source Reconstruction. Module supports LaBP data types only!"; // TODO(pieloth) description
+    return "Estimates a source distribution according to a linear source reconstruction algorithm.";
 }
 
 void WMSourceReconstruction::connectors()
@@ -112,7 +110,6 @@ void WMSourceReconstruction::properties()
     WLModuleDrawable::setViewModality( WLEModality::SOURCE );
     WLModuleDrawable::hideViewModalitySelection( true );
     WLModuleDrawable::hideLabelChanged( true );
-
     WLModuleDrawable::setComputeModalitySelection( WLEModality::valuesLocalizeable() );
 
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
@@ -270,6 +267,8 @@ void WMSourceReconstruction::moduleMain()
             process( cmd );
         }
     }
+
+    viewCleanup();
 }
 
 void WMSourceReconstruction::handleImplementationChanged( void )
@@ -421,7 +420,15 @@ bool WMSourceReconstruction::processCompute( WLEMMeasurement::SPtr emmIn )
         }
     }
 
-    sourceOut = m_sourceReconstruction->reconstruct( emmIn->getModality( modality ) );
+    try
+    {
+        sourceOut = m_sourceReconstruction->reconstruct( emmIn->getModality( modality ) );
+    }
+    catch( const std::exception& e )
+    {
+        errorLog() << e.what();
+        return false;
+    }
     infoLog() << "Matrix: " << sourceOut->getNrChans() << " x " << sourceOut->getSamplesPerChan();
     // Create output
     emmOut = emmIn->clone();
@@ -430,6 +437,9 @@ bool WMSourceReconstruction::processCompute( WLEMMeasurement::SPtr emmIn )
         emmOut->addModality( emmIn->getModality( i ) );
     }
     emmOut->addModality( sourceOut );
+    boost::shared_ptr< WLEMMeasurement::EDataT > events = emmIn->getEventChannels();
+    boost::shared_ptr< WLEMMeasurement::EDataT > eventsOut = emmOut->getEventChannels();
+    eventsOut->assign( events->begin(), events->end() );
 
     viewUpdate( emmOut );
 

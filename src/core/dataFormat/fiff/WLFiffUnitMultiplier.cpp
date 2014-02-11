@@ -22,9 +22,4 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WLGUIEventListener.h"
-
-WLGUIEventListener::~WLGUIEventListener()
-{
-}
-
+#include "WLFiffUnitMultiplier.h"

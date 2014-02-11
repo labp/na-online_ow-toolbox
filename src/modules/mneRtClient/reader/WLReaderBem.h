@@ -33,7 +33,6 @@
 #include <core/dataHandler/io/WReader.h>
 
 #include "core/data/WLEMMBemBoundary.h"
-#include "core/data/WLEMMEnumTypes.h"
 
 class WLReaderBem: public WReader
 {
@@ -54,9 +53,6 @@ public:
     virtual ~WLReaderBem();
 
     bool read( std::list< WLEMMBemBoundary::SPtr >* const bems );
-
-private:
-    static LaBP::WEBemType::Enum getTypeFromBemId(int id);
 };
 
 #endif  // WLREADERBEM_H_

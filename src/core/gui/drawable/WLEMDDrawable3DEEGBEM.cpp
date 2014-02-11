@@ -51,6 +51,11 @@ WLEMDDrawable3DEEGBEM::WLEMDDrawable3DEEGBEM( WCustomWidget::SPtr widget ) :
 
 WLEMDDrawable3DEEGBEM::~WLEMDDrawable3DEEGBEM()
 {
+    if( m_electrodesGeode.valid() )
+    {
+        m_rootGroup->remove( m_electrodesGeode );
+        m_electrodesGeode = NULL;
+    }
 }
 
 bool WLEMDDrawable3DEEGBEM::mustDraw() const
@@ -79,7 +84,7 @@ void WLEMDDrawable3DEEGBEM::osgNodeCallback( osg::NodeVisitor* nv )
     WLEMMBemBoundary::ConstSPtr bemSkin;
     for( itBem = bems.begin(); itBem != bems.end(); ++itBem )
     {
-        if( ( *itBem )->getBemType() == WEBemType::OUTER_SKIN )
+        if( ( *itBem )->getBemType() == WLEBemType::OUTER_SKIN || ( *itBem )->getBemType() == WLEBemType::HEAD )
         {
             bemSkin = *itBem;
             break;

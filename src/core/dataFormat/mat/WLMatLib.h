@@ -38,7 +38,7 @@
  *
  * @author pieloth
  */
-namespace WLMatFileIO
+namespace WLMatLib
 {
     const std::string LIBNAME = "WLMatFileIO";
 

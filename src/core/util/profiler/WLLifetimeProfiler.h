@@ -25,6 +25,7 @@
 #ifndef WLLIFETIMEPROFILER_H_
 #define WLLIFETIMEPROFILER_H_
 
+#include <ostream>
 #include <string>
 
 #include <boost/shared_ptr.hpp>
@@ -35,6 +36,8 @@
 
 /**
  * A profiler for EMM objects. It counts the clones in the copy constructor and age in ms from the first creation.
+ *
+ * \author pieloth
  */
 class WLLifetimeProfiler: public WLProfiler
 {
@@ -109,5 +112,42 @@ private:
      */
     size_t m_clones;
 };
+
+inline WLLifetimeProfiler::SPtr WLLifetimeProfiler::clone() const
+{
+    WLLifetimeProfiler::SPtr cloned( new WLLifetimeProfiler( *this ) );
+    return cloned;
+}
+
+inline WLLifetimeProfiler::SPtr WLLifetimeProfiler::instance( std::string source, std::string action )
+{
+    WLLifetimeProfiler::SPtr instance( new WLLifetimeProfiler( source, action ) );
+    return instance;
+}
+
+inline std::ostream& WLLifetimeProfiler::write( std::ostream& strm ) const
+{
+    return strm << m_source << "::" << m_action << ": age=" << m_timeProfiler->getMilliseconds() << " ms - clones=" << m_clones;
+}
+
+inline std::string WLLifetimeProfiler::getName() const
+{
+    return CLASS;
+}
+
+inline size_t WLLifetimeProfiler::getCloneCounter() const
+{
+    return m_clones;
+}
+
+inline WLLifetimeProfiler::AgeT WLLifetimeProfiler::getAge() const
+{
+    return m_timeProfiler->getMilliseconds();
+}
+
+inline void WLLifetimeProfiler::pause()
+{
+    m_timeProfiler->stop();
+}
 
 #endif  // WLLIFETIMEPROFILER_H_

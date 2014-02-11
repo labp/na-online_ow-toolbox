@@ -31,6 +31,7 @@
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 
+#include <core/common/WException.h>
 #include <core/common/WItemSelectionItemTyped.h>
 #include <core/common/WPathHelper.h>
 #include <core/common/WPropertyHelper.h>
@@ -38,6 +39,7 @@
 
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMData.h"
+#include "core/module/WLConstantsModule.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 #include "core/util/profiler/WLTimeProfiler.h"
@@ -76,12 +78,12 @@ const char** WMFIRFilter::getXPMIcon() const
 
 const std::string WMFIRFilter::getName() const
 {
-    return "FIR Filter";
+    return WLConstantsModule::NAME_PREFIX + " FIR Filter";
 }
 
 const std::string WMFIRFilter::getDescription() const
 {
-    return "FIR filter implementations: Lowpass, Highpass, Bandpass, Bandstop. Module supports LaBP data types only!";
+    return "Filters the signals according to lowpass, highpass, bandpass and bandstop characteristic.";
 }
 
 void WMFIRFilter::connectors()
@@ -252,6 +254,8 @@ void WMFIRFilter::moduleMain()
             process( cmdIn );
         }
     }
+
+    viewCleanup();
 }
 
 void WMFIRFilter::callbackCoeffFileChanged( void )
@@ -361,13 +365,21 @@ bool WMFIRFilter::processCompute( WLEMMeasurement::SPtr emmIn )
         debugLog() << "EMD samples per channel: " << nbSamlesPerChan;
         debugLog() << "Input pieces:\n" << WLEMData::dataToString( ( *emdIn )->getData(), 5, 10 );
 #endif // DEBUG
-        WLEMData::SPtr emdOut = m_firFilter->filter( ( *emdIn ) );
-        emmOut->addModality( emdOut );
-
+        try
+        {
+            WLEMData::SPtr emdOut = m_firFilter->filter( ( *emdIn ) );
+            emmOut->addModality( emdOut );
 #ifdef DEBUG
-        // Show some filtered pieces
-        debugLog() << "Filtered pieces:\n" << WLEMData::dataToString( emdOut->getData(), 5, 10 );
+            // Show some filtered pieces
+            debugLog() << "Filtered pieces:\n" << WLEMData::dataToString( emdOut->getData(), 5, 10 );
 #endif // DEBUG
+        }
+        catch( const WException& e )
+        {
+            errorLog() << e.what();
+            return false;
+        }
+
     }
     m_firFilter->doPostProcessing( emmOut, emmIn );
 

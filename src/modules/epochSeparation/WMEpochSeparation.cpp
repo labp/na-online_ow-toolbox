@@ -33,6 +33,7 @@
 #include <core/kernel/WModule.h>
 
 #include "core/data/WLEMMeasurement.h"
+#include "core/module/WLConstantsModule.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 #include "core/util/profiler/WLTimeProfiler.h"
@@ -66,12 +67,13 @@ const char** WMEpochSeparation::getXPMIcon() const
 
 const std::string WMEpochSeparation::getName() const
 {
-    return "Epoch Separation";
+    return WLConstantsModule::NAME_PREFIX + " Epoch Separation";
 }
 
 const std::string WMEpochSeparation::getDescription() const
 {
-    return "Extract samples around an event. Module supports LaBP data types only!";
+    return "Splits the continuous data stream according to event related responses into single epochs "
+                    "that range from a time point to a point after stimulus onset.";
 }
 
 void WMEpochSeparation::connectors()
@@ -169,6 +171,8 @@ void WMEpochSeparation::moduleMain()
             process( cmdIn );
         }
     }
+
+    viewCleanup();
 }
 
 void WMEpochSeparation::handleResetTriggerPressed()

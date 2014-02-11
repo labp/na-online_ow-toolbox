@@ -35,7 +35,6 @@
 #include <core/common/WAssert.h>
 #include <core/common/WLogger.h>
 
-#include "core/data/WLEMMEnumTypes.h"
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDPCA.h"
 #include "core/data/enum/WLEModality.h"

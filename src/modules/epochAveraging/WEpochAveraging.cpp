@@ -87,14 +87,14 @@ WLEMMeasurement::SPtr WEpochAveraging::baseline( WLEMMeasurement::ConstSPtr emm 
         WLEMData::DataT& dataOut = emdOut->getData();
         dataOut = data;
 
-        const size_t channels = emd->getNrChans();
-        const size_t tbase = std::min( m_tbase, emd->getSamplesPerChan() );
+        const WLChanNrT channels = emd->getNrChans();
+        const WLSampleNrT tbase = std::min( m_tbase, emd->getSamplesPerChan() );
 
         WLEMData::SampleT means( channels );
-        for( size_t chan = 0; chan < channels; ++chan )
+        for( WLChanIdxT chan = 0; chan < channels; ++chan )
         {
             WLEMData::ScalarT mean = 0;
-            for( size_t smp = 0; smp < tbase; ++smp )
+            for( WLSampleIdxT smp = 0; smp < tbase; ++smp )
             {
                 mean += data( chan, smp );
             }

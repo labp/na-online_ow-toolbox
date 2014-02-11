@@ -18,7 +18,6 @@
 #include "core/data/emd/WLEMDMEG.h"
 #include "core/data/enum/WLEModality.h"
 #include "core/data/WLEMMeasurement.h"
-#include "core/data/WLEMMEnumTypes.h"
 
 #include "WEpochRejectionTestHelper.h"
 
@@ -72,16 +71,16 @@ public:
         TS_ASSERT_EQUALS( meg->getBadChannels()->size(), 5 );
         TS_ASSERT_EQUALS( modalityFromEmm->getDataBadChannels()->rows(), 295 );
         TS_ASSERT_EQUALS( meg->getData().rows(), 300 );
-        TS_ASSERT_EQUALS( meg->getData( LaBP::WEGeneralCoilType::GRADIOMETER )->rows(), 200 );
-        TS_ASSERT_EQUALS( meg->getData( LaBP::WEGeneralCoilType::MAGNETOMETER )->rows(), 100 );
+        TS_ASSERT_EQUALS( meg->getData( WLEMEGGeneralCoilType::GRADIOMETER )->rows(), 200 );
+        TS_ASSERT_EQUALS( meg->getData( WLEMEGGeneralCoilType::MAGNETOMETER )->rows(), 100 );
 
         TS_ASSERT_EQUALS( meg->isBadChannel(2), true );
         TS_ASSERT_EQUALS( meg->isBadChannel(5), true );
         TS_ASSERT_EQUALS( meg->isBadChannel(12), false );
         TS_ASSERT_EQUALS( meg->isBadChannel(14), true );
         TS_ASSERT_EQUALS( meg->isBadChannel(9), false );
-        TS_ASSERT_EQUALS( meg->getDataBadChannels( LaBP::WEGeneralCoilType::GRADIOMETER )->rows(), 200 );
-        TS_ASSERT_EQUALS( meg->getDataBadChannels( LaBP::WEGeneralCoilType::MAGNETOMETER )->rows(), 95 );
+        TS_ASSERT_EQUALS( meg->getDataBadChannels( WLEMEGGeneralCoilType::GRADIOMETER )->rows(), 200 );
+        TS_ASSERT_EQUALS( meg->getDataBadChannels( WLEMEGGeneralCoilType::MAGNETOMETER )->rows(), 95 );
     }
 
 private:

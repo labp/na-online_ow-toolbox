@@ -22,43 +22,37 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WLGUIEvent.h"
+#include <core/common/WAssert.h>
 
-WLGUIEvent::WLGUIEvent( EventType::Enum eventType, const osgGA::GUIEventAdapter& ea ) :
-                m_eventType( eventType ), m_eventAdapter( ea )
-{
-}
+#include "WLECardinalPoint.h"
 
-WLGUIEvent::~WLGUIEvent()
+namespace WLECardinalPoint
 {
-}
 
-WLGUIEvent::EventType::Enum WLGUIEvent::getEventType() const
-{
-    return m_eventType;
-}
+    ContainerT values()
+    {
+        ContainerT con;
 
-void WLGUIEvent::setMiscType( MiscTypeT name )
-{
-    m_miscType = name;
-}
+        con.insert( LPA );
+        con.insert( NASION );
+        con.insert( RPA );
 
-WLGUIEvent::MiscTypeT WLGUIEvent::getMiscType() const
-{
-    return m_miscType;
-}
+        return con;
+    }
 
-const osgGA::GUIEventAdapter& WLGUIEvent::getOsgEventAdapter() const
-{
-    return m_eventAdapter;
-}
-
-const WLGUIEvent::ParamT& WLGUIEvent::getParameter() const
-{
-    return m_param;
-}
-
-void WLGUIEvent::setParameter( ParamT param )
-{
-    m_param = param;
+    std::string name( Enum val )
+    {
+        switch( val )
+        {
+            case LPA:
+                return "Left pre-auricular";
+            case NASION:
+                return "Nasion";
+            case RPA:
+                return "Right pre-auricular";
+            default:
+                WAssert( false, "Unknown WLECardinalPoint!" );
+                return "ERROR: Undefined!";
+        }
+    }
 }

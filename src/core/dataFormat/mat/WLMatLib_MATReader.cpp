@@ -25,11 +25,11 @@
 #include <core/common/WAssert.h>
 #include <core/common/WLogger.h>
 
-#include "WLMatFileIO.h"
+#include "WLMatLib.h"
 
 using std::ifstream;
 
-bool WLMatFileIO::MATReader::readHeader( FileInfo_t* const infoIn, std::ifstream& ifs )
+bool WLMatLib::MATReader::readHeader( FileInfo_t* const infoIn, std::ifstream& ifs )
 {
     if( infoIn == NULL )
     {
@@ -104,7 +104,7 @@ bool WLMatFileIO::MATReader::readHeader( FileInfo_t* const infoIn, std::ifstream
     return true;
 }
 
-bool WLMatFileIO::MATReader::retrieveDataElements( std::list< ElementInfo_t >* const elements, std::ifstream& ifs,
+bool WLMatLib::MATReader::retrieveDataElements( std::list< ElementInfo_t >* const elements, std::ifstream& ifs,
                 const FileInfo_t& info )
 {
     if( elements == NULL )
@@ -115,8 +115,8 @@ bool WLMatFileIO::MATReader::retrieveDataElements( std::list< ElementInfo_t >* c
     ifs.seekg( 128 );
 
     // Temporary data to write to
-    WLMatFileIO::mDataType_t type;
-    WLMatFileIO::mNumBytes_t bytes;
+    WLMatLib::mDataType_t type;
+    WLMatLib::mNumBytes_t bytes;
     std::streampos pos;
     const std::streamoff min_tag_size = 4;
     while( ifs.good() && ifs.tellg() + min_tag_size < info.fileSize )
@@ -138,7 +138,7 @@ bool WLMatFileIO::MATReader::retrieveDataElements( std::list< ElementInfo_t >* c
         wlog::debug( LIBNAME ) << "Data Type: " << element.dataType;
         wlog::debug( LIBNAME ) << "Number of Bytes: " << element.numBytes;
 
-        if( element.dataType == WLMatFileIO::DataTypes::miMATRIX )
+        if( element.dataType == WLMatLib::DataTypes::miMATRIX )
         {
             if( !readArraySubelements( &element, ifs, info ) )
             {
@@ -156,24 +156,24 @@ bool WLMatFileIO::MATReader::retrieveDataElements( std::list< ElementInfo_t >* c
     return true;
 }
 
-bool WLMatFileIO::MATReader::readTagField( mDataType_t* const dataType, mNumBytes_t* const numBytes, std::ifstream& ifs,
+bool WLMatLib::MATReader::readTagField( mDataType_t* const dataType, mNumBytes_t* const numBytes, std::ifstream& ifs,
                 const FileInfo_t& info )
 {
     std::streampos pos = ifs.tellg();
-    ifs.read( ( char* )dataType, sizeof(WLMatFileIO::mDataType_t) );
-    ifs.read( ( char* )numBytes, sizeof(WLMatFileIO::mNumBytes_t) );
-    if( *dataType > WLMatFileIO::DataTypes::miUTF32 )
+    ifs.read( ( char* )dataType, sizeof(WLMatLib::mDataType_t) );
+    ifs.read( ( char* )numBytes, sizeof(WLMatLib::mNumBytes_t) );
+    if( *dataType > WLMatLib::DataTypes::miUTF32 )
     {
         wlog::debug( LIBNAME ) << "Small Data Element Format found.";
-        WLMatFileIO::mDataTypeSmall_t typeSmall;
-        WLMatFileIO::mNumBytesSmall_t bytesSmall;
-        ifs.seekg( -( sizeof(WLMatFileIO::mDataType_t) + sizeof(WLMatFileIO::mNumBytes_t) ), ifstream::cur );
-        ifs.read( ( char* )&typeSmall, sizeof(WLMatFileIO::mDataTypeSmall_t) );
-        ifs.read( ( char* )&bytesSmall, sizeof(WLMatFileIO::mNumBytesSmall_t) );
+        WLMatLib::mDataTypeSmall_t typeSmall;
+        WLMatLib::mNumBytesSmall_t bytesSmall;
+        ifs.seekg( -( sizeof(WLMatLib::mDataType_t) + sizeof(WLMatLib::mNumBytes_t) ), ifstream::cur );
+        ifs.read( ( char* )&typeSmall, sizeof(WLMatLib::mDataTypeSmall_t) );
+        ifs.read( ( char* )&bytesSmall, sizeof(WLMatLib::mNumBytesSmall_t) );
         *dataType = typeSmall;
         *numBytes = bytesSmall;
     }
-    if( *dataType > WLMatFileIO::DataTypes::miUTF32 )
+    if( *dataType > WLMatLib::DataTypes::miUTF32 )
     {
         wlog::error( LIBNAME ) << "Unknown data type or wrong data structure!";
         ifs.seekg( pos );
@@ -182,7 +182,7 @@ bool WLMatFileIO::MATReader::readTagField( mDataType_t* const dataType, mNumByte
     return true;
 }
 
-bool WLMatFileIO::MATReader::readArraySubelements( ElementInfo_t* const element, std::ifstream& ifs, const FileInfo_t& info )
+bool WLMatLib::MATReader::readArraySubelements( ElementInfo_t* const element, std::ifstream& ifs, const FileInfo_t& info )
 {
     if( element == NULL )
     {
@@ -199,8 +199,8 @@ bool WLMatFileIO::MATReader::readArraySubelements( ElementInfo_t* const element,
         return false;
     }
 
-    WLMatFileIO::mDataType_t type;
-    WLMatFileIO::mNumBytes_t bytes;
+    WLMatLib::mDataType_t type;
+    WLMatLib::mNumBytes_t bytes;
     std::streampos tagStart;
     // Read Array Flags //
     // ---------------- //
@@ -308,7 +308,7 @@ bool WLMatFileIO::MATReader::readArraySubelements( ElementInfo_t* const element,
     return true;
 }
 
-bool WLMatFileIO::MATReader::readMatrixDouble( Eigen::MatrixXd* const matrix, const ElementInfo_t& element, std::ifstream& ifs,
+bool WLMatLib::MATReader::readMatrixDouble( Eigen::MatrixXd* const matrix, const ElementInfo_t& element, std::ifstream& ifs,
                 const FileInfo_t& info )
 {
     // Check some errors //
@@ -365,7 +365,7 @@ bool WLMatFileIO::MATReader::readMatrixDouble( Eigen::MatrixXd* const matrix, co
     return true;
 }
 
-void WLMatFileIO::MATReader::nextElement( std::ifstream& ifs, const std::streampos& tagStart, size_t numBytes )
+void WLMatLib::MATReader::nextElement( std::ifstream& ifs, const std::streampos& tagStart, size_t numBytes )
 {
     ifs.seekg( tagStart );
     if( numBytes > 4 ) // short data element

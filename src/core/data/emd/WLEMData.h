@@ -39,8 +39,11 @@
 #include <core/common/WDefines.h>
 
 #include "core/container/WLArrayList.h"
-#include "core/data/WLEMMEnumTypes.h"
+#include "core/data/WLDataTypes.h"
+#include "core/data/enum/WLECoordSystem.h"
+#include "core/data/enum/WLEExponent.h"
 #include "core/data/enum/WLEModality.h"
+#include "core/data/enum/WLEUnit.h"
 
 /**
  * Class for general modality. Saves information which are present for all modalities.
@@ -49,6 +52,8 @@ class WLEMData: public boost::enable_shared_from_this< WLEMData >
 {
 public:
     static const std::string CLASS;
+
+    static const WLFreqT UNDEFINED_FREQ;
 
     /**
      * Abbreviation for a shared pointer.
@@ -150,46 +155,27 @@ public:
     /**
      * TODO(kaehler): Comments
      */
-    float getAnalogHighPass() const;
+    WLFreqT getAnalogHighPass() const;
 
     /**
      * TODO(kaehler): Comments
      */
-    float getAnalogLowPass() const;
+    WLFreqT getAnalogLowPass() const;
 
     WLArrayList< std::string >::SPtr getChanNames();
 
     WLArrayList< std::string >::ConstSPtr getChanNames() const;
 
-    /**
-     * TODO(kaehler): Comments
-     */
-    LaBP::WEUnit::Enum getChanUnit() const;
+    WLEUnit::Enum getChanUnit() const;
+
+    WLEExponent::Enum getChanUnitExp() const;
+
+    WLECoordSystem::Enum getCoordSystem() const;
 
     /**
      * TODO(kaehler): Comments
      */
-    LaBP::WEExponent::Enum getChanUnitExp() const;
-
-    /**
-     * TODO(kaehler): Comments
-     */
-    LaBP::WECoordSystemName::Enum getCoordSystem() const;
-
-    /**
-     * TODO(kaehler): Comments
-     */
-    uint32_t getDataBuffSizePerChan() const;
-
-    /**
-     * TODO(kaehler): Comments
-     */
-    uint32_t getDataOffsetIdx() const;
-
-    /**
-     * TODO(kaehler): Comments
-     */
-    float getLineFreq();
+    WLFreqT getLineFreq() const;
 
     /**
      * TODO(kaehler): Comments
@@ -204,9 +190,9 @@ public:
     /**
      * TODO(kaehler): Comments
      */
-    virtual size_t getNrChans() const;
+    virtual WLChanNrT getNrChans() const;
 
-    virtual size_t getSamplesPerChan() const;
+    virtual WLSampleNrT getSamplesPerChan() const;
 
     /**
      * Returns the bad channel list.
@@ -216,33 +202,28 @@ public:
     virtual ChannelListSPtr getBadChannels() const;
 
     /**
-     * TODO(kaehler): Comments
-     */
-    uint16_t *getOrigIdx() const;
-
-    /**
      * Returns sampling frequency in Hz.
      *
      * @return sampling frequency in Hz
      */
-    float getSampFreq() const;
+    WLFreqT getSampFreq() const;
 
     /**
      * Returns the data length in seconds using samples and frequency.
      *
      * @return data length in seconds.
      */
-    float getLength() const;
+    WLTimeT getLength() const;
 
     /**
      * TODO(kaehler): Comments
      */
-    void setAnalogHighPass( float analogHighPass );
+    void setAnalogHighPass( WLFreqT analogHighPass );
 
     /**
      * TODO(kaehler): Comments
      */
-    void setAnalogLowPass( float analogLowPass );
+    void setAnalogLowPass( WLFreqT analogLowPass );
 
     void setChanNames( WLArrayList< std::string >::SPtr chanNames );
 
@@ -252,32 +233,22 @@ public:
     /**
      * TODO(kaehler): Comments
      */
-    void setChanUnit( LaBP::WEUnit::Enum chanUnit );
+    void setChanUnit( WLEUnit::Enum chanUnit );
 
     /**
      * TODO(kaehler): Comments
      */
-    void setChanUnitExp( LaBP::WEExponent::Enum chanUnitExp );
+    void setChanUnitExp( WLEExponent::Enum chanUnitExp );
 
     /**
      * TODO(kaehler): Comments
      */
-    void setCoordSystem( LaBP::WECoordSystemName::Enum coordSystem );
+    void setCoordSystem( WLECoordSystem::Enum coordSystem );
 
     /**
      * TODO(kaehler): Comments
      */
-    void setDataBuffSizePerChan( uint32_t dataBuffSizePerChan );
-
-    /**
-     * TODO(kaehler): Comments
-     */
-    void setDataOffsetIdx( uint32_t dataOffsetIdx );
-
-    /**
-     * TODO(kaehler): Comments
-     */
-    void setLineFreq( float lineFreq );
+    void setLineFreq( WLFreqT lineFreq );
 
     /**
      * TODO(kaehler): Comments
@@ -287,12 +258,7 @@ public:
     /**
      * TODO(kaehler): Comments
      */
-    void setOrigIdx( uint16_t *origIdx );
-
-    /**
-     * TODO(kaehler): Comments
-     */
-    void setSampFreq( float sampFreq );
+    void setSampFreq( WLFreqT sampFreq );
 
     void setBadChannels( ChannelListSPtr badChannels );
 
@@ -309,75 +275,27 @@ public:
     bool isBadChannel( size_t channelNo ) const;
 
 protected:
-    /**
-     * name of the measurement device
-     */
-    std::string m_measurementDeviceName;
+    std::string m_measurementDeviceName; /**< name of the measurement device */
 
-    /**
-     * channel number in the measurement device defined by m_measurementDeviceName doxygen \ref
-     * has one index for channel
-     */
-    uint16_t *m_origIdx;
-
-    /**
-     * power line frequency
-     */
-    float m_lineFreq;
+    WLFreqT m_lineFreq; /**< power line frequency */
 
     WLArrayList< std::string >::SPtr m_chanNames;
 
-    /**
-     * sampling frequency (unique within modality)
-     */
-    float m_sampFreq;
+    WLFreqT m_sampFreq; /**<sampling frequency (unique within modality) */
 
-    /**
-     * real world unit of the modality
-     */
-    LaBP::WEUnit::Enum m_chanUnit;
+    WLEUnit::Enum m_chanUnit;
 
-    /**
-     * data is in unit m_chanUnit * 10^m_chanUnitExp
-     */
-    LaBP::WEExponent::Enum m_chanUnitExp;
+    WLEExponent::Enum m_chanUnitExp; /**< data is in unit m_chanUnit * 10^m_chanUnitExp */
 
-    /**
-     * cutoff frequency of highpass filter in analog processing chain
-     */
-    float m_analogHighPass;
+    WLFreqT m_analogHighPass; /**< cutoff frequency of highpass filter in analog processing chain */
 
-    /**
-     * cutoff frequency of lowpass filter in analog processing chain
-     */
-    float m_analogLowPass;
+    WLFreqT m_analogLowPass; /**< cutoff frequency of lowpass filter in analog processing chain */
 
-    /**
-     * type of coordinate system used for m_chanPositions
-     */
-    LaBP::WECoordSystemName::Enum m_CoordSystem;
+    WLECoordSystem::Enum m_CoordSystem; /**< type of coordinate system used for m_chanPositions */
 
-    /**
-     * size of data buffer per channel in samples
-     */
-    uint32_t m_dataBuffSizePerChan;
+    DataSPtr m_data; /**< Raw data of the measurement. */
 
-    /**
-     * offset in samples of current data block to the start of measurement
-     */
-    uint32_t m_dataOffsetIdx;
-
-    /**
-     * Raw data of the measurement.
-     */
-    DataSPtr m_data;
-
-    /**
-     * List of the bad channels.
-     */
-    ChannelListSPtr m_badChannels;
-
-    // TODO(fuchs): snr estimate or/and noise covariance matrix for source localisation
+    ChannelListSPtr m_badChannels; /**< List of the bad channels. */
 };
 
 std::ostream& operator<<( std::ostream &strm, const WLEMData& obj );

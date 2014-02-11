@@ -87,6 +87,13 @@ public:
 
     virtual ~WFIRFilter();
 
+    /**
+     * Filters the data.
+     *
+     * @param emdIn
+     * @return Filtered data
+     * @throws WException
+     */
     WLEMData::SPtr filter( const WLEMData::ConstSPtr emdIn );
 
     void doPostProcessing( WLEMMeasurement::SPtr emmOut, WLEMMeasurement::ConstSPtr emmIn );
@@ -109,7 +116,7 @@ public:
     void reset();
 
 protected:
-    virtual void filter( WLEMData::DataT& out, const WLEMData::DataT& in, const WLEMData::DataT& prev ) = 0;
+    virtual bool filter( WLEMData::DataT& out, const WLEMData::DataT& in, const WLEMData::DataT& prev ) = 0;
 
     std::vector< ScalarT > m_coeffitients;
     WEWindowsType::Enum m_window;

@@ -25,10 +25,14 @@
 #ifndef WLPROFILERLOGGER_H_
 #define WLPROFILERLOGGER_H_
 
-class WLProfiler;
+#include <core/common/WLogger.h>
+
+#include "WLProfiler.h"
 
 /**
  * Logs profiler results.
+ *
+ * \author pieloth
  */
 class WLProfilerLogger
 {
@@ -56,6 +60,24 @@ namespace wlprofiler
      * Global method to log profiler results.
      */
     WLProfilerLogger& log();
+}
+
+inline WLProfilerLogger& WLProfilerLogger::instance()
+{
+    // Destructor is called when application is being closed.
+    static WLProfilerLogger instance;
+    return instance;
+}
+
+inline WLProfilerLogger& WLProfilerLogger::operator <<( WLProfiler const& profiler )
+{
+    wlog::info( profiler.getName() ) << profiler;
+    return *this;
+}
+
+inline WLProfilerLogger& wlprofiler::log()
+{
+    return WLProfilerLogger::instance();
 }
 
 #endif  // WLPROFILERLOGGER_H_

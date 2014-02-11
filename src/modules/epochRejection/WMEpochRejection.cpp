@@ -40,6 +40,7 @@
 #include "core/data/WLEMMCommand.h"
 #include "core/data/emd/WLEMData.h"
 #include "core/data/enum/WLEModality.h"
+#include "core/module/WLConstantsModule.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
@@ -80,7 +81,7 @@ const char** WMEpochRejection::getXPMIcon() const
  */
 const std::string WMEpochRejection::getName() const
 {
-    return "Epoch Rejection";
+    return WLConstantsModule::NAME_PREFIX + " Epoch Rejection";
 }
 
 /**

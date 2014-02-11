@@ -39,6 +39,9 @@
 #include "core/gui/colorMap/WLColorMap.h"
 #include "core/gui/drawable/WLEMDDrawable2D.h"
 #include "core/gui/drawable/WLEMDDrawable3D.h"
+#include "core/gui/events/WL2DChannelScrollHandler.h"
+#include "core/gui/events/WLMarkTimePositionHandler.h"
+#include "core/gui/events/WLResizeHandler.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 #include "core/module/WLEMMCommandProcessor.h"
 
@@ -96,6 +99,11 @@ protected:
     void viewInit( LaBP::WLEMDDrawable2D::WEGraphType::Enum graphType );
 
     void viewReset();
+
+    /**
+     * Must be called from derived classes in moduleMain after receiving a shutdown.
+     */
+    void viewCleanup();
 
     /**
      * Initializes the underlying algorithm with the values of WProperties. Called it after ready()!
@@ -176,6 +184,14 @@ private:
     WPropSelection m_selectionColorMode;
 
     LaBP::WLEMDWidget::SPtr m_widget;
+
+    WL2DChannelScrollHandler::RefPtr m_scrollHandler;
+
+    WLMarkTimePositionHandler::RefPtr m_clickHandler;
+
+    WLResizeHandler::RefPtr m_resize2dHandler;
+
+    WLResizeHandler::RefPtr m_resize3dHandler;
 
     WPropDouble m_amplitudeScale;
 

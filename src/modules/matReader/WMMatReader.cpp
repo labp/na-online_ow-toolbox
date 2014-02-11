@@ -31,6 +31,7 @@
 #include "core/io/WLReaderLeadfield.h"
 #include "core/io/WLReaderMAT.h"
 #include "core/io/WLReaderSourceSpace.h"
+#include "core/module/WLConstantsModule.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
 #include "reader/WReaderEEGPositions.h"
@@ -67,7 +68,7 @@ WMMatReader::~WMMatReader()
 
 const std::string WMMatReader::getName() const
 {
-    return "MAT-File Reader";
+    return WLConstantsModule::NAME_PREFIX + " MAT-File Reader";
 }
 
 const std::string WMMatReader::getDescription() const

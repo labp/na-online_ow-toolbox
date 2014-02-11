@@ -58,7 +58,7 @@ public:
     virtual ~WFIRFilterCpu();
 
 protected:
-    virtual void filter( WLEMData::DataT& out, const WLEMData::DataT& in, const WLEMData::DataT& prevData );
+    virtual bool filter( WLEMData::DataT& out, const WLEMData::DataT& in, const WLEMData::DataT& prevData );
 
 };
 

@@ -42,6 +42,7 @@
 #include "core/data/WLEMMSubject.h"
 #include "core/data/emd/WLEMData.h"
 #include "core/data/enum/WLEModality.h"
+#include "core/data/enum/WLEPointType.h"
 #include "core/util/profiler/WLLifetimeProfiler.h"
 
 /**
@@ -258,12 +259,12 @@ public:
     /**
      * Returns the event/stimuli channel.
      */
-    EChannelT& getEventChannel( int i ) const;
+    EChannelT& getEventChannel( WLChanIdxT i ) const;
 
     /**
      * Returns number of event channels.
      */
-    size_t getEventChannelCount() const;
+    WLChanNrT getEventChannelCount() const;
 
     WLLifetimeProfiler::SPtr getProfiler();
     WLLifetimeProfiler::ConstSPtr getProfiler() const;
@@ -273,7 +274,7 @@ public:
 
     WLList< WLDigPoint >::ConstSPtr getDigPoints() const;
 
-    WLList< WLDigPoint >::SPtr getDigPoints( WLDigPoint::PointType::Enum kind ) const;
+    WLList< WLDigPoint >::SPtr getDigPoints( WLEPointType::Enum kind ) const;
 
     void setDigPoints( WLList< WLDigPoint >::SPtr digPoints );
 

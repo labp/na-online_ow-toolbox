@@ -26,7 +26,8 @@
 
 #include <core/common/WLogger.h>
 
-#include "WLMatFileIO.h"
+#include "core/dataFormat/mat/WLMatLib.h"
+
 #include "WLReaderMAT.h"
 
 using std::ifstream;
@@ -62,14 +63,14 @@ WLIOStatus::ioStatus_t WLReaderMAT::init()
         return WLIOStatus::ERROR_FOPEN;
     }
 
-    if( !WLMatFileIO::MATReader::readHeader( &m_fileInfo, m_ifs ) )
+    if( !WLMatLib::MATReader::readHeader( &m_fileInfo, m_ifs ) )
     {
         wlog::error( CLASS ) << "Error while reading MAT-file header!";
         return WLIOStatus::ERROR_FREAD;
     }
 
-    std::list< WLMatFileIO::ElementInfo_t > elements;
-    if( !WLMatFileIO::MATReader::retrieveDataElements( &m_elements, m_ifs, m_fileInfo ) )
+    std::list< WLMatLib::ElementInfo_t > elements;
+    if( !WLMatLib::MATReader::retrieveDataElements( &m_elements, m_ifs, m_fileInfo ) )
     {
         wlog::error( CLASS ) << "Error while retrieving data elements!";
         return WLIOStatus::ERROR_UNKNOWN;
@@ -99,13 +100,13 @@ WLIOStatus::ioStatus_t WLReaderMAT::readMatrix( WLMatrix::SPtr& matrix )
     }
 
     WLIOStatus::ioStatus_t rc = WLIOStatus::ERROR_UNKNOWN;
-    std::list< WLMatFileIO::ElementInfo_t >::const_iterator it;
+    std::list< WLMatLib::ElementInfo_t >::const_iterator it;
     for( it = m_elements.begin(); it != m_elements.end(); ++it )
     {
-        if( it->dataType == WLMatFileIO::DataTypes::miMATRIX )
+        if( it->dataType == WLMatLib::DataTypes::miMATRIX )
         {
             wlog::debug( CLASS ) << "Found matrix element.";
-            if( WLMatFileIO::ArrayFlags::getArrayType( it->arrayFlags ) == WLMatFileIO::ArrayTypes::mxDOUBLE_CLASS )
+            if( WLMatLib::ArrayFlags::getArrayType( it->arrayFlags ) == WLMatLib::ArrayTypes::mxDOUBLE_CLASS )
             {
                 wlog::debug( CLASS ) << "Found matrix element with double class.";
                 if( !matrix )
@@ -113,14 +114,14 @@ WLIOStatus::ioStatus_t WLReaderMAT::readMatrix( WLMatrix::SPtr& matrix )
                     matrix.reset( new WLMatrix::MatrixT() );
                 }
 #ifndef LABP_FLOAT_COMPUTATION
-                if( WLMatFileIO::MATReader::readMatrixDouble( matrix.get(), *it, m_ifs, m_fileInfo ) )
+                if( WLMatLib::MATReader::readMatrixDouble( matrix.get(), *it, m_ifs, m_fileInfo ) )
                 {
                     rc = WLIOStatus::SUCCESS;
                     break;
                 }
 #else
                 Eigen::MatrixXd matrixDbl;
-                if( WLMatFileIO::MATReader::readMatrixDouble( &matrixDbl, *it, m_ifs, m_fileInfo ) )
+                if( WLMatLib::MATReader::readMatrixDouble( &matrixDbl, *it, m_ifs, m_fileInfo ) )
                 {
                     (*matrix) = matrixDbl.cast<WLMatrix::ScalarT>();
                     rc = WLIOStatus::SUCCESS;

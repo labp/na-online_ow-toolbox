@@ -41,8 +41,6 @@
 
 #include "WLEMMeasurement.h"
 
-using namespace LaBP;
-
 const std::string WLEMMeasurement::CLASS = "WLEMMeasurement";
 
 WLEMMeasurement::WLEMMeasurement()
@@ -267,12 +265,12 @@ void WLEMMeasurement::addEventChannel( EChannelT& data )
     m_eventChannels->push_back( data );
 }
 
-WLEMMeasurement::EChannelT& WLEMMeasurement::getEventChannel( int i ) const
+WLEMMeasurement::EChannelT& WLEMMeasurement::getEventChannel( WLChanIdxT i ) const
 {
     return m_eventChannels->at( i );
 }
 
-size_t WLEMMeasurement::getEventChannelCount() const
+WLChanNrT WLEMMeasurement::getEventChannelCount() const
 {
     return m_eventChannels->size();
 }
@@ -307,7 +305,7 @@ void WLEMMeasurement::setDigPoints( WLList< WLDigPoint >::SPtr digPoints )
     m_digPoints = digPoints;
 }
 
-WLList< WLDigPoint >::SPtr WLEMMeasurement::getDigPoints( WLDigPoint::PointType::Enum kind ) const
+WLList< WLDigPoint >::SPtr WLEMMeasurement::getDigPoints( WLEPointType::Enum kind ) const
 {
     WLList< WLDigPoint >::SPtr digForKind( new WLList< WLDigPoint >() );
     WLList< WLDigPoint >::const_iterator cit;

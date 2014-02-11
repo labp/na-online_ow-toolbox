@@ -29,19 +29,16 @@
 
 #include "core/container/WLArrayList.h"
 
-#include "WLEMMEnumTypes.h"
 #include "WLEMMBemBoundary.h"
-
-using namespace LaBP;
 
 const std::string WLEMMBemBoundary::CLASS = "WLEMMBemBoundary";
 
 WLEMMBemBoundary::WLEMMBemBoundary()
 {
-    setVertexUnit( WEUnit::UNKNOWN_UNIT );
-    setVertexExponent( WEExponent::BASE );
-
-    setConductivityUnit( WEUnit::UNKNOWN_UNIT );
+    setVertexUnit( WLEUnit::NONE );
+    setVertexExponent( WLEExponent::UNKNOWN );
+    setConductivityUnit( WLEUnit::NONE );
+    setBemType( WLEBemType::UNDEFINED );
 
     m_vertex = WLArrayList< WPosition >::instance();
     m_faces = WLArrayList< WVector3i >::instance();
@@ -66,32 +63,32 @@ void WLEMMBemBoundary::setVertex( WLArrayList< WPosition >::SPtr vertex )
     m_vertex = vertex;
 }
 
-WEUnit::Enum WLEMMBemBoundary::getVertexUnit() const
+WLEUnit::Enum WLEMMBemBoundary::getVertexUnit() const
 {
     return m_vertexUnit;
 }
 
-void WLEMMBemBoundary::setVertexUnit( WEUnit::Enum unit )
+void WLEMMBemBoundary::setVertexUnit( WLEUnit::Enum unit )
 {
     m_vertexUnit = unit;
 }
 
-WEExponent::Enum WLEMMBemBoundary::getVertexExponent() const
+WLEExponent::Enum WLEMMBemBoundary::getVertexExponent() const
 {
     return m_vertexExponent;
 }
 
-void WLEMMBemBoundary::setVertexExponent( LaBP::WEExponent::Enum exponent )
+void WLEMMBemBoundary::setVertexExponent( WLEExponent::Enum exponent )
 {
     m_vertexExponent = exponent;
 }
 
-WEBemType::Enum WLEMMBemBoundary::getBemType() const
+WLEBemType::Enum WLEMMBemBoundary::getBemType() const
 {
     return m_bemType;
 }
 
-void WLEMMBemBoundary::setBemType( WEBemType::Enum type )
+void WLEMMBemBoundary::setBemType( WLEBemType::Enum type )
 {
     m_bemType = type;
 }
@@ -121,19 +118,19 @@ void WLEMMBemBoundary::setConductivity( float conductivity )
     m_conductivity = conductivity;
 }
 
-LaBP::WEUnit::Enum WLEMMBemBoundary::getConductivityUnit() const
+WLEUnit::Enum WLEMMBemBoundary::getConductivityUnit() const
 {
     return m_conductivityUnit;
 }
 
-void WLEMMBemBoundary::setConductivityUnit( WEUnit::Enum unit )
+void WLEMMBemBoundary::setConductivityUnit( WLEUnit::Enum unit )
 {
     m_conductivityUnit = unit;
 }
 
 std::ostream& operator<<( std::ostream &strm, const WLEMMBemBoundary& obj )
 {
-    strm << WLEMMBemBoundary::CLASS << ": type=" << WEBemType::name( obj.getBemType() );
+    strm << WLEMMBemBoundary::CLASS << ": type=" << obj.getBemType();
     strm << ", vertices=" << obj.getVertex()->size();
     strm << ", faces=" << obj.getFaces()->size();
     return strm;

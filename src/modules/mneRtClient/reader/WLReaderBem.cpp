@@ -38,7 +38,6 @@
 #include "WLReaderBem.h"
 
 using namespace MNELIB;
-using namespace LaBP;
 
 const std::string WLReaderBem::CLASS = "WLReaderBem";
 
@@ -65,7 +64,7 @@ bool WLReaderBem::read( std::list< WLEMMBemBoundary::SPtr >* const bems )
     for( it = surfaces.begin(); it != surfaces.end(); ++it )
     {
         WLEMMBemBoundary::SPtr bem( new WLEMMBemBoundary() );
-        bem->setBemType( getTypeFromBemId( ( *it )->id ) );
+        bem->setBemType( WLEBemType::fromFIFF( ( *it )->id ) );
         bem->setConductivity( ( *it )->sigma );
 
         WLArrayList< WPosition >::SPtr vertex( new WLArrayList< WPosition > );
@@ -78,8 +77,8 @@ bool WLReaderBem::read( std::list< WLEMMBemBoundary::SPtr >* const bems )
             vertex->push_back( pos );
         }
         bem->setVertex( vertex );
-        bem->setVertexExponent( WEExponent::MILLI );
-        bem->setVertexUnit( WEUnit::METER );
+        bem->setVertexExponent( WLEExponent::MILLI );
+        bem->setVertexUnit( WLEUnit::METER );
 
         WLArrayList< WVector3i >::SPtr faces( new WLArrayList< WVector3i > );
         const MNESurface::PointsT::Index nr_tri = ( *it )->tris.cols();
@@ -94,30 +93,8 @@ bool WLReaderBem::read( std::list< WLEMMBemBoundary::SPtr >* const bems )
 
         bems->push_back( bem );
 
-        wlog::debug( CLASS ) << "Adding BEM: " << WEBemType::name( bem->getBemType() ) << "; " << vertex->size() << "; "
-                        << faces->size();
+        wlog::debug( CLASS ) << "Adding BEM: " << bem->getBemType() << "; " << vertex->size() << "; " << faces->size();
     }
 
     return true;
-}
-
-WEBemType::Enum WLReaderBem::getTypeFromBemId( int id )
-{
-    switch( id )
-    {
-        case -1:
-            return WEBemType::UNKNOWN2;
-        case 0:
-            return WEBemType::UNKNOWN;
-        case 1:
-            return WEBemType::BRAIN;
-            // case 2:
-        case 3:
-            return WEBemType::SKULL;
-        case 4:
-            return WEBemType::OUTER_SKIN;
-        default:
-            wlog::error( CLASS ) << "Unknown BEM id!";
-            return WEBemType::UNKNOWN;
-    }
 }

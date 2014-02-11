@@ -34,7 +34,9 @@
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
 #include "core/container/WLArrayList.h"
-#include "WLEMMEnumTypes.h"
+#include "core/data/enum/WLEExponent.h"
+#include "core/data/enum/WLEBemType.h"
+#include "core/data/enum/WLEUnit.h"
 
 class WLEMMBemBoundary
 {
@@ -58,14 +60,14 @@ public:
     WLArrayList< WPosition >::ConstSPtr getVertex() const;
     void setVertex( WLArrayList< WPosition >::SPtr vertex );
 
-    LaBP::WEUnit::Enum getVertexUnit() const;
-    void setVertexUnit( LaBP::WEUnit::Enum unit );
+    WLEUnit::Enum getVertexUnit() const;
+    void setVertexUnit( WLEUnit::Enum unit );
 
-    LaBP::WEExponent::Enum getVertexExponent() const;
-    void setVertexExponent( LaBP::WEExponent::Enum exponent );
+    WLEExponent::Enum getVertexExponent() const;
+    void setVertexExponent( WLEExponent::Enum exponent );
 
-    LaBP::WEBemType::Enum getBemType() const;
-    void setBemType( LaBP::WEBemType::Enum exponent );
+    WLEBemType::Enum getBemType() const;
+    void setBemType( WLEBemType::Enum exponent );
 
     WLArrayList< WVector3i >::SPtr getFaces();
     WLArrayList< WVector3i >::ConstSPtr getFaces() const;
@@ -74,20 +76,20 @@ public:
     float getConductivity() const;
     void setConductivity( float conductivity );
 
-    LaBP::WEUnit::Enum getConductivityUnit() const;
-    void setConductivityUnit( LaBP::WEUnit::Enum unit );
+    WLEUnit::Enum getConductivityUnit() const;
+    void setConductivityUnit( WLEUnit::Enum unit );
 
 private:
     WLArrayList< WPosition >::SPtr m_vertex;
 
-    LaBP::WEUnit::Enum m_vertexUnit;
-    LaBP::WEExponent::Enum m_vertexExponent;
-    LaBP::WEBemType::Enum m_bemType;
+    WLEUnit::Enum m_vertexUnit;
+    WLEExponent::Enum m_vertexExponent;
+    WLEBemType::Enum m_bemType;
 
     WLArrayList< WVector3i >::SPtr m_faces;
 
     float m_conductivity;
-    LaBP::WEUnit::Enum m_conductivityUnit;
+    WLEUnit::Enum m_conductivityUnit;
 };
 
 std::ostream& operator<<( std::ostream &strm, const WLEMMBemBoundary& obj );

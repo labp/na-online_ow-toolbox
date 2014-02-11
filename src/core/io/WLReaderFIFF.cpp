@@ -43,13 +43,17 @@
 #include "core/container/WLList.h"
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMSubject.h"
-#include "core/data/WLEMMEnumTypes.h"
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDECG.h"
 #include "core/data/emd/WLEMDEEG.h"
 #include "core/data/emd/WLEMDEOG.h"
 #include "core/data/emd/WLEMDMEG.h"
 #include "core/data/enum/WLEModality.h"
+
+#include "core/dataFormat/fiff/WLFiffChType.h"
+#include "core/dataFormat/fiff/WLFiffCoilType.h"
+#include "core/dataFormat/fiff/WLFiffUnit.h"
+#include "core/dataFormat/fiff/WLFiffUnitMultiplier.h"
 
 #include "WLReaderFIFF.h"
 
@@ -80,7 +84,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
     // Create temporary EMMEMD
     WLEMDEEG::SPtr dummy( new WLEMDEEG() );
     LFMeasurementInfo& measinfo_in = data.GetLFMeasurement().GetLFMeasurementInfo();
-    int32_t nChannels = measinfo_in.GetNumberOfChannels();
+    WLFiffLib::nchan_t nChannels = measinfo_in.GetNumberOfChannels();
     wlog::debug( CLASS ) << "Channels: " << nChannels;
     dummy->setSampFreq( measinfo_in.GetSamplingFrequency() );
     dummy->setAnalogHighPass( measinfo_in.GetHighpass() );
@@ -99,6 +103,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
         const WLDigPoint digPoint( pos, digPoints[i]->GetKind(), digPoints[i]->GetIdent() );
         digPointsOut->push_back( digPoint );
     }
+
     subject_out->setIsotrak( itPos );
     out->setDigPoints( digPointsOut );
     wlog::debug( CLASS ) << "Isotrak size: " << itPos->size();
@@ -112,7 +117,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
         nBuffers_out += rawdatabuffers_in[i]->GetSize();
     nBuffers_out /= nChannels;
     WLEMData::DataT rawdatabuffers_out( nChannels, nBuffers_out );
-    int32_t current_channel = 0, current_buffer_out = 0;
+    WLFiffLib::ichan_t current_channel = 0, current_buffer_out = 0;
     LFArrayPtr< LFChannelInfo > &channelInfos = measinfo_in.GetLFChannelInfo();
     double scaleFactor;
     for( size_t i = 0; i < nBuffers_in; ++i )
@@ -154,14 +159,14 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
     dummy->setData( rawdatabuffers_out_ptr );
 
     // Collect available modalities and coils
-    std::set< int32_t > modalities;
-    for( int32_t chan = 0; chan < nChannels; ++chan )
+    std::set< WLFiffLib::ch_type_t > modalities;
+    for( WLFiffLib::nchan_t chan = 0; chan < nChannels; ++chan )
     {
         modalities.insert( measinfo_in.GetLFChannelInfo()[chan]->GetKind() );
     }
 
     // Create modality objects //
-    int32_t mod;
+    WLFiffLib::ch_type_t mod;
     while( !modalities.empty() )
     {
         mod = *modalities.begin();
@@ -170,20 +175,22 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
         // See FIFF PDF B.3 Channel Types
         switch( mod )
         {
-            case 1: // MEG channel
+            case WLFiffLib::ChType::MAGN: // MEG channel
                 wlog::debug( CLASS ) << "Creating MEG modality ...";
                 emd.reset( new WLEMDMEG() );
                 break;
-            case 2: // EEG channel
+            case WLFiffLib::ChType::EL: // EEG channel
                 wlog::debug( CLASS ) << "Creating EEG modality ...";
                 emd.reset( new WLEMDEEG() );
                 break;
-//            case 3: // Stimulus channel
-            case 202: // EOG channel
+            case WLFiffLib::ChType::STIM: // Stimulus channel
+                wlog::debug( CLASS ) << "Stim channel is processed later ...";
+                continue;
+            case WLFiffLib::ChType::EOG: // EOG channel
                 wlog::debug( CLASS ) << "Creating EOG modality ...";
                 emd.reset( new WLEMDEOG() );
                 break;
-            case 402: // ECG channel
+            case WLFiffLib::ChType::ECG: // ECG channel
                 wlog::debug( CLASS ) << "Creating ECG modality ...";
                 emd.reset( new WLEMDECG() );
                 break;
@@ -203,16 +210,16 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
         WLArrayList< WVector3f >::SPtr eZ( new WLArrayList< WVector3f >() );
         const float* eVec;
 
-        fiffunits_t fiffUnit;
-        fiffmultipliers_t fiffUnitMul;
+        WLFiffLib::unit_t fiffUnit = WLFiffLib::Unit::NONE;
+        WLFiffLib::unitm_t fiffUnitMul = WLFiffLib::UnitMultiplier::NONE;
 
         size_t modChan = 0;
         WLEMData::DataT dataTmp( rawdatabuffers_out_ptr->rows(), rawdatabuffers_out_ptr->cols() );
-        for( size_t chan = 0; chan < dummy->getNrChans(); ++chan )
+        for( WLFiffLib::nchan_t chan = 0; chan < dummy->getNrChans(); ++chan )
         {
             if( measinfo_in.GetLFChannelInfo()[chan]->GetKind() == mod )
             {
-                if( mod == 1 )
+                if( mod == WLFiffLib::ChType::MAGN )
                 {
                     // TODO convert to millimeter?
                     eVec = measinfo_in.GetLFChannelInfo()[chan]->GetEx();
@@ -225,21 +232,28 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
                     eZ->push_back( WVector3f( eVec[0], eVec[1], eVec[2] ) );
 
                     // Check sequence
-                    const int32_t coil_type = measinfo_in.GetLFChannelInfo()[chan]->GetCoilType();
+                    const WLFiffLib::coil_type_t coil_type = measinfo_in.GetLFChannelInfo()[chan]->GetCoilType();
                     // TODO(pieloth): check meg coil order
                     if( modChan > 1 && ( modChan - 2 ) % 3 == 0 )
                     {
-                        WAssert( coil_type == 3021 || coil_type == 3022 || coil_type == 3024,
+                        WAssert(
+                                        coil_type == WLFiffLib::CoilType::VV_MAG_W || coil_type == WLFiffLib::CoilType::VV_MAG_T1
+                                                        || coil_type == WLFiffLib::CoilType::VV_MAG_T2
+                                                        || coil_type == WLFiffLib::CoilType::VV_MAG_T3,
                                         "Wrong order! Coil type should be magentometer!" );
                     }
                     else
                     {
-                        WAssert( coil_type == 3012 || coil_type == 3013 || coil_type == 3014,
+                        WAssert(
+                                        coil_type == WLFiffLib::CoilType::VV_PLANAR_W
+                                                        || coil_type == WLFiffLib::CoilType::VV_PLANAR_T1
+                                                        || coil_type == WLFiffLib::CoilType::VV_PLANAR_T2
+                                                        || coil_type == WLFiffLib::CoilType::VV_PLANAR_T3,
                                         "Wrong order! Coil type should be gradiometer!" );
                     }
                 }
                 // Collect positions for EEG and MEG
-                if( mod == 1 || mod == 2 )
+                if( mod == WLFiffLib::ChType::MAGN || mod == WLFiffLib::ChType::EL )
                 {
                     pos = measinfo_in.GetLFChannelInfo()[chan]->GetR0();
                     positions->push_back( WPosition( pos[0], pos[1], pos[2] ) );
@@ -247,8 +261,8 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
 
                 // Collect general data
                 dataTmp.row( modChan++ ) = ( dummy->getData().row( chan ) );
-                fiffUnit = measinfo_in.GetLFChannelInfo()[chan]->GetUnit();
-                fiffUnitMul = measinfo_in.GetLFChannelInfo()[chan]->GetUnitMul();
+                fiffUnit = static_cast< WLFiffLib::unit_t >( measinfo_in.GetLFChannelInfo()[chan]->GetUnit() );
+                fiffUnitMul = static_cast< WLFiffLib::unitm_t >( measinfo_in.GetLFChannelInfo()[chan]->GetUnitMul() );
             }
         }
 
@@ -261,8 +275,8 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
         emd->setLineFreq( dummy->getLineFreq() );
 
         // scaleFactor was multiplied, so data is in unit_mul - see FIFF spec. 1.3, Table A.3, p. 28)
-        emd->setChanUnitExp( getChanUnitMul( fiffUnitMul ) );
-        emd->setChanUnit( getChanUnit( fiffUnit ) );
+        emd->setChanUnitExp( WLEExponent::fromFIFF( fiffUnitMul ) );
+        emd->setChanUnit( WLEUnit::fromFIFF( fiffUnit ) );
         emd->setData( data );
 
         switch( emd->getModalityType() )
@@ -329,34 +343,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMSubject::SPtr out )
         return getReturnCode( ret );
     out->setName( data.GetFirstName() + "" + data.GetMiddleName() + "" + data.GetLastName() );
     out->setHisId( data.GetHIS_ID() );
-    out->setHeight( data.GetHeight() );
-    out->setWeight( data.GetWeight() );
     out->setComment( data.GetComment() );
-    switch( data.GetSex() )
-    {
-        case LFSubject::sex_m:
-            out->setSex( LaBP::WESex::MALE );
-            break;
-        case LFSubject::sex_f:
-            out->setSex( LaBP::WESex::FEMALE );
-            break;
-        default:
-            out->setSex( LaBP::WESex::OTHER );
-            break;
-    }
-    switch( data.GetHand() )
-    {
-        case LFSubject::hand_right:
-            out->setHand( LaBP::WEHand::RIGHT );
-            break;
-        case LFSubject::hand_left:
-            out->setHand( LaBP::WEHand::LEFT );
-            break;
-        default:
-            out->setHand( LaBP::WEHand::BOTH );
-            break;
-    }
-    //TODO(Evfimevskiy): data.GetBirthday();
     return getReturnCode( ret );
 }
 
@@ -376,44 +363,4 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::getReturnCode( returncode_t rc )
             return ReturnCode::ERROR_UNKNOWN;
     }
 
-}
-
-LaBP::WEUnit::Enum WLReaderFIFF::getChanUnit( fiffunits_t unit )
-{
-    switch( unit )
-    {
-        case unit_V:
-            return WEUnit::VOLT;
-        case unit_T:
-            return WEUnit::TESLA;
-        case unit_T_m:
-            return WEUnit::TESLA_PER_METER;
-        default:
-            wlog::warn( CLASS ) << "Unknown unit: " << unit;
-            return WEUnit::UNKNOWN_UNIT;
-    }
-}
-
-LaBP::WEExponent::Enum WLReaderFIFF::getChanUnitMul( fiffmultipliers_t unitMul )
-{
-    switch( unitMul )
-    {
-        case mul_k:
-            return WEExponent::KILO;
-        case mul_none:
-            return WEExponent::BASE;
-        case mul_m:
-            return WEExponent::MILLI;
-        case mul_mu:
-            return WEExponent::MICRO;
-        case mul_n:
-            return WEExponent::NANO;
-        case mul_p:
-            return WEExponent::PICO;
-        case mul_f:
-            return WEExponent::FEMTO;
-        default:
-            wlog::warn( CLASS ) << "Unknown unit_mul: " << unitMul;
-            return WEExponent::BASE;
-    }
 }

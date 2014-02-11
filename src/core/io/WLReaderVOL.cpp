@@ -81,7 +81,7 @@ WLReaderVOL::ReturnCode::Enum WLReaderVOL::read( std::list< WLEMMBemBoundary::SP
             else
                 if( line.find( "UnitConduct=" ) == 0 )
                 {
-                    WEUnit::Enum unit = WEUnit::UNKNOWN_UNIT;
+                    WLEUnit::Enum unit = WLEUnit::NONE;
                     rc = readConductUnit( line, unit );
                     hasUnit = true;
                 }
@@ -116,19 +116,19 @@ WLReaderVOL::ReturnCode::Enum WLReaderVOL::readNumBoundaries( std::string& line,
     return ReturnCode::SUCCESS;
 }
 
-WLReaderVOL::ReturnCode::Enum WLReaderVOL::readConductUnit( std::string& line, WEUnit::Enum& unit )
+WLReaderVOL::ReturnCode::Enum WLReaderVOL::readConductUnit( std::string& line, WLEUnit::Enum& unit )
 {
     vector< string > tokens = string_utils::tokenize( line );
     string sunit = tokens.at( 1 );
     wlog::debug( CLASS ) << "Unit: " << sunit;
     if( sunit.find( "S/m" ) != string::npos )
     {
-        unit = WEUnit::SIEMENS_PER_METER;
+        unit = WLEUnit::SIEMENS_PER_METER;
         return ReturnCode::SUCCESS;
     }
     else
     {
-        unit = WEUnit::UNKNOWN_UNIT;
+        unit = WLEUnit::NONE;
         wlog::warn( CLASS ) << "Unknown unit.";
         return ReturnCode::ERROR_UNKNOWN;
     }

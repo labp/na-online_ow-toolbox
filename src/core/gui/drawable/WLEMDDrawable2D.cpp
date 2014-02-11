@@ -28,7 +28,6 @@
 #include <osg/Array>
 #include <osg/Geode>
 #include <osg/Geometry>
-#include <osg/Group>
 #include <osg/Matrix>
 #include <osg/MatrixTransform>
 #include <osg/PrimitiveSet>
@@ -36,12 +35,12 @@
 
 #include <core/common/WAssert.h>
 #include <core/common/WColor.h>
+#include <core/common/WException.h>
 #include <core/gui/WCustomWidget.h>
 #include <core/graphicsEngine/WGEGroupNode.h>
 
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDMEG.h"
-#include "core/data/WLEMMEnumTypes.h"
 
 #include "WLEMDDrawable.h"
 #include "WLEMDDrawable2D.h"
@@ -79,10 +78,30 @@ namespace LaBP
         osg::ref_ptr< osg::StateSet > state = m_rootGroup->getOrCreateStateSet();
         state->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
         state->setMode( GL_DEPTH_TEST, osg::StateAttribute::OFF );
+
+        // NOTE: Disable backtrace print for getSelectedData()!
+#ifndef DEBUG
+        WException::disableBacktrace();
+#endif
     }
 
     WLEMDDrawable2D::~WLEMDDrawable2D()
     {
+        if( m_markerGeode.valid() )
+        {
+            m_rootGroup->remove( m_markerGeode );
+            m_markerGeode = NULL;
+        }
+        if( m_timeGridGroup.valid() )
+        {
+            m_rootGroup->remove( m_timeGridGroup );
+            m_timeGridGroup = NULL;
+        }
+        if( m_channelGroup.valid() )
+        {
+            m_rootGroup->remove( m_channelGroup );
+            m_channelGroup = NULL;
+        }
     }
 
     bool WLEMDDrawable2D::mustDraw() const
@@ -141,7 +160,7 @@ namespace LaBP
             osg::ref_ptr< osg::Geometry > geometry = new osg::Geometry;
 
             osg::ref_ptr< osg::Vec2Array > vertices = new osg::Vec2Array();
-            vertices->reserve( 2 );
+            vertices->reserve( 6 );
             vertices->push_back( osg::Vec2( m_selectedPixel - 1, 0.0f ) );
             vertices->push_back( osg::Vec2( m_selectedPixel - 1, m_widget->height() ) );
             vertices->push_back( osg::Vec2( m_selectedPixel, 0.0f ) );
@@ -169,7 +188,7 @@ namespace LaBP
             m_timeGridHight = height;
 
             m_rootGroup->removeChild( m_timeGridGroup );
-            m_timeGridGroup = new osg::Group;
+            m_timeGridGroup = new WGEGroupNode;
 
             const ValueT pxPerSec = ( width - m_xOffset ) / getTimeRange();
             const ValueT deltaT = pxPerSec * 0.05;
@@ -203,6 +222,7 @@ namespace LaBP
             // Create background rectangle for labels //
             osg::ref_ptr< osg::Vec3Array > bgVertices = new osg::Vec3Array;
             const ValueT z = -1.0f;
+            bgVertices->reserve( 4 );
             bgVertices->push_back( osg::Vec3( m_xOffset, height - 16, z ) );
             bgVertices->push_back( osg::Vec3( m_xOffset, height, z ) );
             bgVertices->push_back( osg::Vec3( m_xOffset + 95, height, z ) );

@@ -43,6 +43,7 @@
 #include <core/common/WPropertyTypes.h>
 #include <core/common/WRealtimeTimer.h>
 
+#include "core/module/WLConstantsModule.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMDEEG.h"
@@ -51,7 +52,6 @@
 #include "core/data/WLEMMSubject.h"
 #include "core/data/WLEMMSurface.h"
 #include "core/data/WLEMMBemBoundary.h"
-#include "core/data/WLEMMEnumTypes.h"
 #include "core/data/WLDataTypes.h"
 
 #include "core/io/WLReaderELC.h"
@@ -96,7 +96,7 @@ const char** WMEmMeasurement::getXPMIcon() const
 
 const std::string WMEmMeasurement::getName() const
 {
-    return "EM-Measurement";
+    return WLConstantsModule::NAME_PREFIX + " EM-Measurement";
 }
 
 const std::string WMEmMeasurement::getDescription() const
@@ -295,6 +295,8 @@ void WMEmMeasurement::moduleMain()
             handleExperimentLoadChanged();
         }
     }
+
+    viewCleanup();
 }
 
 void WMEmMeasurement::streamData()

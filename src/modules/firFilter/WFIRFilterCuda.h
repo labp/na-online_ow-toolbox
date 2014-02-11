@@ -55,8 +55,10 @@ public:
 
     explicit WFIRFilterCuda( const std::string& pathToFcf );
 
+    virtual ~WFIRFilterCuda();
+
 protected:
-    virtual void filter( WLEMData::DataT& out, const WLEMData::DataT& in, const WLEMData::DataT& prev );
+    virtual bool filter( WLEMData::DataT& out, const WLEMData::DataT& in, const WLEMData::DataT& prev );
 
     /**
      * Prepare the data and calls the CUDA kernel for FIR filter.
@@ -70,6 +72,9 @@ protected:
      * \param coeffSize Coefficient vector size.
      *
      * \return Elapsed time in ms.
+     *
+     * \throws WException
+     * \throws WLBadAllocException
      */
     float cudaFilter( WLEMData::ScalarT* const output, const WLEMData::ScalarT* const input,
                     const WLEMData::ScalarT* const previous, size_t channels, size_t samples,

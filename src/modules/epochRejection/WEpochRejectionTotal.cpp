@@ -82,9 +82,9 @@ bool WEpochRejectionTotal::doRejection( const WLEMMeasurement::ConstSPtr emm )
 
                 meg = boost::static_pointer_cast< const WLEMDMEG >( modality );
 
-                rejection |= calcRejection( meg->getDataBadChannels( LaBP::WEGeneralCoilType::MAGNETOMETER ), m_megMagThreshold );
+                rejection |= calcRejection( meg->getDataBadChannels( WLEMEGGeneralCoilType::MAGNETOMETER ), m_megMagThreshold );
 
-                rejection |= calcRejection( meg->getDataBadChannels( LaBP::WEGeneralCoilType::GRADIOMETER ), m_megGradThreshold );
+                rejection |= calcRejection( meg->getDataBadChannels( WLEMEGGeneralCoilType::GRADIOMETER ), m_megGradThreshold );
 
                 break;
             case WLEModality::EOG:
