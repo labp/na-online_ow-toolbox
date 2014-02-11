@@ -152,11 +152,6 @@ private:
     LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input;
 
     /**
-     * Output connector for a EMM data set.
-     */
-    LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output;
-
-    /**
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;
