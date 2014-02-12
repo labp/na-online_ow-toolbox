@@ -111,6 +111,11 @@ bool WRtClient::connect()
 bool WRtClient::prepareStreaming()
 {
     wlog::debug( CLASS ) << "prepareStreaming() called!";
+
+    wlog::debug( CLASS ) << "Set buffer size.";
+    ( *m_rtCmdClient )["bufsize"].pValues()[0] = QVariant( m_blockSize );
+    ( *m_rtCmdClient )["bufsize"].send();
+
     // Request measurement information
     wlog::debug( CLASS ) << "Requesting measurement information.";
     ( *m_rtCmdClient )["measinfo"].pValues()[0] = QVariant( m_clientId );
@@ -242,10 +247,6 @@ bool WRtClient::start()
         wlog::error( CLASS ) << "Could not prepare steaming. Streaming is not started!";
         return false;
     }
-
-    wlog::debug( CLASS ) << "Set buffer size.";
-    ( *m_rtCmdClient )["bufsize"].pValues()[0] = QVariant( m_blockSize );
-    ( *m_rtCmdClient )["bufsize"].send();
 
     wlog::debug( CLASS ) << "Start streaming ...";
     ( *m_rtCmdClient )["start"].pValues()[0] = QVariant( m_clientId );
