@@ -68,6 +68,7 @@ WWriterFiff::~WWriterFiff()
 
 bool WWriterFiff::open()
 {
+    wlog::debug( CLASS ) << "open() called!";
     if( m_file != NULL )
     {
         return true;
@@ -85,14 +86,17 @@ bool WWriterFiff::open()
 
 bool WWriterFiff::close()
 {
+    wlog::debug( CLASS ) << "close() called!";
     if( m_file != NULL )
     {
         if( m_fiffStream )
         {
             m_fiffStream->finish_writing_raw();
+            m_fiffStream.clear();
         }
         m_file->close();
         free( m_file );
+        m_file = NULL;
         return true;
     }
     else
@@ -194,10 +198,10 @@ bool WWriterFiff::setDigPoint( FIFFLIB::FiffInfo* const info, const WLEMMeasurem
         return false;
     }
 
-    QList<FiffDigPoint> digs;
+    QList< FiffDigPoint > digs;
     WLList< WLDigPoint >::ConstSPtr digPoints = emm->getDigPoints();
     WLList< WLDigPoint >::const_iterator it;
-    for( it = digPoints->begin(); it != digPoints->end(); ++it)
+    for( it = digPoints->begin(); it != digPoints->end(); ++it )
     {
         FiffDigPoint digPoint;
         digPoint.ident = it->getIdent();
@@ -205,7 +209,7 @@ bool WWriterFiff::setDigPoint( FIFFLIB::FiffInfo* const info, const WLEMMeasurem
         digPoint.r[0] = it->getPoint().x();
         digPoint.r[1] = it->getPoint().y();
         digPoint.r[2] = it->getPoint().z();
-        digs.append(digPoint);
+        digs.append( digPoint );
     }
 
     info->dig = digs;

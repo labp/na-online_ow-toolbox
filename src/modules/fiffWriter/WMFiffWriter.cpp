@@ -44,6 +44,7 @@ W_LOADABLE_MODULE( WMFiffWriter )
 
 const std::string WMFiffWriter::ERROR = "Error";
 const std::string WMFiffWriter::OPEN = "Open";
+const std::string WMFiffWriter::CLOSED = "Closed";
 const std::string WMFiffWriter::NONE = "None";
 
 WMFiffWriter::WMFiffWriter()
@@ -94,6 +95,8 @@ void WMFiffWriter::properties()
     m_propFile = m_properties->addProperty( "File:", "Destination file.", WPathHelper::getHomePath(), m_propCondition );
     m_propFile->changed( true );
 
+    m_trgClose = m_properties->addProperty( "Close File:", "Close", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
+
     m_propFileStatus = m_properties->addProperty( "Status:", "Status", NONE );
     m_propFileStatus->setPurpose( PV_PURPOSE_INFORMATION );
 }
@@ -129,6 +132,11 @@ void WMFiffWriter::moduleMain()
             {
                 m_propFileStatus->set( ERROR, true );
             }
+        }
+
+        if( m_trgClose->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+        {
+            handleFileClose();
         }
 
         cmdIn.reset();
@@ -172,6 +180,19 @@ bool WMFiffWriter::handleFileChanged()
     }
 }
 
+void WMFiffWriter::handleFileClose()
+{
+    if( m_fiffWriter )
+    {
+        m_fiffWriter->close();
+        debugLog() << "Closed old writer!";
+        m_fiffWriter.reset();
+        m_propFileStatus->set( CLOSED );
+    }
+
+    m_trgClose->set( WPVBaseTypes::PV_TRIGGER_READY, true );
+}
+
 bool WMFiffWriter::processCompute( WLEMMeasurement::SPtr emm )
 {
     bool rc = false;
@@ -207,6 +228,7 @@ bool WMFiffWriter::processTime( WLEMMCommand::SPtr labp )
 
 bool WMFiffWriter::processReset( WLEMMCommand::SPtr labp )
 {
+    handleFileChanged();
     m_output->updateData( labp );
     return true;
 }
