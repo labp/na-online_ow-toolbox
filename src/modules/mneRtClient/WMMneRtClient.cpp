@@ -126,6 +126,10 @@ void WMMneRtClient::properties()
     const int block_size = 500;
     m_blockSize = m_propGrpConControl->addProperty( "Block size:", "Samples per packet.", block_size );
 
+    // TODO(pieloth): Is data stored without scaling by default? ... WMFiffWriter
+    m_applyScaling = m_propGrpConControl->addProperty( "Apply scaling:", "Enable scale factor (range * cal).", false,
+                    boost::bind( &WMMneRtClient::callbackApplyScaling, this ) );
+
     // Setup streaming //
     m_propDataStatus = m_propGrpConControl->addProperty( "Data status:", "Streaming status.", STATUS_DATA_NOT_STREAMING );
     m_propDataStatus->setPurpose( PV_PURPOSE_INFORMATION );
@@ -363,6 +367,7 @@ void WMMneRtClient::handleTrgDataStart()
 
     m_rtClient->setSimulationFile( m_simFile->get() );
     m_rtClient->setBlockSize( m_blockSize->get() );
+    callbackApplyScaling();
     viewReset();
     if( m_rtClient->start() )
     {
@@ -400,6 +405,15 @@ void WMMneRtClient::callbackTrgDataStop()
 {
     debugLog() << "callbackTrgDataStop() called!";
     m_stopStreaming = true;
+}
+
+void WMMneRtClient::callbackApplyScaling()
+{
+    if( !m_rtClient )
+    {
+        return;
+    }
+    m_rtClient->setScaling( m_applyScaling->get( false ) );
 }
 
 void WMMneRtClient::handleTrgConnectorChanged()

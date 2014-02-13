@@ -149,6 +149,9 @@ private:
     WPropString m_simFile;
     WPropInt m_blockSize;
 
+    void callbackApplyScaling();
+    WPropBool m_applyScaling;
+
     // Streaming status strings //
     static const std::string STATUS_DATA_STREAMING;
     static const std::string STATUS_DATA_ERROR;

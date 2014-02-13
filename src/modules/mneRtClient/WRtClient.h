@@ -64,7 +64,7 @@ public:
 
     bool connect();
 
-    bool isConnected();
+    bool isConnected() const;
 
     void disconnect();
 
@@ -72,7 +72,7 @@ public:
 
     bool stop();
 
-    bool isStreaming();
+    bool isStreaming() const;
 
     int getConnectors( std::map< int, std::string >* const conMap );
     bool setConnector( int conId );
@@ -80,9 +80,12 @@ public:
     bool setSimulationFile( std::string simFile );
 
     void setBlockSize(int blockSize);
-    int getBlockSize();
+    int getBlockSize() const;
 
     bool readData( WLEMMeasurement::SPtr& emmIn );
+
+    bool isScalingApplied() const;
+    void setScaling( bool applyScaling );
 
     // TODO(pieloth): Workaround for #227/#228
     bool setDigPointsAndEEG( const std::list< WLDigPoint >& digPoints );
@@ -115,6 +118,9 @@ private:
     Eigen::RowVectorXi m_picksEeg;
     Eigen::RowVectorXi m_picksMeg;
     Eigen::RowVectorXi m_picksStim;
+
+    std::vector<float> m_scaleFactors;
+    bool m_applyScaling;
 
     bool prepareStreaming();
     bool preparePrototype( WLEMMeasurement* const emm );
