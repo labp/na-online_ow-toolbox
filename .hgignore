@@ -7,6 +7,7 @@ syntax: glob
 # switch to regexp syntax.
 syntax: regexp
 
+^CMakeFiles
 ^doc/core/html
 ^doc/developer/html
 ^doc/developer/man
