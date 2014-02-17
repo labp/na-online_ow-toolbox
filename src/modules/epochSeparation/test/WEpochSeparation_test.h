@@ -182,20 +182,17 @@ public:
         }
 
         // check event channels
-        TS_ASSERT_EQUALS( emmEpoch->getEventChannelCount(), emm->getEventChannelCount() );
+        TS_ASSERT_EQUALS( emmEpoch->getEventChannelCount(), 1 );
         WLEMMeasurement::EChannelT eChannel;
         WLEMMeasurement::EChannelT eChannelOrg;
         size_t startIndex = EINDEX - PRESAMPLES;
-        for( size_t eChan = 0; eChan < emmEpoch->getEventChannelCount(); ++eChan )
-        {
-            eChannel = emmEpoch->getEventChannel( eChan );
 
-            eChannelOrg = emm->getEventChannel( eChan );
-            TS_ASSERT_EQUALS( eChannel.size(), ( PRESAMPLES + POSTSAMPLES + 1 ) );
-            for( size_t smp = 0; smp < ( PRESAMPLES + POSTSAMPLES + 1 ); ++smp )
-            {
-                TS_ASSERT_EQUALS( eChannel[smp], eChannelOrg[startIndex + smp] );
-            }
+        eChannel = emmEpoch->getEventChannel( 0 );
+        eChannelOrg = emm->getEventChannel( 1 );
+        TS_ASSERT_EQUALS( eChannel.size(), ( PRESAMPLES + POSTSAMPLES + 1 ) );
+        for( size_t smp = 0; smp < ( PRESAMPLES + POSTSAMPLES + 1 ); ++smp )
+        {
+            TS_ASSERT_EQUALS( eChannel[smp], eChannelOrg[startIndex + smp] );
         }
     }
 
@@ -265,20 +262,17 @@ public:
         }
 
         // check event channels
-        TS_ASSERT_EQUALS( emmEpoch->getEventChannelCount(), emm->getEventChannelCount() );
+        TS_ASSERT_EQUALS( emmEpoch->getEventChannelCount(), 1 );
         WLEMMeasurement::EChannelT eChannel;
         WLEMMeasurement::EChannelT eChannelOrg;
         size_t startIndex = EINDEX - PRESAMPLES;
-        for( size_t eChan = 0; eChan < emmEpoch->getEventChannelCount(); ++eChan )
-        {
-            eChannel = emmEpoch->getEventChannel( eChan );
 
-            eChannelOrg = emm->getEventChannel( eChan );
-            TS_ASSERT_EQUALS( eChannel.size(), ( PRESAMPLES + POSTSAMPLES + 1 ) );
-            for( size_t smp = 0; smp < ( PRESAMPLES + POSTSAMPLES + 1 ); ++smp )
-            {
-                TS_ASSERT_EQUALS( eChannel[smp], eChannelOrg[startIndex + smp] );
-            }
+        eChannel = emmEpoch->getEventChannel( 0 );
+        eChannelOrg = emm->getEventChannel( 1 );
+        TS_ASSERT_EQUALS( eChannel.size(), ( PRESAMPLES + POSTSAMPLES + 1 ) );
+        for( size_t smp = 0; smp < ( PRESAMPLES + POSTSAMPLES + 1 ); ++smp )
+        {
+            TS_ASSERT_EQUALS( eChannel[smp], eChannelOrg[startIndex + smp] );
         }
     }
 
@@ -387,15 +381,12 @@ public:
             }
 
             // check event channels
-            TS_ASSERT_EQUALS( emmEpoch->getEventChannelCount(), emm->getEventChannelCount() );
-            for( size_t chan = 0; chan < emmEpoch->getEventChannelCount(); ++chan )
+            TS_ASSERT_EQUALS( emmEpoch->getEventChannelCount(), 1 );
+            WLEMMeasurement::EChannelT& evEpoch = emmEpoch->getEventChannel( 0 );
+            TS_ASSERT_EQUALS( evEpoch.size(), EPOCHLENGTH );
+            for( size_t smp = 0; smp < evEpoch.size(); ++smp )
             {
-                WLEMMeasurement::EChannelT& evEpoch = emmEpoch->getEventChannel( chan );
-                TS_ASSERT_EQUALS( evEpoch.size(), EPOCHLENGTH );
-                for( size_t smp = 0; smp < evEpoch.size(); ++smp )
-                {
-                    TS_ASSERT_EQUALS( evEpoch[smp], eChannel1[event - PRESAMPLES + smp] );
-                }
+                TS_ASSERT_EQUALS( evEpoch[smp], eChannel1[event - PRESAMPLES + smp] );
             }
         }
     }

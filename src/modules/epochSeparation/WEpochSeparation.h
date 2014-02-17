@@ -39,6 +39,7 @@
 
 /**
  * Epoch separation based on trigger detection. Epochs can be combined from several packets.
+ * A combined epoch contains the checked event channel only!
  */
 class WEpochSeparation
 {
@@ -125,13 +126,17 @@ public:
     // main methods //
 
     /**
-     * Checks the passed in WDataSetEMM for an event with the trigger mask on the set up channel.
-     * Returns Number of extracted epochs
+     * Checks the passed in EMM for an event with the trigger mask on the set up channel.
+     *
+     * \return Number of extracted epochs
      */
     size_t extract( const WLEMMeasurement::SPtr emmIn ); // TODO(pieloth): ConstSPtr conflicts with WLRingBuffer
 
     /**
-     * Returns the extracted WDataSetEMM. This is a new object. (FIFO)
+     * Returns the  next extracted EMM.This is a new object which contains the checked event channel only (EventChannelSize == 1)!
+     * The EMM is returned only once - FIFO!
+     *
+     * \return EMM object.
      */
     WLEMMeasurement::SPtr getNextEpoch();
 
