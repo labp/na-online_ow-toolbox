@@ -452,26 +452,18 @@ bool WRtClient::readEmd( WLEMData* const emd, const Eigen::RowVectorXi& picks, c
     emdData.resize( rows, cols );
     WAssertDebug( rows <= rawData.rows(), "More selected channels than in raw data!" );
 
-    std::vector< float > scaleFactors;
-    scaleFactors.reserve( rows );
     for( Eigen::RowVectorXi::Index row = 0; row < rows; ++row )
-
-        // TODO(pieloth): pick complete rows
-        for( Eigen::RowVectorXi::Index row = 0; row < rows; ++row )
+    {
+        WAssertDebug( picks[row] < rawData.rows(), "Selected channel index out of raw data boundary!" );
+        if( m_applyScaling )
         {
-            WAssertDebug( picks[row] < rawData.rows(), "Selected channel index out of raw data boundary!" );
-            for( Eigen::RowVectorXi::Index col = 0; col < cols; ++col )
-            {
-                if( m_applyScaling )
-                {
-                    emdData( row, col ) = ( WLEMData::ScalarT )rawData( picks[row], col ) * m_scaleFactors[picks[row]];
-                }
-                else
-                {
-                    emdData( row, col ) = ( WLEMData::ScalarT )rawData( picks[row], col );
-                }
-            }
+            emdData.row( row ) = ( rawData.row( picks[row] ) * m_scaleFactors[picks[row]] ).cast< WLEMData::ScalarT >();
         }
+        else
+        {
+            emdData.row( row ) = rawData.row( picks[row] ).cast< WLEMData::ScalarT >();
+        }
+    }
 
     return true;
 }
