@@ -529,8 +529,7 @@ bool WMEmMeasurement::readFiff( std::string fname )
                     WLGeometry::computeTriangulation( eeg->getFaces().get(), *eeg->getChannelPositions3d(), -5 );
                 }
             }
-            infoLog() << "Modalities:\t" << m_fiffEmm->getModalityCount();
-            infoLog() << "Event channels:\t" << m_fiffEmm->getEventChannelCount();
+            infoLog() << *m_fiffEmm;
             infoLog() << "Reading FIFF file finished!";
             m_fiffFileStatus->set( FILE_LOADED, true );
             m_streamFiffTrigger->setHidden( false );

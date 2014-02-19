@@ -283,11 +283,3 @@ bool WLEMData::isBadChannel( size_t channelNo ) const
 {
     return !(std::find( m_badChannels->begin(), m_badChannels->end(), channelNo ) == m_badChannels->end());
 }
-
-std::ostream& operator<<( std::ostream &strm, const WLEMData& obj )
-{
-    strm << WLEMData::CLASS << "::" << WLEModality::name( obj.getModalityType() ) << ": data=" << obj.getNrChans() << "x"
-                    << obj.getSamplesPerChan();
-    return strm;
-}
-

@@ -61,6 +61,8 @@ namespace WLEModality
 
     ContainerT valuesLocalizeable();
     bool isLocalizeable( Enum );
+
+    std::ostream& operator<<( std::ostream &strm, const WLEModality::Enum& obj );
 }
 
 inline bool WLEModality::isDevice( WLEModality::Enum val )
@@ -88,7 +90,7 @@ inline bool WLEModality::isLocalizeable( WLEModality::Enum val )
     return val == WLEModality::EEG || val == WLEModality::MEG;
 }
 
-inline std::ostream& operator<<( std::ostream &strm, const WLEModality::Enum& obj )
+inline std::ostream& WLEModality::operator<<( std::ostream &strm, const WLEModality::Enum& obj )
 {
     strm << WLEModality::name( obj );
     return strm;

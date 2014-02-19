@@ -52,9 +52,11 @@ namespace WLEMEGGeneralCoilType
      * \return A string.
      */
     std::string name( Enum val );
+
+    std::ostream& operator<<( std::ostream &strm, const WLEMEGGeneralCoilType::Enum& obj );
 }
 
-inline std::ostream& operator<<( std::ostream &strm, const WLEMEGGeneralCoilType::Enum& obj )
+inline std::ostream& WLEMEGGeneralCoilType::operator<<( std::ostream &strm, const WLEMEGGeneralCoilType::Enum& obj )
 {
     strm << WLEMEGGeneralCoilType::name( obj );
     return strm;

@@ -127,11 +127,3 @@ void WLEMMBemBoundary::setConductivityUnit( WLEUnit::Enum unit )
 {
     m_conductivityUnit = unit;
 }
-
-std::ostream& operator<<( std::ostream &strm, const WLEMMBemBoundary& obj )
-{
-    strm << WLEMMBemBoundary::CLASS << ": type=" << obj.getBemType();
-    strm << ", vertices=" << obj.getVertex()->size();
-    strm << ", faces=" << obj.getFaces()->size();
-    return strm;
-}

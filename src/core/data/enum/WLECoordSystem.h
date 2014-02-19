@@ -71,9 +71,10 @@ namespace WLECoordSystem
      */
     Enum fromFIFF( WLFiffLib::coord_system_t coord );
 
+    std::ostream& operator<<( std::ostream &strm, const WLECoordSystem::Enum& obj );
 } /* namespace WLECoordSystem */
 
-inline std::ostream& operator<<( std::ostream &strm, const WLECoordSystem::Enum& obj )
+inline std::ostream& WLECoordSystem::operator<<( std::ostream &strm, const WLECoordSystem::Enum& obj )
 {
     strm << WLECoordSystem::name( obj );
     return strm;

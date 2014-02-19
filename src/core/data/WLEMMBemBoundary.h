@@ -92,6 +92,12 @@ private:
     WLEUnit::Enum m_conductivityUnit;
 };
 
-std::ostream& operator<<( std::ostream &strm, const WLEMMBemBoundary& obj );
+inline std::ostream& operator<<( std::ostream &strm, const WLEMMBemBoundary& obj )
+{
+    strm << WLEMMBemBoundary::CLASS << ": type=" << obj.getBemType();
+    strm << ", vertices=" << obj.getVertex()->size();
+    strm << ", faces=" << obj.getFaces()->size();
+    return strm;
+}
 
 #endif /* WLEMMBEMBOUNDARY_H_ */

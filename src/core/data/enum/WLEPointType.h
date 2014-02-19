@@ -72,9 +72,11 @@ namespace WLEPointType
      * \return WLEPointType::Enum or WLEPointType::UNKNOWN if unknown.
      */
     Enum fromFIFF( WLFiffLib::point_type_t val );
+
+    std::ostream& operator<<( std::ostream &strm, const WLEPointType::Enum& obj );
 }
 
-inline std::ostream& operator<<( std::ostream &strm, const WLEPointType::Enum& obj )
+inline std::ostream& WLEPointType::operator<<( std::ostream &strm, const WLEPointType::Enum& obj )
 {
     strm << WLEPointType::name( obj );
     return strm;

@@ -92,6 +92,10 @@ private:
 /**
  * Overload for streamed output.
  */
-std::ostream& operator<<( std::ostream &strm, const WLDigPoint& obj );
+inline std::ostream& operator<<( std::ostream &strm, const WLDigPoint& obj )
+{
+    strm << obj.CLASS << ": kind=" << obj.getKind() << "; ident=" << obj.getIdent() << "; point=(" << obj.getPoint() << ")";
+    return strm;
+}
 
 #endif  // WLDIGPOINT_H_

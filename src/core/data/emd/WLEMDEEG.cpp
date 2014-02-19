@@ -100,12 +100,3 @@ void WLEMDEEG::setFaces( WLArrayList< WVector3i >::SPtr faces )
 {
     m_faces = faces;
 }
-
-std::ostream& operator<<( std::ostream &strm, const WLEMDEEG& obj )
-{
-    const WLEMData& emd = static_cast< const WLEMData& >( obj );
-    strm << emd;
-    strm << ", positions=" << obj.getChannelPositions3d()->size();
-    strm << ", faces=" << obj.getFaces()->size();
-    return strm;
-}

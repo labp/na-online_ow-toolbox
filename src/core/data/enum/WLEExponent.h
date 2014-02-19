@@ -82,9 +82,11 @@ namespace WLEExponent
      * \return WLEExponent::Enum or WLEExponent::BASE if unknown.
      */
     Enum fromFIFF( WLFiffLib::unitm_t unitm );
+
+    std::ostream& operator<<( std::ostream &strm, const WLEExponent::Enum& obj );
 } /* namespace WLEExponent */
 
-inline std::ostream& operator<<( std::ostream &strm, const WLEExponent::Enum& obj )
+inline std::ostream& WLEExponent::operator<<( std::ostream &strm, const WLEExponent::Enum& obj )
 {
     strm << WLEExponent::name( obj );
     return strm;

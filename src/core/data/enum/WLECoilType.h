@@ -137,6 +137,8 @@ namespace WLECoilType
      * \return WLECoilType::Enum or WLECoilType::NONE if unknown.
      */
     Enum fromFIFF( WLFiffLib::coil_type_t val );
+
+    std::ostream& operator<<( std::ostream &strm, const WLECoilType::Enum& obj );
 }
 
 inline bool WLECoilType::isEEG( WLECoilType::Enum val )
@@ -163,7 +165,7 @@ inline bool WLECoilType::isGradiometer( WLECoilType::Enum val )
                     || WLECoilType::VV_PLANAR_T3 == val;
 }
 
-inline std::ostream& operator<<( std::ostream &strm, const WLECoilType::Enum& obj )
+inline std::ostream& WLECoilType::operator<<( std::ostream &strm, const WLECoilType::Enum& obj )
 {
     strm << WLECoilType::name( obj );
     return strm;
