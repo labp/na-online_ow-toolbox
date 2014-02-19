@@ -8,6 +8,7 @@ syntax: glob
 syntax: regexp
 
 ^CMakeFiles
+^CMakeCache.txt
 ^doc/core/html
 ^doc/developer/html
 ^doc/developer/man
