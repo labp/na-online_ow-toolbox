@@ -43,6 +43,7 @@
 #include "core/gui/drawable/WLEMDDrawable2DMultiChannel.h"
 #include "core/gui/drawable/WLEMDDrawable3D.h"
 #include "core/gui/drawable/WLEMDDrawable3DEEG.h"
+#include "core/gui/drawable/WLEMDDrawable3DMEG.h"
 #include "core/gui/events/WL2DChannelScrollHandler.h"
 #include "core/gui/events/WLMarkTimePositionHandler.h"
 #include "core/gui/events/WLResizeHandler.h"
@@ -319,11 +320,20 @@ void WLModuleDrawable::callbackChannelHeightChanged()
 void WLModuleDrawable::callbackLabelsChanged()
 {
     // TODO(pieloth): what is with meg?
-    WLEMDDrawable3DEEG::SPtr drawable = m_drawable3D->getAs< WLEMDDrawable3DEEG >();
-    if( drawable )
+    WLEMDDrawable3DEEG::SPtr drawableEEG = m_drawable3D->getAs< WLEMDDrawable3DEEG >();
+    if( drawableEEG )
     {
-        drawable->setLabels( m_labelsOn->get() );
-        drawable->redraw();
+        drawableEEG->setLabels( m_labelsOn->get() );
+        drawableEEG->redraw();
+        return;
+    }
+
+    WLEMDDrawable3DMEG::SPtr drawableMEG = m_drawable3D->getAs< WLEMDDrawable3DMEG >();
+    if( drawableMEG )
+    {
+        drawableMEG->setLabels( m_labelsOn->get() );
+        drawableMEG->redraw();
+        return;
     }
 }
 
@@ -372,7 +382,7 @@ void WLModuleDrawable::viewUpdate( WLEMMeasurement::SPtr emm )
         return;
     }
 
-    // Set 2D time grid
+// Set 2D time grid
     if( m_range < 0 )
     {
         WLEModality::Enum modality = this->getViewModality();
