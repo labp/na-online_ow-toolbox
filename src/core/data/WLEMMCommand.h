@@ -25,6 +25,7 @@
 #ifndef WLEMMCOMMAND_H_
 #define WLEMMCOMMAND_H_
 
+#include <ostream>
 #include <string>
 
 #include <boost/any.hpp>
@@ -50,6 +51,8 @@ public:
      * Abbreviation for const shared pointer.
      */
     typedef boost::shared_ptr< const WLEMMCommand > ConstSPtr;
+
+    static const std::string CLASS;
 
     /**
      * Definition for the Command.MISC identifier.
@@ -197,6 +200,12 @@ template< typename T >
 T WLEMMCommand::castParameter( const ParamT& param )
 {
     return boost::any_cast< T >( param );
+}
+
+inline std::ostream& operator<<( std::ostream &strm, const WLEMMCommand& obj )
+{
+    strm << obj.CLASS << ": cmd=" << obj.getCommand() << "; emm=" << obj.hasEmm();
+    return strm;
 }
 
 #endif  // WLEMMCOMMAND_H_

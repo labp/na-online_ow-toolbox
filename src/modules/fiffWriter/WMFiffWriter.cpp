@@ -195,7 +195,7 @@ void WMFiffWriter::handleFileClose()
 
 bool WMFiffWriter::processCompute( WLEMMeasurement::SPtr emm )
 {
-    bool rc = false;
+    bool rc = true;
 
     if( m_fiffWriter )
     {
