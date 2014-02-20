@@ -113,6 +113,16 @@ inline bool WLEMMSubject::hasLeadfield( WLEModality::Enum modality ) const
     return m_leadfields.find( modality ) != m_leadfields.end();
 }
 
-std::ostream& operator<<( std::ostream &strm, const WLEMMSubject& obj );
+inline std::ostream& operator<<( std::ostream &strm, const WLEMMSubject& obj )
+{
+    strm << WLEMMSubject::CLASS << ": ";
+    strm << "surface[" << WLEMMSurface::Hemisphere::LEFT << "]=" << obj.hasSurface( WLEMMSurface::Hemisphere::LEFT );
+    strm << ", surface[" << WLEMMSurface::Hemisphere::RIGHT << "]=" << obj.hasSurface( WLEMMSurface::Hemisphere::RIGHT );
+    strm << ", leadfield[EEG]=" << obj.hasLeadfield( WLEModality::EEG );
+    strm << ", leadfield[MEG]=" << obj.hasLeadfield( WLEModality::MEG );
+    strm << ", BEMs=" << obj.getBemBoundaries()->size();
+    strm << ", isotrak=" << obj.getIsotrak()->size();
+    return strm;
+}
 
 #endif  // WLEMMSUBJECT_H

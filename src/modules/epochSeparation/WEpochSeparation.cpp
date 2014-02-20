@@ -166,7 +166,7 @@ size_t WEpochSeparation::extract( const WLEMMeasurement::SPtr emmIn )
         }
         catch( const WException& e )
         {
-            wlog::info(CLASS) << "Skipping found epoch! Not enough presamples.";
+            wlog::info( CLASS ) << "Skipping found epoch! Not enough presamples.";
         }
     }
 
@@ -251,12 +251,9 @@ WEpochSeparation::LeftEpoch::SPtr WEpochSeparation::processPreSamples( size_t eI
 
     // Prepare event channels //
     const size_t eChannels = emm->getEventChannelCount();
-    emmEpoch->getEventChannels()->resize( eChannels );
-    for( size_t chan = 0; chan < eChannels; ++chan )
-    {
-        emmEpoch->getEventChannel( chan ).reserve( m_preSamples + 1 + m_postSamples );
-        WAssertDebug( emmEpoch->getEventChannel( chan ).size() == 0, "emmEpoch->getEventChannel( chan ).size() == 0" );
-    }
+    emmEpoch->getEventChannels()->resize( 1 );
+    emmEpoch->getEventChannel( 0 ).reserve( m_preSamples + 1 + m_postSamples );
+    WAssertDebug( emmEpoch->getEventChannel( 0 ).size() == 0, "emmEpoch->getEventChannel( chan ).size() == 0" );
 
     // Initialize indices //
     // pStart: Index for first samples in first packet
@@ -293,12 +290,9 @@ WEpochSeparation::LeftEpoch::SPtr WEpochSeparation::processPreSamples( size_t eI
 
         // Copy event channels //
         boost::shared_ptr< WLEMMeasurement::EDataT > events = emmEpoch->getEventChannels();
-        WAssertDebug( emm->getEventChannelCount() == emmEpoch->getEventChannelCount(), "Different event channel count!" );
-        for( size_t chan = 0; chan < emmEpoch->getEventChannelCount(); ++chan )
-        {
-            events->at( chan ).insert( events->at( chan ).end(), emm->getEventChannel( chan ).begin() + pStart,
-                            emm->getEventChannel( chan ).begin() + pStart + offset );
-        }
+        WAssertDebug( emmEpoch->getEventChannelCount() <= emm->getEventChannelCount(), "Different event channel count!" );
+        events->at( 0 ).insert( events->at( 0 ).end(), emm->getEventChannel( m_channel ).begin() + pStart,
+                        emm->getEventChannel( m_channel ).begin() + pStart + offset );
 
         pStart = 0;
         samplesCopied += offset;
@@ -346,12 +340,9 @@ bool WEpochSeparation::processPostSamples( LeftEpoch::SPtr leftEpoch, WLEMMeasur
 
     boost::shared_ptr< WLEMMeasurement::EDataT > events = emm->getEventChannels();
     boost::shared_ptr< WLEMMeasurement::EDataT > eventsEpoch = emmEpoch->getEventChannels();
-    WAssertDebug( emm->getEventChannelCount() == emmEpoch->getEventChannelCount(), "Different event channel count!" );
-    for( size_t chan = 0; chan < emmEpoch->getEventChannelCount(); ++chan )
-    {
-        eventsEpoch->at( chan ).insert( eventsEpoch->at( chan ).end(), events->at( chan ).begin() + pStart,
-                        events->at( chan ).begin() + pStart + offset );
-    }
+    WAssertDebug( emmEpoch->getEventChannelCount() <= emm->getEventChannelCount(), "Different event channel count!" );
+    eventsEpoch->at( 0 ).insert( eventsEpoch->at( 0 ).end(), events->at( m_channel ).begin() + pStart,
+                    events->at( m_channel ).begin() + pStart + offset );
 
     samplesLeft -= offset;
     leftEpoch->m_leftSamples = samplesLeft;

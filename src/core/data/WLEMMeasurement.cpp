@@ -24,7 +24,6 @@
 
 #include <algorithm>
 #include <cstddef>
-#include <iostream>
 #include <set>
 #include <string>
 #include <utility>
@@ -337,17 +336,4 @@ const WLMatrix4::Matrix4T& WLEMMeasurement::getFidToACPCTransformation() const
 void WLEMMeasurement::setFidToACPCTransformation( const WLMatrix4::Matrix4T& mat )
 {
     m_transFidToACPC = mat;
-}
-
-std::ostream& operator<<( std::ostream &strm, const WLEMMeasurement& obj )
-{
-    strm << WLEMMeasurement::CLASS << ": modalities=[";
-    for( size_t m = 0; m < obj.getModalityCount(); ++m )
-    {
-        strm << *obj.getModality( m ) << ", ";
-    }
-    strm << "]";
-    strm << ", digPoints=" << obj.getDigPoints()->size();
-    strm << ", eventChannels=" << obj.getEventChannelCount();
-    return strm;
 }

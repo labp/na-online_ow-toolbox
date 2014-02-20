@@ -83,9 +83,3 @@ bool WLDigPoint::checkCardinal( WLECardinalPoint::Enum ident ) const
 {
     return m_kind == WLEPointType::CARDINAL && ident == m_ident;
 }
-
-std::ostream& operator<<( std::ostream &strm, const WLDigPoint& obj )
-{
-    strm << obj.CLASS << ": kind=" << obj.getKind() << "; ident=" << obj.getIdent() << "; point=(" << obj.getPoint() << ")";
-    return strm;
-}

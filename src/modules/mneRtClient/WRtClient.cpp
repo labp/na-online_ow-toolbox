@@ -42,6 +42,7 @@
 #include "core/data/WLDataTypes.h"
 #include "core/data/WLDigPoint.h"
 #include "core/data/enum/WLEPointType.h"
+#include "core/dataFormat/fiff/WLFiffLib.h"
 #include "core/util/WLGeometry.h"
 #include "WRtClient.h"
 
@@ -55,6 +56,7 @@ WRtClient::WRtClient( const std::string& ip_address, const std::string& alias ) 
     m_clientId = -1;
     m_conSelected = -1;
     m_blockSize = 500;
+    m_applyScaling = false;
 
     m_chPosEeg.reset( new ChannelsPositionsT );
     m_facesEeg.reset( new FacesT );
@@ -111,6 +113,11 @@ bool WRtClient::connect()
 bool WRtClient::prepareStreaming()
 {
     wlog::debug( CLASS ) << "prepareStreaming() called!";
+
+    wlog::debug( CLASS ) << "Set buffer size.";
+    ( *m_rtCmdClient )["bufsize"].pValues()[0] = QVariant( m_blockSize );
+    ( *m_rtCmdClient )["bufsize"].send();
+
     // Request measurement information
     wlog::debug( CLASS ) << "Requesting measurement information.";
     ( *m_rtCmdClient )["measinfo"].pValues()[0] = QVariant( m_clientId );
@@ -126,15 +133,27 @@ bool WRtClient::prepareStreaming()
     }
     wlog::info( CLASS ) << "Measurement information received.";
 
+    // Preparing prototype
     WLEMMeasurement* emm = new WLEMMeasurement();
     if( !preparePrototype( emm ) )
     {
-        wlog::error( CLASS ) << "Could not read measurement information!";
+        wlog::error( CLASS ) << "Could not prepare EMM prototype!";
         free( emm );
         return false;
     }
     m_emmPrototype.reset( emm );
 
+    // Pre-calculate scaling factors
+    wlog::debug( CLASS ) << "Pre-calculate scaling factors.";
+    const WLFiffLib::nchan_t nchan = m_fiffInfo->nchan;
+    m_scaleFactors.clear();
+    m_scaleFactors.reserve( nchan );
+    for( WLFiffLib::nchan_t ch = 0; ch < nchan; ++ch )
+    {
+        m_scaleFactors.push_back( m_fiffInfo->chs[ch].range * m_fiffInfo->chs[ch].cal );
+    }
+
+    // Reading picks: EEG, MEG, Stimuli
     m_picksMeg = m_fiffInfo->pick_types( true, false, false );
     wlog::debug( CLASS ) << "picks meg: " << m_picksMeg.size();
     if( m_picksMeg.size() > 0 )
@@ -187,7 +206,7 @@ bool WRtClient::prepareStreaming()
     return m_picksEeg.size() > 0 || m_picksMeg.size() > 0;
 }
 
-bool WRtClient::isConnected()
+bool WRtClient::isConnected() const
 {
     return m_isConnected;
 }
@@ -243,10 +262,6 @@ bool WRtClient::start()
         return false;
     }
 
-    wlog::debug( CLASS ) << "Set buffer size.";
-    ( *m_rtCmdClient )["bufsize"].pValues()[0] = QVariant( m_blockSize );
-    ( *m_rtCmdClient )["bufsize"].send();
-
     wlog::debug( CLASS ) << "Start streaming ...";
     ( *m_rtCmdClient )["start"].pValues()[0] = QVariant( m_clientId );
     ( *m_rtCmdClient )["start"].send();
@@ -280,9 +295,19 @@ bool WRtClient::stop()
     return true;
 }
 
-bool WRtClient::isStreaming()
+bool WRtClient::isStreaming() const
 {
     return m_isStreaming;
+}
+
+bool WRtClient::isScalingApplied() const
+{
+    return m_applyScaling;
+}
+
+void WRtClient::setScaling( bool applyScaling )
+{
+    m_applyScaling = applyScaling;
 }
 
 int WRtClient::getConnectors( std::map< int, std::string >* const conMap )
@@ -335,7 +360,7 @@ void WRtClient::setBlockSize( int blockSize )
     m_blockSize = blockSize;
 }
 
-int WRtClient::getBlockSize()
+int WRtClient::getBlockSize() const
 {
     return m_blockSize;
 }
@@ -430,9 +455,13 @@ bool WRtClient::readEmd( WLEMData* const emd, const Eigen::RowVectorXi& picks, c
     for( Eigen::RowVectorXi::Index row = 0; row < rows; ++row )
     {
         WAssertDebug( picks[row] < rawData.rows(), "Selected channel index out of raw data boundary!" );
-        for( Eigen::RowVectorXi::Index col = 0; col < cols; ++col )
+        if( m_applyScaling )
         {
-            emdData( row, col ) = ( WLEMData::ScalarT )rawData( picks[row], col );
+            emdData.row( row ) = ( rawData.row( picks[row] ) * m_scaleFactors[picks[row]] ).cast< WLEMData::ScalarT >();
+        }
+        else
+        {
+            emdData.row( row ) = rawData.row( picks[row] ).cast< WLEMData::ScalarT >();
         }
     }
 
@@ -629,64 +658,72 @@ bool WRtClient::readChannelPositions( WLEMData* const emd, const Eigen::RowVecto
 {
     wlog::debug( CLASS ) << "readChannelPositions() called!";
 
-    QList< FIFFLIB::FiffChInfo > chInfos = m_fiffInfo->chs;
-// EEG
-    if( picks.size() > 0 )
-    {
-        ChannelsPositionsSPtr positions( new ChannelsPositionsT );
-        positions->reserve( picks.size() );
-        const WPosition zero = WPosition::zero();
-        for( Eigen::RowVectorXi::Index row = 0; row < picks.size(); ++row )
-        {
-            WAssertDebug( picks[row] < chInfos.size(), "Selected channel index out of chInfos boundary!" );
-            const Eigen::Matrix< double, 3, 2, Eigen::DontAlign >& chPos = chInfos.at( ( int )picks[row] ).eeg_loc;
-            const WPosition pos( chPos( 0, 0 ), chPos( 1, 0 ), chPos( 2, 0 ) );
-            positions->push_back( pos );
-        }
-
-        WLEMDEEG* eeg = dynamic_cast< WLEMDEEG* >( emd );
-        if( eeg != NULL )
-        {
-            if( !m_chPosEeg->empty() )
-            {
-                wlog::info( CLASS ) << "Using user-defined EEG positions and faces.";
-                eeg->setChannelPositions3d( m_chPosEeg );
-                return true;
-            }
-            else
-                if( !positions->empty() )
-                {
-                    eeg->setChannelPositions3d( positions );
-                    return true;
-                }
-                else
-                {
-                    wlog::error( CLASS ) << "No EEG positions found!";
-                    return false;
-                }
-        }
-
-        WLEMDMEG* meg = dynamic_cast< WLEMDMEG* >( emd );
-        if( meg != NULL )
-        {
-            if( !positions->empty() )
-            {
-                meg->setChannelPositions3d( positions );
-                return true;
-            }
-            else
-            {
-                wlog::error( CLASS ) << "No MEG positions found!";
-                return false;
-            }
-        }
-        return false;
-    }
-    else
+    if( picks.size() == 0 )
     {
         wlog::error( CLASS ) << "No picks!";
         return false;
     }
+
+    QList< FIFFLIB::FiffChInfo > chInfos = m_fiffInfo->chs;
+    ChannelsPositionsSPtr positions( new ChannelsPositionsT );
+    positions->reserve( picks.size() );
+
+    WLEMDEEG* eeg = dynamic_cast< WLEMDEEG* >( emd );
+    if( eeg != NULL )
+    {
+        if( !m_chPosEeg->empty() )
+        {
+            wlog::info( CLASS ) << "Using user-defined EEG positions and faces.";
+            eeg->setChannelPositions3d( m_chPosEeg );
+            return true;
+        }
+        else
+        {
+            for( Eigen::RowVectorXi::Index row = 0; row < picks.size(); ++row )
+            {
+                WAssertDebug( picks[row] < chInfos.size(), "Selected channel index out of chInfos boundary!" );
+                const Eigen::Matrix< double, 3, 2, Eigen::DontAlign >& chPos = chInfos.at( ( int )picks[row] ).eeg_loc;
+                const WPosition pos( chPos( 0, 0 ), chPos( 1, 0 ), chPos( 2, 0 ) );
+                positions->push_back( pos );
+            }
+
+            if( !positions->empty() )
+            {
+                eeg->setChannelPositions3d( positions );
+                return true;
+            }
+            else
+            {
+                wlog::error( CLASS ) << "No EEG positions found!";
+                return false;
+            }
+        }
+    }
+
+    WLEMDMEG* meg = dynamic_cast< WLEMDMEG* >( emd );
+    if( meg != NULL )
+    {
+        for( Eigen::RowVectorXi::Index row = 0; row < picks.size(); ++row )
+        {
+            WAssertDebug( picks[row] < chInfos.size(), "Selected channel index out of chInfos boundary!" );
+            const Eigen::Matrix< double, 12, 1, Eigen::DontAlign >& chPos = chInfos.at( ( int )picks[row] ).loc;
+            const WPosition pos( chPos( 0, 0 ), chPos( 1, 0 ), chPos( 2, 0 ) );
+            positions->push_back( pos );
+        }
+
+        if( !positions->empty() )
+        {
+            meg->setChannelPositions3d( positions );
+            return true;
+        }
+        else
+        {
+            wlog::error( CLASS ) << "No MEG positions found!";
+            return false;
+        }
+    }
+
+    return false;
 }
 
 bool WRtClient::readChannelFaces( WLEMData* const emd, const Eigen::RowVectorXi& picks )

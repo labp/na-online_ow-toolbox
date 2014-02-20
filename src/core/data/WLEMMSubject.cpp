@@ -23,7 +23,6 @@
 //---------------------------------------------------------------------------
 
 #include <map>
-#include <ostream>
 #include <string>
 
 #include <core/common/exceptions/WNotFound.h>
@@ -167,16 +166,4 @@ WLList< WLEMMBemBoundary::SPtr >::ConstSPtr WLEMMSubject::getBemBoundaries() con
 void WLEMMSubject::setBemBoundaries( WLList< WLEMMBemBoundary::SPtr >::SPtr bemBoundaries )
 {
     m_bemBoundaries = bemBoundaries;
-}
-
-std::ostream& operator<<( std::ostream &strm, const WLEMMSubject& obj )
-{
-    strm << WLEMMSubject::CLASS << ": ";
-    strm << "surface[" << WLEMMSurface::Hemisphere::LEFT << "]=" << obj.hasSurface( WLEMMSurface::Hemisphere::LEFT );
-    strm << ", surface[" << WLEMMSurface::Hemisphere::RIGHT << "]=" << obj.hasSurface( WLEMMSurface::Hemisphere::RIGHT );
-    strm << ", leadfield[EEG]=" << obj.hasLeadfield( WLEModality::EEG );
-    strm << ", leadfield[MEG]=" << obj.hasLeadfield( WLEModality::MEG );
-    strm << ", BEMs=" << obj.getBemBoundaries()->size();
-    strm << ", isotrak=" << obj.getIsotrak()->size();
-    return strm;
 }

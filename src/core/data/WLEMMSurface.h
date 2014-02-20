@@ -96,6 +96,12 @@ private:
     WLArrayList< WVector3i >::SPtr m_faces;
 };
 
-std::ostream& operator<<( std::ostream &strm, const WLEMMSurface& obj );
+inline std::ostream& operator<<( std::ostream &strm, const WLEMMSurface& obj )
+{
+    strm << WLEMMSurface::CLASS << ": hemisphere=" << obj.getHemisphere();
+    strm << ", vertices=" << obj.getVertex()->size();
+    strm << ", faces=" << obj.getFaces()->size();
+    return strm;
+}
 
 #endif  // WLEMMSURFACE_H_

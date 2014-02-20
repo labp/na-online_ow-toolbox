@@ -84,9 +84,10 @@ namespace WLEBemType
      */
     Enum fromBND( std::string bemName );
 
+    std::ostream& operator<<( std::ostream &strm, const WLEBemType::Enum& obj );
 } /* namespace WLEBemType */
 
-inline std::ostream& operator<<( std::ostream &strm, const WLEBemType::Enum& obj )
+inline std::ostream& WLEBemType::operator<<( std::ostream &strm, const WLEBemType::Enum& obj )
 {
     strm << WLEBemType::name( obj );
     return strm;

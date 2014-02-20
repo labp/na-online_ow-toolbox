@@ -106,15 +106,21 @@ private:
 
     WPropFilename m_propFile;
 
+    WPropTrigger m_trgClose;
+
     WPropString m_propFileStatus;
 
     bool handleFileChanged();
+
+    void handleFileClose();
 
     WWriterFiff::SPtr m_fiffWriter;
 
     static const std::string ERROR;
 
     static const std::string OPEN;
+
+    static const std::string CLOSED;
 
     static const std::string NONE;
 };

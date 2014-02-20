@@ -73,9 +73,11 @@ namespace WLEUnit
      * \return WLEUnit::Enum or WLEUnit::NONE if unknown.
      */
     Enum fromFIFF( WLFiffLib::unit_t unit );
+
+    std::ostream& operator<<( std::ostream &strm, const WLEUnit::Enum& obj );
 }
 
-inline std::ostream& operator<<( std::ostream &strm, const WLEUnit::Enum& obj )
+inline std::ostream& WLEUnit::operator<<( std::ostream &strm, const WLEUnit::Enum& obj )
 {
     strm << WLEUnit::name( obj );
     return strm;

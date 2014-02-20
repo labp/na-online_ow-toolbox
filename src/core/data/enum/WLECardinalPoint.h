@@ -61,9 +61,11 @@ namespace WLECardinalPoint
      * \return A string.
      */
     std::string name( Enum val );
+
+    std::ostream& operator<<( std::ostream &strm, const WLECardinalPoint::Enum& obj );
 }
 
-inline std::ostream& operator<<( std::ostream &strm, const WLECardinalPoint::Enum& obj )
+inline std::ostream& WLECardinalPoint::operator<<( std::ostream &strm, const WLECardinalPoint::Enum& obj )
 {
     strm << WLECardinalPoint::name( obj );
     return strm;

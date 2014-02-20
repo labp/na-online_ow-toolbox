@@ -305,6 +305,11 @@ protected:
     ChannelListSPtr m_badChannels; /**< List of the bad channels. */
 };
 
-std::ostream& operator<<( std::ostream &strm, const WLEMData& obj );
+inline std::ostream& operator<<( std::ostream &strm, const WLEMData& obj )
+{
+    strm << WLEMData::CLASS << "::" << WLEModality::name( obj.getModalityType() ) << ": data=" << obj.getNrChans() << "x"
+                    << obj.getSamplesPerChan();
+    return strm;
+}
 
 #endif  // WLEMDATA_H

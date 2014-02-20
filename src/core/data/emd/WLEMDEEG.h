@@ -97,6 +97,13 @@ private:
     WLArrayList< WVector3i >::SPtr m_faces;
 };
 
-std::ostream& operator<<( std::ostream &strm, const WLEMDEEG& obj );
+inline std::ostream& operator<<( std::ostream &strm, const WLEMDEEG& obj )
+{
+    const WLEMData& emd = static_cast< const WLEMData& >( obj );
+    strm << emd;
+    strm << ", positions=" << obj.getChannelPositions3d()->size();
+    strm << ", faces=" << obj.getFaces()->size();
+    return strm;
+}
 
 #endif  // WLEMDEEG_H

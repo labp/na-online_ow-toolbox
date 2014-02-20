@@ -215,8 +215,6 @@ private:
      */
 };
 
-std::ostream& operator<<( std::ostream &strm, const WLEMDMEG& obj );
-
 inline WLEMEGGeneralCoilType::Enum WLEMDMEG::getChannelType( size_t channelId ) const
 {
     WAssert( channelId < m_data->size(), "Index out of bounds!" );
@@ -230,6 +228,18 @@ inline WLEMEGGeneralCoilType::Enum WLEMDMEG::getChannelType( size_t channelId ) 
         return WLEMEGGeneralCoilType::GRADIOMETER;
 
     }
+}
+
+inline std::ostream& operator<<( std::ostream &strm, const WLEMDMEG& obj )
+{
+    const WLEMData& emd = static_cast< const WLEMData& >( obj );
+    strm << emd;
+    strm << ", positions=" << obj.getChannelPositions3d()->size();
+    strm << ", faces=" << obj.getFaces()->size();
+    strm << ", ex=" << obj.getEx()->size();
+    strm << ", ey=" << obj.getEy()->size();
+    strm << ", ez=" << obj.getEz()->size();
+    return strm;
 }
 
 #endif  // WLEMDMEG_H
