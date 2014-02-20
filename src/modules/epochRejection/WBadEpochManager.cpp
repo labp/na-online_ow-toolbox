@@ -51,7 +51,22 @@ WBadEpochManager::CircBuffSPtr WBadEpochManager::getBuffer()
     return m_buffer;
 }
 
+size_t WBadEpochManager::getBufferSize()
+{
+    return m_buffer->capacity();
+}
+
 void WBadEpochManager::setBuffer( WBadEpochManager::CircBuffSPtr buffer )
 {
     m_buffer = buffer;
+}
+
+void WBadEpochManager::resizeBuffer( size_t size )
+{
+    m_buffer->set_capacity( size );
+}
+
+void WBadEpochManager::reset()
+{
+    m_buffer->clear();
 }

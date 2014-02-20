@@ -27,10 +27,8 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "core/data/enum/WLEModality.h"
 #include "core/data/WLEMMeasurement.h"
 
-#include "WBadChannelManager.h"
 #include "WEpochRejection.h"
 
 class WEpochRejectionSingle: public WEpochRejection
@@ -61,15 +59,10 @@ public:
      */
     bool doRejection( const WLEMMeasurement::ConstSPtr emm );
 
-    WBadChannelManager::ChannelMap_SPtr getRejectedMap();
-
-protected:
-
+    /**
+     * Method to reset the process parameter.
+     */
     void initRejection();
-
-    void noteBadChannel( const WLEModality::Enum&, const size_t );
-
-    WBadChannelManager::ChannelMap_SPtr m_rejectedMap;
 
 };
 

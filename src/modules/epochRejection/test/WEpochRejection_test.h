@@ -73,7 +73,7 @@ public:
     {
         WLEMMeasurement::SPtr emm( new WLEMMeasurement() );
         WEpochRejectionTotal::SPtr reject( new WEpochRejectionTotal() );
-        reject->setThresholds( THRESHOLD_EEG, THRESHOLD_EOG, THRESHOLD_MEG_GRAD, THRESHOLD_MEG_MAG );
+        //reject->setThresholds( THRESHOLD_EEG, THRESHOLD_EOG, THRESHOLD_MEG_GRAD, THRESHOLD_MEG_MAG );
 
         WLEMDEEG::SPtr modality( new WLEMDEEG() );
         emm->addModality( m_helper->createModality( 10, 10, 2, THRESHOLD_EEG, modality ) );
@@ -91,7 +91,7 @@ public:
         WEpochRejectionTotal *reject( new WEpochRejectionTotal() );
 
         // define thresholds
-        reject->setThresholds( THRESHOLD_EEG, THRESHOLD_EOG, THRESHOLD_MEG_GRAD, THRESHOLD_MEG_MAG );
+        //reject->setThresholds( THRESHOLD_EEG, THRESHOLD_EOG, THRESHOLD_MEG_GRAD, THRESHOLD_MEG_MAG );
 
         // add a single modality to the data set
         WLEMDEEG::SPtr modality( new WLEMDEEG() );
@@ -111,7 +111,7 @@ public:
         WEpochRejectionTotal *reject( new WEpochRejectionTotal() );
 
         // define thresholds
-        reject->setThresholds( THRESHOLD_EEG, THRESHOLD_EOG, THRESHOLD_MEG_GRAD, THRESHOLD_MEG_MAG );
+        //reject->setThresholds( THRESHOLD_EEG, THRESHOLD_EOG, THRESHOLD_MEG_GRAD, THRESHOLD_MEG_MAG );
 
         WLEMDEEG::SPtr eegMod( new WLEMDEEG() );
         WLEMDEOG::SPtr eogMod( new WLEMDEOG() );
@@ -133,7 +133,7 @@ public:
         WEpochRejectionTotal *reject( new WEpochRejectionTotal() );
 
         // define thresholds
-        reject->setThresholds( THRESHOLD_EEG, THRESHOLD_EOG, THRESHOLD_MEG_GRAD, THRESHOLD_MEG_MAG );
+        //reject->setThresholds( THRESHOLD_EEG, THRESHOLD_EOG, THRESHOLD_MEG_GRAD, THRESHOLD_MEG_MAG );
 
         WLEMDEEG::SPtr eegMod( new WLEMDEEG() );
         WLEMDEOG::SPtr eogMod( new WLEMDEOG() );

@@ -48,7 +48,7 @@ public:
      * @param modalityType The modality.
      * @param value The threshold.
      */
-    WThreshold(WLEModality::Enum modalityType, double value);
+    WThreshold( WLEModality::Enum modalityType, double value );
 
     /**
      * Gets the threshold value.
@@ -63,6 +63,8 @@ public:
      * @return The modality type.
      */
     WLEModality::Enum getModaliyType() const;
+
+    void setValue( double value );
 
 protected:
 

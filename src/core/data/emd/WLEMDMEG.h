@@ -129,8 +129,8 @@ public:
      */
     static CoilPicksT coilPicks( const WLEMDMEG& meg, WLEMEGGeneralCoilType::Enum type );
 
-    static bool extractCoilModality( WLEMDMEG::SPtr& megOut, WLEMDMEG::ConstSPtr megIn, WLEModality::Enum type,
-                    bool dataOnly = false );
+    static bool extractCoilModality( WLEMDMEG::SPtr& megOut, WLEMDMEG::ConstSPtr megIn, WLEModality::Enum type, bool dataOnly =
+                    false );
 
     /**
      * Returns the channels indices for the requested coil type.
@@ -159,6 +159,15 @@ public:
      * @return New data containing all channels of the requested coil type with out the bad channels.
      */
     DataSPtr getDataBadChannels( WLEMEGGeneralCoilType::Enum type ) const;
+
+    /**
+     * Returns the data of the requested coil type without the bad channels.
+     * Due to the copy effort, getPicks() is recommended for channels wise processing.
+     *
+     * @param type Requested coil type.
+     * @return New data containing all channels of the requested coil type with out the bad channels.
+     */
+    DataSPtr getDataBadChannels( WLEMEGGeneralCoilType::Enum type, ChannelListSPtr badChans ) const;
 
     /**
      * Returns the number of bad channels for the given coil type.

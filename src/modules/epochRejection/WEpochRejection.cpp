@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <boost/foreach.hpp>
+
 #include <core/common/WLogger.h>
 
 #include "core/data/enum/WLEModality.h"
@@ -33,11 +35,9 @@ const std::string WEpochRejection::CLASS = "WEpochRejection";
 
 WEpochRejection::WEpochRejection()
 {
-    m_eegThreshold = 0;
-    m_eogThreshold = 0;
-    m_megGradThreshold = 0;
-    m_megMagThreshold = 0;
     m_rejCount = 0;
+
+    m_thresholdList.reset( new WThreshold::WThreshold_List() );
 }
 
 WEpochRejection::~WEpochRejection()
@@ -45,12 +45,14 @@ WEpochRejection::~WEpochRejection()
 
 }
 
-void WEpochRejection::setThresholds( double eegLevel, double eogLevel, double megGrad, double megMag )
+WThreshold::WThreshold_List_SPtr WEpochRejection::getThresholds()
 {
-    m_eegThreshold = eegLevel;
-    m_eogThreshold = eogLevel;
-    m_megGradThreshold = megGrad;
-    m_megMagThreshold = megMag;
+    return m_thresholdList;
+}
+
+void WEpochRejection::setThresholds( WThreshold::WThreshold_List_SPtr thresholdList )
+{
+    m_thresholdList = thresholdList;
 }
 
 size_t WEpochRejection::getCount() const
@@ -91,35 +93,37 @@ bool WEpochRejection::validModality( WLEModality::Enum modalityType )
 
 double WEpochRejection::getThreshold( WLEModality::Enum modalityType, size_t channelNo )
 {
-    switch( modalityType )
+    if( WLEModality::isMEG( modalityType ) )
     {
-        case WLEModality::EEG:
-            return m_eegThreshold;
-        case WLEModality::EOG:
-            return m_eogThreshold;
-        case WLEModality::MEG:
-            if( ( channelNo % 3 ) == 0 ) // magnetometer
-            {
-                return m_megMagThreshold;
-            }
-            else
-            {
-                return m_megGradThreshold; // gradiometer
-            }
-        case WLEModality::MEG_GRAD:
-            return m_megGradThreshold;
-        case WLEModality::MEG_MAG:
-            return m_megMagThreshold;
-        case WLEModality::MEG_GRAD_MERGED:
-            if( ( channelNo % 3 ) == 0 ) // magnetometer
-            {
-                return m_megMagThreshold;
-            }
-            else
-            {
-                return m_megGradThreshold; // gradiometer
-            }
-        default:
-            return 0;
+        if( ( channelNo % 3 ) == 0 ) // magnetometer
+        {
+            modalityType = WLEModality::MEG_MAG;
+        }
+        else
+        {
+            modalityType = WLEModality::MEG_GRAD; // gradiometer
+        }
+    }
+
+    return getThreshold( modalityType );
+}
+
+double WEpochRejection::getThreshold( WLEModality::Enum modalityType )
+{
+    BOOST_FOREACH(WThreshold threshold, *m_thresholdList.get())
+    {
+        if( threshold.getModaliyType() == modalityType )
+            return threshold.getValue();
+    }
+
+    return 0;
+}
+
+void WEpochRejection::showThresholds()
+{
+
+    BOOST_FOREACH(WThreshold threshold, *m_thresholdList.get())
+    {
+        wlog::debug( CLASS ) << WLEModality::name(threshold.getModaliyType()) << ": " << threshold.getValue();
     }
 }

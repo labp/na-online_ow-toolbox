@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <algorithm>
 #include <sstream>
 #include <string>
 #include <ostream> // std::endl
@@ -49,7 +50,7 @@ WLEMData::WLEMData() :
     m_analogLowPass = UNDEFINED_FREQ;
     m_CoordSystem = WLECoordSystem::UNKNOWN;
 
-	m_badChannels.reset( new ChannelList() );
+    m_badChannels.reset( new ChannelList() );
 }
 
 WLEMData::WLEMData( const WLEMData& emd ) :
@@ -108,6 +109,30 @@ WLEMData::DataSPtr WLEMData::getDataBadChannels() const
     for( it = 0; it < getNrChans(); ++it )
     {
         if( isBadChannel( it ) )
+        {
+            continue;
+        }
+
+        data.row( row++ ) = m_data->row( it );
+    }
+
+    return dataPtr;
+}
+
+WLEMData::DataSPtr WLEMData::getDataBadChannels( ChannelListSPtr badChans ) const
+{
+    if(badChans == 0)
+    {
+        return getDataBadChannels();
+    }
+
+    WLEMData::DataSPtr dataPtr( new WLEMData::DataT( m_data->rows() - m_badChannels->size(), getSamplesPerChan() ) );
+    WLEMData::DataT& data = *dataPtr;
+
+    size_t row = 0, it;
+    for( it = 0; it < getNrChans(); ++it )
+    {
+        if( isBadChannel( it ) || std::find(badChans->begin(), badChans->end(), it) != badChans->end() )
         {
             continue;
         }
@@ -281,7 +306,7 @@ std::string WLEMData::dataToString( const DataT& data, size_t maxChannels, size_
 
 bool WLEMData::isBadChannel( size_t channelNo ) const
 {
-    return !(std::find( m_badChannels->begin(), m_badChannels->end(), channelNo ) == m_badChannels->end());
+    return !( std::find( m_badChannels->begin(), m_badChannels->end(), channelNo ) == m_badChannels->end() );
 }
 
 std::ostream& operator<<( std::ostream &strm, const WLEMData& obj )
