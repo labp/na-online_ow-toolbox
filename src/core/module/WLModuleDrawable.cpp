@@ -262,64 +262,96 @@ void WLModuleDrawable::callbackAutoSensitivityChanged()
 void WLModuleDrawable::callbackColorChanged()
 {
     createColorMap();
-    m_drawable3D->setColorMap( m_colorMap );
-    m_drawable3D->redraw();
+
+    if( m_drawable3D )
+    {
+        m_drawable3D->setColorMap( m_colorMap );
+        m_drawable3D->redraw();
+    }
 }
 
 void WLModuleDrawable::callbackColorModeChanged()
 {
     createColorMap();
-    m_drawable3D->setColorMap( m_colorMap );
-    m_drawable3D->redraw();
+
+    if( m_drawable3D )
+    {
+        m_drawable3D->setColorMap( m_colorMap );
+        m_drawable3D->redraw();
+    }
 }
 
 void WLModuleDrawable::callbackViewModalityChanged()
 {
     viewReset();
 
-    m_drawable2D->redraw();
-    m_drawable3D->redraw();
+    if( m_drawable2D && m_drawable3D )
+    {
+        m_drawable2D->redraw();
+        m_drawable3D->redraw();
+    }
 }
 
 void WLModuleDrawable::callbackMin3DChanged()
 {
     createColorMap();
-    m_drawable3D->setColorMap( m_colorMap );
-    m_drawable3D->redraw();
+
+    if( m_drawable3D )
+    {
+        m_drawable3D->setColorMap( m_colorMap );
+        m_drawable3D->redraw();
+    }
 }
 
 void WLModuleDrawable::callbackMax3DChanged()
 {
     createColorMap();
-    m_drawable3D->setColorMap( m_colorMap );
-    m_drawable3D->redraw();
+
+    if( m_drawable3D )
+    {
+        m_drawable3D->setColorMap( m_colorMap );
+        m_drawable3D->redraw();
+    }
 }
 
 void WLModuleDrawable::callbackAmplitudeScaleChanged()
 {
-    m_drawable2D->setAmplitudeScale( m_amplitudeScale->get() );
-    m_drawable2D->redraw();
+    if( m_drawable2D )
+    {
+        m_drawable2D->setAmplitudeScale( m_amplitudeScale->get() );
+        m_drawable2D->redraw();
+    }
 }
 
 void WLModuleDrawable::callbackTimeRangeChanged()
 {
-    m_drawable2D->setTimeRange( m_timeRange->get() );
-// TODO(pieloth): ?Code definition?
+    if( m_drawable2D )
+    {
+        // TODO(pieloth): specify seconds, samples, ...?
+        m_drawable2D->setTimeRange( m_timeRange->get() );
+    }
 }
 
 void WLModuleDrawable::callbackChannelHeightChanged()
 {
-    WLEMDDrawable2DMultiChannel::SPtr drawable = m_drawable2D->getAs< WLEMDDrawable2DMultiChannel >();
-    if( drawable )
+    if( m_drawable2D )
     {
-        drawable->setChannelHeight( static_cast< WLEMDDrawable::ValueT >( m_channelHeight->get() ) );
-        drawable->redraw();
+        WLEMDDrawable2DMultiChannel::SPtr drawable = m_drawable2D->getAs< WLEMDDrawable2DMultiChannel >();
+        if( drawable )
+        {
+            drawable->setChannelHeight( static_cast< WLEMDDrawable::ValueT >( m_channelHeight->get() ) );
+            drawable->redraw();
+        }
     }
 }
 
 void WLModuleDrawable::callbackLabelsChanged()
 {
-    // TODO(pieloth): what is with meg?
+    if( !m_drawable2D && !m_drawable3D )
+    {
+        return;
+    }
+
     WLEMDDrawable3DEEG::SPtr drawableEEG = m_drawable3D->getAs< WLEMDDrawable3DEEG >();
     if( drawableEEG )
     {
