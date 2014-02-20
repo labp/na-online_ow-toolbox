@@ -31,6 +31,8 @@
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/enum/WLEModality.h"
 
+#include "WThreshold.h"
+
 class WEpochRejection: public boost::enable_shared_from_this< WEpochRejection >
 {
 public:
@@ -48,22 +50,43 @@ public:
     virtual ~WEpochRejection();
 
     /**
-     * This method receives the processing thresholds.
+     * Defines the number of rejections for the current input.
      */
-    virtual void setThresholds( double eegLevel, double eogLevel, double megGrad, double megMag );
+    virtual size_t getCount() const;
+
+    /**
+     * Returns the threshold list.
+     *
+     * @return The threshold list.
+     */
+    virtual WThreshold::WThreshold_List_SPtr getThresholds();
+
+    /**
+     * Sets the threshold list.
+     *
+     * @param thresholdList The threshold list.
+     */
+    virtual void setThresholds( WThreshold::WThreshold_List_SPtr thresholdList );
 
     /**
      * Proceeds the rejection of the all modalities for the given input based on the
-     * user defined level values.
+     * user defined thresholds.
      *
-     * \return A boolean value, which specifies, whether or not the input object has to reject.
+     * \return Boolean value, which specifies, whether or not the input object has to reject.
      */
     virtual bool doRejection( const WLEMMeasurement::ConstSPtr emm ) = 0;
 
     /**
-     * Defines the number of rejections for the current input.
+     * Method to reset the process parameter.
      */
-    virtual size_t getCount() const;
+    virtual void initRejection() = 0;
+
+    /**
+     * Method to separate valid modalities from invalid modalities.
+     *
+     * \return false, if the modality has to skip else true.
+     */
+    bool validModality( WLEModality::Enum modalityType );
 
 protected:
 
@@ -73,47 +96,34 @@ protected:
     WEpochRejection();
 
     /**
-     * Method to separate valid modalities from invalid modalities.
-     *
-     * \return false, if the modality has to skip else true.
-     */
-    virtual bool validModality( WLEModality::Enum modalityType );
-
-    /**
      * Method to return the threshold for the current processing step based on the modality and the channel number.
      *
      * @param modalityType The modality.
      * @param channelNo The channel number.
      * @return Returns the threshold.
      */
-    virtual double getThreshold( WLEModality::Enum modalityType, size_t channelNo);
-
-    virtual void initRejection() = 0;
+    virtual double getThreshold( WLEModality::Enum modalityType, size_t channelNo );
 
     /**
-     * EEG threshold.
+     * Method to return the threshold for the current processing step based on the modality.
+     *
+     * @param modalityType The modality.
+     * @return The threshold.
      */
-    double m_eegThreshold;
+    virtual double getThreshold( WLEModality::Enum modalityType );
+
+    virtual void showThresholds();
 
     /**
-     * EOG threshold.
+     * A list containing the thresholds.
      */
-    double m_eogThreshold;
-
-    /**
-     * MEG gradiometer threshold.
-     */
-    double m_megGradThreshold;
-
-    /**
-     * MEG magnetometer threshold.
-     */
-    double m_megMagThreshold;
+    WThreshold::WThreshold_List_SPtr m_thresholdList;
 
     /**
      * Counts the number of rejections in on processing step.
      */
     size_t m_rejCount;
+
 };
 
 #endif /* WEPOCHREJECTION_H_ */

@@ -62,8 +62,9 @@ public:
      */
     bool doRejection( const WLEMMeasurement::ConstSPtr emm );
 
-protected:
-
+    /**
+     * Method to reset the process parameter.
+     */
     void initRejection();
 
 private:

@@ -117,25 +117,7 @@ protected:
 
 private:
 
-    enum modality_code
-    {
-        eegReject, eogReject, gradReject, magReject, eNULL
-    };
-
-    /**
-     * Method to assign the parsed value to the property members. The properties will be updated in the view.
-     *
-     * @param valueList The threshold list to assign to the GUI property values.
-     */
-    void assignNewValues( std::map< std::string, double > valueList );
-
-    /**
-     * Tests a given string for a string pattern and returns the equivalent enum object for a better handling.
-     *
-     * @param inString The string to test.
-     * @return The enum object.
-     */
-    modality_code hashit( std::string const& inString );
+    void initThresholds();
 
     void setThresholds( boost::shared_ptr< std::list< WThreshold > > );
 
@@ -144,7 +126,25 @@ private:
      *
      * @param emm The EMM object for delivering to the output connector.
      */
-    void upadteOutput( WLEMMeasurement::SPtr emm );
+    void updateOutput( WLEMMeasurement::SPtr emm );
+
+    void handleApplyBufferSize();
+
+    void handleApplyThresholds();
+
+    void handleModuleReset();
+
+    /**
+     * Switches the rejection algorithm.
+     */
+    void callbackRejectionTypeChanged();
+
+    /**
+     * Method to test all buffered Epochs for rejection.
+     */
+    void checkBufferedEpochs(); // TODO: implement
+
+    bool checkBadChannels( WLEMMeasurement::SPtr emm );
 
     /**
      * Input connector for a EMM data set.
@@ -157,6 +157,16 @@ private:
     boost::shared_ptr< WCondition > m_propCondition;
 
     /**
+     * Property group for the rejection module.
+     */
+    WPropGroup m_propGrpRejection;
+
+    /**
+     * Property group for the epoch buffer.
+     */
+    WPropGroup m_propGrpEpochBuff;
+
+    /**
      * Property Group for the thresholds.
      */
     WPropGroup m_propGrpThresholds;
@@ -165,6 +175,16 @@ private:
      * Property Group for the epoch properties.
      */
     WPropGroup m_propGrpEpoch;
+
+    /**
+     * The size for the epoch buffer;
+     */
+    WPropInt m_epochBufferSize;
+
+    /**
+     * Applies the new epoch buffer size to the structure.
+     */
+    WPropTrigger m_applyBufferSize;
 
     /**
      * Threshold for the EEG modality.
@@ -185,6 +205,11 @@ private:
      * Threshold for the MEG magnetometer channels.
      */
     WPropDouble m_megMagThreshold;
+
+    /**
+     * Applies the thresholds for processing.
+     */
+    WPropTrigger m_applyThresholds;
 
     /**
      * Integer Property to count the epochs.
@@ -222,20 +247,24 @@ private:
     WPropInt m_badEpochCount;
 
     /**
-     * The rejection process class for testing the all channels in one process.
+     * Trigger to reseting the module.
      */
-    WEpochRejection::SPtr m_rejectingTotal;
+    WPropTrigger m_resetModule;
 
     /**
-     * The rejection process class for testing all channels separately.
+     * Selection box to specify the rejection algorithm.
      */
-    WEpochRejectionSingle::SPtr m_rejectingSingle;
+    boost::shared_ptr< WItemSelection > m_rejectionType;
+    WPropSelection m_rejectionTypeSelection;
 
     /**
      * The threshold parser class.
      */
     WThresholdParser::SPtr m_parser;
 
+    /**
+     * The threshold list.
+     */
     WThreshold::WThreshold_List_SPtr m_thresholds;
 
     /**
@@ -244,9 +273,10 @@ private:
     ModalityUIFiledMap_SPtr m_modalityLabelMap;
 
     /**
-     * List containing the thresholds for processing.
+     * Pointer to the rejection algorithm.
      */
-    //boost::shared_ptr< std::list< WThreshold > > m_thresholds;
+    WEpochRejection::SPtr m_rejection;
+
     static const std::string NO_FILE_LOADED;
 
     static const std::string LOADING_FILE;

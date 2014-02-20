@@ -148,6 +148,13 @@ public:
     virtual DataSPtr getDataBadChannels() const;
 
     /**
+     * Returns the data without the bad channels. NOTE: The method does not modify any object data, but data may modified indirectly!
+     *
+     * @return The data.
+     */
+    virtual DataSPtr getDataBadChannels( ChannelListSPtr badChans ) const;
+
+    /**
      * TODO(kaehler): Comments
      */
     virtual void setData( DataSPtr data );

@@ -55,12 +55,18 @@ public:
      */
     CircBuffSPtr getBuffer();
 
+    size_t getBufferSize();
+
     /**
      * Sets the shared pointer of the circular buffer.
      *
      * @param buffer
      */
     void setBuffer( CircBuffSPtr buffer );
+
+    void resizeBuffer(size_t size);
+
+    void reset();
 
 private:
 

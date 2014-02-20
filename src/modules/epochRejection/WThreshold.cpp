@@ -41,3 +41,8 @@ WLEModality::Enum WThreshold::getModaliyType() const
 {
     return m_modalityType;
 }
+
+void WThreshold::setValue( double value )
+{
+    m_value = value;
+}

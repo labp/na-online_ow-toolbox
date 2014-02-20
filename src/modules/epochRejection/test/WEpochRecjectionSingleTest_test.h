@@ -70,7 +70,7 @@ public:
         WLEMMeasurement::SPtr emm( new WLEMMeasurement() );
         WEpochRejectionSingle::SPtr rejection( new WEpochRejectionSingle() );
 
-        rejection->setThresholds( THRESHOLD_EEG, THRESHOLD_EOG, THRESHOLD_MEG_GRAD, THRESHOLD_MEG_MAG );
+        //rejection->setThresholds( THRESHOLD_EEG, THRESHOLD_EOG, THRESHOLD_MEG_GRAD, THRESHOLD_MEG_MAG );
 
         // prepare modalities for processing
         WLEMDEEG::SPtr modalityEEG( new WLEMDEEG() );
@@ -92,8 +92,8 @@ public:
         WEpochRejectionSingle::SPtr rejectSingle( new WEpochRejectionSingle() );
         WEpochRejectionTotal::SPtr rejectTotal( new WEpochRejectionTotal() );
 
-        rejectSingle->setThresholds( THRESHOLD_EEG, THRESHOLD_EOG, THRESHOLD_MEG_GRAD, THRESHOLD_MEG_MAG );
-        rejectTotal->setThresholds( THRESHOLD_EEG, THRESHOLD_EOG, THRESHOLD_MEG_GRAD, THRESHOLD_MEG_MAG );
+        //rejectSingle->setThresholds( THRESHOLD_EEG, THRESHOLD_EOG, THRESHOLD_MEG_GRAD, THRESHOLD_MEG_MAG );
+        //rejectTotal->setThresholds( THRESHOLD_EEG, THRESHOLD_EOG, THRESHOLD_MEG_GRAD, THRESHOLD_MEG_MAG );
 
         WLEMMeasurement::SPtr emm( new WLEMMeasurement() );
 
@@ -110,7 +110,7 @@ public:
 
         // update the bad channels in the EMM object
         WBadChannelManager::instance()->reset();
-        WBadChannelManager::instance()->merge(rejectSingle->getRejectedMap());
+        //WBadChannelManager::instance()->merge(rejectSingle->getRejectedMap());
         emm->getModality(WLEModality::EEG)->setBadChannels(WBadChannelManager::instance()->getChannelList(WLEModality::EEG));
         emm->getModality(WLEModality::MEG)->setBadChannels(WBadChannelManager::instance()->getChannelList(WLEModality::MEG));
 
