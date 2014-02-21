@@ -179,8 +179,8 @@ void WMEpochSeparation::handleResetTriggerPressed()
 {
     debugLog() << "handleResetTriggerPressed() called!";
 
-    WLEMMCommand::SPtr labp = WLEMMCommand::instance( WLEMMCommand::Command::RESET );
-    processReset( labp );
+    WLEMMCommand::SPtr cmd = WLEMMCommand::instance( WLEMMCommand::Command::RESET );
+    processReset( cmd );
 
     m_resetTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, true );
 
@@ -221,6 +221,7 @@ bool WMEpochSeparation::processInit( WLEMMCommand::SPtr cmdIn )
 
 bool WMEpochSeparation::processReset( WLEMMCommand::SPtr cmdIn )
 {
+    m_input->clear();
     viewReset();
     m_separation->reset();
 

@@ -174,7 +174,8 @@ void WMAlignment::moduleMain()
 
         if( m_trgReset->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
-            handleTrgReset();
+            WLEMMCommand::SPtr cmd( new WLEMMCommand( WLEMMCommand::Command::RESET ) );
+            processReset( cmd );
         }
 
         cmdIn.reset();
@@ -229,12 +230,49 @@ bool WMAlignment::processCompute( WLEMMeasurement::SPtr emm )
 
 bool WMAlignment::processInit( WLEMMCommand::SPtr cmd )
 {
-    m_output->updateData( cmd );
-    return true;
+    if( cmd->hasEmm() )
+    {
+        WLTimeProfiler tp( "WMAlignment", "processInit" );
+
+        const WLEMMeasurement::SPtr emm = cmd->getEmm();
+
+        if( !m_transformation.isZero() )
+        {
+            emm->setFidToACPCTransformation( m_transformation );
+            m_output->updateData( cmd );
+            return true;
+        }
+
+        WEEGSkinAlignment align( m_propIcpIterations->get( false ) );
+        align.setLpaSkin( m_propEstLPA->get( false ) );
+        align.setNasionSkin( m_propEstNasion->get( false ) );
+        align.setRpaSkin( m_propEstRPA->get( false ) );
+
+        double score = align.align( &m_transformation, emm );
+        if( score == WEEGSkinAlignment::NOT_CONVERGED )
+        {
+            m_output->updateData( cmd );
+            m_propIcpConverged->set( false, false );
+            m_output->updateData( cmd );
+            return false;
+        }
+        m_propIcpConverged->set( true, false );
+        m_propIcpScore->set( score, false );
+        emm->setFidToACPCTransformation( m_transformation );
+        viewUpdate( emm );
+        m_output->updateData( cmd );
+        return true;
+    }
+    else
+    {
+        m_output->updateData( cmd );
+        return true;
+    }
 }
 
 bool WMAlignment::processReset( WLEMMCommand::SPtr cmd )
 {
+    m_input->clear();
     handleTrgReset();
     m_output->updateData( cmd );
     return true;

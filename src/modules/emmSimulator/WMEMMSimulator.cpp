@@ -204,6 +204,9 @@ void WMEMMSimulator::callbackStopTrg()
 
 bool WMEMMSimulator::processCompute( WLEMMeasurement::SPtr emm )
 {
+    WLEMMCommand::SPtr cmdReset = WLEMMCommand::instance( WLEMMCommand::Command::RESET );
+    m_output->updateData( cmdReset );
+
     m_data = emm;
     updateStatus( EStreaming::READY );
 

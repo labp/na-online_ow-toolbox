@@ -371,12 +371,11 @@ bool WMLeadfieldInterpolation::processCompute( WLEMMeasurement::SPtr emm )
 bool WMLeadfieldInterpolation::processInit( WLEMMCommand::SPtr cmdIn )
 {
     WLTimeProfiler tp( "WMLeadfieldInterpolation", "processInit" );
-    if( cmdIn->hasEmm() )
+    bool rc = true;
+    if( cmdIn->hasEmm() && m_fwdSolution )
     {
         m_fiffEmm = cmdIn->getEmm();
-    }
-    if( m_fiffEmm && m_fwdSolution )
-    {
+
         m_status->set( COMPUTING, true );
         if( interpolate() )
         {
@@ -387,11 +386,12 @@ bool WMLeadfieldInterpolation::processInit( WLEMMCommand::SPtr cmdIn )
         else
         {
             m_status->set( ERROR, true );
+            rc = false;
         }
     }
 
     m_output->updateData( cmdIn );
-    return true;
+    return rc;
 }
 
 bool WMLeadfieldInterpolation::processMisc( WLEMMCommand::SPtr cmdIn )
@@ -408,6 +408,7 @@ bool WMLeadfieldInterpolation::processTime( WLEMMCommand::SPtr cmdIn )
 
 bool WMLeadfieldInterpolation::processReset( WLEMMCommand::SPtr cmdIn )
 {
+    m_input->clear();
     m_output->updateData( cmdIn );
     return true;
 }

@@ -228,6 +228,7 @@ bool WMFiffWriter::processTime( WLEMMCommand::SPtr labp )
 
 bool WMFiffWriter::processReset( WLEMMCommand::SPtr labp )
 {
+    m_input->clear();
     handleFileChanged();
     m_output->updateData( labp );
     return true;

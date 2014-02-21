@@ -200,6 +200,7 @@ void WMFiffReader::moduleMain()
 void WMFiffReader::handleTrgSendEMM()
 {
     debugLog() << "handleTrgSendEMM() called!";
+
     if( !m_emm )
     {
         errorLog() << "No EMM object to send!";
