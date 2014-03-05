@@ -142,7 +142,7 @@ private:
     /**
      * Method to test all buffered Epochs for rejection.
      */
-    void checkBufferedEpochs(); // TODO: implement
+    void checkBufferedEpochs();
 
     bool checkBadChannels( WLEMMeasurement::SPtr emm );
 
