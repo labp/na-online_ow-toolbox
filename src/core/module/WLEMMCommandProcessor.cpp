@@ -61,11 +61,11 @@ bool WLEMMCommandProcessor::process( WLEMMCommand::SPtr cmdIn )
             break;
         default:
             wlog::error( CLASS ) << "Unknown Command::Enum!";
-            return false;
+            succes = false;
     }
     if( !succes )
     {
-        wlog::error( CLASS ) << "Error on processing.";
+        wlog::error( CLASS ) << "Error on processing command:\n" << *cmdIn;
     }
     return succes;
 }

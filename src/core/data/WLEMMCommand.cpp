@@ -26,6 +26,8 @@
 
 #include "WLEMMCommand.h"
 
+const std::string WLEMMCommand::CLASS = "WLEMMCommand";
+
 WLEMMCommand::WLEMMCommand( Command::Enum command ) :
                 m_command( command )
 {

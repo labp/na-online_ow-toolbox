@@ -89,8 +89,8 @@ protected:
     // Methods for WLEMMCommandProcessor
     // ---------------------------------
     virtual bool processCompute( WLEMMeasurement::SPtr emm );
-    virtual bool processInit( WLEMMCommand::SPtr labp );
-    virtual bool processReset( WLEMMCommand::SPtr labp );
+    virtual bool processInit( WLEMMCommand::SPtr cmd );
+    virtual bool processReset( WLEMMCommand::SPtr cmd );
 
     virtual void moduleInit();
 

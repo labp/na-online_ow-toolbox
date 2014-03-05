@@ -239,6 +239,8 @@ void WMFIRFilter::moduleMain()
         if( m_designTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
             handleDesignButtonPressed();
+            WLEMMCommand::SPtr cmd = WLEMMCommand::instance( WLEMMCommand::Command::RESET );
+            processReset( cmd );
         }
 
         cmdIn.reset();
@@ -318,9 +320,6 @@ void WMFIRFilter::handleDesignButtonPressed( void )
     m_designTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, true );
 
     infoLog() << "New filter designed!";
-
-    WLEMMCommand::SPtr labp = WLEMMCommand::instance( WLEMMCommand::Command::RESET );
-    processReset( labp );
 }
 
 void WMFIRFilter::callbackFilterTypeChanged( void )
@@ -394,26 +393,27 @@ bool WMFIRFilter::processCompute( WLEMMeasurement::SPtr emmIn )
 
 bool WMFIRFilter::processInit( WLEMMCommand::SPtr cmdIn )
 {
+    bool rc = true;
     if( cmdIn->hasEmm() )
     {
         WLEMMeasurement::ConstSPtr emm = cmdIn->getEmm();
         WLEMData::ConstSPtr emd;
 
-        float samplFreqEeg = 0.0;
+        WLFreqT samplFreqEeg = 0.0;
         if( emm->hasModality( WLEModality::EEG ) )
         {
             emd = emm->getModality( WLEModality::EEG );
             samplFreqEeg = emd->getSampFreq();
         }
 
-        float samplFreqMeg = 0.0;
+        WLFreqT samplFreqMeg = 0.0;
         if( emm->hasModality( WLEModality::MEG ) )
         {
             emd = emm->getModality( WLEModality::MEG );
             samplFreqMeg = emd->getSampFreq();
         }
 
-        float samplFreq = 0.0;
+        WLFreqT samplFreq = 0.0;
         if( samplFreqEeg == samplFreqMeg && samplFreqEeg > 0.0 )
         {
             samplFreq = samplFreqEeg;
@@ -432,14 +432,16 @@ bool WMFIRFilter::processInit( WLEMMCommand::SPtr cmdIn )
         else
         {
             infoLog() << "No sampling rate to initialize!";
+            rc = false;
         }
     }
     m_output->updateData( cmdIn );
-    return true;
+    return rc;
 }
 
 bool WMFIRFilter::processReset( WLEMMCommand::SPtr cmdIn )
 {
+    m_input->clear();
     viewReset();
     m_firFilter->reset();
     m_output->updateData( cmdIn );

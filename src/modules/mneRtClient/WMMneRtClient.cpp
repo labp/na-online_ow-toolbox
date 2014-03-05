@@ -357,6 +357,8 @@ void WMMneRtClient::handleTrgConDisconnect()
     }
     m_trgConConnect->set( WPVBaseTypes::PV_TRIGGER_READY, true );
     m_trgConDisconnect->set( WPVBaseTypes::PV_TRIGGER_READY, true );
+
+    processReset( WLEMMCommand::instance( WLEMMCommand::Command::RESET ) );
 }
 
 void WMMneRtClient::handleTrgDataStart()
@@ -375,6 +377,7 @@ void WMMneRtClient::handleTrgDataStart()
         m_trgDataStart->setHidden( true );
         m_trgDataStop->setHidden( false );
 
+        bool isFirst = true;
         while( !m_stopStreaming && !m_shutdownFlag() )
         {
             WLEMMeasurement::SPtr emm;
@@ -384,10 +387,16 @@ void WMMneRtClient::handleTrgDataStart()
                 {
                     emm->setSubject( m_subject );
                 }
-                viewUpdate( emm );
-                WLEMMCommand::SPtr labp( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
-                labp->setEmm( emm );
-                m_output->updateData( labp );
+
+                if( isFirst )
+                {
+                    WLEMMCommand::SPtr cmd( new WLEMMCommand( WLEMMCommand::Command::INIT ) );
+                    cmd->setEmm( emm );
+                    processInit( cmd );
+                    isFirst = false;
+                }
+
+                processCompute( emm );
             }
         }
         m_rtClient->stop();
@@ -551,22 +560,23 @@ bool WMMneRtClient::handleDigPointsFileChanged( std::string fName )
     }
 }
 
-bool WMMneRtClient::processCompute( WLEMMeasurement::SPtr emm )
+inline bool WMMneRtClient::processCompute( WLEMMeasurement::SPtr emm )
 {
-    WLEMMCommand::SPtr labp( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
-    labp->setEmm( emm );
-    m_output->updateData( labp );
+    viewUpdate( emm );
+    WLEMMCommand::SPtr cmd( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
+    cmd->setEmm( emm );
+    m_output->updateData( cmd );
     return true;
 }
 
-bool WMMneRtClient::processInit( WLEMMCommand::SPtr labp )
+inline bool WMMneRtClient::processInit( WLEMMCommand::SPtr cmd )
 {
-    m_output->updateData( labp );
+    m_output->updateData( cmd );
     return true;
 }
 
-bool WMMneRtClient::processReset( WLEMMCommand::SPtr labp )
+inline bool WMMneRtClient::processReset( WLEMMCommand::SPtr cmd )
 {
-    m_output->updateData( labp );
+    m_output->updateData( cmd );
     return true;
 }

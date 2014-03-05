@@ -224,8 +224,8 @@ void WMEpochAveraging::handleResetAveragePressed()
 {
     debugLog() << "handleResetAveragePressed() called!";
 
-    WLEMMCommand::SPtr labp = WLEMMCommand::instance( WLEMMCommand::Command::RESET );
-    processReset( labp );
+    WLEMMCommand::SPtr cmd = WLEMMCommand::instance( WLEMMCommand::Command::RESET );
+    processReset( cmd );
 
     m_resetAverage->set( WPVBaseTypes::PV_TRIGGER_READY, true );
 }
@@ -274,6 +274,7 @@ bool WMEpochAveraging::processInit( WLEMMCommand::SPtr cmdIn )
 
 bool WMEpochAveraging::processReset( WLEMMCommand::SPtr cmdIn )
 {
+    m_input->clear();
     viewReset();
     m_averaging->reset();
     m_epochCount->set( m_averaging->getCount(), true );
@@ -288,7 +289,6 @@ bool WMEpochAveraging::processReset( WLEMMCommand::SPtr cmdIn )
         infoLog() << "Set moving average size to " << avgMov->getSize();
     }
 
-    m_input->clear();
     m_output->updateData( cmdIn );
     return true;
 }

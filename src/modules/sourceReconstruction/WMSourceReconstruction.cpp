@@ -453,17 +453,19 @@ bool WMSourceReconstruction::processInit( WLEMMCommand::SPtr cmdIn )
 {
     WLTimeProfiler tp( "WMSourceReconstruction", "processInit" );
     WLEModality::Enum modality = this->getCalculateModality();
+    bool rc = true;
     if( cmdIn->hasEmm() )
     {
-        inverseSolutionFromSubject( cmdIn->getEmm(), modality );
+        rc = inverseSolutionFromSubject( cmdIn->getEmm(), modality );
     }
 
     m_output->updateData( cmdIn );
-    return true;
+    return rc;
 }
 
 bool WMSourceReconstruction::processReset( WLEMMCommand::SPtr cmdIn )
 {
+    m_input->clear();
     viewReset();
     m_sourceReconstruction->reset();
 
