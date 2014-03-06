@@ -11,6 +11,8 @@
 #   * FT_CLIENT_INCLUDE_DIR - the path of FT_CLIENT header files
 #   * FT_BUFFER_LIBRARY_DIR - the path to FT_BUFFER libraries
 #   * FT_BUFFER_LIBRARY - FT_BUFFER library
+#   * FT_CLIENT_LIBRARY_DIR - the path to FT_BUFFER libraries
+#   * FT_CLIENT_LIBRARY - FT_BUFFER library
 #---------------------------------------------------------------------------
 
 #---------------------------------------------------------------------------
@@ -59,6 +61,27 @@ get_filename_component( FT_BUFFER_LIBRARY_DIR ${FT_BUFFER_LIBRARY} PATH )
 
 
 #---------------------------------------------------------------------------
+# FT_CLIENT_LIBRARY and FT_CLIENT_LIBRARY_DIR
+#---------------------------------------------------------------------------
+
+FIND_PATH( FT_CLIENT_LIBRARY_DIR libFtClient.a HINTS 
+        $ENV{FT_CLIENT_LIBRARY_DIR} 
+        /opt/lib/ft_client
+        /opt/lib
+)
+
+FIND_LIBRARY( FT_CLIENT_LIBRARY buffer HINTS
+        $ENV{FT_CLIENT_LIBRARY_DIR} 
+        /opt/lib/fieldtrip
+        /opt/lib
+)
+
+# Retrieve library path for other MNE libraries
+get_filename_component( FT_CLIENT_LIBRARY_DIR ${FT_CLIENT_LIBRARY} PATH )
+
+
+
+#---------------------------------------------------------------------------
 # Finalize setup
 #---------------------------------------------------------------------------
 
@@ -68,9 +91,9 @@ IF ( FT_BUFFER_INCLUDE_DIR AND FT_BUFFER_LIBRARY_DIR )
 ENDIF ( FT_BUFFER_INCLUDE_DIR AND FT_BUFFER_LIBRARY_DIR )
 
 SET( FT_CLIENT_FOUND FALSE )
-IF ( FT_CLIENT_INCLUDE_DIR )
+IF ( FT_CLIENT_INCLUDE_DIR AND FT_CLIENT_LIBRARY_DIR )
     SET( FT_CLIENT_FOUND TRUE )
-ENDIF ( FT_CLIENT_INCLUDE_DIR )
+ENDIF ( FT_CLIENT_INCLUDE_DIR AND FT_CLIENT_LIBRARY_DIR )
 
 # Some status messages
 IF ( FT_BUFFER_FOUND )
@@ -86,7 +109,8 @@ ENDIF ( FT_BUFFER_FOUND )
 
 IF ( FT_CLIENT_FOUND )
    IF ( NOT FT_CLIENT_FIND_QUIETLY )
-       MESSAGE( STATUS "Found FT client: ${FT_CLIENT_INCLUDE_DIR}" )
+       MESSAGE( STATUS "Found FT client: ${FT_CLIENT_LIBRARY_DIR} and include in ${FT_CLIENT_INCLUDE_DIR}" )
+       MESSAGE( STATUS "      FT client: ${FT_CLIENT_LIBRARY}" )
    ENDIF()
 ELSE ( FT_CLIENT_FOUND )
    IF (FT_CLIENT_FIND_REQUIRED)
