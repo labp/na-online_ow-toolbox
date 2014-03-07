@@ -22,30 +22,42 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFTCONNECTIONTCP_H_
-#define WFTCONNECTIONTCP_H_
+#ifndef WFTRESPONSE_H_
+#define WFTRESPONSE_H_
 
-#include "WFTConnection.h"
+#include <boost/shared_ptr.hpp>
 
-class WFTConnectionTCP: public WFTConnection
+#include <FtBuffer.h>
+
+/**
+ * Wrapper class for a response created through a FieldTrip request.
+ */
+class WFTResponse: public FtBufferResponse
 {
 public:
 
-    WFTConnectionTCP(std::string host, int port);
+    /**
+     * Define a shared pointer on a response.
+     */
+    typedef boost::shared_ptr< WFTResponse > SPtr;
 
-    virtual ~WFTConnectionTCP();
+    WFTResponse();
 
-    bool connect();
+    virtual ~WFTResponse();
 
-    const std::string getHost() const;
-
-    const int getPort() const;
+    /**
+     * Returns the message object, filled by a FieldTrip request.
+     *
+     * @return The message object.
+     */
+    message_t *&getMessage();
 
 protected:
 
-   const std::string m_host;
-
-   const int m_port;
+    /**
+     * Forbid direct access to the buffer space. Use getMessage() instead.
+     */
+    FtBufferResponse::m_response;
 };
 
-#endif /* WFTCONNECTIONTCP_H_ */
+#endif /* WFTRESPONSE_H_ */

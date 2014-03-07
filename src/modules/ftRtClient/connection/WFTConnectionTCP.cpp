@@ -39,3 +39,13 @@ bool WFTConnectionTCP::connect()
 {
     return connectTcp( m_host.c_str(), m_port );
 }
+
+const std::string WFTConnectionTCP::getHost() const
+{
+    return m_host;
+}
+
+const int WFTConnectionTCP::getPort() const
+{
+    return m_port;
+}

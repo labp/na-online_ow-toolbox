@@ -22,30 +22,37 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFTCONNECTIONTCP_H_
-#define WFTCONNECTIONTCP_H_
+#include "WFTRequest_PutEvent.h"
 
-#include "WFTConnection.h"
-
-class WFTConnectionTCP: public WFTConnection
+WFTRequest_PutEvent::WFTRequest_PutEvent( INT32_T sample, INT32_T offset, INT32_T duration, std::string& type,
+                std::string& value )
 {
-public:
+    prepPutEvent( sample, offset, duration, type.c_str(), value.c_str() );
+}
 
-    WFTConnectionTCP(std::string host, int port);
+WFTRequest_PutEvent::WFTRequest_PutEvent( INT32_T sample, INT32_T offset, INT32_T duration, std::string& type, INT32_T value )
+{
+    prepPutEvent( sample, offset, duration, type.c_str(), value );
+}
 
-    virtual ~WFTConnectionTCP();
+WFTRequest_PutEvent::WFTRequest_PutEvent( UINT16_T version, INT32_T sample, INT32_T offset, INT32_T duration, std::string& type,
+                std::string& value )
+{
+    WFTRequest_PutEvent( sample, offset, duration, type, value );
 
-    bool connect();
+    setVersion( version );
+}
 
-    const std::string getHost() const;
+WFTRequest_PutEvent::WFTRequest_PutEvent( UINT16_T version, INT32_T sample, INT32_T offset, INT32_T duration, std::string& type,
+                INT32_T value )
+{
+    WFTRequest_PutEvent( sample, offset, duration, type, value );
 
-    const int getPort() const;
+    setVersion( version );
+}
 
-protected:
+WFTRequest_PutEvent::~WFTRequest_PutEvent()
+{
 
-   const std::string m_host;
+}
 
-   const int m_port;
-};
-
-#endif /* WFTCONNECTIONTCP_H_ */

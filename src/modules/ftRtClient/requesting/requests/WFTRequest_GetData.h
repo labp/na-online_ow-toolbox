@@ -22,30 +22,20 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFTCONNECTIONTCP_H_
-#define WFTCONNECTIONTCP_H_
+#ifndef WFTREQUEST_GETDATA_H_
+#define WFTREQUEST_GETDATA_H_
 
-#include "WFTConnection.h"
+#include "WFTRequest.h"
 
-class WFTConnectionTCP: public WFTConnection
+class WFTRequest_GetData: public WFTRequest
 {
 public:
 
-    WFTConnectionTCP(std::string host, int port);
+    WFTRequest_GetData( UINT32_T begsample, UINT32_T endsample );
 
-    virtual ~WFTConnectionTCP();
+    WFTRequest_GetData( UINT16_T version, UINT32_T begsample, UINT32_T endsample );
 
-    bool connect();
-
-    const std::string getHost() const;
-
-    const int getPort() const;
-
-protected:
-
-   const std::string m_host;
-
-   const int m_port;
+    virtual ~WFTRequest_GetData();
 };
 
-#endif /* WFTCONNECTIONTCP_H_ */
+#endif /* WFTREQUEST_GETDATA_H_ */

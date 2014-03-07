@@ -22,30 +22,23 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFTCONNECTIONTCP_H_
-#define WFTCONNECTIONTCP_H_
+#include "WFTRequest_PutHeader.h"
 
-#include "WFTConnection.h"
-
-class WFTConnectionTCP: public WFTConnection
+WFTRequest_PutHeader::WFTRequest_PutHeader( UINT32_T numChannels, UINT32_T dataType, float fsample ) :
+                WFTRequest::WFTRequest()
 {
-public:
+    prepPutHeader( numChannels, dataType, fsample );
+}
 
-    WFTConnectionTCP(std::string host, int port);
+WFTRequest_PutHeader::WFTRequest_PutHeader( UINT16_T version, UINT32_T numChannels, UINT32_T dataType, float fsample )
+{
+    WFTRequest_PutHeader( numChannels, dataType, fsample );
 
-    virtual ~WFTConnectionTCP();
+    setVersion( version );
+}
 
-    bool connect();
+WFTRequest_PutHeader::~WFTRequest_PutHeader()
+{
 
-    const std::string getHost() const;
+}
 
-    const int getPort() const;
-
-protected:
-
-   const std::string m_host;
-
-   const int m_port;
-};
-
-#endif /* WFTCONNECTIONTCP_H_ */

@@ -22,30 +22,41 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFTCONNECTIONTCP_H_
-#define WFTCONNECTIONTCP_H_
+#include "WFTRequest.h"
 
-#include "WFTConnection.h"
-
-class WFTConnectionTCP: public WFTConnection
+WFTRequest::WFTRequest() :
+                FtBufferRequest::FtBufferRequest()
 {
-public:
 
-    WFTConnectionTCP(std::string host, int port);
+}
 
-    virtual ~WFTConnectionTCP();
+WFTRequest::WFTRequest( UINT16_T version ) :
+                FtBufferRequest::FtBufferRequest()
+{
+    setVersion( version );
+}
 
-    bool connect();
+UINT16_T WFTRequest::getVersion() const
+{
+    return this->m_def.version;
+}
 
-    const std::string getHost() const;
+void WFTRequest::setVersion( UINT16_T version )
+{
+    this->m_def.version = version;
+}
 
-    const int getPort() const;
+messagedef_t *WFTRequest::getMessageDef()
+{
+    return &m_def;
+}
 
-protected:
+message_t *WFTRequest::getMessage()
+{
+    return &m_msg;
+}
 
-   const std::string m_host;
-
-   const int m_port;
-};
-
-#endif /* WFTCONNECTIONTCP_H_ */
+SimpleStorage *WFTRequest::getBuffer()
+{
+    return &m_buf;
+}

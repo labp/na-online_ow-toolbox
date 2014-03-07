@@ -22,30 +22,27 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFTCONNECTIONTCP_H_
-#define WFTCONNECTIONTCP_H_
+#include "WFTRequest_GetHeader.h"
 
-#include "WFTConnection.h"
-
-class WFTConnectionTCP: public WFTConnection
+WFTRequest_GetHeader::WFTRequest_GetHeader()
 {
-public:
+    prepGetHeader();
+}
 
-    WFTConnectionTCP(std::string host, int port);
+WFTRequest_GetHeader::WFTRequest_GetHeader( UINT16_T version )
+{
+    /**
+     * Call the base constructor inside the overloaded constructor because constructor overloading at the
+     * definition part was introduced begin with C++11.
+     */
 
-    virtual ~WFTConnectionTCP();
+    WFTRequest_GetHeader();
 
-    bool connect();
+    setVersion( version );
+}
 
-    const std::string getHost() const;
+WFTRequest_GetHeader::~WFTRequest_GetHeader()
+{
 
-    const int getPort() const;
+}
 
-protected:
-
-   const std::string m_host;
-
-   const int m_port;
-};
-
-#endif /* WFTCONNECTIONTCP_H_ */

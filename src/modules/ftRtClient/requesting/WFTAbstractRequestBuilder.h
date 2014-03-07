@@ -29,10 +29,9 @@
 
 #include <message.h>
 
-#include "WFTRequest.h"
+#include "requests/WFTRequest.h"
 
 // TODO(maschke): implement adding chunks, get chunks
-// TODO(maschke): remove global Request variable
 
 class WFTAbstractRequestBuilder
 {

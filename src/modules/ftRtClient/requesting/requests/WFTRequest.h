@@ -22,30 +22,33 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFTCONNECTIONTCP_H_
-#define WFTCONNECTIONTCP_H_
+#ifndef WFTREQUEST_H_
+#define WFTREQUEST_H_
 
-#include "WFTConnection.h"
+#include <boost/shared_ptr.hpp>
 
-class WFTConnectionTCP: public WFTConnection
+#include <FtBuffer.h>
+
+class WFTRequest: public FtBufferRequest
 {
 public:
 
-    WFTConnectionTCP(std::string host, int port);
+    typedef boost::shared_ptr< WFTRequest > SPtr;
 
-    virtual ~WFTConnectionTCP();
+    WFTRequest();
 
-    bool connect();
+    WFTRequest( UINT16_T version );
 
-    const std::string getHost() const;
+    UINT16_T getVersion() const;
 
-    const int getPort() const;
+    void setVersion( UINT16_T version );
 
-protected:
+    messagedef_t *getMessageDef();
 
-   const std::string m_host;
+    message_t *getMessage();
 
-   const int m_port;
+    SimpleStorage *getBuffer();
+
 };
 
-#endif /* WFTCONNECTIONTCP_H_ */
+#endif /* WFTREQUEST_H_ */

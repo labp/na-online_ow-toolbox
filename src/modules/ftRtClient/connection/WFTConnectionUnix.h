@@ -37,6 +37,8 @@ public:
 
     virtual bool connect();
 
+    const std::string getPatName() const;
+
 protected:
 
     const std::string m_pathname;

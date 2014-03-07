@@ -38,7 +38,6 @@
 
 #include "core/util/profiler/WLTimeProfiler.h"
 
-#include "connection/WFTConnection.h"
 #include "WMFTRtClient.h"
 
 #include "WMFTRtClient.xpm"
@@ -185,7 +184,6 @@ bool WMFTRtClient::processCompute( WLEMMeasurement::SPtr emmIn )
 
     // ---------- PROCESSING ----------
     viewUpdate( emmIn ); // update the GUI component
-
 
 
 

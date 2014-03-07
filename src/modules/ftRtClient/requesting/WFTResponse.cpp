@@ -22,30 +22,20 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFTCONNECTIONTCP_H_
-#define WFTCONNECTIONTCP_H_
+#include "WFTResponse.h"
 
-#include "WFTConnection.h"
-
-class WFTConnectionTCP: public WFTConnection
+WFTResponse::WFTResponse() :
+                FtBufferResponse::FtBufferResponse()
 {
-public:
 
-    WFTConnectionTCP(std::string host, int port);
+}
 
-    virtual ~WFTConnectionTCP();
+WFTResponse::~WFTResponse()
+{
 
-    bool connect();
+}
 
-    const std::string getHost() const;
-
-    const int getPort() const;
-
-protected:
-
-   const std::string m_host;
-
-   const int m_port;
-};
-
-#endif /* WFTCONNECTIONTCP_H_ */
+message_t *&WFTResponse::getMessage()
+{
+    return m_response;
+}

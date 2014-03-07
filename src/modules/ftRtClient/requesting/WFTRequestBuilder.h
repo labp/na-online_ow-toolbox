@@ -28,6 +28,9 @@
 #include <message.h>
 
 #include "WFTAbstractRequestBuilder.h"
+#include "requests/WFTRequest.h"
+
+// TODO(maschke): check whether the pointer parameter are correct.
 
 class WFTRequestBuilder: public WFTAbstractRequestBuilder
 {

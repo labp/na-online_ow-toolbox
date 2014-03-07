@@ -22,36 +22,21 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WFTRequest.h"
+#include "WFTRequest_GetData.h"
 
-WFTRequest::WFTRequest() :
-                FtBufferRequest::FtBufferRequest()
+WFTRequest_GetData::WFTRequest_GetData( UINT32_T begsample, UINT32_T endsample )
+{
+    prepGetData( begsample, endsample );
+}
+
+WFTRequest_GetData::~WFTRequest_GetData()
 {
 
 }
 
-WFTRequest::WFTRequest( UINT16_T version ) :
-                FtBufferRequest::FtBufferRequest()
+WFTRequest_GetData::WFTRequest_GetData( UINT16_T version, UINT32_T begsample, UINT32_T endsample )
 {
+    WFTRequest_GetData( begsample, endsample );
+
     setVersion( version );
-}
-
-const message_t* WFTRequest::out() const
-{
-    return FtBufferRequest::out();
-}
-
-const UINT16_T WFTRequest::getVersion() const
-{
-    return this->m_def.version;
-}
-
-void WFTRequest::setVersion( UINT16_T version )
-{
-    this->m_def.version = version;
-}
-
-messagedef_t *WFTRequest::getMessageDef()
-{
-    return &m_def;
 }

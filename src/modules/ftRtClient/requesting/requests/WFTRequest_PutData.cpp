@@ -22,31 +22,22 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFTREQUEST_H_
-#define WFTREQUEST_H_
+#include "WFTRequest_PutData.h"
 
-#include <boost/shared_ptr.hpp>
-
-#include <FtBuffer.h>
-
-class WFTRequest: public FtBufferRequest
+WFTRequest_PutData::WFTRequest_PutData( UINT32_T numChannels, UINT32_T numSamples, UINT32_T dataType, const void *data )
 {
-public:
+    prepPutData( numChannels, numSamples, dataType, data );
+}
 
-    typedef boost::shared_ptr< WFTRequest > SPtr;
+WFTRequest_PutData::~WFTRequest_PutData()
+{
 
-    WFTRequest();
+}
 
-    WFTRequest( UINT16_T version );
+WFTRequest_PutData::WFTRequest_PutData( UINT16_T version, UINT32_T numChannels, UINT32_T numSamples, UINT32_T dataType,
+                const void *data )
+{
+    WFTRequest_PutData( version, numChannels, numSamples, dataType, data );
 
-    const message_t *out() const;
-
-    const UINT16_T getVersion() const;
-
-    void setVersion( UINT16_T version );
-
-    messagedef_t *getMessageDef();
-
-};
-
-#endif /* WFTREQUEST_H_ */
+    setVersion( version );
+}

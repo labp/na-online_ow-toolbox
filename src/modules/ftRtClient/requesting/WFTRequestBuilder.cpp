@@ -24,78 +24,55 @@
 
 #include <buffer.h>
 
+#include "requests/WFTRequest_GetData.h"
+#include "requests/WFTRequest_GetEvent.h"
+#include "requests/WFTRequest_GetHeader.h"
+#include "requests/WFTRequest_PutData.h"
+#include "requests/WFTRequest_PutEvent.h"
+#include "requests/WFTRequest_PutHeader.h"
 #include "WFTRequestBuilder.h"
 
-WFTRequestBuilder::WFTRequestBuilder() :
-                WFTAbstractRequestBuilder()
+WFTRequestBuilder::WFTRequestBuilder()
 {
 
 }
 
 WFTRequest::SPtr WFTRequestBuilder::buildRequest_GET_HDR()
 {
-    WFTRequest::SPtr request( new WFTRequest );
-
-    request->prepGetHeader();
-
-    return WFTRequest::SPtr( request );
+    return WFTRequest::SPtr( new WFTRequest_GetHeader );
 }
 
 WFTRequest::SPtr WFTRequestBuilder::buildRequest_PUT_HDR( UINT32_T numChannels, UINT32_T dataType, float fsample )
 {
-    WFTRequest::SPtr request( new WFTRequest );
-
-    request->prepPutHeader( numChannels, dataType, fsample );
-
-    return WFTRequest::SPtr( request );
+    return WFTRequest::SPtr( new WFTRequest_PutHeader( numChannels, dataType, fsample ) );
 }
 
 WFTRequest::SPtr WFTRequestBuilder::buildRequest_PUT_DAT( UINT32_T numChannels, UINT32_T numSamples, UINT32_T dataType,
                 const void *data )
 {
-    WFTRequest::SPtr request( new WFTRequest );
-
-    request->prepPutData( numChannels, numSamples, dataType, data );
-
-    return WFTRequest::SPtr( request );
+    return WFTRequest::SPtr( new WFTRequest_PutData( numChannels, numSamples, dataType, data ) );
 }
 
 WFTRequest::SPtr WFTRequestBuilder::buildRequest_GET_DAT( UINT32_T begsample, UINT32_T endsample )
 {
-    WFTRequest::SPtr request( new WFTRequest );
-
-    request->prepGetData( begsample, endsample );
-
-    return WFTRequest::SPtr( request );
+    return WFTRequest::SPtr( new WFTRequest_GetData( begsample, endsample ) );
 }
 
 WFTRequest::SPtr WFTRequestBuilder::buildRequest_PUT_EVT( INT32_T sample, INT32_T offset, INT32_T duration, std::string& type,
                 std::string& value )
 {
-    WFTRequest::SPtr request( new WFTRequest );
-
-    request->prepPutEvent( sample, offset, duration, type.c_str(), value.c_str() );
-
-    return WFTRequest::SPtr( request );
+    return WFTRequest::SPtr( new WFTRequest_PutEvent( sample, offset, duration, type, value ) );
 }
 
 WFTRequest::SPtr WFTRequestBuilder::buildRequest_PUT_EVT( INT32_T sample, INT32_T offset, INT32_T duration, std::string& type,
                 INT32_T value )
 {
-    WFTRequest::SPtr request( new WFTRequest );
-
-    request->prepPutEvent( sample, offset, duration, type.c_str(), value );
-
-    return WFTRequest::SPtr( request );
+    return WFTRequest::SPtr( new WFTRequest_PutEvent( sample, offset, duration, type, value ) );
 }
 
 WFTRequest::SPtr WFTRequestBuilder::buildRequest_GET_EVT( UINT32_T begevent, UINT32_T endevent )
 {
-    WFTRequest::SPtr request( new WFTRequest );
-
-    request->prepGetEvents( begevent, endevent );
-
-    return WFTRequest::SPtr( request );
+    return WFTRequest::SPtr( new WFTRequest_GetEvent( begevent, endevent ) );
 }
 
 WFTRequest::SPtr WFTRequestBuilder::buildRequest_FLUSH_DAT()
@@ -120,10 +97,10 @@ WFTRequest::SPtr WFTRequestBuilder::buildRequest_FLUSH_EVT()
 
 WFTRequest::SPtr WFTRequestBuilder::buildRequest_FLUSH_HDR()
 {
-     WFTRequest::SPtr request( new WFTRequest );
+    WFTRequest::SPtr request( new WFTRequest );
 
-     request->getMessageDef()->command = FLUSH_HDR;
-     request->getMessageDef()->bufsize = 0;
+    request->getMessageDef()->command = FLUSH_HDR;
+    request->getMessageDef()->bufsize = 0;
 
     return WFTRequest::SPtr( request );
 }
@@ -139,9 +116,5 @@ WFTRequest::SPtr WFTRequestBuilder::buildRequest_WAIT_DAT( UINT32_T nSamples, UI
 
 WFTRequest::SPtr WFTRequestBuilder::buildRequest_WAIT_DAT( UINT32_T nSamples, UINT32_T milliseconds )
 {
-    WFTRequest::SPtr request( new WFTRequest );
-
-    request->prepWaitData( nSamples, ( 2 ^ 32 ) - 1, milliseconds );
-
-    return WFTRequest::SPtr( request );
+    return buildRequest_WAIT_DAT( nSamples, ( 2 ^ 32 ) - 1, milliseconds );
 }
