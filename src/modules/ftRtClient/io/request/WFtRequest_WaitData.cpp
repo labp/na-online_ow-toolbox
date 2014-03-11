@@ -22,42 +22,14 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFTRESPONSE_H_
-#define WFTRESPONSE_H_
+#include "WFtRequest_WaitData.h"
 
-#include <boost/shared_ptr.hpp>
-
-#include <FtBuffer.h>
-
-/**
- * Wrapper class for a response created through a FieldTrip request.
- */
-class WFTResponse: public FtBufferResponse
+WFtRequest_WaitData::WFtRequest_WaitData( UINT32_T nSamples, UINT32_T nEvents, UINT32_T milliseconds )
 {
-public:
+    prepWaitData( nSamples, nEvents, milliseconds );
+}
 
-    /**
-     * Define a shared pointer on a response.
-     */
-    typedef boost::shared_ptr< WFTResponse > SPtr;
+WFtRequest_WaitData::~WFtRequest_WaitData()
+{
 
-    WFTResponse();
-
-    virtual ~WFTResponse();
-
-    /**
-     * Returns the message object, filled by a FieldTrip request.
-     *
-     * @return The message object.
-     */
-    message_t *&getMessage();
-
-protected:
-
-    /**
-     * Forbid direct access to the buffer space. Use getMessage() instead.
-     */
-    FtBufferResponse::m_response;
-};
-
-#endif /* WFTRESPONSE_H_ */
+}

@@ -22,41 +22,31 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WFTRequest.h"
+#ifndef WFTOBJECT_H_
+#define WFTOBJECT_H_
 
-WFTRequest::WFTRequest() :
-                FtBufferRequest::FtBufferRequest()
+#include <boost/shared_ptr.hpp>
+
+#include <message.h>
+
+#include "../request/WFTRequest.h"
+#include "../response/WFTResponse.h"
+
+class WFTObject
 {
+public:
 
-}
+    typedef boost::shared_ptr< WFTObject > SPtr;
 
-WFTRequest::WFTRequest( UINT16_T version ) :
-                FtBufferRequest::FtBufferRequest()
-{
-    setVersion( version );
-}
+    typedef message_t WFTMessageT;
 
-UINT16_T WFTRequest::getVersion() const
-{
-    return this->m_def.version;
-}
+    typedef boost::shared_ptr< const WFTMessageT > WFTMessageT_ConstSPtr;
 
-void WFTRequest::setVersion( UINT16_T version )
-{
-    this->m_def.version = version;
-}
+    virtual ~WFTObject();
 
-messagedef_t *WFTRequest::getMessageDef()
-{
-    return &m_def;
-}
+    virtual WFTRequest::SPtr asRequest() = 0;
 
-message_t *WFTRequest::getMessage()
-{
-    return &m_msg;
-}
+    virtual bool parseResponse( WFTResponse::SPtr ) = 0;
+};
 
-SimpleStorage *WFTRequest::getBuffer()
-{
-    return &m_buf;
-}
+#endif /* WFTOBJECT_H_ */

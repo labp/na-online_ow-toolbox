@@ -24,10 +24,10 @@
 
 #include "WFTConnectionUnix.h"
 
-WFTConnectionUnix::WFTConnectionUnix( std::string pathname ) :
-                WFTConnection::WFTConnection(), m_pathname( pathname )
+WFTConnectionUnix::WFTConnectionUnix( std::string pathname, int retry ) :
+                WFTConnection::WFTConnection( retry ), m_pathname( pathname )
 {
-
+    connect();
 }
 
 WFTConnectionUnix::~WFTConnectionUnix()
@@ -40,7 +40,7 @@ bool WFTConnectionUnix::connect()
     return connectUnix( m_pathname.c_str() );
 }
 
-const std::string WFTConnectionUnix::getPatName() const
+const std::string WFTConnectionUnix::getPathName() const
 {
     return m_pathname;
 }

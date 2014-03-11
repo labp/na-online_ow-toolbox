@@ -22,20 +22,49 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WFTResponse.h"
+#ifndef WFTHEADER_H_
+#define WFTHEADER_H_
 
-WFTResponse::WFTResponse() :
-                FtBufferResponse::FtBufferResponse()
+#include <iostream>
+#include <ostream>
+#include <string>
+
+#include <boost/shared_ptr.hpp>
+
+#include <message.h>
+#include <SimpleStorage.h>
+
+#include "WFTObject.h"
+
+class WFTHeader: public WFTObject
 {
 
-}
+public:
 
-WFTResponse::~WFTResponse()
-{
+    typedef boost::shared_ptr< WFTHeader > SPtr;
 
-}
+    typedef header_t WFTHeaderT;
 
-message_t *&WFTResponse::getMessage()
-{
-    return m_response;
-}
+    typedef headerdef_t WFTHeaderDefT;
+
+    WFTHeader();
+
+    ~WFTHeader();
+
+    WFTHeaderDefT& getHeaderDef();
+
+    WFTRequest::SPtr asRequest();
+
+    bool parseResponse( WFTResponse::SPtr response );
+
+    bool hasChunks();
+
+private:
+
+    SimpleStorage m_chunkBuffer;
+
+    WFTHeaderT m_header;
+
+};
+
+#endif /* WFTHEADER_H_ */

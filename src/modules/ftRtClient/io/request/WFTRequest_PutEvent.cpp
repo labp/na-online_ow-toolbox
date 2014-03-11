@@ -22,21 +22,21 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WFTRequest_GetEvent.h"
+#include "WFTRequest_PutEvent.h"
 
-WFTRequest_GetEvent::WFTRequest_GetEvent( UINT32_T begevent, UINT32_T endevent )
+WFTRequest_PutEvent::WFTRequest_PutEvent( INT32_T sample, INT32_T offset, INT32_T duration, std::string& type,
+                std::string& value )
 {
-    prepGetEvents( begevent, endevent );
+    prepPutEvent( sample, offset, duration, type.c_str(), value.c_str() );
 }
 
-WFTRequest_GetEvent::~WFTRequest_GetEvent()
+WFTRequest_PutEvent::WFTRequest_PutEvent( INT32_T sample, INT32_T offset, INT32_T duration, std::string& type, INT32_T value )
+{
+    prepPutEvent( sample, offset, duration, type.c_str(), value );
+}
+
+WFTRequest_PutEvent::~WFTRequest_PutEvent()
 {
 
 }
 
-WFTRequest_GetEvent::WFTRequest_GetEvent( UINT16_T version, UINT32_T begevent, UINT32_T endevent )
-{
-    WFTRequest_GetEvent( begevent, endevent );
-
-    setVersion( version );
-}

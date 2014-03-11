@@ -22,21 +22,18 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WFTRequest_GetData.h"
+#ifndef WFTREQUEST_PUTDATA_H_
+#define WFTREQUEST_PUTDATA_H_
 
-WFTRequest_GetData::WFTRequest_GetData( UINT32_T begsample, UINT32_T endsample )
+#include "WFTRequest.h"
+
+class WFTRequest_PutData: public WFTRequest
 {
-    prepGetData( begsample, endsample );
-}
+public:
 
-WFTRequest_GetData::~WFTRequest_GetData()
-{
+    WFTRequest_PutData( UINT32_T numChannels, UINT32_T numSamples, UINT32_T dataType, const void *data );
 
-}
+    virtual ~WFTRequest_PutData();
+};
 
-WFTRequest_GetData::WFTRequest_GetData( UINT16_T version, UINT32_T begsample, UINT32_T endsample )
-{
-    WFTRequest_GetData( begsample, endsample );
-
-    setVersion( version );
-}
+#endif /* WFTREQUEST_PUTDATA_H_ */

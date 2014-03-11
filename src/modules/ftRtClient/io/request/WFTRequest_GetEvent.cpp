@@ -22,35 +22,14 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WFTConnection.h"
+#include "WFTRequest_GetEvent.h"
 
-WFTConnection::WFTConnection( int retry ) :
-                FtConnection::FtConnection( retry )
+WFTRequest_GetEvent::WFTRequest_GetEvent( UINT32_T begevent, UINT32_T endevent )
 {
-
+    prepGetEvents( begevent, endevent );
 }
 
-WFTConnection::~WFTConnection()
+WFTRequest_GetEvent::~WFTRequest_GetEvent()
 {
 
-}
-
-bool WFTConnection::connect( std::string address )
-{
-    return FtConnection::connect( address.c_str() );
-}
-
-bool WFTConnection::isOpen() const
-{
-    return FtConnection::isOpen();
-}
-
-void WFTConnection::disconnect()
-{
-    FtConnection::disconnect();
-}
-
-int WFTConnection::getSocket() const
-{
-    return FtConnection::getSocket();
 }

@@ -22,23 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WFTRequest_PutHeader.h"
+#include "WFTAbstractRequestBuilder.h"
 
-WFTRequest_PutHeader::WFTRequest_PutHeader( UINT32_T numChannels, UINT32_T dataType, float fsample ) :
-                WFTRequest::WFTRequest()
-{
-    prepPutHeader( numChannels, dataType, fsample );
-}
-
-WFTRequest_PutHeader::WFTRequest_PutHeader( UINT16_T version, UINT32_T numChannels, UINT32_T dataType, float fsample )
-{
-    WFTRequest_PutHeader( numChannels, dataType, fsample );
-
-    setVersion( version );
-}
-
-WFTRequest_PutHeader::~WFTRequest_PutHeader()
+WFTAbstractRequestBuilder::~WFTAbstractRequestBuilder()
 {
 
 }
-

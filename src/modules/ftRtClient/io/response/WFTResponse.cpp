@@ -22,20 +22,31 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFTREQUEST_GETHEADER_H_
-#define WFTREQUEST_GETHEADER_H_
+#include "WFTResponse.h"
 
-#include "WFTRequest.h"
-
-class WFTRequest_GetHeader: public WFTRequest
+bool WFTResponse::isValid()
 {
-public:
+    if( m_response == NULL )
+        return false;
+    if( m_response->def == NULL )
+        return false;
+    if( m_response->def->version != VERSION )
+        return false;
 
-    WFTRequest_GetHeader();
+    return true;
+}
 
-    WFTRequest_GetHeader( UINT16_T version );
+bool WFTResponse::hasData()
+{
+    if(!isValid())
+    {
+        return false;
+    }
 
-    virtual ~WFTRequest_GetHeader();
-};
+    return m_response->def->bufsize > 0;
+}
 
-#endif /* WFTREQUEST_GETHEADER_H_ */
+WFTResponse::WFTMessageT_ConstSPtr WFTResponse::getMessage()
+{
+    return WFTMessageT_ConstSPtr( m_response );
+}

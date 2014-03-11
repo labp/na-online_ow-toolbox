@@ -22,14 +22,18 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WFTAbstractRequestBuilder.h"
+#ifndef WFTREQUEST_GETDATA_H_
+#define WFTREQUEST_GETDATA_H_
 
-WFTAbstractRequestBuilder::WFTAbstractRequestBuilder()
+#include "WFTRequest.h"
+
+class WFTRequest_GetData: public WFTRequest
 {
+public:
 
-}
+    WFTRequest_GetData( UINT32_T begsample, UINT32_T endsample );
 
-WFTAbstractRequestBuilder::~WFTAbstractRequestBuilder()
-{
+    virtual ~WFTRequest_GetData();
+};
 
-}
+#endif /* WFTREQUEST_GETDATA_H_ */

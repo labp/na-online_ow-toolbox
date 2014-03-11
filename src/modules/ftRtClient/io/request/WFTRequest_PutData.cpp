@@ -22,20 +22,14 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFTREQUEST_GETEVENT_H_
-#define WFTREQUEST_GETEVENT_H_
+#include "WFTRequest_PutData.h"
 
-#include "WFTRequest.h"
-
-class WFTRequest_GetEvent: public WFTRequest
+WFTRequest_PutData::WFTRequest_PutData( UINT32_T numChannels, UINT32_T numSamples, UINT32_T dataType, const void *data )
 {
-public:
+    prepPutData( numChannels, numSamples, dataType, data );
+}
 
-    WFTRequest_GetEvent( UINT32_T begevent, UINT32_T endevent );
+WFTRequest_PutData::~WFTRequest_PutData()
+{
 
-    WFTRequest_GetEvent( UINT16_T version, UINT32_T begevent, UINT32_T endevent );
-
-    virtual ~WFTRequest_GetEvent();
-};
-
-#endif /* WFTREQUEST_GETEVENT_H_ */
+}

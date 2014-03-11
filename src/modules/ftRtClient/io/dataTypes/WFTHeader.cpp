@@ -22,22 +22,36 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WFTRequest_PutData.h"
+#include "WFTHeader.h"
 
-WFTRequest_PutData::WFTRequest_PutData( UINT32_T numChannels, UINT32_T numSamples, UINT32_T dataType, const void *data )
+WFTHeader::WFTHeader()
 {
-    prepPutData( numChannels, numSamples, dataType, data );
+    m_header.def = new WFTHeaderDefT;
+    m_header.buf = m_chunkBuffer.data();
 }
 
-WFTRequest_PutData::~WFTRequest_PutData()
+WFTHeader::~WFTHeader()
 {
 
 }
 
-WFTRequest_PutData::WFTRequest_PutData( UINT16_T version, UINT32_T numChannels, UINT32_T numSamples, UINT32_T dataType,
-                const void *data )
+bool WFTHeader::hasChunks()
 {
-    WFTRequest_PutData( version, numChannels, numSamples, dataType, data );
-
-    setVersion( version );
+    return m_header.def->bufsize > 0;
 }
+
+WFTHeader::WFTHeaderDefT& WFTHeader::getHeaderDef()
+{
+    return *m_header.def;
+}
+
+WFTRequest::SPtr WFTHeader::asRequest()
+{
+    return WFTRequest::SPtr();
+}
+
+bool WFTHeader::parseResponse( WFTResponse::SPtr response )
+{
+    return response->checkGetHeader( *m_header.def, &m_chunkBuffer );
+}
+

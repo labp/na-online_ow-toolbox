@@ -22,35 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WFTConnection.h"
+#include "WFTObject.h"
 
-WFTConnection::WFTConnection( int retry ) :
-                FtConnection::FtConnection( retry )
+WFTObject::~WFTObject()
 {
 
-}
-
-WFTConnection::~WFTConnection()
-{
-
-}
-
-bool WFTConnection::connect( std::string address )
-{
-    return FtConnection::connect( address.c_str() );
-}
-
-bool WFTConnection::isOpen() const
-{
-    return FtConnection::isOpen();
-}
-
-void WFTConnection::disconnect()
-{
-    FtConnection::disconnect();
-}
-
-int WFTConnection::getSocket() const
-{
-    return FtConnection::getSocket();
 }

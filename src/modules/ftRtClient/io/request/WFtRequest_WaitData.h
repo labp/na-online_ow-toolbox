@@ -22,20 +22,17 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFTREQUEST_PUTHEADER_H_
-#define WFTREQUEST_PUTHEADER_H_
+#ifndef WFTREQUEST_WAITDATA_H_
+#define WFTREQUEST_WAITDATA_H_
 
 #include "WFTRequest.h"
 
-class WFTRequest_PutHeader: public WFTRequest
+class WFtRequest_WaitData: public WFTRequest
 {
 public:
+    WFtRequest_WaitData(UINT32_T nSamples, UINT32_T nEvents, UINT32_T milliseconds);
 
-    WFTRequest_PutHeader( UINT32_T numChannels, UINT32_T dataType, float fsample );
-
-    WFTRequest_PutHeader( UINT16_T version, UINT32_T numChannels, UINT32_T dataType, float fsample );
-
-    virtual ~WFTRequest_PutHeader();
+    virtual ~WFtRequest_WaitData();
 };
 
-#endif /* WFTREQUEST_PUTHEADER_H_ */
+#endif /* WFTREQUEST_WAITDATA_H_ */

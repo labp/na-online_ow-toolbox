@@ -101,6 +101,12 @@ private:
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;
+
+    WPropGroup m_propGrpFtClient;
+
+    WPropTrigger m_doRequest;
+
+    void handleDoRequest();
 };
 
 #endif /* WMFTRTCLIENT_H_ */

@@ -22,27 +22,46 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WFTRequest_GetHeader.h"
+#ifndef WFTRESPONSE_H_
+#define WFTRESPONSE_H_
 
-WFTRequest_GetHeader::WFTRequest_GetHeader()
-{
-    prepGetHeader();
-}
+#include <boost/pointer_cast.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/type_traits/is_base_of.hpp>
 
-WFTRequest_GetHeader::WFTRequest_GetHeader( UINT16_T version )
+#include <FtBuffer.h>
+
+/**
+ * Wrapper class for a response created through a FieldTrip request.
+ */
+class WFTResponse: public FtBufferResponse
 {
+public:
+
     /**
-     * Call the base constructor inside the overloaded constructor because constructor overloading at the
-     * definition part was introduced begin with C++11.
+     * Define a shared pointer on a response.
      */
+    typedef boost::shared_ptr< WFTResponse > SPtr;
 
-    WFTRequest_GetHeader();
+    typedef boost::shared_ptr< const message_t > WFTMessageT_ConstSPtr;
 
-    setVersion( version );
-}
+    /**
+     * This method tests the arrived data for mistakes. It should be called before getting any data for the response.
+     *
+     * @return True if the data are valid, else false.
+     */
+    bool isValid();
 
-WFTRequest_GetHeader::~WFTRequest_GetHeader()
-{
+    bool hasData();
 
-}
+    WFTMessageT_ConstSPtr getMessage();
 
+protected:
+
+    /**
+     * Forbid direct access to the buffer space. Use getMessage() instead.
+     */
+    FtBufferResponse::m_response;
+};
+
+#endif /* WFTRESPONSE_H_ */

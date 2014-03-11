@@ -35,14 +35,19 @@ public:
 
     typedef boost::shared_ptr< WFTConnection > SPtr;
 
-    WFTConnection();
+    WFTConnection( int retry = 0 );
 
     virtual ~WFTConnection();
 
     virtual bool connect() = 0;
 
-    virtual bool connect(std::string address);
+    virtual bool connect( std::string address );
 
+    bool isOpen() const;
+
+    void disconnect();
+
+    int getSocket() const;
 };
 
 #endif /* WFTCONNECTION_H_ */

@@ -22,33 +22,20 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFTREQUEST_H_
-#define WFTREQUEST_H_
+#ifndef WFTREQUEST_PUTEVENT_H_
+#define WFTREQUEST_PUTEVENT_H_
 
-#include <boost/shared_ptr.hpp>
+#include "WFTRequest.h"
 
-#include <FtBuffer.h>
-
-class WFTRequest: public FtBufferRequest
+class WFTRequest_PutEvent: public WFTRequest
 {
 public:
 
-    typedef boost::shared_ptr< WFTRequest > SPtr;
+    WFTRequest_PutEvent( INT32_T sample, INT32_T offset, INT32_T duration, std::string& type, std::string& value );
 
-    WFTRequest();
+    WFTRequest_PutEvent( INT32_T sample, INT32_T offset, INT32_T duration, std::string& type, INT32_T value );
 
-    WFTRequest( UINT16_T version );
-
-    UINT16_T getVersion() const;
-
-    void setVersion( UINT16_T version );
-
-    messagedef_t *getMessageDef();
-
-    message_t *getMessage();
-
-    SimpleStorage *getBuffer();
-
+    virtual ~WFTRequest_PutEvent();
 };
 
-#endif /* WFTREQUEST_H_ */
+#endif /* WFTREQUEST_PUTEVENT_H_ */

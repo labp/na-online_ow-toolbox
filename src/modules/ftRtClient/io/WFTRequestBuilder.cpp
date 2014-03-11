@@ -24,12 +24,13 @@
 
 #include <buffer.h>
 
-#include "requests/WFTRequest_GetData.h"
-#include "requests/WFTRequest_GetEvent.h"
-#include "requests/WFTRequest_GetHeader.h"
-#include "requests/WFTRequest_PutData.h"
-#include "requests/WFTRequest_PutEvent.h"
-#include "requests/WFTRequest_PutHeader.h"
+#include "request/WFTRequest_GetData.h"
+#include "request/WFTRequest_GetEvent.h"
+#include "request/WFTRequest_GetHeader.h"
+#include "request/WFTRequest_PutData.h"
+#include "request/WFTRequest_PutEvent.h"
+#include "request/WFTRequest_PutHeader.h"
+#include "request/WFtRequest_WaitData.h"
 #include "WFTRequestBuilder.h"
 
 WFTRequestBuilder::WFTRequestBuilder()
@@ -107,14 +108,5 @@ WFTRequest::SPtr WFTRequestBuilder::buildRequest_FLUSH_HDR()
 
 WFTRequest::SPtr WFTRequestBuilder::buildRequest_WAIT_DAT( UINT32_T nSamples, UINT32_T nEvents, UINT32_T milliseconds )
 {
-    WFTRequest::SPtr request( new WFTRequest );
-
-    request->prepWaitData( nSamples, nEvents, milliseconds );
-
-    return WFTRequest::SPtr( request );
-}
-
-WFTRequest::SPtr WFTRequestBuilder::buildRequest_WAIT_DAT( UINT32_T nSamples, UINT32_T milliseconds )
-{
-    return buildRequest_WAIT_DAT( nSamples, ( 2 ^ 32 ) - 1, milliseconds );
+    return WFTRequest::SPtr( new WFtRequest_WaitData( nSamples, nEvents, milliseconds ) );
 }

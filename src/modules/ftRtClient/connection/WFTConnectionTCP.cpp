@@ -24,10 +24,10 @@
 
 #include "WFTConnectionTCP.h"
 
-WFTConnectionTCP::WFTConnectionTCP( std::string host, int port ) :
-                WFTConnection::WFTConnection(), m_host( host ), m_port( port )
+WFTConnectionTCP::WFTConnectionTCP( std::string host, int port, int retry ) :
+                WFTConnection::WFTConnection( retry ), m_host( host ), m_port( port )
 {
-
+    connect();
 }
 
 WFTConnectionTCP::~WFTConnectionTCP()
@@ -45,7 +45,7 @@ const std::string WFTConnectionTCP::getHost() const
     return m_host;
 }
 
-const int WFTConnectionTCP::getPort() const
+int WFTConnectionTCP::getPort() const
 {
     return m_port;
 }

@@ -22,25 +22,18 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFTREQUEST_PUTEVENT_H_
-#define WFTREQUEST_PUTEVENT_H_
+#ifndef WFTREQUEST_PUTHEADER_H_
+#define WFTREQUEST_PUTHEADER_H_
 
 #include "WFTRequest.h"
 
-class WFTRequest_PutEvent: public WFTRequest
+class WFTRequest_PutHeader: public WFTRequest
 {
 public:
 
-    WFTRequest_PutEvent( INT32_T sample, INT32_T offset, INT32_T duration, std::string& type, std::string& value );
+    WFTRequest_PutHeader( UINT32_T numChannels, UINT32_T dataType, float fsample );
 
-    WFTRequest_PutEvent( INT32_T sample, INT32_T offset, INT32_T duration, std::string& type, INT32_T value );
-
-    WFTRequest_PutEvent( UINT16_T version, INT32_T sample, INT32_T offset, INT32_T duration, std::string& type,
-                    std::string& value );
-
-    WFTRequest_PutEvent( UINT16_T version, INT32_T sample, INT32_T offset, INT32_T duration, std::string& type, INT32_T value );
-
-    virtual ~WFTRequest_PutEvent();
+    virtual ~WFTRequest_PutHeader();
 };
 
-#endif /* WFTREQUEST_PUTEVENT_H_ */
+#endif /* WFTREQUEST_PUTHEADER_H_ */

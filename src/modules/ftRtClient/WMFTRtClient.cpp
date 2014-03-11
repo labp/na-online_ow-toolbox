@@ -38,6 +38,9 @@
 
 #include "core/util/profiler/WLTimeProfiler.h"
 
+#include "connection/WFTConnectionTCP.h"
+#include "WFTRtClient.h"
+
 #include "WMFTRtClient.h"
 
 #include "WMFTRtClient.xpm"
@@ -108,6 +111,11 @@ void WMFTRtClient::properties()
 
     /* init property container */
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+
+    m_propGrpFtClient = m_properties->addPropertyGroup( "FtClient", "FieldTrip Client", false );
+    m_doRequest = m_propGrpFtClient->addProperty( "Do FT Request", "do Request", WPVBaseTypes::PV_TRIGGER_READY,
+                    m_propCondition );
+    m_doRequest->changed( true );
 }
 
 /**
@@ -144,6 +152,14 @@ void WMFTRtClient::moduleMain()
         if( m_shutdownFlag() )
         {
             break; // break mainLoop on shutdown
+        }
+
+        // button applyBufferSize clicked
+        if( m_doRequest->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+        {
+            handleDoRequest();
+
+            m_doRequest->set( WPVBaseTypes::PV_TRIGGER_READY, true );
         }
 
         debugLog() << "Waiting for Events";
@@ -185,8 +201,6 @@ bool WMFTRtClient::processCompute( WLEMMeasurement::SPtr emmIn )
     // ---------- PROCESSING ----------
     viewUpdate( emmIn ); // update the GUI component
 
-
-
     rejectProcess->finish(); // finish the process visualization
 
     return true;
@@ -206,4 +220,22 @@ bool WMFTRtClient::processReset( WLEMMCommand::SPtr labp )
     m_output->updateData( labp );
 
     return true;
+}
+
+void WMFTRtClient::handleDoRequest()
+{
+    WFTConnectionTCP::SPtr con( new WFTConnectionTCP( "localhost", 1972 ) );
+
+    WFTRtClient::SPtr client( new WFTRtClient( con ) );
+    if(con->isOpen())
+    {
+        client->doReqest();
+    }
+    else
+    {
+        debugLog() << "keine offene Verbindung";
+    }
+
+    con->disconnect();
+    debugLog() << "Verbindung geschlossen";
 }

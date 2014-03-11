@@ -29,15 +29,18 @@
 
 #include <message.h>
 
-#include "requests/WFTRequest.h"
+#include "request/WFTRequest.h"
 
 // TODO(maschke): implement adding chunks, get chunks
 
+/**
+ * The WFTAbstractRequestBuilder represents an interface for creating WFTRequests and can be inherited by concrete
+ * request builders. On the other side further request builder interfaces can extends this interface to provide
+ * additional requests.
+ */
 class WFTAbstractRequestBuilder
 {
 public:
-
-    WFTAbstractRequestBuilder();
 
     virtual ~WFTAbstractRequestBuilder();
 
@@ -65,8 +68,6 @@ public:
     virtual WFTRequest::SPtr buildRequest_FLUSH_HDR() = 0;
 
     virtual WFTRequest::SPtr buildRequest_WAIT_DAT( UINT32_T nSamples, UINT32_T nEvents, UINT32_T milliseconds ) = 0;
-
-    virtual WFTRequest::SPtr buildRequest_WAIT_DAT( UINT32_T nSamples, UINT32_T milliseconds ) = 0;
 
 };
 

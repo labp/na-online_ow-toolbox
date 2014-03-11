@@ -22,36 +22,14 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WFTRequest_PutEvent.h"
+#include "WFTRequest_GetHeader.h"
 
-WFTRequest_PutEvent::WFTRequest_PutEvent( INT32_T sample, INT32_T offset, INT32_T duration, std::string& type,
-                std::string& value )
+WFTRequest_GetHeader::WFTRequest_GetHeader()
 {
-    prepPutEvent( sample, offset, duration, type.c_str(), value.c_str() );
+    prepGetHeader();
 }
 
-WFTRequest_PutEvent::WFTRequest_PutEvent( INT32_T sample, INT32_T offset, INT32_T duration, std::string& type, INT32_T value )
-{
-    prepPutEvent( sample, offset, duration, type.c_str(), value );
-}
-
-WFTRequest_PutEvent::WFTRequest_PutEvent( UINT16_T version, INT32_T sample, INT32_T offset, INT32_T duration, std::string& type,
-                std::string& value )
-{
-    WFTRequest_PutEvent( sample, offset, duration, type, value );
-
-    setVersion( version );
-}
-
-WFTRequest_PutEvent::WFTRequest_PutEvent( UINT16_T version, INT32_T sample, INT32_T offset, INT32_T duration, std::string& type,
-                INT32_T value )
-{
-    WFTRequest_PutEvent( sample, offset, duration, type, value );
-
-    setVersion( version );
-}
-
-WFTRequest_PutEvent::~WFTRequest_PutEvent()
+WFTRequest_GetHeader::~WFTRequest_GetHeader()
 {
 
 }

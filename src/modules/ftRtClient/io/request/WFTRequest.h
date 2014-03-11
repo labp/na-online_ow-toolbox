@@ -22,20 +22,33 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFTREQUEST_GETDATA_H_
-#define WFTREQUEST_GETDATA_H_
+#ifndef WFTREQUEST_H_
+#define WFTREQUEST_H_
 
-#include "WFTRequest.h"
+#include <boost/shared_ptr.hpp>
 
-class WFTRequest_GetData: public WFTRequest
+#include <FtBuffer.h>
+
+class WFTRequest: protected FtBufferRequest
 {
 public:
 
-    WFTRequest_GetData( UINT32_T begsample, UINT32_T endsample );
+    typedef boost::shared_ptr< WFTRequest > SPtr;
 
-    WFTRequest_GetData( UINT16_T version, UINT32_T begsample, UINT32_T endsample );
+    typedef messagedef_t WFTMessageDefT;
 
-    virtual ~WFTRequest_GetData();
+    typedef message_t WFTMessageT;
+
+    WFTRequest();
+
+    WFTMessageDefT *getMessageDef();
+
+    WFTMessageT *getMessage();
+
+    SimpleStorage *getBuffer();
+
+    FtBufferRequest::out;
+
 };
 
-#endif /* WFTREQUEST_GETDATA_H_ */
+#endif /* WFTREQUEST_H_ */

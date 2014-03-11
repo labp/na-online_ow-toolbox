@@ -31,21 +31,21 @@ class WFTConnectionTCP: public WFTConnection
 {
 public:
 
-    WFTConnectionTCP(std::string host, int port);
+    WFTConnectionTCP( std::string host, int port, int retry = 0 );
 
-    virtual ~WFTConnectionTCP();
+    ~WFTConnectionTCP();
 
     bool connect();
 
     const std::string getHost() const;
 
-    const int getPort() const;
+    int getPort() const;
 
 protected:
 
-   const std::string m_host;
+    const std::string m_host;
 
-   const int m_port;
+    const int m_port;
 };
 
 #endif /* WFTCONNECTIONTCP_H_ */

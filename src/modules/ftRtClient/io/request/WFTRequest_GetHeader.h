@@ -22,35 +22,18 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WFTConnection.h"
+#ifndef WFTREQUEST_GETHEADER_H_
+#define WFTREQUEST_GETHEADER_H_
 
-WFTConnection::WFTConnection( int retry ) :
-                FtConnection::FtConnection( retry )
+#include "WFTRequest.h"
+
+class WFTRequest_GetHeader: public WFTRequest
 {
+public:
 
-}
+    WFTRequest_GetHeader();
 
-WFTConnection::~WFTConnection()
-{
+    virtual ~WFTRequest_GetHeader();
+};
 
-}
-
-bool WFTConnection::connect( std::string address )
-{
-    return FtConnection::connect( address.c_str() );
-}
-
-bool WFTConnection::isOpen() const
-{
-    return FtConnection::isOpen();
-}
-
-void WFTConnection::disconnect()
-{
-    FtConnection::disconnect();
-}
-
-int WFTConnection::getSocket() const
-{
-    return FtConnection::getSocket();
-}
+#endif /* WFTREQUEST_GETHEADER_H_ */

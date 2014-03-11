@@ -25,16 +25,23 @@
 #ifndef WFTREQUESTBUILDER_H_
 #define WFTREQUESTBUILDER_H_
 
+#include <boost/shared_ptr.hpp>
+
 #include <message.h>
 
 #include "WFTAbstractRequestBuilder.h"
-#include "requests/WFTRequest.h"
+#include "request/WFTRequest.h"
 
-// TODO(maschke): check whether the pointer parameter are correct.
-
+/**
+ * This class is used to create FieldTrip buffer requests and bases on the WFTAbstractRequestBuilder interface.
+ * It provides partially core FieldTrip features but also additional requests.
+ */
 class WFTRequestBuilder: public WFTAbstractRequestBuilder
 {
 public:
+
+    typedef boost::shared_ptr< WFTRequestBuilder > SPtr;
+
     WFTRequestBuilder();
 
     WFTRequest::SPtr buildRequest_GET_HDR();
@@ -60,8 +67,6 @@ public:
     WFTRequest::SPtr buildRequest_FLUSH_HDR();
 
     WFTRequest::SPtr buildRequest_WAIT_DAT( UINT32_T nSamples, UINT32_T nEvents, UINT32_T milliseconds );
-
-    WFTRequest::SPtr buildRequest_WAIT_DAT( UINT32_T nSamples, UINT32_T milliseconds );
 };
 
 #endif /* WFTREQUESTBUILDER_H_ */

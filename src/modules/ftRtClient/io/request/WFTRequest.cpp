@@ -22,20 +22,25 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFTREQUEST_PUTDATA_H_
-#define WFTREQUEST_PUTDATA_H_
-
 #include "WFTRequest.h"
 
-class WFTRequest_PutData: public WFTRequest
+WFTRequest::WFTRequest() :
+                FtBufferRequest::FtBufferRequest()
 {
-public:
 
-    WFTRequest_PutData( UINT32_T numChannels, UINT32_T numSamples, UINT32_T dataType, const void *data );
+}
 
-    WFTRequest_PutData( UINT16_T version, UINT32_T numChannels, UINT32_T numSamples, UINT32_T dataType, const void *data );
+WFTRequest::WFTMessageDefT *WFTRequest::getMessageDef()
+{
+    return &m_def;
+}
 
-    virtual ~WFTRequest_PutData();
-};
+WFTRequest::WFTMessageT *WFTRequest::getMessage()
+{
+    return &m_msg;
+}
 
-#endif /* WFTREQUEST_PUTDATA_H_ */
+SimpleStorage *WFTRequest::getBuffer()
+{
+    return &m_buf;
+}

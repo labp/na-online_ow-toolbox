@@ -31,13 +31,13 @@ class WFTConnectionUnix: public WFTConnection
 {
 public:
 
-    WFTConnectionUnix(std::string pathname);
+    WFTConnectionUnix( std::string pathname, int retry = 0 );
 
-    virtual ~WFTConnectionUnix();
+    ~WFTConnectionUnix();
 
     virtual bool connect();
 
-    const std::string getPatName() const;
+    const std::string getPathName() const;
 
 protected:
 
