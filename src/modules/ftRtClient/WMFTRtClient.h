@@ -36,9 +36,12 @@
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
+#include "WFTClientStreaming.h"
+
 class WMFTRtClient: public WLModuleDrawable
 {
 public:
+
     WMFTRtClient();
     virtual ~WMFTRtClient();
 
@@ -102,11 +105,62 @@ private:
      */
     boost::shared_ptr< WCondition > m_propCondition;
 
+    /**
+     * Property group for the client
+     */
     WPropGroup m_propGrpFtClient;
 
     WPropTrigger m_doRequest;
 
+    boost::shared_ptr< WItemSelection > m_connectionType;
+    WPropSelection m_connectionTypeSelection;
+
+    WPropString m_host;
+    WPropInt m_port;
+    WPropString m_conStatus;
+    WPropString m_streamStatus;
+
+    WPropTrigger m_trgConnect;
+    WPropTrigger m_trgDisconnect;
+    WPropTrigger m_trgStartStream;
+    WPropTrigger m_trgStopStream;
+
+    /**
+     * Property group for header data
+     */
+    WPropGroup m_propGrpHeader;
+
+    WPropInt m_channels;
+    WPropInt m_samples;
+    WPropDouble m_frSample;
+    WPropInt m_events;
+    WPropInt m_headerBufSize;
+
+    WFTClientStreaming::SPtr m_ftRtClient;
+
     void handleDoRequest();
+
+    void callbackConnectionTypeChanged();
+
+    void callbackTrgConnect();
+
+    void callbackTrgDisconnect();
+
+    void callbackTrgStartStreaming();
+
+    void callbackTrgStopStreaming();
+
+    static const std::string DEFAULT_FT_HOST;
+
+    static const int DEFAULT_FT_PORT;
+
+    static const std::string CONNECTION_CONNECT;
+
+    static const std::string CONNECTION_DISCONNECT;
+
+    static const std::string CLIENT_STREAMING;
+
+    static const std::string CLIENT_NOT_STREAMING;
 };
 
 #endif /* WMFTRTCLIENT_H_ */

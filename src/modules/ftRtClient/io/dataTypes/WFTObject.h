@@ -29,9 +29,6 @@
 
 #include <message.h>
 
-#include "../request/WFTRequest.h"
-#include "../response/WFTResponse.h"
-
 class WFTObject
 {
 public:
@@ -42,11 +39,33 @@ public:
 
     typedef boost::shared_ptr< const WFTMessageT > WFTMessageT_ConstSPtr;
 
+    typedef messagedef_t WFTMessageDefT;
+
+    typedef header_t WFTHeaderT;
+
+    typedef headerdef_t WFTHeaderDefT;
+
+    typedef data_t WFTDataT;
+
+    typedef datadef_t WFTDataDefT;
+
+    typedef event_t WFTEventT;
+
+    typedef eventdef_t WFTEventDefT;
+
+    typedef waitdef_t WFTWaitDefT;
+
+    typedef ft_chunk_t WFTChunkT;
+
+    typedef boost::shared_ptr< WFTChunkT > WFTChunkT_SPtr;
+
+    typedef ft_chunkdef_t WFTChunkDefT;
+
+    typedef boost::shared_ptr< ft_chunkdef_t > WFTChunkDefT_SPtr;
+
     virtual ~WFTObject();
 
-    virtual WFTRequest::SPtr asRequest() = 0;
-
-    virtual bool parseResponse( WFTResponse::SPtr ) = 0;
+    virtual UINT32_T getSize() const = 0;
 };
 
 #endif /* WFTOBJECT_H_ */

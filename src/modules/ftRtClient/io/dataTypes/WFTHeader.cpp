@@ -22,12 +22,20 @@
 //
 //---------------------------------------------------------------------------
 
+#include <boost/foreach.hpp>
+#include <boost/pointer_cast.hpp>
+
+#include "../WFTChunkIterator.h"
+#include "../WFTRequestBuilder.h"
+#include "../request/WFTRequest_PutHeader.h"
+
 #include "WFTHeader.h"
 
-WFTHeader::WFTHeader()
+WFTHeader::WFTHeader( UINT32_T numChannels, UINT32_T dataType, float fsample )
 {
-    m_header.def = new WFTHeaderDefT;
-    m_header.buf = m_chunkBuffer.data();
+    m_def.nchans = numChannels;
+    m_def.data_type = dataType;
+    m_def.fsample = fsample;
 }
 
 WFTHeader::~WFTHeader()
@@ -35,23 +43,62 @@ WFTHeader::~WFTHeader()
 
 }
 
-bool WFTHeader::hasChunks()
-{
-    return m_header.def->bufsize > 0;
-}
-
-WFTHeader::WFTHeaderDefT& WFTHeader::getHeaderDef()
-{
-    return *m_header.def;
-}
-
 WFTRequest::SPtr WFTHeader::asRequest()
 {
-    return WFTRequest::SPtr();
+    WFTRequestBuilder::SPtr builder;
+    WFTRequest_PutHeader::SPtr request = builder->buildRequest_PUT_HDR( m_def.nchans, m_def.data_type, m_def.fsample );
+
+    // add chunks from the collection to the request object.
+    BOOST_FOREACH(WFTChunk::SPtr chunk, m_chunks)
+    {
+        boost::static_pointer_cast< WFTRequest_PutHeader >( request )->addChunk( chunk );
+    }
+
+    return WFTRequest_PutHeader::SPtr( request );
 }
 
 bool WFTHeader::parseResponse( WFTResponse::SPtr response )
 {
-    return response->checkGetHeader( *m_header.def, &m_chunkBuffer );
+    SimpleStorage chunkBuffer; // buffer containing only the chunk data after retrieving.
+
+    if( !response->checkGetHeader( m_def, &chunkBuffer ) )
+    {
+        return false;
+    }
+
+    // extracts the chunks from the response using an iterator and stores them in the local chunk collection.
+    WFTChunkIterator::SPtr iterator( new WFTChunkIterator( chunkBuffer, m_def.bufsize ) );
+    while( iterator->hasNext() )
+    {
+        m_chunks.push_back( iterator->getNext() );
+    }
+
+    return true;
 }
 
+UINT32_T WFTHeader::getSize() const
+{
+    return sizeof(WFTHeaderDefT) + m_def.bufsize;
+}
+
+WFTHeader::WFTHeaderDefT& WFTHeader::getHeaderDef()
+{
+    return m_def;
+}
+
+bool WFTHeader::hasChunks()
+{
+    return m_def.bufsize > 0;
+}
+
+void WFTHeader::addChunk( WFTChunk::SPtr chunk )
+{
+    m_chunks.push_back( chunk );
+
+    m_def.bufsize += chunk->getDef().size + sizeof(WFTObject::WFTChunkDefT);
+}
+
+WFTHeader::WFTChunkList_ConstSPtr WFTHeader::getChunks()
+{
+    return WFTHeader::WFTChunkList_ConstSPtr( new WFTChunkList( m_chunks ) );
+}

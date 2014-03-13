@@ -35,3 +35,12 @@ WFTRequest_PutHeader::~WFTRequest_PutHeader()
 
 }
 
+bool WFTRequest_PutHeader::addChunk( UINT32_T chunkType, UINT32_T chunkSize, const void *data )
+{
+    return prepPutHeaderAddChunk( chunkType, chunkSize, data );
+}
+
+bool WFTRequest_PutHeader::addChunk( WFTChunk::SPtr chunk )
+{
+    return addChunk( chunk->getDef().type, chunk->getDef().size, chunk->getData() );
+}

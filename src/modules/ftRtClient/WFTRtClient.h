@@ -42,9 +42,11 @@ public:
 
     typedef boost::shared_ptr< WFTRtClient > SPtr;
 
-    WFTRtClient( WFTConnection::SPtr connection );
+    WFTRtClient();
 
     WFTConnection::SPtr getConnection() const;
+
+    void setConnection( WFTConnection::SPtr connection );
 
     bool connect();
 
@@ -62,7 +64,7 @@ public:
      * @return Returns true if the transformation was successful else false.
      */
     template< typename T >
-    bool getResponseAs( boost::shared_ptr<T> object, WFTResponse::SPtr response );
+    bool getResponseAs( boost::shared_ptr< T > object, WFTResponse::SPtr response );
 
 protected:
 

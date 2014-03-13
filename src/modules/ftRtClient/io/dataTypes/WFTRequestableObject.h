@@ -22,24 +22,20 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFTREQUEST_PUTHEADER_H_
-#define WFTREQUEST_PUTHEADER_H_
+#ifndef WFTREQUESTABLEOBJECT_H_
+#define WFTREQUESTABLEOBJECT_H_
 
-#include "../dataTypes/WFTChunk.h"
-#include "WFTRequest.h"
+#include "../request/WFTRequest.h"
+#include "../response/WFTResponse.h"
+#include "WFTObject.h"
 
-class WFTRequest_PutHeader: public WFTRequest
+class WFTRequestableObject: public WFTObject
 {
-public:
+    virtual WFTRequest::SPtr asRequest() = 0;
 
-    WFTRequest_PutHeader( UINT32_T numChannels, UINT32_T dataType, float fsample );
+    virtual bool parseResponse( WFTResponse::SPtr ) = 0;
 
-    virtual ~WFTRequest_PutHeader();
-
-    bool addChunk( UINT32_T chunkType, UINT32_T chunkSize, const void *data );
-
-    bool addChunk( WFTChunk::SPtr chunk );
-
+    virtual UINT32_T getSize() const = 0;
 };
 
-#endif /* WFTREQUEST_PUTHEADER_H_ */
+#endif /* WFTREQUESTABLEOBJECT_H_ */

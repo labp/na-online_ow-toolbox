@@ -22,24 +22,5 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFTREQUEST_PUTHEADER_H_
-#define WFTREQUEST_PUTHEADER_H_
+#include "WFTRequestableObject.h"
 
-#include "../dataTypes/WFTChunk.h"
-#include "WFTRequest.h"
-
-class WFTRequest_PutHeader: public WFTRequest
-{
-public:
-
-    WFTRequest_PutHeader( UINT32_T numChannels, UINT32_T dataType, float fsample );
-
-    virtual ~WFTRequest_PutHeader();
-
-    bool addChunk( UINT32_T chunkType, UINT32_T chunkSize, const void *data );
-
-    bool addChunk( WFTChunk::SPtr chunk );
-
-};
-
-#endif /* WFTREQUEST_PUTHEADER_H_ */

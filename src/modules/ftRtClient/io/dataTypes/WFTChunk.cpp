@@ -22,24 +22,48 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFTREQUEST_PUTHEADER_H_
-#define WFTREQUEST_PUTHEADER_H_
+#include "WFTChunk.h"
 
-#include "../dataTypes/WFTChunk.h"
-#include "WFTRequest.h"
-
-class WFTRequest_PutHeader: public WFTRequest
+WFTChunk::WFTChunk( UINT32_T chunkType, UINT32_T chunkSize, const void *data )
 {
-public:
+    if( !m_buf.resize( chunkSize ) )
+    {
+        return;
+    }
 
-    WFTRequest_PutHeader( UINT32_T numChannels, UINT32_T dataType, float fsample );
+    memcpy( m_buf.data(), data, chunkSize );
 
-    virtual ~WFTRequest_PutHeader();
+    m_chunkdef.type = chunkType;
+    m_chunkdef.size = chunkSize;
+}
 
-    bool addChunk( UINT32_T chunkType, UINT32_T chunkSize, const void *data );
+WFTChunk::~WFTChunk()
+{
+}
 
-    bool addChunk( WFTChunk::SPtr chunk );
+UINT32_T WFTChunk::getSize() const
+{
+    return m_chunkdef.size + sizeof(WFTChunkDefT);
+}
 
-};
+const WFTObject::WFTChunkDefT WFTChunk::getDef() const
+{
+    return m_chunkdef;
+}
 
-#endif /* WFTREQUEST_PUTHEADER_H_ */
+const void *WFTChunk::getData()
+{
+    return m_buf.data();
+}
+
+const std::string WFTChunk::getDataString()
+{
+    char *chr = ( char* )malloc( m_chunkdef.size );
+    memcpy( chr, m_buf.data(), m_chunkdef.size );
+
+    std::string s = std::string( chr );
+
+    delete chr;
+
+    return s;
+}

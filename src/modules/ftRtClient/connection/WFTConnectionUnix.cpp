@@ -27,7 +27,7 @@
 WFTConnectionUnix::WFTConnectionUnix( std::string pathname, int retry ) :
                 WFTConnection::WFTConnection( retry ), m_pathname( pathname )
 {
-    connect();
+
 }
 
 WFTConnectionUnix::~WFTConnectionUnix()

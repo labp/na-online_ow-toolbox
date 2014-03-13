@@ -31,8 +31,6 @@
 
 #include "request/WFTRequest.h"
 
-// TODO(maschke): implement adding chunks, get chunks
-
 /**
  * The WFTAbstractRequestBuilder represents an interface for creating WFTRequests and can be inherited by concrete
  * request builders. On the other side further request builder interfaces can extends this interface to provide

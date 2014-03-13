@@ -22,24 +22,20 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFTREQUEST_PUTHEADER_H_
-#define WFTREQUEST_PUTHEADER_H_
+#ifndef WFTCLIENTSTREAMING_H_
+#define WFTCLIENTSTREAMING_H_
 
-#include "../dataTypes/WFTChunk.h"
-#include "WFTRequest.h"
+#include <boost/shared_ptr.hpp>
 
-class WFTRequest_PutHeader: public WFTRequest
+#include "WFTRtClient.h"
+
+class WFTClientStreaming: public WFTRtClient
 {
 public:
 
-    WFTRequest_PutHeader( UINT32_T numChannels, UINT32_T dataType, float fsample );
+    typedef boost::shared_ptr< WFTClientStreaming > SPtr;
 
-    virtual ~WFTRequest_PutHeader();
-
-    bool addChunk( UINT32_T chunkType, UINT32_T chunkSize, const void *data );
-
-    bool addChunk( WFTChunk::SPtr chunk );
-
+    WFTClientStreaming();
 };
 
-#endif /* WFTREQUEST_PUTHEADER_H_ */
+#endif /* WFTCLIENTSTREAMING_H_ */

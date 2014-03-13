@@ -25,45 +25,72 @@
 #ifndef WFTHEADER_H_
 #define WFTHEADER_H_
 
-#include <iostream>
-#include <ostream>
-#include <string>
+#include <vector>
 
 #include <boost/shared_ptr.hpp>
 
-#include <message.h>
-#include <SimpleStorage.h>
-
-#include "WFTObject.h"
+#include "WFTChunk.h"
+#include "WFTRequestableObject.h"
 
 class WFTHeader: public WFTObject
 {
 
 public:
 
+    /**
+     * A shared pointer on a WFTHeader.
+     */
     typedef boost::shared_ptr< WFTHeader > SPtr;
 
-    typedef header_t WFTHeaderT;
+    /**
+     * A shared pointer on a list with WFTChunks.
+     */
+    typedef std::vector< WFTChunk::SPtr > WFTChunkList;
 
-    typedef headerdef_t WFTHeaderDefT;
+    /**
+     * A shared pointer on a chunk list.
+     */
+    typedef boost::shared_ptr< WFTChunkList > WFTChunkList_SPtr;
 
-    WFTHeader();
+    /**
+     * A shared pointer on a immutable chunk list.
+     */
+    typedef boost::shared_ptr< const WFTChunkList > WFTChunkList_ConstSPtr;
+
+    WFTHeader( UINT32_T numChannels, UINT32_T dataType, float fsample );
 
     ~WFTHeader();
-
-    WFTHeaderDefT& getHeaderDef();
 
     WFTRequest::SPtr asRequest();
 
     bool parseResponse( WFTResponse::SPtr response );
 
+    UINT32_T getSize() const;
+
+    WFTHeaderDefT& getHeaderDef();
+
     bool hasChunks();
 
-private:
+    void addChunk( WFTChunk::SPtr chunk );
 
-    SimpleStorage m_chunkBuffer;
+    /**
+     * Returns the chunks collection as shared pointer.
+     *
+     * @return A pointer on the chunk list.
+     */
+    WFTChunkList_ConstSPtr getChunks();
 
-    WFTHeaderT m_header;
+protected:
+
+    /**
+     * The definition part of the header.
+     */
+    WFTHeaderDefT m_def;
+
+    /**
+     * A list of chunk objects. It is used during request serializing.
+     */
+    WFTChunkList m_chunks;
 
 };
 

@@ -29,12 +29,14 @@
 #include "io/request/WFTRequest_GetHeader.h"
 #include "io/response/WFTResponse.h"
 #include "io/dataTypes/WFTHeader.h"
+#include "io/dataTypes/WFTChunk.h"
 #include "WFTRtClient.h"
+
+#include <FtBuffer.h>
 
 const std::string WFTRtClient::CLASS = "WFTRtClient";
 
-WFTRtClient::WFTRtClient( WFTConnection::SPtr connection ) :
-                m_connection( connection )
+WFTRtClient::WFTRtClient()
 {
     m_reqBuilder.reset( new WFTRequestBuilder );
 }
@@ -42,6 +44,11 @@ WFTRtClient::WFTRtClient( WFTConnection::SPtr connection ) :
 WFTConnection::SPtr WFTRtClient::getConnection() const
 {
     return m_connection;
+}
+
+void WFTRtClient::setConnection( WFTConnection::SPtr connection )
+{
+    m_connection = connection;
 }
 
 bool WFTRtClient::connect()
@@ -62,12 +69,12 @@ bool WFTRtClient::isConnected()
 template< typename T >
 bool WFTRtClient::getResponseAs( boost::shared_ptr< T > object, WFTResponse::SPtr response )
 {
-    if( !( boost::is_base_of< WFTObject, T >::value ) )
+    if( !( boost::is_base_of< WFTRequestableObject, T >::value ) )
     {
         return false;
     }
 
-    WFTObject& ptr = *object;
+    WFTRequestableObject& ptr = *object;
 
     return ptr.parseResponse( response );
 }
@@ -75,35 +82,61 @@ bool WFTRtClient::getResponseAs( boost::shared_ptr< T > object, WFTResponse::SPt
 void WFTRtClient::doReqest()
 {
     wlog::debug( CLASS ) << "doRequest()";
+    /*
+     WFTRequest_GetHeader::SPtr request = m_reqBuilder->buildRequest_GET_HDR();
+     WFTResponse::SPtr response( new WFTResponse );
 
-    WFTRequest_GetHeader::SPtr request = m_reqBuilder->buildRequest_GET_HDR();
-    WFTResponse::SPtr response( new WFTResponse );
+     if( tcprequest( m_connection->getSocket(), request->out(), response->in() ) < 0 )
+     {
+     wlog::debug( CLASS ) << "Fehler bei Request aufgetreten";
+     return;
+     }
+     else
+     {
+     wlog::debug( CLASS ) << "Request erfolgreich";
+     }
 
-    if( tcprequest( m_connection->getSocket(), request->out(), response->in() ) < 0 )
-    {
-        wlog::debug( CLASS ) << "Fehler bei Request aufgetreten";
-        return;
-    }
-    else
-    {
-        wlog::debug( CLASS ) << "Request erfolgreich";
-    }
+     WFTHeader::SPtr header( new WFTHeader );
 
-    WFTHeader::SPtr header( new WFTHeader );
+     if( !getResponseAs< WFTHeader >( header, response ) )
+     {
+     wlog::debug( CLASS ) << "Umwandeln in Zieltyp gescheitert";
+     return;
+     }
 
-    if( !getResponseAs< WFTHeader >( header, response ) )
-    {
-        wlog::debug( CLASS ) << "Umwandeln in Zieltyp gescheitert";
-        return;
-    }
+     wlog::debug( CLASS ) << "Umwandeln in Zieltyp erfolgreich";
 
-    wlog::debug( CLASS ) << "Umwandeln in Zieltyp erfolgreich";
+     wlog::debug( CLASS ) << "Samples: " << header->getHeaderDef().nsamples;
+     wlog::debug( CLASS ) << "Channels: " << header->getHeaderDef().nchans;
+     wlog::debug( CLASS ) << "Events: " << header->getHeaderDef().nevents;
+     wlog::debug( CLASS ) << "Sample Frequency: " << header->getHeaderDef().fsample;
+     wlog::debug( CLASS ) << "Data Type: " << header->getHeaderDef().data_type;
+     wlog::debug( CLASS ) << "Buffer Size: " << header->getHeaderDef().bufsize;
+     */
 
-    wlog::debug( CLASS ) << "Samples: " << header->getHeaderDef().nsamples;
-    wlog::debug( CLASS ) << "Channels: " << header->getHeaderDef().nchans;
-    wlog::debug( CLASS ) << "Events: " << header->getHeaderDef().nevents;
-    wlog::debug( CLASS ) << "Sample Frequency: " << header->getHeaderDef().fsample;
-    wlog::debug( CLASS ) << "Data Type: " << header->getHeaderDef().data_type;
-    wlog::debug( CLASS ) << "Buffer Size: " << header->getHeaderDef().bufsize;
+    /* example for creating and retrieving a request.
+     std::string a = "hello World";
 
+     // create request
+     FtBufferRequest request;
+     request.prepPutHeader( 10, 2, 1 );
+     request.prepPutHeaderAddChunk( 1, a.length(), a.c_str() );
+
+     // get request message
+     message_t mess = *request.out();
+     headerdef_t *header = (headerdef_t*)mess.buf; // get message content as header (headerdef_t)
+
+     wlog::debug( CLASS ) << "Message buffer size: " << mess.def->bufsize; // message content size
+     wlog::debug( CLASS ) << "General header size: " << sizeof(headerdef_t);
+     wlog::debug( CLASS ) << "header buffer size: " << header->bufsize; // size for chunks after headerdef
+
+     ft_chunkdef_t *chunkdef = (ft_chunkdef_t*) mess.buf + sizeof(headerdef_t); // get first chunks def
+
+     wlog::debug( CLASS ) << "chunk buffer size: " << chunkdef->size;
+
+     int size = header->bufsize - sizeof(ft_chunkdef_t);
+     char *str = (char*)malloc(size);
+     memcpy(str, mess.buf + sizeof(headerdef_t) + sizeof(ft_chunkdef_t), size);
+     wlog::debug( CLASS ) << "My String: " << str;
+     */
 }
