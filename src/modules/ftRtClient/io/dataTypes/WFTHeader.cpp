@@ -31,6 +31,11 @@
 
 #include "WFTHeader.h"
 
+WFTHeader::WFTHeader()
+{
+
+}
+
 WFTHeader::WFTHeader( UINT32_T numChannels, UINT32_T dataType, float fsample )
 {
     m_def.nchans = numChannels;

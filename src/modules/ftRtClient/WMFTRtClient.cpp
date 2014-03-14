@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <boost/lexical_cast.hpp>
+#include <boost/pointer_cast.hpp>
 
 #include <core/common/WItemSelectionItemTyped.h>
 #include <core/common/WPathHelper.h>
@@ -54,7 +55,7 @@ W_LOADABLE_MODULE( WMFTRtClient )
 
 WMFTRtClient::WMFTRtClient()
 {
-
+    m_stopStreaming = true;
 }
 
 WMFTRtClient::~WMFTRtClient()
@@ -120,9 +121,6 @@ void WMFTRtClient::properties()
      * property group streaming client
      */
     m_propGrpFtClient = m_properties->addPropertyGroup( "FieldTrip Client", "FieldTrip Client", false );
-    m_doRequest = m_propGrpFtClient->addProperty( "Do FT Request", "do Request", WPVBaseTypes::PV_TRIGGER_READY,
-                    m_propCondition );
-    m_doRequest->changed( true );
 
     // connection type
     m_connectionType = WItemSelection::SPtr( new WItemSelection() );
@@ -149,7 +147,7 @@ void WMFTRtClient::properties()
                     m_connectionType->getSelectorFirst(), boost::bind( &WMFTRtClient::callbackConnectionTypeChanged, this ) );
     m_connectionTypeSelection->changed( true );
 
-    WPropertyHelper::PC_SELECTONLYONE::addTo (m_connectionTypeSelection);
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_connectionTypeSelection );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_connectionTypeSelection );
 
     m_host = m_propGrpFtClient->addProperty( "Host IP:", "The hosts IP address providing the FieldTrip buffer.",
@@ -159,33 +157,37 @@ void WMFTRtClient::properties()
     m_conStatus = m_propGrpFtClient->addProperty( "Connection status:",
                     "Shows the connections status to the FieldTrip buffer server.", CONNECTION_DISCONNECT );
     m_conStatus->setPurpose( PV_PURPOSE_INFORMATION );
-    m_trgConnect = m_propGrpFtClient->addProperty( "Connect:", "Connect", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition,
-                    boost::bind( &WMFTRtClient::callbackTrgConnect, this ) );
+    m_trgConnect = m_propGrpFtClient->addProperty( "Connect:", "Connect", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
     m_trgDisconnect = m_propGrpFtClient->addProperty( "Disconnect:", "Disconnect", WPVBaseTypes::PV_TRIGGER_READY,
-                    m_propCondition, boost::bind( &WMFTRtClient::callbackTrgDisconnect, this ) );
+                    m_propCondition );
     m_trgDisconnect->setHidden( true );
     m_streamStatus = m_propGrpFtClient->addProperty( "Streaming status:", "Shows the status of the streaming client.",
                     CLIENT_NOT_STREAMING );
     m_streamStatus->setPurpose( PV_PURPOSE_INFORMATION );
     m_trgStartStream = m_propGrpFtClient->addProperty( "Start streaming:", "Start", WPVBaseTypes::PV_TRIGGER_READY,
-                    m_propCondition, boost::bind( &WMFTRtClient::callbackTrgStartStreaming, this ) );
+                    m_propCondition );
     m_trgStopStream = m_propGrpFtClient->addProperty( "Stop streaming:", "Stop", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition,
                     boost::bind( &WMFTRtClient::callbackTrgStopStreaming, this ) );
     m_trgStopStream->setHidden( true );
+
+    /* reset button */
+    m_resetModule = m_propGrpFtClient->addProperty( "Reset the module", "Reset", WPVBaseTypes::PV_TRIGGER_READY,
+                    m_propCondition );
+    m_resetModule->changed( true );
 
     /*
      * property group FieldTrip header
      */
     m_propGrpHeader = m_properties->addPropertyGroup( "FieldTrip Header information", "FieldTrip Header information", false );
-    m_channels = m_propGrpFtClient->addProperty( "Number of channels:", "Shows the number of channels.", 0 );
+    m_channels = m_propGrpHeader->addProperty( "Number of channels:", "Shows the number of channels.", 0 );
     m_channels->setPurpose( PV_PURPOSE_INFORMATION );
-    m_samples = m_propGrpFtClient->addProperty( "Number of samples:", "Shows the number of samples read until now.", 0 );
+    m_samples = m_propGrpHeader->addProperty( "Number of samples:", "Shows the number of samples read until now.", 0 );
     m_samples->setPurpose( PV_PURPOSE_INFORMATION );
-    m_frSample = m_propGrpFtClient->addProperty( "Sampling frequency:", "Shows the sampling frequency.", 0.0 );
+    m_frSample = m_propGrpHeader->addProperty( "Sampling frequency:", "Shows the sampling frequency.", 0.0 );
     m_frSample->setPurpose( PV_PURPOSE_INFORMATION );
-    m_events = m_propGrpFtClient->addProperty( "Number of events:", "Shows the number of events read until now.", 0 );
+    m_events = m_propGrpHeader->addProperty( "Number of events:", "Shows the number of events read until now.", 0 );
     m_events->setPurpose( PV_PURPOSE_INFORMATION );
-    m_headerBufSize = m_propGrpFtClient->addProperty( "Additional header information (bytes):",
+    m_headerBufSize = m_propGrpHeader->addProperty( "Additional header information (bytes):",
                     "Shows the number of bytes allocated by additional header information.", 0 );
     m_headerBufSize->setPurpose( PV_PURPOSE_INFORMATION );
 }
@@ -202,12 +204,16 @@ void WMFTRtClient::moduleInit()
     m_moduleState.add( m_input->getDataChangedCondition() ); // when inputdata changed
     m_moduleState.add( m_propCondition ); // when properties changed
 
-    m_ftRtClient.reset( new WFTClientStreaming() );
+    m_connection.reset( new WFTConnectionTCP( DEFAULT_FT_HOST, DEFAULT_FT_PORT ) );
 
     ready(); // signal ready state
     waitRestored();
 
     viewInit( LaBP::WLEMDDrawable2D::WEGraphType::SINGLE );
+
+    m_ftRtClient.reset( new WFTClientStreaming ); // create streaming client.
+
+    callbackConnectionTypeChanged();
 
     infoLog() << "Initializing module finished!";
 }
@@ -228,12 +234,25 @@ void WMFTRtClient::moduleMain()
             break; // break mainLoop on shutdown
         }
 
-        // button applyBufferSize clicked
-        if( m_doRequest->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+        if( m_trgConnect->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
-            handleDoRequest();
+            callbackTrgConnect();
+        }
+        if( m_trgDisconnect->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+        {
+            callbackTrgDisconnect();
+        }
+        if( m_trgStartStream->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+        {
+            callbackTrgStartStreaming();
+        }
 
-            m_doRequest->set( WPVBaseTypes::PV_TRIGGER_READY, true );
+        // button/trigger moduleReset clicked
+        if( m_resetModule->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+        {
+            callbackTrgReset();
+
+            m_resetModule->set( WPVBaseTypes::PV_TRIGGER_READY, true );
         }
 
         debugLog() << "Waiting for Events";
@@ -298,54 +317,161 @@ bool WMFTRtClient::processReset( WLEMMCommand::SPtr labp )
 
 void WMFTRtClient::callbackConnectionTypeChanged()
 {
+    debugLog() << "callbackConnectionTypeChanged() called.";
 
+    m_connection =
+                    m_connectionTypeSelection->get().at( 0 )->getAs< WItemSelectionItemTyped< WFTConnection::SPtr > >()->getValue();
+
+    if( typeid(WFTConnectionTCP) == typeid(*m_connection) )
+    {
+        boost::static_pointer_cast< WFTConnectionTCP >( m_connection )->set( m_host->get(), m_port->get() );
+    }
+    else
+    {
+        const std::string pathname = m_host->get() + ":" + boost::lexical_cast< std::string >( m_port->get() );
+        boost::static_pointer_cast< WFTConnectionUnix >( m_connection )->set( pathname );
+    }
 }
 
 void WMFTRtClient::callbackTrgConnect()
 {
+    debugLog() << "callbackTrgConnect() called.";
+
+    infoLog() << "Establishing connection to FieldTrip Buffer Server with: " << m_connection->getName() << " ["
+                    << m_connection->getConnectionString() << "].";
+
+    m_ftRtClient->setConnection( m_connection );
+
+    if( m_ftRtClient->connect() )
+    {
+        infoLog() << "Connection to FieldTrip Buffer Server established successfully.";
+
+        applyStatusConnected();
+    }
+    else
+    {
+        errorLog() << "Connection to FieldTrip Buffer Server could not be established.";
+
+        applyStatusDisconnected();
+    }
 
 }
 
 void WMFTRtClient::callbackTrgDisconnect()
 {
+    debugLog() << "callbackTrgDisconnect() called.";
 
+    if( m_ftRtClient->isConnected() )
+    {
+        callbackTrgStopStreaming(); // stop streaming
+
+        m_ftRtClient->disconnect(); // disconnect client
+
+        applyStatusDisconnected();
+    }
+
+    infoLog() << "Connection to FieldTrip Buffer Server closed.";
+
+    callbackTrgReset(); // send reset command through signal chain.
 }
 
 void WMFTRtClient::callbackTrgStartStreaming()
 {
+    if( !m_ftRtClient->isConnected() )
+    {
+        callbackTrgConnect();
+    }
 
+    m_stopStreaming = false;
+
+    if( m_ftRtClient->start() )
+    {
+        applyStatusStreaming(); // edit GUI for client status "streaming"
+
+        dispHeaderInfo(); // display header information
+        debugLog() << "Header request on startup done. Beginning data streaming";
+
+        while( !m_stopStreaming && !m_shutdownFlag() )
+        {
+            // TODO(maschke): start data streaming.
+        }
+    }
+
+    applyStatusNotStreaming();
 }
 
 void WMFTRtClient::callbackTrgStopStreaming()
 {
+    debugLog() << "callbackTrgStopStreaming() called.";
+    m_stopStreaming = true;
+}
+
+void WMFTRtClient::callbackTrgReset()
+{
+    debugLog() << "Module reset.";
+
+    WLEMMCommand::SPtr labp = WLEMMCommand::instance( WLEMMCommand::Command::RESET );
+    processReset( labp );
+}
+
+// TODO(maschke): Is it possible to enable/disable properties during run time?
+void WMFTRtClient::applyStatusConnected()
+{
+    m_trgConnect->set( WPVBaseTypes::PV_TRIGGER_READY, true );
+    m_trgDisconnect->set( WPVBaseTypes::PV_TRIGGER_READY, true );
+
+    m_trgConnect->setHidden( true );
+    m_trgDisconnect->setHidden( false );
+    m_conStatus->set( CONNECTION_CONNECT, true );
 
 }
 
-void WMFTRtClient::handleDoRequest()
+void WMFTRtClient::applyStatusDisconnected()
 {
-    WFTConnectionTCP::SPtr con( new WFTConnectionTCP( "localhost", 1972 ) );
+    m_trgConnect->set( WPVBaseTypes::PV_TRIGGER_READY, true );
+    m_trgDisconnect->set( WPVBaseTypes::PV_TRIGGER_READY, true );
 
-    WFTRtClient::SPtr client( new WFTRtClient );
-    client->setConnection( con );
-    if( !client->connect() )
-    {
-        debugLog() << "Verbindungsaufbau fehltgeschlagen";
-        return;
-    }
+    m_trgConnect->setHidden( false );
+    m_trgDisconnect->setHidden( true );
+    m_conStatus->set( CONNECTION_DISCONNECT, true );
 
-    client->doReqest();
-    return;
-    if( con->isOpen() )
-    {
-        client->doReqest();
-    }
-    else
-    {
-        debugLog() << "keine offene Verbindung";
-    }
+}
 
-    con->disconnect();
-    debugLog() << "Verbindung geschlossen";
+void WMFTRtClient::applyStatusStreaming()
+{
+    m_trgStartStream->set( WPVBaseTypes::PV_TRIGGER_READY, true );
+    m_trgStopStream->set( WPVBaseTypes::PV_TRIGGER_READY, true );
+
+    m_streamStatus->set( CLIENT_STREAMING, true );
+
+    m_trgStartStream->setHidden( true );
+    m_trgStopStream->setHidden( false );
+
+    m_channels->set( 0, true );
+    m_samples->set( 0, true );
+    m_frSample->set( 0.0, true );
+    m_events->set( 0, true );
+    m_headerBufSize->set( 0, true );
+}
+
+void WMFTRtClient::applyStatusNotStreaming()
+{
+    m_trgStartStream->set( WPVBaseTypes::PV_TRIGGER_READY, true );
+    m_trgStopStream->set( WPVBaseTypes::PV_TRIGGER_READY, true );
+
+    m_streamStatus->set( CLIENT_NOT_STREAMING, true );
+
+    m_trgStartStream->setHidden( false );
+    m_trgStopStream->setHidden( true );
+}
+
+void WMFTRtClient::dispHeaderInfo()
+{
+    m_channels->set( m_ftRtClient->getHeader()->getHeaderDef().nchans, true );
+    m_samples->set( m_ftRtClient->getHeader()->getHeaderDef().nsamples, true );
+    m_frSample->set( m_ftRtClient->getHeader()->getHeaderDef().fsample, true );
+    m_events->set( m_ftRtClient->getHeader()->getHeaderDef().nevents, true );
+    m_headerBufSize->set( m_ftRtClient->getHeader()->getHeaderDef().bufsize, true );
 }
 
 const std::string WMFTRtClient::DEFAULT_FT_HOST = "localhost";

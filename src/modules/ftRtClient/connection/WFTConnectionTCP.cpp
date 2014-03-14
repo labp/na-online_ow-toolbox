@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include "boost/lexical_cast.hpp"
+
 #include "WFTConnectionTCP.h"
 
 WFTConnectionTCP::WFTConnectionTCP( std::string host, int port, int retry ) :
@@ -40,6 +42,16 @@ bool WFTConnectionTCP::connect()
     return connectTcp( m_host.c_str(), m_port );
 }
 
+std::string WFTConnectionTCP::getConnectionString() const
+{
+    return m_host + ":" + boost::lexical_cast<std::string>(m_port);
+}
+
+std::string WFTConnectionTCP::getName() const
+{
+    return "Connection TCP";
+}
+
 const std::string WFTConnectionTCP::getHost() const
 {
     return m_host;
@@ -48,4 +60,15 @@ const std::string WFTConnectionTCP::getHost() const
 int WFTConnectionTCP::getPort() const
 {
     return m_port;
+}
+
+void WFTConnectionTCP::set(std::string host, int port)
+{
+    if(isOpen())
+    {
+        return;
+    }
+
+    m_host = host;
+    m_port = port;
 }

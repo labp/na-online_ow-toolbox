@@ -41,6 +41,10 @@ public:
 
     virtual bool connect() = 0;
 
+    virtual std::string getConnectionString() const = 0;
+
+    virtual std::string getName() const = 0;
+
     virtual bool connect( std::string address );
 
     bool isOpen() const;

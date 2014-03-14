@@ -37,11 +37,17 @@ public:
 
     virtual bool connect();
 
+    std::string getConnectionString() const;
+
+    std::string getName() const;
+
     const std::string getPathName() const;
+
+    void set( std::string pathname );
 
 protected:
 
-    const std::string m_pathname;
+    std::string m_pathname;
 };
 
 #endif /* WFTCONNECTIONUNIX_H_ */

@@ -35,7 +35,23 @@ public:
 
     typedef boost::shared_ptr< WFTClientStreaming > SPtr;
 
+    static const std::string CLASS;
+
     WFTClientStreaming();
+
+    bool isStreaming() const;
+
+    bool start();
+
+private:
+
+    bool prepareStreaming();
+
+    /**
+     * Flag to define whether the client is running.
+     */
+    bool m_streaming;
+
 };
 
 #endif /* WFTCLIENTSTREAMING_H_ */

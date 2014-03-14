@@ -22,10 +22,57 @@
 //
 //---------------------------------------------------------------------------
 
+#include <core/common/WLogger.h>
+
 #include "WFTClientStreaming.h"
+
+const std::string WFTClientStreaming::CLASS = "WFTClientStreaming";
 
 WFTClientStreaming::WFTClientStreaming()
 {
-
+    m_streaming = false;
 }
 
+bool WFTClientStreaming::isStreaming() const
+{
+    return m_streaming;
+}
+
+bool WFTClientStreaming::start()
+{
+    wlog::debug( CLASS ) << "start() called!";
+
+    if(isStreaming())
+    {
+        wlog::warn( CLASS ) << "Could start streaming. Client is already streaming!";
+        return true;
+    }
+
+    if(!isConnected())
+    {
+        wlog::warn(CLASS) << "Client is not connected. Client is trying to connect.";
+
+        if(!this->connect())
+        {
+            wlog::error(CLASS) << "Error while connecting to the FieldTrip Buffer Server. Client is disconnect.";
+            return false;
+        }
+    }
+
+    wlog::info( CLASS ) << "Prepare streaming.";
+    if(prepareStreaming())
+    {
+        wlog::info( CLASS ) << "Preparation for streaming finished. Header information are ready to retrieval.";
+    }
+    else
+    {
+        wlog::error(CLASS) << "Error while Preparation.";
+    }
+
+    return m_streaming = true;
+}
+
+bool WFTClientStreaming::prepareStreaming()
+{
+    return doHeaderRequest();
+}

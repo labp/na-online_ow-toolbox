@@ -40,7 +40,27 @@ bool WFTConnectionUnix::connect()
     return connectUnix( m_pathname.c_str() );
 }
 
+std::string WFTConnectionUnix::getConnectionString() const
+{
+    return m_pathname;
+}
+
+std::string WFTConnectionUnix::getName() const
+{
+    return "Connection Unix";
+}
+
 const std::string WFTConnectionUnix::getPathName() const
 {
     return m_pathname;
+}
+
+void WFTConnectionUnix::set( std::string pathname )
+{
+    if( isOpen() )
+    {
+        return;
+    }
+
+    m_pathname = pathname;
 }

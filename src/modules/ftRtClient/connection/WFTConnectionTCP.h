@@ -37,15 +37,21 @@ public:
 
     bool connect();
 
+    std::string getConnectionString() const;
+
+    std::string getName() const;
+
     const std::string getHost() const;
 
     int getPort() const;
 
+    void set( std::string host, int port );
+
 protected:
 
-    const std::string m_host;
+    std::string m_host;
 
-    const int m_port;
+    int m_port;
 };
 
 #endif /* WFTCONNECTIONTCP_H_ */

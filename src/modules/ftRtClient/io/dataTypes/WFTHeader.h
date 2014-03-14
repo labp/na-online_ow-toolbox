@@ -57,6 +57,8 @@ public:
      */
     typedef boost::shared_ptr< const WFTChunkList > WFTChunkList_ConstSPtr;
 
+    WFTHeader();
+
     WFTHeader( UINT32_T numChannels, UINT32_T dataType, float fsample );
 
     ~WFTHeader();

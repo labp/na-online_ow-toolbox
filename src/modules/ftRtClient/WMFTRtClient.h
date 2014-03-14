@@ -36,6 +36,7 @@
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
+#include "connection/WFTConnection.h"
 #include "WFTClientStreaming.h"
 
 class WMFTRtClient: public WLModuleDrawable
@@ -110,8 +111,6 @@ private:
      */
     WPropGroup m_propGrpFtClient;
 
-    WPropTrigger m_doRequest;
-
     boost::shared_ptr< WItemSelection > m_connectionType;
     WPropSelection m_connectionTypeSelection;
 
@@ -126,6 +125,11 @@ private:
     WPropTrigger m_trgStopStream;
 
     /**
+     * Trigger to reseting the module.
+     */
+    WPropTrigger m_resetModule;
+
+    /**
      * Property group for header data
      */
     WPropGroup m_propGrpHeader;
@@ -136,9 +140,11 @@ private:
     WPropInt m_events;
     WPropInt m_headerBufSize;
 
+    WFTConnection::SPtr m_connection;
+
     WFTClientStreaming::SPtr m_ftRtClient;
 
-    void handleDoRequest();
+    bool m_stopStreaming;
 
     void callbackConnectionTypeChanged();
 
@@ -149,6 +155,18 @@ private:
     void callbackTrgStartStreaming();
 
     void callbackTrgStopStreaming();
+
+    void callbackTrgReset();
+
+    void applyStatusConnected();
+
+    void applyStatusDisconnected();
+
+    void applyStatusStreaming();
+
+    void applyStatusNotStreaming();
+
+    void dispHeaderInfo();
 
     static const std::string DEFAULT_FT_HOST;
 

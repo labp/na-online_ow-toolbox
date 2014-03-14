@@ -31,6 +31,7 @@
 
 #include "connection/WFTConnection.h"
 #include "io/WFTRequestBuilder.h"
+#include "io/dataTypes/WFTHeader.h"
 #include "io/dataTypes/WFTObject.h"
 #include "io/response/WFTResponse.h"
 
@@ -46,6 +47,8 @@ public:
 
     WFTConnection::SPtr getConnection() const;
 
+    WFTHeader::SPtr getHeader() const;
+
     void setConnection( WFTConnection::SPtr connection );
 
     bool connect();
@@ -54,7 +57,7 @@ public:
 
     bool isConnected();
 
-    void doReqest();
+    bool doHeaderRequest();
 
     /**
      * This method transfers a FieldTrip response into a WFTObject derived data object defined by the type T.
@@ -78,6 +81,7 @@ protected:
      */
     WFTRequestBuilder::SPtr m_reqBuilder;
 
+    WFTHeader::SPtr m_ftHeader;
 };
 
 #endif /* WFTRTCLIENT_H_ */
