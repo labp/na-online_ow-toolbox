@@ -22,31 +22,49 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WFTResponse.h"
+#include "../WFTRequestBuilder.h"
+#include "../request/WFTRequest_PutData.h"
+#include "WFTData.h"
 
-bool WFTResponse::isValid() const
+WFTData::WFTData()
 {
-    if( m_response == NULL )
-        return false;
-    if( m_response->def == NULL )
-        return false;
-    if( m_response->def->version != VERSION )
-        return false;
 
-    return true;
 }
 
-bool WFTResponse::hasData() const
+WFTData::WFTData( UINT32_T numChannels, UINT32_T numSamples, UINT32_T dataType )
 {
-    if(!isValid())
-    {
-        return false;
-    }
-
-    return m_response->def->bufsize > 0;
+    m_def.nchans = numChannels;
+    m_def.nsamples = numSamples;
+    m_def.data_type = dataType;
 }
 
-WFTResponse::WFTMessageT_ConstSPtr WFTResponse::getMessage()
+WFTRequest::SPtr WFTData::asRequest()
 {
-    return WFTMessageT_ConstSPtr( m_response );
+    WFTRequestBuilder::SPtr builder;
+    WFTRequest_PutData::SPtr request = builder->buildRequest_PUT_DAT( m_def.nchans, m_def.nsamples, m_def.data_type,
+                    m_buf.data() );
+
+    return WFTRequest_PutData::SPtr( request );
+}
+
+bool WFTData::parseResponse( WFTResponse::SPtr response )
+{
+    m_buf.clear();
+
+    return response->checkGetData( m_def, &m_buf );
+}
+
+UINT32_T WFTData::getSize() const
+{
+    return m_def.bufsize + sizeof(WFTDataDefT);
+}
+
+WFTObject::WFTDataDefT& WFTData::getDataDef()
+{
+    return m_def;
+}
+
+void *WFTData::getData()
+{
+    return m_buf.data();
 }

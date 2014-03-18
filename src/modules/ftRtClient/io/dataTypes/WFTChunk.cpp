@@ -51,6 +51,11 @@ const WFTObject::WFTChunkDefT WFTChunk::getDef() const
     return m_chunkdef;
 }
 
+WLEFTChunkType::Enum WFTChunk::getType() const
+{
+    return ( WLEFTChunkType::Enum )m_chunkdef.type;
+}
+
 const void *WFTChunk::getData()
 {
     return m_buf.data();

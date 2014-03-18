@@ -50,6 +50,11 @@ WFTHeader::~WFTHeader()
 
 WFTRequest::SPtr WFTHeader::asRequest()
 {
+    if(m_def.nchans == 0 || m_def.fsample == 0)
+    {
+        return WFTRequest::SPtr();
+    }
+
     WFTRequestBuilder::SPtr builder;
     WFTRequest_PutHeader::SPtr request = builder->buildRequest_PUT_HDR( m_def.nchans, m_def.data_type, m_def.fsample );
 
@@ -71,6 +76,7 @@ bool WFTHeader::parseResponse( WFTResponse::SPtr response )
         return false;
     }
 
+    m_chunks.clear();
     // extracts the chunks from the response using an iterator and stores them in the local chunk collection.
     WFTChunkIterator::SPtr iterator( new WFTChunkIterator( chunkBuffer, m_def.bufsize ) );
     while( iterator->hasNext() )

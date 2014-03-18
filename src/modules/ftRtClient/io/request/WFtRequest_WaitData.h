@@ -27,12 +27,12 @@
 
 #include "WFTRequest.h"
 
-class WFtRequest_WaitData: public WFTRequest
+class WFTRequest_WaitData: public WFTRequest
 {
 public:
-    WFtRequest_WaitData(UINT32_T nSamples, UINT32_T nEvents, UINT32_T milliseconds);
+    WFTRequest_WaitData(UINT32_T nSamples, UINT32_T nEvents, UINT32_T milliseconds);
 
-    virtual ~WFtRequest_WaitData();
+    virtual ~WFTRequest_WaitData();
 };
 
 #endif /* WFTREQUEST_WAITDATA_H_ */

@@ -29,6 +29,7 @@
 
 #include <SimpleStorage.h>
 
+#include "WLEFTChunkType.h"
 #include "WFTObject.h"
 
 /**
@@ -73,6 +74,13 @@ public:
      * @return The definition part.
      */
     const WFTChunkDefT getDef() const;
+
+    /**
+     * Returns the chunk type.
+     *
+     * @return The chunk type.
+     */
+    WLEFTChunkType::Enum getType() const;
 
     /**
      * Return a constant pointer to the chunks data content.

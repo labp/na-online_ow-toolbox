@@ -22,31 +22,50 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WFTResponse.h"
+#ifndef WLEFTDATATYPE_H_
+#define WLEFTDATATYPE_H_
 
-bool WFTResponse::isValid() const
+#include <ostream>
+#include <set>
+#include <string>
+
+#include <message.h>
+
+/**
+ * Enumeration for FieldTrip data types.
+ */
+namespace WLEFTDataType
 {
-    if( m_response == NULL )
-        return false;
-    if( m_response->def == NULL )
-        return false;
-    if( m_response->def->version != VERSION )
-        return false;
-
-    return true;
-}
-
-bool WFTResponse::hasData() const
-{
-    if(!isValid())
+    enum Enum
     {
-        return false;
-    }
+        CHAR = 0,
+        UINT8 = 1,
+        UINT16 = 2,
+        UINT32 = 3,
+        UINT64 = 4,
+        INT8 = 5,
+        INT16 = 6,
+        INT32 = 7,
+        INT64 = 8,
+        FLOAT32 = 9,
+        FLOAT64 = 10,
+        UNKNOWN = -1
 
-    return m_response->def->bufsize > 0;
-}
+    };
 
-WFTResponse::WFTMessageT_ConstSPtr WFTResponse::getMessage()
+    typedef std::set< Enum > ContainerT;
+
+    ContainerT values();
+    std::string name( Enum val );
+
+    std::ostream& operator<<( std::ostream &strm, const WLEFTDataType::Enum& obj );
+
+} /* namespace WLEFTDataType */
+
+inline std::ostream& WLEFTDataType::operator<<( std::ostream &strm, const WLEFTDataType::Enum& obj )
 {
-    return WFTMessageT_ConstSPtr( m_response );
+    strm << WLEFTDataType::name( obj );
+    return strm;
 }
+
+#endif /* WLEFTDATATYPE_H_ */

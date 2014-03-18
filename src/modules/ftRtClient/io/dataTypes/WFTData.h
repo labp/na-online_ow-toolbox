@@ -22,36 +22,41 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFTCLIENTSTREAMING_H_
-#define WFTCLIENTSTREAMING_H_
+#ifndef WFTDATA_H_
+#define WFTDATA_H_
 
 #include <boost/shared_ptr.hpp>
 
-#include "WFTRtClient.h"
+#include <SimpleStorage.h>
 
-class WFTClientStreaming: public WFTRtClient
+#include "WFTRequestableObject.h"
+
+class WFTData: public WFTRequestableObject
 {
 public:
 
-    typedef boost::shared_ptr< WFTClientStreaming > SPtr;
+    typedef boost::shared_ptr< WFTData > SPtr;
 
-    static const std::string CLASS;
+    WFTData();
 
-    WFTClientStreaming();
+    WFTData( UINT32_T numChannels, UINT32_T numSamples, UINT32_T dataType );
 
-    bool isStreaming() const;
+    WFTRequest::SPtr asRequest();
 
-    bool start();
+    bool parseResponse( WFTResponse::SPtr );
 
-private:
+    UINT32_T getSize() const;
 
-    bool prepareStreaming();
+    WFTDataDefT& getDataDef();
 
-    /**
-     * Flag to define whether the client is running.
-     */
-    bool m_streaming;
+    void *getData();
+
+protected:
+
+    WFTDataDefT m_def;
+
+    SimpleStorage m_buf;
 
 };
 
-#endif /* WFTCLIENTSTREAMING_H_ */
+#endif /* WFTDATA_H_ */

@@ -63,6 +63,10 @@ public:
 
     typedef boost::shared_ptr< ft_chunkdef_t > WFTChunkDefT_SPtr;
 
+    typedef datasel_t WFTDataSelectionT;
+
+    typedef samples_events_t WFTSamplesEventsT;
+
     virtual ~WFTObject();
 
     virtual UINT32_T getSize() const = 0;

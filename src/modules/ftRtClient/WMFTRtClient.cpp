@@ -43,8 +43,9 @@
 
 #include "connection/WFTConnectionTCP.h"
 #include "connection/WFTConnectionUnix.h"
+#include "io/dataTypes/WLEFTDataType.h"
 #include "WFTRtClient.h"
-#include "WFTClientStreaming.h"
+#include "WFTNeuromagClient.h"
 
 #include "WMFTRtClient.h"
 
@@ -161,6 +162,10 @@ void WMFTRtClient::properties()
     m_trgDisconnect = m_propGrpFtClient->addProperty( "Disconnect:", "Disconnect", WPVBaseTypes::PV_TRIGGER_READY,
                     m_propCondition );
     m_trgDisconnect->setHidden( true );
+    m_waitTimeout = m_propGrpFtClient->addProperty( "Data request Timeout (ms):", "Timeout at waiting for new data or events.",
+                    ( int )WFTRtClient::DEFAULT_WAIT_TIMEOUT );
+    m_waitTimeout->setMin( 1 );
+    m_waitTimeout->setMax( 100 );
     m_streamStatus = m_propGrpFtClient->addProperty( "Streaming status:", "Shows the status of the streaming client.",
                     CLIENT_NOT_STREAMING );
     m_streamStatus->setPurpose( PV_PURPOSE_INFORMATION );
@@ -181,10 +186,12 @@ void WMFTRtClient::properties()
     m_propGrpHeader = m_properties->addPropertyGroup( "FieldTrip Header information", "FieldTrip Header information", false );
     m_channels = m_propGrpHeader->addProperty( "Number of channels:", "Shows the number of channels.", 0 );
     m_channels->setPurpose( PV_PURPOSE_INFORMATION );
-    m_samples = m_propGrpHeader->addProperty( "Number of samples:", "Shows the number of samples read until now.", 0 );
-    m_samples->setPurpose( PV_PURPOSE_INFORMATION );
     m_frSample = m_propGrpHeader->addProperty( "Sampling frequency:", "Shows the sampling frequency.", 0.0 );
     m_frSample->setPurpose( PV_PURPOSE_INFORMATION );
+    m_samples = m_propGrpHeader->addProperty( "Number of samples:", "Shows the number of samples read until now.", 0 );
+    m_samples->setPurpose( PV_PURPOSE_INFORMATION );
+    m_dataType = m_propGrpHeader->addProperty( "Data type:", "Data type", WLEFTDataType::name( WLEFTDataType::UNKNOWN ) );
+    m_dataType->setPurpose( PV_PURPOSE_INFORMATION );
     m_events = m_propGrpHeader->addProperty( "Number of events:", "Shows the number of events read until now.", 0 );
     m_events->setPurpose( PV_PURPOSE_INFORMATION );
     m_headerBufSize = m_propGrpHeader->addProperty( "Additional header information (bytes):",
@@ -209,9 +216,9 @@ void WMFTRtClient::moduleInit()
     ready(); // signal ready state
     waitRestored();
 
-    viewInit( LaBP::WLEMDDrawable2D::WEGraphType::SINGLE );
+    viewInit( LaBP::WLEMDDrawable2D::WEGraphType::MULTI );
 
-    m_ftRtClient.reset( new WFTClientStreaming ); // create streaming client.
+    m_ftRtClient.reset( new WFTNeuromagClient ); // create streaming client.
 
     callbackConnectionTypeChanged();
 
@@ -287,14 +294,16 @@ bool WMFTRtClient::processCompute( WLEMMeasurement::SPtr emmIn )
     WLTimeProfiler tp( "WMFTRtClient", "processCompute" );
 
     // show process visualization
-    boost::shared_ptr< WProgress > rejectProcess = boost::shared_ptr< WProgress >(
+    boost::shared_ptr< WProgress > process = boost::shared_ptr< WProgress >(
                     new WProgress( "Import data from FieldTrip Buffer." ) );
-    m_progress->addSubProgress( rejectProcess );
+    m_progress->addSubProgress( process );
 
     // ---------- PROCESSING ----------
     viewUpdate( emmIn ); // update the GUI component
 
-    rejectProcess->finish(); // finish the process visualization
+    updateOutput( emmIn );
+
+    process->finish(); // finish the process visualization
 
     return true;
 }
@@ -312,7 +321,28 @@ bool WMFTRtClient::processReset( WLEMMCommand::SPtr labp )
     m_input->clear();
     m_output->updateData( labp );
 
+    m_channels->set( 0, true );
+    m_samples->set( 0, true );
+    m_events->set( 0, true );
+    m_frSample->set( 0.0, true );
+    m_headerBufSize->set( 0, true );
+    m_waitTimeout->set( ( int )WFTRtClient::DEFAULT_WAIT_TIMEOUT, true );
+    m_dataType->set( WLEFTDataType::name( WLEFTDataType::UNKNOWN ), true );
+
+    if( !m_ftRtClient->isStreaming() )
+    {
+        m_ftRtClient->resetClient();
+    }
+
     return true;
+}
+
+void WMFTRtClient::updateOutput( WLEMMeasurement::SPtr emm )
+{
+    WLEMMCommand::SPtr cmd( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
+    cmd->setEmm( emm );
+
+    m_output->updateData( cmd ); // update the output-connector after processing
 }
 
 void WMFTRtClient::callbackConnectionTypeChanged()
@@ -336,6 +366,8 @@ void WMFTRtClient::callbackConnectionTypeChanged()
 void WMFTRtClient::callbackTrgConnect()
 {
     debugLog() << "callbackTrgConnect() called.";
+
+    callbackConnectionTypeChanged(); // rebuild the connection
 
     infoLog() << "Establishing connection to FieldTrip Buffer Server with: " << m_connection->getName() << " ["
                     << m_connection->getConnectionString() << "].";
@@ -371,8 +403,6 @@ void WMFTRtClient::callbackTrgDisconnect()
     }
 
     infoLog() << "Connection to FieldTrip Buffer Server closed.";
-
-    callbackTrgReset(); // send reset command through signal chain.
 }
 
 void WMFTRtClient::callbackTrgStartStreaming()
@@ -381,6 +411,9 @@ void WMFTRtClient::callbackTrgStartStreaming()
     {
         callbackTrgConnect();
     }
+
+    // set some parameter at the client
+    m_ftRtClient->setTimeout( ( UINT32_T )m_waitTimeout->get() );
 
     m_stopStreaming = false;
 
@@ -393,8 +426,44 @@ void WMFTRtClient::callbackTrgStartStreaming()
 
         while( !m_stopStreaming && !m_shutdownFlag() )
         {
-            // TODO(maschke): start data streaming.
+            if( m_ftRtClient->doWaitRequest( m_ftRtClient->getSampleCount(), m_ftRtClient->getEventCount() ) )
+            {
+                if( m_ftRtClient->getNewSamples() )
+                {
+                    m_samples->set( m_ftRtClient->getSampleCount(), true );
+                    m_channels->set( m_ftRtClient->getData()->getDataDef().nchans, true );
+                    m_dataType->set(
+                                    WLEFTDataType::name( ( WLEFTDataType::Enum )m_ftRtClient->getData()->getDataDef().data_type ),
+                                    true );
+
+                    WLEMMeasurement::SPtr emm( new WLEMMeasurement );
+
+                    if( m_ftRtClient->createEMM( *emm ) )
+                    {
+                        viewUpdate( emm );
+
+                        updateOutput( emm );
+                    }
+                    else
+                    {
+                        errorLog() << "Error while extracting values from response. The streaming will be stopped.";
+                        m_stopStreaming = true;
+                    }
+
+                }
+
+                if( m_ftRtClient->getNewEvents() )
+                {
+                    m_events->set( m_ftRtClient->getEventCount(), true );
+                }
+            }
+            else
+            {
+                m_stopStreaming = true; // stop streaming on error during request.
+            }
         }
+
+        m_ftRtClient->stop(); // stop streaming
     }
 
     applyStatusNotStreaming();
@@ -442,6 +511,8 @@ void WMFTRtClient::applyStatusStreaming()
     m_trgStartStream->set( WPVBaseTypes::PV_TRIGGER_READY, true );
     m_trgStopStream->set( WPVBaseTypes::PV_TRIGGER_READY, true );
 
+    m_resetModule->set( WPVBaseTypes::PV_TRIGGER_READY, false );
+
     m_streamStatus->set( CLIENT_STREAMING, true );
 
     m_trgStartStream->setHidden( true );
@@ -452,12 +523,15 @@ void WMFTRtClient::applyStatusStreaming()
     m_frSample->set( 0.0, true );
     m_events->set( 0, true );
     m_headerBufSize->set( 0, true );
+    m_dataType->set( WLEFTDataType::name( WLEFTDataType::UNKNOWN ), true );
 }
 
 void WMFTRtClient::applyStatusNotStreaming()
 {
     m_trgStartStream->set( WPVBaseTypes::PV_TRIGGER_READY, true );
     m_trgStopStream->set( WPVBaseTypes::PV_TRIGGER_READY, true );
+
+    m_resetModule->set( WPVBaseTypes::PV_TRIGGER_READY, true );
 
     m_streamStatus->set( CLIENT_NOT_STREAMING, true );
 

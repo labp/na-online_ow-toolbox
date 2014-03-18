@@ -30,7 +30,7 @@
 #include "request/WFTRequest_PutData.h"
 #include "request/WFTRequest_PutEvent.h"
 #include "request/WFTRequest_PutHeader.h"
-#include "request/WFtRequest_WaitData.h"
+#include "request/WFTRequest_WaitData.h"
 #include "WFTRequestBuilder.h"
 
 WFTRequestBuilder::WFTRequestBuilder()
@@ -108,5 +108,5 @@ WFTRequest::SPtr WFTRequestBuilder::buildRequest_FLUSH_HDR()
 
 WFTRequest::SPtr WFTRequestBuilder::buildRequest_WAIT_DAT( UINT32_T nSamples, UINT32_T nEvents, UINT32_T milliseconds )
 {
-    return WFTRequest::SPtr( new WFtRequest_WaitData( nSamples, nEvents, milliseconds ) );
+    return WFTRequest::SPtr( new WFTRequest_WaitData( nSamples, nEvents, milliseconds ) );
 }

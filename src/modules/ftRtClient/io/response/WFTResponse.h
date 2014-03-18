@@ -25,9 +25,7 @@
 #ifndef WFTRESPONSE_H_
 #define WFTRESPONSE_H_
 
-#include <boost/pointer_cast.hpp>
 #include <boost/shared_ptr.hpp>
-#include <boost/type_traits/is_base_of.hpp>
 
 #include <FtBuffer.h>
 
@@ -50,9 +48,9 @@ public:
      *
      * @return True if the data are valid, else false.
      */
-    bool isValid();
+    bool isValid() const;
 
-    bool hasData();
+    bool hasData() const;
 
     WFTMessageT_ConstSPtr getMessage();
 

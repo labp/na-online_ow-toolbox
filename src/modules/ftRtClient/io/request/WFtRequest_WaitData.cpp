@@ -22,14 +22,14 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WFtRequest_WaitData.h"
+#include "WFTRequest_WaitData.h"
 
-WFtRequest_WaitData::WFtRequest_WaitData( UINT32_T nSamples, UINT32_T nEvents, UINT32_T milliseconds )
+WFTRequest_WaitData::WFTRequest_WaitData( UINT32_T nSamples, UINT32_T nEvents, UINT32_T milliseconds )
 {
     prepWaitData( nSamples, nEvents, milliseconds );
 }
 
-WFtRequest_WaitData::~WFtRequest_WaitData()
+WFTRequest_WaitData::~WFTRequest_WaitData()
 {
 
 }

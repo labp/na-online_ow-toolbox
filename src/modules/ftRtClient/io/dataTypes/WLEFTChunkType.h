@@ -22,31 +22,44 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WFTResponse.h"
+#ifndef WLEFTCHUNKTYPE_H_
+#define WLEFTCHUNKTYPE_H_
 
-bool WFTResponse::isValid() const
+#include <ostream>
+#include <set>
+#include <string>
+
+namespace WLEFTChunkType
 {
-    if( m_response == NULL )
-        return false;
-    if( m_response->def == NULL )
-        return false;
-    if( m_response->def->version != VERSION )
-        return false;
 
-    return true;
-}
-
-bool WFTResponse::hasData() const
-{
-    if(!isValid())
+    enum Enum
     {
-        return false;
-    }
+        FT_CHUNK_UNSPECIFIED = 0,
+        FT_CHUNK_CHANNEL_NAMES = 1,
+        FT_CHUNK_CHANNEL_FLAGS = 2,
+        FT_CHUNK_RESOLUTIONS = 3,
+        FT_CHUNK_ASCII_KEYVAL = 4,
+        FT_CHUNK_NIFTI1 = 5,
+        FT_CHUNK_SIEMENS_AP = 6,
+        FT_CHUNK_CTF_RES4 = 7,
+        FT_CHUNK_NEUROMAG_HEADER = 8,
+        FT_CHUNK_NEUROMAG_ISOTRAK = 9,
+        FT_CHUNK_NEUROMAG_HPIRESULT = 10
+    };
 
-    return m_response->def->bufsize > 0;
-}
+    typedef std::set< Enum > ContainerT;
 
-WFTResponse::WFTMessageT_ConstSPtr WFTResponse::getMessage()
+    ContainerT values();
+    std::string name( Enum val );
+
+    std::ostream& operator<<( std::ostream &strm, const WLEFTChunkType::Enum& obj );
+
+} /* namespace WLEFTChunkType */
+
+inline std::ostream& WLEFTChunkType::operator<<( std::ostream &strm, const WLEFTChunkType::Enum& obj )
 {
-    return WFTMessageT_ConstSPtr( m_response );
+    strm << WLEFTChunkType::name( obj );
+    return strm;
 }
+
+#endif /* WLEFTCHUNKTYPE_H_ */

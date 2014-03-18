@@ -37,7 +37,7 @@
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
 #include "connection/WFTConnection.h"
-#include "WFTClientStreaming.h"
+#include "WFTNeuromagClient.h"
 
 class WMFTRtClient: public WLModuleDrawable
 {
@@ -116,6 +116,7 @@ private:
 
     WPropString m_host;
     WPropInt m_port;
+    WPropInt m_waitTimeout;
     WPropString m_conStatus;
     WPropString m_streamStatus;
 
@@ -136,15 +137,23 @@ private:
 
     WPropInt m_channels;
     WPropInt m_samples;
+    WPropString m_dataType;
     WPropDouble m_frSample;
     WPropInt m_events;
     WPropInt m_headerBufSize;
 
     WFTConnection::SPtr m_connection;
 
-    WFTClientStreaming::SPtr m_ftRtClient;
+    WFTNeuromagClient::SPtr m_ftRtClient;
 
     bool m_stopStreaming;
+
+    /**
+     * Method for updating the modules output connector and some GUI fields.
+     *
+     * @param emm The EMM object for delivering to the output connector.
+     */
+    void updateOutput( WLEMMeasurement::SPtr emm );
 
     void callbackConnectionTypeChanged();
 

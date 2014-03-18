@@ -22,31 +22,47 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WFTResponse.h"
+#ifndef WFTCLIENTSTREAMING_H_
+#define WFTCLIENTSTREAMING_H_
 
-bool WFTResponse::isValid() const
+#include <boost/shared_ptr.hpp>
+
+#include "core/data/WLEMMeasurement.h"
+
+#include "WFTRtClient.h"
+
+class WFTNeuromagClient: public WFTRtClient
 {
-    if( m_response == NULL )
-        return false;
-    if( m_response->def == NULL )
-        return false;
-    if( m_response->def->version != VERSION )
-        return false;
+public:
 
-    return true;
-}
+    typedef boost::shared_ptr< WFTNeuromagClient > SPtr;
 
-bool WFTResponse::hasData() const
-{
-    if(!isValid())
-    {
-        return false;
-    }
+    static const std::string CLASS;
 
-    return m_response->def->bufsize > 0;
-}
+    WFTNeuromagClient();
 
-WFTResponse::WFTMessageT_ConstSPtr WFTResponse::getMessage()
-{
-    return WFTMessageT_ConstSPtr( m_response );
-}
+    bool isStreaming() const;
+
+    bool start();
+
+    void stop();
+
+    bool createEMM( WLEMMeasurement& emm );
+
+private:
+
+    bool prepareStreaming();
+
+    void convertData( float *dest, const void *src, unsigned int nsamp, unsigned int nchans, UINT32_T dataType );
+
+    template< typename T >
+    void convertToFloat( float *dest, const void *src, unsigned int nsamp, unsigned int nchans );
+
+    /**
+     * Flag to define whether the client is running.
+     */
+    bool m_streaming;
+
+};
+
+#endif /* WFTCLIENTSTREAMING_H_ */
