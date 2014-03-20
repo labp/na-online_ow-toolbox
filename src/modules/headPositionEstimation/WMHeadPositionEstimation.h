@@ -29,10 +29,19 @@
 #include <core/common/WPropertyTypes.h>
 #include <core/kernel/WModule.h>
 
+#include "core/data/WLDataTypes.h"
 #include "core/data/WLEMMCommand.h"
+#include "core/data/WLEMMeasurement.h"
+#include "core/module/WLModuleDrawable.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 
-class WMHeadPositionEstimation: public WModule
+/**
+ * Estimation of the head position using the continuous signals of HPI coils.
+ *
+ * \ingroup modules
+ * \author pieloth
+ */
+class WMHeadPositionEstimation: public WLModuleDrawable
 {
 public:
     WMHeadPositionEstimation();
@@ -55,15 +64,49 @@ protected:
 
     virtual void moduleMain();
 
+    virtual bool processInit( WLEMMCommand::SPtr cmdIn );
+
+    virtual bool processCompute( WLEMMeasurement::SPtr emmIn );
+
+    virtual bool processReset( WLEMMCommand::SPtr cmdIn );
+
 private:
     LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input;
 
-    /**
-     * A condition used to notify about changes in several properties.
-     */
-    WCondition::SPtr m_propCondition;
+    WCondition::SPtr m_condition; /**< Used to notify module when a property changed. */
 
-    WPropString m_status;
+    WPropGroup m_propGroup; /**< Collects all properties of the module. */
+
+    WPropDouble m_propHpi1Freq; /**< Frequency for HPI coil 1 in Hz. */
+    WPropDouble m_propHpi2Freq; /**< Frequency for HPI coil 2 in Hz. */
+    WPropDouble m_propHpi3Freq; /**< Frequency for HPI coil 3 in Hz. */
+    WPropDouble m_propHpi4Freq; /**< Frequency for HPI coil 4 in Hz. */
+    WPropDouble m_propHpi5Freq; /**< Frequency for HPI coil 5 in Hz. */
+
+    WPropDouble m_propWindowsSize; /**< Windows size in milliseconds. */
+    WPropDouble m_propStepSize; /**< Step size in milliseconds. */
+
+    WPropString m_propStatus; /**< Status of the module. */
+
+    WPropTrigger m_trgApplySettings; /**< Forces an apply of the HPI frequencies. */
+
+    /**
+     * Applies the frequencies of the HPI coils.
+     *
+     * \return true, if successful.
+     */
+    bool handleApplyFreq();
+
+    static const double HPI1_FREQ; /**< Default frequency (sfreq < 600Hz) for HPI coil 1 in Hz. */
+    static const double HPI2_FREQ; /**< Default frequency (sfreq < 600Hz) for HPI coil 2 in Hz. */
+    static const double HPI3_FREQ; /**< Default frequency (sfreq < 600Hz) for HPI coil 3 in Hz. */
+    static const double HPI4_FREQ; /**< Default frequency (sfreq < 600Hz) for HPI coil 4 in Hz. */
+    static const double HPI5_FREQ; /**< Default frequency (sfreq < 600Hz) for HPI coil 5 in Hz. */
+    static const double WINDOWS_SIZE; /**< Default windows size in millisecnds. */
+    static const double STEP_SIZE; /**< Default step size in millisecnds. */
+
+    static const std::string STATUS_OK; /**< Indicates the module status is ok. */
+    static const std::string STATUS_ERROR; /**< Indicates an error in module. */
 };
 
 #endif  // WMHEADPOSITIONESTIMATION_H_
