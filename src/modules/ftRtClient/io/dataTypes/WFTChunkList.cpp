@@ -22,48 +22,41 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WFTChunk.h"
+#include <iterator>
 
-WFTChunk::WFTChunk( UINT32_T chunkType, UINT32_T chunkSize, const void *data )
+#include <boost/bind.hpp>
+#include <boost/foreach.hpp>
+#include <boost/range/adaptor/filtered.hpp>
+#include <boost/range/adaptors.hpp>
+#include <boost/range/algorithm.hpp>
+#include <boost/range/algorithm/copy.hpp>
+
+#include "WFTChunkList.h"
+
+bool WFTChunkList::isChunkType( const WFTChunk::SPtr& chunk, WLEFTChunkType::Enum x )
 {
-    if( !m_buf.resize( chunkSize ) )
-    {
-        return;
-    }
-
-    memcpy( m_buf.data(), data, chunkSize );
-
-    m_chunkdef.type = chunkType;
-    m_chunkdef.size = chunkSize;
+    return chunk->getType() == x;
 }
 
-UINT32_T WFTChunk::getSize() const
+WFTChunkList::SPtr WFTChunkList::filter( WLEFTChunkType::Enum chunkType )
 {
-    return m_chunkdef.size + sizeof(WFTChunkDefT);
-}
+    WFTChunkList::SPtr q( new WFTChunkList() );
+    WFTChunkList &ptr = *q;
 
-const WFTObject::WFTChunkDefT WFTChunk::getDef() const
-{
-    return m_chunkdef;
-}
+    // use boost range iterator to filter for the given chunk type
+    using boost::adaptors::filtered;
+    WFTChunkList &x = *this;
+    boost::copy( x | filtered( bind( &WFTChunkList::isChunkType, _1, chunkType ) ), std::back_inserter( ptr ) );
 
-WLEFTChunkType::Enum WFTChunk::getType() const
-{
-    return ( WLEFTChunkType::Enum )m_chunkdef.type;
-}
+    /*
+     BOOST_FOREACH(WFTChunk::SPtr chunk, *this)
+     {
+     if( chunk->getType() == chunkType )
+     {
+     ptr.push_back( chunk );
+     }
+     }
+     */
 
-void *WFTChunk::getData()
-{
-    return m_buf.data();
-}
-
-std::string WFTChunk::getDataString()
-{
-    std::string *sp = static_cast< std::string* >( getData() );
-
-    std::string s = *sp;
-
-    delete sp;
-
-    return s;
+    return q;
 }

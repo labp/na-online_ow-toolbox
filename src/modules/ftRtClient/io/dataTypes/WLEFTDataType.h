@@ -31,25 +31,25 @@
 
 #include <message.h>
 
-/**
- * Enumeration for FieldTrip data types.
- */
 namespace WLEFTDataType
 {
+    /**
+     * Enumeration for FieldTrip data types.
+     */
     enum Enum
     {
-        CHAR = 0,
-        UINT8 = 1,
-        UINT16 = 2,
-        UINT32 = 3,
-        UINT64 = 4,
-        INT8 = 5,
-        INT16 = 6,
-        INT32 = 7,
-        INT64 = 8,
-        FLOAT32 = 9,
-        FLOAT64 = 10,
-        UNKNOWN = -1
+        CHAR = 0,    //!< CHAR
+        UINT8 = 1,   //!< UINT8
+        UINT16 = 2,  //!< UINT16
+        UINT32 = 3,  //!< UINT32
+        UINT64 = 4,  //!< UINT64
+        INT8 = 5,    //!< INT8
+        INT16 = 6,   //!< INT16
+        INT32 = 7,   //!< INT32
+        INT64 = 8,   //!< INT64
+        FLOAT32 = 9, //!< FLOAT32
+        FLOAT64 = 10,//!< FLOAT64
+        UNKNOWN = -1 //!< UNKNOWN
 
     };
 

@@ -35,26 +35,90 @@ class WFTData: public WFTRequestableObject
 {
 public:
 
+    /**
+     * A shared pointer on a WFTData.
+     */
     typedef boost::shared_ptr< WFTData > SPtr;
 
+    /**
+     * Creates an empty WFTData object.
+     */
     WFTData();
 
+    /**
+     * Constructs a WFTData object with the given meat information.
+     *
+     * @param numChannels The number of channels.
+     * @param numSamples The number of samples.
+     * @param dataType The used data type.
+     */
     WFTData( UINT32_T numChannels, UINT32_T numSamples, UINT32_T dataType );
 
+    /**
+     * Inherit from WFTRequestableObject.
+     *
+     * @return Returns the object as Put-request.
+     */
     WFTRequest::SPtr asRequest();
 
+    /**
+     * Inherit from WFTRequestableObject.
+     *
+     * @param The response object.
+     * @return Returns whether the parsing was successful.
+     */
     bool parseResponse( WFTResponse::SPtr );
 
+    /**
+     * Inherit from WFTObject.
+     *
+     * @return Returns the whole object size including the meta information.
+     */
     UINT32_T getSize() const;
 
+    /**
+     * Gets a reference on the fixed meta information part.
+     *
+     * @return Returns a reference on a WFTDataDefT object.
+     */
     WFTDataDefT& getDataDef();
 
+    /**
+     * Gets a pointer to the data storage. The meta information tells the properties about the stored data.
+     */
     void *getData();
+
+    /**
+     * Gets whether the stored data has to convert manually into the wished data type.
+     *
+     * @return Returns true if there is the data type T already, else false.
+     */
+    template< typename T >
+    bool needDataToConvert()
+    {
+        if( typeid(T) == typeid(float) )
+        {
+            return getDataDef().data_type != DATATYPE_FLOAT32 ;
+        }
+        else
+            if( typeid(T) == typeid(double) )
+            {
+                return getDataDef().data_type != DATATYPE_FLOAT64 ;
+            }
+
+        return true;
+    }
 
 protected:
 
+    /**
+     * The fixed meta information.
+     */
     WFTDataDefT m_def;
 
+    /**
+     * A structure to govern the data storage.
+     */
     SimpleStorage m_buf;
 
 };

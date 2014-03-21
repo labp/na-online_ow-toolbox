@@ -142,6 +142,15 @@ private:
     WPropInt m_events;
     WPropInt m_headerBufSize;
 
+    /**
+     * Property group for triggering operations on the buffer.
+     */
+    WPropGroup m_propGrpBufferOperations;
+
+    WPropTrigger m_trgFlushHeader;
+    WPropTrigger m_trgFlushData;
+
+
     WFTConnection::SPtr m_connection;
 
     WFTNeuromagClient::SPtr m_ftRtClient;
@@ -166,6 +175,10 @@ private:
     void callbackTrgStopStreaming();
 
     void callbackTrgReset();
+
+    void callbackkTrgFlushHeader();
+
+    void callbackkTrgFlushData();
 
     void applyStatusConnected();
 

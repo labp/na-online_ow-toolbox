@@ -26,15 +26,9 @@
 #include <boost/pointer_cast.hpp>
 
 #include "../WFTChunkIterator.h"
-#include "../WFTRequestBuilder.h"
 #include "../request/WFTRequest_PutHeader.h"
 
 #include "WFTHeader.h"
-
-WFTHeader::WFTHeader()
-{
-
-}
 
 WFTHeader::WFTHeader( UINT32_T numChannels, UINT32_T dataType, float fsample )
 {
@@ -43,20 +37,14 @@ WFTHeader::WFTHeader( UINT32_T numChannels, UINT32_T dataType, float fsample )
     m_def.fsample = fsample;
 }
 
-WFTHeader::~WFTHeader()
-{
-
-}
-
 WFTRequest::SPtr WFTHeader::asRequest()
 {
-    if(m_def.nchans == 0 || m_def.fsample == 0)
+    if( m_def.nchans == 0 || m_def.fsample == 0 )
     {
         return WFTRequest::SPtr();
     }
 
-    WFTRequestBuilder::SPtr builder;
-    WFTRequest_PutHeader::SPtr request = builder->buildRequest_PUT_HDR( m_def.nchans, m_def.data_type, m_def.fsample );
+    WFTRequest_PutHeader::SPtr request( new WFTRequest_PutHeader( m_def.nchans, m_def.data_type, m_def.fsample ) );
 
     // add chunks from the collection to the request object.
     BOOST_FOREACH(WFTChunk::SPtr chunk, m_chunks)
@@ -97,9 +85,25 @@ WFTHeader::WFTHeaderDefT& WFTHeader::getHeaderDef()
     return m_def;
 }
 
-bool WFTHeader::hasChunks()
+bool WFTHeader::hasChunks() const
 {
     return m_def.bufsize > 0;
+}
+
+bool WFTHeader::hasChunk( WLEFTChunkType::Enum chunkType ) const
+{
+    if( !hasChunks() )
+    {
+        return false;
+    }
+
+    BOOST_FOREACH(WFTChunk::SPtr chunk, m_chunks)
+    {
+        if( chunk->getType() == chunkType )
+            return true;
+    }
+
+    return false;
 }
 
 void WFTHeader::addChunk( WFTChunk::SPtr chunk )
@@ -109,7 +113,12 @@ void WFTHeader::addChunk( WFTChunk::SPtr chunk )
     m_def.bufsize += chunk->getDef().size + sizeof(WFTObject::WFTChunkDefT);
 }
 
-WFTHeader::WFTChunkList_ConstSPtr WFTHeader::getChunks()
+WFTChunkList::ConstSPtr WFTHeader::getChunks() const
 {
-    return WFTHeader::WFTChunkList_ConstSPtr( new WFTChunkList( m_chunks ) );
+    return WFTChunkList::ConstSPtr( new WFTChunkList( m_chunks ) );
+}
+
+WFTChunkList::SPtr WFTHeader::getChunks( WLEFTChunkType::Enum chunkType )
+{
+    return m_chunks.filter( chunkType );
 }

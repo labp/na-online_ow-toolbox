@@ -162,7 +162,7 @@ void WMFTRtClient::properties()
     m_trgDisconnect = m_propGrpFtClient->addProperty( "Disconnect:", "Disconnect", WPVBaseTypes::PV_TRIGGER_READY,
                     m_propCondition );
     m_trgDisconnect->setHidden( true );
-    m_waitTimeout = m_propGrpFtClient->addProperty( "Data request Timeout (ms):", "Timeout at waiting for new data or events.",
+    m_waitTimeout = m_propGrpFtClient->addProperty( "Max. data request Timeout (ms):", "Timeout at waiting for new data or events.",
                     ( int )WFTRtClient::DEFAULT_WAIT_TIMEOUT );
     m_waitTimeout->setMin( 1 );
     m_waitTimeout->setMax( 100 );
@@ -197,6 +197,16 @@ void WMFTRtClient::properties()
     m_headerBufSize = m_propGrpHeader->addProperty( "Additional header information (bytes):",
                     "Shows the number of bytes allocated by additional header information.", 0 );
     m_headerBufSize->setPurpose( PV_PURPOSE_INFORMATION );
+
+    /*
+     * property group FieldTrip buffer operations
+     */
+    m_propGrpBufferOperations = m_properties->addPropertyGroup( "FieldTrip Buffer Operations", "FieldTrip Buffer Operations",
+                    false );
+    m_trgFlushHeader = m_propGrpBufferOperations->addProperty( "Flush Header:", "Flush Header", WPVBaseTypes::PV_TRIGGER_READY,
+                    m_propCondition );
+    m_trgFlushData = m_propGrpBufferOperations->addProperty( "Flush Data:", "Flush Data", WPVBaseTypes::PV_TRIGGER_READY,
+                    m_propCondition );
 }
 
 /**
@@ -216,7 +226,7 @@ void WMFTRtClient::moduleInit()
     ready(); // signal ready state
     waitRestored();
 
-    viewInit( LaBP::WLEMDDrawable2D::WEGraphType::MULTI );
+    viewInit( LaBP::WLEMDDrawable2D::WEGraphType::SINGLE );
 
     m_ftRtClient.reset( new WFTNeuromagClient ); // create streaming client.
 
@@ -260,6 +270,20 @@ void WMFTRtClient::moduleMain()
             callbackTrgReset();
 
             m_resetModule->set( WPVBaseTypes::PV_TRIGGER_READY, true );
+        }
+
+        if( m_trgFlushHeader->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+        {
+            callbackkTrgFlushHeader();
+
+            m_trgFlushHeader->set( WPVBaseTypes::PV_TRIGGER_READY, true );
+        }
+
+        if( m_trgFlushData->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+        {
+            callbackkTrgFlushData();
+
+            m_trgFlushData->set( WPVBaseTypes::PV_TRIGGER_READY, true );
         }
 
         debugLog() << "Waiting for Events";
@@ -399,8 +423,9 @@ void WMFTRtClient::callbackTrgDisconnect()
 
         m_ftRtClient->disconnect(); // disconnect client
 
-        applyStatusDisconnected();
     }
+
+    applyStatusDisconnected();
 
     infoLog() << "Connection to FieldTrip Buffer Server closed.";
 }
@@ -422,6 +447,7 @@ void WMFTRtClient::callbackTrgStartStreaming()
         applyStatusStreaming(); // edit GUI for client status "streaming"
 
         dispHeaderInfo(); // display header information
+        m_ftRtClient->printChunks(); // print the chunk buffers content.
         debugLog() << "Header request on startup done. Beginning data streaming";
 
         while( !m_stopStreaming && !m_shutdownFlag() )
@@ -481,6 +507,20 @@ void WMFTRtClient::callbackTrgReset()
 
     WLEMMCommand::SPtr labp = WLEMMCommand::instance( WLEMMCommand::Command::RESET );
     processReset( labp );
+}
+
+void WMFTRtClient::callbackkTrgFlushHeader()
+{
+    debugLog() << "callbackkTrgFlushHeader() called.";
+
+    m_ftRtClient->doFlushHeaderRequest();
+}
+
+void WMFTRtClient::callbackkTrgFlushData()
+{
+    debugLog() << "callbackkTrgFlushData() called.";
+
+    m_ftRtClient->doFlushDataRequest();
 }
 
 // TODO(maschke): Is it possible to enable/disable properties during run time?

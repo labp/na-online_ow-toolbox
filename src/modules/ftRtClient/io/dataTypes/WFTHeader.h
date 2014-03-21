@@ -29,10 +29,16 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include "core/container/WLArrayList.h"
+
 #include "WFTChunk.h"
+#include "WFTChunkList.h"
 #include "WFTRequestableObject.h"
 
-class WFTHeader: public WFTObject
+/**
+ * The WFTHeader class represents the FieldTrip header structure. It consists of a fix definition part and the chunk list collection.
+ */
+class WFTHeader: public WFTRequestableObject
 {
 
 public:
@@ -43,36 +49,63 @@ public:
     typedef boost::shared_ptr< WFTHeader > SPtr;
 
     /**
-     * A shared pointer on a list with WFTChunks.
+     * Constructor to create a new header structure.
+     *
+     * @param numChannels The number of channels.
+     * @param dataType The used data type in the data buffer. The parameters data type is defined by the FieldTrip buffer protocol.
+     * @param fsample The sample frequency.
      */
-    typedef std::vector< WFTChunk::SPtr > WFTChunkList;
-
-    /**
-     * A shared pointer on a chunk list.
-     */
-    typedef boost::shared_ptr< WFTChunkList > WFTChunkList_SPtr;
-
-    /**
-     * A shared pointer on a immutable chunk list.
-     */
-    typedef boost::shared_ptr< const WFTChunkList > WFTChunkList_ConstSPtr;
-
-    WFTHeader();
-
     WFTHeader( UINT32_T numChannels, UINT32_T dataType, float fsample );
 
-    ~WFTHeader();
-
+    /**
+     * Inherited form WFTRequestableObject.
+     *
+     * @return The header as request object.
+     */
     WFTRequest::SPtr asRequest();
 
+    /**
+     * Inherited form WFTRequestableObject.
+     *
+     * @param response The FieldTrip response to parse.
+     * @return Returns true if the parsing was successful, else false.
+     */
     bool parseResponse( WFTResponse::SPtr response );
 
+    /**
+     * Inherited form WFTObject.
+     *
+     * @return Returns the amount of memory allocated by the header including the size of the chunk list.
+     */
     UINT32_T getSize() const;
 
+    /**
+     * Returns a reference on the headers definition part.
+     *
+     * @return The header definition.
+     */
     WFTHeaderDefT& getHeaderDef();
 
-    bool hasChunks();
+    /**
+     * Returns whether or not the header has chunks in its buffer.
+     *
+     * @return Returns true if there are chunks, else false.
+     */
+    bool hasChunks() const;
 
+    /**
+     * Returns whether or not the header has chunks of a specific chunk type in its buffer.
+     *
+     * @param chunkType The chunk type to filter.
+     * @return Returns true if there are chunks kind of the @chunkType, else false.
+     */
+    bool hasChunk( WLEFTChunkType::Enum chunkType ) const;
+
+    /**
+     * Add a new chunk to the headers chunk list.
+     *
+     * @param chunk The new chunk.
+     */
     void addChunk( WFTChunk::SPtr chunk );
 
     /**
@@ -80,7 +113,16 @@ public:
      *
      * @return A pointer on the chunk list.
      */
-    WFTChunkList_ConstSPtr getChunks();
+    WFTChunkList::ConstSPtr getChunks() const;
+
+    /**
+     * Returns the chunks collection filtered for a specific @chunkType as shared pointer.
+     * The returned pointers target is just a copy of the original collection.
+     *
+     * @param chunkType The chunk type.
+     * @return A pointer on the chunk list.
+     */
+    WFTChunkList::SPtr getChunks( WLEFTChunkType::Enum chunkType );
 
 protected:
 

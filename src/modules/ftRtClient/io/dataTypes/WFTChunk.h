@@ -43,9 +43,14 @@ class WFTChunk: public WFTObject
 public:
 
     /**
-     * The chunks as a shared pointer
+     * The chunk as a shared pointer.
      */
     typedef boost::shared_ptr< WFTChunk > SPtr;
+
+    /**
+     * A shared pointer on a constant chunk.
+     */
+    typedef boost::shared_ptr< const WFTChunk > ConstSPtr;
 
     /**
      * The constructor defines the describing part of the chunk and allocates memory for the data.
@@ -55,8 +60,6 @@ public:
      * @param data A pointer to the data to saving. The constructor copies the data to its own memory area.
      */
     WFTChunk( UINT32_T chunkType, UINT32_T chunkSize, const void *data );
-
-    ~WFTChunk();
 
     /**
      * Returns the total size of the whole chunk including definition part and data part.
@@ -85,14 +88,14 @@ public:
     /**
      * Return a constant pointer to the chunks data content.
      */
-    const void *getData();
+    void *getData();
 
     /**
      * The Method tries to create the chunks data as a std::string and returns the string.
      *
      * @return A std::string containing the data.
      */
-    const std::string getDataString();
+    std::string getDataString();
 
 protected:
 

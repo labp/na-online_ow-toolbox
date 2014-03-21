@@ -23,9 +23,11 @@
 //---------------------------------------------------------------------------
 
 #include <buffer.h>
+#include <FtBuffer.h>
 
 #include "core/common/WLogger.h"
 
+#include "io/request/WFTRequest.h"
 #include "io/request/WFTRequest_GetData.h"
 #include "io/request/WFTRequest_GetHeader.h"
 #include "io/request/WFTRequest_WaitData.h"
@@ -33,8 +35,6 @@
 #include "io/dataTypes/WFTHeader.h"
 #include "io/dataTypes/WFTChunk.h"
 #include "WFTRtClient.h"
-
-#include <FtBuffer.h>
 
 const std::string WFTRtClient::CLASS = "WFTRtClient";
 
@@ -44,7 +44,7 @@ WFTRtClient::WFTRtClient() :
                 m_waitTimeout_ms( DEFAULT_WAIT_TIMEOUT ), m_samples( 0 ), m_events( 0 )
 {
     m_reqBuilder.reset( new WFTRequestBuilder );
-    m_ftHeader.reset( new WFTHeader );
+    m_ftHeader.reset( new WFTHeader( 0, 0, 0 ) );
 }
 
 WFTRtClient::~WFTRtClient()
@@ -140,7 +140,7 @@ bool WFTRtClient::doHeaderRequest()
 {
     WFTResponse::SPtr response( new WFTResponse );
     WFTRequest_GetHeader::SPtr request = m_reqBuilder->buildRequest_GET_HDR();
-    m_ftHeader.reset( new WFTHeader );
+    m_ftHeader.reset( new WFTHeader( 0, 0, 0 ) );
 
     if( !doRequest( *request, *response ) )
     {
@@ -255,7 +255,41 @@ UINT32_T WFTRtClient::getTimeout() const
     return m_waitTimeout_ms;
 }
 
-void WFTRtClient::setTimeout(UINT32_T timeout)
+void WFTRtClient::setTimeout( UINT32_T timeout )
 {
     m_waitTimeout_ms = timeout;
+}
+
+bool WFTRtClient::doFlushHeaderRequest()
+{
+    WFTRequest::SPtr request( new WFTRequest );
+    request->getMessageDef()->command = FLUSH_HDR;
+    request->getMessageDef()->bufsize = 0;
+    request->getMessageDef()->version = VERSION;
+
+    WFTResponse::SPtr response( new WFTResponse );
+
+    if( !doRequest( *request, *response ) )
+    {
+        return false;
+    }
+
+    return response->checkFlush();
+}
+
+bool WFTRtClient::doFlushDataRequest()
+{
+    WFTRequest::SPtr request( new WFTRequest );
+    request->getMessageDef()->command = FLUSH_DAT;
+    request->getMessageDef()->bufsize = 0;
+    request->getMessageDef()->version = VERSION;
+
+    WFTResponse::SPtr response( new WFTResponse );
+
+    if( !doRequest( *request, *response ) )
+    {
+        return false;
+    }
+
+    return response->checkFlush();
 }

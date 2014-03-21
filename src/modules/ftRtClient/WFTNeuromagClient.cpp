@@ -24,11 +24,15 @@
 
 #include <cmath>
 
+#include <boost/foreach.hpp>
+
 #include <core/common/WLogger.h>
 
+#include "core/data/WLDataTypes.h"
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDEEG.h"
 
+#include "io/dataTypes/WFTChunk.h"
 #include "WFTNeuromagClient.h"
 
 const std::string WFTNeuromagClient::CLASS = "WFTClientStreaming";
@@ -94,26 +98,21 @@ bool WFTNeuromagClient::createEMM( WLEMMeasurement& emm )
 
     int chans = m_ftData->getDataDef().nchans;
     int samps = m_ftData->getDataDef().nsamples;
-    float *dataSrc, *fdata;
+    ScalarT *dataSrc;
     SimpleStorage floatStore;
 
-    // convert data to the single precision float format
-    /*
-     if( m_ftData->getDataDef().data_type != DATATYPE_FLOAT32 )
-     {
-     floatStore.resize( sizeof(float) * samps * chans );
-     fdata = ( float * )floatStore.data();
+    // convert data to the used floating point number format
+    if( m_ftData->needDataToConvert< ScalarT >() )
+    {
+        floatStore.resize( sizeof(ScalarT) * samps * chans );
+        dataSrc = ( ScalarT * )floatStore.data();
 
-     convertData( fdata, m_ftData->getData(), samps, chans, m_ftData->getDataDef().data_type );
-     dataSrc = fdata;
-     }
-     else // data arrived in float format
-     {
-     dataSrc = ( float * )m_ftData->getData();
-     }
-     */
-
-    dataSrc = ( float * )m_ftData->getData();
+        WFTRtClient::convertData< ScalarT >( dataSrc, m_ftData->getData(), samps, chans, m_ftData->getDataDef().data_type );
+    }
+    else // data arrived in the right format
+    {
+        dataSrc = ( ScalarT * )m_ftData->getData();
+    }
 
     WLEMData::SPtr modality( new WLEMDEEG );
 
@@ -124,12 +123,12 @@ bool WFTNeuromagClient::createEMM( WLEMMeasurement& emm )
     for( int i = 0; i < samps; ++i ) // iterate all samples
     {
         // point to the next samples start position
-        const float *sampleSrc = dataSrc + i * chans;
+        const ScalarT *sampleSrc = dataSrc + i * chans;
         WLEMData::SampleT sample( chans, 1 ); // create new sample for the data matrix
 
         for( int j = 0; j < chans; ++j )
         {
-            float x = sampleSrc[j];
+            ScalarT x = sampleSrc[j];
             if( isnanf( x ) || isinff( x ) )
             {
                 return false;
@@ -146,56 +145,62 @@ bool WFTNeuromagClient::createEMM( WLEMMeasurement& emm )
     return true;
 }
 
+void WFTNeuromagClient::printChunks()
+{
+    if( m_ftHeader == 0 )
+    {
+        return;
+    }
+
+    if( !m_ftHeader->hasChunks() )
+    {
+        return;
+    }
+
+    BOOST_FOREACH(WFTChunk::SPtr chunk, *m_ftHeader->getChunks())
+    {
+        wlog::debug( CLASS ) << "Chunk [" << WLEFTChunkType::name( chunk->getType() ) << "]:";
+
+        switch( chunk->getType() )
+        {
+            case WLEFTChunkType::FT_CHUNK_CHANNEL_NAMES:
+                wlog::debug( CLASS ) << chunk->getDataString();
+                break;
+            case WLEFTChunkType::FT_CHUNK_CHANNEL_FLAGS:
+                wlog::debug( CLASS ) << chunk->getDataString();
+                break;
+            case WLEFTChunkType::FT_CHUNK_RESOLUTIONS:
+                wlog::debug( CLASS ) << chunk->getDataString();
+                break;
+            case WLEFTChunkType::FT_CHUNK_ASCII_KEYVAL:
+                wlog::debug( CLASS ) << chunk->getDataString();
+                break;
+            case WLEFTChunkType::FT_CHUNK_NIFTI1:
+                wlog::debug( CLASS ) << "NIFTI-1 file.";
+                break;
+            case WLEFTChunkType::FT_CHUNK_SIEMENS_AP:
+                wlog::debug( CLASS ) << chunk->getDataString();
+                break;
+            case WLEFTChunkType::FT_CHUNK_CTF_RES4:
+                wlog::debug( CLASS ) << "CTF .res4 file.";
+                break;
+            case WLEFTChunkType::FT_CHUNK_NEUROMAG_ISOTRAK:
+                wlog::debug( CLASS ) << "Neuromag Isotrak .fif file.";
+                break;
+            case WLEFTChunkType::FT_CHUNK_NEUROMAG_HEADER:
+                wlog::debug( CLASS ) << "Neuromag header .fif file.";
+                break;
+            case WLEFTChunkType::FT_CHUNK_NEUROMAG_HPIRESULT:
+                wlog::debug( CLASS ) << "Neuromag HPI result .fif file.";
+                break;
+            default:
+                break;
+        }
+    }
+
+}
+
 bool WFTNeuromagClient::prepareStreaming()
 {
     return doHeaderRequest();
-}
-
-void WFTNeuromagClient::convertData( float *dest, const void *src, unsigned int nsamp, unsigned int nchans, UINT32_T dataType )
-{
-    switch( dataType )
-    {
-        case DATATYPE_UINT8 :
-            convertToFloat< uint8_t >( dest, src, nsamp, nchans );
-            break;
-        case DATATYPE_INT8 :
-            convertToFloat< int8_t >( dest, src, nsamp, nchans );
-            break;
-        case DATATYPE_UINT16 :
-            convertToFloat< uint16_t >( dest, src, nsamp, nchans );
-            break;
-        case DATATYPE_INT16 :
-            convertToFloat< int16_t >( dest, src, nsamp, nchans );
-            break;
-        case DATATYPE_UINT32 :
-            convertToFloat< uint32_t >( dest, src, nsamp, nchans );
-            break;
-        case DATATYPE_INT32 :
-            convertToFloat< int32_t >( dest, src, nsamp, nchans );
-            break;
-        case DATATYPE_UINT64 :
-            convertToFloat< uint64_t >( dest, src, nsamp, nchans );
-            break;
-        case DATATYPE_INT64 :
-            convertToFloat< int64_t >( dest, src, nsamp, nchans );
-            break;
-        case DATATYPE_FLOAT64 :
-            convertToFloat< double >( dest, src, nsamp, nchans );
-            break;
-    }
-}
-
-template< typename T >
-void WFTNeuromagClient::convertToFloat( float *dest, const void *src, unsigned int nsamp, unsigned int nchans )
-{
-    const T *srcT = static_cast< const T * >( src );
-    for( unsigned int j = 0; j < nsamp; j++ )
-    {
-        for( unsigned int i = 0; i < nchans; i++ )
-        {
-            dest[i] = ( float )srcT[i];
-        }
-        dest += nchans;
-        srcT += nchans;
-    }
 }

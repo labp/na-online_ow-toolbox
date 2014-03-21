@@ -31,32 +31,68 @@
 
 #include "WFTRtClient.h"
 
+/**
+ * WFTNeuromagClient represents the basic streaming client class for the Elekta/Neuromag device. It inherits the WFTRtClient class and extends them
+ * for handling the data as WLEMMeasurement objects used in Openwalnut.
+ */
 class WFTNeuromagClient: public WFTRtClient
 {
 public:
 
+    /**
+     * Shared pointer on a WFTNeuromagClient.
+     */
     typedef boost::shared_ptr< WFTNeuromagClient > SPtr;
 
+    /**
+     * Contains the class name.
+     */
     static const std::string CLASS;
 
+    /**
+     * Constructs the WFTNeuromagClient object.
+     */
     WFTNeuromagClient();
 
+    /**
+     * Gets whether the client is streaming. Is it so, the client has an open connection to the FieldTrip buffer server.
+     *
+     * @return Returns true if the client is streaming, else false.
+     */
     bool isStreaming() const;
 
+    /**
+     * This method represents the signal to the client to preparing for streaming.
+     * Doing this the client tries to receive the header structure from the server. If the acquisition software is not running the start
+     * will fail and no header information can be retrieved.
+     *
+     * @return Returns true if the preparation was successful, else false.
+     */
     bool start();
 
+    /**
+     * Method to switch the client into state "not streaming".
+     */
     void stop();
 
+    /**
+     * After getting data from the server this method can be used to create a WLEMMeasurement object for the process chain.
+     *
+     * @param emm The WLEMMeasurement object to fill.
+     * @return Returns false in case of problems occur during EMM creation, else true.
+     */
     bool createEMM( WLEMMeasurement& emm );
+
+    void printChunks();
 
 private:
 
+    /**
+     * Preparation method for starting the client streaming.
+     *
+     * @return Returns true if the header can be received, else false.
+     */
     bool prepareStreaming();
-
-    void convertData( float *dest, const void *src, unsigned int nsamp, unsigned int nchans, UINT32_T dataType );
-
-    template< typename T >
-    void convertToFloat( float *dest, const void *src, unsigned int nsamp, unsigned int nchans );
 
     /**
      * Flag to define whether the client is running.
