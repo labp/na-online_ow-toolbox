@@ -22,20 +22,5 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFTREQUESTABLEOBJECT_H_
-#define WFTREQUESTABLEOBJECT_H_
+#include <modules/ftRtClient/fieldtrip/WFTAIterator.h>
 
-#include "../request/WFTRequest.h"
-#include "../response/WFTResponse.h"
-#include "WFTObject.h"
-
-class WFTRequestableObject: public WFTObject
-{
-    virtual WFTRequest::SPtr asRequest() = 0;
-
-    virtual bool parseResponse( WFTResponse::SPtr ) = 0;
-
-    virtual UINT32_T getSize() const = 0;
-};
-
-#endif /* WFTREQUESTABLEOBJECT_H_ */

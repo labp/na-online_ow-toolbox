@@ -26,7 +26,7 @@
 #include <boost/pointer_cast.hpp>
 
 #include "../WFTChunkIterator.h"
-#include "../request/WFTRequest_PutHeader.h"
+#include "../io/request/WFTRequest_PutHeader.h"
 
 #include "WFTHeader.h"
 

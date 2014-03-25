@@ -25,7 +25,13 @@
 #ifndef WFTCHUNKPROCESSOR_H_
 #define WFTCHUNKPROCESSOR_H_
 
+#include <map>
+#include <list>
+
+#include <boost/shared_ptr.hpp>
+
 #include "core/container/WLArrayList.h"
+#include "core/data/emd/WLEMData.h"
 
 #include "dataTypes/WFTChunk.h"
 #include "dataTypes/WFTHeader.h"
@@ -39,10 +45,28 @@ class WFTChunkProcessor
 {
 public:
 
+    typedef boost::shared_ptr< WFTChunkProcessor > SPtr;
+
     /**
      * Destroys the WFTChunkProcessor.
      */
     virtual ~WFTChunkProcessor();
+
+    /**
+     * This method does a try to batch all chunks in the given collection. After processing you can receive the information using the getters.
+     *
+     * @param chunkList A pointer on a collection containing header chunks.
+     * @return Return true if all chunks could be parsed, else false.
+     */
+    virtual bool process( WFTChunkList::SPtr chunkList );
+
+    /**
+     * Returns a WELMData object for the given FieldTrip channel number.
+     *
+     * @param channel The channel number in the FieldTrip buffer.
+     * @return The WELMData object.
+     */
+    WLEMData::SPtr getWLEMDataType( size_t channel );
 
     /**
      * This method picks out the names of channels contained in the chunk list. Inside of a channel names chunk the values are represented as a '\0'
@@ -53,6 +77,14 @@ public:
      */
     virtual WLArrayList< std::string >::SPtr extractChannelNames( WFTChunkList::SPtr chunkList );
 
+    /**
+     * This method picks out the channel order and channel types included in the Channel Flags chunk.
+     *
+     * @param chunkList A list of header chunks.
+     * @return Returns a list of strings.
+     */
+    virtual WLArrayList< std::string >::SPtr extractChannelFlags( WFTChunkList::SPtr chunkList );
+
 private:
 
     /**
@@ -62,7 +94,10 @@ private:
      * @param vector A reference on the resulting string vector.
      * @return Returns true if there was channel names in the chunk, else false.
      */
-    virtual bool getChannelNames( WFTChunk::SPtr chunk, WLArrayList< std::string >::SPtr &vector );
+    bool getChannelNames( WFTChunk::SPtr chunk, WLArrayList< std::string >::SPtr &vector );
+
+    bool getChannelModality( WFTChunk::SPtr chunk, std::set< WLEModality::Enum >& modalities );
+
 };
 
 #endif /* WFTCHUNKPROCESSOR_H_ */

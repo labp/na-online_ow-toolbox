@@ -29,11 +29,12 @@
 
 #include "io/request/WFTRequest.h"
 #include "io/request/WFTRequest_GetData.h"
+#include "io/request/WFTRequest_GetEvent.h"
 #include "io/request/WFTRequest_GetHeader.h"
 #include "io/request/WFTRequest_WaitData.h"
 #include "io/response/WFTResponse.h"
-#include "io/dataTypes/WFTHeader.h"
-#include "io/dataTypes/WFTChunk.h"
+#include "dataTypes/WFTHeader.h"
+#include "dataTypes/WFTChunk.h"
 #include "WFTRtClient.h"
 
 const std::string WFTRtClient::CLASS = "WFTRtClient";
@@ -78,6 +79,11 @@ WFTHeader::SPtr WFTRtClient::getHeader() const
 WFTData::SPtr WFTRtClient::getData() const
 {
     return m_ftData;
+}
+
+WFTEventList::SPtr WFTRtClient::getEventList() const
+{
+    return m_ftEvents;
 }
 
 void WFTRtClient::setConnection( WFTConnection::SPtr connection )
@@ -232,6 +238,20 @@ bool WFTRtClient::getNewEvents()
         return false;
     }
 
+    WFTRequest_GetEvent::SPtr request = m_reqBuilder->buildRequest_GET_EVT( m_events, m_svr_samp_evt.nevents - 1 );
+    WFTResponse::SPtr response( new WFTResponse );
+
+    if( !doRequest( *request, *response ) )
+    {
+        return false;
+    }
+
+    m_ftEvents.reset( new WFTEventList );
+    if( !m_ftEvents->parseResponse( response ) )
+    {
+        return false;
+    }
+
     m_events = m_svr_samp_evt.nevents;
 
     return true;
@@ -262,25 +282,23 @@ void WFTRtClient::setTimeout( UINT32_T timeout )
 
 bool WFTRtClient::doFlushHeaderRequest()
 {
-    WFTRequest::SPtr request( new WFTRequest );
-    request->getMessageDef()->command = FLUSH_HDR;
-    request->getMessageDef()->bufsize = 0;
-    request->getMessageDef()->version = VERSION;
-
-    WFTResponse::SPtr response( new WFTResponse );
-
-    if( !doRequest( *request, *response ) )
-    {
-        return false;
-    }
-
-    return response->checkFlush();
+    return doFlush( FLUSH_HDR );
 }
 
 bool WFTRtClient::doFlushDataRequest()
 {
+    return doFlush( FLUSH_DAT );
+}
+
+bool WFTRtClient::doFlushEventsRequest()
+{
+    return doFlush( FLUSH_EVT );
+}
+
+bool WFTRtClient::doFlush( UINT16_T command )
+{
     WFTRequest::SPtr request( new WFTRequest );
-    request->getMessageDef()->command = FLUSH_DAT;
+    request->getMessageDef()->command = command;
     request->getMessageDef()->bufsize = 0;
     request->getMessageDef()->version = VERSION;
 

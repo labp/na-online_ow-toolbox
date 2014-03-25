@@ -36,8 +36,8 @@
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
-#include "connection/WFTConnection.h"
-#include "WFTNeuromagClient.h"
+#include "fieldtrip/connection/WFTConnection.h"
+#include "fieldtrip/WFTNeuromagClient.h"
 
 class WMFTRtClient: public WLModuleDrawable
 {
@@ -150,6 +150,8 @@ private:
     WPropTrigger m_trgFlushHeader;
     WPropTrigger m_trgFlushData;
 
+    WPropTrigger m_trgPushEvent;
+
 
     WFTConnection::SPtr m_connection;
 
@@ -176,9 +178,13 @@ private:
 
     void callbackTrgReset();
 
-    void callbackkTrgFlushHeader();
+    void callbackTrgFlushHeader();
 
-    void callbackkTrgFlushData();
+    void callbackTrgFlushData();
+
+    void callbackTrgFlushEvents();
+
+    void callbackTrgPushEvent();
 
     void applyStatusConnected();
 

@@ -22,25 +22,30 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WFTRequest.h"
+#include <modules/ftRtClient/fieldtrip/dataTypes/WFTEvent.h>
 
-WFTRequest::WFTRequest() :
-                FtBufferRequest::FtBufferRequest()
+WFTEvent::WFTEvent( WFTObject::WFTEventDefT def, std::string type, std::string value ) :
+                m_type( type ), m_value( value )
 {
-
+    m_def = def;
 }
 
-WFTRequest::WFTMessageDefT *WFTRequest::getMessageDef()
+UINT32_T WFTEvent::getSize() const
 {
-    return &m_def;
+    return ( UINT32_T )sizeof(eventdef_t) + m_def.bufsize;
 }
 
-WFTRequest::WFTMessageT *WFTRequest::getMessage()
+WFTObject::WFTEventDefT& WFTEvent::getDef()
 {
-    return &m_msg;
+    return m_def;
 }
 
-SimpleStorage *WFTRequest::getBuffer()
+const std::string WFTEvent::getType() const
 {
-    return &m_buf;
+    return m_type;
+}
+
+const std::string WFTEvent::getValue() const
+{
+    return m_value;
 }

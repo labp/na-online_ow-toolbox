@@ -32,7 +32,7 @@
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDEEG.h"
 
-#include "io/dataTypes/WFTChunk.h"
+#include "dataTypes/WFTChunk.h"
 #include "WFTNeuromagClient.h"
 
 const std::string WFTNeuromagClient::CLASS = "WFTClientStreaming";

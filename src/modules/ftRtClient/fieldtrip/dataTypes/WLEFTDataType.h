@@ -25,11 +25,10 @@
 #ifndef WLEFTDATATYPE_H_
 #define WLEFTDATATYPE_H_
 
+#include <message.h>
 #include <ostream>
 #include <set>
 #include <string>
-
-#include <message.h>
 
 namespace WLEFTDataType
 {
@@ -38,17 +37,64 @@ namespace WLEFTDataType
      */
     enum Enum
     {
+        /**
+         * One byte character.
+         */
         CHAR = 0,    //!< CHAR
+
+        /**
+         * 8 bit unsigned integer.
+         */
         UINT8 = 1,   //!< UINT8
+
+        /**
+         * 16 bit unsigned integer.
+         */
         UINT16 = 2,  //!< UINT16
+
+        /**
+         * 32 bit unsigned integer.
+         */
         UINT32 = 3,  //!< UINT32
+
+        /**
+         * 64 bit unsigned integer.
+         */
         UINT64 = 4,  //!< UINT64
+
+        /**
+         * 8 bit signed integer.
+         */
         INT8 = 5,    //!< INT8
+
+        /**
+         * 16 bit signed integer.
+         */
         INT16 = 6,   //!< INT16
+
+        /**
+         * 32 bit signed integer.
+         */
         INT32 = 7,   //!< INT32
+
+        /**
+         * 64 bit signed integer.
+         */
         INT64 = 8,   //!< INT64
+
+        /**
+         * 32 bit float.
+         */
         FLOAT32 = 9, //!< FLOAT32
-        FLOAT64 = 10,//!< FLOAT64
+
+        /**
+         * 64 bit float => double.
+         */
+        FLOAT64 = 10, //!< FLOAT64
+
+        /**
+         * Unknown or unsupported data type.
+         */
         UNKNOWN = -1 //!< UNKNOWN
 
     };
@@ -57,6 +103,12 @@ namespace WLEFTDataType
 
     ContainerT values();
     std::string name( Enum val );
+
+    UINT32_T codeByType( Enum val );
+
+    Enum typeByCode( UINT32_T type );
+
+    unsigned int wordSize( Enum val );
 
     std::ostream& operator<<( std::ostream &strm, const WLEFTDataType::Enum& obj );
 

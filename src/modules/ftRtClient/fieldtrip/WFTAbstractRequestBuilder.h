@@ -29,7 +29,7 @@
 
 #include <message.h>
 
-#include "request/WFTRequest.h"
+#include "io/request/WFTRequest.h"
 
 /**
  * The WFTAbstractRequestBuilder represents an interface for creating WFTRequests and can be inherited by concrete

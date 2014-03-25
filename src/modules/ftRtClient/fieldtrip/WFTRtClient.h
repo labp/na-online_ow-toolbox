@@ -30,10 +30,11 @@
 #include <message.h>
 
 #include "connection/WFTConnection.h"
-#include "io/WFTRequestBuilder.h"
-#include "io/dataTypes/WFTData.h"
-#include "io/dataTypes/WFTHeader.h"
-#include "io/dataTypes/WFTObject.h"
+#include "WFTRequestBuilder.h"
+#include "dataTypes/WFTData.h"
+#include "dataTypes/WFTEventList.h"
+#include "dataTypes/WFTHeader.h"
+#include "dataTypes/WFTObject.h"
 #include "io/response/WFTResponse.h"
 #include "io/request/WFTRequest.h"
 
@@ -91,6 +92,13 @@ public:
      * @return The WFTData object.
      */
     WFTData::SPtr getData() const;
+
+    /**
+     * Gets the FieldTrip events structure.
+     *
+     * @return The FieldTrip events structure.
+     */
+    WFTEventList::SPtr getEventList() const;
 
     /**
      * Resets the client by setting the local members to their default values.
@@ -161,14 +169,14 @@ public:
      * @param response The response object.
      * @return Returns true if the request was successful and the response could be read, else false.
      */
-    bool doRequest( WFTRequest& request, WFTResponse& response );
+    bool virtual doRequest( WFTRequest& request, WFTResponse& response );
 
     /**
      * This method does a header request and stores the resulting data in the local member, which can be accessed by getHeader().
      *
      * @return Returns true if the request was successful, else false.
      */
-    bool doHeaderRequest();
+    bool virtual doHeaderRequest();
 
     /**
      * Method to execute a Wait-Data_request on the buffer server. The first parameter will be filled with the current numbers of samples and events
@@ -181,7 +189,7 @@ public:
      * @param events Your current number of events.
      * @return Returns true whether the request was successful else false.
      */
-    bool doWaitRequest( unsigned int samples = 0xFFFFFFFF, unsigned int events = 0xFFFFFFFF );
+    bool virtual doWaitRequest( unsigned int samples = 0xFFFFFFFF, unsigned int events = 0xFFFFFFFF );
 
     /**
      * Method to receive new samples from the server. The method does not check whether a request for new samples was executed before receiving. So you should do
@@ -189,7 +197,7 @@ public:
      *
      * @return Returns true if the request was successful, else false.
      */
-    bool getNewSamples();
+    bool virtual getNewSamples();
 
     /**
      * Method to receive new events from the server. The method does not check whether a request for new events was executed before receiving. So you should do
@@ -197,7 +205,7 @@ public:
      *
      * @return Returns true if the request was successful, else false.
      */
-    bool getNewEvents();
+    bool virtual getNewEvents();
 
     /**
      * This method transfers a FieldTrip response into a WFTObject derived data object defined by the type T.
@@ -228,14 +236,21 @@ public:
      *
      * @return Returns true if the request was successful, else false.
      */
-    bool doFlushHeaderRequest();
+    bool virtual doFlushHeaderRequest();
 
     /**
      * Does a Flush-Data-request on the server. This request removes only the samples.
      *
      * @return Returns true if the request was successful, else false.
      */
-    bool doFlushDataRequest();
+    bool virtual doFlushDataRequest();
+
+    /**
+     * Does a Flush-Event-request on the server. This request removes only the events.
+     *
+     * @return Returns true if the request was successful, else false.
+     */
+    bool virtual doFlushEventsRequest();
 
 protected:
 
@@ -284,6 +299,14 @@ protected:
     }
 
     /**
+     * Method to execute a general flush request. The @command defines the flushes type.
+     *
+     * @param command The flush type.
+     * @return Returns true if the request was successful, else false.
+     */
+    bool doFlush( UINT16_T command );
+
+    /**
      * The clients connection to the FieldTrip buffer server.
      */
     WFTConnection::SPtr m_connection;
@@ -302,6 +325,11 @@ protected:
      * The FieldTrip data structure.
      */
     WFTData::SPtr m_ftData;
+
+    /**
+     * The FieldTrip event list structure.
+     */
+    WFTEventList::SPtr m_ftEvents;
 
     /**
      * The timeout for Wait-requests.

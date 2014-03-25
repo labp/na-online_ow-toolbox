@@ -22,24 +22,51 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFTREQUEST_PUTHEADER_H_
-#define WFTREQUEST_PUTHEADER_H_
+#ifndef WFTEVENTLIST_H_
+#define WFTEVENTLIST_H_
 
-#include "../dataTypes/WFTChunk.h"
-#include "WFTRequest.h"
+#include <boost/shared_ptr.hpp>
 
-class WFTRequest_PutHeader: public WFTRequest
+#include <FtBuffer.h>
+
+#include "core/container/WLArrayList.h"
+
+#include "WFTEvent.h"
+#include "WFTRequestableObject.h"
+
+class WFTEventList: public WLArrayList<WFTEvent::SPtr>, public WFTRequestableObject
 {
 public:
 
-    WFTRequest_PutHeader( UINT32_T numChannels, UINT32_T dataType, float fsample );
+    /**
+     * A shared pointer on an event list.
+     */
+    typedef boost::shared_ptr< WFTEventList > SPtr;
 
-    virtual ~WFTRequest_PutHeader();
+    /**
+     * Inherited from WFTRequestableObject.
+     *
+     * @return The event list as FieldTrip request.
+     */
+    WFTRequest::SPtr asRequest();
 
-    bool addChunk( UINT32_T chunkType, UINT32_T chunkSize, const void *data );
+    /**
+     * Inherited from WFTRequestableObject.
+     *
+     * @param The response to parse.
+     * @return True if the parsing was successful, else false.
+     */
+    bool parseResponse( WFTResponse::SPtr );
 
-    bool addChunk( WFTChunk::SPtr chunk );
+    /**
+     * Inherited from WFTRequestableObject
+     *
+     * @return The whole size of the object including definition and buffer.
+     */
+    UINT32_T getSize() const;
+
+private:
 
 };
 
-#endif /* WFTREQUEST_PUTHEADER_H_ */
+#endif /* WFTEVENTLIST_H_ */

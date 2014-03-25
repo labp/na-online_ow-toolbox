@@ -24,13 +24,13 @@
 
 #include <buffer.h>
 
-#include "request/WFTRequest_GetData.h"
-#include "request/WFTRequest_GetEvent.h"
-#include "request/WFTRequest_GetHeader.h"
-#include "request/WFTRequest_PutData.h"
-#include "request/WFTRequest_PutEvent.h"
-#include "request/WFTRequest_PutHeader.h"
-#include "request/WFTRequest_WaitData.h"
+#include "io/request/WFTRequest_GetData.h"
+#include "io/request/WFTRequest_GetEvent.h"
+#include "io/request/WFTRequest_GetHeader.h"
+#include "io/request/WFTRequest_PutData.h"
+#include "io/request/WFTRequest_PutEvent.h"
+#include "io/request/WFTRequest_PutHeader.h"
+#include "io/request/WFTRequest_WaitData.h"
 #include "WFTRequestBuilder.h"
 
 WFTRequestBuilder::WFTRequestBuilder()

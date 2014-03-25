@@ -41,11 +41,12 @@
 
 #include "core/util/profiler/WLTimeProfiler.h"
 
-#include "connection/WFTConnectionTCP.h"
-#include "connection/WFTConnectionUnix.h"
-#include "io/dataTypes/WLEFTDataType.h"
-#include "WFTRtClient.h"
-#include "WFTNeuromagClient.h"
+#include "fieldtrip/WFTRtClient.h"
+#include "fieldtrip/WFTNeuromagClient.h"
+#include "fieldtrip/connection/WFTConnectionTCP.h"
+#include "fieldtrip/connection/WFTConnectionUnix.h"
+#include "fieldtrip/dataTypes/WLEFTDataType.h"
+#include "fieldtrip/io/request/WFTRequest_PutEvent.h"
 
 #include "WMFTRtClient.h"
 
@@ -162,8 +163,8 @@ void WMFTRtClient::properties()
     m_trgDisconnect = m_propGrpFtClient->addProperty( "Disconnect:", "Disconnect", WPVBaseTypes::PV_TRIGGER_READY,
                     m_propCondition );
     m_trgDisconnect->setHidden( true );
-    m_waitTimeout = m_propGrpFtClient->addProperty( "Max. data request Timeout (ms):", "Timeout at waiting for new data or events.",
-                    ( int )WFTRtClient::DEFAULT_WAIT_TIMEOUT );
+    m_waitTimeout = m_propGrpFtClient->addProperty( "Max. data request Timeout (ms):",
+                    "Timeout at waiting for new data or events.", ( int )WFTRtClient::DEFAULT_WAIT_TIMEOUT );
     m_waitTimeout->setMin( 1 );
     m_waitTimeout->setMax( 100 );
     m_streamStatus = m_propGrpFtClient->addProperty( "Streaming status:", "Shows the status of the streaming client.",
@@ -206,6 +207,9 @@ void WMFTRtClient::properties()
     m_trgFlushHeader = m_propGrpBufferOperations->addProperty( "Flush Header:", "Flush Header", WPVBaseTypes::PV_TRIGGER_READY,
                     m_propCondition );
     m_trgFlushData = m_propGrpBufferOperations->addProperty( "Flush Data:", "Flush Data", WPVBaseTypes::PV_TRIGGER_READY,
+                    m_propCondition );
+
+    m_trgPushEvent = m_propGrpBufferOperations->addProperty( "Push Event", "Push Event", WPVBaseTypes::PV_TRIGGER_READY,
                     m_propCondition );
 }
 
@@ -274,16 +278,23 @@ void WMFTRtClient::moduleMain()
 
         if( m_trgFlushHeader->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
-            callbackkTrgFlushHeader();
+            callbackTrgFlushHeader();
 
             m_trgFlushHeader->set( WPVBaseTypes::PV_TRIGGER_READY, true );
         }
 
         if( m_trgFlushData->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
-            callbackkTrgFlushData();
+            callbackTrgFlushData();
 
             m_trgFlushData->set( WPVBaseTypes::PV_TRIGGER_READY, true );
+        }
+
+        if( m_trgPushEvent->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+        {
+            callbackTrgPushEvent();
+
+            m_trgPushEvent->set( WPVBaseTypes::PV_TRIGGER_READY, true );
         }
 
         debugLog() << "Waiting for Events";
@@ -454,6 +465,7 @@ void WMFTRtClient::callbackTrgStartStreaming()
         {
             if( m_ftRtClient->doWaitRequest( m_ftRtClient->getSampleCount(), m_ftRtClient->getEventCount() ) )
             {
+                // get new samples
                 if( m_ftRtClient->getNewSamples() )
                 {
                     m_samples->set( m_ftRtClient->getSampleCount(), true );
@@ -466,9 +478,9 @@ void WMFTRtClient::callbackTrgStartStreaming()
 
                     if( m_ftRtClient->createEMM( *emm ) )
                     {
-                        viewUpdate( emm );
+                        viewUpdate( emm ); // display on screen.
 
-                        updateOutput( emm );
+                        updateOutput( emm ); // transmit to the next.
                     }
                     else
                     {
@@ -478,14 +490,24 @@ void WMFTRtClient::callbackTrgStartStreaming()
 
                 }
 
+                // get new events
+                /*
                 if( m_ftRtClient->getNewEvents() )
                 {
                     m_events->set( m_ftRtClient->getEventCount(), true );
+
+                    BOOST_FOREACH(WFTEvent::SPtr event, *m_ftRtClient->getEventList())
+                    {
+                        debugLog() << "Event : [" << event->getType() << "]: " << event->getValue();
+                    }
                 }
+                */
             }
             else
             {
                 m_stopStreaming = true; // stop streaming on error during request.
+
+                errorLog() << "Error while requesting buffer server for new data. Check your connection and the server, please.";
             }
         }
 
@@ -509,18 +531,50 @@ void WMFTRtClient::callbackTrgReset()
     processReset( labp );
 }
 
-void WMFTRtClient::callbackkTrgFlushHeader()
+void WMFTRtClient::callbackTrgFlushHeader()
 {
-    debugLog() << "callbackkTrgFlushHeader() called.";
+    debugLog() << "callbackTrgFlushHeader() called.";
 
     m_ftRtClient->doFlushHeaderRequest();
 }
 
-void WMFTRtClient::callbackkTrgFlushData()
+void WMFTRtClient::callbackTrgFlushData()
 {
-    debugLog() << "callbackkTrgFlushData() called.";
+    debugLog() << "callbackTrgFlushData() called.";
 
     m_ftRtClient->doFlushDataRequest();
+}
+
+void WMFTRtClient::callbackTrgFlushEvents()
+{
+    debugLog() << "callbackTrgFlushEvents() called.";
+
+}
+
+void WMFTRtClient::callbackTrgPushEvent()
+{
+    debugLog() << "callbackTrgPushEvent() called.";
+
+    std::string type = "Eventtyp";
+    std::string value = "Hello World";
+
+    WFTRequest_PutEvent::SPtr request( new WFTRequest_PutEvent( 0, 0, 0, type, value ) );
+    WFTResponse::SPtr response( new WFTResponse );
+
+    if( !m_ftRtClient->doRequest( *request, *response ) )
+    {
+        errorLog() << "Error while pushing event.";
+        return;
+    }
+
+    if( response->checkPut() )
+    {
+        debugLog() << "Pushing evnt successful.";
+    }
+    else
+    {
+        errorLog() << "Failure on put event.";
+    }
 }
 
 // TODO(maschke): Is it possible to enable/disable properties during run time?

@@ -22,33 +22,49 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFTREQUEST_H_
-#define WFTREQUEST_H_
+#include "../WFTRequestBuilder.h"
+#include "../io/request/WFTRequest_PutData.h"
+#include "WFTData.h"
 
-#include <boost/shared_ptr.hpp>
-
-#include <FtBuffer.h>
-
-class WFTRequest: protected FtBufferRequest
+WFTData::WFTData()
 {
-public:
 
-    typedef boost::shared_ptr< WFTRequest > SPtr;
+}
 
-    typedef messagedef_t WFTMessageDefT;
+WFTData::WFTData( UINT32_T numChannels, UINT32_T numSamples, UINT32_T dataType )
+{
+    m_def.nchans = numChannels;
+    m_def.nsamples = numSamples;
+    m_def.data_type = dataType;
+}
 
-    typedef message_t WFTMessageT;
+WFTRequest::SPtr WFTData::asRequest()
+{
+    WFTRequestBuilder::SPtr builder;
+    WFTRequest_PutData::SPtr request = builder->buildRequest_PUT_DAT( m_def.nchans, m_def.nsamples, m_def.data_type,
+                    m_buf.data() );
 
-    WFTRequest();
+    return WFTRequest_PutData::SPtr( request );
+}
 
-    WFTMessageDefT *getMessageDef();
+bool WFTData::parseResponse( WFTResponse::SPtr response )
+{
+    m_buf.clear();
 
-    WFTMessageT *getMessage();
+    return response->checkGetData( m_def, &m_buf );
+}
 
-    SimpleStorage *getBuffer();
+UINT32_T WFTData::getSize() const
+{
+    return m_def.bufsize + sizeof(WFTDataDefT);
+}
 
-    FtBufferRequest::out;
+WFTObject::WFTDataDefT& WFTData::getDataDef()
+{
+    return m_def;
+}
 
-};
-
-#endif /* WFTREQUEST_H_ */
+void *WFTData::getData()
+{
+    return m_buf.data();
+}

@@ -30,7 +30,7 @@
 #include <message.h>
 
 #include "WFTAbstractRequestBuilder.h"
-#include "request/WFTRequest.h"
+#include "io/request/WFTRequest.h"
 
 /**
  * This class is used to create FieldTrip buffer requests and bases on the WFTAbstractRequestBuilder interface.

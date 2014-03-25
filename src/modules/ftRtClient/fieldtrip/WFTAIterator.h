@@ -22,49 +22,47 @@
 //
 //---------------------------------------------------------------------------
 
-#include "../WFTRequestBuilder.h"
-#include "../request/WFTRequest_PutData.h"
-#include "WFTData.h"
+#ifndef WFTAITERATOR_H_
+#define WFTAITERATOR_H_
 
-WFTData::WFTData()
+#include <boost/shared_ptr.hpp>
+
+#include <SimpleStorage.h>
+
+template< typename T >
+class WFTAIterator
 {
+public:
 
+    WFTAIterator( SimpleStorage& buf, int size );
+
+    virtual ~WFTAIterator();
+
+    virtual bool hasNext() const = 0;
+
+    virtual void reset() = 0;
+
+    virtual boost::shared_ptr< T > getNext() = 0;
+
+protected:
+
+    SimpleStorage &m_store;
+
+    int m_size;
+
+    int m_pos;
+
+};
+
+template< typename T >
+inline WFTAIterator< T >::WFTAIterator( SimpleStorage& buf, int size ) :
+                m_store( buf ), m_size( size ), m_pos( 0 )
+{
 }
 
-WFTData::WFTData( UINT32_T numChannels, UINT32_T numSamples, UINT32_T dataType )
+template< typename T >
+inline WFTAIterator< T >::~WFTAIterator()
 {
-    m_def.nchans = numChannels;
-    m_def.nsamples = numSamples;
-    m_def.data_type = dataType;
 }
 
-WFTRequest::SPtr WFTData::asRequest()
-{
-    WFTRequestBuilder::SPtr builder;
-    WFTRequest_PutData::SPtr request = builder->buildRequest_PUT_DAT( m_def.nchans, m_def.nsamples, m_def.data_type,
-                    m_buf.data() );
-
-    return WFTRequest_PutData::SPtr( request );
-}
-
-bool WFTData::parseResponse( WFTResponse::SPtr response )
-{
-    m_buf.clear();
-
-    return response->checkGetData( m_def, &m_buf );
-}
-
-UINT32_T WFTData::getSize() const
-{
-    return m_def.bufsize + sizeof(WFTDataDefT);
-}
-
-WFTObject::WFTDataDefT& WFTData::getDataDef()
-{
-    return m_def;
-}
-
-void *WFTData::getData()
-{
-    return m_buf.data();
-}
+#endif /* WFTAITERATOR_H_ */

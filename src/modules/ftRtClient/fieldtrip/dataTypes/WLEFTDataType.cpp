@@ -76,3 +76,95 @@ std::string WLEFTDataType::name( WLEFTDataType::Enum val )
             return WLEFTDataType::name( WLEFTDataType::UNKNOWN );
     }
 }
+
+UINT32_T WLEFTDataType::codeByType( Enum val )
+{
+    switch( val )
+    {
+        case WLEFTDataType::CHAR:
+            return DATATYPE_CHAR ;
+        case WLEFTDataType::UINT8:
+            return DATATYPE_UINT8 ;
+        case WLEFTDataType::UINT16:
+            return DATATYPE_UINT16 ;
+        case WLEFTDataType::UINT32:
+            return DATATYPE_UINT32 ;
+        case WLEFTDataType::UINT64:
+            return DATATYPE_UINT64 ;
+        case WLEFTDataType::INT8:
+            return DATATYPE_INT8 ;
+        case WLEFTDataType::INT16:
+            return DATATYPE_INT16 ;
+        case WLEFTDataType::INT32:
+            return DATATYPE_INT32 ;
+        case WLEFTDataType::INT64:
+            return DATATYPE_INT64 ;
+        case WLEFTDataType::FLOAT32:
+            return DATATYPE_FLOAT32 ;
+        case WLEFTDataType::FLOAT64:
+            return DATATYPE_FLOAT64 ;
+        case WLEFTDataType::UNKNOWN:
+            return DATATYPE_UNKNOWN ;
+        default:
+            WAssert( false, "Unknown WLEFTDataType!" );
+            return WLEFTDataType::codeByType( WLEFTDataType::UNKNOWN );
+    }
+}
+
+WLEFTDataType::Enum WLEFTDataType::typeByCode( UINT32_T type )
+{
+    switch( type )
+    {
+        case DATATYPE_CHAR:
+            return WLEFTDataType::CHAR;
+        case DATATYPE_UINT8:
+            return WLEFTDataType::UINT8;
+        case DATATYPE_UINT16:
+            return WLEFTDataType::UINT16;
+        case DATATYPE_UINT32:
+            return WLEFTDataType::UINT32;
+        case DATATYPE_UINT64:
+            return WLEFTDataType::UINT64;
+        case DATATYPE_INT8:
+            return WLEFTDataType::INT8;
+        case DATATYPE_INT16:
+            return WLEFTDataType::INT16;
+        case DATATYPE_INT32:
+            return WLEFTDataType::INT32;
+        case DATATYPE_INT64:
+            return WLEFTDataType::INT64;
+        case DATATYPE_FLOAT32:
+            return WLEFTDataType::FLOAT32;
+        case DATATYPE_FLOAT64:
+            return WLEFTDataType::FLOAT64;
+        default:
+            return WLEFTDataType::UNKNOWN;
+    }
+}
+
+unsigned int WLEFTDataType::wordSize( Enum val )
+{
+    switch( val )
+    {
+        case DATATYPE_CHAR :
+            return WORDSIZE_CHAR;
+        case DATATYPE_UINT8 :
+        case DATATYPE_INT8 :
+            return WORDSIZE_INT8;
+        case DATATYPE_UINT16 :
+        case DATATYPE_INT16 :
+            return WORDSIZE_INT16;
+        case DATATYPE_UINT32 :
+        case DATATYPE_INT32 :
+            return WORDSIZE_INT32;
+        case DATATYPE_UINT64 :
+        case DATATYPE_INT64 :
+            return WORDSIZE_INT64;
+        case DATATYPE_FLOAT32 :
+            return WORDSIZE_FLOAT32;
+        case DATATYPE_FLOAT64 :
+            return WORDSIZE_FLOAT64;
+    }
+    return 0;
+}
+
