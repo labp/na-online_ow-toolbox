@@ -47,6 +47,8 @@
 
 /**
  * Class for general modality. Saves information which are present for all modalities.
+ *
+ * \authors kaehler, pieloth, maschke
  */
 class WLEMData: public boost::enable_shared_from_this< WLEMData >
 {
@@ -97,14 +99,19 @@ public:
     typedef boost::shared_ptr< const DataT > DataConstSPtr;
 
     /**
-     * TODO(kaehler): Comments
+     * Constructor
      */
     WLEMData();
 
+    /**
+     * Constructor, sets data from input instance.
+     *
+     * @param emd Adopts the attributes from this instance, but not the "raw" data.
+     */
     explicit WLEMData( const WLEMData& emd );
 
     /**
-     * TODO(kaehler): Comments
+     * Destructor
      */
     virtual ~WLEMData();
 
@@ -131,7 +138,9 @@ public:
     }
 
     /**
-     * TODO(kaehler): Comments
+     * Clones this instance without copying the "raw" data.
+     *
+     * @return A copy of this instance, except the "raw" data.
      */
     virtual WLEMData::SPtr clone() const = 0;
 
@@ -141,31 +150,39 @@ public:
     virtual DataT& getData() const;
 
     /**
-     * Returns the data without the bad channels. NOTE: The method does not modify any object data, but data may modified indirectly!
+     * Returns the data without the bad channels.
+     * NOTE: The method does not modify any object data, but data may modified indirectly!
      *
      * @return The data.
      */
     virtual DataSPtr getDataBadChannels() const;
 
     /**
-     * Returns the data without the bad channels. NOTE: The method does not modify any object data, but data may modified indirectly!
+     * Returns the data without the bad channels.
+     * NOTE: The method does not modify any object data, but data may modified indirectly!
      *
      * @return The data.
      */
     virtual DataSPtr getDataBadChannels( ChannelListSPtr badChans ) const;
 
     /**
-     * TODO(kaehler): Comments
+     * Sets the data.
+     *
+     * @param data Data to set.
      */
     virtual void setData( DataSPtr data );
 
     /**
-     * TODO(kaehler): Comments
+     * Gets the highpass frequency.
+     *
+     * @return Frequency in Hz
      */
     WLFreqT getAnalogHighPass() const;
 
     /**
-     * TODO(kaehler): Comments
+     * Gets the lowpass frequency.
+     *
+     * @return Frequency in Hz
      */
     WLFreqT getAnalogLowPass() const;
 
@@ -180,25 +197,38 @@ public:
     WLECoordSystem::Enum getCoordSystem() const;
 
     /**
-     * TODO(kaehler): Comments
+     * Gets the line frequency.
+     *
+     * @return Frequency in Hz
      */
     WLFreqT getLineFreq() const;
 
     /**
-     * TODO(kaehler): Comments
+     * Gets the name of the measurement device.
+     *
+     * @return name of measurement device
      */
     std::string getMeasurementDeviceName() const;
 
     /**
-     * TODO(kaehler): Comments
+     * Gets the modality type of this instance.
+     *
+     * @return modality type
      */
     virtual WLEModality::Enum getModalityType() const = 0;
 
     /**
-     * TODO(kaehler): Comments
+     * Gets the number of channels (dimension 1).
+     *
+     * @return Number of channels
      */
     virtual WLChanNrT getNrChans() const;
 
+    /**
+     * Gets the samples of a channel for this block (dimension 2).
+     *
+     * @return Number of Samples
+     */
     virtual WLSampleNrT getSamplesPerChan() const;
 
     /**
@@ -223,47 +253,67 @@ public:
     WLTimeT getLength() const;
 
     /**
-     * TODO(kaehler): Comments
+     * Sets the highpass frequency.
+     *
+     * @param analogHighPass Frequency in Hz
      */
     void setAnalogHighPass( WLFreqT analogHighPass );
 
     /**
-     * TODO(kaehler): Comments
+     * Sets the lowpass frequency.
+     *
+     * @param analogLowPass Frequency in Hz
      */
     void setAnalogLowPass( WLFreqT analogLowPass );
 
+    /**
+     * Sets the channel names.
+     *
+     * @param chanNames Names to set.
+     */
     void setChanNames( WLArrayList< std::string >::SPtr chanNames );
 
     OW_API_DEPRECATED
     void setChanNames( boost::shared_ptr< std::vector< std::string > > chanNames );
 
     /**
-     * TODO(kaehler): Comments
+     * Sets the unit of the data.
+     *
+     * @param chanUnit Unit to set
      */
     void setChanUnit( WLEUnit::Enum chanUnit );
 
     /**
-     * TODO(kaehler): Comments
+     * Sets the exponent of the data.
+     *
+     * @param chanUnitExp Exponent to set
      */
     void setChanUnitExp( WLEExponent::Enum chanUnitExp );
 
     /**
-     * TODO(kaehler): Comments
+     * Sets the coordinate system.
+     *
+     * @param coordSystem Coordinate system to set
      */
     void setCoordSystem( WLECoordSystem::Enum coordSystem );
 
     /**
-     * TODO(kaehler): Comments
+     * Sets the line frequency.
+     *
+     * @param lineFreq Frequency in Hz
      */
     void setLineFreq( WLFreqT lineFreq );
 
     /**
-     * TODO(kaehler): Comments
+     * Set the name of the measurement device.
+     *
+     * @param measurementDeviceName Name of the measurement device
      */
     void setMeasurementDeviceName( std::string measurementDeviceName );
 
     /**
-     * TODO(kaehler): Comments
+     * Sets the sampling frequency.
+     * @param sampFreq Frequency in Hz
      */
     void setSampFreq( WLFreqT sampFreq );
 
