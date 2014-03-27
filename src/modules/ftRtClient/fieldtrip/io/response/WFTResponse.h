@@ -25,6 +25,8 @@
 #ifndef WFTRESPONSE_H_
 #define WFTRESPONSE_H_
 
+#include <ostream>
+
 #include <boost/shared_ptr.hpp>
 
 #include <FtBuffer.h>
@@ -36,12 +38,16 @@ class WFTResponse: public FtBufferResponse
 {
 public:
 
+    static const std::string CLASS;
+
     /**
      * Define a shared pointer on a response.
      */
     typedef boost::shared_ptr< WFTResponse > SPtr;
 
     typedef boost::shared_ptr< const message_t > WFTMessageT_ConstSPtr;
+
+    friend std::ostream& operator<<(std::ostream &strm, const WFTResponse &response);
 
     /**
      * This method tests the arrived data for mistakes. It should be called before getting any data for the response.
@@ -61,5 +67,15 @@ protected:
      */
     FtBufferResponse::m_response;
 };
+
+inline std::ostream& operator<<(std::ostream &strm, const WFTResponse &response)
+{
+    strm << WFTResponse::CLASS << ": ";
+    strm << "Version: " << response.m_response->def->version;
+    strm << ", Command: " << response.m_response->def->command;
+    strm << ", Buffersize: " << response.m_response->def->bufsize;
+
+    return strm;
+}
 
 #endif /* WFTRESPONSE_H_ */

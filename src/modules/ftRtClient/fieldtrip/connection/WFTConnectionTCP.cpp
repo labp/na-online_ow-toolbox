@@ -44,7 +44,7 @@ bool WFTConnectionTCP::connect()
 
 std::string WFTConnectionTCP::getConnectionString() const
 {
-    return m_host + ":" + boost::lexical_cast<std::string>(m_port);
+    return m_host + ":" + boost::lexical_cast< std::string >( m_port );
 }
 
 std::string WFTConnectionTCP::getName() const
@@ -62,9 +62,9 @@ int WFTConnectionTCP::getPort() const
     return m_port;
 }
 
-void WFTConnectionTCP::set(std::string host, int port)
+void WFTConnectionTCP::set( std::string host, int port )
 {
-    if(isOpen())
+    if( isOpen() )
     {
         return;
     }

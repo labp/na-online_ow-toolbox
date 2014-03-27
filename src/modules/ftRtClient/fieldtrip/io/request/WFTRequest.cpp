@@ -30,22 +30,24 @@ WFTRequest::WFTRequest() :
 
 }
 
-WFTRequest::WFTRequest( const WFTMessageT *msg )
+WFTRequest::WFTRequest( const WFTObject::WFTMessageT *msg )
 {
+    WFTRequest(); // call based constructor
+
     m_msg = *msg;
 }
 
-WFTRequest::WFTMessageDefT *WFTRequest::getMessageDef()
+WFTObject::WFTMessageDefT &WFTRequest::getMessageDef()
 {
-    return &m_def;
+    return m_def;
 }
 
-WFTRequest::WFTMessageT *WFTRequest::getMessage()
+WFTObject::WFTMessageT &WFTRequest::getMessage()
 {
-    return &m_msg;
+    return m_msg;
 }
 
-SimpleStorage *WFTRequest::getBuffer()
+SimpleStorage &WFTRequest::getBuffer()
 {
-    return &m_buf;
+    return m_buf;
 }

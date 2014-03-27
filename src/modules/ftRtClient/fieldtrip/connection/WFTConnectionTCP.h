@@ -27,30 +27,81 @@
 
 #include "WFTConnection.h"
 
+/**
+ * The WFTConnectionTCP class represents a connection to the FieldTrip Buffer server using the TCP socket. This type of connection is used for
+ * communicating over a network, e.g. a LAN.
+ */
 class WFTConnectionTCP: public WFTConnection
 {
 public:
 
+    /**
+     * Constructs a new TCP connection.
+     *
+     * @param host The host name.
+     * @param port The port number on the host.
+     * @param retry The number of retries in case of failure.
+     */
     WFTConnectionTCP( std::string host, int port, int retry = 0 );
 
+    /**
+     * Destroys the WFTConnectionTCP.
+     */
     ~WFTConnectionTCP();
 
+    /**
+     * Inherited method from WFTConnection.
+     *
+     * @return Returns true if connecting was successful, else false.
+     */
     bool connect();
 
+    /**
+     * Inherited method from WFTConnection.
+     *
+     * @return The connection as string.
+     */
     std::string getConnectionString() const;
 
+    /**
+     * Inherited method from WFTConnection.
+     *
+     * @return The connections name.
+     */
     std::string getName() const;
 
+    /**
+     * Gets the host name.
+     *
+     * @return The host name.
+     */
     const std::string getHost() const;
 
+    /**
+     * Gets the port number.
+     *
+     * @return The port number.
+     */
     int getPort() const;
 
+    /**
+     * Sets the host name and the port number.
+     *
+     * @param host The host name.
+     * @param port The port number.
+     */
     void set( std::string host, int port );
 
 protected:
 
+    /**
+     * The host name.
+     */
     std::string m_host;
 
+    /**
+     * The port number.
+     */
     int m_port;
 };
 

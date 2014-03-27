@@ -24,10 +24,20 @@
 
 #include <modules/ftRtClient/fieldtrip/dataTypes/WFTEvent.h>
 
-WFTEvent::WFTEvent( WFTObject::WFTEventDefT def, std::string type, std::string value ) :
+const std::string WFTEvent::CLASS = "WFTEvent";
+
+WFTEvent::WFTEvent( WFTObject::WFTEventDefT def, const std::string type, const std::string value ) :
+                m_def( def ), m_type( type ), m_value( value )
+{
+
+}
+
+WFTEvent::WFTEvent( INT32_T sample, INT32_T offset, INT32_T duration, const std::string type, const std::string value ) :
                 m_type( type ), m_value( value )
 {
-    m_def = def;
+    m_def.sample = sample;
+    m_def.offset = offset;
+    m_def.duration = duration;
 }
 
 UINT32_T WFTEvent::getSize() const
@@ -36,6 +46,11 @@ UINT32_T WFTEvent::getSize() const
 }
 
 WFTObject::WFTEventDefT& WFTEvent::getDef()
+{
+    return m_def;
+}
+
+WFTObject::WFTEventDefT WFTEvent::getDef() const
 {
     return m_def;
 }

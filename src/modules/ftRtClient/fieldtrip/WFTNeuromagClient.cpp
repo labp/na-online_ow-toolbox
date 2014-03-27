@@ -55,13 +55,13 @@ bool WFTNeuromagClient::start()
 
     if( isStreaming() )
     {
-        wlog::warn( CLASS ) << "Could start streaming. Client is already streaming!";
+        wlog::info( CLASS ) << "Could not start streaming. Client is already streaming!";
         return true;
     }
 
     if( !isConnected() )
     {
-        wlog::warn( CLASS ) << "Client is not connected. Client is trying to connect.";
+        wlog::info( CLASS ) << "Client is not connected. Client is trying to connect.";
 
         if( !this->connect() )
         {
@@ -101,16 +101,23 @@ bool WFTNeuromagClient::createEMM( WLEMMeasurement& emm )
     ScalarT *dataSrc;
     SimpleStorage floatStore;
 
+    //wlog::debug( CLASS ) << "Test for convert (used Type in Openwalnut: " << typeid(ScalarT).name() << ")";
+
     // convert data to the used floating point number format
     if( m_ftData->needDataToConvert< ScalarT >() )
     {
+        //wlog::debug( CLASS ) << "Data has to convert in: " << typeid(ScalarT).name();
+        //wlog::debug( CLASS ) << "sizeof(ScalarT) = " << sizeof(ScalarT);
+
         floatStore.resize( sizeof(ScalarT) * samps * chans );
         dataSrc = ( ScalarT * )floatStore.data();
 
-        WFTRtClient::convertData< ScalarT >( dataSrc, m_ftData->getData(), samps, chans, m_ftData->getDataDef().data_type );
+        m_ftData->convertData< ScalarT >( dataSrc, m_ftData->getData(), samps, chans, m_ftData->getDataDef().data_type );
     }
     else // data arrived in the right format
     {
+        //wlog::debug( CLASS ) << "Data does not need to convert, because: " << typeid(ScalarT).name();
+
         dataSrc = ( ScalarT * )m_ftData->getData();
     }
 
@@ -118,6 +125,8 @@ bool WFTNeuromagClient::createEMM( WLEMMeasurement& emm )
 
     WLEMData::DataSPtr dataPtr( new WLEMData::DataT( chans, samps ) ); // create data matrix
     WLEMData::DataT& data = *dataPtr;
+
+    modality->setSampFreq(m_ftHeader->getHeaderDef().fsample);
 
     // insert value into the matrix
     for( int i = 0; i < samps; ++i ) // iterate all samples
@@ -129,10 +138,23 @@ bool WFTNeuromagClient::createEMM( WLEMMeasurement& emm )
         for( int j = 0; j < chans; ++j )
         {
             ScalarT x = sampleSrc[j];
+
+#ifdef LABP_FLOAT_COMPUTATION
             if( isnanf( x ) || isinff( x ) )
             {
+                //wlog::debug( CLASS ) << "Float NoN";
+
                 return false;
             }
+#else
+            if( isnan( x ) || isinf( x ) )
+            {
+                //wlog::debug( CLASS ) << "Double NoN";
+
+                return false;
+            }
+#endif  // LABP_FLOAT_COMPUTATION
+
             sample( j ) = x; // copy the samples values into the vector
         }
 
@@ -141,6 +163,8 @@ bool WFTNeuromagClient::createEMM( WLEMMeasurement& emm )
 
     modality->setData( dataPtr );
     emm.addModality( modality );
+
+    //wlog::debug( CLASS ) << "EMM creation successful";
 
     return true;
 }

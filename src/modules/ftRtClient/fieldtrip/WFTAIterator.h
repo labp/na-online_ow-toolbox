@@ -27,6 +27,7 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <message.h>
 #include <SimpleStorage.h>
 
 template< typename T >
@@ -34,7 +35,7 @@ class WFTAIterator
 {
 public:
 
-    WFTAIterator( SimpleStorage& buf, int size );
+    WFTAIterator( SimpleStorage& buf, UINT32_T size );
 
     virtual ~WFTAIterator();
 
@@ -48,14 +49,14 @@ protected:
 
     SimpleStorage &m_store;
 
-    int m_size;
+    const UINT32_T m_size;
 
-    int m_pos;
+    UINT32_T m_pos;
 
 };
 
 template< typename T >
-inline WFTAIterator< T >::WFTAIterator( SimpleStorage& buf, int size ) :
+inline WFTAIterator< T >::WFTAIterator( SimpleStorage &buf, UINT32_T size ) :
                 m_store( buf ), m_size( size ), m_pos( 0 )
 {
 }

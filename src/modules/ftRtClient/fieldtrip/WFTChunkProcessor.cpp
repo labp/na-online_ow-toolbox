@@ -85,7 +85,7 @@ WLArrayList< std::string >::SPtr WFTChunkProcessor::extractChannelFlags( WFTChun
     return vector;
 }
 
-WLEMData::SPtr WFTChunkProcessor::getWLEMDataType( size_t channel )
+WLEMData::SPtr WFTChunkProcessor::getWLEMDataType( size_t channel ) // TODO(maschke): implement.
 {
     return WLEMDEEG::SPtr();
 }

@@ -34,9 +34,11 @@
 #include "WFTEvent.h"
 #include "WFTRequestableObject.h"
 
-class WFTEventList: public WLArrayList<WFTEvent::SPtr>, public WFTRequestableObject
+class WFTEventList: public WLArrayList< WFTEvent::SPtr >, public WFTRequestableObject
 {
 public:
+
+    static const std::string CLASS;
 
     /**
      * A shared pointer on an event list.

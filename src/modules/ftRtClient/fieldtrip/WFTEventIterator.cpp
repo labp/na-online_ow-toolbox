@@ -22,15 +22,18 @@
 //
 //---------------------------------------------------------------------------
 
+#include "core/common/WLogger.h"
+
 #include "dataTypes/WFTObject.h"
 #include "dataTypes/WLEFTDataType.h"
 
-#include <modules/ftRtClient/fieldtrip/WFTEventIterator.h>
+#include "WFTEventIterator.h"
+
+const std::string WFTEventIterator::CLASS = "WFTEventIterator";
 
 WFTEventIterator::WFTEventIterator( SimpleStorage& buf, int size ) :
-                WFTAIterator( buf, size )
+                WFTAIterator< WFTEvent >::WFTAIterator( buf, size )
 {
-
 }
 
 bool WFTEventIterator::hasNext() const
@@ -50,11 +53,8 @@ WFTEvent::SPtr WFTEventIterator::getNext()
         return WFTEvent::SPtr();
     }
 
-    const WFTObject::WFTEventDefT *def;
+    WFTObject::WFTEventDefT *def = ( WFTObject::WFTEventDefT * )( ( char * )m_store.data() + m_pos );
     unsigned int wsType, wsValue;
-
-    // get the definition
-    def = ( const WFTObject::WFTEventDefT * )( ( char * )m_store.data() + m_pos );
 
     // test whether the events is included completely
     if( m_pos + sizeof(WFTObject::WFTEventDefT) + def->bufsize < m_size )
@@ -62,24 +62,33 @@ WFTEvent::SPtr WFTEventIterator::getNext()
         return WFTEvent::SPtr();
     }
 
+    // get the word sizes for type and value. Important for pointing to the right memory location.
     wsType = WLEFTDataType::wordSize( WLEFTDataType::typeByCode( def->type_type ) );
     wsValue = WLEFTDataType::wordSize( WLEFTDataType::typeByCode( def->value_type ) );
+    // define the lengths of type and value
+    uint lenType = wsType * def->type_numel;
+    uint lenValue = wsValue * def->value_numel;
+    // create pointers to types and values location.
+    const char *srcType = ( ( const char* )m_store.data() ) + m_pos + sizeof(WFTObject::WFTEventDefT);
+    const char *srcValue = srcType + lenType;
 
-    std::string *srcType = static_cast< std::string* >( ( std::string* )m_store.data() + m_pos + sizeof(WFTObject::WFTEventDefT) );
-    std::string *srcValue = srcType + def->type_numel * wsType;
+    std::string type( srcType, lenType );
+    std::string value( srcValue, lenValue );
 
-    std::string *type = (std::string *)malloc(wsType);
-    std::string *value = (std::string *)malloc(wsValue);
-
-    memcpy( type, srcType, wsType );
-    memcpy( value, srcValue, wsValue );
-
-    if( type == NULL || value == NULL )
-    {
-        return WFTEvent::SPtr();
-    }
+//    wlog::debug( CLASS ) << "Sample: " << def->sample;
+//    wlog::debug( CLASS ) << "Offset: " << def->offset;
+//    wlog::debug( CLASS ) << "Duration: " << def->duration;
+//    wlog::debug( CLASS ) << "Buffer Size: " << def->bufsize;
+//    wlog::debug( CLASS ) << "Type, Elements: " << def->type_numel;
+//    wlog::debug( CLASS ) << "Type, Type: " << def->type_type;
+//    wlog::debug( CLASS ) << "Type, Length: " << lenType;
+//    wlog::debug( CLASS ) << "Value, Elements: " << def->value_numel;
+//    wlog::debug( CLASS ) << "Value, Type: " << def->value_type;
+//    wlog::debug( CLASS ) << "Value, Length: " << lenValue;
 
     m_pos += sizeof(WFTObject::WFTEventDefT) + def->bufsize; // increase the position to the next event.
 
-    return WFTEvent::SPtr( new WFTEvent( *def, *type, *value ) );
+    WFTObject::WFTEventDefT d; // TODO(maschke): remove dummy variable
+    d.sample = def->sample;
+    return WFTEvent::SPtr( new WFTEvent( d, "sdsd", "dfdfd" ) ); // create the event object and return.
 }

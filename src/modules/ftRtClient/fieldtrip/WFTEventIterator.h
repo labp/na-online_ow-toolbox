@@ -27,6 +27,8 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <SimpleStorage.h>
+
 #include "WFTAIterator.h"
 #include "dataTypes/WFTEvent.h"
 
@@ -34,15 +36,18 @@ class WFTEventIterator: public WFTAIterator< WFTEvent >
 {
 public:
 
+    static const std::string CLASS;
+
     typedef boost::shared_ptr< WFTEventIterator > SPtr;
 
     WFTEventIterator( SimpleStorage& buf, int size );
 
-    virtual bool hasNext() const;
+    bool hasNext() const;
 
-    virtual void reset();
+    void reset();
 
-    virtual WFTEvent::SPtr getNext();
+    WFTEvent::SPtr getNext();
+
 };
 
 #endif /* WFTEVENTITERATOR_H_ */

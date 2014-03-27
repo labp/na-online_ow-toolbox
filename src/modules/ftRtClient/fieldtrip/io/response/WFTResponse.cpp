@@ -24,6 +24,8 @@
 
 #include "WFTResponse.h"
 
+const std::string WFTResponse::CLASS = "WFTResponse";
+
 bool WFTResponse::isValid() const
 {
     if( m_response == NULL )

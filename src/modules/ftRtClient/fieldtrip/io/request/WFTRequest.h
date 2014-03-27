@@ -25,32 +25,78 @@
 #ifndef WFTREQUEST_H_
 #define WFTREQUEST_H_
 
+#include <ostream>
+
 #include <boost/shared_ptr.hpp>
 
 #include <FtBuffer.h>
 
+#include "modules/ftRtClient/fieldtrip/dataTypes/WFTObject.h"
+
+/**
+ * The WFTRequest class represents a basic FieldTrip request. It adapts the FieldTrip Buffer Request and can be used to
+ * create new requests.
+ */
 class WFTRequest: protected FtBufferRequest
 {
 public:
 
+    /**
+     * A shared pointer on a WFTRequest.
+     */
     typedef boost::shared_ptr< WFTRequest > SPtr;
 
-    typedef messagedef_t WFTMessageDefT;
 
-    typedef message_t WFTMessageT;
+    friend std::ostream& operator<<(std::ostream &strm, const WFTRequest &request);
 
+    /**
+     * Creates a new WFTRequest.
+     */
     WFTRequest();
 
-    WFTRequest( const WFTMessageT *msg );
+    /**
+     * Creates a new WFTRequest with an existing message.
+     *
+     * @param msg The message
+     */
+    WFTRequest( const WFTObject::WFTMessageT *msg );
 
-    WFTMessageDefT *getMessageDef();
+    /**
+     * Gets the message header.
+     *
+     * @return The message header.
+     */
+    WFTObject::WFTMessageDefT &getMessageDef();
 
-    WFTMessageT *getMessage();
+    /**
+     * Gets the message.
+     *
+     * @return The message.
+     */
+    WFTObject::WFTMessageT &getMessage();
 
-    SimpleStorage *getBuffer();
+    /**
+     * Gets the messages content.
+     *
+     * @return The messages content.
+     */
+    SimpleStorage &getBuffer();
 
+    /**
+     * Inherited method from FtBufferRequest.
+     */
     FtBufferRequest::out;
 
 };
+
+inline std::ostream& operator<<(std::ostream &strm, const WFTRequest &request)
+{
+    strm << "WFTRequest: ";
+    strm << "Version: " << request.m_def.version;
+    strm << ", Command: " << request.m_def.command;
+    strm << ", Buffersize: " << request.m_def.bufsize;
+
+    return strm;
+}
 
 #endif /* WFTREQUEST_H_ */

@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <boost/thread/strict_lock.hpp>
+
 #include <buffer.h>
 #include <FtBuffer.h>
 
@@ -35,6 +37,7 @@
 #include "io/response/WFTResponse.h"
 #include "dataTypes/WFTHeader.h"
 #include "dataTypes/WFTChunk.h"
+#include "WFTEventIterator.h"
 #include "WFTRtClient.h"
 
 const std::string WFTRtClient::CLASS = "WFTRtClient";
@@ -46,6 +49,7 @@ WFTRtClient::WFTRtClient() :
 {
     m_reqBuilder.reset( new WFTRequestBuilder );
     m_ftHeader.reset( new WFTHeader( 0, 0, 0 ) );
+    m_ftEvents.reset( new WFTEventList );
 }
 
 WFTRtClient::~WFTRtClient()
@@ -128,8 +132,13 @@ UINT32_T WFTRtClient::getEventCount() const
 
 bool WFTRtClient::doRequest( WFTRequest& request, WFTResponse& response )
 {
+    // Lock the client for thread-safe requests.
+    boost::strict_lock< WFTRtClient > guard( *this );
+
     if( !isConnected() )
     {
+        wlog::error( CLASS ) << "The client is not connected.";
+
         return false;
     }
 
@@ -173,22 +182,28 @@ bool WFTRtClient::doWaitRequest( unsigned int samples, unsigned int events )
 
     if( !doRequest( *request, *response ) )
     {
+        wlog::error( CLASS ) << "Error while doing Wait-Request.";
+
         return false;
     }
 
     if( !response->checkWait( m_svr_samp_evt.nsamples, m_svr_samp_evt.nevents ) )
     {
+        wlog::error( CLASS ) << "Error while checking Wait-Request response.";
+
+        wlog::error( CLASS ) << *response;
         return false;
     }
 
     // do header request after flush/restart on server (server.samples < client.samples)
-    if( m_svr_samp_evt.nsamples < samples )
+    if( m_svr_samp_evt.nsamples < samples || m_svr_samp_evt.nevents < events )
     {
         if( !doHeaderRequest() )
         {
             return false;
         }
         m_samples = 0;
+        m_events = 0;
     }
 
     return true;
@@ -246,7 +261,7 @@ bool WFTRtClient::getNewEvents()
         return false;
     }
 
-    m_ftEvents.reset( new WFTEventList );
+    m_ftEvents->clear();
     if( !m_ftEvents->parseResponse( response ) )
     {
         return false;
@@ -254,20 +269,10 @@ bool WFTRtClient::getNewEvents()
 
     m_events = m_svr_samp_evt.nevents;
 
+    request.reset();
+    response.reset();
+
     return true;
-}
-
-template< typename T >
-bool WFTRtClient::getResponseAs( boost::shared_ptr< T > object, WFTResponse::SPtr response )
-{
-    if( !( boost::is_base_of< WFTRequestableObject, T >::value ) )
-    {
-        return false;
-    }
-
-    WFTRequestableObject& ptr = *object;
-
-    return ptr.parseResponse( response );
 }
 
 UINT32_T WFTRtClient::getTimeout() const
@@ -298,9 +303,9 @@ bool WFTRtClient::doFlushEventsRequest()
 bool WFTRtClient::doFlush( UINT16_T command )
 {
     WFTRequest::SPtr request( new WFTRequest );
-    request->getMessageDef()->command = command;
-    request->getMessageDef()->bufsize = 0;
-    request->getMessageDef()->version = VERSION;
+    request->getMessageDef().command = command;
+    request->getMessageDef().bufsize = 0;
+    request->getMessageDef().version = VERSION;
 
     WFTResponse::SPtr response( new WFTResponse );
 

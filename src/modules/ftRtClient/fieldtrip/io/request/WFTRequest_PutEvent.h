@@ -38,4 +38,7 @@ public:
     virtual ~WFTRequest_PutEvent();
 };
 
+
+
+
 #endif /* WFTREQUEST_PUTEVENT_H_ */

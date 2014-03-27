@@ -26,6 +26,8 @@
 #define WFTRTCLIENT_H_
 
 #include <boost/shared_ptr.hpp>
+#include <boost/thread/recursive_mutex.hpp>
+#include <boost/thread/lockable_adapter.hpp>
 
 #include <message.h>
 
@@ -43,7 +45,7 @@
  * For simple I/O processing with the FieldTrip buffer server this class can be used. In case of additional processing on the retrieving
  * raw data you should prefer to inherit this client structure.
  */
-class WFTRtClient
+class WFTRtClient: public boost::basic_lockable_adapter< boost::recursive_mutex >
 {
 public:
 
@@ -208,16 +210,6 @@ public:
     bool virtual getNewEvents();
 
     /**
-     * This method transfers a FieldTrip response into a WFTObject derived data object defined by the type T.
-     *
-     * @param object The destination data object.
-     * @param response The FieldTrip response.
-     * @return Returns true if the transformation was successful else false.
-     */
-    template< typename T >
-    bool getResponseAs( boost::shared_ptr< T > object, WFTResponse::SPtr response );
-
-    /**
      * Gets the timeout for Wait-requests.
      *
      * @return The timeout.
@@ -253,50 +245,6 @@ public:
     bool virtual doFlushEventsRequest();
 
 protected:
-
-    /**
-     * This method is used to convert the data of @src into the data type T pointing @dest to.
-     *
-     * @param dest The destination storage.
-     * @param src The source storage.
-     * @param nsamp The number of samples in @src.
-     * @param nchans The number of channels in @src.
-     * @param dataType The FieldTrip data type @src uses.
-     */
-    template< typename T >
-    void convertData( T *dest, const void *src, unsigned int nsamp, unsigned int nchans, UINT32_T dataType )
-    {
-        switch( dataType )
-        {
-            case DATATYPE_UINT8 :
-                convertToFloat< T, uint8_t >( dest, src, nsamp, nchans );
-                break;
-            case DATATYPE_INT8 :
-                convertToFloat< T, int8_t >( dest, src, nsamp, nchans );
-                break;
-            case DATATYPE_UINT16 :
-                convertToFloat< T, uint16_t >( dest, src, nsamp, nchans );
-                break;
-            case DATATYPE_INT16 :
-                convertToFloat< T, int16_t >( dest, src, nsamp, nchans );
-                break;
-            case DATATYPE_UINT32 :
-                convertToFloat< T, uint32_t >( dest, src, nsamp, nchans );
-                break;
-            case DATATYPE_INT32 :
-                convertToFloat< T, int32_t >( dest, src, nsamp, nchans );
-                break;
-            case DATATYPE_UINT64 :
-                convertToFloat< T, uint64_t >( dest, src, nsamp, nchans );
-                break;
-            case DATATYPE_INT64 :
-                convertToFloat< T, int64_t >( dest, src, nsamp, nchans );
-                break;
-            case DATATYPE_FLOAT64 :
-                convertToFloat< T, double >( dest, src, nsamp, nchans );
-                break;
-        }
-    }
 
     /**
      * Method to execute a general flush request. The @command defines the flushes type.
@@ -339,30 +287,6 @@ protected:
 private:
 
     /**
-     * Method for simple converting data from @src to @dest using a basic type cast to DestT.
-     * The function will be called from convertData().
-     *
-     * @param dest The destination storage.
-     * @param src The source storage.
-     * @param nsamp The number of samples in @src.
-     * @param nchans The number of channels in @src.
-     */
-    template< typename DestT, typename SrcT >
-    void convertToFloat( DestT *dest, const void *src, unsigned int nsamp, unsigned int nchans )
-    {
-        const SrcT *srcT = static_cast< const SrcT * >( src );
-        for( unsigned int j = 0; j < nsamp; j++ )
-        {
-            for( unsigned int i = 0; i < nchans; i++ )
-            {
-                dest[i] = ( DestT )srcT[i];
-            }
-            dest += nchans;
-            srcT += nchans;
-        }
-    }
-
-    /**
      * Variable to determine the number of received samples.
      */
     UINT32_T m_samples;
@@ -373,7 +297,7 @@ private:
     UINT32_T m_events;
 
     /**
-     * Structure to store information about received samples and events.
+     * Structure to store information about samples and events currently located on the server.
      */
     WFTObject::WFTSamplesEventsT m_svr_samp_evt;
 };

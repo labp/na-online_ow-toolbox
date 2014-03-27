@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <boost/exception/all.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/pointer_cast.hpp>
 
@@ -46,6 +47,7 @@
 #include "fieldtrip/connection/WFTConnectionTCP.h"
 #include "fieldtrip/connection/WFTConnectionUnix.h"
 #include "fieldtrip/dataTypes/WLEFTDataType.h"
+#include "fieldtrip/dataTypes/WFTEventList.h"
 #include "fieldtrip/io/request/WFTRequest_PutEvent.h"
 
 #include "WMFTRtClient.h"
@@ -172,7 +174,7 @@ void WMFTRtClient::properties()
     m_streamStatus->setPurpose( PV_PURPOSE_INFORMATION );
     m_trgStartStream = m_propGrpFtClient->addProperty( "Start streaming:", "Start", WPVBaseTypes::PV_TRIGGER_READY,
                     m_propCondition );
-    m_trgStopStream = m_propGrpFtClient->addProperty( "Stop streaming:", "Stop", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition,
+    m_trgStopStream = m_propGrpFtClient->addProperty( "Stop streaming:", "Stop", WPVBaseTypes::PV_TRIGGER_READY,
                     boost::bind( &WMFTRtClient::callbackTrgStopStreaming, this ) );
     m_trgStopStream->setHidden( true );
 
@@ -208,9 +210,11 @@ void WMFTRtClient::properties()
                     m_propCondition );
     m_trgFlushData = m_propGrpBufferOperations->addProperty( "Flush Data:", "Flush Data", WPVBaseTypes::PV_TRIGGER_READY,
                     m_propCondition );
+    m_trgFlushEvents = m_propGrpBufferOperations->addProperty( "Flush Events:", "Flush Events", WPVBaseTypes::PV_TRIGGER_READY,
+                    m_propCondition );
 
     m_trgPushEvent = m_propGrpBufferOperations->addProperty( "Push Event", "Push Event", WPVBaseTypes::PV_TRIGGER_READY,
-                    m_propCondition );
+                    boost::bind( &WMFTRtClient::callbackTrgPushEvent, this ) );
 }
 
 /**
@@ -225,12 +229,12 @@ void WMFTRtClient::moduleInit()
     m_moduleState.add( m_input->getDataChangedCondition() ); // when inputdata changed
     m_moduleState.add( m_propCondition ); // when properties changed
 
-    m_connection.reset( new WFTConnectionTCP( DEFAULT_FT_HOST, DEFAULT_FT_PORT ) );
-
     ready(); // signal ready state
     waitRestored();
 
-    viewInit( LaBP::WLEMDDrawable2D::WEGraphType::SINGLE );
+    viewInit( LaBP::WLEMDDrawable2D::WEGraphType::DYNAMIC );
+
+    m_connection.reset( new WFTConnectionTCP( DEFAULT_FT_HOST, DEFAULT_FT_PORT ) );
 
     m_ftRtClient.reset( new WFTNeuromagClient ); // create streaming client.
 
@@ -290,11 +294,11 @@ void WMFTRtClient::moduleMain()
             m_trgFlushData->set( WPVBaseTypes::PV_TRIGGER_READY, true );
         }
 
-        if( m_trgPushEvent->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+        if( m_trgFlushEvents->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
-            callbackTrgPushEvent();
+            callbackTrgFlushEvents();
 
-            m_trgPushEvent->set( WPVBaseTypes::PV_TRIGGER_READY, true );
+            m_trgFlushEvents->set( WPVBaseTypes::PV_TRIGGER_READY, true );
         }
 
         debugLog() << "Waiting for Events";
@@ -398,7 +402,7 @@ void WMFTRtClient::callbackConnectionTypeChanged()
     }
 }
 
-void WMFTRtClient::callbackTrgConnect()
+bool WMFTRtClient::callbackTrgConnect()
 {
     debugLog() << "callbackTrgConnect() called.";
 
@@ -414,12 +418,16 @@ void WMFTRtClient::callbackTrgConnect()
         infoLog() << "Connection to FieldTrip Buffer Server established successfully.";
 
         applyStatusConnected();
+
+        return true;
     }
     else
     {
         errorLog() << "Connection to FieldTrip Buffer Server could not be established.";
 
         applyStatusDisconnected();
+
+        return false;
     }
 
 }
@@ -430,7 +438,10 @@ void WMFTRtClient::callbackTrgDisconnect()
 
     if( m_ftRtClient->isConnected() )
     {
-        callbackTrgStopStreaming(); // stop streaming
+        if( m_ftRtClient->isStreaming() )
+        {
+            callbackTrgStopStreaming(); // stop streaming
+        }
 
         m_ftRtClient->disconnect(); // disconnect client
 
@@ -443,12 +454,17 @@ void WMFTRtClient::callbackTrgDisconnect()
 
 void WMFTRtClient::callbackTrgStartStreaming()
 {
+    debugLog() << "callbackTrgStartStreaming() called.";
+
     if( !m_ftRtClient->isConnected() )
     {
-        callbackTrgConnect();
+        if( !callbackTrgConnect() )
+        {
+            return;
+        }
     }
 
-    // set some parameter at the client
+    // set some parameter on initializing the client
     m_ftRtClient->setTimeout( ( UINT32_T )m_waitTimeout->get() );
 
     m_stopStreaming = false;
@@ -491,17 +507,15 @@ void WMFTRtClient::callbackTrgStartStreaming()
                 }
 
                 // get new events
-                /*
                 if( m_ftRtClient->getNewEvents() )
                 {
                     m_events->set( m_ftRtClient->getEventCount(), true );
 
                     BOOST_FOREACH(WFTEvent::SPtr event, *m_ftRtClient->getEventList())
                     {
-                        debugLog() << "Event : [" << event->getType() << "]: " << event->getValue();
+                        debugLog() << "Fire Event: " << event->getValue();
                     }
                 }
-                */
             }
             else
             {
@@ -517,7 +531,7 @@ void WMFTRtClient::callbackTrgStartStreaming()
     applyStatusNotStreaming();
 }
 
-void WMFTRtClient::callbackTrgStopStreaming()
+void WMFTRtClient::callbackTrgStopStreaming() // TODO(maschke): why called second times on stopping?
 {
     debugLog() << "callbackTrgStopStreaming() called.";
     m_stopStreaming = true;
@@ -549,17 +563,24 @@ void WMFTRtClient::callbackTrgFlushEvents()
 {
     debugLog() << "callbackTrgFlushEvents() called.";
 
+    m_ftRtClient->doFlushEventsRequest();
+
 }
 
 void WMFTRtClient::callbackTrgPushEvent()
 {
     debugLog() << "callbackTrgPushEvent() called.";
 
+    m_trgPushEvent->set( WPVBaseTypes::PV_TRIGGER_READY, true );
+
     std::string type = "Eventtyp";
     std::string value = "Hello World";
 
-    WFTRequest_PutEvent::SPtr request( new WFTRequest_PutEvent( 0, 0, 0, type, value ) );
+    WFTRequest::SPtr request( new WFTRequest_PutEvent( 10, 0, 0, type, value ) );
     WFTResponse::SPtr response( new WFTResponse );
+
+    debugLog() << "Input event:";
+    debugLog() << *request;
 
     if( !m_ftRtClient->doRequest( *request, *response ) )
     {
@@ -567,17 +588,21 @@ void WMFTRtClient::callbackTrgPushEvent()
         return;
     }
 
+    debugLog() << *response;
+
     if( response->checkPut() )
     {
-        debugLog() << "Pushing evnt successful.";
+        debugLog() << "Pushing event successful.";
     }
     else
     {
-        errorLog() << "Failure on put event.";
+        errorLog() << "Failure on push event.";
     }
+
+    debugLog() << *response;
 }
 
-// TODO(maschke): Is it possible to enable/disable properties during run time?
+// TODO(maschke): Is it possible to enable/disable properties during runtime?
 void WMFTRtClient::applyStatusConnected()
 {
     m_trgConnect->set( WPVBaseTypes::PV_TRIGGER_READY, true );
@@ -602,11 +627,6 @@ void WMFTRtClient::applyStatusDisconnected()
 
 void WMFTRtClient::applyStatusStreaming()
 {
-    m_trgStartStream->set( WPVBaseTypes::PV_TRIGGER_READY, true );
-    m_trgStopStream->set( WPVBaseTypes::PV_TRIGGER_READY, true );
-
-    m_resetModule->set( WPVBaseTypes::PV_TRIGGER_READY, false );
-
     m_streamStatus->set( CLIENT_STREAMING, true );
 
     m_trgStartStream->setHidden( true );
@@ -618,19 +638,26 @@ void WMFTRtClient::applyStatusStreaming()
     m_events->set( 0, true );
     m_headerBufSize->set( 0, true );
     m_dataType->set( WLEFTDataType::name( WLEFTDataType::UNKNOWN ), true );
-}
 
-void WMFTRtClient::applyStatusNotStreaming()
-{
     m_trgStartStream->set( WPVBaseTypes::PV_TRIGGER_READY, true );
     m_trgStopStream->set( WPVBaseTypes::PV_TRIGGER_READY, true );
 
     m_resetModule->set( WPVBaseTypes::PV_TRIGGER_READY, true );
+}
 
+void WMFTRtClient::applyStatusNotStreaming()
+{
     m_streamStatus->set( CLIENT_NOT_STREAMING, true );
 
     m_trgStartStream->setHidden( false );
     m_trgStopStream->setHidden( true );
+
+    m_ftRtClient->isConnected() ? applyStatusConnected() : applyStatusDisconnected();
+
+    m_trgStartStream->set( WPVBaseTypes::PV_TRIGGER_READY, true );
+    m_trgStopStream->set( WPVBaseTypes::PV_TRIGGER_READY, true );
+
+    m_resetModule->set( WPVBaseTypes::PV_TRIGGER_READY, true );
 }
 
 void WMFTRtClient::dispHeaderInfo()

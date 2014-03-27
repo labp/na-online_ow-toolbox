@@ -149,6 +149,7 @@ private:
 
     WPropTrigger m_trgFlushHeader;
     WPropTrigger m_trgFlushData;
+    WPropTrigger m_trgFlushEvents;
 
     WPropTrigger m_trgPushEvent;
 
@@ -168,7 +169,7 @@ private:
 
     void callbackConnectionTypeChanged();
 
-    void callbackTrgConnect();
+    bool callbackTrgConnect();
 
     void callbackTrgDisconnect();
 

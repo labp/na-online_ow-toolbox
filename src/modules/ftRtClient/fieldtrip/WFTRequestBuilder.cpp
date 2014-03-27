@@ -80,8 +80,8 @@ WFTRequest::SPtr WFTRequestBuilder::buildRequest_FLUSH_DAT()
 {
     WFTRequest::SPtr request( new WFTRequest );
 
-    request->getMessageDef()->command = FLUSH_DAT;
-    request->getMessageDef()->bufsize = 0;
+    request->getMessageDef().command = FLUSH_DAT;
+    request->getMessageDef().bufsize = 0;
 
     return WFTRequest::SPtr( request );
 }
@@ -90,8 +90,8 @@ WFTRequest::SPtr WFTRequestBuilder::buildRequest_FLUSH_EVT()
 {
     WFTRequest::SPtr request( new WFTRequest );
 
-    request->getMessageDef()->command = FLUSH_EVT;
-    request->getMessageDef()->bufsize = 0;
+    request->getMessageDef().command = FLUSH_EVT;
+    request->getMessageDef().bufsize = 0;
 
     return WFTRequest::SPtr( request );
 }
@@ -100,8 +100,8 @@ WFTRequest::SPtr WFTRequestBuilder::buildRequest_FLUSH_HDR()
 {
     WFTRequest::SPtr request( new WFTRequest );
 
-    request->getMessageDef()->command = FLUSH_HDR;
-    request->getMessageDef()->bufsize = 0;
+    request->getMessageDef().command = FLUSH_HDR;
+    request->getMessageDef().bufsize = 0;
 
     return WFTRequest::SPtr( request );
 }

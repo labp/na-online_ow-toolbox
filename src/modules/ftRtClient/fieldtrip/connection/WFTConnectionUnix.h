@@ -27,26 +27,66 @@
 
 #include "WFTConnection.h"
 
+/**
+ * The WFTConnectionUnix class represents a connection to the FieldTrip Buffer server using Unix Domain Sockets (IPC socket).
+ */
 class WFTConnectionUnix: public WFTConnection
 {
 public:
 
+    /**
+     * Constructs a new Unix Domain Socket.
+     *
+     * @param pathname The connection address, which has to math the pattern: <host>:<port>
+     * @param retry The number of retries in case of failure.
+     */
     WFTConnectionUnix( std::string pathname, int retry = 0 );
 
+    /**
+     * Destroys the WFTConnectionUnix.
+     */
     ~WFTConnectionUnix();
 
+    /**
+     * Inherited method from WFTConnection.
+     *
+     * @return Returns true if connecting was successful, else false.
+     */
     virtual bool connect();
 
+    /**
+     * Inherited method from WFTConnection.
+     *
+     * @return The connection as string.
+     */
     std::string getConnectionString() const;
 
+    /**
+     * Inherited method from WFTConnection.
+     *
+     * @return The connections name.
+     */
     std::string getName() const;
 
+    /**
+     * Gets the connection address.
+     *
+     * @return The connection address.
+     */
     const std::string getPathName() const;
 
+    /**
+     * Sets the connection address.
+     *
+     * @param pathname The connection address.
+     */
     void set( std::string pathname );
 
 protected:
 
+    /**
+     * The connection address.
+     */
     std::string m_pathname;
 };
 
