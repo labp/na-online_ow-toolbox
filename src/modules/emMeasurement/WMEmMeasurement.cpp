@@ -70,6 +70,16 @@ using namespace LaBP;
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMEmMeasurement )
 
+static const std::string NO_DATA_LOADED = "No data loaded.";
+static const std::string LOADING_DATA = "Loading data ...";
+static const std::string DATA_LOADED = "Data successfully loaded.";
+static const std::string DATA_ERROR = "Could not load data.";
+
+static const std::string NO_FILE_LOADED = "No file loaded.";
+static const std::string LOADING_FILE = "Loading file ...";
+static const std::string FILE_LOADED = "File successfully loaded.";
+static const std::string FILE_ERROR = "Could not load file.";
+
 WMEmMeasurement::WMEmMeasurement()
 {
     m_fiffEmm = WLEMMeasurement::SPtr( new WLEMMeasurement() );
@@ -556,7 +566,7 @@ bool WMEmMeasurement::readFiff( std::string fname )
 bool WMEmMeasurement::readElc( std::string fname )
 {
     m_elcFileStatus->set( LOADING_FILE, true );
-    m_elcLabels.reset( new std::vector< std::string >() );
+    m_elcLabels = WLArrayList< std::string >::instance();
     m_elcPositions3d.reset( new std::vector< WPosition >() );
     m_elcFaces.reset( new std::vector< WVector3i >() );
 
@@ -865,13 +875,3 @@ bool WMEmMeasurement::processMisc( WLEMMCommand::SPtr labp )
     m_output->updateData( labp );
     return true;
 }
-
-const std::string WMEmMeasurement::NO_DATA_LOADED = "No data loaded.";
-const std::string WMEmMeasurement::LOADING_DATA = "Loading data ...";
-const std::string WMEmMeasurement::DATA_LOADED = "Data successfully loaded.";
-const std::string WMEmMeasurement::DATA_ERROR = "Could not load data.";
-
-const std::string WMEmMeasurement::NO_FILE_LOADED = "No file loaded.";
-const std::string WMEmMeasurement::LOADING_FILE = "Loading file ...";
-const std::string WMEmMeasurement::FILE_LOADED = "File successfully loaded.";
-const std::string WMEmMeasurement::FILE_ERROR = "Could not load file.";

@@ -36,8 +36,6 @@
 
 #include <Eigen/Core>
 
-#include <core/common/WDefines.h>
-
 #include "core/container/WLArrayList.h"
 #include "core/data/WLDataTypes.h"
 #include "core/data/enum/WLECoordSystem.h"
@@ -180,21 +178,63 @@ public:
     WLFreqT getAnalogHighPass() const;
 
     /**
+     * Sets the highpass frequency.
+     *
+     * @param analogHighPass Frequency in Hz
+     */
+    void setAnalogHighPass( WLFreqT analogHighPass );
+
+    /**
      * Gets the lowpass frequency.
      *
      * @return Frequency in Hz
      */
     WLFreqT getAnalogLowPass() const;
 
+    /**
+     * Sets the lowpass frequency.
+     *
+     * @param analogLowPass Frequency in Hz
+     */
+    void setAnalogLowPass( WLFreqT analogLowPass );
+
     WLArrayList< std::string >::SPtr getChanNames();
 
     WLArrayList< std::string >::ConstSPtr getChanNames() const;
+
+    /**
+     * Sets the channel names.
+     *
+     * @param chanNames Names to set.
+     */
+    void setChanNames( WLArrayList< std::string >::SPtr chanNames );
 
     WLEUnit::Enum getChanUnit() const;
 
     WLEExponent::Enum getChanUnitExp() const;
 
+    /**
+     * Sets the exponent of the data.
+     *
+     * @param chanUnitExp Exponent to set
+     */
+    void setChanUnitExp( WLEExponent::Enum chanUnitExp );
+
+    /**
+     * Sets the unit of the data.
+     *
+     * @param chanUnit Unit to set
+     */
+    void setChanUnit( WLEUnit::Enum chanUnit );
+
     WLECoordSystem::Enum getCoordSystem() const;
+
+    /**
+     * Sets the coordinate system.
+     *
+     * @param coordSystem Coordinate system to set
+     */
+    void setCoordSystem( WLECoordSystem::Enum coordSystem );
 
     /**
      * Gets the line frequency.
@@ -204,11 +244,25 @@ public:
     WLFreqT getLineFreq() const;
 
     /**
+     * Sets the line frequency.
+     *
+     * @param lineFreq Frequency in Hz
+     */
+    void setLineFreq( WLFreqT lineFreq );
+
+    /**
      * Gets the name of the measurement device.
      *
      * @return name of measurement device
      */
     std::string getMeasurementDeviceName() const;
+
+    /**
+     * Set the name of the measurement device.
+     *
+     * @param measurementDeviceName Name of the measurement device
+     */
+    void setMeasurementDeviceName( std::string measurementDeviceName );
 
     /**
      * Gets the modality type of this instance.
@@ -246,76 +300,17 @@ public:
     WLFreqT getSampFreq() const;
 
     /**
+     * Sets the sampling frequency.
+     * @param sampFreq Frequency in Hz
+     */
+    void setSampFreq( WLFreqT sampFreq );
+
+    /**
      * Returns the data length in seconds using samples and frequency.
      *
      * @return data length in seconds.
      */
     WLTimeT getLength() const;
-
-    /**
-     * Sets the highpass frequency.
-     *
-     * @param analogHighPass Frequency in Hz
-     */
-    void setAnalogHighPass( WLFreqT analogHighPass );
-
-    /**
-     * Sets the lowpass frequency.
-     *
-     * @param analogLowPass Frequency in Hz
-     */
-    void setAnalogLowPass( WLFreqT analogLowPass );
-
-    /**
-     * Sets the channel names.
-     *
-     * @param chanNames Names to set.
-     */
-    void setChanNames( WLArrayList< std::string >::SPtr chanNames );
-
-    OW_API_DEPRECATED
-    void setChanNames( boost::shared_ptr< std::vector< std::string > > chanNames );
-
-    /**
-     * Sets the unit of the data.
-     *
-     * @param chanUnit Unit to set
-     */
-    void setChanUnit( WLEUnit::Enum chanUnit );
-
-    /**
-     * Sets the exponent of the data.
-     *
-     * @param chanUnitExp Exponent to set
-     */
-    void setChanUnitExp( WLEExponent::Enum chanUnitExp );
-
-    /**
-     * Sets the coordinate system.
-     *
-     * @param coordSystem Coordinate system to set
-     */
-    void setCoordSystem( WLECoordSystem::Enum coordSystem );
-
-    /**
-     * Sets the line frequency.
-     *
-     * @param lineFreq Frequency in Hz
-     */
-    void setLineFreq( WLFreqT lineFreq );
-
-    /**
-     * Set the name of the measurement device.
-     *
-     * @param measurementDeviceName Name of the measurement device
-     */
-    void setMeasurementDeviceName( std::string measurementDeviceName );
-
-    /**
-     * Sets the sampling frequency.
-     * @param sampFreq Frequency in Hz
-     */
-    void setSampFreq( WLFreqT sampFreq );
 
     void setBadChannels( ChannelListSPtr badChannels );
 
