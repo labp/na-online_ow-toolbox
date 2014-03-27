@@ -104,7 +104,7 @@ public:
     /**
      * Constructor, sets data from input instance.
      *
-     * @param emd Adopts the attributes from this instance, but not the "raw" data.
+     * \param emd Adopts the attributes from this instance, but not the "raw" data.
      */
     explicit WLEMData( const WLEMData& emd );
 
@@ -116,7 +116,7 @@ public:
     /**
      * Cast to EMD if possible. Check modality type with getModalityType()!
      *
-     * @return Shared Pointer< EMD >
+     * \return Shared Pointer< EMD >
      */
     template< typename EMD >
     boost::shared_ptr< EMD > getAs()
@@ -127,7 +127,7 @@ public:
     /**
      * Cast to EMD if possible. Check modality type with getModalityType()!
      *
-     * @return Shared Pointer< const EMD >
+     * \return Shared Pointer< const EMD >
      */
     template< typename EMD >
     boost::shared_ptr< const EMD > getAs() const
@@ -138,7 +138,7 @@ public:
     /**
      * Clones this instance without copying the "raw" data.
      *
-     * @return A copy of this instance, except the "raw" data.
+     * \return A copy of this instance, except the "raw" data.
      */
     virtual WLEMData::SPtr clone() const = 0;
 
@@ -151,7 +151,7 @@ public:
      * Returns the data without the bad channels.
      * NOTE: The method does not modify any object data, but data may modified indirectly!
      *
-     * @return The data.
+     * \return The data.
      */
     virtual DataSPtr getDataBadChannels() const;
 
@@ -159,156 +159,182 @@ public:
      * Returns the data without the bad channels.
      * NOTE: The method does not modify any object data, but data may modified indirectly!
      *
-     * @return The data.
+     * \return The data.
      */
     virtual DataSPtr getDataBadChannels( ChannelListSPtr badChans ) const;
 
     /**
      * Sets the data.
      *
-     * @param data Data to set.
+     * \param data Data to set.
      */
     virtual void setData( DataSPtr data );
 
     /**
      * Gets the highpass frequency.
      *
-     * @return Frequency in Hz
+     * \return Frequency in Hz
      */
     WLFreqT getAnalogHighPass() const;
 
     /**
      * Sets the highpass frequency.
      *
-     * @param analogHighPass Frequency in Hz
+     * \param analogHighPass Frequency in Hz
      */
     void setAnalogHighPass( WLFreqT analogHighPass );
 
     /**
      * Gets the lowpass frequency.
      *
-     * @return Frequency in Hz
+     * \return Frequency in Hz
      */
     WLFreqT getAnalogLowPass() const;
 
     /**
      * Sets the lowpass frequency.
      *
-     * @param analogLowPass Frequency in Hz
+     * \param analogLowPass Frequency in Hz
      */
     void setAnalogLowPass( WLFreqT analogLowPass );
 
+    /**
+     * Gets the channel names.
+     *
+     * \return Channel names.
+     */
     WLArrayList< std::string >::SPtr getChanNames();
 
+    /**
+     * Gets the channel names.
+     *
+     * \return Channel names.
+     */
     WLArrayList< std::string >::ConstSPtr getChanNames() const;
 
     /**
      * Sets the channel names.
      *
-     * @param chanNames Names to set.
+     * \param chanNames Names to set.
      */
     void setChanNames( WLArrayList< std::string >::SPtr chanNames );
 
+    /**
+     * Gets the unit of the data.
+     *
+     * \return Unit
+     */
     WLEUnit::Enum getChanUnit() const;
 
+    /**
+     * Gets the exponent of the data.
+     *
+     * \return Exponent
+     */
     WLEExponent::Enum getChanUnitExp() const;
 
     /**
      * Sets the exponent of the data.
      *
-     * @param chanUnitExp Exponent to set
+     * \param chanUnitExp Exponent to set
      */
     void setChanUnitExp( WLEExponent::Enum chanUnitExp );
 
     /**
      * Sets the unit of the data.
      *
-     * @param chanUnit Unit to set
+     * \param chanUnit Unit to set
      */
     void setChanUnit( WLEUnit::Enum chanUnit );
 
+    /**
+     * Gets the coordinate system.
+     *
+     * \return Coordinate system
+     */
     WLECoordSystem::Enum getCoordSystem() const;
 
     /**
      * Sets the coordinate system.
      *
-     * @param coordSystem Coordinate system to set
+     * \param coordSystem Coordinate system to set
      */
     void setCoordSystem( WLECoordSystem::Enum coordSystem );
 
     /**
      * Gets the line frequency.
      *
-     * @return Frequency in Hz
+     * \return Frequency in Hz
      */
     WLFreqT getLineFreq() const;
 
     /**
      * Sets the line frequency.
      *
-     * @param lineFreq Frequency in Hz
+     * \param lineFreq Frequency in Hz
      */
     void setLineFreq( WLFreqT lineFreq );
 
     /**
      * Gets the name of the measurement device.
      *
-     * @return name of measurement device
+     * \return name of measurement device
      */
     std::string getMeasurementDeviceName() const;
 
     /**
      * Set the name of the measurement device.
      *
-     * @param measurementDeviceName Name of the measurement device
+     * \param measurementDeviceName Name of the measurement device
      */
     void setMeasurementDeviceName( std::string measurementDeviceName );
 
     /**
      * Gets the modality type of this instance.
      *
-     * @return modality type
+     * \return modality type
      */
     virtual WLEModality::Enum getModalityType() const = 0;
 
     /**
      * Gets the number of channels (dimension 1).
      *
-     * @return Number of channels
+     * \return Number of channels
      */
     virtual WLChanNrT getNrChans() const;
 
     /**
      * Gets the samples of a channel for this block (dimension 2).
      *
-     * @return Number of Samples
+     * \return Number of Samples
      */
     virtual WLSampleNrT getSamplesPerChan() const;
 
     /**
      * Returns the bad channel list.
      *
-     * @return Bad channel list.
+     * \return Bad channel list.
      */
     virtual ChannelListSPtr getBadChannels() const;
 
     /**
      * Returns sampling frequency in Hz.
      *
-     * @return sampling frequency in Hz
+     * \return sampling frequency in Hz
      */
     WLFreqT getSampFreq() const;
 
     /**
      * Sets the sampling frequency.
-     * @param sampFreq Frequency in Hz
+     *
+     * \param sampFreq Frequency in Hz
      */
     void setSampFreq( WLFreqT sampFreq );
 
     /**
      * Returns the data length in seconds using samples and frequency.
      *
-     * @return data length in seconds.
+     * \return data length in seconds.
      */
     WLTimeT getLength() const;
 
@@ -321,8 +347,8 @@ public:
     /**
      * Returns true if the channel number is listed in the bad channel list.
      *
-     * @param channelNo The channel number.
-     * @return True / false.
+     * \param channelNo The channel number.
+     * \return True / false.
      */
     bool isBadChannel( size_t channelNo ) const;
 
