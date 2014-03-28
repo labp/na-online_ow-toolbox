@@ -27,36 +27,70 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <message.h>
 #include <SimpleStorage.h>
 
+/**
+ * The WFTAIterator represents an abstract iterator on a defined memory area.
+ * Inherited classes have to implement the methods hasNext() and getNext() for the specific type.
+ */
 template< typename T >
 class WFTAIterator
 {
 public:
 
-    WFTAIterator( SimpleStorage& buf, UINT32_T size );
+    /**
+     * Constructs a new WFTAIterator.
+     *
+     * @param buf The memory area to iterate.
+     * @param size The size of the memory area.
+     */
+    WFTAIterator( SimpleStorage& buf, int size );
 
+    /**
+     * Destroys the WFTAIterator.
+     */
     virtual ~WFTAIterator();
 
+    /**
+     * Indicates whether more data objects exist in the storage.
+     *
+     * @return Returns true if there is another data object, else false.
+     */
     virtual bool hasNext() const = 0;
 
-    virtual void reset() = 0;
+    /**
+     * Resets the iterator to the beginning of the data storage.
+     */
+    virtual void reset();
 
+    /**
+     * Returns the next data object in the storage as shared pointer.
+     *
+     * @return The next data object.
+     */
     virtual boost::shared_ptr< T > getNext() = 0;
 
 protected:
 
+    /**
+     * A reference on a memory area containing the data after initializing.
+     */
     SimpleStorage &m_store;
 
-    const UINT32_T m_size;
+    /**
+     * Defines the iterators position inside of the data storage.
+     */
+    const int m_size;
 
-    UINT32_T m_pos;
+    /**
+     * Contains the memory size of the data storage.
+     */
+    int m_pos;
 
 };
 
 template< typename T >
-inline WFTAIterator< T >::WFTAIterator( SimpleStorage &buf, UINT32_T size ) :
+inline WFTAIterator< T >::WFTAIterator( SimpleStorage &buf, int size ) :
                 m_store( buf ), m_size( size ), m_pos( 0 )
 {
 }
@@ -64,6 +98,12 @@ inline WFTAIterator< T >::WFTAIterator( SimpleStorage &buf, UINT32_T size ) :
 template< typename T >
 inline WFTAIterator< T >::~WFTAIterator()
 {
+}
+
+template< typename T >
+inline void WFTAIterator< T >::reset()
+{
+    m_pos = 0;
 }
 
 #endif /* WFTAITERATOR_H_ */

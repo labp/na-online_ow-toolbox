@@ -40,7 +40,7 @@ bool WFTResponse::isValid() const
 
 bool WFTResponse::hasData() const
 {
-    if(!isValid())
+    if( !isValid() )
     {
         return false;
     }
@@ -48,7 +48,7 @@ bool WFTResponse::hasData() const
     return m_response->def->bufsize > 0;
 }
 
-WFTResponse::WFTMessageT_ConstSPtr WFTResponse::getMessage()
+const WFTObject::WFTMessageT WFTResponse::getMessage() const
 {
-    return WFTMessageT_ConstSPtr( m_response );
+    return *m_response;
 }

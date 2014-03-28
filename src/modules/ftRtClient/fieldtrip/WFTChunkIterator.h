@@ -28,12 +28,13 @@
 #include <boost/shared_ptr.hpp>
 
 #include "dataTypes/WFTChunk.h"
+#include "WFTAIterator.h"
 
 /**
  * The WFTChunkIterator can be used to run through a bulk of memory containing FieldTrip chunks.
  * This class has the standard iterator appearance with its characteristic operations.
  */
-class WFTChunkIterator
+class WFTChunkIterator: public WFTAIterator< WFTChunk >
 {
 public:
 
@@ -51,40 +52,18 @@ public:
     WFTChunkIterator( SimpleStorage& buf, int size );
 
     /**
-     * Indicates whether more chunks exists in the storage.
+     * Inherited method from WFTAIterator.
      *
      * @return Returns true if there are more chunks, else false.
      */
-    bool hasNext();
+    bool hasNext() const;
 
     /**
-     * Sets the iterator to the beginning element.
-     */
-    void reset();
-
-    /**
-     * Returns the next chunk in the storage as shared pointer.
+     * Inherited method from WFTAIterator.
      *
-     * @return The next chunk element.
+     * @return Returns the next chunk element.
      */
     WFTChunk::SPtr getNext();
-
-private:
-
-    /**
-     * A reference on a memory area containing the chunks after initializing.
-     */
-    SimpleStorage &m_store;
-
-    /**
-     * Defines the iterators position at inside of the chunk storage.
-     */
-    int m_pos;
-
-    /**
-     * Contains the memory size of the chunk storage.
-     */
-    const int m_size;
 
 };
 

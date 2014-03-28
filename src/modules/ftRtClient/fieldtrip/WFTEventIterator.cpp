@@ -38,12 +38,7 @@ WFTEventIterator::WFTEventIterator( SimpleStorage& buf, int size ) :
 
 bool WFTEventIterator::hasNext() const
 {
-    return m_pos + sizeof(WFTObject::WFTEventDefT) < m_size;
-}
-
-void WFTEventIterator::reset()
-{
-    m_pos = 0;
+    return m_pos + ( int )sizeof(WFTObject::WFTEventDefT) < m_size;
 }
 
 WFTEvent::SPtr WFTEventIterator::getNext()
@@ -57,7 +52,7 @@ WFTEvent::SPtr WFTEventIterator::getNext()
     unsigned int wsType, wsValue;
 
     // test whether the events is included completely
-    if( m_pos + sizeof(WFTObject::WFTEventDefT) + def->bufsize < m_size )
+    if( m_pos + ( int )( sizeof(WFTObject::WFTEventDefT) + def->bufsize ) > m_size )
     {
         return WFTEvent::SPtr();
     }
@@ -75,20 +70,7 @@ WFTEvent::SPtr WFTEventIterator::getNext()
     std::string type( srcType, lenType );
     std::string value( srcValue, lenValue );
 
-//    wlog::debug( CLASS ) << "Sample: " << def->sample;
-//    wlog::debug( CLASS ) << "Offset: " << def->offset;
-//    wlog::debug( CLASS ) << "Duration: " << def->duration;
-//    wlog::debug( CLASS ) << "Buffer Size: " << def->bufsize;
-//    wlog::debug( CLASS ) << "Type, Elements: " << def->type_numel;
-//    wlog::debug( CLASS ) << "Type, Type: " << def->type_type;
-//    wlog::debug( CLASS ) << "Type, Length: " << lenType;
-//    wlog::debug( CLASS ) << "Value, Elements: " << def->value_numel;
-//    wlog::debug( CLASS ) << "Value, Type: " << def->value_type;
-//    wlog::debug( CLASS ) << "Value, Length: " << lenValue;
-
     m_pos += sizeof(WFTObject::WFTEventDefT) + def->bufsize; // increase the position to the next event.
 
-    WFTObject::WFTEventDefT d; // TODO(maschke): remove dummy variable
-    d.sample = def->sample;
-    return WFTEvent::SPtr( new WFTEvent( d, "sdsd", "dfdfd" ) ); // create the event object and return.
+    return WFTEvent::SPtr( new WFTEvent( *def, type, value ) ); // create the event object and return.
 }

@@ -31,6 +31,8 @@
 
 #include <FtBuffer.h>
 
+#include "modules/ftRtClient/fieldtrip/dataTypes/WFTObject.h"
+
 /**
  * Wrapper class for a response created through a FieldTrip request.
  */
@@ -58,7 +60,7 @@ public:
 
     bool hasData() const;
 
-    WFTMessageT_ConstSPtr getMessage();
+    const WFTObject::WFTMessageT getMessage() const;
 
 protected:
 

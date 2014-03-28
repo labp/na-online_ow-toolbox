@@ -513,7 +513,7 @@ void WMFTRtClient::callbackTrgStartStreaming()
 
                     BOOST_FOREACH(WFTEvent::SPtr event, *m_ftRtClient->getEventList())
                     {
-                        debugLog() << "Fire Event: " << event->getValue();
+                        debugLog() << "Fire Event: " << *event;
                     }
                 }
             }
@@ -567,7 +567,7 @@ void WMFTRtClient::callbackTrgFlushEvents()
 
 }
 
-void WMFTRtClient::callbackTrgPushEvent()
+void WMFTRtClient::callbackTrgPushEvent() // TODO(maschke): why called second times?
 {
     debugLog() << "callbackTrgPushEvent() called.";
 
@@ -579,16 +579,11 @@ void WMFTRtClient::callbackTrgPushEvent()
     WFTRequest::SPtr request( new WFTRequest_PutEvent( 10, 0, 0, type, value ) );
     WFTResponse::SPtr response( new WFTResponse );
 
-    debugLog() << "Input event:";
-    debugLog() << *request;
-
     if( !m_ftRtClient->doRequest( *request, *response ) )
     {
         errorLog() << "Error while pushing event.";
         return;
     }
-
-    debugLog() << *response;
 
     if( response->checkPut() )
     {
@@ -599,7 +594,6 @@ void WMFTRtClient::callbackTrgPushEvent()
         errorLog() << "Failure on push event.";
     }
 
-    debugLog() << *response;
 }
 
 // TODO(maschke): Is it possible to enable/disable properties during runtime?

@@ -27,19 +27,13 @@
 #include "WFTChunkIterator.h"
 
 WFTChunkIterator::WFTChunkIterator( SimpleStorage& buf, int size ) :
-                m_store( buf ), m_size( size )
+                WFTAIterator< WFTChunk >::WFTAIterator( buf, size )
 {
-    m_pos = 0;
 }
 
-bool WFTChunkIterator::hasNext()
+bool WFTChunkIterator::hasNext() const
 {
-    return m_pos + sizeof(WFTObject::WFTChunkDefT) < m_size;
-}
-
-void WFTChunkIterator::reset()
-{
-    m_pos = 0;
+    return m_pos + ( int )sizeof(WFTObject::WFTChunkDefT) < m_size;
 }
 
 WFTChunk::SPtr WFTChunkIterator::getNext()

@@ -27,25 +27,47 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <SimpleStorage.h>
-
 #include "WFTAIterator.h"
 #include "dataTypes/WFTEvent.h"
 
+/**
+ * The WFTChunkIterator can be used to run through a bulk of memory containing FieldTrip events.
+ * This class has the standard iterator appearance with its characteristic operations.
+ */
 class WFTEventIterator: public WFTAIterator< WFTEvent >
 {
 public:
 
+    /**
+     * Represents the name of the class.
+     */
     static const std::string CLASS;
 
+    /**
+     * A shared pointer on the iterator.
+     */
     typedef boost::shared_ptr< WFTEventIterator > SPtr;
 
+    /**
+     * Constructs a new WFTEventIterator.
+     *
+     * @param buf A reference to the event storage memory.
+     * @param size The size of the memory area.
+     */
     WFTEventIterator( SimpleStorage& buf, int size );
 
+    /**
+     * Inherited method from WFTAIterator.
+     *
+     * @return Returns true if there are more events, else false.
+     */
     bool hasNext() const;
 
-    void reset();
-
+    /**
+     * Inherited method from WFTAIterator.
+     *
+     * @return Returns the next event.
+     */
     WFTEvent::SPtr getNext();
 
 };

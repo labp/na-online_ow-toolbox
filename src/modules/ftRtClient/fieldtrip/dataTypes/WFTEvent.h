@@ -126,7 +126,7 @@ private:
 inline std::ostream& operator<<( std::ostream &strm, const WFTEvent& event )
 {
     strm << WFTEvent::CLASS << ": ";
-    strm << "Sample = " << event.getDef().sample;
+    strm << " Sample = " << event.getDef().sample;
     strm << ", Duration = " << event.getDef().duration;
     strm << ", Offset = " << event.getDef().offset;
     strm << ", Type = " << event.getType();

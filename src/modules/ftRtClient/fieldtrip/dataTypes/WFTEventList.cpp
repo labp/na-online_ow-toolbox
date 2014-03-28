@@ -60,37 +60,17 @@ bool WFTEventList::parseResponse( WFTResponse::SPtr response )
         return false;
     }
 
-//    WFTEventIterator::SPtr it( new WFTEventIterator( *(buf.get()), response->getMessage()->def->bufsize ) );
+    WFTEventIterator::SPtr it( new WFTEventIterator( storage, response->getMessage().def->bufsize ) );
 
-    unsigned int pos = 0;
-
-    while( pos + sizeof(WFTObject::WFTEventDefT) < storage.size() )
+    while( it->hasNext() )
     {
-        WFTObject::WFTEventDefT *def = ( WFTObject::WFTEventDefT * )( ( ( char * )storage.data() ) + pos );
-        unsigned int wsType, wsValue;
+        WFTEvent::SPtr evt = it->getNext();
 
-        wsType = WLEFTDataType::wordSize( WLEFTDataType::typeByCode( def->type_type ) );
-        wsValue = WLEFTDataType::wordSize( WLEFTDataType::typeByCode( def->value_type ) );
-
-        uint lenType = wsType * def->type_numel;
-        uint lenValue = wsValue * def->value_numel;
-//            create pointers to types and values location.
-        const char *srcType = ( ( const char* )storage.data() ) + pos + sizeof(WFTObject::WFTEventDefT);
-        const char *srcValue = srcType + lenType;
-
-        std::string type( srcType, lenType );
-        std::string value( srcValue, lenValue );
-
-        pos += sizeof(WFTObject::WFTEventDefT) + def->bufsize;
-
-        push_back( WFTEvent::SPtr( new WFTEvent( *def, type, value ) ) );
+        if( evt != NULL )
+        {
+            push_back( evt );
+        }
     }
-
-    // TODO(maschke): Why does not work the WFTEventIterator?
-//    while( it->hasNext() )
-//    {
-//        push_back( it->getNext() );
-//    }
 
     return true;
 }
