@@ -25,6 +25,8 @@
 #ifndef WFTCONNECTIONUNIX_H_
 #define WFTCONNECTIONUNIX_H_
 
+#include <ostream>
+
 #include "WFTConnection.h"
 
 /**
@@ -33,6 +35,11 @@
 class WFTConnectionUnix: public WFTConnection
 {
 public:
+
+    /**
+     * The class name.
+     */
+    static const std::string CLASS;
 
     /**
      * Constructs a new Unix Domain Socket.
@@ -89,5 +96,13 @@ protected:
      */
     std::string m_pathname;
 };
+
+inline std::ostream& operator<<(std::ostream& str, const WFTConnectionUnix& connection )
+{
+    str << WFTConnectionUnix::CLASS << ":";
+    str << " Pathname: " << connection.getPathName();
+
+    return str;
+}
 
 #endif /* WFTCONNECTIONUNIX_H_ */

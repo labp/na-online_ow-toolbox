@@ -48,15 +48,5 @@ WFTChunkList::SPtr WFTChunkList::filter( WLEFTChunkType::Enum chunkType )
     WFTChunkList &x = *this;
     boost::copy( x | filtered( bind( &WFTChunkList::isChunkType, _1, chunkType ) ), std::back_inserter( ptr ) );
 
-    /*
-     BOOST_FOREACH(WFTChunk::SPtr chunk, *this)
-     {
-     if( chunk->getType() == chunkType )
-     {
-     ptr.push_back( chunk );
-     }
-     }
-     */
-
     return q;
 }

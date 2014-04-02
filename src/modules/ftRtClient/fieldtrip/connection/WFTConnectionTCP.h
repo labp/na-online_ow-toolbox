@@ -25,6 +25,8 @@
 #ifndef WFTCONNECTIONTCP_H_
 #define WFTCONNECTIONTCP_H_
 
+#include <ostream>
+
 #include "WFTConnection.h"
 
 /**
@@ -34,6 +36,8 @@
 class WFTConnectionTCP: public WFTConnection
 {
 public:
+
+    static const std::string CLASS;
 
     /**
      * Constructs a new TCP connection.
@@ -104,5 +108,14 @@ protected:
      */
     int m_port;
 };
+
+inline std::ostream& operator<<( std::ostream& str, const WFTConnectionTCP& connection )
+{
+    str << WFTConnectionTCP::CLASS << ":";
+    str << " Host: " << connection.getHost();
+    str << ", Port: " << connection.getPort();
+
+    return str;
+}
 
 #endif /* WFTCONNECTIONTCP_H_ */

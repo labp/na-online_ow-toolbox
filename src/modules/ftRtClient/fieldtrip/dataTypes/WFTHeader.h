@@ -25,6 +25,7 @@
 #ifndef WFTHEADER_H_
 #define WFTHEADER_H_
 
+#include <ostream>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
@@ -49,6 +50,16 @@ public:
     typedef boost::shared_ptr< WFTHeader > SPtr;
 
     /**
+     * The class name.
+     */
+    static const std::string CLASS;
+
+    /**
+     * Constructor to create a new WFTHeader.
+     */
+    WFTHeader();
+
+    /**
      * Constructor to create a new header structure.
      *
      * @param numChannels The number of channels.
@@ -56,6 +67,15 @@ public:
      * @param fsample The sample frequency.
      */
     WFTHeader( UINT32_T numChannels, UINT32_T dataType, float fsample );
+
+    /**
+     * Method to initialize the WFTHeader during constructor call.
+     *
+     * @param numChannels The number of channels.
+     * @param dataType The used data type in the data buffer. The parameters data type is defined by the FieldTrip buffer protocol.
+     * @param fsample The sample frequency.
+     */
+    void init( UINT32_T numChannels, UINT32_T dataType, float fsample );
 
     /**
      * Inherited form WFTRequestableObject.
@@ -85,6 +105,13 @@ public:
      * @return The header definition.
      */
     WFTHeaderDefT& getHeaderDef();
+
+    /**
+     * Returns the header structure.
+     *
+     * @return The header structure.
+     */
+    WFTHeaderDefT getHeaderDef() const;
 
     /**
      * Returns whether or not the header has chunks in its buffer.
@@ -134,8 +161,22 @@ protected:
     /**
      * A list of chunk objects. It is used during request serializing.
      */
-    WFTChunkList m_chunks;
+    boost::shared_ptr< WFTChunkList > m_chunks;
 
 };
+
+inline std::ostream& operator<<( std::ostream& str, const WFTHeader& header )
+{
+    str << WFTHeader::CLASS << ":";
+    str << " DataType: " << header.getHeaderDef().data_type;
+    str << ", Sample Frq:" << header.getHeaderDef().fsample;
+    str << ", Channels: " << header.getHeaderDef().nchans;
+    str << ", Samples: " << header.getHeaderDef().nsamples;
+    str << ", Events: " << header.getHeaderDef().nevents;
+    str << ", Buffer Size: " << header.getHeaderDef().bufsize;
+    header.hasChunks() ? str << ", Chunks: " << header.getChunks()->size() : str << ", Chunks: 0";
+
+    return str;
+}
 
 #endif /* WFTHEADER_H_ */

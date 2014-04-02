@@ -28,19 +28,19 @@
 
 WLEFTChunkType::ContainerT WLEFTChunkType::values()
 {
-    ContainerT modalities;
-    modalities.insert( WLEFTChunkType::FT_CHUNK_UNSPECIFIED );
-    modalities.insert( WLEFTChunkType::FT_CHUNK_CHANNEL_NAMES );
-    modalities.insert( WLEFTChunkType::FT_CHUNK_CHANNEL_FLAGS );
-    modalities.insert( WLEFTChunkType::FT_CHUNK_RESOLUTIONS );
-    modalities.insert( WLEFTChunkType::FT_CHUNK_ASCII_KEYVAL );
-    modalities.insert( WLEFTChunkType::FT_CHUNK_NIFTI1 );
-    modalities.insert( WLEFTChunkType::FT_CHUNK_SIEMENS_AP );
-    modalities.insert( WLEFTChunkType::FT_CHUNK_CTF_RES4 );
-    modalities.insert( WLEFTChunkType::FT_CHUNK_NEUROMAG_HEADER );
-    modalities.insert( WLEFTChunkType::FT_CHUNK_NEUROMAG_ISOTRAK );
-    modalities.insert( WLEFTChunkType::FT_CHUNK_NEUROMAG_HPIRESULT );
-    return modalities;
+    ContainerT chunks;
+    chunks.insert( WLEFTChunkType::FT_CHUNK_UNSPECIFIED );
+    chunks.insert( WLEFTChunkType::FT_CHUNK_CHANNEL_NAMES );
+    chunks.insert( WLEFTChunkType::FT_CHUNK_CHANNEL_FLAGS );
+    chunks.insert( WLEFTChunkType::FT_CHUNK_RESOLUTIONS );
+    chunks.insert( WLEFTChunkType::FT_CHUNK_ASCII_KEYVAL );
+    chunks.insert( WLEFTChunkType::FT_CHUNK_NIFTI1 );
+    chunks.insert( WLEFTChunkType::FT_CHUNK_SIEMENS_AP );
+    chunks.insert( WLEFTChunkType::FT_CHUNK_CTF_RES4 );
+    chunks.insert( WLEFTChunkType::FT_CHUNK_NEUROMAG_HEADER );
+    chunks.insert( WLEFTChunkType::FT_CHUNK_NEUROMAG_ISOTRAK );
+    chunks.insert( WLEFTChunkType::FT_CHUNK_NEUROMAG_HPIRESULT );
+    return chunks;
 }
 
 std::string WLEFTChunkType::name( WLEFTChunkType::Enum val )
@@ -73,4 +73,15 @@ std::string WLEFTChunkType::name( WLEFTChunkType::Enum val )
             WAssert( false, "Unknown WLEFTChunkType!" );
             return WLEFTChunkType::name( WLEFTChunkType::FT_CHUNK_UNSPECIFIED );
     }
+}
+
+WLEFTChunkType::ContainerT WLEFTChunkType::valuesPrintable()
+{
+    ContainerT chunks;
+    chunks.insert( WLEFTChunkType::FT_CHUNK_CHANNEL_NAMES );
+    chunks.insert( WLEFTChunkType::FT_CHUNK_CHANNEL_FLAGS );
+    chunks.insert( WLEFTChunkType::FT_CHUNK_RESOLUTIONS );
+    chunks.insert( WLEFTChunkType::FT_CHUNK_ASCII_KEYVAL );
+    chunks.insert( WLEFTChunkType::FT_CHUNK_SIEMENS_AP );
+    return chunks;
 }

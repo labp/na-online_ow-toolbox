@@ -24,17 +24,24 @@
 
 #include "WFTChunk.h"
 
+const std::string WFTChunk::CLASS = "WFTChunk";
+
 WFTChunk::WFTChunk( UINT32_T chunkType, UINT32_T chunkSize, const void *data )
 {
-    if( !m_buf.resize( chunkSize ) )
-    {
-        return;
-    }
-
-    memcpy( m_buf.data(), data, chunkSize );
+    m_store.setData( data, chunkSize );
 
     m_chunkdef.type = chunkType;
     m_chunkdef.size = chunkSize;
+}
+
+WFTChunk::WFTChunk( UINT32_T chunkType, const std::string data )
+{
+    WFTChunk( chunkType, data.length(), data.c_str() );
+}
+
+WFTChunk::WFTChunk( WLEFTChunkType::Enum chunkType, const std::string data )
+{
+    WFTChunk( chunkType, data.length(), data.c_str() );
 }
 
 UINT32_T WFTChunk::getSize() const
@@ -52,18 +59,19 @@ WLEFTChunkType::Enum WFTChunk::getType() const
     return ( WLEFTChunkType::Enum )m_chunkdef.type;
 }
 
-void *WFTChunk::getData()
+const void *WFTChunk::getData() const
 {
-    return m_buf.data();
+    return m_store.getData();
 }
 
-std::string WFTChunk::getDataString()
+std::string WFTChunk::getDataString() const
 {
-    std::string *sp = static_cast< std::string* >( getData() );
-
-    std::string s = *sp;
-
-    delete sp;
-
-    return s;
+    if( WLEFTChunkType::isPrintable( getType() ) )
+    {
+        return m_store.toString();
+    }
+    else
+    {
+        return WLEFTChunkType::name( getType() );
+    }
 }

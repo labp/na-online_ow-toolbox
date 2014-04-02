@@ -52,7 +52,7 @@ WFTChunk::SPtr WFTChunkIterator::getNext()
         return WFTChunk::SPtr();
     }
 
-    const void *srcBuf = chunkdef + sizeof(WFTObject::WFTChunkDefT); // pointer to the chunks data.
+    const char *srcBuf = ( ( char * )m_store.data() ) + m_pos + sizeof(WFTObject::WFTChunkDefT); // pointer to the chunks data.
     m_pos += sizeof(WFTObject::WFTChunkDefT) + chunkdef->size; // start position for the next chunk (next definition).
 
     return WFTChunk::SPtr( new WFTChunk( chunkdef->type, chunkdef->size, srcBuf ) );

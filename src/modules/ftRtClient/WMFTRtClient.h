@@ -142,6 +142,8 @@ private:
     WPropInt m_events;
     WPropInt m_headerBufSize;
 
+    WPropTrigger m_trgShowChunks;
+
     /**
      * Property group for triggering operations on the buffer.
      */
@@ -178,6 +180,8 @@ private:
     void callbackTrgStopStreaming();
 
     void callbackTrgReset();
+
+    void callbackTrgShowChunks();
 
     void callbackTrgFlushHeader();
 

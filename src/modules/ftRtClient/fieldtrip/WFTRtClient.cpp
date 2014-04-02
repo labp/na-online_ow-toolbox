@@ -148,7 +148,7 @@ bool WFTRtClient::doRequest( WFTRequest& request, WFTResponse& response )
         return false;
     }
 
-    return true;
+    return response.isValid();
 }
 
 bool WFTRtClient::doHeaderRequest()

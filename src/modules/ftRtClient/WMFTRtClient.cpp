@@ -201,6 +201,9 @@ void WMFTRtClient::properties()
                     "Shows the number of bytes allocated by additional header information.", 0 );
     m_headerBufSize->setPurpose( PV_PURPOSE_INFORMATION );
 
+    m_trgShowChunks = m_propGrpHeader->addProperty( "Show Chunks", "Show Chunks", WPVBaseTypes::PV_TRIGGER_READY,
+                    m_propCondition );
+
     /*
      * property group FieldTrip buffer operations
      */
@@ -278,6 +281,13 @@ void WMFTRtClient::moduleMain()
             callbackTrgReset();
 
             m_resetModule->set( WPVBaseTypes::PV_TRIGGER_READY, true );
+        }
+
+        if( m_trgShowChunks->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+        {
+            callbackTrgShowChunks();
+
+            m_trgShowChunks->set( WPVBaseTypes::PV_TRIGGER_READY, true );
         }
 
         if( m_trgFlushHeader->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
@@ -460,6 +470,7 @@ void WMFTRtClient::callbackTrgStartStreaming()
     {
         if( !callbackTrgConnect() )
         {
+            applyStatusNotStreaming();
             return;
         }
     }
@@ -474,7 +485,7 @@ void WMFTRtClient::callbackTrgStartStreaming()
         applyStatusStreaming(); // edit GUI for client status "streaming"
 
         dispHeaderInfo(); // display header information
-        m_ftRtClient->printChunks(); // print the chunk buffers content.
+        //m_ftRtClient->printChunks(); // print the chunk buffers content.
         debugLog() << "Header request on startup done. Beginning data streaming";
 
         while( !m_stopStreaming && !m_shutdownFlag() )
@@ -543,6 +554,13 @@ void WMFTRtClient::callbackTrgReset()
 
     WLEMMCommand::SPtr labp = WLEMMCommand::instance( WLEMMCommand::Command::RESET );
     processReset( labp );
+}
+
+void WMFTRtClient::callbackTrgShowChunks()
+{
+    debugLog() << "callbackTrgShowChunks() called.";
+
+    m_ftRtClient->printChunks();
 }
 
 void WMFTRtClient::callbackTrgFlushHeader()

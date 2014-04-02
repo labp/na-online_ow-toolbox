@@ -25,10 +25,11 @@
 #ifndef WFTCHUNK_H_
 #define WFTCHUNK_H_
 
+#include <ostream>
+
 #include <boost/shared_ptr.hpp>
 
-#include <SimpleStorage.h>
-
+#include "modules/ftRtClient/fieldtrip/container/WLSmartStorage.h"
 #include "WLEFTChunkType.h"
 #include "WFTObject.h"
 
@@ -53,6 +54,11 @@ public:
     typedef boost::shared_ptr< const WFTChunk > ConstSPtr;
 
     /**
+     * The class name.
+     */
+    static const std::string CLASS;
+
+    /**
      * The constructor defines the describing part of the chunk and allocates memory for the data.
      *
      * @param chunkType The type of the chunks data. This types values are specified as enum in <message.h> from FieldTrip.
@@ -60,6 +66,22 @@ public:
      * @param data A pointer to the data to saving. The constructor copies the data to its own memory area.
      */
     WFTChunk( UINT32_T chunkType, UINT32_T chunkSize, const void *data );
+
+    /**
+     * Constructs a new WFTChunk.
+     *
+     * @param chunkType The FieldTrip chunk type as unsigned integer.
+     * @param data The data string.
+     */
+    WFTChunk( UINT32_T chunkType, const std::string data );
+
+    /**
+     * Constructs a new WFTChunk.
+     *
+     * @param chunkType The FieldTrip chunk type as WLEFTChunkType::Enum.
+     * @param data The data string.
+     */
+    WFTChunk( WLEFTChunkType::Enum chunkType, const std::string data );
 
     /**
      * Returns the total size of the whole chunk including definition part and data part.
@@ -88,14 +110,15 @@ public:
     /**
      * Return a constant pointer to the chunks data content.
      */
-    void *getData();
+    const void *getData() const;
 
     /**
      * The Method tries to create the chunks data as a std::string and returns the string.
+     * If the chunk contains binary data of files they won't been printed as string.
      *
      * @return A std::string containing the data.
      */
-    std::string getDataString();
+    std::string getDataString() const;
 
 protected:
 
@@ -107,8 +130,17 @@ protected:
     /**
      * The variable chunk data area.
      */
-    SimpleStorage m_buf;
+    WLSmartStorage m_store;
 
 };
+
+inline std::ostream& operator<<( std::ostream& str, const WFTChunk& chunk )
+{
+    str << WFTChunk::CLASS << ":";
+    str << " Type: " << chunk.getType();
+    str << ", Size: " << chunk.getDef().size;
+
+    return str;
+}
 
 #endif /* WFTCHUNK_H_ */

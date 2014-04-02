@@ -24,6 +24,8 @@
 
 #include "WFTConnection.h"
 
+const std::string WFTConnection::CLASS = "WFTConnection";
+
 WFTConnection::WFTConnection( int retry ) :
                 FtConnection::FtConnection( retry )
 {

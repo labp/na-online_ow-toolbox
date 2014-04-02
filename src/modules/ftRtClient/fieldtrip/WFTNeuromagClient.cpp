@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <cmath>
+#include <sstream>
 
 #include <boost/foreach.hpp>
 
@@ -35,7 +36,7 @@
 #include "dataTypes/WFTChunk.h"
 #include "WFTNeuromagClient.h"
 
-const std::string WFTNeuromagClient::CLASS = "WFTClientStreaming";
+const std::string WFTNeuromagClient::CLASS = "WFTNeuromagClient";
 
 WFTNeuromagClient::WFTNeuromagClient()
 {
@@ -101,14 +102,9 @@ bool WFTNeuromagClient::createEMM( WLEMMeasurement& emm )
     ScalarT *dataSrc;
     SimpleStorage floatStore;
 
-    //wlog::debug( CLASS ) << "Test for convert (used Type in Openwalnut: " << typeid(ScalarT).name() << ")";
-
     // convert data to the used floating point number format
     if( m_ftData->needDataToConvert< ScalarT >() )
     {
-        //wlog::debug( CLASS ) << "Data has to convert in: " << typeid(ScalarT).name();
-        //wlog::debug( CLASS ) << "sizeof(ScalarT) = " << sizeof(ScalarT);
-
         floatStore.resize( sizeof(ScalarT) * samps * chans );
         dataSrc = ( ScalarT * )floatStore.data();
 
@@ -116,8 +112,6 @@ bool WFTNeuromagClient::createEMM( WLEMMeasurement& emm )
     }
     else // data arrived in the right format
     {
-        //wlog::debug( CLASS ) << "Data does not need to convert, because: " << typeid(ScalarT).name();
-
         dataSrc = ( ScalarT * )m_ftData->getData();
     }
 
@@ -126,7 +120,7 @@ bool WFTNeuromagClient::createEMM( WLEMMeasurement& emm )
     WLEMData::DataSPtr dataPtr( new WLEMData::DataT( chans, samps ) ); // create data matrix
     WLEMData::DataT& data = *dataPtr;
 
-    modality->setSampFreq(m_ftHeader->getHeaderDef().fsample);
+    modality->setSampFreq( m_ftHeader->getHeaderDef().fsample );
 
     // insert value into the matrix
     for( int i = 0; i < samps; ++i ) // iterate all samples
@@ -142,15 +136,11 @@ bool WFTNeuromagClient::createEMM( WLEMMeasurement& emm )
 #ifdef LABP_FLOAT_COMPUTATION
             if( isnanf( x ) || isinff( x ) )
             {
-                //wlog::debug( CLASS ) << "Float NoN";
-
                 return false;
             }
 #else
             if( isnan( x ) || isinf( x ) )
             {
-                //wlog::debug( CLASS ) << "Double NoN";
-
                 return false;
             }
 #endif  // LABP_FLOAT_COMPUTATION
@@ -163,8 +153,6 @@ bool WFTNeuromagClient::createEMM( WLEMMeasurement& emm )
 
     modality->setData( dataPtr );
     emm.addModality( modality );
-
-    //wlog::debug( CLASS ) << "EMM creation successful";
 
     return true;
 }
@@ -183,45 +171,11 @@ void WFTNeuromagClient::printChunks()
 
     BOOST_FOREACH(WFTChunk::SPtr chunk, *m_ftHeader->getChunks())
     {
-        wlog::debug( CLASS ) << "Chunk [" << WLEFTChunkType::name( chunk->getType() ) << "]:";
+        std::string str;
+        str += "Chunk [Type=" + WLEFTChunkType::name( chunk->getType() ) + "]: " + chunk->getDataString();
 
-        switch( chunk->getType() )
-        {
-            case WLEFTChunkType::FT_CHUNK_CHANNEL_NAMES:
-                wlog::debug( CLASS ) << chunk->getDataString();
-                break;
-            case WLEFTChunkType::FT_CHUNK_CHANNEL_FLAGS:
-                wlog::debug( CLASS ) << chunk->getDataString();
-                break;
-            case WLEFTChunkType::FT_CHUNK_RESOLUTIONS:
-                wlog::debug( CLASS ) << chunk->getDataString();
-                break;
-            case WLEFTChunkType::FT_CHUNK_ASCII_KEYVAL:
-                wlog::debug( CLASS ) << chunk->getDataString();
-                break;
-            case WLEFTChunkType::FT_CHUNK_NIFTI1:
-                wlog::debug( CLASS ) << "NIFTI-1 file.";
-                break;
-            case WLEFTChunkType::FT_CHUNK_SIEMENS_AP:
-                wlog::debug( CLASS ) << chunk->getDataString();
-                break;
-            case WLEFTChunkType::FT_CHUNK_CTF_RES4:
-                wlog::debug( CLASS ) << "CTF .res4 file.";
-                break;
-            case WLEFTChunkType::FT_CHUNK_NEUROMAG_ISOTRAK:
-                wlog::debug( CLASS ) << "Neuromag Isotrak .fif file.";
-                break;
-            case WLEFTChunkType::FT_CHUNK_NEUROMAG_HEADER:
-                wlog::debug( CLASS ) << "Neuromag header .fif file.";
-                break;
-            case WLEFTChunkType::FT_CHUNK_NEUROMAG_HPIRESULT:
-                wlog::debug( CLASS ) << "Neuromag HPI result .fif file.";
-                break;
-            default:
-                break;
-        }
+        wlog::debug( CLASS ) << str;
     }
-
 }
 
 bool WFTNeuromagClient::prepareStreaming()

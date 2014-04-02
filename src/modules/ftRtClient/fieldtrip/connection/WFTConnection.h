@@ -43,6 +43,11 @@ public:
     typedef boost::shared_ptr< WFTConnection > SPtr;
 
     /**
+     * The class name.
+     */
+    static const std::string CLASS;
+
+    /**
      * Creates a connection object with a number of retries in case of fail while connecting.
      *
      * @param retry The number of retries.
@@ -100,5 +105,13 @@ public:
      */
     FtConnection::getSocket;
 };
+
+inline std::ostream& operator<<( std::ostream& str, const WFTConnection& connection )
+{
+    str << WFTConnection::CLASS << ":";
+    str << " Connection String: " << connection.getConnectionString();
+
+    return str;
+}
 
 #endif /* WFTCONNECTION_H_ */

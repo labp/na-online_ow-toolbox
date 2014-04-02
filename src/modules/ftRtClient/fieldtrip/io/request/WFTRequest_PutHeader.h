@@ -25,12 +25,19 @@
 #ifndef WFTREQUEST_PUTHEADER_H_
 #define WFTREQUEST_PUTHEADER_H_
 
+#include <boost/shared_ptr.hpp>
+
 #include "modules/ftRtClient/fieldtrip/dataTypes/WFTChunk.h"
 #include "WFTRequest.h"
 
 class WFTRequest_PutHeader: public WFTRequest
 {
 public:
+
+    /**
+     * A pointer on a WFTRequest_PutHeader.
+     */
+    typedef boost::shared_ptr< WFTRequest_PutHeader > SPtr;
 
     WFTRequest_PutHeader( UINT32_T numChannels, UINT32_T dataType, float fsample );
 

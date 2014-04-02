@@ -120,6 +120,21 @@ namespace WLEFTChunkType
     std::string name( Enum val );
 
     /**
+     * Returns a container with all printable chunks.
+     *
+     * @return A value container.
+     */
+    ContainerT valuesPrintable();
+
+    /**
+     * Gets whether the chunk type is a printable chunk.
+     *
+     * @param val The chunk type.
+     * @return Returns true if the chunk is printbale, else false.
+     */
+    bool isPrintable( Enum val );
+
+    /**
      * Overrides the concatenation operator for console outputs.
      *
      * @param strm
@@ -129,6 +144,13 @@ namespace WLEFTChunkType
     std::ostream& operator<<( std::ostream &strm, const WLEFTChunkType::Enum& obj );
 
 } /* namespace WLEFTChunkType */
+
+inline bool WLEFTChunkType::isPrintable( Enum val )
+{
+    return val == WLEFTChunkType::FT_CHUNK_CHANNEL_NAMES || val == WLEFTChunkType::FT_CHUNK_CHANNEL_FLAGS
+                    || val == WLEFTChunkType::FT_CHUNK_RESOLUTIONS || val == WLEFTChunkType::FT_CHUNK_ASCII_KEYVAL
+                    || val == WLEFTChunkType::FT_CHUNK_SIEMENS_AP;
+}
 
 inline std::ostream& WLEFTChunkType::operator<<( std::ostream &strm, const WLEFTChunkType::Enum& obj )
 {
