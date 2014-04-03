@@ -32,6 +32,7 @@
 #include <FtBuffer.h>
 
 #include "modules/ftRtClient/fieldtrip/dataTypes/WFTObject.h"
+#include "modules/ftRtClient/fieldtrip/dataTypes/WLEFTCommand.h"
 
 /**
  * Wrapper class for a response created through a FieldTrip request.
@@ -49,7 +50,7 @@ public:
 
     typedef boost::shared_ptr< const message_t > WFTMessageT_ConstSPtr;
 
-    friend std::ostream& operator<<(std::ostream &strm, const WFTResponse &response);
+    friend std::ostream& operator<<( std::ostream &strm, const WFTResponse &response );
 
     /**
      * This method tests the arrived data for mistakes. It should be called before getting any data for the response.
@@ -70,11 +71,11 @@ protected:
     FtBufferResponse::m_response;
 };
 
-inline std::ostream& operator<<(std::ostream &strm, const WFTResponse &response)
+inline std::ostream& operator<<( std::ostream &strm, const WFTResponse &response )
 {
     strm << WFTResponse::CLASS << ": ";
     strm << "Version: " << response.m_response->def->version;
-    strm << ", Command: " << response.m_response->def->command;
+    strm << ", Command: " << WLEFTCommand::name( ( WLEFTCommand::Enum )response.m_response->def->command );
     strm << ", Buffersize: " << response.m_response->def->bufsize;
 
     return strm;

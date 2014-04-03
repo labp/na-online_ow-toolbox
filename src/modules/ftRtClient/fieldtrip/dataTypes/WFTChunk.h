@@ -139,6 +139,7 @@ inline std::ostream& operator<<( std::ostream& str, const WFTChunk& chunk )
     str << WFTChunk::CLASS << ":";
     str << " Type: " << chunk.getType();
     str << ", Size: " << chunk.getDef().size;
+    str << ", Value: " << chunk.getDataString();
 
     return str;
 }

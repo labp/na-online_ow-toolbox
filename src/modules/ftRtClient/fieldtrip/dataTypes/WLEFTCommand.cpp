@@ -30,68 +30,68 @@ WLEFTCommand::ContainerT WLEFTCommand::values()
 {
     ContainerT commands;
     commands.insert( WLEFTCommand::UNSPECIFIED );
-    commands.insert( WLEFTCommand::PUT_HDR );
-    commands.insert( WLEFTCommand::PUT_DAT );
-    commands.insert( WLEFTCommand::PUT_EVT );
-    commands.insert( WLEFTCommand::PUT_OK );
-    commands.insert( WLEFTCommand::PUT_ERR );
-    commands.insert( WLEFTCommand::GET_HDR );
-    commands.insert( WLEFTCommand::GET_DAT );
-    commands.insert( WLEFTCommand::GET_EVT );
-    commands.insert( WLEFTCommand::GET_OK );
-    commands.insert( WLEFTCommand::GET_ERR );
-    commands.insert( WLEFTCommand::FLUSH_HDR );
-    commands.insert( WLEFTCommand::FLUSH_DAT );
-    commands.insert( WLEFTCommand::FLUSH_EVT );
-    commands.insert( WLEFTCommand::FLUSH_OK );
-    commands.insert( WLEFTCommand::FLUSH_ERR );
-    commands.insert( WLEFTCommand::WAIT_DAT );
-    commands.insert( WLEFTCommand::WAIT_OK );
-    commands.insert( WLEFTCommand::WAIT_ERR );
+    commands.insert( WLEFTCommand::PUTHDR );
+    commands.insert( WLEFTCommand::PUTDAT );
+    commands.insert( WLEFTCommand::PUTEVT );
+    commands.insert( WLEFTCommand::PUTOK );
+    commands.insert( WLEFTCommand::PUTERR );
+    commands.insert( WLEFTCommand::GETHDR );
+    commands.insert( WLEFTCommand::GETDAT );
+    commands.insert( WLEFTCommand::GETEVT );
+    commands.insert( WLEFTCommand::GETOK );
+    commands.insert( WLEFTCommand::GETERR );
+    commands.insert( WLEFTCommand::FLUSHHDR );
+    commands.insert( WLEFTCommand::FLUSHDAT );
+    commands.insert( WLEFTCommand::FLUSHEVT );
+    commands.insert( WLEFTCommand::FLUSHOK );
+    commands.insert( WLEFTCommand::FLUSHERR );
+    commands.insert( WLEFTCommand::WAITDAT );
+    commands.insert( WLEFTCommand::WAITOK );
+    commands.insert( WLEFTCommand::WAITERR );
     return commands;
 }
 
-inline std::string WLEFTCommand::name( Enum val )
+std::string WLEFTCommand::name( WLEFTCommand::Enum val )
 {
     switch( val )
     {
         case WLEFTCommand::UNSPECIFIED:
             return "Unspecified";
-        case WLEFTCommand::PUT_HDR:
+        case WLEFTCommand::PUTHDR:
             return "Put Header";
-        case WLEFTCommand::PUT_DAT:
+        case WLEFTCommand::PUTDAT:
             return "Put Data";
-        case WLEFTCommand::PUT_EVT:
+        case WLEFTCommand::PUTEVT:
             return "Put Events";
-        case WLEFTCommand::PUT_OK:
+        case WLEFTCommand::PUTOK:
             return "Put OK";
-        case WLEFTCommand::PUT_ERR:
+        case WLEFTCommand::PUTERR:
             return "Put Error";
-        case WLEFTCommand::GET_HDR:
+        case WLEFTCommand::GETHDR:
             return "Get Header";
-        case WLEFTCommand::GET_DAT:
+        case WLEFTCommand::GETDAT:
             return "Get Data";
-        case WLEFTCommand::GET_EVT:
+        case WLEFTCommand::GETEVT:
             return "Get Events";
-        case WLEFTCommand::GET_OK:
+        case WLEFTCommand::GETOK:
             return "Get OK";
-        case WLEFTCommand::GET_ERR:
+        case WLEFTCommand::GETERR:
             return "Get Error";
-        case WLEFTCommand::FLUSH_HDR:
+        case WLEFTCommand::FLUSHHDR:
             return "Flush Header";
-        case WLEFTCommand::FLUSH_DAT:
+        case WLEFTCommand::FLUSHDAT:
             return "Flush Data";
-        case WLEFTCommand::FLUSH_EVT:
+        case WLEFTCommand::FLUSHEVT:
             return "Flush Events";
-        case WLEFTCommand::FLUSH_OK:
+        case WLEFTCommand::FLUSHOK:
             return "Flush OK";
-        case WLEFTCommand::FLUSH_ERR:
+        case WLEFTCommand::FLUSHERR:
             return "Flush Error";
-        case WLEFTCommand::WAIT_DAT:
+        case WLEFTCommand::WAITDAT:
             return "Wait Data";
-        case WLEFTCommand::WAIT_OK:
+        case WLEFTCommand::WAITOK:
             return "Wait OK";
-        case WLEFTCommand::WAIT_ERR:
+        case WLEFTCommand::WAITERR:
             return "Wait Error";
         default:
             WAssert( false, "Unknown WLEFTCommand!" );

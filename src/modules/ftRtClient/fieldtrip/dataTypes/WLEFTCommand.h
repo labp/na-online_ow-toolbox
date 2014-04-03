@@ -44,92 +44,92 @@ namespace WLEFTCommand
         /**
          * Put header.
          */
-        PUT_HDR = 257,  //!< PUT_HDR
+        PUTHDR = 257,  //!< PUT_HDR
 
         /**
          * Put data.
          */
-        PUT_DAT = 258,  //!< PUT_DAT
+        PUTDAT = 258,  //!< PUT_DAT
 
         /**
          * Put events.
          */
-        PUT_EVT = 259,  //!< PUT_EVT
+        PUTEVT = 259,  //!< PUT_EVT
 
         /**
          * Put successful.
          */
-        PUT_OK = 260,   //!< PUT_OK
+        PUTOK = 260,   //!< PUT_OK
 
         /**
          * Put failed.
          */
-        PUT_ERR = 261,  //!< PUT_ERR
+        PUTERR = 261,  //!< PUT_ERR
 
         /**
          * Get header.
          */
-        GET_HDR = 513,  //!< GET_HDR
+        GETHDR = 513,  //!< GET_HDR
 
         /**
          * Get data.
          */
-        GET_DAT = 514,  //!< GET_DAT
+        GETDAT = 514,  //!< GET_DAT
 
         /**
          * Get events.
          */
-        GET_EVT = 515,  //!< GET_EVT
+        GETEVT = 515,  //!< GET_EVT
 
         /**
          * Get successful.
          */
-        GET_OK = 516,   //!< GET_OK
+        GETOK = 516,   //!< GET_OK
 
         /**
          * Get failed.
          */
-        GET_ERR = 517,  //!< GET_ERR
+        GETERR = 517,  //!< GET_ERR
 
         /**
          * Flush all (header + data + events).
          */
-        FLUSH_HDR = 769,  //!< FLUSH_HDR
+        FLUSHHDR = 769,  //!< FLUSH_HDR
 
         /**
          * Flush data.
          */
-        FLUSH_DAT = 770,  //!< FLUSH_DAT
+        FLUSHDAT = 770,  //!< FLUSH_DAT
 
         /**
          * Flush events.
          */
-        FLUSH_EVT = 771,  //!< FLUSH_EVT
+        FLUSHEVT = 771,  //!< FLUSH_EVT
 
         /**
          * Flush successful.
          */
-        FLUSH_OK = 772, //!< FLUSH_OK
+        FLUSHOK = 772, //!< FLUSH_OK
 
         /**
          * Flush failed.
          */
-        FLUSH_ERR = 773, //!< FLUSH_ERR
+        FLUSHERR = 773, //!< FLUSH_ERR
 
         /**
          * Wait for data & events.
          */
-        WAIT_DAT = 1026, //!< WAIT_DAT
+        WAITDAT = 1026, //!< WAIT_DAT
 
         /**
          * Wait successful.
          */
-        WAIT_OK = 1027, //!< WAIT_OK
+        WAITOK = 1027, //!< WAIT_OK
 
         /**
          * Wait failed.
          */
-        WAIT_ERR = 1028 //!< WAIT_ERR
+        WAITERR = 1028 //!< WAIT_ERR
     };
 
     /**

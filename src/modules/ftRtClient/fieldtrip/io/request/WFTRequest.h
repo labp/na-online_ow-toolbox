@@ -32,6 +32,7 @@
 #include <FtBuffer.h>
 
 #include "modules/ftRtClient/fieldtrip/dataTypes/WFTObject.h"
+#include "modules/ftRtClient/fieldtrip/dataTypes/WLEFTCommand.h"
 
 /**
  * The WFTRequest class represents a basic FieldTrip request. It adapts the FieldTrip Buffer Request and can be used to
@@ -46,8 +47,7 @@ public:
      */
     typedef boost::shared_ptr< WFTRequest > SPtr;
 
-
-    friend std::ostream& operator<<(std::ostream &strm, const WFTRequest &request);
+    friend std::ostream& operator<<( std::ostream &strm, const WFTRequest &request );
 
     /**
      * Creates a new WFTRequest.
@@ -89,12 +89,12 @@ public:
 
 };
 
-inline std::ostream& operator<<(std::ostream &strm, const WFTRequest &request)
+inline std::ostream& operator<<( std::ostream &strm, const WFTRequest &request )
 {
     strm << "WFTRequest: ";
     strm << "Version: " << request.m_def.version;
-    strm << ", Command: " << request.m_def.command;
-    strm << ", Buffersize: " << request.m_def.bufsize;
+    strm << ", Command: " << WLEFTCommand::name( ( WLEFTCommand::Enum )request.m_def.command );
+    strm << ", Buffer Size: " << request.m_def.bufsize;
 
     return strm;
 }
