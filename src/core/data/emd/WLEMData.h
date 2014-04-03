@@ -36,8 +36,6 @@
 
 #include <Eigen/Core>
 
-#include <core/common/WDefines.h>
-
 #include "core/container/WLArrayList.h"
 #include "core/data/WLDataTypes.h"
 #include "core/data/enum/WLECoordSystem.h"
@@ -47,6 +45,8 @@
 
 /**
  * Class for general modality. Saves information which are present for all modalities.
+ *
+ * \authors kaehler, pieloth, maschke
  */
 class WLEMData: public boost::enable_shared_from_this< WLEMData >
 {
@@ -97,21 +97,26 @@ public:
     typedef boost::shared_ptr< const DataT > DataConstSPtr;
 
     /**
-     * TODO(kaehler): Comments
+     * Constructor
      */
     WLEMData();
 
+    /**
+     * Constructor, sets data from input instance.
+     *
+     * \param emd Adopts the attributes from this instance, but not the "raw" data.
+     */
     explicit WLEMData( const WLEMData& emd );
 
     /**
-     * TODO(kaehler): Comments
+     * Destructor
      */
     virtual ~WLEMData();
 
     /**
      * Cast to EMD if possible. Check modality type with getModalityType()!
      *
-     * @return Shared Pointer< EMD >
+     * \return Shared Pointer< EMD >
      */
     template< typename EMD >
     boost::shared_ptr< EMD > getAs()
@@ -122,7 +127,7 @@ public:
     /**
      * Cast to EMD if possible. Check modality type with getModalityType()!
      *
-     * @return Shared Pointer< const EMD >
+     * \return Shared Pointer< const EMD >
      */
     template< typename EMD >
     boost::shared_ptr< const EMD > getAs() const
@@ -131,7 +136,9 @@ public:
     }
 
     /**
-     * TODO(kaehler): Comments
+     * Clones this instance without copying the "raw" data.
+     *
+     * \return A copy of this instance, except the "raw" data.
      */
     virtual WLEMData::SPtr clone() const = 0;
 
@@ -141,131 +148,195 @@ public:
     virtual DataT& getData() const;
 
     /**
-     * Returns the data without the bad channels. NOTE: The method does not modify any object data, but data may modified indirectly!
+     * Returns the data without the bad channels.
+     * NOTE: The method does not modify any object data, but data may modified indirectly!
      *
-     * @return The data.
+     * \return The data.
      */
     virtual DataSPtr getDataBadChannels() const;
 
     /**
-     * Returns the data without the bad channels. NOTE: The method does not modify any object data, but data may modified indirectly!
+     * Returns the data without the bad channels.
+     * NOTE: The method does not modify any object data, but data may modified indirectly!
      *
-     * @return The data.
+     * \return The data.
      */
     virtual DataSPtr getDataBadChannels( ChannelListSPtr badChans ) const;
 
     /**
-     * TODO(kaehler): Comments
+     * Sets the data.
+     *
+     * \param data Data to set.
      */
     virtual void setData( DataSPtr data );
 
     /**
-     * TODO(kaehler): Comments
+     * Gets the highpass frequency.
+     *
+     * \return Frequency in Hz
      */
     WLFreqT getAnalogHighPass() const;
 
     /**
-     * TODO(kaehler): Comments
+     * Sets the highpass frequency.
+     *
+     * \param analogHighPass Frequency in Hz
+     */
+    void setAnalogHighPass( WLFreqT analogHighPass );
+
+    /**
+     * Gets the lowpass frequency.
+     *
+     * \return Frequency in Hz
      */
     WLFreqT getAnalogLowPass() const;
 
+    /**
+     * Sets the lowpass frequency.
+     *
+     * \param analogLowPass Frequency in Hz
+     */
+    void setAnalogLowPass( WLFreqT analogLowPass );
+
+    /**
+     * Gets the channel names.
+     *
+     * \return Channel names.
+     */
     WLArrayList< std::string >::SPtr getChanNames();
 
+    /**
+     * Gets the channel names.
+     *
+     * \return Channel names.
+     */
     WLArrayList< std::string >::ConstSPtr getChanNames() const;
 
+    /**
+     * Sets the channel names.
+     *
+     * \param chanNames Names to set.
+     */
+    void setChanNames( WLArrayList< std::string >::SPtr chanNames );
+
+    /**
+     * Gets the unit of the data.
+     *
+     * \return Unit
+     */
     WLEUnit::Enum getChanUnit() const;
 
+    /**
+     * Gets the exponent of the data.
+     *
+     * \return Exponent
+     */
     WLEExponent::Enum getChanUnitExp() const;
 
+    /**
+     * Sets the exponent of the data.
+     *
+     * \param chanUnitExp Exponent to set
+     */
+    void setChanUnitExp( WLEExponent::Enum chanUnitExp );
+
+    /**
+     * Sets the unit of the data.
+     *
+     * \param chanUnit Unit to set
+     */
+    void setChanUnit( WLEUnit::Enum chanUnit );
+
+    /**
+     * Gets the coordinate system.
+     *
+     * \return Coordinate system
+     */
     WLECoordSystem::Enum getCoordSystem() const;
 
     /**
-     * TODO(kaehler): Comments
+     * Sets the coordinate system.
+     *
+     * \param coordSystem Coordinate system to set
+     */
+    void setCoordSystem( WLECoordSystem::Enum coordSystem );
+
+    /**
+     * Gets the line frequency.
+     *
+     * \return Frequency in Hz
      */
     WLFreqT getLineFreq() const;
 
     /**
-     * TODO(kaehler): Comments
+     * Sets the line frequency.
+     *
+     * \param lineFreq Frequency in Hz
+     */
+    void setLineFreq( WLFreqT lineFreq );
+
+    /**
+     * Gets the name of the measurement device.
+     *
+     * \return name of measurement device
      */
     std::string getMeasurementDeviceName() const;
 
     /**
-     * TODO(kaehler): Comments
+     * Set the name of the measurement device.
+     *
+     * \param measurementDeviceName Name of the measurement device
+     */
+    void setMeasurementDeviceName( std::string measurementDeviceName );
+
+    /**
+     * Gets the modality type of this instance.
+     *
+     * \return modality type
      */
     virtual WLEModality::Enum getModalityType() const = 0;
 
     /**
-     * TODO(kaehler): Comments
+     * Gets the number of channels (dimension 1).
+     *
+     * \return Number of channels
      */
     virtual WLChanNrT getNrChans() const;
 
+    /**
+     * Gets the samples of a channel for this block (dimension 2).
+     *
+     * \return Number of Samples
+     */
     virtual WLSampleNrT getSamplesPerChan() const;
 
     /**
      * Returns the bad channel list.
      *
-     * @return Bad channel list.
+     * \return Bad channel list.
      */
     virtual ChannelListSPtr getBadChannels() const;
 
     /**
      * Returns sampling frequency in Hz.
      *
-     * @return sampling frequency in Hz
+     * \return sampling frequency in Hz
      */
     WLFreqT getSampFreq() const;
 
     /**
-     * Returns the data length in seconds using samples and frequency.
+     * Sets the sampling frequency.
      *
-     * @return data length in seconds.
-     */
-    WLTimeT getLength() const;
-
-    /**
-     * TODO(kaehler): Comments
-     */
-    void setAnalogHighPass( WLFreqT analogHighPass );
-
-    /**
-     * TODO(kaehler): Comments
-     */
-    void setAnalogLowPass( WLFreqT analogLowPass );
-
-    void setChanNames( WLArrayList< std::string >::SPtr chanNames );
-
-    OW_API_DEPRECATED
-    void setChanNames( boost::shared_ptr< std::vector< std::string > > chanNames );
-
-    /**
-     * TODO(kaehler): Comments
-     */
-    void setChanUnit( WLEUnit::Enum chanUnit );
-
-    /**
-     * TODO(kaehler): Comments
-     */
-    void setChanUnitExp( WLEExponent::Enum chanUnitExp );
-
-    /**
-     * TODO(kaehler): Comments
-     */
-    void setCoordSystem( WLECoordSystem::Enum coordSystem );
-
-    /**
-     * TODO(kaehler): Comments
-     */
-    void setLineFreq( WLFreqT lineFreq );
-
-    /**
-     * TODO(kaehler): Comments
-     */
-    void setMeasurementDeviceName( std::string measurementDeviceName );
-
-    /**
-     * TODO(kaehler): Comments
+     * \param sampFreq Frequency in Hz
      */
     void setSampFreq( WLFreqT sampFreq );
+
+    /**
+     * Returns the data length in seconds using samples and frequency.
+     *
+     * \return data length in seconds.
+     */
+    WLTimeT getLength() const;
 
     void setBadChannels( ChannelListSPtr badChannels );
 
@@ -276,8 +347,8 @@ public:
     /**
      * Returns true if the channel number is listed in the bad channel list.
      *
-     * @param channelNo The channel number.
-     * @return True / false.
+     * \param channelNo The channel number.
+     * \return True / false.
      */
     bool isBadChannel( size_t channelNo ) const;
 
