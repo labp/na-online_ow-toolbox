@@ -48,6 +48,7 @@
 #include "core/data/emd/WLEMDEEG.h"
 #include "core/data/emd/WLEMDEOG.h"
 #include "core/data/emd/WLEMDMEG.h"
+#include "core/data/emd/WLEMDRaw.h"
 #include "core/data/enum/WLEModality.h"
 
 #include "core/dataFormat/fiff/WLFiffChType.h"
@@ -82,14 +83,14 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
     out->setSubject( subject_out );
 
     // Create temporary EMMEMD
-    WLEMDEEG::SPtr dummy( new WLEMDEEG() );
+    WLEMDRaw::SPtr emdRaw( new WLEMDRaw() );
     LFMeasurementInfo& measinfo_in = data.GetLFMeasurement().GetLFMeasurementInfo();
     WLFiffLib::nchan_t nChannels = measinfo_in.GetNumberOfChannels();
     wlog::debug( CLASS ) << "Channels: " << nChannels;
-    dummy->setSampFreq( measinfo_in.GetSamplingFrequency() );
-    dummy->setAnalogHighPass( measinfo_in.GetHighpass() );
-    dummy->setAnalogLowPass( measinfo_in.GetLowpass() );
-    dummy->setLineFreq( measinfo_in.GetLineFreq() );
+    emdRaw->setSampFreq( measinfo_in.GetSamplingFrequency() );
+    emdRaw->setAnalogHighPass( measinfo_in.GetHighpass() );
+    emdRaw->setAnalogLowPass( measinfo_in.GetLowpass() );
+    emdRaw->setLineFreq( measinfo_in.GetLineFreq() );
 
     // Read Isotrak
     LFIsotrak& isotrak = measinfo_in.GetLFIsotrak();
@@ -156,7 +157,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
     }
 
     WLEMData::DataSPtr rawdatabuffers_out_ptr( new WLEMData::DataT( rawdatabuffers_out ) );
-    dummy->setData( rawdatabuffers_out_ptr );
+    emdRaw->setData( rawdatabuffers_out_ptr );
 
     // Collect available modalities and coils
     std::set< WLFiffLib::ch_type_t > modalities;
@@ -215,7 +216,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
 
         size_t modChan = 0;
         WLEMData::DataT dataTmp( rawdatabuffers_out_ptr->rows(), rawdatabuffers_out_ptr->cols() );
-        for( WLFiffLib::nchan_t chan = 0; chan < dummy->getNrChans(); ++chan )
+        for( WLFiffLib::nchan_t chan = 0; chan < emdRaw->getNrChans(); ++chan )
         {
             if( measinfo_in.GetLFChannelInfo()[chan]->GetKind() == mod )
             {
@@ -260,7 +261,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
                 }
 
                 // Collect general data
-                dataTmp.row( modChan++ ) = ( dummy->getData().row( chan ) );
+                dataTmp.row( modChan++ ) = ( emdRaw->getData().row( chan ) );
                 fiffUnit = static_cast< WLFiffLib::unit_t >( measinfo_in.GetLFChannelInfo()[chan]->GetUnit() );
                 fiffUnitMul = static_cast< WLFiffLib::unitm_t >( measinfo_in.GetLFChannelInfo()[chan]->GetUnitMul() );
             }
@@ -269,10 +270,10 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
         WLEMData::DataSPtr data( new WLEMData::DataT( dataTmp.block( 0, 0, modChan, dataTmp.cols() ) ) );
 
         // Set general data
-        emd->setSampFreq( dummy->getSampFreq() );
-        emd->setAnalogHighPass( dummy->getAnalogHighPass() );
-        emd->setAnalogLowPass( dummy->getAnalogLowPass() );
-        emd->setLineFreq( dummy->getLineFreq() );
+        emd->setSampFreq( emdRaw->getSampFreq() );
+        emd->setAnalogHighPass( emdRaw->getAnalogHighPass() );
+        emd->setAnalogLowPass( emdRaw->getAnalogLowPass() );
+        emd->setLineFreq( emdRaw->getLineFreq() );
 
         // scaleFactor was multiplied, so data is in unit_mul - see FIFF spec. 1.3, Table A.3, p. 28)
         emd->setChanUnitExp( WLEExponent::fromFIFF( fiffUnitMul ) );
@@ -315,7 +316,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
     {
         wlog::debug( CLASS ) << "Event channel: " << *chan;
         eventData_out = WLEMMeasurement::EChannelT();
-        eventData_in = dummy->getData().row( *chan - 1 ); // TODO LFEvents counts from 1 ?
+        eventData_in = emdRaw->getData().row( *chan - 1 ); // TODO LFEvents counts from 1 ?
         for( size_t i = 0; i < eventData_in.size(); ++i )
             eventData_out.push_back( ( WLEMMeasurement::EventT )eventData_in( i ) );
         out->addEventChannel( eventData_out );
