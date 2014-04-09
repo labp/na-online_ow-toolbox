@@ -29,15 +29,15 @@
 
 #include "core/common/WLogger.h"
 
-#include "io/request/WFTRequest.h"
-#include "io/request/WFTRequest_GetData.h"
-#include "io/request/WFTRequest_GetEvent.h"
-#include "io/request/WFTRequest_GetHeader.h"
-#include "io/request/WFTRequest_WaitData.h"
-#include "io/response/WFTResponse.h"
-#include "dataTypes/WFTHeader.h"
-#include "dataTypes/WFTChunk.h"
-#include "WFTEventIterator.h"
+#include "modules/ftRtClient/fieldtrip/io/request/WFTRequest.h"
+#include "modules/ftRtClient/fieldtrip/io/request/WFTRequest_GetData.h"
+#include "modules/ftRtClient/fieldtrip/io/request/WFTRequest_GetEvent.h"
+#include "modules/ftRtClient/fieldtrip/io/request/WFTRequest_GetHeader.h"
+#include "modules/ftRtClient/fieldtrip/io/request/WFTRequest_WaitData.h"
+#include "modules/ftRtClient/fieldtrip/io/response/WFTResponse.h"
+#include "modules/ftRtClient/fieldtrip/dataTypes/WFTHeader.h"
+#include "modules/ftRtClient/fieldtrip/dataTypes/WFTChunk.h"
+#include "modules/ftRtClient/fieldtrip/WFTEventIterator.h"
 #include "WFTRtClient.h"
 
 const std::string WFTRtClient::CLASS = "WFTRtClient";

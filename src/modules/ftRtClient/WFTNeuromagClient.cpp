@@ -31,9 +31,9 @@
 
 #include "core/data/WLDataTypes.h"
 #include "core/data/emd/WLEMData.h"
-#include "core/data/emd/WLEMDEEG.h"
+#include "core/data/emd/WLEMDRaw.h"
 
-#include "dataTypes/WFTChunk.h"
+#include "fieldtrip/dataTypes/WFTChunk.h"
 #include "WFTNeuromagClient.h"
 
 const std::string WFTNeuromagClient::CLASS = "WFTNeuromagClient";
@@ -115,7 +115,7 @@ bool WFTNeuromagClient::createEMM( WLEMMeasurement& emm )
         dataSrc = ( ScalarT * )m_ftData->getData();
     }
 
-    WLEMData::SPtr modality( new WLEMDEEG );
+    WLEMData::SPtr modality( new WLEMDRaw );
 
     WLEMData::DataSPtr dataPtr( new WLEMData::DataT( chans, samps ) ); // create data matrix
     WLEMData::DataT& data = *dataPtr;

@@ -29,7 +29,7 @@
 
 #include "core/data/WLEMMeasurement.h"
 
-#include "WFTRtClient.h"
+#include "fieldtrip/client/WFTRtClient.h"
 
 /**
  * WFTNeuromagClient represents the basic streaming client class for the Elekta/Neuromag device. It inherits the WFTRtClient class and extends them

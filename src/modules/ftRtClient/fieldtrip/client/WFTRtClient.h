@@ -31,14 +31,14 @@
 
 #include <message.h>
 
-#include "connection/WFTConnection.h"
-#include "WFTRequestBuilder.h"
-#include "dataTypes/WFTData.h"
-#include "dataTypes/WFTEventList.h"
-#include "dataTypes/WFTHeader.h"
-#include "dataTypes/WFTObject.h"
-#include "io/response/WFTResponse.h"
-#include "io/request/WFTRequest.h"
+#include "modules/ftRtClient/fieldtrip/connection/WFTConnection.h"
+#include "modules/ftRtClient/fieldtrip/dataTypes/WFTData.h"
+#include "modules/ftRtClient/fieldtrip/dataTypes/WFTEventList.h"
+#include "modules/ftRtClient/fieldtrip/dataTypes/WFTHeader.h"
+#include "modules/ftRtClient/fieldtrip/dataTypes/WFTObject.h"
+#include "modules/ftRtClient/fieldtrip/io/request/WFTRequest.h"
+#include "modules/ftRtClient/fieldtrip/io/response/WFTResponse.h"
+#include "modules/ftRtClient/fieldtrip/WFTRequestBuilder.h"
 
 /**
  * WFTRtClient is the basic client interface to FieldTrip. It provides the essential buffer operations (e.g. requests and connections).

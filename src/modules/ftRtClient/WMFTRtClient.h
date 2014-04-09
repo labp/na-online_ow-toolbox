@@ -37,7 +37,7 @@
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
 #include "fieldtrip/connection/WFTConnection.h"
-#include "fieldtrip/WFTNeuromagClient.h"
+#include "WFTNeuromagClient.h"
 
 class WMFTRtClient: public WLModuleDrawable
 {

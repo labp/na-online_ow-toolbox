@@ -42,8 +42,7 @@
 
 #include "core/util/profiler/WLTimeProfiler.h"
 
-#include "fieldtrip/WFTRtClient.h"
-#include "fieldtrip/WFTNeuromagClient.h"
+#include "WFTNeuromagClient.h"
 #include "fieldtrip/connection/WFTConnectionTCP.h"
 #include "fieldtrip/connection/WFTConnectionUnix.h"
 #include "fieldtrip/dataTypes/WLEFTDataType.h"
