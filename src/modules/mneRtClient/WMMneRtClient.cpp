@@ -443,6 +443,9 @@ void WMMneRtClient::handleTrgConnectorChanged()
 bool WMMneRtClient::handleLfFileChanged( std::string fName, WLMatrix::SPtr& lf )
 {
     debugLog() << "handleLfFileChanged()";
+
+    WProgress::SPtr progress( new WProgress( "Reading Leadfield" ) );
+    m_progress->addSubProgress( progress );
     m_additionalStatus->set( DATA_LOADING, true );
 
     WLReaderLeadfield::SPtr reader;
@@ -453,18 +456,24 @@ bool WMMneRtClient::handleLfFileChanged( std::string fName, WLMatrix::SPtr& lf )
     catch( const WDHNoSuchFile& e )
     {
         errorLog() << "File does not exist: " << fName;
+        progress->finish();
+        m_progress->removeSubProgress( progress );
         return false;
     }
 
     if( reader->read( lf ) == WLIOStatus::SUCCESS )
     {
         m_additionalStatus->set( DATA_LOADED, true );
+        progress->finish();
+        m_progress->removeSubProgress( progress );
         return true;
     }
     else
     {
-        m_additionalStatus->set( DATA_ERROR, true );
         errorLog() << "Could not read leadfield!";
+        m_additionalStatus->set( DATA_ERROR, true );
+        progress->finish();
+        m_progress->removeSubProgress( progress );
         return false;
     }
 }
@@ -473,7 +482,10 @@ bool WMMneRtClient::handleSurfaceFileChanged( std::string fName )
 {
     debugLog() << "handleSurfaceFileChanged()";
 
+    WProgress::SPtr progress( new WProgress( "Reading Surface" ) );
+    m_progress->addSubProgress( progress );
     m_additionalStatus->set( DATA_LOADING, true );
+
     WLReaderSourceSpace::SPtr reader;
     try
     {
@@ -482,6 +494,8 @@ bool WMMneRtClient::handleSurfaceFileChanged( std::string fName )
     catch( const WDHNoSuchFile& e )
     {
         errorLog() << "File does not exist: " << fName;
+        progress->finish();
+        m_progress->removeSubProgress( progress );
         return false;
     }
 
@@ -489,12 +503,16 @@ bool WMMneRtClient::handleSurfaceFileChanged( std::string fName )
     if( reader->read( m_surface ) == WLIOStatus::SUCCESS )
     {
         m_additionalStatus->set( DATA_LOADED, true );
+        progress->finish();
+        m_progress->removeSubProgress( progress );
         return true;
     }
     else
     {
-        m_additionalStatus->set( DATA_ERROR, true );
         errorLog() << "Could not read source space!";
+        m_additionalStatus->set( DATA_ERROR, true );
+        progress->finish();
+        m_progress->removeSubProgress( progress );
         return false;
     }
 }
@@ -503,7 +521,10 @@ bool WMMneRtClient::handleBemFileChanged( std::string fName )
 {
     debugLog() << "handleBemFileChanged()";
 
+    WProgress::SPtr progress( new WProgress( "Reading BEM Layer" ) );
+    m_progress->addSubProgress( progress );
     m_additionalStatus->set( DATA_LOADING, true );
+
     WLReaderBem::SPtr reader;
     try
     {
@@ -512,20 +533,26 @@ bool WMMneRtClient::handleBemFileChanged( std::string fName )
     catch( const WDHNoSuchFile& e )
     {
         errorLog() << "File does not exist: " << fName;
+        progress->finish();
+        m_progress->removeSubProgress( progress );
         return false;
     }
 
     m_bems = WLList< WLEMMBemBoundary::SPtr >::instance();
     if( reader->read( m_bems.get() ) )
     {
-        m_additionalStatus->set( DATA_LOADED, true );
         infoLog() << "Loaded BEM layer: " << m_bems->size();
+        m_additionalStatus->set( DATA_LOADED, true );
+        progress->finish();
+        m_progress->removeSubProgress( progress );
         return true;
     }
     else
     {
-        m_additionalStatus->set( DATA_ERROR, true );
         errorLog() << "Could not read BEM layers!";
+        m_additionalStatus->set( DATA_ERROR, true );
+        progress->finish();
+        m_progress->removeSubProgress( progress );
         return false;
     }
 }
@@ -534,7 +561,10 @@ bool WMMneRtClient::handleDigPointsFileChanged( std::string fName )
 {
     debugLog() << "handleDigPointsFileChanged()";
 
+    WProgress::SPtr progress( new WProgress( "Reading Dig. Points" ) );
+    m_progress->addSubProgress( progress );
     m_additionalStatus->set( DATA_LOADING, true );
+
     WLReaderDigPoints::SPtr reader;
     try
     {
@@ -543,19 +573,25 @@ bool WMMneRtClient::handleDigPointsFileChanged( std::string fName )
     catch( const WDHNoSuchFile& e )
     {
         errorLog() << "File does not exist: " << fName;
+        progress->finish();
+        m_progress->removeSubProgress( progress );
         return false;
     }
 
     if( reader->read( &m_digPoints ) == WLReaderDigPoints::ReturnCode::SUCCESS )
     {
-        m_additionalStatus->set( DATA_LOADED, true );
         infoLog() << "Loaded dig points: " << m_digPoints.size();
+        m_additionalStatus->set( DATA_LOADED, true );
+        progress->finish();
+        m_progress->removeSubProgress( progress );
         return true;
     }
     else
     {
-        m_additionalStatus->set( DATA_ERROR, true );
         errorLog() << "Could not read dig points!";
+        m_additionalStatus->set( DATA_ERROR, true );
+        progress->finish();
+        m_progress->removeSubProgress( progress );
         return false;
     }
 }
