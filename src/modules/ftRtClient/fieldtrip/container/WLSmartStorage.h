@@ -86,6 +86,11 @@ public:
     const void *getData() const;
 
     /**
+     * Gets a pointer to the containers first byte.
+     */
+    void *getData();
+
+    /**
      * Gets the size of memory inside of the container.
      *
      * @return The size of memory.

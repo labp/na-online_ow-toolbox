@@ -47,7 +47,12 @@ std::string WLSmartStorage::toString() const
     return std::string( m_data->data(), m_data->size() );
 }
 
-const void * WLSmartStorage::getData() const
+const void *WLSmartStorage::getData() const
+{
+    return m_data->data();
+}
+
+void *WLSmartStorage::getData()
 {
     return m_data->data();
 }
