@@ -138,6 +138,8 @@ void WMLeadfieldInterpolation::moduleInit()
     m_status->set( NONE, true );
     if( m_fiffFile->changed( true ) )
     {
+        WProgress::SPtr progress( new WProgress( "Reading FIFF" ) );
+        m_progress->addSubProgress( progress );
         m_status->set( READING, true );
         if( readFiff( m_fiffFile->get().string() ) )
         {
@@ -147,10 +149,14 @@ void WMLeadfieldInterpolation::moduleInit()
         {
             m_status->set( ERROR, true );
         }
+        progress->finish();
+        m_progress->removeSubProgress( progress );
     }
 
     if( m_hdLeadfieldFile->changed( true ) )
     {
+        WProgress::SPtr progress( new WProgress( "Reading HD Leadfield" ) );
+        m_progress->addSubProgress( progress );
         m_status->set( READING, true );
         if( readHDLeadfield( m_hdLeadfieldFile->get().string() ) )
         {
@@ -160,6 +166,8 @@ void WMLeadfieldInterpolation::moduleInit()
         {
             m_status->set( ERROR, true );
         }
+        progress->finish();
+        m_progress->removeSubProgress( progress );
     }
 
     infoLog() << "Restoring module finished!";
@@ -184,6 +192,8 @@ void WMLeadfieldInterpolation::moduleMain()
 
         if( ( m_start->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED ) )
         {
+            WProgress::SPtr progress( new WProgress( "Interpolating Leadfield" ) );
+            m_progress->addSubProgress( progress );
             m_status->set( COMPUTING, true );
             if( interpolate() )
             {
@@ -193,10 +203,14 @@ void WMLeadfieldInterpolation::moduleMain()
             {
                 m_status->set( ERROR, true );
             }
+            progress->finish();
+            m_progress->removeSubProgress( progress );
         }
 
         if( m_fiffFile->changed( true ) )
         {
+            WProgress::SPtr progress( new WProgress( "Reading FIFF" ) );
+            m_progress->addSubProgress( progress );
             m_status->set( READING, true );
             if( readFiff( m_fiffFile->get().string() ) )
             {
@@ -206,10 +220,14 @@ void WMLeadfieldInterpolation::moduleMain()
             {
                 m_status->set( ERROR, true );
             }
+            progress->finish();
+            m_progress->removeSubProgress( progress );
         }
 
         if( m_hdLeadfieldFile->changed( true ) )
         {
+            WProgress::SPtr progress( new WProgress( "Reading HD Leadfield" ) );
+            m_progress->addSubProgress( progress );
             m_status->set( READING, true );
             if( readHDLeadfield( m_hdLeadfieldFile->get().string() ) )
             {
@@ -219,6 +237,8 @@ void WMLeadfieldInterpolation::moduleMain()
             {
                 m_status->set( ERROR, true );
             }
+            progress->finish();
+            m_progress->removeSubProgress( progress );
         }
 
         cmdIn.reset();

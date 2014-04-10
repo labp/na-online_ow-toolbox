@@ -305,6 +305,8 @@ void WMSourceReconstruction::handleResetTrigger()
 void WMSourceReconstruction::handleWeightingTypeChanged()
 {
     debugLog() << "handleWeightingTypeChanged() called!";
+    WProgress::SPtr progress( new WProgress( "Changing weighting type" ) );
+    m_progress->addSubProgress( progress );
 
     m_weightingStatus->set( WMSourceReconstruction::LOADING_MATRIX, true );
     WSourceReconstruction::WEWeightingCalculation::Enum type = m_weightingTypesSelection->get().at( 0 )->getAs<
@@ -323,15 +325,24 @@ void WMSourceReconstruction::handleWeightingTypeChanged()
         m_weightingCols->set( 0, true );
         m_weightingStatus->set( WMSourceReconstruction::NO_MATRIX_LOADED, true );
     }
+
+    progress->finish();
+    m_progress->removeSubProgress( progress );
 }
 
 void WMSourceReconstruction::handleSnrChanged()
 {
-    WLTimeProfiler tp( "WMSourceReconstruction", "handleSnrChanged" );
     debugLog() << "handleSnrChanged() called!";
+    WProgress::SPtr progress( new WProgress( "Changing SNR" ) );
+    m_progress->addSubProgress( progress );
+
+    WLTimeProfiler tp( "WMSourceReconstruction", "handleSnrChanged" );
+
     if( !m_nCovarianceMatrix || !m_dCovarianceMatrix )
     {
         errorLog() << "No data or noise covariance matrix available!";
+        progress->finish();
+        m_progress->removeSubProgress( progress );
         return;
     }
 
@@ -350,6 +361,9 @@ void WMSourceReconstruction::handleSnrChanged()
         m_inverseCols->set( 0, true );
         m_inverseStatus->set( WMSourceReconstruction::NO_MATRIX_LOADED, true );
     }
+
+    progress->finish();
+    m_progress->removeSubProgress( progress );
 }
 
 void WMSourceReconstruction::handleComputeModalityChanged( WLEMMCommand::ConstSPtr cmd )
@@ -361,13 +375,19 @@ void WMSourceReconstruction::handleComputeModalityChanged( WLEMMCommand::ConstSP
 
 bool WMSourceReconstruction::inverseSolutionFromSubject( WLEMMeasurement::SPtr emm, WLEModality::Enum modality )
 {
-    WLTimeProfiler tp( "WMSourceReconstruction", "inverseSolutionFromSubject" );
     debugLog() << "inverseSolutionFromSubject() called!";
+    WProgress::SPtr progress( new WProgress( "Computing inverse operator" ) );
+    m_progress->addSubProgress( progress );
+
+    WLTimeProfiler tp( "WMSourceReconstruction", "inverseSolutionFromSubject" );
+
     WLEMMSubject::SPtr subject = emm->getSubject();
     if( !subject )
     {
         m_leadfieldStatus->set( WMSourceReconstruction::NO_MATRIX_LOADED, true );
         errorLog() << "Can not compute inverse solution without subject!";
+        progress->finish();
+        m_progress->removeSubProgress( progress );
         return false;
     }
 
@@ -380,6 +400,8 @@ bool WMSourceReconstruction::inverseSolutionFromSubject( WLEMMeasurement::SPtr e
     {
         m_leadfieldStatus->set( WMSourceReconstruction::NO_MATRIX_LOADED, true );
         errorLog() << "No leadfield matrix for modality!";
+        progress->finish();
+        m_progress->removeSubProgress( progress );
         return false;
     }
 
@@ -397,6 +419,8 @@ bool WMSourceReconstruction::inverseSolutionFromSubject( WLEMMeasurement::SPtr e
     handleWeightingTypeChanged();
     handleSnrChanged();
 
+    progress->finish();
+    m_progress->removeSubProgress( progress );
     return m_sourceReconstruction->hasInverse();
 }
 

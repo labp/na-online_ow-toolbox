@@ -272,6 +272,10 @@ void WMFIRFilter::callbackCoeffFileChanged( void )
 void WMFIRFilter::handleImplementationChanged( void )
 {
     debugLog() << "handleImplementationChanged() called!";
+
+    WProgress::SPtr progress( new WProgress( "Changing FIR Filter" ) );
+    m_progress->addSubProgress( progress );
+
     WFIRFilter::WEFilterType::Enum fType = m_filterTypeSelection->get().at( 0 )->getAs<
                     WItemSelectionItemTyped< WFIRFilter::WEFilterType::Enum > >()->getValue();
     WFIRFilter::WEWindowsType::Enum wType = m_windowSelection->get().at( 0 )->getAs<
@@ -301,11 +305,17 @@ void WMFIRFilter::handleImplementationChanged( void )
 
     WLEMMCommand::SPtr labp( new WLEMMCommand( WLEMMCommand::Command::RESET ) );
     processReset( labp );
+
+    progress->finish();
+    m_progress->removeSubProgress( progress );
 }
 
 void WMFIRFilter::handleDesignButtonPressed( void )
 {
     debugLog() << "handleDesignButtonPressed() called!";
+
+    WProgress::SPtr progress( new WProgress( "Updating FIR Filter" ) );
+    m_progress->addSubProgress( progress );
 
     m_firFilter->setFilterType(
                     m_filterTypeSelection->get().at( 0 )->getAs< WItemSelectionItemTyped< WFIRFilter::WEFilterType::Enum > >()->getValue() );
@@ -320,6 +330,9 @@ void WMFIRFilter::handleDesignButtonPressed( void )
     m_designTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, true );
 
     infoLog() << "New filter designed!";
+
+    progress->finish();
+    m_progress->removeSubProgress( progress );
 }
 
 void WMFIRFilter::callbackFilterTypeChanged( void )
