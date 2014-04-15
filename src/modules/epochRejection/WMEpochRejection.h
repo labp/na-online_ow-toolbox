@@ -146,10 +146,7 @@ private:
 
     bool checkBadChannels( WLEMMeasurement::SPtr emm );
 
-    /**
-     * Input connector for a EMM data set.
-     */
-    LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input;
+    WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input; /**< Buffered input connector. */
 
     /**
      * A condition used to notify about changes in several properties.

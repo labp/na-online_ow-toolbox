@@ -36,8 +36,6 @@
 #include "WMMatWriter.xpm"
 #include "WMMatWriter.h"
 
-using namespace LaBP;
-
 W_LOADABLE_MODULE( WMMatWriter )
 
 const std::string WMMatWriter::NONE = "none";

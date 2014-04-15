@@ -58,7 +58,7 @@ protected:
     virtual void moduleMain();
 
 private:
-    LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input;
+    WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input; /**< Buffered input connector. */
 
     /**
      * A condition used to notify about changes in several properties.

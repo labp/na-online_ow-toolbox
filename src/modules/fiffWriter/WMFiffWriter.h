@@ -92,15 +92,8 @@ protected:
     virtual const char** getXPMIcon() const;
 
 private:
-    /**
-     * Output connector for a EMMCommand dataset
-     */
-    LaBP::WLModuleInputDataCollection< WLEMMCommand >::SPtr m_input;
-
-    /**
-     * Output connector for a EMMCommand dataset
-     */
-    LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output;
+    WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input; /**< Buffered input connector. */
+    WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output; /**<  Output connector for buffered input connectors. */
 
     WCondition::SPtr m_propCondition;
 

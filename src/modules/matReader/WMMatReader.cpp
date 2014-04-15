@@ -39,8 +39,6 @@
 #include "WMMatReader.xpm"
 #include "WMMatReader.h"
 
-using namespace LaBP;
-
 W_LOADABLE_MODULE( WMMatReader )
 
 const double WMMatReader::SAMPLING_FEQUENCY = 1000;

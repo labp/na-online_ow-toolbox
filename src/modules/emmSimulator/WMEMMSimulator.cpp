@@ -34,8 +34,6 @@
 
 W_LOADABLE_MODULE( WMEMMSimulator )
 
-using namespace LaBP;
-
 std::string WMEMMSimulator::EStreaming::name( EStreaming::Enum val )
 {
     switch( val )
@@ -49,7 +47,7 @@ std::string WMEMMSimulator::EStreaming::name( EStreaming::Enum val )
         case STOP_REQUEST:
             return "Requesting stop ...";
         default:
-            return "Unkown state!";
+            return "Unknown state!";
     }
 }
 

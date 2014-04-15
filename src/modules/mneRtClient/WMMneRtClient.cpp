@@ -83,11 +83,7 @@ const std::string WMMneRtClient::getDescription() const
 
 void WMMneRtClient::connectors()
 {
-    // initialize connectors
-    // TODO(pieloth) use OW class
     m_output.reset( new WLModuleOutputDataCollectionable< WLEMMCommand >( shared_from_this(), "out", "A loaded dataset." ) );
-
-    // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
     addConnector( m_output );
 }
 

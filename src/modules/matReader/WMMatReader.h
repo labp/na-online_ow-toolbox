@@ -66,7 +66,7 @@ protected:
     virtual bool processCompute( WLEMMeasurement::SPtr emm );
 
 private:
-    LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output;
+    WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output; /**<  Output connector for buffered input connectors. */
 
     /**
      * A condition used to notify about changes in several properties.

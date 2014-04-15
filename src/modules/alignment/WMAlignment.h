@@ -83,15 +83,8 @@ private:
     WUIViewWidget::SPtr m_widget;
     WLEMDDrawable3DEEGBEM::SPtr m_drawable;
 
-    /**
-     * Input connector for an EMM Command dataset
-     */
-    LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input;
-
-    /**
-     * Output connector for an EMM Command dataset
-     */
-    LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output;
+    WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input; /**< Buffered input connector. */
+    WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output; /**<  Output connector for buffered input connectors. */
 
     WCondition::SPtr m_propCondition;
     WPropTrigger m_trgReset;

@@ -89,13 +89,13 @@ const std::string WMFIRFilter::getDescription() const
 void WMFIRFilter::connectors()
 {
     // TODO(pieloth) use OW classes
-    m_input = LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr(
-                    new LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >( 8, shared_from_this(), "in",
+    m_input = WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr(
+                    new WLModuleInputDataRingBuffer< WLEMMCommand >( 8, shared_from_this(), "in",
                                     "Expects a EMM-DataSet for filtering." ) );
     addConnector( m_input );
 
-    m_output = LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr(
-                    new LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >( shared_from_this(), "out",
+    m_output = WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr(
+                    new WLModuleOutputDataCollectionable< WLEMMCommand >( shared_from_this(), "out",
                                     "Provides a filtered EMM-DataSet" ) );
     addConnector( m_output );
 }

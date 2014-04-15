@@ -78,10 +78,7 @@ protected:
     virtual bool processTime( WLEMMCommand::SPtr cmdIn );
     virtual bool processMisc( WLEMMCommand::SPtr cmdIn );
 
-    /**
-     * Output connector for a filtered WEEG2 dataset
-     */
-    LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output;
+    WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output; /**< Output connector for buffered input connectors. */
 
     /**
      * Initialize the properties for this module and load the widget

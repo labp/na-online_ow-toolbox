@@ -30,11 +30,8 @@
 #include "core/data/emd/WLEMDEEG.h"
 #include "core/module/WLConstantsModule.h"
 
-
 #include "WMEMMGenerator.h"
 #include "WMEMMGenerator.xpm"
-
-using namespace LaBP;
 
 W_LOADABLE_MODULE( WMEMMGenerator )
 

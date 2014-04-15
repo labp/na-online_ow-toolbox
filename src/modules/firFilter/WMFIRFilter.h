@@ -128,10 +128,7 @@ private:
     WPropDouble m_samplingFreq;
     WPropTrigger m_designTrigger;
 
-    /**
-     * Input connector for a WEEG2 dataset to get filtered
-     */
-    LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input;
+    WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input; /**< Buffered input connector. */
 
     /**
      * A condition used to notify about changes in several properties.

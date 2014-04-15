@@ -95,15 +95,8 @@ protected:
     virtual void properties();
 
 private:
-    /**
-     * Input connector for a EMMCommand dataset
-     */
-    LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input;
-
-    /**
-     * Output connector for a EMMCommand dataset
-     */
-    LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output;
+    WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input; /**< Buffered input connector. */
+    WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output; /**<  Output connector for buffered input connectors. */
 };
 
 #endif  // WMPROFILERLOG_H

@@ -499,29 +499,24 @@ void WLModuleDrawable::viewCleanup()
     if( m_scrollHandler.valid() )
     {
         m_widget2D->getViewer()->getView()->removeEventHandler( m_scrollHandler );
-//        m_widget->getViewer()->getView()->removeEventHandler( m_scrollHandler );
         m_scrollHandler = NULL;
     }
     if( m_clickHandler.valid() )
     {
         m_widget2D->getViewer()->getView()->removeEventHandler( m_clickHandler );
-//        m_widget->getViewer()->getView()->removeEventHandler( m_clickHandler );
         m_clickHandler = NULL;
     }
     if( m_resize2dHandler.valid() )
     {
         m_widget2D->getViewer()->getView()->removeEventHandler( m_resize2dHandler );
-//        m_widget->getViewer()->getView()->removeEventHandler( m_resize2dHandler );
         m_resize2dHandler = NULL;
     }
     if( m_resize3dHandler.valid() )
     {
         m_widget3D->getViewer()->getView()->removeEventHandler( m_resize3dHandler );
-//        m_widget->getViewer()->getView()->removeEventHandler( m_resize3dHandler );
         m_resize3dHandler = NULL;
     }
 
-//    WKernel::getRunningKernel()->getUI()->closeCustomWidget( m_widget->getTitle() );
     m_drawable2D.reset();
     m_drawable3D.reset();
     m_widget->close();

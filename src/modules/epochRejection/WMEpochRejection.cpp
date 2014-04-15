@@ -98,13 +98,13 @@ const std::string WMEpochRejection::getDescription() const
  */
 void WMEpochRejection::connectors()
 {
-    m_input = LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr(
-                    new LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >( 8, shared_from_this(), "in",
+    m_input = WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr(
+                    new WLModuleInputDataRingBuffer< WLEMMCommand >( 8, shared_from_this(), "in",
                                     "Expects a EMM-DataSet for filtering." ) );
     addConnector( m_input );
 
-    m_output = LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr(
-                    new LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >( shared_from_this(), "out",
+    m_output = WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr(
+                    new WLModuleOutputDataCollectionable< WLEMMCommand >( shared_from_this(), "out",
                                     "Provides a filtered EMM-DataSet" ) );
     addConnector( m_output );
 }
@@ -405,13 +405,12 @@ void WMEpochRejection::setThresholds( boost::shared_ptr< std::list< WThreshold >
     if( m_modalityLabelMap == 0 )
         return;
 
-    BOOST_FOREACH(WThreshold threshold, *thresholdList.get())
+    BOOST_FOREACH(WThreshold threshold, *thresholdList.get()){
+    if( m_modalityLabelMap->count( threshold.getModaliyType() ) )
     {
-        if( m_modalityLabelMap->count( threshold.getModaliyType() ) )
-        {
-            m_modalityLabelMap->at( threshold.getModaliyType() )->set( threshold.getValue(), true );
-        }
+        m_modalityLabelMap->at( threshold.getModaliyType() )->set( threshold.getValue(), true );
     }
+}
 }
 
 void WMEpochRejection::updateBadChannels( WLEMMeasurement::SPtr emm )
@@ -461,13 +460,12 @@ void WMEpochRejection::handleApplyThresholds()
 {
     debugLog() << "Apply thresholds.";
 
-    BOOST_FOREACH(WThreshold& value, *m_thresholds.get())
+    BOOST_FOREACH(WThreshold& value, *m_thresholds.get()){
+    if( m_modalityLabelMap->count( value.getModaliyType() ) )
     {
-        if( m_modalityLabelMap->count( value.getModaliyType() ) )
-        {
-            value.setValue( m_modalityLabelMap->at( value.getModaliyType() )->get() );
-        }
+        value.setValue( m_modalityLabelMap->at( value.getModaliyType() )->get() );
     }
+}
 
     m_rejection->setThresholds( m_thresholds );
 
@@ -504,21 +502,20 @@ bool WMEpochRejection::checkBadChannels( WLEMMeasurement::SPtr emm )
 
     // TODO: when the EMMs bad channels differs from the current bad channels in the buffer manager, merge the lists or set the EMM lists as new lists? Currently the channels will be merged.
 
-    BOOST_FOREACH( WLEMData::SPtr modality, emm->getModalityList())
+    BOOST_FOREACH( WLEMData::SPtr modality, emm->getModalityList()){
+    if( !m_rejection->validModality( modality->getModalityType() ) )
+    continue;
+
+    if( modality->getBadChannels()->size() == 0 )
+    continue;
+
+    if( *WBadChannelManager::instance()->getChannelList( modality->getModalityType() ) != *modality->getBadChannels() )
     {
-        if( !m_rejection->validModality( modality->getModalityType() ) )
-            continue;
+        WBadChannelManager::instance()->merge( modality->getModalityType(), modality->getBadChannels() );
 
-        if( modality->getBadChannels()->size() == 0 )
-            continue;
-
-        if( *WBadChannelManager::instance()->getChannelList( modality->getModalityType() ) != *modality->getBadChannels() )
-        {
-            WBadChannelManager::instance()->merge( modality->getModalityType(), modality->getBadChannels() );
-
-            rc = true;
-        }
+        rc = true;
     }
+}
 
     return rc;
 }

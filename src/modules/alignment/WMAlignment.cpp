@@ -38,8 +38,6 @@
 #include "WMAlignment.h"
 #include "WMAlignment.xpm"
 
-using namespace LaBP;
-
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMAlignment )
 
@@ -74,13 +72,13 @@ const char** WMAlignment::getXPMIcon() const
 
 void WMAlignment::connectors()
 {
-    m_input = LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr(
-                    new LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >( 8, shared_from_this(), "in",
+    m_input = WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr(
+                    new WLModuleInputDataRingBuffer< WLEMMCommand >( 8, shared_from_this(), "in",
                                     "Expects a EMM-DataSet for filtering." ) );
     addConnector( m_input );
 
-    m_output = LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr(
-                    new LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >( shared_from_this(), "out",
+    m_output = WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr(
+                    new WLModuleOutputDataCollectionable< WLEMMCommand >( shared_from_this(), "out",
                                     "Provides a filtered EMM-DataSet" ) );
     addConnector( m_output );
 }
