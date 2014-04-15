@@ -30,7 +30,7 @@
 
 const std::string WLResizeHandler::CLASS = "WLResizeHandler";
 
-WLResizeHandler::WLResizeHandler( LaBP::WLEMDDrawable::SPtr drawable ) :
+WLResizeHandler::WLResizeHandler( WLEMDDrawable::SPtr drawable ) :
                 WUIViewEventHandler( drawable->getWidget() ), m_drawable( drawable )
 {
     m_preselection |= GUIEvents::RESIZE;
@@ -45,7 +45,7 @@ void WLResizeHandler::handleResize( int xPos, int yPos, int width, int height )
     m_drawable->redraw();
 }
 
-void WLResizeHandler::setDrawable( LaBP::WLEMDDrawable::SPtr drawable )
+void WLResizeHandler::setDrawable( WLEMDDrawable::SPtr drawable )
 {
     m_drawable = drawable;
 }

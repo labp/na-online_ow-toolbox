@@ -39,59 +39,56 @@
 
 #include "WLEMDDrawable2D.h"
 
-namespace LaBP
+class WLEMDDrawable2DMultiChannel: public WLEMDDrawable2D
 {
-    class WLEMDDrawable2DMultiChannel: public WLEMDDrawable2D
-    {
-    public:
-        /**
-         * Abbreviation for a shared pointer on a instance of this class.
-         */
-        typedef boost::shared_ptr< WLEMDDrawable2DMultiChannel > SPtr;
+public:
+    /**
+     * Abbreviation for a shared pointer on a instance of this class.
+     */
+    typedef boost::shared_ptr< WLEMDDrawable2DMultiChannel > SPtr;
 
-        /**
-         * Abbreviation for a const shared pointer on a instance of this class.
-         */
-        typedef boost::shared_ptr< const WLEMDDrawable2DMultiChannel > ConstSPtr;
+    /**
+     * Abbreviation for a const shared pointer on a instance of this class.
+     */
+    typedef boost::shared_ptr< const WLEMDDrawable2DMultiChannel > ConstSPtr;
 
-        static const std::string CLASS;
+    static const std::string CLASS;
 
-        explicit WLEMDDrawable2DMultiChannel( WUIViewWidget::SPtr widget );
-        virtual ~WLEMDDrawable2DMultiChannel();
+    explicit WLEMDDrawable2DMultiChannel( WUIViewWidget::SPtr widget );
+    virtual ~WLEMDDrawable2DMultiChannel();
 
-        virtual void draw( WLEMMeasurement::SPtr emm ) = 0;
+    virtual void draw( WLEMMeasurement::SPtr emm ) = 0;
 
-        virtual bool hasData() const = 0;
+    virtual bool hasData() const = 0;
 
-        virtual ValueT getChannelHeight() const;
-        virtual void setChannelHeight( ValueT spacing );
+    virtual ValueT getChannelHeight() const;
+    virtual void setChannelHeight( ValueT spacing );
 
-        virtual std::pair< WLEMMeasurement::SPtr, size_t > getSelectedData( ValueT pixel ) const = 0;
+    virtual std::pair< WLEMMeasurement::SPtr, size_t > getSelectedData( ValueT pixel ) const = 0;
 
-        virtual size_t getChannelBegin() const;
-        virtual size_t setChannelBegin( size_t channelNr );
+    virtual size_t getChannelBegin() const;
+    virtual size_t setChannelBegin( size_t channelNr );
 
-    protected:
-        virtual bool mustDraw() const;
+protected:
+    virtual bool mustDraw() const;
 
-        virtual void osgNodeCallback( osg::NodeVisitor* nv );
+    virtual void osgNodeCallback( osg::NodeVisitor* nv );
 
-        void virtual osgAddLabels( const WLEMData& emd );
+    void virtual osgAddLabels( const WLEMData& emd );
 
-        virtual size_t maxChannels( const WLEMData& emd ) const;
-        virtual size_t getChannelBegin( const WLEMData& emd );
+    virtual size_t maxChannels( const WLEMData& emd ) const;
+    virtual size_t getChannelBegin( const WLEMData& emd );
 
-        const ValueT m_labelWidth;
+    const ValueT m_labelWidth;
 
-        ValueT m_channelHeight;
-        bool m_channelHeightChanged;
+    ValueT m_channelHeight;
+    bool m_channelHeightChanged;
 
-        size_t m_channelBegin;
-        bool m_channelBeginChanged;
+    size_t m_channelBegin;
+    bool m_channelBeginChanged;
 
-        osg::ref_ptr< osg::PositionAttitudeTransform > m_labelsText;
-        osg::ref_ptr< osg::Geode > m_labelsBackground;
-    };
+    osg::ref_ptr< osg::PositionAttitudeTransform > m_labelsText;
+    osg::ref_ptr< osg::Geode > m_labelsBackground;
+};
 
-} /* namespace LaBP */
 #endif  // WLEMDDRAWABLE2DMULTICHANNEL_H_

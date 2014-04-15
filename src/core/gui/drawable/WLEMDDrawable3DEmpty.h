@@ -35,32 +35,29 @@
 
 #include "WLEMDDrawable3D.h"
 
-namespace LaBP
+class WLEMDDrawable3DEmpty: public WLEMDDrawable3D
 {
-    class WLEMDDrawable3DEmpty: public LaBP::WLEMDDrawable3D
-    {
-    public:
-        /**
-         * Abbreviation for a shared pointer on a instance of this class.
-         */
-        typedef boost::shared_ptr< WLEMDDrawable3DEmpty > SPtr;
+public:
+    /**
+     * Abbreviation for a shared pointer on a instance of this class.
+     */
+    typedef boost::shared_ptr< WLEMDDrawable3DEmpty > SPtr;
 
-        /**
-         * Abbreviation for a const shared pointer on a instance of this class.
-         */
-        typedef boost::shared_ptr< const WLEMDDrawable3DEmpty > ConstSPtr;
+    /**
+     * Abbreviation for a const shared pointer on a instance of this class.
+     */
+    typedef boost::shared_ptr< const WLEMDDrawable3DEmpty > ConstSPtr;
 
-        explicit WLEMDDrawable3DEmpty( WUIViewWidget::SPtr widget );
-        virtual ~WLEMDDrawable3DEmpty();
+    explicit WLEMDDrawable3DEmpty( WUIViewWidget::SPtr widget );
+    virtual ~WLEMDDrawable3DEmpty();
 
-        virtual void draw( WLEMMeasurement::SPtr emm );
+    virtual void draw( WLEMMeasurement::SPtr emm );
 
-    protected:
-        virtual void osgNodeCallback( osg::NodeVisitor* nv );
+protected:
+    virtual void osgNodeCallback( osg::NodeVisitor* nv );
 
-    private:
-        osg::ref_ptr< osg::Geode > m_textGeode;
-    };
+private:
+    osg::ref_ptr< osg::Geode > m_textGeode;
+};
 
-} /* namespace LaBP */
 #endif  // WLEMDDRAWABLE3DEMPTY_H_

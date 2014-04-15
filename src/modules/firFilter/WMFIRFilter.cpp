@@ -194,7 +194,7 @@ void WMFIRFilter::moduleInit()
     ready(); // signal ready state
     waitRestored();
 
-    viewInit( LaBP::WLEMDDrawable2D::WEGraphType::DYNAMIC );
+    viewInit( WLEMDDrawable2D::WEGraphType::DYNAMIC );
 
     infoLog() << "Initializing module finished!";
 

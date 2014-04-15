@@ -36,36 +36,32 @@
 #include "WLEMDDrawable2DMultiDynamicSource.h"
 #include "WLEMDDrawable2DMultiDynamic.h"
 
-namespace LaBP
+const std::string WLEMDDrawable2DMultiDynamicSource::CLASS = "WLEMDDrawable2DMultiDynamicSource";
+
+WLEMDDrawable2DMultiDynamicSource::WLEMDDrawable2DMultiDynamicSource( WUIViewWidget::SPtr widget ) :
+                WLEMDDrawable2DMultiDynamic( widget )
 {
-    const std::string WLEMDDrawable2DMultiDynamicSource::CLASS = "WLEMDDrawable2DMultiDynamicSource";
+}
 
-    WLEMDDrawable2DMultiDynamicSource::WLEMDDrawable2DMultiDynamicSource( WUIViewWidget::SPtr widget ) :
-                    WLEMDDrawable2DMultiDynamic( widget )
-    {
-    }
+WLEMDDrawable2DMultiDynamicSource::~WLEMDDrawable2DMultiDynamicSource()
+{
+}
 
-    WLEMDDrawable2DMultiDynamicSource::~WLEMDDrawable2DMultiDynamicSource()
+void WLEMDDrawable2DMultiDynamicSource::draw( WLEMMeasurement::SPtr emm )
+{
+    bool success = false;
+    if( emm->hasModality( WLEModality::SOURCE ) )
     {
-    }
-
-    void WLEMDDrawable2DMultiDynamicSource::draw( WLEMMeasurement::SPtr emm )
-    {
-        bool success = false;
-        if( emm->hasModality( WLEModality::SOURCE ) )
+        WLEMDSource::ConstSPtr emd = emm->getModality< WLEMDSource >( WLEModality::SOURCE );
+        if( emd )
         {
-            WLEMDSource::ConstSPtr emd = emm->getModality< WLEMDSource >( WLEModality::SOURCE );
-            if( emd )
-            {
-                setModality( emd->getOriginModalityType() );
-                WLEMDDrawable2DMultiDynamic::draw( emm );
-                success = true;
-            }
-        }
-        if( !success )
-        {
-            wlog::error( CLASS ) << "Could not retrieve origin modality!";
+            setModality( emd->getOriginModalityType() );
+            WLEMDDrawable2DMultiDynamic::draw( emm );
+            success = true;
         }
     }
-
-} /* namespace LaBP */
+    if( !success )
+    {
+        wlog::error( CLASS ) << "Could not retrieve origin modality!";
+    }
+}

@@ -244,7 +244,7 @@ void WMEmMeasurement::moduleInit()
     m_isDipLoaded = false;
     m_isExpLoaded = false;
 
-    viewInit( LaBP::WLEMDDrawable2D::WEGraphType::DYNAMIC );
+    viewInit( WLEMDDrawable2D::WEGraphType::DYNAMIC );
     infoLog() << "Initializing module finished!";
 }
 

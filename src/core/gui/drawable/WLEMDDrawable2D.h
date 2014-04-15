@@ -41,8 +41,6 @@
 
 #include "WLEMDDrawable.h"
 
-namespace LaBP
-{
     /**
      * Abstract class to draw 2D graph like visualization of EMD data.
      */
@@ -180,5 +178,4 @@ namespace LaBP
         osg::ref_ptr< WLColorArray > m_gridColors;
     };
 
-} /* namespace LaBP */
 #endif  // WLEMDDRAWABLE2D_H_

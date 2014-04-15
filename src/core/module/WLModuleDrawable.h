@@ -96,7 +96,7 @@ protected:
     /**
      * Set which elements of the view we want to see: info panels, channels and/or head. Called it after ready()!
      */
-    void viewInit( LaBP::WLEMDDrawable2D::WEGraphType::Enum graphType );
+    void viewInit( WLEMDDrawable2D::WEGraphType::Enum graphType );
 
     void viewReset();
 
@@ -130,9 +130,9 @@ protected:
 
     void hideLabelChanged( bool enable );
 
-    LaBP::WLEMDDrawable2D::SPtr m_drawable2D;
+    WLEMDDrawable2D::SPtr m_drawable2D;
 
-    LaBP::WLEMDDrawable3D::SPtr m_drawable3D;
+    WLEMDDrawable3D::SPtr m_drawable3D;
 
 private:
     void createColorMap();
@@ -157,7 +157,7 @@ private:
 
     void callbackLabelsChanged();
 
-    LaBP::WLEMDDrawable2D::WEGraphType::Enum m_graphType;
+    WLEMDDrawable2D::WEGraphType::Enum m_graphType;
 
     WPropGroup m_propView;
 

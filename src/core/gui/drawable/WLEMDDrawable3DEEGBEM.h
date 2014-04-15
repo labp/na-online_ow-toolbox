@@ -40,7 +40,7 @@
 
 #include "WLEMDDrawable3D.h"
 
-class WLEMDDrawable3DEEGBEM: public LaBP::WLEMDDrawable3D
+class WLEMDDrawable3DEEGBEM: public WLEMDDrawable3D
 {
 public:
     /**

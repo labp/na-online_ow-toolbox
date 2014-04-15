@@ -48,15 +48,15 @@ public:
 
     static const std::string CLASS;
 
-    WLResizeHandler( LaBP::WLEMDDrawable::SPtr drawable );
+    WLResizeHandler( WLEMDDrawable::SPtr drawable );
     virtual ~WLResizeHandler();
 
     virtual void handleResize( int xPos, int yPos, int width, int height );
 
-    void setDrawable( LaBP::WLEMDDrawable::SPtr drawable );
+    void setDrawable( WLEMDDrawable::SPtr drawable );
 
 private:
-    LaBP::WLEMDDrawable::SPtr m_drawable;
+    WLEMDDrawable::SPtr m_drawable;
 };
 
 #endif  // WLRESIZEHANDLER_H_

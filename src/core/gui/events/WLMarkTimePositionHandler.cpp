@@ -35,7 +35,7 @@
 
 const std::string WLMarkTimePositionHandler::CLASS = "WLMarkTimePosition";
 
-WLMarkTimePositionHandler::WLMarkTimePositionHandler( LaBP::WLEMDDrawable2D::SPtr initiator, LaBP::WLEMDDrawable3D::SPtr acceptor,
+WLMarkTimePositionHandler::WLMarkTimePositionHandler( WLEMDDrawable2D::SPtr initiator, WLEMDDrawable3D::SPtr acceptor,
                 WModuleOutputData< WLEMMCommand >::SPtr output ) :
                 WUIViewEventHandler( initiator->getWidget() ), m_initiator( initiator ), m_acceptor( acceptor ), m_output(
                                 output )
@@ -48,7 +48,7 @@ WLMarkTimePositionHandler::~WLMarkTimePositionHandler()
 {
 }
 
-void WLMarkTimePositionHandler::setDrawables( LaBP::WLEMDDrawable2D::SPtr drawable2D, LaBP::WLEMDDrawable3D::SPtr drawable3D )
+void WLMarkTimePositionHandler::setDrawables( WLEMDDrawable2D::SPtr drawable2D, WLEMDDrawable3D::SPtr drawable3D )
 {
     m_initiator = drawable2D;
     m_acceptor = drawable3D;

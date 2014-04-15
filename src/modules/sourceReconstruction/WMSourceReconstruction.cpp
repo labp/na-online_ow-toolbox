@@ -196,7 +196,7 @@ void WMSourceReconstruction::moduleInit()
     ready(); // signal ready state
     waitRestored();
 
-    viewInit( LaBP::WLEMDDrawable2D::WEGraphType::SINGLE );
+    viewInit( WLEMDDrawable2D::WEGraphType::SINGLE );
 
     infoLog() << "Initializing module finished!";
 

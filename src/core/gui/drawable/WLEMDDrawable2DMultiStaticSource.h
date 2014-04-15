@@ -35,27 +35,25 @@
 
 #include "WLEMDDrawable2DMultiStatic.h"
 
-namespace LaBP
+class WLEMDDrawable2DMultiStaticSource: public WLEMDDrawable2DMultiStatic
 {
-    class WLEMDDrawable2DMultiStaticSource: public LaBP::WLEMDDrawable2DMultiStatic
-    {
-    public:
-        /**
-         * Abbreviation for a shared pointer on a instance of this class.
-         */
-        typedef boost::shared_ptr< WLEMDDrawable2DMultiStatic > SPtr;
+public:
+    /**
+     * Abbreviation for a shared pointer on a instance of this class.
+     */
+    typedef boost::shared_ptr< WLEMDDrawable2DMultiStatic > SPtr;
 
-        /**
-         * Abbreviation for a const shared pointer on a instance of this class.
-         */
-        typedef boost::shared_ptr< const WLEMDDrawable2DMultiStatic > ConstSPtr;
+    /**
+     * Abbreviation for a const shared pointer on a instance of this class.
+     */
+    typedef boost::shared_ptr< const WLEMDDrawable2DMultiStatic > ConstSPtr;
 
-        static const std::string CLASS;
+    static const std::string CLASS;
 
-        explicit WLEMDDrawable2DMultiStaticSource( WUIViewWidget::SPtr widget );
-        virtual ~WLEMDDrawable2DMultiStaticSource();
+    explicit WLEMDDrawable2DMultiStaticSource( WUIViewWidget::SPtr widget );
+    virtual ~WLEMDDrawable2DMultiStaticSource();
 
-        virtual void draw( WLEMMeasurement::SPtr emm );
-    };
-} /* namespace LaBP */
+    virtual void draw( WLEMMeasurement::SPtr emm );
+};
+
 #endif  // WLEMDDRAWABLE2DMULTISOURCE_H_

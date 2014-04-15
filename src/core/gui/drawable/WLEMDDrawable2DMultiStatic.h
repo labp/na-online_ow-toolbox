@@ -33,46 +33,43 @@
 
 #include "WLEMDDrawable2DMultiChannel.h"
 
-namespace LaBP
+class WLEMDDrawable2DMultiStatic: public WLEMDDrawable2DMultiChannel
 {
-    class WLEMDDrawable2DMultiStatic: public LaBP::WLEMDDrawable2DMultiChannel
-    {
-    public:
-        /**
-         * Abbreviation for a shared pointer on a instance of this class.
-         */
-        typedef boost::shared_ptr< WLEMDDrawable2DMultiStatic > SPtr;
+public:
+    /**
+     * Abbreviation for a shared pointer on a instance of this class.
+     */
+    typedef boost::shared_ptr< WLEMDDrawable2DMultiStatic > SPtr;
 
-        /**
-         * Abbreviation for a const shared pointer on a instance of this class.
-         */
-        typedef boost::shared_ptr< const WLEMDDrawable2DMultiStatic > ConstSPtr;
+    /**
+     * Abbreviation for a const shared pointer on a instance of this class.
+     */
+    typedef boost::shared_ptr< const WLEMDDrawable2DMultiStatic > ConstSPtr;
 
-        static const std::string CLASS;
+    static const std::string CLASS;
 
-        explicit WLEMDDrawable2DMultiStatic( WUIViewWidget::SPtr widget );
-        virtual ~WLEMDDrawable2DMultiStatic();
+    explicit WLEMDDrawable2DMultiStatic( WUIViewWidget::SPtr widget );
+    virtual ~WLEMDDrawable2DMultiStatic();
 
-        virtual void draw( WLEMMeasurement::SPtr emm );
+    virtual void draw( WLEMMeasurement::SPtr emm );
 
-        virtual bool hasData() const;
+    virtual bool hasData() const;
 
-        virtual std::pair< WLEMMeasurement::SPtr, size_t > getSelectedData( ValueT pixel ) const;
+    virtual std::pair< WLEMMeasurement::SPtr, size_t > getSelectedData( ValueT pixel ) const;
 
-    protected:
-        virtual void osgNodeCallback( osg::NodeVisitor* nv );
+protected:
+    virtual void osgNodeCallback( osg::NodeVisitor* nv );
 
-        virtual void osgAddChannels( const WLEMData& emd );
+    virtual void osgAddChannels( const WLEMData& emd );
 
-        WLEMMeasurement::SPtr m_emm;
+    WLEMMeasurement::SPtr m_emm;
 
-    private:
-        void osgSetTrigger( const WLEMMeasurement::EDataT& events );
+private:
+    void osgSetTrigger( const WLEMMeasurement::EDataT& events );
 
-        osg::ref_ptr< osg::Geode > m_triggerGeode;
+    osg::ref_ptr< osg::Geode > m_triggerGeode;
 
-        osg::ref_ptr< WLColorArray > m_triggerColors;
-    };
+    osg::ref_ptr< WLColorArray > m_triggerColors;
+};
 
-} /* namespace LaBP */
 #endif  // WLEMDDRAWABLE2DMULTISTATIC_H_

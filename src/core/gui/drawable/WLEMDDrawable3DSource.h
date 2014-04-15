@@ -33,30 +33,28 @@
 
 #include "WLEMDDrawable3D.h"
 
-namespace LaBP
+class WLEMDDrawable3DSource: public WLEMDDrawable3D
 {
-    class WLEMDDrawable3DSource: public LaBP::WLEMDDrawable3D
-    {
-    public:
-        /**
-         * Abbreviation for a shared pointer on a instance of this class.
-         */
-        typedef boost::shared_ptr< WLEMDDrawable3DSource > SPtr;
+public:
+    /**
+     * Abbreviation for a shared pointer on a instance of this class.
+     */
+    typedef boost::shared_ptr< WLEMDDrawable3DSource > SPtr;
 
-        /**
-         * Abbreviation for a const shared pointer on a instance of this class.
-         */
-        typedef boost::shared_ptr< const WLEMDDrawable3DSource > ConstSPtr;
+    /**
+     * Abbreviation for a const shared pointer on a instance of this class.
+     */
+    typedef boost::shared_ptr< const WLEMDDrawable3DSource > ConstSPtr;
 
-        explicit WLEMDDrawable3DSource( WUIViewWidget::SPtr widget );
+    explicit WLEMDDrawable3DSource( WUIViewWidget::SPtr widget );
 
-        virtual ~WLEMDDrawable3DSource();
+    virtual ~WLEMDDrawable3DSource();
 
-    protected:
-        virtual void osgNodeCallback( osg::NodeVisitor* nv );
+protected:
+    virtual void osgNodeCallback( osg::NodeVisitor* nv );
 
-    private:
-        void osgUpdateSurfaceColor( const WLEMData::DataT& data );
-    };
-} /* namespace LaBP */
+private:
+    void osgUpdateSurfaceColor( const WLEMData::DataT& data );
+};
+
 #endif  // WLEMDDRAWABLE3DSOURCE_H_

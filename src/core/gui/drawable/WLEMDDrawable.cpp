@@ -28,79 +28,75 @@
 
 #include "WLEMDDrawable.h"
 
-namespace LaBP
+const std::string WLEMDDrawable::CLASS = "WLEMDDrawable";
+
+WLEMDDrawable::WLEMDDrawable( WUIViewWidget::SPtr widget ) :
+                boost::enable_shared_from_this< WLEMDDrawable >(), m_widget( widget )
 {
-    const std::string WLEMDDrawable::CLASS = "WLEMDDrawable";
+    m_modality = WLEModality::UNKNOWN;
+    m_dataChanged = false;
+    m_modalityChanged = false;
+    m_rootGroup = new WGEGroupNode;
 
-    WLEMDDrawable::WLEMDDrawable( WUIViewWidget::SPtr widget ) :
-                    boost::enable_shared_from_this< WLEMDDrawable >(), m_widget( widget )
+    m_callbackDelegator = new WLEMDDrawableCallbackDelegator( this );
+    m_rootGroup->addUpdateCallback( m_callbackDelegator );
+    m_widget->getScene()->insert( m_rootGroup );
+
+    m_draw = false;
+}
+
+WLEMDDrawable::~WLEMDDrawable()
+{
+    m_rootGroup->removeUpdateCallback( m_callbackDelegator );
+    m_callbackDelegator->m_drawable = NULL;
+    m_callbackDelegator = NULL;
+    m_widget->getScene()->remove( m_rootGroup );
+    m_rootGroup = NULL;
+}
+
+void WLEMDDrawable::redraw()
+{
+    m_draw = true;
+}
+
+bool WLEMDDrawable::mustDraw() const
+{
+    return m_draw || m_dataChanged || m_modalityChanged;
+}
+
+void WLEMDDrawable::resetDrawFlags()
+{
+    m_draw = false;
+    m_modalityChanged = false;
+    m_dataChanged = false;
+}
+
+WLEModality::Enum WLEMDDrawable::getModality() const
+{
+    return m_modality;
+}
+
+bool WLEMDDrawable::setModality( WLEModality::Enum modality )
+{
+    if( modality != m_modality )
     {
-        m_modality = WLEModality::UNKNOWN;
-        m_dataChanged = false;
-        m_modalityChanged = false;
-        m_rootGroup = new WGEGroupNode;
-
-        m_callbackDelegator = new WLEMDDrawableCallbackDelegator( this );
-        m_rootGroup->addUpdateCallback( m_callbackDelegator );
-        m_widget->getScene()->insert( m_rootGroup );
-
-        m_draw = false;
+        m_modality = modality;
+        m_modalityChanged = true;
+        return true;
     }
+    return false;
+}
 
-    WLEMDDrawable::~WLEMDDrawable()
-    {
-        m_rootGroup->removeUpdateCallback( m_callbackDelegator );
-        m_callbackDelegator->m_drawable = NULL;
-        m_callbackDelegator = NULL;
-        m_widget->getScene()->remove( m_rootGroup );
-        m_rootGroup = NULL;
-    }
+WUIViewWidget::SPtr WLEMDDrawable::getWidget() const
+{
+    return m_widget;
+}
 
-    void WLEMDDrawable::redraw()
-    {
-        m_draw = true;
-    }
+WLEMDDrawable::WLEMDDrawableCallbackDelegator::WLEMDDrawableCallbackDelegator( WLEMDDrawable* drawable ) :
+                m_drawable( drawable )
+{
+}
 
-    bool WLEMDDrawable::mustDraw() const
-    {
-        return m_draw || m_dataChanged || m_modalityChanged;
-    }
-
-    void WLEMDDrawable::resetDrawFlags()
-    {
-        m_draw = false;
-        m_modalityChanged = false;
-        m_dataChanged = false;
-    }
-
-    WLEModality::Enum WLEMDDrawable::getModality() const
-    {
-        return m_modality;
-    }
-
-    bool WLEMDDrawable::setModality( WLEModality::Enum modality )
-    {
-        if( modality != m_modality )
-        {
-            m_modality = modality;
-            m_modalityChanged = true;
-            return true;
-        }
-        return false;
-    }
-
-    WUIViewWidget::SPtr WLEMDDrawable::getWidget() const
-    {
-        return m_widget;
-    }
-
-    WLEMDDrawable::WLEMDDrawableCallbackDelegator::WLEMDDrawableCallbackDelegator( WLEMDDrawable* drawable ) :
-                    m_drawable( drawable )
-    {
-    }
-
-    WLEMDDrawable::WLEMDDrawableCallbackDelegator::~WLEMDDrawableCallbackDelegator()
-    {
-    }
-
-} /* namespace LaBP */
+WLEMDDrawable::WLEMDDrawableCallbackDelegator::~WLEMDDrawableCallbackDelegator()
+{
+}

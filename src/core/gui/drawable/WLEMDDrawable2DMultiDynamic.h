@@ -32,78 +32,75 @@
 #include "core/gui/drawable/WLAnimationSideScroll.h"
 #include "WLEMDDrawable2DMultiChannel.h"
 
-namespace LaBP
+class WLEMDAnimationFetchCallback;
+
+class WLEMDDrawable2DMultiDynamic: public WLEMDDrawable2DMultiChannel
 {
-    class WLEMDAnimationFetchCallback;
+public:
+    /**
+     * Abbreviation for a shared pointer on a instance of this class.
+     */
+    typedef boost::shared_ptr< WLEMDDrawable2DMultiDynamic > SPtr;
 
-    class WLEMDDrawable2DMultiDynamic: public LaBP::WLEMDDrawable2DMultiChannel
-    {
-    public:
-        /**
-         * Abbreviation for a shared pointer on a instance of this class.
-         */
-        typedef boost::shared_ptr< WLEMDDrawable2DMultiDynamic > SPtr;
+    /**
+     * Abbreviation for a const shared pointer on a instance of this class.
+     */
+    typedef boost::shared_ptr< const WLEMDDrawable2DMultiDynamic > ConstSPtr;
 
-        /**
-         * Abbreviation for a const shared pointer on a instance of this class.
-         */
-        typedef boost::shared_ptr< const WLEMDDrawable2DMultiDynamic > ConstSPtr;
+    static const std::string CLASS;
 
-        static const  std::string CLASS;
+    WLEMDDrawable2DMultiDynamic( WUIViewWidget::SPtr widget );
+    virtual ~WLEMDDrawable2DMultiDynamic();
 
-        WLEMDDrawable2DMultiDynamic( WUIViewWidget::SPtr widget );
-        virtual ~WLEMDDrawable2DMultiDynamic();
+    virtual bool setTimeRange( ValueT timeRange );
 
-        virtual bool setTimeRange( ValueT timeRange );
+    virtual void draw( WLEMMeasurement::SPtr emm );
 
-        virtual void draw( WLEMMeasurement::SPtr emm );
+    virtual bool hasData() const;
 
-        virtual bool hasData() const;
+    virtual std::pair< WLEMMeasurement::SPtr, size_t > getSelectedData( ValueT pixel ) const;
 
-        virtual std::pair< WLEMMeasurement::SPtr, size_t > getSelectedData( ValueT pixel ) const;
+protected:
+    virtual void osgNodeCallback( osg::NodeVisitor* nv );
 
-    protected:
-        virtual void osgNodeCallback( osg::NodeVisitor* nv );
+    virtual osg::ref_ptr< WLAnimationSideScroll::EMMNode > createEmdNode( WLEMMeasurement::SPtr emd );
 
-        virtual osg::ref_ptr< WLAnimationSideScroll::EMMNode > createEmdNode( WLEMMeasurement::SPtr emd );
+private:
+    /**
+     * Buffer to store EMM and ensure producer-consumer data access.
+     */
+    std::queue< osg::ref_ptr< WLAnimationSideScroll::EMMNode > > m_emmQueue;
 
-    private:
-        /**
-         * Buffer to store EMM and ensure producer-consumer data access.
-         */
-        std::queue< osg::ref_ptr< WLAnimationSideScroll::EMMNode > > m_emmQueue;
+    WLAnimationSideScroll* m_animation;
 
-        WLAnimationSideScroll* m_animation;
+    /**
+     * Block length in seconds.
+     */
+    ValueT m_blockLength;
 
-        /**
-         * Block length in seconds.
-         */
-        ValueT m_blockLength;
+    /**
+     * How many blocks must be shwon on view.
+     * @param blockLength Length of 1 block in seconds
+     * @return count
+     */
+    inline ValueT getBlocksOnView( const ValueT& blockLength ) const;
 
-        /**
-         * How many blocks must be shwon on view.
-         * @param blockLength Length of 1 block in seconds
-         * @return count
-         */
-        inline ValueT getBlocksOnView( const ValueT& blockLength ) const;
+    /**
+     * Returns the pixel per block in relation to the scale.
+     *
+     * @param blockLength
+     * @return px/block
+     */
+    inline ValueT getPixelPerBlock( const ValueT& blockLength ) const;
 
-        /**
-         * Returns the pixel per block in relation to the scale.
-         *
-         * @param blockLength
-         * @return px/block
-         */
-        inline ValueT getPixelPerBlock( const ValueT& blockLength ) const;
+    /**
+     * Returns the pixel per second in relation to the scale.
+     *
+     * @return px/second
+     */
+    inline ValueT getPixelPerSeconds() const;
 
-        /**
-         * Returns the pixel per second in relation to the scale.
-         *
-         * @return px/second
-         */
-        inline ValueT getPixelPerSeconds() const;
+    osg::ref_ptr< WGEGroupNode > m_osgChannelBlocks;
+};
 
-        osg::ref_ptr< WGEGroupNode > m_osgChannelBlocks;
-    };
-
-} /* namespace LaBP */
 #endif  // WLEMDDRAWABLE2DMULTICHANNELDYNAMIC_H_

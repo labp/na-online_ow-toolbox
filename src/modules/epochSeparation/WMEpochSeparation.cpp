@@ -121,7 +121,7 @@ void WMEpochSeparation::moduleInit()
     ready(); // signal ready state
     waitRestored();
 
-    viewInit( LaBP::WLEMDDrawable2D::WEGraphType::MULTI );
+    viewInit( WLEMDDrawable2D::WEGraphType::MULTI );
     m_separation = WEpochSeparation::SPtr( new WEpochSeparation() );
 
     infoLog() << "Initializing module finished!";
