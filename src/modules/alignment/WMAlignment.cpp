@@ -27,6 +27,8 @@
 #include <core/graphicsEngine/WGEZoomTrackballManipulator.h>
 #include <core/kernel/WKernel.h>
 #include <core/ui/WUI.h>
+#include <core/ui/WUIWidgetFactory.h>
+#include <core/ui/WUIViewWidget.h>
 
 #include "core/module/WLConstantsModule.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
@@ -48,7 +50,6 @@ WMAlignment::WMAlignment()
 
 WMAlignment::~WMAlignment()
 {
-    WKernel::getRunningKernel()->getUI()->closeCustomWidget( m_widget );
 }
 
 const std::string WMAlignment::getName() const
@@ -109,16 +110,14 @@ void WMAlignment::properties()
 
 void WMAlignment::viewInit()
 {
-    m_widget = WKernel::getRunningKernel()->getUI()->openCustomWidget( getName(), WGECamera::ORTHOGRAPHIC,
-                    m_shutdownFlag.getCondition() );
-    m_widget->getViewer()->setCameraManipulator( new WGEZoomTrackballManipulator() );
-
+    WUIWidgetFactory::SPtr factory = WKernel::getRunningKernel()->getUI()->getWidgetFactory();
+    m_widget = factory->createViewWidget( getName(), WGECamera::ORTHOGRAPHIC, m_shutdownFlag.getValueChangeCondition() );
     m_drawable = WLEMDDrawable3DEEGBEM::SPtr( new WLEMDDrawable3DEEGBEM( m_widget ) );
 }
 
 void WMAlignment::viewUpdate( WLEMMeasurement::SPtr emm )
 {
-    if( m_widget->getViewer()->isClosed() )
+    if( m_widget->isClosed() || !m_widget->isVisible() )
     {
         return;
     }
@@ -191,6 +190,10 @@ void WMAlignment::moduleMain()
             process( cmdIn );
         }
     }
+
+    m_drawable.reset();
+    m_widget->close();
+    m_widget.reset();
 }
 
 bool WMAlignment::processCompute( WLEMMeasurement::SPtr emm )

@@ -30,7 +30,7 @@
 #include <core/common/WCondition.h>
 #include <core/common/WPropertyTypes.h>
 #include <core/common/math/linearAlgebra/WPosition.h>
-#include <core/ui/WCustomWidget.h>
+#include <core/ui/WUIViewWidget.h>
 #include <core/kernel/WModule.h>
 
 #include "core/data/WLDataTypes.h"
@@ -80,7 +80,7 @@ private:
 
     void handleTrgReset();
 
-    WCustomWidget::SPtr m_widget;
+    WUIViewWidget::SPtr m_widget;
     WLEMDDrawable3DEEGBEM::SPtr m_drawable;
 
     /**
