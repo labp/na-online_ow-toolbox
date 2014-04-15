@@ -1,0 +1,6 @@
+# NA-Online modules in development
+
+ADD_MODULE( codeSnippets )
+ADD_MODULE( matReader )
+ADD_MODULE( matWriter )
+# ADD_MODULE( pca )

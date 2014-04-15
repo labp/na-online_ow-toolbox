@@ -56,12 +56,16 @@ include( "modules-dependencies.cmake" )
 # Toolbox mechanism. This is a nice possibility to turn on/off several modules. This can speed up build times if unneeded modules are turned off.
 option( LABP_MODULE_TOOLBOX_ALL             "Turn all toolboxes on." OFF )
 option( LABP_MODULE_TOOLBOX_BASE            "All the basic functionality modules. These modules are useful and needed for common visualizatuion tasks." ON )
+option( LABP_MODULE_TOOLBOX_DEV             "Modules in development (unstable)." OFF )
 
 # Include needed lists
 if( LABP_MODULE_TOOLBOX_BASE OR LABP_MODULE_TOOLBOX_ALL )
   include( modules-base.toolbox )
 endif( LABP_MODULE_TOOLBOX_BASE OR LABP_MODULE_TOOLBOX_ALL )
 
+if( LABP_MODULE_TOOLBOX_DEV OR LABP_MODULE_TOOLBOX_ALL )
+  include( modules-development.toolbox )
+endif( LABP_MODULE_TOOLBOX_DEV OR LABP_MODULE_TOOLBOX_ALL )
 
 # optional user toolbox which is not unter version control allowing all to only compile their modules needed.
 include( modules-user.toolbox OPTIONAL )
