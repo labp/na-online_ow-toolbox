@@ -29,7 +29,7 @@
 #include <osg/Geode>
 #include <osg/ref_ptr>
 
-#include <core/ui/WCustomWidget.h>
+#include <core/ui/WUIViewWidget.h>
 
 #include "core/data/WLEMMeasurement.h"
 
@@ -50,7 +50,7 @@ namespace LaBP
          */
         typedef boost::shared_ptr< const WLEMDDrawable3DEmpty > ConstSPtr;
 
-        explicit WLEMDDrawable3DEmpty( WCustomWidget::SPtr widget );
+        explicit WLEMDDrawable3DEmpty( WUIViewWidget::SPtr widget );
         virtual ~WLEMDDrawable3DEmpty();
 
         virtual void draw( WLEMMeasurement::SPtr emm );

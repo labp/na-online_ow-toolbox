@@ -50,7 +50,7 @@ namespace LaBP
 
         static const std::string CLASS;
 
-        explicit WLEMDDrawable2DMultiStatic( WCustomWidget::SPtr widget );
+        explicit WLEMDDrawable2DMultiStatic( WUIViewWidget::SPtr widget );
         virtual ~WLEMDDrawable2DMultiStatic();
 
         virtual void draw( WLEMMeasurement::SPtr emm );

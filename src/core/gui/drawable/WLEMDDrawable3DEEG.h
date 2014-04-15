@@ -34,7 +34,7 @@
 #include <osg/ShapeDrawable>
 
 #include <core/common/math/linearAlgebra/WPosition.h>
-#include <core/ui/WCustomWidget.h>
+#include <core/ui/WUIViewWidget.h>
 
 #include "WLEMDDrawable3D.h"
 
@@ -53,7 +53,7 @@ namespace LaBP
          */
         typedef boost::shared_ptr< const WLEMDDrawable3DEEG > ConstSPtr;
 
-        explicit WLEMDDrawable3DEEG( WCustomWidget::SPtr widget );
+        explicit WLEMDDrawable3DEEG( WUIViewWidget::SPtr widget );
         virtual ~WLEMDDrawable3DEEG();
 
         void setLabels( bool labelOn );

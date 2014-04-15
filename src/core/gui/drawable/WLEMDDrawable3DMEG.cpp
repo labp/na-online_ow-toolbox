@@ -30,7 +30,7 @@
 #include <osgText/Text>
 
 #include <core/common/WAssert.h>
-#include <core/ui/WCustomWidget.h>
+#include <core/ui/WUIViewWidget.h>
 
 #include "core/data/emd/WLEMDMEG.h"
 
@@ -39,7 +39,7 @@
 
 namespace LaBP
 {
-    WLEMDDrawable3DMEG::WLEMDDrawable3DMEG( WCustomWidget::SPtr widget, WLEModality::Enum coilType ) :
+    WLEMDDrawable3DMEG::WLEMDDrawable3DMEG( WUIViewWidget::SPtr widget, WLEModality::Enum coilType ) :
                     m_coilType( coilType ), WLEMDDrawable3D( widget )
     {
         WAssertDebug( WLEModality::isMEG(m_coilType), "No MEG modality!" );
@@ -49,7 +49,7 @@ namespace LaBP
         m_modality = WLEModality::MEG;
     }
 
-    WLEMDDrawable3DMEG::WLEMDDrawable3DMEG( WCustomWidget::SPtr widget ) :
+    WLEMDDrawable3DMEG::WLEMDDrawable3DMEG( WUIViewWidget::SPtr widget ) :
                     m_coilType( WLEModality::MEG ), WLEMDDrawable3D( widget )
     {
         m_labelsChanged = true;

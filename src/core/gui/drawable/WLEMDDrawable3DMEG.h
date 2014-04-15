@@ -34,7 +34,7 @@
 #include <osg/ref_ptr>
 
 #include <core/common/math/linearAlgebra/WPosition.h>
-#include <core/ui/WCustomWidget.h>
+#include <core/ui/WUIViewWidget.h>
 
 #include "core/data/enum/WLEModality.h"
 #include "WLEMDDrawable3D.h"
@@ -54,9 +54,9 @@ namespace LaBP
          */
         typedef boost::shared_ptr< const WLEMDDrawable3DMEG > ConstSPtr;
 
-        explicit WLEMDDrawable3DMEG( WCustomWidget::SPtr widget );
+        explicit WLEMDDrawable3DMEG( WUIViewWidget::SPtr widget );
 
-        WLEMDDrawable3DMEG( WCustomWidget::SPtr widget, WLEModality::Enum coilType );
+        WLEMDDrawable3DMEG( WUIViewWidget::SPtr widget, WLEModality::Enum coilType );
 
         virtual ~WLEMDDrawable3DMEG();
         void setLabels( bool labelOn );

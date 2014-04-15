@@ -29,7 +29,7 @@
 
 #include <osg/ref_ptr>
 
-#include <core/ui/WCustomWidgetEventHandler.h>
+#include <core/ui/WUIViewEventHandler.h>
 
 #include "core/gui/drawable/WLEMDDrawable.h"
 
@@ -38,7 +38,7 @@
  *
  * \author pieloth
  */
-class WLResizeHandler: public WCustomWidgetEventHandler
+class WLResizeHandler: public WUIViewEventHandler
 {
 public:
     /**

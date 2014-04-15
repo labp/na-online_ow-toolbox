@@ -44,6 +44,7 @@
 #include <core/graphicsEngine/WTriangleMesh.h>
 #include <core/graphicsEngine/WGEUtils.h>
 #include <core/graphicsEngine/WGEGeodeUtils.h>
+#include <core/graphicsEngine/WGEZoomTrackballManipulator.h>
 
 #include "core/data/emd/WLEMDMEG.h"
 #include "core/gui/colorMap/WLColorMap.h"
@@ -59,9 +60,11 @@ namespace LaBP
 {
     const std::string WLEMDDrawable3D::CLASS = "WLEMDDrawable3D";
 
-    WLEMDDrawable3D::WLEMDDrawable3D( WCustomWidget::SPtr widget ) :
+    WLEMDDrawable3D::WLEMDDrawable3D( WUIViewWidget::SPtr widget ) :
                     WLEMDDrawable( widget )
     {
+        widget->getViewer()->setCameraManipulator( new WGEZoomTrackballManipulator );
+
         m_zoomFactor = 1000;
         m_selectedSample = -1;
         m_selectedSampleChanged = false;
@@ -79,7 +82,7 @@ namespace LaBP
     {
     }
 
-    WLEMDDrawable3D::SPtr WLEMDDrawable3D::getInstance( WCustomWidget::SPtr widget, WLEModality::Enum modality )
+    WLEMDDrawable3D::SPtr WLEMDDrawable3D::getInstance( WUIViewWidget::SPtr widget, WLEModality::Enum modality )
     {
         WLEMDDrawable3D::SPtr drawable3D;
         switch( modality )

@@ -51,7 +51,7 @@ namespace LaBP
 
         static const  std::string CLASS;
 
-        WLEMDDrawable2DMultiDynamic( WCustomWidget::SPtr widget );
+        WLEMDDrawable2DMultiDynamic( WUIViewWidget::SPtr widget );
         virtual ~WLEMDDrawable2DMultiDynamic();
 
         virtual bool setTimeRange( ValueT timeRange );

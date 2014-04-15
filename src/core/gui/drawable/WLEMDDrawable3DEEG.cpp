@@ -36,7 +36,7 @@
 #include <osgText/Text>
 
 #include <core/common/WAssert.h>
-#include <core/ui/WCustomWidget.h>
+#include <core/ui/WUIViewWidget.h>
 
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMDEEG.h"
@@ -47,7 +47,7 @@
 
 namespace LaBP
 {
-    WLEMDDrawable3DEEG::WLEMDDrawable3DEEG( WCustomWidget::SPtr widget ) :
+    WLEMDDrawable3DEEG::WLEMDDrawable3DEEG( WUIViewWidget::SPtr widget ) :
                     WLEMDDrawable3D( widget )
     {
         m_labelsChanged = true;

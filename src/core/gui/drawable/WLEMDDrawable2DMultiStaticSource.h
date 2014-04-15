@@ -29,7 +29,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <core/ui/WCustomWidget.h>
+#include <core/ui/WUIViewWidget.h>
 
 #include "core/data/WLEMMeasurement.h"
 
@@ -52,7 +52,7 @@ namespace LaBP
 
         static const std::string CLASS;
 
-        explicit WLEMDDrawable2DMultiStaticSource( WCustomWidget::SPtr widget );
+        explicit WLEMDDrawable2DMultiStaticSource( WUIViewWidget::SPtr widget );
         virtual ~WLEMDDrawable2DMultiStaticSource();
 
         virtual void draw( WLEMMeasurement::SPtr emm );

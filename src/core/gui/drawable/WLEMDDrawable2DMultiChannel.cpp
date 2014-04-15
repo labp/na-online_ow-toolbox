@@ -34,7 +34,7 @@
 #include <osgText/Text>
 
 #include <core/common/WLogger.h>
-#include <core/ui/WCustomWidget.h>
+#include <core/ui/WUIViewWidget.h>
 
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMData.h"
@@ -45,7 +45,7 @@ namespace LaBP
 {
     const std::string WLEMDDrawable2DMultiChannel::CLASS = "WLEMDDrawable2DMultiChannel";
 
-    WLEMDDrawable2DMultiChannel::WLEMDDrawable2DMultiChannel( WCustomWidget::SPtr widget ) :
+    WLEMDDrawable2DMultiChannel::WLEMDDrawable2DMultiChannel( WUIViewWidget::SPtr widget ) :
                     WLEMDDrawable2D( widget ), m_labelWidth( 32 )
     {
         m_xOffset = m_labelWidth;

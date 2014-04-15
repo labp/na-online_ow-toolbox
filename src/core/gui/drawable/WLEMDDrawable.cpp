@@ -32,7 +32,7 @@ namespace LaBP
 {
     const std::string WLEMDDrawable::CLASS = "WLEMDDrawable";
 
-    WLEMDDrawable::WLEMDDrawable( WCustomWidget::SPtr widget ) :
+    WLEMDDrawable::WLEMDDrawable( WUIViewWidget::SPtr widget ) :
                     boost::enable_shared_from_this< WLEMDDrawable >(), m_widget( widget )
     {
         m_modality = WLEModality::UNKNOWN;
@@ -89,7 +89,7 @@ namespace LaBP
         return false;
     }
 
-    WCustomWidget::SPtr WLEMDDrawable::getWidget() const
+    WUIViewWidget::SPtr WLEMDDrawable::getWidget() const
     {
         return m_widget;
     }

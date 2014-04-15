@@ -34,7 +34,7 @@
 #include <osg/ref_ptr>
 
 #include <core/graphicsEngine/WGEGroupNode.h>
-#include <core/ui/WCustomWidget.h>
+#include <core/ui/WUIViewWidget.h>
 
 #include "core/data/emd/WLEMData.h"
 #include "core/data/enum/WLEModality.h"
@@ -86,7 +86,7 @@ namespace LaBP
          *
          * @return Instance of a WLEMDDrawable2D implementation.
          */
-        static WLEMDDrawable2D::SPtr getInstance( WCustomWidget::SPtr widget, WLEModality::Enum modality, WEGraphType::Enum type =
+        static WLEMDDrawable2D::SPtr getInstance( WUIViewWidget::SPtr widget, WLEModality::Enum modality, WEGraphType::Enum type =
                         WEGraphType::MULTI );
 
         /**
@@ -94,7 +94,7 @@ namespace LaBP
          *
          * @param widget
          */
-        explicit WLEMDDrawable2D( WCustomWidget::SPtr widget );
+        explicit WLEMDDrawable2D( WUIViewWidget::SPtr widget );
 
         /**
          * Destructor.

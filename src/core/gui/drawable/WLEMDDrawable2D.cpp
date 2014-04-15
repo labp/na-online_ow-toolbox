@@ -36,8 +36,9 @@
 #include <core/common/WAssert.h>
 #include <core/common/WColor.h>
 #include <core/common/WException.h>
-#include <core/ui/WCustomWidget.h>
+#include <core/ui/WUIViewWidget.h>
 #include <core/graphicsEngine/WGEGroupNode.h>
+#include <core/graphicsEngine/WGENoOpManipulator.h>
 
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDMEG.h"
@@ -55,9 +56,11 @@ namespace LaBP
 {
     const std::string WLEMDDrawable2D::CLASS = "WLEMDDrawable2D";
 
-    WLEMDDrawable2D::WLEMDDrawable2D( WCustomWidget::SPtr widget ) :
+    WLEMDDrawable2D::WLEMDDrawable2D( WUIViewWidget::SPtr widget ) :
                     WLEMDDrawable( widget )
     {
+        widget->getViewer()->setCameraManipulator( new WGENoOpManipulator );
+
         m_xOffset = 0.0;
         m_yOffset = 0.0;
         m_timeRange = 0.0;
@@ -320,7 +323,7 @@ namespace LaBP
         return setSelectedPixel( pos );
     }
 
-    WLEMDDrawable2D::SPtr WLEMDDrawable2D::getInstance( WCustomWidget::SPtr widget, WLEModality::Enum modality,
+    WLEMDDrawable2D::SPtr WLEMDDrawable2D::getInstance( WUIViewWidget::SPtr widget, WLEModality::Enum modality,
                     WEGraphType::Enum type )
     {
         WLEMDDrawable2D::SPtr drawable2D;

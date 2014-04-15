@@ -39,7 +39,7 @@ namespace LaBP
 {
     const std::string WLEMDDrawable2DMultiStatic::CLASS = "WLEMDDrawable2DMultiStatic";
 
-    WLEMDDrawable2DMultiStatic::WLEMDDrawable2DMultiStatic( WCustomWidget::SPtr widget ) :
+    WLEMDDrawable2DMultiStatic::WLEMDDrawable2DMultiStatic( WUIViewWidget::SPtr widget ) :
                     WLEMDDrawable2DMultiChannel( widget )
     {
         m_triggerColors = new WLColorArray;

@@ -47,7 +47,7 @@ namespace LaBP
 {
     const std::string WLEMDDrawable2DMultiDynamic::CLASS = "WLEMDDrawable2DMultiDynamic";
 
-    WLEMDDrawable2DMultiDynamic::WLEMDDrawable2DMultiDynamic( WCustomWidget::SPtr widget ) :
+    WLEMDDrawable2DMultiDynamic::WLEMDDrawable2DMultiDynamic( WUIViewWidget::SPtr widget ) :
                     WLEMDDrawable2DMultiChannel( widget )
     {
         m_osgChannelBlocks = new WGEGroupNode;

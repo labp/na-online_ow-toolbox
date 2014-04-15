@@ -36,7 +36,7 @@
 
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
-#include <core/ui/WCustomWidget.h>
+#include <core/ui/WUIViewWidget.h>
 
 #include "core/data/enum/WLEModality.h"
 #include "core/gui/colorMap/WLColorMap.h"
@@ -71,14 +71,14 @@ namespace LaBP
          *
          * @return Instance of a WLEMDDrawable3D implementation.
          */
-        static WLEMDDrawable3D::SPtr getInstance( WCustomWidget::SPtr widget, WLEModality::Enum modality );
+        static WLEMDDrawable3D::SPtr getInstance( WUIViewWidget::SPtr widget, WLEModality::Enum modality );
 
         /**
          * Constructor.
          *
          * @param widget
          */
-        explicit WLEMDDrawable3D( WCustomWidget::SPtr m_widget );
+        explicit WLEMDDrawable3D( WUIViewWidget::SPtr m_widget );
 
         /**
          * Destructor.

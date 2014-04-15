@@ -27,7 +27,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include <core/common/WLogger.h>
-#include <core/ui/WCustomWidget.h>
+#include <core/ui/WUIViewWidget.h>
 
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMDSource.h"
@@ -40,7 +40,7 @@ namespace LaBP
 {
     const std::string WLEMDDrawable2DMultiDynamicSource::CLASS = "WLEMDDrawable2DMultiDynamicSource";
 
-    WLEMDDrawable2DMultiDynamicSource::WLEMDDrawable2DMultiDynamicSource( WCustomWidget::SPtr widget ) :
+    WLEMDDrawable2DMultiDynamicSource::WLEMDDrawable2DMultiDynamicSource( WUIViewWidget::SPtr widget ) :
                     WLEMDDrawable2DMultiDynamic( widget )
     {
     }

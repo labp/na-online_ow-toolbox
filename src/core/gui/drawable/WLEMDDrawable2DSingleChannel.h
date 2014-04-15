@@ -34,7 +34,7 @@
 #include <osg/ref_ptr>
 
 #include <core/graphicsEngine/WGEGroupNode.h>
-#include <core/ui/WCustomWidget.h>
+#include <core/ui/WUIViewWidget.h>
 
 #include "core/data/emd/WLEMData.h"
 
@@ -57,7 +57,7 @@ namespace LaBP
 
         static const std::string CLASS;
 
-        explicit WLEMDDrawable2DSingleChannel( WCustomWidget::SPtr widget );
+        explicit WLEMDDrawable2DSingleChannel( WUIViewWidget::SPtr widget );
         virtual ~WLEMDDrawable2DSingleChannel();
 
         /**

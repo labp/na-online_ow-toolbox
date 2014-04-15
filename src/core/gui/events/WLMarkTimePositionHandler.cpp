@@ -27,7 +27,6 @@
 
 #include <core/common/WException.h>
 #include <core/common/WLogger.h>
-#include <core/ui/WCustomWidget.h>
 
 #include "core/gui/drawable/WLEMDDrawable2D.h"
 #include "core/gui/drawable/WLEMDDrawable3D.h"
@@ -38,7 +37,7 @@ const std::string WLMarkTimePositionHandler::CLASS = "WLMarkTimePosition";
 
 WLMarkTimePositionHandler::WLMarkTimePositionHandler( LaBP::WLEMDDrawable2D::SPtr initiator, LaBP::WLEMDDrawable3D::SPtr acceptor,
                 WModuleOutputData< WLEMMCommand >::SPtr output ) :
-                WCustomWidgetEventHandler( initiator->getWidget() ), m_initiator( initiator ), m_acceptor( acceptor ), m_output(
+                WUIViewEventHandler( initiator->getWidget() ), m_initiator( initiator ), m_acceptor( acceptor ), m_output(
                                 output )
 {
     m_preselection |= GUIEvents::LEFT_MOUSE_BUTTON;

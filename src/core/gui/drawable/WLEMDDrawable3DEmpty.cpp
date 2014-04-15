@@ -26,13 +26,13 @@
 
 #include <osgText/Text>
 
-#include <core/ui/WCustomWidget.h>
+#include <core/ui/WUIViewWidget.h>
 
 #include "WLEMDDrawable3DEmpty.h"
 
 namespace LaBP
 {
-    WLEMDDrawable3DEmpty::WLEMDDrawable3DEmpty( WCustomWidget::SPtr widget ) :
+    WLEMDDrawable3DEmpty::WLEMDDrawable3DEmpty( WUIViewWidget::SPtr widget ) :
                     WLEMDDrawable3D( widget )
     {
     }

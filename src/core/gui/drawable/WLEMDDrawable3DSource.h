@@ -27,7 +27,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <core/ui/WCustomWidget.h>
+#include <core/ui/WUIViewWidget.h>
 
 #include "core/data/emd/WLEMData.h"
 
@@ -48,7 +48,7 @@ namespace LaBP
          */
         typedef boost::shared_ptr< const WLEMDDrawable3DSource > ConstSPtr;
 
-        explicit WLEMDDrawable3DSource( WCustomWidget::SPtr widget );
+        explicit WLEMDDrawable3DSource( WUIViewWidget::SPtr widget );
 
         virtual ~WLEMDDrawable3DSource();
 

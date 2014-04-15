@@ -31,9 +31,11 @@
 
 #include <core/common/WItemSelectionItemTyped.h>
 #include <core/dataHandler/WDataSet.h>
-#include <core/ui/WCustomWidget.h>
-#include <core/ui/WUI.h>
 #include <core/kernel/WKernel.h>
+#include <core/ui/WUI.h>
+#include <core/ui/WUIGridWidget.h>
+#include <core/ui/WUIViewWidget.h>
+#include <core/ui/WUIWidgetFactory.h>
 
 #include "core/data/emd/WLEMData.h"
 #include "core/data/WLEMMCommand.h"
@@ -375,41 +377,49 @@ void WLModuleDrawable::viewInit( WLEMDDrawable2D::WEGraphType::Enum graphType )
 
     waitRestored();
 
-    m_graphType = graphType;
-
-    m_widget = WKernel::getRunningKernel()->getUI()->openCustomEMDWidget( getName(), WGECamera::TWO_D,
-                    m_shutdownFlag.getCondition() );
-
     createColorMap();
 
-    WCustomWidget::SPtr widget2D = m_widget->getSubWidget( WLEMDWidget::WEWidgetType::EMD_2D );
-    m_drawable2D = WLEMDDrawable2D::getInstance( widget2D, getViewModality(), m_graphType );
+    m_graphType = graphType;
+
+    // Create main widget
+    WUIWidgetFactory::SPtr factory = WKernel::getRunningKernel()->getUI()->getWidgetFactory();
+    m_widget = factory->createGridWidget( getName() );
+
+    // Create 2D View
+    m_widget2D = factory->createViewWidget( "2D View", WGECamera::TWO_D,
+                    m_shutdownFlag.getValueChangeCondition(), m_widget );
+    m_widget->placeWidget( m_widget2D, 0, 0 );
+    m_drawable2D = WLEMDDrawable2D::getInstance( m_widget2D, getViewModality(), m_graphType );
     WLEMDDrawable2DMultiChannel::SPtr drawable = m_drawable2D->getAs< WLEMDDrawable2DMultiChannel >();
     if( drawable )
     {
         drawable->setChannelHeight( static_cast< WLEMDDrawable::ValueT >( m_channelHeight->get() ) );
         m_scrollHandler = new WL2DChannelScrollHandler( drawable );
-        widget2D->addEventHandler( m_scrollHandler );
+        m_widget2D->addEventHandler( m_scrollHandler );
     }
     m_drawable2D->setTimeRange( m_timeRange->get() );
     m_drawable2D->setAmplitudeScale( m_amplitudeScale->get() );
     m_resize2dHandler = new WLResizeHandler( m_drawable2D );
-    widget2D->addEventHandler( m_resize2dHandler );
+    m_widget2D->addEventHandler( m_resize2dHandler );
 
-    WCustomWidget::SPtr widget3D = m_widget->getSubWidget( WLEMDWidget::WEWidgetType::EMD_3D );
-    m_drawable3D = WLEMDDrawable3D::getInstance( widget3D, getViewModality() );
+    // Create 3D View
+    m_widget3D = factory->createViewWidget( "3D View", WGECamera::ORTHOGRAPHIC,
+                    m_shutdownFlag.getValueChangeCondition(), m_widget );
+    m_widget->placeWidget( m_widget3D, 1, 0 );
+    m_drawable3D = WLEMDDrawable3D::getInstance( m_widget3D, getViewModality() );
     m_drawable3D->setColorMap( m_colorMap );
     m_resize3dHandler = new WLResizeHandler( m_drawable3D );
-    widget3D->addEventHandler( m_resize3dHandler );
+    m_widget3D->addEventHandler( m_resize3dHandler );
     callbackLabelsChanged();
 
+    // Create cross-widget-handler
     m_clickHandler = new WLMarkTimePositionHandler( m_drawable2D, m_drawable3D, m_output );
-    widget2D->addEventHandler( m_clickHandler );
+    m_widget2D->addEventHandler( m_clickHandler );
 }
 
 void WLModuleDrawable::viewUpdate( WLEMMeasurement::SPtr emm )
 {
-    if( m_widget->getViewer()->isClosed() )
+    if( m_widget->isClosed() || !m_widget->isVisible() )
     {
         return;
     }
@@ -456,7 +466,7 @@ void WLModuleDrawable::viewReset()
     debugLog() << "viewReset() called!";
     m_range = -1;
 
-    WCustomWidget::SPtr widget2D = m_widget->getSubWidget( WLEMDWidget::WEWidgetType::EMD_2D );
+    WUIViewWidget::SPtr widget2D = m_widget2D;
     m_drawable2D = WLEMDDrawable2D::getInstance( widget2D, getViewModality(), m_graphType );
     WLEMDDrawable2DMultiChannel::SPtr drawable = m_drawable2D->getAs< WLEMDDrawable2DMultiChannel >();
     if( drawable )
@@ -468,7 +478,7 @@ void WLModuleDrawable::viewReset()
     m_drawable2D->setAmplitudeScale( m_amplitudeScale->get() );
     m_resize2dHandler->setDrawable( m_drawable2D );
 
-    WCustomWidget::SPtr widget3D = m_widget->getSubWidget( WLEMDWidget::WEWidgetType::EMD_3D );
+    WUIViewWidget::SPtr widget3D = m_widget3D;
     m_drawable3D = WLEMDDrawable3D::getInstance( widget3D, getViewModality() );
     m_drawable3D->setColorMap( m_colorMap );
     m_resize3dHandler->setDrawable( m_drawable3D );
@@ -488,29 +498,38 @@ void WLModuleDrawable::viewCleanup()
 
     if( m_scrollHandler.valid() )
     {
-        m_widget->getViewer()->getView()->removeEventHandler( m_scrollHandler );
+        m_widget2D->getViewer()->getView()->removeEventHandler( m_scrollHandler );
+//        m_widget->getViewer()->getView()->removeEventHandler( m_scrollHandler );
         m_scrollHandler = NULL;
     }
     if( m_clickHandler.valid() )
     {
-        m_widget->getViewer()->getView()->removeEventHandler( m_clickHandler );
+        m_widget2D->getViewer()->getView()->removeEventHandler( m_clickHandler );
+//        m_widget->getViewer()->getView()->removeEventHandler( m_clickHandler );
         m_clickHandler = NULL;
     }
     if( m_resize2dHandler.valid() )
     {
-        m_widget->getViewer()->getView()->removeEventHandler( m_resize2dHandler );
+        m_widget2D->getViewer()->getView()->removeEventHandler( m_resize2dHandler );
+//        m_widget->getViewer()->getView()->removeEventHandler( m_resize2dHandler );
         m_resize2dHandler = NULL;
     }
     if( m_resize3dHandler.valid() )
     {
-        m_widget->getViewer()->getView()->removeEventHandler( m_resize3dHandler );
+        m_widget3D->getViewer()->getView()->removeEventHandler( m_resize3dHandler );
+//        m_widget->getViewer()->getView()->removeEventHandler( m_resize3dHandler );
         m_resize3dHandler = NULL;
     }
 
-    WKernel::getRunningKernel()->getUI()->closeCustomWidget( m_widget->getTitle() );
+//    WKernel::getRunningKernel()->getUI()->closeCustomWidget( m_widget->getTitle() );
     m_drawable2D.reset();
     m_drawable3D.reset();
+    m_widget->close();
     m_widget.reset();
+    m_widget2D->close();
+    m_widget2D.reset();
+    m_widget3D->close();
+    m_widget3D.reset();
 }
 
 double WLModuleDrawable::getTimerange()

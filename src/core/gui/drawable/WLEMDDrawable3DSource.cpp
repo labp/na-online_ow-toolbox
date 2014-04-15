@@ -25,7 +25,7 @@
 #include <boost/shared_ptr.hpp>
 #include <osg/Array>
 
-#include <core/ui/WCustomWidget.h>
+#include <core/ui/WUIViewWidget.h>
 
 #include "core/data/WLEMMSubject.h"
 #include "core/data/WLEMMSurface.h"
@@ -35,7 +35,7 @@
 
 namespace LaBP
 {
-    WLEMDDrawable3DSource::WLEMDDrawable3DSource( WCustomWidget::SPtr widget ) :
+    WLEMDDrawable3DSource::WLEMDDrawable3DSource( WUIViewWidget::SPtr widget ) :
                     WLEMDDrawable3D( widget )
     {
         m_zoomFactor = 1;

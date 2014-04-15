@@ -29,7 +29,7 @@
 
 #include <osg/ref_ptr>
 
-#include <core/ui/WCustomWidgetEventHandler.h>
+#include <core/ui/WUIViewEventHandler.h>
 
 #include <core/kernel/WModuleOutputData.h>
 
@@ -42,7 +42,7 @@
  *
  * \author pieloth
  */
-class WLMarkTimePositionHandler: public WCustomWidgetEventHandler
+class WLMarkTimePositionHandler: public WUIViewEventHandler
 {
 public:
     /**

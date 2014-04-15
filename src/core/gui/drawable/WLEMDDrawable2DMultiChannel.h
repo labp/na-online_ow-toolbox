@@ -33,7 +33,7 @@
 #include <osg/Geode>
 #include <osg/PositionAttitudeTransform>
 
-#include <core/ui/WCustomWidget.h>
+#include <core/ui/WUIViewWidget.h>
 
 #include "core/data/emd/WLEMData.h"
 
@@ -56,7 +56,7 @@ namespace LaBP
 
         static const std::string CLASS;
 
-        explicit WLEMDDrawable2DMultiChannel( WCustomWidget::SPtr widget );
+        explicit WLEMDDrawable2DMultiChannel( WUIViewWidget::SPtr widget );
         virtual ~WLEMDDrawable2DMultiChannel();
 
         virtual void draw( WLEMMeasurement::SPtr emm ) = 0;

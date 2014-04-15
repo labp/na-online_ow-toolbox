@@ -36,7 +36,7 @@
 #include <core/common/WAssert.h>
 #include <core/common/WLogger.h>
 #include <core/common/exceptions/WOutOfBounds.h>
-#include <core/ui/WCustomWidget.h>
+#include <core/ui/WUIViewWidget.h>
 
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMData.h"
@@ -49,7 +49,7 @@ namespace LaBP
 {
     const std::string WLEMDDrawable2DSingleChannel::CLASS = "WLEMDDrawable2DSingleChannel";
 
-    WLEMDDrawable2DSingleChannel::WLEMDDrawable2DSingleChannel( WCustomWidget::SPtr widget ) :
+    WLEMDDrawable2DSingleChannel::WLEMDDrawable2DSingleChannel( WUIViewWidget::SPtr widget ) :
                     WLEMDDrawable2D( widget )
     {
         m_valueGridWidth = -1;

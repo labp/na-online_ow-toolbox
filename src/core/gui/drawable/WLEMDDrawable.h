@@ -36,7 +36,7 @@
 #include <osg/ref_ptr>
 
 #include <core/graphicsEngine/WGEGroupNode.h>
-#include <core/ui/WCustomWidget.h>
+#include <core/ui/WUIViewWidget.h>
 
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/enum/WLEModality.h"
@@ -79,7 +79,7 @@ namespace LaBP
          *
          * @param widget widget to fill
          */
-        explicit WLEMDDrawable( WCustomWidget::SPtr widget );
+        explicit WLEMDDrawable( WUIViewWidget::SPtr widget );
 
         /**
          * Destructor
@@ -142,7 +142,7 @@ namespace LaBP
          *
          * @return widget
          */
-        virtual WCustomWidget::SPtr getWidget() const;
+        virtual WUIViewWidget::SPtr getWidget() const;
 
         virtual float getSelectedTime() const = 0;
 
@@ -183,7 +183,7 @@ namespace LaBP
         /**
          * If we change the value of m_widget, than we will have a dangling event handler on the old widget. This can cause some problems.
          */
-        const WCustomWidget::SPtr m_widget;
+        const WUIViewWidget::SPtr m_widget;
 
     private:
         /**

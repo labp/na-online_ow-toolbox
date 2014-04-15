@@ -30,7 +30,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include <core/common/WProperties.h>
-#include <core/ui/WLEMDWidget.h>
+#include <core/ui/WUIGridWidget.h>
 #include <core/kernel/WModule.h>
 
 #include "core/data/WLEMMCommand.h"
@@ -183,7 +183,9 @@ private:
 
     WPropSelection m_selectionColorMode;
 
-    LaBP::WLEMDWidget::SPtr m_widget;
+    WUIGridWidget::SPtr m_widget;
+    WUIViewWidget::SPtr m_widget2D;
+    WUIViewWidget::SPtr m_widget3D;
 
     WL2DChannelScrollHandler::RefPtr m_scrollHandler;
 
