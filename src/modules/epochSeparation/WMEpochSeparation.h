@@ -107,7 +107,6 @@ protected:
     virtual bool processReset( WLEMMCommand::SPtr cmdIn );
 
 private:
-    // TODO(pieloth): use OW classes
     /**
      * Input connector for a EMM dataset
      */

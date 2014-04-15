@@ -38,7 +38,6 @@
 
 #include "core/module/WLEMMCommandProcessor.h"
 #include "core/module/WLModuleDrawable.h"
-// TODO(pieloth): use OW classes
 #include "core/module/WLModuleInputDataRingBuffer.h"
 
 #include "WSourceReconstruction.h"
@@ -114,7 +113,6 @@ protected:
     virtual bool processReset( WLEMMCommand::SPtr cmdIn );
 
 private:
-    // TODO(pieloth): use OW classes
     /**
      * Input connector for a EMM dataset
      */

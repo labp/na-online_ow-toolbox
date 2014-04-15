@@ -32,7 +32,6 @@
 #include "core/data/WLEMMCommand.h"
 #include "core/data/WLEMMeasurement.h"
 #include "core/module/WLModuleDrawable.h"
-// TODO(pieloth): use OW classes
 #include "core/module/WLEMMCommandProcessor.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 
@@ -129,7 +128,6 @@ private:
     WPropDouble m_samplingFreq;
     WPropTrigger m_designTrigger;
 
-    // TODO(pieloth): use OW classes
     /**
      * Input connector for a WEEG2 dataset to get filtered
      */

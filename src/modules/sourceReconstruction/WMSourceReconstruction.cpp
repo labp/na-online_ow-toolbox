@@ -41,7 +41,6 @@
 #include "core/data/enum/WLEModality.h"
 #include "core/module/WLConstantsModule.h"
 // Input & output connectors
-// TODO(pieloth): use OW classes
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
