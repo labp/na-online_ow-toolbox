@@ -60,6 +60,19 @@ public:
     static const size_t MIN_BUFFER_SIZE;
 
     /**
+     * Returns a new instance.
+     *
+     * \param capacity number of elements which should be buffered.
+     * \param module the module which is owner of this connector.
+     * \param name The name of this connector.
+     * \param description Short description of this connector.
+     *
+     * \return new instance of WLModuleInputDataRingBuffer
+     */
+    static WLModuleInputDataRingBuffer< T >::SPtr instance( size_t capacity, WModule::SPtr module, std::string name = "",
+                    std::string description = "" );
+
+    /**
      * Constructor.
      *
      * \param capacity number of elements which should be buffered.
@@ -147,6 +160,15 @@ private:
 template< typename T > const std::string WLModuleInputDataRingBuffer< T >::CLASS = "WLModuleInputDataRingBuffer";
 
 template< typename T > const size_t WLModuleInputDataRingBuffer< T >::MIN_BUFFER_SIZE = 2;
+
+template< typename T >
+boost::shared_ptr< WLModuleInputDataRingBuffer< T > > WLModuleInputDataRingBuffer< T >::instance( size_t capacity,
+                WModule::SPtr module, std::string name, std::string description )
+{
+    WLModuleInputDataRingBuffer< T >::SPtr instance = WLModuleInputDataRingBuffer< T >::SPtr(
+                    new WLModuleInputDataRingBuffer< T >( capacity, module, name, description ) );
+    return instance;
+}
 
 template< typename T >
 WLModuleInputDataRingBuffer< T >::WLModuleInputDataRingBuffer( size_t capacity, WModule::SPtr module, std::string name,

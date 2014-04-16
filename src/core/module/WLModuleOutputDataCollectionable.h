@@ -57,13 +57,24 @@ public:
     typedef boost::shared_ptr< const WLModuleOutputDataCollectionable< T > > ConstSPtr;
 
     /**
+     * Returns a new instance.
+     *
+     * \param module the module which is owner of this connector.
+     * \param name The name of this connector.
+     * \param description Short description of this connector.
+     * \return new instance of WLModuleOutputDataCollectionable
+     */
+    static WLModuleOutputDataCollectionable< T >::SPtr instance( WModule::SPtr module, std::string name = "",
+                    std::string description = "" );
+
+    /**
      * Constructor.
      *
      * \param module the module which is owner of this connector.
      * \param name The name of this connector.
      * \param description Short description of this connector.
      */
-    WLModuleOutputDataCollectionable( boost::shared_ptr< WModule > module, std::string name = "", std::string description = "" ) :
+    WLModuleOutputDataCollectionable( WModule::SPtr module, std::string name = "", std::string description = "" ) :
                     WModuleOutputData< T >( module, name, description )
     {
     }
@@ -78,6 +89,15 @@ public:
 protected:
 private:
 };
+
+template< typename T >
+boost::shared_ptr< WLModuleOutputDataCollectionable< T > > WLModuleOutputDataCollectionable< T >::instance( WModule::SPtr module,
+                std::string name, std::string description )
+{
+    WLModuleOutputDataCollectionable< T >::SPtr instance = WLModuleOutputDataCollectionable< T >::SPtr(
+                    new WLModuleOutputDataCollectionable< T >( module, name, description ) );
+    return instance;
+}
 
 template< typename T >
 void WLModuleOutputDataCollectionable< T >::updateData( boost::shared_ptr< T > data )
