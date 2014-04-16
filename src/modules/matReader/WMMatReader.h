@@ -100,25 +100,6 @@ private:
     WPropFilename m_propSrcSpaceFile;
     WLEMMSurface::SPtr m_surface;
     bool handleSurfaceFileChanged();
-
-    // ***************
-    // Status messages
-    // ***************
-    static const std::string NONE;
-
-    static const std::string ERROR_EMM;
-    static const std::string SUCCESS_EMM;
-    static const std::string GENERATE_EMM;
-
-    static const std::string ERROR_READ;
-    static const std::string SUCCESS_READ;
-
-    static const std::string READING_MAT;
-    static const std::string READING_LF;
-    static const std::string READING_SRC;
-    static const std::string READING_SENSORS;
-
-    static const double SAMPLING_FEQUENCY;
 };
 
 #endif  // WMMATREADER_H_

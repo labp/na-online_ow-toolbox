@@ -203,8 +203,6 @@ private:
     LaBP::WLColorMap::SPtr m_colorMap;
 
     double m_range;
-
-    static const int AUTO_SCALE_PACKETS;
 };
 
 #endif  // WLMODULEDRAWABLE_H

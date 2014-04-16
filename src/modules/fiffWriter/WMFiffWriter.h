@@ -108,14 +108,6 @@ private:
     void handleFileClose();
 
     WWriterFiff::SPtr m_fiffWriter;
-
-    static const std::string ERROR;
-
-    static const std::string OPEN;
-
-    static const std::string CLOSED;
-
-    static const std::string NONE;
 };
 
 #endif  // WMLEADFIELDINTERPOLATION_H_

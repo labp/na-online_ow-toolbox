@@ -38,11 +38,11 @@
 
 W_LOADABLE_MODULE( WMMatWriter )
 
-const std::string WMMatWriter::NONE = "none";
-const std::string WMMatWriter::SUCCESS_WRITE = "Data successfully written.";
-const std::string WMMatWriter::ERROR_WRITE = "Could not write data!";
-const std::string WMMatWriter::ERROR_OPEN = "Could not open file!";
-const std::string WMMatWriter::SUCCESS_OPEN = "Data successfully opened.";
+static const std::string NONE = "none";
+static const std::string SUCCESS_WRITE = "Data successfully written.";
+static const std::string ERROR_WRITE = "Could not write data!";
+static const std::string ERROR_OPEN = "Could not open file!";
+static const std::string SUCCESS_OPEN = "Data successfully opened.";
 
 WMMatWriter::WMMatWriter()
 {

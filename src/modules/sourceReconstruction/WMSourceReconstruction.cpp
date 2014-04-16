@@ -61,6 +61,10 @@ using WLMatrix::MatrixT;
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMSourceReconstruction )
 
+static const std::string NO_MATRIX_LOADED = "No matrix loaded.";
+static const std::string LOADING_MATRIX = "Loading matrix ...";
+static const std::string MATRIX_LOADED = "Matrix successfully loaded.";
+
 WMSourceReconstruction::WMSourceReconstruction()
 {
     m_lastModality = WLEModality::UNKNOWN;
@@ -308,14 +312,14 @@ void WMSourceReconstruction::handleWeightingTypeChanged()
     WProgress::SPtr progress( new WProgress( "Changing weighting type" ) );
     m_progress->addSubProgress( progress );
 
-    m_weightingStatus->set( WMSourceReconstruction::LOADING_MATRIX, true );
+    m_weightingStatus->set( LOADING_MATRIX, true );
     WSourceReconstruction::WEWeightingCalculation::Enum type = m_weightingTypesSelection->get().at( 0 )->getAs<
                     WItemSelectionItemTyped< WSourceReconstruction::WEWeightingCalculation::Enum > >()->getValue();
     if( m_sourceReconstruction->calculateWeightningMatrix( type ) )
     {
         m_weightingRows->set( m_sourceReconstruction->getWeighting().rows(), true );
         m_weightingCols->set( m_sourceReconstruction->getWeighting().cols(), true );
-        m_weightingStatus->set( WMSourceReconstruction::MATRIX_LOADED, true );
+        m_weightingStatus->set( MATRIX_LOADED, true );
 
         infoLog() << "Weighting matrix calculated!";
     }
@@ -323,7 +327,7 @@ void WMSourceReconstruction::handleWeightingTypeChanged()
     {
         m_weightingRows->set( 0, true );
         m_weightingCols->set( 0, true );
-        m_weightingStatus->set( WMSourceReconstruction::NO_MATRIX_LOADED, true );
+        m_weightingStatus->set( NO_MATRIX_LOADED, true );
     }
 
     progress->finish();
@@ -346,12 +350,12 @@ void WMSourceReconstruction::handleSnrChanged()
         return;
     }
 
-    m_inverseStatus->set( WMSourceReconstruction::LOADING_MATRIX, true );
+    m_inverseStatus->set( LOADING_MATRIX, true );
     if( m_sourceReconstruction->calculateInverseSolution( *m_nCovarianceMatrix, *m_dCovarianceMatrix, m_snr->get() ) )
     {
         m_inverseRows->set( m_sourceReconstruction->getInverse().rows(), true );
         m_inverseCols->set( m_sourceReconstruction->getInverse().cols(), true );
-        m_inverseStatus->set( WMSourceReconstruction::MATRIX_LOADED, true );
+        m_inverseStatus->set( MATRIX_LOADED, true );
 
         infoLog() << "Inverse solution calculated!";
     }
@@ -359,7 +363,7 @@ void WMSourceReconstruction::handleSnrChanged()
     {
         m_inverseRows->set( 0, true );
         m_inverseCols->set( 0, true );
-        m_inverseStatus->set( WMSourceReconstruction::NO_MATRIX_LOADED, true );
+        m_inverseStatus->set( NO_MATRIX_LOADED, true );
     }
 
     progress->finish();
@@ -384,7 +388,7 @@ bool WMSourceReconstruction::inverseSolutionFromSubject( WLEMMeasurement::SPtr e
     WLEMMSubject::SPtr subject = emm->getSubject();
     if( !subject )
     {
-        m_leadfieldStatus->set( WMSourceReconstruction::NO_MATRIX_LOADED, true );
+        m_leadfieldStatus->set( NO_MATRIX_LOADED, true );
         errorLog() << "Can not compute inverse solution without subject!";
         progress->finish();
         m_progress->removeSubProgress( progress );
@@ -398,7 +402,7 @@ bool WMSourceReconstruction::inverseSolutionFromSubject( WLEMMeasurement::SPtr e
     }
     catch( const WException& ex )
     {
-        m_leadfieldStatus->set( WMSourceReconstruction::NO_MATRIX_LOADED, true );
+        m_leadfieldStatus->set( NO_MATRIX_LOADED, true );
         errorLog() << "No leadfield matrix for modality!";
         progress->finish();
         m_progress->removeSubProgress( progress );
@@ -408,7 +412,7 @@ bool WMSourceReconstruction::inverseSolutionFromSubject( WLEMMeasurement::SPtr e
     m_sourceReconstruction->setLeadfield( leadfield );
     m_leadfieldRows->set( leadfield->rows(), true );
     m_leadfieldCols->set( leadfield->cols(), true );
-    m_leadfieldStatus->set( WMSourceReconstruction::MATRIX_LOADED, true );
+    m_leadfieldStatus->set( MATRIX_LOADED, true );
 
     m_dCovarianceMatrix.reset( new MatrixT( leadfield->rows(), leadfield->rows() ) );
     m_dCovarianceMatrix->setIdentity();
@@ -495,15 +499,15 @@ bool WMSourceReconstruction::processReset( WLEMMCommand::SPtr cmdIn )
 
     m_leadfieldRows->set( 0, true );
     m_leadfieldCols->set( 0, true );
-    m_leadfieldStatus->set( WMSourceReconstruction::NO_MATRIX_LOADED, true );
+    m_leadfieldStatus->set( NO_MATRIX_LOADED, true );
 
     m_weightingRows->set( 0, true );
     m_weightingCols->set( 0, true );
-    m_weightingStatus->set( WMSourceReconstruction::NO_MATRIX_LOADED, true );
+    m_weightingStatus->set( NO_MATRIX_LOADED, true );
 
     m_inverseRows->set( 0, true );
     m_inverseCols->set( 0, true );
-    m_inverseStatus->set( WMSourceReconstruction::NO_MATRIX_LOADED, true );
+    m_inverseStatus->set( NO_MATRIX_LOADED, true );
 
     m_nCovarianceMatrix.reset();
     m_dCovarianceMatrix.reset();
@@ -511,8 +515,3 @@ bool WMSourceReconstruction::processReset( WLEMMCommand::SPtr cmdIn )
     m_output->updateData( cmdIn );
     return true;
 }
-
-const std::string WMSourceReconstruction::NO_MATRIX_LOADED = "No matrix loaded.";
-const std::string WMSourceReconstruction::LOADING_MATRIX = "Loading matrix ...";
-const std::string WMSourceReconstruction::MATRIX_LOADED = "Matrix successfully loaded.";
-const std::string WMSourceReconstruction::MATRIX_ERROR = "Could not load matrix.";

@@ -60,7 +60,7 @@ using std::set;
 
 using namespace LaBP;
 
-const int WLModuleDrawable::AUTO_SCALE_PACKETS = 8;
+static const int AUTO_SCALE_PACKETS = 8;
 
 WLModuleDrawable::WLModuleDrawable()
 {

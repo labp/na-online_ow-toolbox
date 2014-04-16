@@ -41,6 +41,17 @@
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMAlignment )
 
+static const int ICP_DEFAULT_ITERATIONS = 10;
+
+// Defaults for intershift is05
+//    static const WPosition LAP( -0.0754, -0.0131, -0.0520 );
+//    static const WPosition NASION( -0.0012, 0.0836, -0.0526 );
+//    static const WPosition RAP( 0.0706, -0.0140, -0.0613 );
+// Defaults for hermann
+static const WPosition LAP( -0.07286011, 0.018106384, -0.068811984 );
+static const WPosition NASION( 0.002131995, 0.098106384, -0.019811981 );
+static const WPosition RAP( 0.075132007, 0.017106384, -0.074811978 );
+
 WMAlignment::WMAlignment()
 {
     m_transformation.setZero();

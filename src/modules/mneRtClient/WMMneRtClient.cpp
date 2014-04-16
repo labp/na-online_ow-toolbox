@@ -51,6 +51,20 @@ using namespace LaBP;
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMMneRtClient )
 
+static const int NO_CONNECTOR = -1;
+
+static const std::string STATUS_CON_CONNECTED = "Connected";
+static const std::string STATUS_CON_DISCONNECTED = "Disconnected";
+static const std::string STATUS_CON_ERROR = "Error";
+
+static const std::string STATUS_DATA_STREAMING = "Streaming";
+static const std::string STATUS_DATA_NOT_STREAMING = "Not streaming";
+
+static const std::string DATA_NOT_LOADED = "No data loaded.";
+static const std::string DATA_LOADING = "Loading data ...";
+static const std::string DATA_LOADED = "Data successfully loaded.";
+static const std::string DATA_ERROR = "Could not load data.";
+
 WMMneRtClient::WMMneRtClient() :
                 m_stopStreaming( true )
 {

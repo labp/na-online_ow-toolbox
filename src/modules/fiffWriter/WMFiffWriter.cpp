@@ -41,10 +41,10 @@ using WLMatrix::MatrixT;
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMFiffWriter )
 
-const std::string WMFiffWriter::ERROR = "Error";
-const std::string WMFiffWriter::OPEN = "Open";
-const std::string WMFiffWriter::CLOSED = "Closed";
-const std::string WMFiffWriter::NONE = "None";
+static const std::string ERROR = "Error";
+static const std::string OPEN = "Open";
+static const std::string CLOSED = "Closed";
+static const std::string NONE = "None";
 
 WMFiffWriter::WMFiffWriter()
 {

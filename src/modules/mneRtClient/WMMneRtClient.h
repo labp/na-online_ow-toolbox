@@ -126,11 +126,6 @@ private:
     void handleTrgConConnect();
     void handleTrgConDisconnect();
 
-    // Connection status strings //
-    static const std::string STATUS_CON_CONNECTED;
-    static const std::string STATUS_CON_DISCONNECTED;
-    static const std::string STATUS_CON_ERROR;
-
     WPropString m_propDataStatus;
     WPropTrigger m_trgDataStart;
     WPropTrigger m_trgDataStop;
@@ -144,18 +139,12 @@ private:
     void handleTrgConnectorChanged();
     WItemSelection::SPtr m_connectorItem;
     WPropSelection m_connectorSelection;
-    static const int NO_CONNECTOR;
 
     WPropString m_simFile;
     WPropInt m_blockSize;
 
     void callbackApplyScaling();
     WPropBool m_applyScaling;
-
-    // Streaming status strings //
-    static const std::string STATUS_DATA_STREAMING;
-    static const std::string STATUS_DATA_ERROR;
-    static const std::string STATUS_DATA_NOT_STREAMING;
 
     // Additional data //
     WPropGroup m_propGrpAdditional;
@@ -181,27 +170,6 @@ private:
     WPropString m_additionalStatus;
 
     WLEMMSubject::SPtr m_subject;
-
-    // File status strings //
-    static const std::string DATA_NOT_LOADED;
-    static const std::string DATA_LOADING;
-    static const std::string DATA_LOADED;
-    static const std::string DATA_ERROR;
 };
-
-const int WMMneRtClient::NO_CONNECTOR = -1;
-
-const std::string WMMneRtClient::STATUS_CON_CONNECTED = "Connected";
-const std::string WMMneRtClient::STATUS_CON_DISCONNECTED = "Disconnected";
-const std::string WMMneRtClient::STATUS_CON_ERROR = "Error";
-
-const std::string WMMneRtClient::STATUS_DATA_STREAMING = "Streaming";
-const std::string WMMneRtClient::STATUS_DATA_ERROR = "Error";
-const std::string WMMneRtClient::STATUS_DATA_NOT_STREAMING = "Not streaming";
-
-const std::string WMMneRtClient::DATA_NOT_LOADED = "No data loaded.";
-const std::string WMMneRtClient::DATA_LOADING = "Loading data ...";
-const std::string WMMneRtClient::DATA_LOADED = "Data successfully loaded.";
-const std::string WMMneRtClient::DATA_ERROR = "Could not load data.";
 
 #endif  // WMMNERTCLIENT_H

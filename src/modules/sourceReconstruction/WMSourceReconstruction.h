@@ -159,12 +159,6 @@ private:
     // data and noise covariance matices //
     WLMatrix::SPtr m_nCovarianceMatrix;
     WLMatrix::SPtr m_dCovarianceMatrix;
-
-    // File status string //
-    static const std::string NO_MATRIX_LOADED;
-    static const std::string LOADING_MATRIX;
-    static const std::string MATRIX_LOADED;
-    static const std::string MATRIX_ERROR;
 };
 
 #endif  // WMSOURCERECONSTRUCTION_H
