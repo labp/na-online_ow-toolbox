@@ -30,11 +30,8 @@
 #include "core/data/emd/WLEMDEEG.h"
 #include "core/module/WLConstantsModule.h"
 
-
 #include "WMEMMGenerator.h"
 #include "WMEMMGenerator.xpm"
-
-using namespace LaBP;
 
 W_LOADABLE_MODULE( WMEMMGenerator )
 
@@ -87,9 +84,9 @@ const char** WMEMMGenerator::getXPMIcon() const
 void WMEMMGenerator::connectors()
 {
     WModule::connectors();
-    m_output.reset(
-                    new WLModuleOutputDataCollectionable< WLEMMCommand >( shared_from_this(), "out",
-                                    "Provides a filtered EMM-DataSet" ) );
+
+    m_output = WLModuleOutputDataCollectionable< WLEMMCommand >::instance( shared_from_this(),
+                    WLConstantsModule::CONNECTOR_NAME_OUT, WLConstantsModule::CONNECTOR_DESCR_OUT );
     addConnector( m_output );
 }
 

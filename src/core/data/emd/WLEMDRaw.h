@@ -22,39 +22,45 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLEMDDRAWABLE3DSOURCE_H_
-#define WLEMDDRAWABLE3DSOURCE_H_
+#ifndef WLEMDRAW_H_
+#define WLEMDRAW_H_
 
 #include <boost/shared_ptr.hpp>
+#include <Eigen/Dense>
 
-#include <core/ui/WUIViewWidget.h>
+#include "WLEMData.h"
 
-#include "core/data/emd/WLEMData.h"
-
-#include "WLEMDDrawable3D.h"
-
-class WLEMDDrawable3DSource: public WLEMDDrawable3D
+/**
+ * Type for raw or generic EMData. This can be used for temporary variables or for low-level I/O, e.g. acquisition clients.
+ *
+ * \author pieloth
+ */
+class WLEMDRaw: public WLEMData
 {
 public:
-    /**
-     * Abbreviation for a shared pointer on a instance of this class.
-     */
-    typedef boost::shared_ptr< WLEMDDrawable3DSource > SPtr;
+    typedef boost::shared_ptr< WLEMDRaw > SPtr;
+    typedef boost::shared_ptr< const WLEMDRaw > ConstSPtr;
+
+    typedef Eigen::RowVectorXi ChanPicksT;
+
+    WLEMDRaw();
+    virtual ~WLEMDRaw();
+
+    virtual WLEMData::SPtr clone() const;
+
+    virtual WLEModality::Enum getModalityType() const;
+
+    using WLEMData::getData;
 
     /**
-     * Abbreviation for a const shared pointer on a instance of this class.
+     * Picks the requested channels from the data.
+     *
+     * \param picks Channel Indices to pick
+     * \param checkIndices If true, checks if each index relates to a channel. Default: true
+     * \return A new instance of data
+     * \throws WOutOfBounds If number picks or indices are smaller/greater than the number of channels.
      */
-    typedef boost::shared_ptr< const WLEMDDrawable3DSource > ConstSPtr;
-
-    explicit WLEMDDrawable3DSource( WUIViewWidget::SPtr widget );
-
-    virtual ~WLEMDDrawable3DSource();
-
-protected:
-    virtual void osgNodeCallback( osg::NodeVisitor* nv );
-
-private:
-    void osgUpdateSurfaceColor( const WLEMData::DataT& data );
+    DataSPtr getData( const ChanPicksT& picks, bool checkIndices = true ) const;
 };
 
-#endif  // WLEMDDRAWABLE3DSOURCE_H_
+#endif  // WLEMDRAW_H_

@@ -33,6 +33,7 @@
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 #include <core/common/WPropertyTypes.h>
 
+#include "core/container/WLArrayList.h"
 #include "core/container/WLList.h"
 #include "core/data/WLEMMCommand.h"
 #include "core/data/WLEMMeasurement.h"
@@ -197,7 +198,7 @@ private:
 
     WPropFilename m_elcFile;
 
-    boost::shared_ptr< std::vector< std::string > > m_elcLabels;
+    WLArrayList< std::string >::SPtr m_elcLabels;
 
     boost::shared_ptr< std::vector< WPosition > > m_elcPositions3d;
 
@@ -261,24 +262,6 @@ private:
     WPropString m_expLoadStatus;
     void handleExperimentLoadChanged();
     WLReaderExperiment::SPtr m_expReader;
-
-    // File status string //
-
-    static const std::string NO_DATA_LOADED;
-
-    static const std::string LOADING_DATA;
-
-    static const std::string DATA_LOADED;
-
-    static const std::string DATA_ERROR;
-
-    static const std::string NO_FILE_LOADED;
-
-    static const std::string LOADING_FILE;
-
-    static const std::string FILE_LOADED;
-
-    static const std::string FILE_ERROR;
 };
 
 #endif  // WMEMMEASUREMENT_H

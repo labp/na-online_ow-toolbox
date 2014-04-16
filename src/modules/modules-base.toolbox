@@ -1,21 +1,15 @@
-# LaBP Toolbox
+# NA-Online basic modules
 
 ADD_MODULE( alignment )
-ADD_MODULE( codeSnippets )
-ADD_MODULE( emMeasurement )
 ADD_MODULE( emmGenerator )
 ADD_MODULE( emmSimulator )
 ADD_MODULE( epochAveraging )
+ADD_MODULE( epochRejection )
 ADD_MODULE( epochSeparation )
 ADD_MODULE( fiffReader )
 ADD_MODULE( fiffWriter )
 ADD_MODULE( firFilter )
-ADD_MODULE( headPositionEstimation )
 ADD_MODULE( leadfieldInterpolation )
-ADD_MODULE( matReader )
-ADD_MODULE( matWriter )
 ADD_MODULE( mneRtClient )
-#ADD_MODULE( pca )
 ADD_MODULE( profilerLog )
 ADD_MODULE( sourceReconstruction )
-ADD_MODULE( epochRejection )

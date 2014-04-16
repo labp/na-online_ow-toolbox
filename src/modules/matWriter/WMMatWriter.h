@@ -58,7 +58,7 @@ protected:
     virtual void moduleMain();
 
 private:
-    LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input;
+    WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input; /**< Buffered input connector. */
 
     /**
      * A condition used to notify about changes in several properties.
@@ -76,16 +76,6 @@ private:
     WLWriterMAT::SPtr m_writer;
 
     bool writeData( WLEMMeasurement::ConstSPtr emmIn );
-
-    // ***************
-    // Status messages
-    // ***************
-    static const std::string NONE;
-
-    static const std::string ERROR_WRITE;
-    static const std::string ERROR_OPEN;
-    static const std::string SUCCESS_WRITE;
-    static const std::string SUCCESS_OPEN;
 };
 
 #endif  // WMMATWRITER_H_

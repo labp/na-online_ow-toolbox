@@ -29,7 +29,7 @@
 
 #include <osg/ref_ptr>
 
-#include <core/ui/WCustomWidgetEventHandler.h>
+#include <core/ui/WUIViewEventHandler.h>
 
 #include <core/kernel/WModuleOutputData.h>
 
@@ -42,7 +42,7 @@
  *
  * \author pieloth
  */
-class WLMarkTimePositionHandler: public WCustomWidgetEventHandler
+class WLMarkTimePositionHandler: public WUIViewEventHandler
 {
 public:
     /**
@@ -52,20 +52,20 @@ public:
 
     static const std::string CLASS;
 
-    WLMarkTimePositionHandler( LaBP::WLEMDDrawable2D::SPtr initiator, LaBP::WLEMDDrawable3D::SPtr acceptor,
+    WLMarkTimePositionHandler( WLEMDDrawable2D::SPtr initiator, WLEMDDrawable3D::SPtr acceptor,
                     WModuleOutputData< WLEMMCommand >::SPtr output );
 
     virtual ~WLMarkTimePositionHandler();
 
-    void setDrawables( LaBP::WLEMDDrawable2D::SPtr drawable2D, LaBP::WLEMDDrawable3D::SPtr drawable3D );
+    void setDrawables( WLEMDDrawable2D::SPtr drawable2D, WLEMDDrawable3D::SPtr drawable3D );
 
     virtual void handleDrag( WVector2f mousePos, int buttonMask );
 
     virtual void handlePush( WVector2f mousePos, int button );
 
 private:
-    LaBP::WLEMDDrawable2D::SPtr m_initiator;
-    LaBP::WLEMDDrawable3D::SPtr m_acceptor;
+    WLEMDDrawable2D::SPtr m_initiator;
+    WLEMDDrawable3D::SPtr m_acceptor;
     WModuleOutputData< WLEMMCommand >::SPtr m_output;
 };
 

@@ -29,7 +29,7 @@
 
 #include <osg/ref_ptr>
 
-#include <core/ui/WCustomWidgetEventHandler.h>
+#include <core/ui/WUIViewEventHandler.h>
 
 #include "core/gui/drawable/WLEMDDrawable2DMultiChannel.h"
 
@@ -38,7 +38,7 @@
  *
  * \author pieloth
  */
-class WL2DChannelScrollHandler: public WCustomWidgetEventHandler
+class WL2DChannelScrollHandler: public WUIViewEventHandler
 {
 public:
     /**
@@ -48,16 +48,16 @@ public:
 
     static const std::string CLASS;
 
-    explicit WL2DChannelScrollHandler( LaBP::WLEMDDrawable2DMultiChannel::SPtr initiator );
+    explicit WL2DChannelScrollHandler( WLEMDDrawable2DMultiChannel::SPtr initiator );
 
     virtual ~WL2DChannelScrollHandler();
 
     virtual void handleScroll( GUIEvents::ScrollingMotion motion, float deltaX, float deltaY );
 
-    void setDrawable( LaBP::WLEMDDrawable2DMultiChannel::SPtr drawable );
+    void setDrawable( WLEMDDrawable2DMultiChannel::SPtr drawable );
 
 private:
-    LaBP::WLEMDDrawable2DMultiChannel::SPtr m_initiator;
+    WLEMDDrawable2DMultiChannel::SPtr m_initiator;
 };
 
 #endif  // WL2DCHANNELSCROLLHANDLER_H_

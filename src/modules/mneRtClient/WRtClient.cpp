@@ -39,6 +39,7 @@
 #include <core/common/WLogger.h>
 #include <core/common/math/linearAlgebra/WPosition.h>
 
+#include "core/container/WLArrayList.h"
 #include "core/data/WLDataTypes.h"
 #include "core/data/WLDigPoint.h"
 #include "core/data/enum/WLEPointType.h"
@@ -637,7 +638,7 @@ bool WRtClient::readChannelNames( WLEMData* const emd, const Eigen::RowVectorXi&
     {
         const QStringList chNames = m_fiffInfo->ch_names;
         WAssertDebug( picks.size() <= chNames.size(), "More selected channels than in chNames!" );
-        ChannelNamesSPtr names( new ChannelNamesT );
+        WLArrayList< std::string >::SPtr names = WLArrayList< std::string >::instance();
         names->reserve( picks.size() );
         for( Eigen::RowVectorXi::Index row = 0; row < picks.size(); ++row )
         {

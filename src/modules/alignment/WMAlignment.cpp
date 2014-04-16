@@ -27,6 +27,8 @@
 #include <core/graphicsEngine/WGEZoomTrackballManipulator.h>
 #include <core/kernel/WKernel.h>
 #include <core/ui/WUI.h>
+#include <core/ui/WUIWidgetFactory.h>
+#include <core/ui/WUIViewWidget.h>
 
 #include "core/module/WLConstantsModule.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
@@ -36,10 +38,19 @@
 #include "WMAlignment.h"
 #include "WMAlignment.xpm"
 
-using namespace LaBP;
-
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMAlignment )
+
+static const int ICP_DEFAULT_ITERATIONS = 10;
+
+// Defaults for intershift is05
+//    static const WPosition LAP( -0.0754, -0.0131, -0.0520 );
+//    static const WPosition NASION( -0.0012, 0.0836, -0.0526 );
+//    static const WPosition RAP( 0.0706, -0.0140, -0.0613 );
+// Defaults for hermann
+static const WPosition LAP( -0.07286011, 0.018106384, -0.068811984 );
+static const WPosition NASION( 0.002131995, 0.098106384, -0.019811981 );
+static const WPosition RAP( 0.075132007, 0.017106384, -0.074811978 );
 
 WMAlignment::WMAlignment()
 {
@@ -48,7 +59,6 @@ WMAlignment::WMAlignment()
 
 WMAlignment::~WMAlignment()
 {
-    WKernel::getRunningKernel()->getUI()->closeCustomWidget( m_widget );
 }
 
 const std::string WMAlignment::getName() const
@@ -73,14 +83,14 @@ const char** WMAlignment::getXPMIcon() const
 
 void WMAlignment::connectors()
 {
-    m_input = LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr(
-                    new LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >( 8, shared_from_this(), "in",
-                                    "Expects a EMM-DataSet for filtering." ) );
+    WModule::connectors();
+
+    m_input = WLModuleInputDataRingBuffer< WLEMMCommand >::instance( WLConstantsModule::BUFFER_SIZE, shared_from_this(),
+                    WLConstantsModule::CONNECTOR_NAME_IN, WLConstantsModule::CONNECTOR_DESCR_IN );
     addConnector( m_input );
 
-    m_output = LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr(
-                    new LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >( shared_from_this(), "out",
-                                    "Provides a filtered EMM-DataSet" ) );
+    m_output = WLModuleOutputDataCollectionable< WLEMMCommand >::instance( shared_from_this(),
+                    WLConstantsModule::CONNECTOR_NAME_OUT, WLConstantsModule::CONNECTOR_DESCR_OUT );
     addConnector( m_output );
 }
 
@@ -109,16 +119,14 @@ void WMAlignment::properties()
 
 void WMAlignment::viewInit()
 {
-    m_widget = WKernel::getRunningKernel()->getUI()->openCustomWidget( getName(), WGECamera::ORTHOGRAPHIC,
-                    m_shutdownFlag.getCondition() );
-    m_widget->getViewer()->setCameraManipulator( new WGEZoomTrackballManipulator() );
-
+    WUIWidgetFactory::SPtr factory = WKernel::getRunningKernel()->getUI()->getWidgetFactory();
+    m_widget = factory->createViewWidget( getName(), WGECamera::ORTHOGRAPHIC, m_shutdownFlag.getValueChangeCondition() );
     m_drawable = WLEMDDrawable3DEEGBEM::SPtr( new WLEMDDrawable3DEEGBEM( m_widget ) );
 }
 
 void WMAlignment::viewUpdate( WLEMMeasurement::SPtr emm )
 {
-    if( m_widget->getViewer()->isClosed() )
+    if( m_widget->isClosed() || !m_widget->isVisible() )
     {
         return;
     }
@@ -191,6 +199,10 @@ void WMAlignment::moduleMain()
             process( cmdIn );
         }
     }
+
+    m_drawable.reset();
+    m_widget->close();
+    m_widget.reset();
 }
 
 bool WMAlignment::processCompute( WLEMMeasurement::SPtr emm )

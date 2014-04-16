@@ -29,7 +29,7 @@
 
 #include <osg/ref_ptr>
 
-#include <core/ui/WCustomWidgetEventHandler.h>
+#include <core/ui/WUIViewEventHandler.h>
 
 #include "core/gui/drawable/WLEMDDrawable.h"
 
@@ -38,7 +38,7 @@
  *
  * \author pieloth
  */
-class WLResizeHandler: public WCustomWidgetEventHandler
+class WLResizeHandler: public WUIViewEventHandler
 {
 public:
     /**
@@ -48,15 +48,15 @@ public:
 
     static const std::string CLASS;
 
-    WLResizeHandler( LaBP::WLEMDDrawable::SPtr drawable );
+    WLResizeHandler( WLEMDDrawable::SPtr drawable );
     virtual ~WLResizeHandler();
 
     virtual void handleResize( int xPos, int yPos, int width, int height );
 
-    void setDrawable( LaBP::WLEMDDrawable::SPtr drawable );
+    void setDrawable( WLEMDDrawable::SPtr drawable );
 
 private:
-    LaBP::WLEMDDrawable::SPtr m_drawable;
+    WLEMDDrawable::SPtr m_drawable;
 };
 
 #endif  // WLRESIZEHANDLER_H_

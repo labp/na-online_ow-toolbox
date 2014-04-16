@@ -91,9 +91,6 @@ public:
     bool setDigPointsAndEEG( const std::list< WLDigPoint >& digPoints );
 
 private:
-    typedef std::vector< std::string > ChannelNamesT;
-    typedef boost::shared_ptr< ChannelNamesT > ChannelNamesSPtr;
-
     typedef std::vector< WPosition > ChannelsPositionsT;
     typedef boost::shared_ptr< ChannelsPositionsT > ChannelsPositionsSPtr;
 

@@ -241,11 +241,6 @@ void WLEMData::setChanNames( WLArrayList< std::string >::SPtr chanNames )
     m_chanNames = chanNames;
 }
 
-void WLEMData::setChanNames( boost::shared_ptr< std::vector< std::string > > chanNames )
-{
-    m_chanNames = WLArrayList< std::string >::instance( *chanNames );
-}
-
 void WLEMData::setChanUnit( WLEUnit::Enum chanUnit )
 {
     m_chanUnit = chanUnit;

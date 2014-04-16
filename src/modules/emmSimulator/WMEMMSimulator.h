@@ -71,7 +71,7 @@ protected:
     virtual bool processReset( WLEMMCommand::SPtr cmdIn );
 
 private:
-    WModuleInputData< WLEMMCommand >::SPtr m_input;
+    WModuleInputData< WLEMMCommand >::SPtr m_input; /**< Input connector. */
 
     /**
      * A condition used to notify about changes in several properties.

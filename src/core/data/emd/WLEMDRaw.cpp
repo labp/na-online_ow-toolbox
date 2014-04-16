@@ -22,39 +22,45 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLEMDDRAWABLE3DSOURCE_H_
-#define WLEMDDRAWABLE3DSOURCE_H_
+#include <core/common/exceptions/WOutOfBounds.h>
 
-#include <boost/shared_ptr.hpp>
+#include "WLEMDRaw.h"
 
-#include <core/ui/WUIViewWidget.h>
-
-#include "core/data/emd/WLEMData.h"
-
-#include "WLEMDDrawable3D.h"
-
-class WLEMDDrawable3DSource: public WLEMDDrawable3D
+WLEMDRaw::WLEMDRaw() :
+                WLEMData()
 {
-public:
-    /**
-     * Abbreviation for a shared pointer on a instance of this class.
-     */
-    typedef boost::shared_ptr< WLEMDDrawable3DSource > SPtr;
+}
 
-    /**
-     * Abbreviation for a const shared pointer on a instance of this class.
-     */
-    typedef boost::shared_ptr< const WLEMDDrawable3DSource > ConstSPtr;
+WLEMDRaw::~WLEMDRaw()
+{
+}
 
-    explicit WLEMDDrawable3DSource( WUIViewWidget::SPtr widget );
+WLEMData::SPtr WLEMDRaw::clone() const
+{
+    WLEMDRaw::SPtr emd( new WLEMDRaw( *this ) );
+    return emd;
+}
 
-    virtual ~WLEMDDrawable3DSource();
+WLEModality::Enum WLEMDRaw::getModalityType() const
+{
+    return WLEModality::UNKNOWN;
+}
 
-protected:
-    virtual void osgNodeCallback( osg::NodeVisitor* nv );
+WLEMDRaw::DataSPtr WLEMDRaw::getData( const ChanPicksT& picks, bool checkIndices ) const
+{
+    if( checkIndices && ( m_data->rows() < picks.size() ) )
+    {
+        throw WOutOfBounds();
+    }
+    if( checkIndices && ( picks.minCoeff() < 0 || m_data->rows() < picks.maxCoeff() ) )
+    {
+        throw WOutOfBounds();
+    }
 
-private:
-    void osgUpdateSurfaceColor( const WLEMData::DataT& data );
-};
-
-#endif  // WLEMDDRAWABLE3DSOURCE_H_
+    WLEMDRaw::DataSPtr dataOut( new WLEMDRaw::DataT( picks.size(), getSamplesPerChan() ) );
+    for( ChanPicksT::Index i = 0; i < picks.size(); ++i )
+    {
+        dataOut->row( i ) = m_data->row( picks[i] );
+    }
+    return dataOut;
+}

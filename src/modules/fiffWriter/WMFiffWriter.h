@@ -92,15 +92,8 @@ protected:
     virtual const char** getXPMIcon() const;
 
 private:
-    /**
-     * Output connector for a EMMCommand dataset
-     */
-    LaBP::WLModuleInputDataCollection< WLEMMCommand >::SPtr m_input;
-
-    /**
-     * Output connector for a EMMCommand dataset
-     */
-    LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output;
+    WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input; /**< Buffered input connector. */
+    WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output; /**<  Output connector for buffered input connectors. */
 
     WCondition::SPtr m_propCondition;
 
@@ -115,14 +108,6 @@ private:
     void handleFileClose();
 
     WWriterFiff::SPtr m_fiffWriter;
-
-    static const std::string ERROR;
-
-    static const std::string OPEN;
-
-    static const std::string CLOSED;
-
-    static const std::string NONE;
 };
 
 #endif  // WMLEADFIELDINTERPOLATION_H_

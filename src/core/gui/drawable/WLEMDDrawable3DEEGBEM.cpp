@@ -41,7 +41,7 @@
 
 using namespace LaBP;
 
-WLEMDDrawable3DEEGBEM::WLEMDDrawable3DEEGBEM( WCustomWidget::SPtr widget ) :
+WLEMDDrawable3DEEGBEM::WLEMDDrawable3DEEGBEM( WUIViewWidget::SPtr widget ) :
                 WLEMDDrawable3D( widget )
 {
     m_electrodesChanged = true;

@@ -37,125 +37,143 @@
 
 #include "WLModuleInputDataCollection.h"
 
-namespace LaBP
+/**
+ * A ring buffer implementation of WModuleInputDataCollection. It can be used as a producer-consumer-FIFO.
+ * Thread safe for 1 producer thread (addData()) and 1 consumer thread (getData()).
+ */
+template< typename T >
+class WLModuleInputDataRingBuffer: public WLModuleInputDataCollection< T >
 {
+public:
     /**
-     * A ring buffer implementation of WModuleInputDataCollection. It can be used as a producer-consumer-FIFO.
-     * Thread safe for 1 producer thread (addData()) and 1 consumer thread (getData()).
+     * Shared pointer to this class.
      */
-    template< typename T >
-    class WLModuleInputDataRingBuffer: public WLModuleInputDataCollection< T >
-    {
-    public:
-        /**
-         * Shared pointer to this class.
-         */
-        typedef boost::shared_ptr< WLModuleInputDataRingBuffer > SPtr;
+    typedef boost::shared_ptr< WLModuleInputDataRingBuffer > SPtr;
 
-        /**
-         * Const shared pointer to this class.
-         */
-        typedef boost::shared_ptr< const WLModuleInputDataRingBuffer > ConstSPtr;
+    /**
+     * Const shared pointer to this class.
+     */
+    typedef boost::shared_ptr< const WLModuleInputDataRingBuffer > ConstSPtr;
 
-        static const std::string CLASS;
+    static const std::string CLASS;
 
-        static const size_t MIN_BUFFER_SIZE;
+    static const size_t MIN_BUFFER_SIZE;
 
-        /**
-         * Constructor.
-         *
-         * \param capacity number of elements which should be buffered.
-         * \param module the module which is owner of this connector.
-         * \param name The name of this connector.
-         * \param description Short description of this connector.
-         */
-        WLModuleInputDataRingBuffer( size_t capacity, WModule::SPtr module, std::string name = "",
-                        std::string description = "" );
+    /**
+     * Returns a new instance.
+     *
+     * \param capacity number of elements which should be buffered.
+     * \param module the module which is owner of this connector.
+     * \param name The name of this connector.
+     * \param description Short description of this connector.
+     *
+     * \return new instance of WLModuleInputDataRingBuffer
+     */
+    static WLModuleInputDataRingBuffer< T >::SPtr instance( size_t capacity, WModule::SPtr module, std::string name = "",
+                    std::string description = "" );
 
-        /**
-         * Destructor.
-         */
-        ~WLModuleInputDataRingBuffer();
+    /**
+     * Constructor.
+     *
+     * \param capacity number of elements which should be buffered.
+     * \param module the module which is owner of this connector.
+     * \param name The name of this connector.
+     * \param description Short description of this connector.
+     */
+    WLModuleInputDataRingBuffer( size_t capacity, WModule::SPtr module, std::string name = "", std::string description = "" );
 
-        /**
-         * Returns the oldest element of the buffer and removes this element.
-         *
-         * \param reset reset the flag of updated() if true (default).
-         * \return the oldest element.
-         */
-        const boost::shared_ptr< T > getData( bool reset = true ) throw( WException );
+    /**
+     * Destructor.
+     */
+    ~WLModuleInputDataRingBuffer();
 
-        /**
-         * Adds an elements to the buffer.
-         *
-         * \param value element whose presence in this collection is to be ensured.
-         * \return true if the buffer holds the element. false if the element could not be added e.g. buffer is full.
-         */
-        bool addData( boost::shared_ptr< T > value );
+    /**
+     * Returns the oldest element of the buffer and removes this element.
+     *
+     * \param reset reset the flag of updated() if true (default).
+     * \return the oldest element.
+     */
+    const boost::shared_ptr< T > getData( bool reset = true ) throw( WException );
 
-        /**
-         * Buffer size.
-         *
-         * \return the maximum count of elements which can be stored.
-         */
-        size_t capacity();
+    /**
+     * Adds an elements to the buffer.
+     *
+     * \param value element whose presence in this collection is to be ensured.
+     * \return true if the buffer holds the element. false if the element could not be added e.g. buffer is full.
+     */
+    bool addData( boost::shared_ptr< T > value );
 
-        /**
-         * Removes all elements in the buffer.
-         */
-        void clear();
+    /**
+     * Buffer size.
+     *
+     * \return the maximum count of elements which can be stored.
+     */
+    size_t capacity();
 
-        /**
-         * Checks whether the collection is empty or not.
-         *
-         * \return true if this collection contains no elements.
-         */
-        bool isEmpty();
+    /**
+     * Removes all elements in the buffer.
+     */
+    void clear();
 
-        /**
-         * Returns the current number of elements in this collection.
-         *
-         * \return current number of elements in this collection.
-         */
-        size_t size();
+    /**
+     * Checks whether the collection is empty or not.
+     *
+     * \return true if this collection contains no elements.
+     */
+    bool isEmpty();
 
-    protected:
-    private:
-        /**
-         * Data vector.
-         */
-        boost::shared_ptr< T >* volatile m_data;
+    /**
+     * Returns the current number of elements in this collection.
+     *
+     * \return current number of elements in this collection.
+     */
+    size_t size();
 
-        /**
-         * Buffer size.
-         */
-        size_t m_capacity;
+protected:
+private:
+    /**
+     * Data vector.
+     */
+    boost::shared_ptr< T >* volatile m_data;
 
-        /**
-         * Read pointer.
-         */
-        volatile size_t m_read;
+    /**
+     * Buffer size.
+     */
+    size_t m_capacity;
 
-        /**
-         * Write pointer.
-         */
-        volatile size_t m_write;
+    /**
+     * Read pointer.
+     */
+    volatile size_t m_read;
 
-        /**
-         * Lock to clear the buffer.
-         */
-        boost::shared_mutex m_clearLock;
-    };
-}
+    /**
+     * Write pointer.
+     */
+    volatile size_t m_write;
 
-template< typename T > const std::string LaBP::WLModuleInputDataRingBuffer< T >::CLASS = "WLModuleInputDataRingBuffer";
+    /**
+     * Lock to clear the buffer.
+     */
+    boost::shared_mutex m_clearLock;
+};
 
-template< typename T > const size_t LaBP::WLModuleInputDataRingBuffer< T >::MIN_BUFFER_SIZE = 2;
+template< typename T > const std::string WLModuleInputDataRingBuffer< T >::CLASS = "WLModuleInputDataRingBuffer";
+
+template< typename T > const size_t WLModuleInputDataRingBuffer< T >::MIN_BUFFER_SIZE = 2;
 
 template< typename T >
-LaBP::WLModuleInputDataRingBuffer< T >::WLModuleInputDataRingBuffer( size_t capacity, WModule::SPtr module,
-                std::string name, std::string description ) :
-                LaBP::WLModuleInputDataCollection< T >( module, name, description )
+boost::shared_ptr< WLModuleInputDataRingBuffer< T > > WLModuleInputDataRingBuffer< T >::instance( size_t capacity,
+                WModule::SPtr module, std::string name, std::string description )
+{
+    WLModuleInputDataRingBuffer< T >::SPtr instance = WLModuleInputDataRingBuffer< T >::SPtr(
+                    new WLModuleInputDataRingBuffer< T >( capacity, module, name, description ) );
+    return instance;
+}
+
+template< typename T >
+WLModuleInputDataRingBuffer< T >::WLModuleInputDataRingBuffer( size_t capacity, WModule::SPtr module, std::string name,
+                std::string description ) :
+                WLModuleInputDataCollection< T >( module, name, description )
 {
     m_capacity = capacity + 1 < MIN_BUFFER_SIZE ? MIN_BUFFER_SIZE : capacity + 1;
     m_read = 0;
@@ -165,7 +183,7 @@ LaBP::WLModuleInputDataRingBuffer< T >::WLModuleInputDataRingBuffer( size_t capa
 }
 
 template< typename T >
-LaBP::WLModuleInputDataRingBuffer< T >::~WLModuleInputDataRingBuffer()
+WLModuleInputDataRingBuffer< T >::~WLModuleInputDataRingBuffer()
 {
     boost::unique_lock< boost::shared_mutex > exLock( m_clearLock );
 
@@ -183,13 +201,13 @@ LaBP::WLModuleInputDataRingBuffer< T >::~WLModuleInputDataRingBuffer()
 }
 
 template< typename T >
-size_t LaBP::WLModuleInputDataRingBuffer< T >::capacity()
+size_t WLModuleInputDataRingBuffer< T >::capacity()
 {
     return m_capacity - 1;
 }
 
 template< typename T >
-size_t LaBP::WLModuleInputDataRingBuffer< T >::size()
+size_t WLModuleInputDataRingBuffer< T >::size()
 {
     boost::unique_lock< boost::shared_mutex > exLock( m_clearLock );
     size_t read = m_read;
@@ -202,7 +220,7 @@ size_t LaBP::WLModuleInputDataRingBuffer< T >::size()
 }
 
 template< typename T >
-const boost::shared_ptr< T > LaBP::WLModuleInputDataRingBuffer< T >::getData( bool reset ) throw( WException )
+const boost::shared_ptr< T > WLModuleInputDataRingBuffer< T >::getData( bool reset ) throw( WException )
 {
 #ifdef DEBUG
     wlog::debug( CLASS ) << "getData() called!";
@@ -231,7 +249,7 @@ const boost::shared_ptr< T > LaBP::WLModuleInputDataRingBuffer< T >::getData( bo
 }
 
 template< typename T >
-bool LaBP::WLModuleInputDataRingBuffer< T >::addData( boost::shared_ptr< T > value )
+bool WLModuleInputDataRingBuffer< T >::addData( boost::shared_ptr< T > value )
 {
     bool rc = false;
 #ifdef DEBUG
@@ -257,7 +275,7 @@ bool LaBP::WLModuleInputDataRingBuffer< T >::addData( boost::shared_ptr< T > val
 }
 
 template< typename T >
-void LaBP::WLModuleInputDataRingBuffer< T >::clear()
+void WLModuleInputDataRingBuffer< T >::clear()
 {
     wlog::debug( CLASS ) << "clear() called!";
     boost::unique_lock< boost::shared_mutex > exLock( m_clearLock );
@@ -281,7 +299,7 @@ void LaBP::WLModuleInputDataRingBuffer< T >::clear()
 }
 
 template< typename T >
-bool LaBP::WLModuleInputDataRingBuffer< T >::isEmpty()
+bool WLModuleInputDataRingBuffer< T >::isEmpty()
 {
     return size() == 0;
 }

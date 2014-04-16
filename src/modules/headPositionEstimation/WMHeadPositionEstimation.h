@@ -71,7 +71,7 @@ protected:
     virtual bool processReset( WLEMMCommand::SPtr cmdIn );
 
 private:
-    LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input;
+    WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input;
 
     WCondition::SPtr m_condition; /**< Used to notify module when a property changed. */
 

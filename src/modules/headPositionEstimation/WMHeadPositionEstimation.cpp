@@ -33,9 +33,6 @@
 
 W_LOADABLE_MODULE( WMHeadPositionEstimation )
 
-using LaBP::WLModuleInputDataRingBuffer;
-using LaBP::WLModuleOutputDataCollectionable;
-
 const double WMHeadPositionEstimation::HPI1_FREQ = 154.0;
 const double WMHeadPositionEstimation::HPI2_FREQ = 158.0;
 const double WMHeadPositionEstimation::HPI3_FREQ = 162.0;
@@ -120,7 +117,7 @@ void WMHeadPositionEstimation::moduleInit()
     ready(); // signal ready state
     waitRestored();
 
-    viewInit( LaBP::WLEMDDrawable2D::WEGraphType::MULTI );
+    viewInit( WLEMDDrawable2D::WEGraphType::MULTI );
 
     infoLog() << "Initializing module finished!";
 }

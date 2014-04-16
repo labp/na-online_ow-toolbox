@@ -88,15 +88,14 @@ const std::string WMFIRFilter::getDescription() const
 
 void WMFIRFilter::connectors()
 {
-    // TODO(pieloth) use OW classes
-    m_input = LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr(
-                    new LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >( 8, shared_from_this(), "in",
-                                    "Expects a EMM-DataSet for filtering." ) );
+    WLModuleDrawable::connectors();
+
+    m_input = WLModuleInputDataRingBuffer< WLEMMCommand >::instance( WLConstantsModule::BUFFER_SIZE, shared_from_this(),
+                    WLConstantsModule::CONNECTOR_NAME_IN, WLConstantsModule::CONNECTOR_DESCR_IN );
     addConnector( m_input );
 
-    m_output = LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr(
-                    new LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >( shared_from_this(), "out",
-                                    "Provides a filtered EMM-DataSet" ) );
+    m_output = WLModuleOutputDataCollectionable< WLEMMCommand >::instance( shared_from_this(),
+                    WLConstantsModule::CONNECTOR_NAME_OUT, WLConstantsModule::CONNECTOR_DESCR_OUT );
     addConnector( m_output );
 }
 
@@ -194,7 +193,7 @@ void WMFIRFilter::moduleInit()
     ready(); // signal ready state
     waitRestored();
 
-    viewInit( LaBP::WLEMDDrawable2D::WEGraphType::DYNAMIC );
+    viewInit( WLEMDDrawable2D::WEGraphType::DYNAMIC );
 
     infoLog() << "Initializing module finished!";
 
@@ -272,6 +271,10 @@ void WMFIRFilter::callbackCoeffFileChanged( void )
 void WMFIRFilter::handleImplementationChanged( void )
 {
     debugLog() << "handleImplementationChanged() called!";
+
+    WProgress::SPtr progress( new WProgress( "Changing FIR Filter" ) );
+    m_progress->addSubProgress( progress );
+
     WFIRFilter::WEFilterType::Enum fType = m_filterTypeSelection->get().at( 0 )->getAs<
                     WItemSelectionItemTyped< WFIRFilter::WEFilterType::Enum > >()->getValue();
     WFIRFilter::WEWindowsType::Enum wType = m_windowSelection->get().at( 0 )->getAs<
@@ -301,11 +304,17 @@ void WMFIRFilter::handleImplementationChanged( void )
 
     WLEMMCommand::SPtr labp( new WLEMMCommand( WLEMMCommand::Command::RESET ) );
     processReset( labp );
+
+    progress->finish();
+    m_progress->removeSubProgress( progress );
 }
 
 void WMFIRFilter::handleDesignButtonPressed( void )
 {
     debugLog() << "handleDesignButtonPressed() called!";
+
+    WProgress::SPtr progress( new WProgress( "Updating FIR Filter" ) );
+    m_progress->addSubProgress( progress );
 
     m_firFilter->setFilterType(
                     m_filterTypeSelection->get().at( 0 )->getAs< WItemSelectionItemTyped< WFIRFilter::WEFilterType::Enum > >()->getValue() );
@@ -320,6 +329,9 @@ void WMFIRFilter::handleDesignButtonPressed( void )
     m_designTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, true );
 
     infoLog() << "New filter designed!";
+
+    progress->finish();
+    m_progress->removeSubProgress( progress );
 }
 
 void WMFIRFilter::callbackFilterTypeChanged( void )

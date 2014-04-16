@@ -38,7 +38,6 @@
 
 #include "core/module/WLEMMCommandProcessor.h"
 #include "core/module/WLModuleDrawable.h"
-// TODO(pieloth): use OW classes
 #include "core/module/WLModuleInputDataRingBuffer.h"
 
 #include "WSourceReconstruction.h"
@@ -114,11 +113,7 @@ protected:
     virtual bool processReset( WLEMMCommand::SPtr cmdIn );
 
 private:
-    // TODO(pieloth): use OW classes
-    /**
-     * Input connector for a EMM dataset
-     */
-    LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input;
+    WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input; /**< Buffered input connector. */
 
     /**
      * A condition used to notify about changes in several properties.
@@ -164,12 +159,6 @@ private:
     // data and noise covariance matices //
     WLMatrix::SPtr m_nCovarianceMatrix;
     WLMatrix::SPtr m_dCovarianceMatrix;
-
-    // File status string //
-    static const std::string NO_MATRIX_LOADED;
-    static const std::string LOADING_MATRIX;
-    static const std::string MATRIX_LOADED;
-    static const std::string MATRIX_ERROR;
 };
 
 #endif  // WMSOURCERECONSTRUCTION_H

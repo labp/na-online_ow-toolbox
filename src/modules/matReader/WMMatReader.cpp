@@ -39,24 +39,22 @@
 #include "WMMatReader.xpm"
 #include "WMMatReader.h"
 
-using namespace LaBP;
-
 W_LOADABLE_MODULE( WMMatReader )
 
-const double WMMatReader::SAMPLING_FEQUENCY = 1000;
+static const double SAMPLING_FEQUENCY = 1000.0;
 
-const std::string WMMatReader::NONE = "none";
-const std::string WMMatReader::SUCCESS_READ = "File successfully read.";
-const std::string WMMatReader::ERROR_READ = "Could not read file!";
+static const std::string NONE = "none";
+static const std::string SUCCESS_READ = "File successfully read.";
+static const std::string ERROR_READ = "Could not read file!";
 
-const std::string WMMatReader::ERROR_EMM = "Could not generate EMM object!";
-const std::string WMMatReader::SUCCESS_EMM = "EMM object successfully created.";
-const std::string WMMatReader::GENERATE_EMM = "Generating EMM object ...";
+static const std::string ERROR_EMM = "Could not generate EMM object!";
+static const std::string SUCCESS_EMM = "EMM object successfully created.";
+static const std::string GENERATE_EMM = "Generating EMM object ...";
 
-const std::string WMMatReader::READING_MAT = "Reading MAT-File ...";
-const std::string WMMatReader::READING_LF = "Reading Leadfield ...";
-const std::string WMMatReader::READING_SRC = "Reading Source Space ...";
-const std::string WMMatReader::READING_SENSORS = "Reading Sensor positions ...";
+static const std::string READING_MAT = "Reading MAT-File ...";
+static const std::string READING_LF = "Reading Leadfield ...";
+static const std::string READING_SRC = "Reading Source Space ...";
+static const std::string READING_SENSORS = "Reading Sensor positions ...";
 
 WMMatReader::WMMatReader()
 {
@@ -89,9 +87,9 @@ const char** WMMatReader::getXPMIcon() const
 void WMMatReader::connectors()
 {
     WModule::connectors();
-    m_output.reset(
-                    new WLModuleOutputDataCollectionable< WLEMMCommand >( shared_from_this(), "out",
-                                    "Provides a filtered EMM-DataSet" ) );
+
+    m_output = WLModuleOutputDataCollectionable< WLEMMCommand >::instance( shared_from_this(),
+                        WLConstantsModule::CONNECTOR_NAME_OUT, WLConstantsModule::CONNECTOR_DESCR_OUT );
     addConnector( m_output );
 }
 

@@ -35,12 +35,12 @@
 #include <osg/ShapeDrawable>
 
 #include <core/common/math/linearAlgebra/WPosition.h>
-#include <core/ui/WCustomWidget.h>
+#include <core/ui/WUIViewWidget.h>
 
 
 #include "WLEMDDrawable3D.h"
 
-class WLEMDDrawable3DEEGBEM: public LaBP::WLEMDDrawable3D
+class WLEMDDrawable3DEEGBEM: public WLEMDDrawable3D
 {
 public:
     /**
@@ -53,7 +53,7 @@ public:
      */
     typedef boost::shared_ptr< const WLEMDDrawable3DEEGBEM > ConstSPtr;
 
-    explicit WLEMDDrawable3DEEGBEM( WCustomWidget::SPtr widget );
+    explicit WLEMDDrawable3DEEGBEM( WUIViewWidget::SPtr widget );
     virtual ~WLEMDDrawable3DEEGBEM();
 
 protected:

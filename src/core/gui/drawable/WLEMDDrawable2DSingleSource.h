@@ -29,34 +29,31 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <core/ui/WCustomWidget.h>
+#include <core/ui/WUIViewWidget.h>
 
 #include "core/data/WLEMMeasurement.h"
 
 #include "WLEMDDrawable2DSingleChannel.h"
 
-namespace LaBP
+class WLEMDDrawable2DSingleSource: public WLEMDDrawable2DSingleChannel
 {
-    class WLEMDDrawable2DSingleSource: public LaBP::WLEMDDrawable2DSingleChannel
-    {
-    public:
-        /**
-         * Abbreviation for a shared pointer on a instance of this class.
-         */
-        typedef boost::shared_ptr< WLEMDDrawable2DSingleSource > SPtr;
+public:
+    /**
+     * Abbreviation for a shared pointer on a instance of this class.
+     */
+    typedef boost::shared_ptr< WLEMDDrawable2DSingleSource > SPtr;
 
-        /**
-         * Abbreviation for a const shared pointer on a instance of this class.
-         */
-        typedef boost::shared_ptr< const WLEMDDrawable2DSingleSource > ConstSPtr;
+    /**
+     * Abbreviation for a const shared pointer on a instance of this class.
+     */
+    typedef boost::shared_ptr< const WLEMDDrawable2DSingleSource > ConstSPtr;
 
-        static const std::string CLASS;
+    static const std::string CLASS;
 
-        explicit WLEMDDrawable2DSingleSource( WCustomWidget::SPtr widget );
-        virtual ~WLEMDDrawable2DSingleSource();
+    explicit WLEMDDrawable2DSingleSource( WUIViewWidget::SPtr widget );
+    virtual ~WLEMDDrawable2DSingleSource();
 
-        virtual void draw( WLEMMeasurement::SPtr emm );
-    };
+    virtual void draw( WLEMMeasurement::SPtr emm );
+};
 
-} /* namespace LaBP */
 #endif  // WLEMDDRAWABLE2DSINGLESOURCE_H_

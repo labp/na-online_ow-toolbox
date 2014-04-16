@@ -111,9 +111,9 @@ const char** WMFiffReader::getXPMIcon() const
 void WMFiffReader::connectors()
 {
     WModule::connectors();
-    m_output.reset(
-                    new WLModuleOutputDataCollectionable< WLEMMCommand >( shared_from_this(), "out",
-                                    "Provides a filtered EMM-DataSet" ) );
+
+    m_output = WLModuleOutputDataCollectionable< WLEMMCommand >::instance( shared_from_this(),
+                    WLConstantsModule::CONNECTOR_NAME_OUT, WLConstantsModule::CONNECTOR_DESCR_OUT );
     addConnector( m_output );
 }
 
@@ -220,6 +220,9 @@ void WMFiffReader::handleTrgSendEMM()
 
 void WMFiffReader::handleFiffFileChanged()
 {
+    WProgress::SPtr progress( new WProgress( "Reading FIFF file" ) );
+    m_progress->addSubProgress( progress );
+
     updateFileStatus( EFileStatus::LOADING_FILE );
     const std::string fName = m_propFiffFile->get().string();
     if( readFiffFile( fName ) )
@@ -239,6 +242,9 @@ void WMFiffReader::handleFiffFileChanged()
     {
         updateFileStatus( EFileStatus::FILE_ERROR );
     }
+
+    progress->finish();
+    m_progress->removeSubProgress( progress );
 }
 
 bool WMFiffReader::readFiffFile( const std::string& fName )
@@ -337,6 +343,9 @@ bool WMFiffReader::retrieveAdditionalData( const std::string& fName )
 
 void WMFiffReader::handleTrgLoad()
 {
+    WProgress::SPtr progress( new WProgress( "Reading additional data" ) );
+    m_progress->addSubProgress( progress );
+
     infoLog() << "Reading additional data ...";
     updateDataStatus( EDataStatus::LOADING_DATA );
     if( readData() )
@@ -349,6 +358,9 @@ void WMFiffReader::handleTrgLoad()
     }
     infoLog() << "Finish reading additional data!";
     m_trgLoadData->set( WPVBaseTypes::PV_TRIGGER_READY, true );
+
+    progress->finish();
+    m_progress->removeSubProgress( progress );
 }
 
 bool WMFiffReader::readData()

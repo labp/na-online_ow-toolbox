@@ -70,6 +70,16 @@ using namespace LaBP;
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMEmMeasurement )
 
+static const std::string NO_DATA_LOADED = "No data loaded.";
+static const std::string LOADING_DATA = "Loading data ...";
+static const std::string DATA_LOADED = "Data successfully loaded.";
+static const std::string DATA_ERROR = "Could not load data.";
+
+static const std::string NO_FILE_LOADED = "No file loaded.";
+static const std::string LOADING_FILE = "Loading file ...";
+static const std::string FILE_LOADED = "File successfully loaded.";
+static const std::string FILE_ERROR = "Could not load file.";
+
 WMEmMeasurement::WMEmMeasurement()
 {
     m_fiffEmm = WLEMMeasurement::SPtr( new WLEMMeasurement() );
@@ -106,11 +116,10 @@ const std::string WMEmMeasurement::getDescription() const
 
 void WMEmMeasurement::connectors()
 {
-    m_output = LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr(
-                    new LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >( shared_from_this(), "out",
-                                    "A loaded dataset." ) );
+    WLModuleDrawable::connectors();
 
-    // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
+    m_output = WLModuleOutputDataCollectionable< WLEMMCommand >::instance( shared_from_this(),
+                    WLConstantsModule::CONNECTOR_NAME_OUT, WLConstantsModule::CONNECTOR_DESCR_OUT );
     addConnector( m_output );
 }
 
@@ -234,7 +243,7 @@ void WMEmMeasurement::moduleInit()
     m_isDipLoaded = false;
     m_isExpLoaded = false;
 
-    viewInit( LaBP::WLEMDDrawable2D::WEGraphType::DYNAMIC );
+    viewInit( WLEMDDrawable2D::WEGraphType::DYNAMIC );
     infoLog() << "Initializing module finished!";
 }
 
@@ -556,7 +565,7 @@ bool WMEmMeasurement::readFiff( std::string fname )
 bool WMEmMeasurement::readElc( std::string fname )
 {
     m_elcFileStatus->set( LOADING_FILE, true );
-    m_elcLabels.reset( new std::vector< std::string >() );
+    m_elcLabels = WLArrayList< std::string >::instance();
     m_elcPositions3d.reset( new std::vector< WPosition >() );
     m_elcFaces.reset( new std::vector< WVector3i >() );
 
@@ -865,13 +874,3 @@ bool WMEmMeasurement::processMisc( WLEMMCommand::SPtr labp )
     m_output->updateData( labp );
     return true;
 }
-
-const std::string WMEmMeasurement::NO_DATA_LOADED = "No data loaded.";
-const std::string WMEmMeasurement::LOADING_DATA = "Loading data ...";
-const std::string WMEmMeasurement::DATA_LOADED = "Data successfully loaded.";
-const std::string WMEmMeasurement::DATA_ERROR = "Could not load data.";
-
-const std::string WMEmMeasurement::NO_FILE_LOADED = "No file loaded.";
-const std::string WMEmMeasurement::LOADING_FILE = "Loading file ...";
-const std::string WMEmMeasurement::FILE_LOADED = "File successfully loaded.";
-const std::string WMEmMeasurement::FILE_ERROR = "Could not load file.";
