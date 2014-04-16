@@ -116,9 +116,10 @@ const std::string WMEmMeasurement::getDescription() const
 
 void WMEmMeasurement::connectors()
 {
-    m_output = WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr(
-                    new WLModuleOutputDataCollectionable< WLEMMCommand >( shared_from_this(), "out",
-                                    "A loaded dataset." ) );
+    WLModuleDrawable::connectors();
+
+    m_output = WLModuleOutputDataCollectionable< WLEMMCommand >::instance( shared_from_this(),
+                    WLConstantsModule::CONNECTOR_NAME_OUT, WLConstantsModule::CONNECTOR_DESCR_OUT );
     addConnector( m_output );
 }
 

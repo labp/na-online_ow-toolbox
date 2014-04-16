@@ -75,9 +75,9 @@ const char** WMMatWriter::getXPMIcon() const
 void WMMatWriter::connectors()
 {
     WModule::connectors();
-    m_input.reset(
-                    new WLModuleInputDataRingBuffer< WLEMMCommand >( 8, shared_from_this(), "in",
-                                    "Provides a filtered EMM-DataSet" ) );
+
+    m_input = WLModuleInputDataRingBuffer< WLEMMCommand >::instance( WLConstantsModule::BUFFER_SIZE, shared_from_this(),
+                        WLConstantsModule::CONNECTOR_NAME_IN, WLConstantsModule::CONNECTOR_DESCR_IN );
     addConnector( m_input );
 }
 

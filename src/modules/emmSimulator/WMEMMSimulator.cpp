@@ -84,19 +84,20 @@ void WMEMMSimulator::connectors()
 {
     WLModuleDrawable::connectors();
 
-    m_input.reset( new WModuleInputData< WLEMMCommand >( shared_from_this(), "in", "Provides a filtered EMM-DataSet" ) );
+    m_input.reset(
+                    new WModuleInputData< WLEMMCommand >( shared_from_this(), WLConstantsModule::CONNECTOR_NAME_IN,
+                                    WLConstantsModule::CONNECTOR_DESCR_IN ) );
     addConnector( m_input );
 
-    m_output = WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr(
-                    new WLModuleOutputDataCollectionable< WLEMMCommand >( shared_from_this(), "out", "A loaded dataset." ) );
-
-    // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
+    m_output = WLModuleOutputDataCollectionable< WLEMMCommand >::instance( shared_from_this(),
+                    WLConstantsModule::CONNECTOR_NAME_OUT, WLConstantsModule::CONNECTOR_DESCR_OUT );
     addConnector( m_output );
 }
 
 void WMEMMSimulator::properties()
 {
     WLModuleDrawable::properties();
+
     m_propCondition = WCondition::SPtr( new WCondition() );
 
     m_propAutoStart = m_properties->addProperty( "Auto start: ", "Start streaming when data is available.", true );
