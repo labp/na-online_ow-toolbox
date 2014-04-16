@@ -142,7 +142,7 @@ bool WFTRtClient::doRequest( WFTRequest& request, WFTResponse& response )
         return false;
     }
 
-    if( tcprequest( m_connection->getSocket(), request.out(), response.in() ) < 0 )
+    if( clientrequest( m_connection->getSocket(), request.out(), response.in() ) < 0 )
     {
         wlog::error( CLASS ) << "Error in communication - check buffer server.";
         return false;
