@@ -96,17 +96,6 @@ private:
      * \return true, if successful.
      */
     bool handleApplyFreq();
-
-    static const double HPI1_FREQ; /**< Default frequency (sfreq < 600Hz) for HPI coil 1 in Hz. */
-    static const double HPI2_FREQ; /**< Default frequency (sfreq < 600Hz) for HPI coil 2 in Hz. */
-    static const double HPI3_FREQ; /**< Default frequency (sfreq < 600Hz) for HPI coil 3 in Hz. */
-    static const double HPI4_FREQ; /**< Default frequency (sfreq < 600Hz) for HPI coil 4 in Hz. */
-    static const double HPI5_FREQ; /**< Default frequency (sfreq < 600Hz) for HPI coil 5 in Hz. */
-    static const double WINDOWS_SIZE; /**< Default windows size in millisecnds. */
-    static const double STEP_SIZE; /**< Default step size in millisecnds. */
-
-    static const std::string STATUS_OK; /**< Indicates the module status is ok. */
-    static const std::string STATUS_ERROR; /**< Indicates an error in module. */
 };
 
 #endif  // WMHEADPOSITIONESTIMATION_H_

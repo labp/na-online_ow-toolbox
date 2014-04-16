@@ -33,17 +33,17 @@
 
 W_LOADABLE_MODULE( WMHeadPositionEstimation )
 
-const double WMHeadPositionEstimation::HPI1_FREQ = 154.0;
-const double WMHeadPositionEstimation::HPI2_FREQ = 158.0;
-const double WMHeadPositionEstimation::HPI3_FREQ = 162.0;
-const double WMHeadPositionEstimation::HPI4_FREQ = 166.0;
-const double WMHeadPositionEstimation::HPI5_FREQ = 170.0;
+static const double HPI1_FREQ = 154.0; /**< Default frequency (sfreq < 600Hz) for HPI coil 1 in Hz. */
+static const double HPI2_FREQ = 158.0; /**< Default frequency (sfreq < 600Hz) for HPI coil 2 in Hz. */
+static const double HPI3_FREQ = 162.0; /**< Default frequency (sfreq < 600Hz) for HPI coil 3 in Hz. */
+static const double HPI4_FREQ = 166.0; /**< Default frequency (sfreq < 600Hz) for HPI coil 4 in Hz. */
+static const double HPI5_FREQ = 170.0; /**< Default frequency (sfreq < 600Hz) for HPI coil 5 in Hz. */
 
-const double WMHeadPositionEstimation::WINDOWS_SIZE = 200.0;
-const double WMHeadPositionEstimation::STEP_SIZE = 10.0;
+static const double WINDOWS_SIZE = 200.0; /**< Default windows size in milliseconds. */
+static const double STEP_SIZE = 10.0; /**< Default step size in milliseconds. */
 
-const std::string WMHeadPositionEstimation::STATUS_OK = "Ok";
-const std::string WMHeadPositionEstimation::STATUS_ERROR = "Error";
+static const std::string STATUS_OK = "Ok"; /**< Indicates the module status is ok. */
+static const std::string STATUS_ERROR = "Error"; /**< Indicates an error in module. */
 
 WMHeadPositionEstimation::WMHeadPositionEstimation()
 {
@@ -75,11 +75,14 @@ const char** WMHeadPositionEstimation::getXPMIcon() const
 
 void WMHeadPositionEstimation::connectors()
 {
-    m_input.reset( new WLModuleInputDataRingBuffer< WLEMMCommand >( 8, shared_from_this(), "in", "Incoming WLEMMComand" ) );
+    WLModuleDrawable::connectors();
+
+    m_input = WLModuleInputDataRingBuffer< WLEMMCommand >::instance( WLConstantsModule::BUFFER_SIZE, shared_from_this(),
+                    WLConstantsModule::CONNECTOR_NAME_IN, WLConstantsModule::CONNECTOR_DESCR_IN );
     addConnector( m_input );
 
-    m_output = WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr(
-                    new WLModuleOutputDataCollectionable< WLEMMCommand >( shared_from_this(), "out", "Outgoing WLEMMComand" ) );
+    m_output = WLModuleOutputDataCollectionable< WLEMMCommand >::instance( shared_from_this(),
+                    WLConstantsModule::CONNECTOR_NAME_OUT, WLConstantsModule::CONNECTOR_DESCR_OUT );
     addConnector( m_output );
 }
 
