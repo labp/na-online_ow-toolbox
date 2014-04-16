@@ -56,70 +56,70 @@ public:
     /**
      * Gets the windows size.
      *
-     * @return Windows size in ms.
+     * \return Windows size in ms.
      */
     WLTimeT getWindowsSize() const;
 
     /**
      * Sets the windows size.
      *
-     * @param winSize Windows size in ms.
+     * \param winSize Windows size in ms.
      */
     void setWindowsSize( WLTimeT winSize );
 
     /**
      * Gets the step size.
      *
-     * @return Step size in ms.
+     * \return Step size in ms.
      */
     WLTimeT getStepSize() const;
 
     /**
      * Gets the sampling frequency.
      *
-     * @return Sampling frequency in Hz.
+     * \return Sampling frequency in Hz.
      */
     WLFreqT getSamplingFrequency() const;
 
     /**
      * Sets the sampling frequency.
      *
-     * @param sfreq Sampling frequency in Hz.
+     * \param sfreq Sampling frequency in Hz.
      */
     void setSamplingFrequency( WLFreqT sfreq );
 
     /**
      * Sets the step size.
      *
-     * @param stepSize Step size in ms.
+     * \param stepSize Step size in ms.
      */
     void setStepSize( WLTimeT stepSize );
 
     /**
      * Adds a frequency of a HPI coil. Transforms the frequency into angular frequency.
      *
-     * @param freq Frequenz in Hz.
+     * \param freq Frequenz in Hz.
      */
     void addFrequency( WLFreqT freq );
 
     /**
      * Gets the frequencies.
      *
-     * @return The frenquencies is Hz.
+     * \return The frenquencies is Hz.
      */
     std::vector< WLFreqT > getFrequencies() const;
 
     /**
      * Clears the frequencies.
      *
-     * @return Number of frequencies removed.
+     * \return Number of frequencies removed.
      */
     size_t clearFrequencies();
 
     /**
      * Pre-computes A, A^T and A^T*A matrix.
      *
-     * @return true, if successful.
+     * \return true, if successful.
      */
     bool prepare();
 
@@ -127,9 +127,9 @@ public:
      * Reconstructs the amplitudes on the MEG sensors.
      * TODO (pieloth): Do we need a highpass filter for input data?
      *
-     * @param hpiOut Contains the output data, if successful
-     * @param megIn MEG input data
-     * @return true, if successful
+     * \param hpiOut Contains the output data, if successful
+     * \param megIn MEG input data
+     * \return true, if successful
      */
     bool reconstructAmplitudes( WLEMData::DataSPtr hpiOut, WLEMDMEG::ConstSPtr megIn );
 
@@ -145,10 +145,10 @@ private:
     /**
      * Reconstructs the amplitudes for one windows.
      *
-     * @param hpiOut Sample vector to store reconstructed amplitudes.
-     * @param megIn MEG data to read from.
-     * @param start Start sample for the windows.
-     * @param samples Samples to read/windows size.
+     * \param hpiOut Sample vector to store reconstructed amplitudes.
+     * \param megIn MEG data to read from.
+     * \param start Start sample for the windows.
+     * \param samples Samples to read/windows size.
      */
     void reconstructWindows( WLEMData::SampleT* const hpiOut, const WLEMData::DataT& megIn, MatrixT::Index start,
                     MatrixT::Index samples );
