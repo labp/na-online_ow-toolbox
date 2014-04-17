@@ -54,16 +54,16 @@ public:
     typedef boost::shared_ptr< const WReaderNeuromagHeader > ConstSPtr;
 
     /**
-     * A default file name.
+     * The class name.
      */
-    static const std::string FILE_NAME;
+    static const std::string CLASS;
 
     /**
      * Constructs a new WReaderNeuromagHeader.
      *
      * @param fname The file name.
      */
-    explicit WReaderNeuromagHeader( std::string fname = FILE_NAME );
+    explicit WReaderNeuromagHeader( std::string fname );
 
     /**
      * Destroys the WReaderNeuromagHeader.

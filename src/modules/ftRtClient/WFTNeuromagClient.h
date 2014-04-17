@@ -27,6 +27,7 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include "core/data/emd/WLEMDRaw.h"
 #include "core/data/WLEMMeasurement.h"
 
 #include "fieldtrip/client/WFTRtClient.h"
@@ -84,6 +85,25 @@ public:
     bool createEMM( WLEMMeasurement& emm );
 
     void printChunks();
+
+protected:
+
+    /**
+     * Creates a raw EMM object with all modalities in one data matrix.
+     *
+     * @param emm The EMM object.
+     * @return Returns false in case of problems occur during EMM creation, otherwise true.
+     */
+    bool getRawData( WLEMDRaw::SPtr& modality );
+
+    /**
+     * Creates a EMM object with a more detailed appearance. The modalities are splitted in several modalities and the EMM
+     * contains some measurement information.
+     *
+     * @param emm The EMM object.
+     * @return Returns false in case of problems occur during EMM creation, otherwise true.
+     */
+    bool createDetailedEMM( WLEMMeasurement& emm, WLEMDRaw::SPtr rawData );
 
 private:
 

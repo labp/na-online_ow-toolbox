@@ -30,6 +30,8 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <fiff/fiff_info.h>
+
 #include "core/container/WLArrayList.h"
 
 #include "WFTChunk.h"
@@ -48,6 +50,11 @@ public:
      * A shared pointer on a WFTHeader.
      */
     typedef boost::shared_ptr< WFTHeader > SPtr;
+
+    /**
+     * A pointer on the measurement information.
+     */
+    typedef boost::shared_ptr< FIFFLIB::FiffInfo > MeasurementInfo_SPtr;
 
     /**
      * The class name.
@@ -151,6 +158,20 @@ public:
      */
     WFTChunkList::SPtr getChunks( WLEFTChunkType::Enum chunkType );
 
+    /**
+     * Gets the measurement information.
+     *
+     * @return The measurement information.
+     */
+    MeasurementInfo_SPtr getMeasurementInfo();
+
+    /**
+     * Sets the measurement information.
+     *
+     * @param info The measurement information.
+     */
+    void setMeasurementInfo( MeasurementInfo_SPtr info );
+
 protected:
 
     /**
@@ -162,6 +183,11 @@ protected:
      * A list of chunk objects. It is used during request serializing.
      */
     boost::shared_ptr< WFTChunkList > m_chunks;
+
+    /**
+     * The measurement information.
+     */
+    boost::shared_ptr< FIFFLIB::FiffInfo > m_measurementInfo;
 
 };
 

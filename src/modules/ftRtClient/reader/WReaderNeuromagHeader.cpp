@@ -33,7 +33,8 @@
 #include <fiff/fiff_ch_info.h>
 #include <fiff/fiff_dir_entry.h>
 #include <fiff/fiff_dir_tree.h>
-#include <utils/ioutils.h>
+
+#include "core/common/WLogger.h"
 
 #include "WFiffTag.h"
 #include "WFiffStream.h"
@@ -42,8 +43,7 @@
 using namespace std;
 using namespace FIFFLIB;
 
-const std::string WReaderNeuromagHeader::FILE_NAME =
-                "/home/maschke/Dokumente/FieldTripRtClient/MPI_2014-04-07/neuromag_files_copy/neuromag_header.fif";
+const std::string WReaderNeuromagHeader::CLASS = "WReaderNeuromagHeader";
 
 WReaderNeuromagHeader::WReaderNeuromagHeader( std::string fname ) :
                 WReader( fname )
@@ -56,9 +56,9 @@ WReaderNeuromagHeader::~WReaderNeuromagHeader()
 
 bool WReaderNeuromagHeader::read( FIFFLIB::FiffInfo* const out )
 {
-    cout << "=============== Start Up. ===============" << endl;
+    wlog::debug( CLASS ) << "Start Up.";
 
-    QFile file( QString::fromStdString( FILE_NAME ) );
+    QFile file( QString::fromStdString( m_fname ) );
 
     WFiffStream stream( &file ); // create a stream on the file.
     FiffDirTree tree;
@@ -66,17 +66,17 @@ bool WReaderNeuromagHeader::read( FIFFLIB::FiffInfo* const out )
 
     stream.setByteOrder( QDataStream::LittleEndian ); // set the byte order.
 
-    cout << "File name: " << FILE_NAME << endl;
-    cout << "File size: " << file.size() << " Byte" << endl;
-    cout << "Byte Order [0 = Big, 1 = Little]: " << stream.byteOrder() << endl;
+    wlog::debug( CLASS ) << "File name: " << m_fname;
+    wlog::debug( CLASS ) << "File size: " << file.size() << " Byte";
+    wlog::debug( CLASS ) << "Byte Order [0 = Big, 1 = Little]: " << stream.byteOrder();
 
-    cout << "=============== Begin reading. ===============" << endl;
+    wlog::debug( CLASS ) << "Begin reading.";
 
     if( stream.device()->open( QIODevice::ReadOnly ) )
-        cout << "Stream opened." << endl;
+        wlog::debug( CLASS ) << "Stream opened.";
     else
     {
-        cout << "Stream not opened." << endl;
+        wlog::debug( CLASS ) << "Stream not opened.";
         return false;
     }
 
@@ -87,18 +87,18 @@ bool WReaderNeuromagHeader::read( FIFFLIB::FiffInfo* const out )
 
     if( tag->kind != FIFF_FILE_ID )
     {
-        cout << "WReaderNeuromagHeader::read: file does not start with a file id tag" << endl;
+        wlog::error( CLASS ) << "File does not start with a file id tag";
         return false;
     }
 
     if( tag->type != FIFFT_ID_STRUCT )
     {
-        cout << "WReaderNeuromagHeader::read: file does not start with a file id tag" << endl;
+        wlog::error( CLASS ) << "File does not start with a file id tag";
         return false;
     }
     if( tag->size() != 20 )
     {
-        cout << "WReaderNeuromagHeader::read: file does not start with a file id tag" << endl;
+        wlog::error( CLASS ) << "File does not start with a file id tag";
         return false;
     }
 
@@ -106,11 +106,11 @@ bool WReaderNeuromagHeader::read( FIFFLIB::FiffInfo* const out )
     WFiffTag::read_tag( &stream, tag );
     if( tag->kind != FIFF_DIR_POINTER )
     {
-        printf( "WReaderNeuromagHeader::read: file does have a directory pointer" );
+        wlog::error( CLASS ) << "File does have a directory pointer";
         return false;
     }
 
-    cout << "Create directory tree." << endl;
+    wlog::debug( CLASS ) << "Create directory tree.";
 
     tags.clear();
     qint32 dirpos = *tag->toInt();
@@ -139,16 +139,16 @@ bool WReaderNeuromagHeader::read( FIFFLIB::FiffInfo* const out )
 
     FiffDirTree nodeInfo;
 
-    cout << "Read measurement information." << endl;
+    wlog::debug( CLASS ) << "Read measurement information.";
 
     stream.read_meas_info( tree, *out, nodeInfo );
 
-    cout << "=============== Finished reading. ===============" << endl;
+    wlog::debug( CLASS ) << "Finished reading.";
 
     // clean up
     stream.device()->seek( 0 );
     stream.device()->close();
-    cout << "Stream closed." << endl;
+    wlog::debug( CLASS ) << "Stream closed.";
 
     return true;
 }

@@ -143,3 +143,13 @@ WFTChunkList::SPtr WFTHeader::getChunks( WLEFTChunkType::Enum chunkType )
 {
     return m_chunks->filter( chunkType );
 }
+
+WFTHeader::MeasurementInfo_SPtr WFTHeader::getMeasurementInfo()
+{
+    return m_measurementInfo;
+}
+
+void WFTHeader::setMeasurementInfo( MeasurementInfo_SPtr info )
+{
+    m_measurementInfo = info;
+}

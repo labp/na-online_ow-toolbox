@@ -45,11 +45,11 @@ const std::string WFTRtClient::CLASS = "WFTRtClient";
 const UINT32_T WFTRtClient::DEFAULT_WAIT_TIMEOUT = 40;
 
 WFTRtClient::WFTRtClient() :
-                m_waitTimeout_ms( DEFAULT_WAIT_TIMEOUT ), m_samples( 0 ), m_events( 0 )
+                m_waitTimeout_ms( DEFAULT_WAIT_TIMEOUT ), m_samples( 0 ), m_eventCount( 0 )
 {
     m_reqBuilder.reset( new WFTRequestBuilder );
-    m_ftHeader.reset( new WFTHeader( 0, 0, 0 ) );
-    m_ftEvents.reset( new WFTEventList );
+    m_header.reset( new WFTHeader( 0, 0, 0 ) );
+    m_events.reset( new WFTEventList );
 }
 
 WFTRtClient::~WFTRtClient()
@@ -60,7 +60,7 @@ WFTRtClient::~WFTRtClient()
 void WFTRtClient::resetClient()
 {
     m_samples = 0;
-    m_events = 0;
+    m_eventCount = 0;
     m_svr_samp_evt.nsamples = 0;
     m_svr_samp_evt.nevents = 0, m_waitTimeout_ms = DEFAULT_WAIT_TIMEOUT;
 
@@ -77,17 +77,17 @@ WFTConnection::SPtr WFTRtClient::getConnection() const
 
 WFTHeader::SPtr WFTRtClient::getHeader() const
 {
-    return m_ftHeader;
+    return m_header;
 }
 
 WFTData::SPtr WFTRtClient::getData() const
 {
-    return m_ftData;
+    return m_data;
 }
 
 WFTEventList::SPtr WFTRtClient::getEventList() const
 {
-    return m_ftEvents;
+    return m_events;
 }
 
 void WFTRtClient::setConnection( WFTConnection::SPtr connection )
@@ -117,7 +117,7 @@ bool WFTRtClient::hasNewSamples() const
 
 bool WFTRtClient::hasNewEvents() const
 {
-    return m_svr_samp_evt.nevents > m_events;
+    return m_svr_samp_evt.nevents > m_eventCount;
 }
 
 UINT32_T WFTRtClient::getSampleCount() const
@@ -127,7 +127,7 @@ UINT32_T WFTRtClient::getSampleCount() const
 
 UINT32_T WFTRtClient::getEventCount() const
 {
-    return m_events;
+    return m_eventCount;
 }
 
 bool WFTRtClient::doRequest( WFTRequest& request, WFTResponse& response )
@@ -155,22 +155,22 @@ bool WFTRtClient::doHeaderRequest()
 {
     WFTResponse::SPtr response( new WFTResponse );
     WFTRequest_GetHeader::SPtr request = m_reqBuilder->buildRequest_GET_HDR();
-    m_ftHeader.reset( new WFTHeader( 0, 0, 0 ) );
+    m_header.reset( new WFTHeader( 0, 0, 0 ) );
 
     if( !doRequest( *request, *response ) )
     {
         return false;
     }
 
-    if( !m_ftHeader->parseResponse( response ) )
+    if( !m_header->parseResponse( response ) )
     {
         wlog::error( CLASS ) << "Error while parsing server response.";
         return false;
     }
 
     // check for new samples & events
-    m_svr_samp_evt.nsamples = m_ftHeader->getHeaderDef().nsamples;
-    m_svr_samp_evt.nevents = m_ftHeader->getHeaderDef().nevents;
+    m_svr_samp_evt.nsamples = m_header->getHeaderDef().nsamples;
+    m_svr_samp_evt.nevents = m_header->getHeaderDef().nevents;
 
     return true;
 }
@@ -203,7 +203,7 @@ bool WFTRtClient::doWaitRequest( unsigned int samples, unsigned int events )
             return false;
         }
         m_samples = 0;
-        m_events = 0;
+        m_eventCount = 0;
     }
 
     return true;
@@ -211,7 +211,7 @@ bool WFTRtClient::doWaitRequest( unsigned int samples, unsigned int events )
 
 bool WFTRtClient::getNewSamples()
 {
-    if( m_ftHeader == 0 )
+    if( m_header == 0 )
     {
         return false;
     }
@@ -229,9 +229,9 @@ bool WFTRtClient::getNewSamples()
         return false;
     }
 
-    m_ftData.reset( new WFTData );
+    m_data.reset( new WFTData );
 
-    if( !m_ftData->parseResponse( response ) )
+    if( !m_data->parseResponse( response ) )
     {
         return false;
     }
@@ -243,7 +243,7 @@ bool WFTRtClient::getNewSamples()
 
 bool WFTRtClient::getNewEvents()
 {
-    if( m_ftHeader == 0 )
+    if( m_header == 0 )
     {
         return false;
     }
@@ -253,7 +253,7 @@ bool WFTRtClient::getNewEvents()
         return false;
     }
 
-    WFTRequest_GetEvent::SPtr request = m_reqBuilder->buildRequest_GET_EVT( m_events, m_svr_samp_evt.nevents - 1 );
+    WFTRequest_GetEvent::SPtr request = m_reqBuilder->buildRequest_GET_EVT( m_eventCount, m_svr_samp_evt.nevents - 1 );
     WFTResponse::SPtr response( new WFTResponse );
 
     if( !doRequest( *request, *response ) )
@@ -261,13 +261,13 @@ bool WFTRtClient::getNewEvents()
         return false;
     }
 
-    m_ftEvents->clear();
-    if( !m_ftEvents->parseResponse( response ) )
+    m_events->clear();
+    if( !m_events->parseResponse( response ) )
     {
         return false;
     }
 
-    m_events = m_svr_samp_evt.nevents;
+    m_eventCount = m_svr_samp_evt.nevents;
 
     request.reset();
     response.reset();

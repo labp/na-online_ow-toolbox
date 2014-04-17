@@ -23,6 +23,8 @@
 //---------------------------------------------------------------------------
 
 #include <cmath>
+#include <fstream>
+#include <map>
 #include <sstream>
 
 #include <boost/foreach.hpp>
@@ -31,16 +33,18 @@
 
 #include "core/data/WLDataTypes.h"
 #include "core/data/emd/WLEMData.h"
-#include "core/data/emd/WLEMDRaw.h"
+#include "core/data/enum/WLEModality.h"
 
 #include "fieldtrip/dataTypes/WFTChunk.h"
+#include "fieldtrip/processing/WFTChunkProcessor.h"
 #include "WFTNeuromagClient.h"
 
 const std::string WFTNeuromagClient::CLASS = "WFTNeuromagClient";
 
-WFTNeuromagClient::WFTNeuromagClient()
+WFTNeuromagClient::WFTNeuromagClient() :
+                m_streaming( false )
 {
-    m_streaming = false;
+
 }
 
 bool WFTNeuromagClient::isStreaming() const
@@ -92,35 +96,81 @@ void WFTNeuromagClient::stop()
 
 bool WFTNeuromagClient::createEMM( WLEMMeasurement& emm )
 {
-    if( m_ftData->getDataDef().bufsize == 0 )
+    WLEMDRaw::SPtr rawData;
+
+    if( !getRawData( rawData ) )
     {
         return false;
     }
 
-    int chans = m_ftData->getDataDef().nchans;
-    int samps = m_ftData->getDataDef().nsamples;
+    if( m_header->hasChunk( WLEFTChunkType::FT_CHUNK_CHANNEL_NAMES ) )
+    {
+
+    }
+
+    // if there is no Neuromag header, return raw data.
+    if( m_header->getMeasurementInfo() == 0 )
+    {
+        emm.addModality( rawData );
+
+        return true;
+    }
+
+    return createDetailedEMM( emm, rawData );
+}
+
+void WFTNeuromagClient::printChunks()
+{
+    if( m_header == 0 )
+    {
+        return;
+    }
+
+    if( !m_header->hasChunks() )
+    {
+        return;
+    }
+
+    BOOST_FOREACH(WFTChunk::SPtr chunk, *m_header->getChunks())
+    {
+        std::string str;
+        str += "Chunk [Type=" + WLEFTChunkType::name( chunk->getType() ) + "]: " + chunk->getDataString();
+
+        wlog::debug( CLASS ) << str;
+    }
+}
+
+bool WFTNeuromagClient::getRawData( WLEMDRaw::SPtr& modality )
+{
+    modality.reset( new WLEMDRaw );
+
+    if( m_data->getDataDef().bufsize == 0 )
+    {
+        return false;
+    }
+
+    int chans = m_data->getDataDef().nchans;
+    int samps = m_data->getDataDef().nsamples;
     ScalarT *dataSrc;
     SimpleStorage floatStore;
 
     // convert data to the used floating point number format
-    if( m_ftData->needDataToConvert< ScalarT >() )
+    if( m_data->needDataToConvert< ScalarT >() )
     {
         floatStore.resize( sizeof(ScalarT) * samps * chans );
         dataSrc = ( ScalarT * )floatStore.data();
 
-        m_ftData->convertData< ScalarT >( dataSrc, m_ftData->getData(), samps, chans, m_ftData->getDataDef().data_type );
+        m_data->convertData< ScalarT >( dataSrc, m_data->getData(), samps, chans, m_data->getDataDef().data_type );
     }
     else // data arrived in the right format
     {
-        dataSrc = ( ScalarT * )m_ftData->getData();
+        dataSrc = ( ScalarT * )m_data->getData();
     }
-
-    WLEMData::SPtr modality( new WLEMDRaw );
 
     WLEMData::DataSPtr dataPtr( new WLEMData::DataT( chans, samps ) ); // create data matrix
     WLEMData::DataT& data = *dataPtr;
 
-    modality->setSampFreq( m_ftHeader->getHeaderDef().fsample );
+    modality->setSampFreq( m_header->getHeaderDef().fsample );
 
     // insert value into the matrix
     for( int i = 0; i < samps; ++i ) // iterate all samples
@@ -152,33 +202,62 @@ bool WFTNeuromagClient::createEMM( WLEMMeasurement& emm )
     }
 
     modality->setData( dataPtr );
-    emm.addModality( modality );
 
     return true;
 }
 
-void WFTNeuromagClient::printChunks()
+bool WFTNeuromagClient::createDetailedEMM( WLEMMeasurement& emm, WLEMDRaw::SPtr rawData )
 {
-    if( m_ftHeader == 0 )
+
+    // todo: Die Aufteilung in Modalitäten/ Channel Typen vornehmen -> am besten in map<Modality, WLEMDRaw::ChanPicksT>  = Eigen::VectorXi
+    std::map< WLEModality::Enum, WLEMDRaw::ChanPicksT > modalityPicks;
+
+    for( int i = 0; i < m_header->getMeasurementInfo()->chs.size(); ++i )
     {
-        return;
+        FIFFLIB::FiffChInfo info = m_header->getMeasurementInfo()->chs.at( i );
+
+        WLEModality::Enum modalityType = WLEModality::fromFiffType( info.kind );
+
+        if( modalityPicks.count( modalityType ) == 0 )
+        {
+            modalityPicks.insert(
+                            std::map< WLEModality::Enum, WLEMDRaw::ChanPicksT >::value_type( modalityType,
+                                            WLEMDRaw::ChanPicksT() ) );
+        }
+
+        WLEMDRaw::ChanPicksT& vector = modalityPicks.at( modalityType );
+        vector.resize( vector.rows(), vector.cols() + 1 );
+        vector( vector.cols() - 1 ) = i;
+
     }
 
-    if( !m_ftHeader->hasChunks() )
-    {
-        return;
-    }
+    wlog::debug( CLASS ) << modalityPicks.at( WLEModality::MEG );
 
-    BOOST_FOREACH(WFTChunk::SPtr chunk, *m_ftHeader->getChunks())
-    {
-        std::string str;
-        str += "Chunk [Type=" + WLEFTChunkType::name( chunk->getType() ) + "]: " + chunk->getDataString();
+    // todo: über die Picks die Daten modalitätenweise holen.
 
-        wlog::debug( CLASS ) << str;
-    }
+    // todo: analog die Channel Names.
+
+    return true;
 }
 
 bool WFTNeuromagClient::prepareStreaming()
 {
-    return doHeaderRequest();
+    if( !doHeaderRequest() )
+    {
+        return false;
+    }
+
+    // receive Neuromag files.
+    if( m_header->hasChunk( WLEFTChunkType::FT_CHUNK_NEUROMAG_HEADER ) )
+    {
+        WFTChunkProcessor::SPtr processor( new WFTChunkProcessor );
+
+        if( processor->processNeuromagHeader( m_header->getChunks( WLEFTChunkType::FT_CHUNK_NEUROMAG_HEADER )->at( 0 ) ) )
+        {
+            m_header->setMeasurementInfo( processor->getMeasurementInfo() );
+        }
+
+    }
+
+    return true;
 }

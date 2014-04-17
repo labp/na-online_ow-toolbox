@@ -267,17 +267,17 @@ protected:
     /**
      * The FieldTrip header structure.
      */
-    WFTHeader::SPtr m_ftHeader;
+    WFTHeader::SPtr m_header;
 
     /**
      * The FieldTrip data structure.
      */
-    WFTData::SPtr m_ftData;
+    WFTData::SPtr m_data;
 
     /**
      * The FieldTrip event list structure.
      */
-    WFTEventList::SPtr m_ftEvents;
+    WFTEventList::SPtr m_events;
 
     /**
      * The timeout for Wait-requests.
@@ -294,7 +294,7 @@ private:
     /**
      * Variable to determine the number of received events.
      */
-    UINT32_T m_events;
+    UINT32_T m_eventCount;
 
     /**
      * Structure to store information about samples and events currently located on the server.

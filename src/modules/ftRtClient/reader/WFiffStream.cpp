@@ -22,13 +22,15 @@
 //
 //---------------------------------------------------------------------------
 
-#include <iostream>
+#include "core/common/WLogger.h"
 
 #include "WFiffTag.h"
 #include "WFiffStream.h"
 
 using namespace std;
 using namespace FIFFLIB;
+
+const std::string WFiffStream::CLASS = "WFiffStream";
 
 WFiffStream::WFiffStream( QIODevice *p_pIODevice ) :
                 FiffStream( p_pIODevice )
@@ -47,14 +49,14 @@ bool WFiffStream::read_meas_info( const FiffDirTree& p_Node, FiffInfo& info, Fif
 
     if( meas.size() == 0 )
     {
-        cout << "Could not find measurement data\n" << endl;
+        wlog::error( CLASS ) << "Could not find measurement data.";
         return false;
     }
     //
     QList< FiffDirTree > meas_info = meas[0].dir_tree_find( FIFFB_MEAS_INFO );
     if( meas_info.count() == 0 )
     {
-        cout << "Could not find measurement info\n" << endl;
+        wlog::error( CLASS ) << "Could not find measurement info.";
 
         return false;
     }
@@ -130,22 +132,22 @@ bool WFiffStream::read_meas_info( const FiffDirTree& p_Node, FiffInfo& info, Fif
     //
     if( nchan < 0 )
     {
-        cout << "Number of channels in not defined\n" << endl;
+        wlog::error( CLASS ) << "Number of channels in not defined.";
         return false;
     }
     if( sfreq < 0 )
     {
-        cout << "Sampling frequency is not defined\n" << endl;
+        wlog::error( CLASS ) << "Sampling frequency is not defined.";
         return false;
     }
     if( chs.size() == 0 )
     {
-        cout << "Channel information not defined\n" << endl;
+        wlog::error( CLASS ) << "Channel information not defined.";
         return false;
     }
     if( chs.size() != nchan )
     {
-        cout << "Incorrect number of channel definitions found\n" << endl;
+        wlog::error( CLASS ) << "Incorrect number of channel definitions found.";
         return false;
     }
 
@@ -240,6 +242,7 @@ bool WFiffStream::read_meas_info( const FiffDirTree& p_Node, FiffInfo& info, Fif
                 }
         }
     }
+    // TODO(maschke): implement SSP data, CTF compensation data and bad channel list.
     //
     //   Load the SSP data
     //
@@ -255,7 +258,6 @@ bool WFiffStream::read_meas_info( const FiffDirTree& p_Node, FiffInfo& info, Fif
     //
     //   Put the data together
     //
-//    info = new FiffInfo();
     if( p_Node.id.version != -1 )
         info.file_id = p_Node.id;
     else

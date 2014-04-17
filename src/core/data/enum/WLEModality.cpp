@@ -147,3 +147,20 @@ WLEModality::ContainerT WLEModality::valuesLocalizeable()
     modalities.insert( WLEModality::MEG );
     return modalities;
 }
+
+WLEModality::Enum WLEModality::fromFiffType( int kind )
+{
+    switch( kind )
+    {
+        case 1:
+            return WLEModality::MEG;
+        case 2:
+            return WLEModality::EEG;
+        case 202:
+            return WLEModality::EOG;
+        case 402:
+            return WLEModality::ECG;
+        default:
+            return WLEModality::UNKNOWN;
+    }
+}

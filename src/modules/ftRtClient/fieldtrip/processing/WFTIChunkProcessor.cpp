@@ -22,46 +22,10 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFIFFSTREAM_H_
-#define WFIFFSTREAM_H_
+#include "modules/ftRtClient/fieldtrip/processing/WFTIChunkProcessor.h"
 
-#include <QtCore/qiodevice.h>
-
-#include <fiff/fiff_stream.h>
-
-using namespace FIFFLIB;
-
-/**
- * FiffStream provides an interface for reading from and writing to fiff files.
- */
-class WFiffStream: public FiffStream
+WFTIChunkProcessor::~WFTIChunkProcessor()
 {
-public:
 
-    /**
-     * The class name.
-     */
-    static const std::string CLASS;
+}
 
-    /**
-     * Constructs a fiff stream that uses the I/O device p_pIODevice.
-     *
-     * @param[in] p_pIODevice    A fiff IO device like a fiff QFile or QTCPSocket
-     */
-    WFiffStream( QIODevice *p_pIODevice );
-
-    /**
-     * Read the measurement info
-     * Source is assumed to be an open fiff file.
-     *
-     * @param[in] p_Node       The node of interest
-     * @param[out] p_Info      The read measurement info
-     * @param[out] p_NodeInfo  The to measurement corresponding fiff_dir_tree.
-     *
-     * @return the to measurement corresponding fiff_dir_tree.
-     */
-    bool read_meas_info( const FiffDirTree& p_Node, FiffInfo& p_Info, FiffDirTree& p_NodeInfo );
-
-};
-
-#endif /* WFIFFSTREAM_H_ */
