@@ -34,6 +34,7 @@
 
 #include "core/container/WLArrayList.h"
 
+#include "chunks/WFTChannelNames.h"
 #include "chunks/WFTChunk.h"
 #include "chunks/WFTChunkList.h"
 #include "WFTRequestableObject.h"
@@ -121,6 +122,13 @@ public:
     WFTHeaderDefT getHeaderDef() const;
 
     /**
+     * Gets the channel names chunk class.
+     *
+     * @return Returns the channel names class.
+     */
+    WFTChannelNames::SPtr channelNames() const;
+
+    /**
      * Returns whether or not the header has chunks in its buffer.
      *
      * @return Returns true if there are chunks, else false.
@@ -189,6 +197,10 @@ protected:
      */
     boost::shared_ptr< FIFFLIB::FiffInfo > m_measurementInfo;
 
+    /**
+     * Contains the channel names of all modalities.
+     */
+    WFTChannelNames::SPtr m_channelNames;
 };
 
 inline std::ostream& operator<<( std::ostream& str, const WFTHeader& header )

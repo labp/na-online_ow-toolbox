@@ -59,6 +59,11 @@ public:
     static const std::string CLASS;
 
     /**
+     * Constructs a new WFTChunk.
+     */
+    WFTChunk();
+
+    /**
      * The constructor defines the describing part of the chunk and allocates memory for the data.
      *
      * @param chunkType The type of the chunks data. This types values are specified as enum in <message.h> from FieldTrip.

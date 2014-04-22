@@ -26,6 +26,11 @@
 
 const std::string WFTChunk::CLASS = "WFTChunk";
 
+WFTChunk::WFTChunk()
+{
+
+}
+
 WFTChunk::WFTChunk( UINT32_T chunkType, UINT32_T chunkSize, const void *data )
 {
     m_store.setData( data, chunkSize );

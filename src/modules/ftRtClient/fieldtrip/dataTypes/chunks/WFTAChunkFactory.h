@@ -27,6 +27,8 @@
 
 #include <map>
 
+#include <boost/shared_ptr.hpp>
+
 using namespace std;
 
 /**
@@ -49,7 +51,7 @@ public:
      * @param e The enum value.
      * @return Returns a pointer on the new instance.
      */
-    static Base* create( Enum e );
+    static boost::shared_ptr< Base > create( Enum e );
 
 protected:
 
@@ -67,7 +69,7 @@ private:
      *
      * @return Returns a pointer to the new instance.
      */
-    virtual Base* create() = 0;
+    virtual boost::shared_ptr< Base > create() = 0;
 };
 
 template< typename Enum, typename Base >
@@ -76,11 +78,11 @@ inline WFTAChunkFactory< Enum, Base >::~WFTAChunkFactory()
 }
 
 template< typename Enum, typename Base >
-inline Base* WFTAChunkFactory< Enum, Base >::create( Enum e )
+inline boost::shared_ptr< Base > WFTAChunkFactory< Enum, Base >::create( Enum e )
 {
     typename map< Enum, WFTAChunkFactory< Enum, Base >* >::const_iterator const it = lookup().find( e );
     if( it == lookup().end() )
-        return 0;
+        return boost::shared_ptr< Base >();
 
     return it->second->create();
 }

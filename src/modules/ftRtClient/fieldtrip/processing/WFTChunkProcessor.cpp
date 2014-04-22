@@ -120,13 +120,10 @@ bool WFTChunkProcessor::channelNamesChunk( WFTChunk::SPtr chunk, WLArrayList< st
 {
     names.reset( new WLArrayList< std::string > );
 
-    if( !chunk->getType() == WLEFTChunkType::FT_CHUNK_CHANNEL_NAMES )
+    if( chunk->getType() != WLEFTChunkType::FT_CHUNK_CHANNEL_NAMES )
     {
         return false;
     }
-
-    if( chunk->getType() != WLEFTChunkType::FT_CHUNK_CHANNEL_NAMES )
-        return false;
 
     std::vector< std::string > splitVec;
     std::string str = chunk->getDataString();

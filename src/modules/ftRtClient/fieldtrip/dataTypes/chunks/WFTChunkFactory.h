@@ -25,7 +25,12 @@
 #ifndef WFTCHUNKFACTORY_H_
 #define WFTCHUNKFACTORY_H_
 
-#include "modules/ftRtClient/fieldtrip/dataTypes/chunks/WFTAChunkFactory.h"
+#include <boost/shared_ptr.hpp>
+
+#include "modules/ftRtClient/fieldtrip/dataTypes/enum/WLEFTChunkType.h"
+#include "WFTChannelNames.h"
+#include "WFTAChunkFactory.h"
+#include "WFTChunk.h"
 
 /**
  * The WFTChunkFactory class creates new instances for the @Derived class type.
@@ -54,7 +59,7 @@ private:
      *
      * @return Returns a pointer on the new instance.
      */
-    virtual Base* create();
+    virtual boost::shared_ptr< Base > create();
 
     /**
      * The factories position.
@@ -75,9 +80,14 @@ inline WFTChunkFactory< Enum, Base, Derived >::~WFTChunkFactory()
 }
 
 template< typename Enum, typename Base, typename Derived >
-inline Base* WFTChunkFactory< Enum, Base, Derived >::create()
+inline boost::shared_ptr< Base > WFTChunkFactory< Enum, Base, Derived >::create()
 {
-    return new Derived();
+    return boost::shared_ptr< Base >( new Derived() );
+}
+
+namespace
+{
+    //WFTChunkFactory< WLEFTChunkType::Enum, WFTChunk, WFTChannelNames > ChannelNamesFactory( WLEFTChunkType::FT_CHUNK_CHANNEL_NAMES );
 }
 
 #endif /* WFTCHUNKFACTORY_H_ */

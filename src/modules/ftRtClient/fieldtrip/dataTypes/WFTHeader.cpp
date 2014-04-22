@@ -28,6 +28,7 @@
 #include "modules/ftRtClient/fieldtrip/WFTChunkIterator.h"
 #include "modules/ftRtClient/fieldtrip/io/request/WFTRequest_PutHeader.h"
 
+#include "chunks/WFTChunkFactory.h"
 #include "WFTHeader.h"
 
 const std::string WFTHeader::CLASS = "WFTHeader";
@@ -51,6 +52,12 @@ void WFTHeader::init( UINT32_T numChannels, UINT32_T dataType, float fsample )
     m_def.bufsize = 0;
 
     m_chunks.reset( new WFTChunkList );
+
+    m_channelNames.reset( new WFTChannelNames );
+    /*
+     = boost::dynamic_pointer_cast< WFTChannelNames >(
+     WFTAChunkFactory< WLEFTChunkType::Enum, WFTChunk >::create( WLEFTChunkType::FT_CHUNK_CHANNEL_NAMES ) );
+     */
 }
 
 WFTRequest::SPtr WFTHeader::asRequest()
@@ -104,6 +111,11 @@ WFTHeader::WFTHeaderDefT& WFTHeader::getHeaderDef()
 WFTHeader::WFTHeaderDefT WFTHeader::getHeaderDef() const
 {
     return m_def;
+}
+
+WFTChannelNames::SPtr WFTHeader::channelNames() const
+{
+    return m_channelNames;
 }
 
 bool WFTHeader::hasChunks() const

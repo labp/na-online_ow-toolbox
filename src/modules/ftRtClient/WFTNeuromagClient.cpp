@@ -29,14 +29,21 @@
 
 #include <boost/foreach.hpp>
 
+#include <Eigen/src/Core/util/Constants.h>
+
 #include <core/common/WLogger.h>
 
 #include "core/data/WLDataTypes.h"
 #include "core/data/emd/WLEMData.h"
+#include "core/data/emd/WLEMDEEG.h"
+#include "core/data/emd/WLEMDMEG.h"
+#include "core/data/emd/WLEMDEOG.h"
+#include "core/data/emd/WLEMDECG.h"
 #include "core/data/enum/WLEModality.h"
 
 #include "fieldtrip/dataTypes/chunks/WFTChunk.h"
 #include "fieldtrip/processing/WFTChunkProcessor.h"
+#include "fieldtrip/dataTypes/chunks/WFTChunkFactory.h"
 #include "WFTNeuromagClient.h"
 
 const std::string WFTNeuromagClient::CLASS = "WFTNeuromagClient";
@@ -203,8 +210,6 @@ bool WFTNeuromagClient::getRawData( WLEMDRaw::SPtr& modality )
 
 bool WFTNeuromagClient::createDetailedEMM( WLEMMeasurement& emm, WLEMDRaw::SPtr rawData )
 {
-
-    // todo: Die Aufteilung in Modalitäten/ Channel Typen vornehmen -> am besten in map<Modality, WLEMDRaw::ChanPicksT>  = Eigen::VectorXi
     std::map< WLEModality::Enum, WLEMDRaw::ChanPicksT > modalityPicks;
 
     for( int i = 0; i < m_header->getMeasurementInfo()->chs.size(); ++i )
@@ -221,16 +226,50 @@ bool WFTNeuromagClient::createDetailedEMM( WLEMMeasurement& emm, WLEMDRaw::SPtr 
         }
 
         WLEMDRaw::ChanPicksT& vector = modalityPicks.at( modalityType );
-        vector.resize( vector.rows(), vector.cols() + 1 );
-        vector( vector.cols() - 1 ) = i;
-
+        vector.conservativeResize( vector.cols() + 1 );
+        vector[ vector.cols() - 1 ] = i;
     }
 
-    //wlog::debug( CLASS ) << modalityPicks.at( WLEModality::MEG );
+    for( std::map< WLEModality::Enum, WLEMDRaw::ChanPicksT >::iterator it = modalityPicks.begin(); it != modalityPicks.end();
+                    ++it )
+    {
+        WLEMData::SPtr emd;
 
-    // todo: über die Picks die Daten modalitätenweise holen.
+        switch( it->first )
+        {
+            case WLEModality::EEG:
+                emd.reset( new WLEMDEEG() );
+                break;
+            case WLEModality::MEG:
+                emd.reset( new WLEMDMEG() );
+                break;
+            case WLEModality::EOG:
+                emd.reset( new WLEMDEOG() );
+                break;
+            case WLEModality::ECG:
+                emd.reset( new WLEMDECG() );
+                break;
+            default:
+                continue;
+        }
 
-    // todo: analog die Channel Names.
+        emd->setData( rawData->getData( it->second, true ) );
+        emm.addModality( emd );
+
+        WLArrayList< std::string >::SPtr channelNames = m_header->channelNames()->getChannelNames( it->first );
+
+        if( channelNames == 0 )
+        {
+            continue;
+        }
+
+        if( channelNames->size() == 0 )
+        {
+            continue;
+        }
+
+        emm.getModality( it->first )->setChanNames( channelNames );
+    }
 
     return true;
 }
@@ -244,16 +283,18 @@ bool WFTNeuromagClient::prepareStreaming()
 
     WFTChunkProcessor::SPtr processor( new WFTChunkProcessor );
 
-    if( m_header->hasChunk( WLEFTChunkType::FT_CHUNK_CHANNEL_NAMES ) )
-    {
-        WLArrayList< std::string >::SPtr list( new WLArrayList< std::string > );
+    /*
+     if( m_header->hasChunk( WLEFTChunkType::FT_CHUNK_CHANNEL_NAMES ) )
+     {
+     WLArrayList< std::string >::SPtr list( new WLArrayList< std::string > );
 
-        if( processor->channelNamesChunk( m_header->getChunks( WLEFTChunkType::FT_CHUNK_CHANNEL_NAMES )->at( 0 ), list ) )
-        {
-            // todo(maschke): include channel flags chunk during FieldTrip channel names processing.
-        }
+     if( processor->channelNamesChunk( m_header->getChunks( WLEFTChunkType::FT_CHUNK_CHANNEL_NAMES )->at( 0 ), list ) )
+     {
+     // todo(maschke): include channel flags chunk during FieldTrip channel names processing.
+     }
 
-    }
+     }
+     */
 
     // receive Neuromag files.
     if( m_header->hasChunk( WLEFTChunkType::FT_CHUNK_NEUROMAG_HEADER ) )
@@ -261,8 +302,21 @@ bool WFTNeuromagClient::prepareStreaming()
         if( processor->processNeuromagHeader( m_header->getChunks( WLEFTChunkType::FT_CHUNK_NEUROMAG_HEADER )->at( 0 ) ) )
         {
             m_header->setMeasurementInfo( processor->getMeasurementInfo() );
+
+            wlog::debug( CLASS ) << "Measurement information created.";
+        }
+        else
+        {
+            wlog::error( CLASS ) << "Could not create measurement information.";
+
+            return false;
         }
 
+        if( !m_header->channelNames()->fromFiff( m_header->getMeasurementInfo() ) )
+        {
+            wlog::error( CLASS ) << "Could not extract channel names from measurement information.";
+            return false;
+        }
     }
 
     return true;
