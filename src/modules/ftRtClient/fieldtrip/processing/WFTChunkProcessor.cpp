@@ -48,7 +48,7 @@
 
 const std::string WFTChunkProcessor::CLASS = "WFTChunkProcessor";
 
-#ifdef defined(_WIN32) || defined(WIN32)
+#ifdef _WIN32
 
 const std::string WFTChunkProcessor::TMPDIRPATH = "C:/Windows/temp/";
 

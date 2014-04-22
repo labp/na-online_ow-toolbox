@@ -25,8 +25,8 @@
 #include <boost/foreach.hpp>
 #include <boost/pointer_cast.hpp>
 
-#include "../WFTChunkIterator.h"
-#include "../io/request/WFTRequest_PutHeader.h"
+#include "modules/ftRtClient/fieldtrip/WFTChunkIterator.h"
+#include "modules/ftRtClient/fieldtrip/io/request/WFTRequest_PutHeader.h"
 
 #include "WFTHeader.h"
 

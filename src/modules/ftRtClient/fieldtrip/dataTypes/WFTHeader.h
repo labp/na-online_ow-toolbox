@@ -34,8 +34,8 @@
 
 #include "core/container/WLArrayList.h"
 
-#include "WFTChunk.h"
-#include "WFTChunkList.h"
+#include "chunks/WFTChunk.h"
+#include "chunks/WFTChunkList.h"
 #include "WFTRequestableObject.h"
 
 /**

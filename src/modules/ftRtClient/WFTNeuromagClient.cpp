@@ -103,11 +103,6 @@ bool WFTNeuromagClient::createEMM( WLEMMeasurement& emm )
         return false;
     }
 
-    if( m_header->hasChunk( WLEFTChunkType::FT_CHUNK_CHANNEL_NAMES ) )
-    {
-
-    }
-
     // if there is no Neuromag header, return raw data.
     if( m_header->getMeasurementInfo() == 0 )
     {
@@ -231,7 +226,7 @@ bool WFTNeuromagClient::createDetailedEMM( WLEMMeasurement& emm, WLEMDRaw::SPtr 
 
     }
 
-    wlog::debug( CLASS ) << modalityPicks.at( WLEModality::MEG );
+    //wlog::debug( CLASS ) << modalityPicks.at( WLEModality::MEG );
 
     // todo: über die Picks die Daten modalitätenweise holen.
 
@@ -247,11 +242,22 @@ bool WFTNeuromagClient::prepareStreaming()
         return false;
     }
 
+    WFTChunkProcessor::SPtr processor( new WFTChunkProcessor );
+
+    if( m_header->hasChunk( WLEFTChunkType::FT_CHUNK_CHANNEL_NAMES ) )
+    {
+        WLArrayList< std::string >::SPtr list( new WLArrayList< std::string > );
+
+        if( processor->channelNamesChunk( m_header->getChunks( WLEFTChunkType::FT_CHUNK_CHANNEL_NAMES )->at( 0 ), list ) )
+        {
+            // todo(maschke): include channel flags chunk during FieldTrip channel names processing.
+        }
+
+    }
+
     // receive Neuromag files.
     if( m_header->hasChunk( WLEFTChunkType::FT_CHUNK_NEUROMAG_HEADER ) )
     {
-        WFTChunkProcessor::SPtr processor( new WFTChunkProcessor );
-
         if( processor->processNeuromagHeader( m_header->getChunks( WLEFTChunkType::FT_CHUNK_NEUROMAG_HEADER )->at( 0 ) ) )
         {
             m_header->setMeasurementInfo( processor->getMeasurementInfo() );

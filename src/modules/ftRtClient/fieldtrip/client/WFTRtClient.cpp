@@ -155,7 +155,7 @@ bool WFTRtClient::doHeaderRequest()
 {
     WFTResponse::SPtr response( new WFTResponse );
     WFTRequest_GetHeader::SPtr request = m_reqBuilder->buildRequest_GET_HDR();
-    m_header.reset( new WFTHeader( 0, 0, 0 ) );
+    m_header.reset( new WFTHeader );
 
     if( !doRequest( *request, *response ) )
     {
