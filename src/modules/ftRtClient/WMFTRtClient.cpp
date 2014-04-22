@@ -45,7 +45,7 @@
 #include "WFTNeuromagClient.h"
 #include "fieldtrip/connection/WFTConnectionTCP.h"
 #include "fieldtrip/connection/WFTConnectionUnix.h"
-#include "fieldtrip/dataTypes/WLEFTDataType.h"
+#include "fieldtrip/dataTypes/enum/WLEFTDataType.h"
 #include "fieldtrip/dataTypes/WFTEventList.h"
 #include "fieldtrip/io/request/WFTRequest_PutEvent.h"
 

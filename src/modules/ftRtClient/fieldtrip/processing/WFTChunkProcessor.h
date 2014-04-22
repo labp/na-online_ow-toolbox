@@ -29,8 +29,8 @@
 
 #include "core/container/WLArrayList.h"
 
-#include "modules/ftRtClient/fieldtrip/dataTypes/WFTChunk.h"
-#include "modules/ftRtClient/fieldtrip/dataTypes/WFTChunkList.h"
+#include "modules/ftRtClient/fieldtrip/dataTypes/chunks/WFTChunk.h"
+#include "modules/ftRtClient/fieldtrip/dataTypes/chunks/WFTChunkList.h"
 #include "modules/ftRtClient/fieldtrip/processing/WFTIChunkProcessor.h"
 
 /**

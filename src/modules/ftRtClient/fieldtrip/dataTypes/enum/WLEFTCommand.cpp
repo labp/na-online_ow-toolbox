@@ -24,7 +24,7 @@
 
 #include <core/common/WAssert.h>
 
-#include <modules/ftRtClient/fieldtrip/dataTypes/WLEFTCommand.h>
+#include "WLEFTCommand.h"
 
 WLEFTCommand::ContainerT WLEFTCommand::values()
 {

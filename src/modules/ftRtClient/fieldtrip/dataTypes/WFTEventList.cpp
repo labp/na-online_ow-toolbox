@@ -29,11 +29,11 @@
 
 #include "core/common/WLogger.h"
 
-#include <modules/ftRtClient/fieldtrip/WFTEventIterator.h>
+#include <modules/ftRtClient/fieldtrip/dataTypes/enum/WLEFTDataType.h>
 #include <modules/ftRtClient/fieldtrip/dataTypes/WFTEventList.h>
 #include <modules/ftRtClient/fieldtrip/io/request/WFTRequest.h>
 #include <modules/ftRtClient/fieldtrip/io/response/WFTResponse.h>
-#include <modules/ftRtClient/fieldtrip/dataTypes/WLEFTDataType.h>
+#include <modules/ftRtClient/fieldtrip/WFTEventIterator.h>
 
 const std::string WFTEventList::CLASS = "WFTEventList";
 

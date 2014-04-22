@@ -32,7 +32,7 @@
 #include <FtBuffer.h>
 
 #include "modules/ftRtClient/fieldtrip/dataTypes/WFTObject.h"
-#include "modules/ftRtClient/fieldtrip/dataTypes/WLEFTCommand.h"
+#include "modules/ftRtClient/fieldtrip/dataTypes/enum/WLEFTCommand.h"
 
 /**
  * Wrapper class for a response created through a FieldTrip request.

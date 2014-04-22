@@ -25,7 +25,7 @@
 #include "core/common/WLogger.h"
 
 #include "dataTypes/WFTObject.h"
-#include "dataTypes/WLEFTDataType.h"
+#include "dataTypes/enum/WLEFTDataType.h"
 
 #include "WFTEventIterator.h"
 

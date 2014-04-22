@@ -27,7 +27,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "modules/ftRtClient/fieldtrip/dataTypes/WFTChunk.h"
+#include "modules/ftRtClient/fieldtrip/dataTypes/chunks/WFTChunk.h"
 #include "WFTRequest.h"
 
 class WFTRequest_PutHeader: public WFTRequest

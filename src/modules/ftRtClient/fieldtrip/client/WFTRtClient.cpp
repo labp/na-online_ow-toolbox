@@ -36,7 +36,7 @@
 #include "modules/ftRtClient/fieldtrip/io/request/WFTRequest_WaitData.h"
 #include "modules/ftRtClient/fieldtrip/io/response/WFTResponse.h"
 #include "modules/ftRtClient/fieldtrip/dataTypes/WFTHeader.h"
-#include "modules/ftRtClient/fieldtrip/dataTypes/WFTChunk.h"
+#include "modules/ftRtClient/fieldtrip/dataTypes/chunks/WFTChunk.h"
 #include "modules/ftRtClient/fieldtrip/WFTEventIterator.h"
 #include "WFTRtClient.h"
 

@@ -32,7 +32,7 @@
 #include <FtBuffer.h>
 
 #include "modules/ftRtClient/fieldtrip/dataTypes/WFTObject.h"
-#include "modules/ftRtClient/fieldtrip/dataTypes/WLEFTCommand.h"
+#include "modules/ftRtClient/fieldtrip/dataTypes/enum/WLEFTCommand.h"
 
 /**
  * The WFTRequest class represents a basic FieldTrip request. It adapts the FieldTrip Buffer Request and can be used to

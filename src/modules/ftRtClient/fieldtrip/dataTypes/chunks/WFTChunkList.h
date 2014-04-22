@@ -29,7 +29,7 @@
 
 #include <core/container/WLArrayList.h>
 
-#include "WLEFTChunkType.h"
+#include "modules/ftRtClient/fieldtrip/dataTypes/enum/WLEFTChunkType.h"
 #include "WFTChunk.h"
 
 /**

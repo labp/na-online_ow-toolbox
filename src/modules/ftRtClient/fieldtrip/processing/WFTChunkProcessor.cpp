@@ -39,7 +39,7 @@
 
 #include "core/common/WLogger.h"
 
-#include "modules/ftRtClient/fieldtrip/dataTypes/WLEFTChunkType.h"
+#include "modules/ftRtClient/fieldtrip/dataTypes/enum/WLEFTChunkType.h"
 #include "modules/ftRtClient/reader/WReaderNeuromagHeader.h"
 
 // todo(maschke): remove unused includes

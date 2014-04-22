@@ -27,7 +27,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "dataTypes/WFTChunk.h"
+#include "dataTypes/chunks/WFTChunk.h"
 #include "WFTAIterator.h"
 
 /**

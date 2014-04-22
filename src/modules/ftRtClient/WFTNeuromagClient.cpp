@@ -35,7 +35,7 @@
 #include "core/data/emd/WLEMData.h"
 #include "core/data/enum/WLEModality.h"
 
-#include "fieldtrip/dataTypes/WFTChunk.h"
+#include "fieldtrip/dataTypes/chunks/WFTChunk.h"
 #include "fieldtrip/processing/WFTChunkProcessor.h"
 #include "WFTNeuromagClient.h"
 

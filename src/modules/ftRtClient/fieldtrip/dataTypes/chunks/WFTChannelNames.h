@@ -25,7 +25,9 @@
 #ifndef WFTCHANNELNAMES_H_
 #define WFTCHANNELNAMES_H_
 
-#include <core/container/WLArrayList.h>
+#include "core/container/WLArrayList.h"
+
+#include "WFTChunk.h"
 
 /**
  *

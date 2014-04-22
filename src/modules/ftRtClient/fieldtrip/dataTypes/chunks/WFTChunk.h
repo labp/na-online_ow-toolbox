@@ -30,8 +30,8 @@
 #include <boost/shared_ptr.hpp>
 
 #include "modules/ftRtClient/fieldtrip/container/WLSmartStorage.h"
-#include "WLEFTChunkType.h"
-#include "WFTObject.h"
+#include "modules/ftRtClient/fieldtrip/dataTypes/enum/WLEFTChunkType.h"
+#include "modules/ftRtClient/fieldtrip/dataTypes/WFTObject.h"
 
 /**
  * WFTChunk is a simple wrapper class for header chunks in a FieldTrip request. The Object administer the chunk
