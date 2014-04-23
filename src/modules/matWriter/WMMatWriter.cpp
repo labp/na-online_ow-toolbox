@@ -36,15 +36,13 @@
 #include "WMMatWriter.xpm"
 #include "WMMatWriter.h"
 
-using namespace LaBP;
-
 W_LOADABLE_MODULE( WMMatWriter )
 
-const std::string WMMatWriter::NONE = "none";
-const std::string WMMatWriter::SUCCESS_WRITE = "Data successfully written.";
-const std::string WMMatWriter::ERROR_WRITE = "Could not write data!";
-const std::string WMMatWriter::ERROR_OPEN = "Could not open file!";
-const std::string WMMatWriter::SUCCESS_OPEN = "Data successfully opened.";
+static const std::string NONE = "none";
+static const std::string SUCCESS_WRITE = "Data successfully written.";
+static const std::string ERROR_WRITE = "Could not write data!";
+static const std::string ERROR_OPEN = "Could not open file!";
+static const std::string SUCCESS_OPEN = "Data successfully opened.";
 
 WMMatWriter::WMMatWriter()
 {
@@ -77,9 +75,9 @@ const char** WMMatWriter::getXPMIcon() const
 void WMMatWriter::connectors()
 {
     WModule::connectors();
-    m_input.reset(
-                    new WLModuleInputDataRingBuffer< WLEMMCommand >( 8, shared_from_this(), "in",
-                                    "Provides a filtered EMM-DataSet" ) );
+
+    m_input = WLModuleInputDataRingBuffer< WLEMMCommand >::instance( WLConstantsModule::BUFFER_SIZE, shared_from_this(),
+                        WLConstantsModule::CONNECTOR_NAME_IN, WLConstantsModule::CONNECTOR_DESCR_IN );
     addConnector( m_input );
 }
 

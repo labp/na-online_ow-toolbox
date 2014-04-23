@@ -30,8 +30,8 @@
 
 const std::string WL2DChannelScrollHandler::CLASS = "WL2DChannelScrollHandler";
 
-WL2DChannelScrollHandler::WL2DChannelScrollHandler( LaBP::WLEMDDrawable2DMultiChannel::SPtr initiator ) :
-                WCustomWidgetEventHandler( initiator->getWidget() ), m_initiator( initiator )
+WL2DChannelScrollHandler::WL2DChannelScrollHandler( WLEMDDrawable2DMultiChannel::SPtr initiator ) :
+                WUIViewEventHandler( initiator->getWidget() ), m_initiator( initiator )
 {
     m_preselection |= GUIEvents::SCROLL;
 }
@@ -59,7 +59,7 @@ void WL2DChannelScrollHandler::handleScroll( GUIEvents::ScrollingMotion motion, 
     }
 }
 
-void WL2DChannelScrollHandler::setDrawable( LaBP::WLEMDDrawable2DMultiChannel::SPtr drawable )
+void WL2DChannelScrollHandler::setDrawable( WLEMDDrawable2DMultiChannel::SPtr drawable )
 {
     m_initiator = drawable;
 }

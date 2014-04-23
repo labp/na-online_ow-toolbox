@@ -116,11 +116,10 @@ const std::string WMEmMeasurement::getDescription() const
 
 void WMEmMeasurement::connectors()
 {
-    m_output = LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr(
-                    new LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >( shared_from_this(), "out",
-                                    "A loaded dataset." ) );
+    WLModuleDrawable::connectors();
 
-    // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
+    m_output = WLModuleOutputDataCollectionable< WLEMMCommand >::instance( shared_from_this(),
+                    WLConstantsModule::CONNECTOR_NAME_OUT, WLConstantsModule::CONNECTOR_DESCR_OUT );
     addConnector( m_output );
 }
 
@@ -244,7 +243,7 @@ void WMEmMeasurement::moduleInit()
     m_isDipLoaded = false;
     m_isExpLoaded = false;
 
-    viewInit( LaBP::WLEMDDrawable2D::WEGraphType::DYNAMIC );
+    viewInit( WLEMDDrawable2D::WEGraphType::DYNAMIC );
     infoLog() << "Initializing module finished!";
 }
 

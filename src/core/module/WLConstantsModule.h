@@ -31,6 +31,13 @@
 namespace WLConstantsModule
 {
     const std::string NAME_PREFIX = "NA-Online:";
+
+    const size_t BUFFER_SIZE = 8;
+
+    const std::string CONNECTOR_NAME_IN = "in";
+    const std::string CONNECTOR_DESCR_IN = "in";
+    const std::string CONNECTOR_NAME_OUT = "out";
+    const std::string CONNECTOR_DESCR_OUT = "out";
 }
 
 #endif  // WLCONSTANTSMODULE_H_

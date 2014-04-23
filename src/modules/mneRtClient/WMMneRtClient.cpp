@@ -51,6 +51,20 @@ using namespace LaBP;
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMMneRtClient )
 
+static const int NO_CONNECTOR = -1;
+
+static const std::string STATUS_CON_CONNECTED = "Connected";
+static const std::string STATUS_CON_DISCONNECTED = "Disconnected";
+static const std::string STATUS_CON_ERROR = "Error";
+
+static const std::string STATUS_DATA_STREAMING = "Streaming";
+static const std::string STATUS_DATA_NOT_STREAMING = "Not streaming";
+
+static const std::string DATA_NOT_LOADED = "No data loaded.";
+static const std::string DATA_LOADING = "Loading data ...";
+static const std::string DATA_LOADED = "Data successfully loaded.";
+static const std::string DATA_ERROR = "Could not load data.";
+
 WMMneRtClient::WMMneRtClient() :
                 m_stopStreaming( true )
 {
@@ -83,11 +97,10 @@ const std::string WMMneRtClient::getDescription() const
 
 void WMMneRtClient::connectors()
 {
-    // initialize connectors
-    // TODO(pieloth) use OW class
-    m_output.reset( new WLModuleOutputDataCollectionable< WLEMMCommand >( shared_from_this(), "out", "A loaded dataset." ) );
+    WLModuleDrawable::connectors();
 
-    // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
+    m_output = WLModuleOutputDataCollectionable< WLEMMCommand >::instance( shared_from_this(),
+                    WLConstantsModule::CONNECTOR_NAME_OUT, WLConstantsModule::CONNECTOR_DESCR_OUT );
     addConnector( m_output );
 }
 

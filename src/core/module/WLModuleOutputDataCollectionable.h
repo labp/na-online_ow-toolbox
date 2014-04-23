@@ -37,54 +37,70 @@
 
 #include "WLModuleInputDataCollection.h"
 
-namespace LaBP
+/**
+ * Class offering an instantiate-able data connection between modules.
+ * This class checks whether the input connector is an instance of WModuleInputDataCollection, if true addData() is called.
+ * ATTENTION: Do not use the static methods create() and createAndAdd()!
+ */
+template< typename T >
+class WLModuleOutputDataCollectionable: public WModuleOutputData< T >
 {
+public:
     /**
-     * Class offering an instantiate-able data connection between modules.
-     * This class checks whether the input connector is an instance of WModuleInputDataCollection, if true addData() is called.
-     * ATTENTION: Do not use the static methods create() and createAndAdd()!
+     * Pointer to this. For convenience.
      */
-    template< typename T >
-    class WLModuleOutputDataCollectionable: public WModuleOutputData< T >
+    typedef boost::shared_ptr< WLModuleOutputDataCollectionable< T > > SPtr;
+
+    /**
+     * Pointer to this. For convenience.
+     */
+    typedef boost::shared_ptr< const WLModuleOutputDataCollectionable< T > > ConstSPtr;
+
+    /**
+     * Returns a new instance.
+     *
+     * \param module the module which is owner of this connector.
+     * \param name The name of this connector.
+     * \param description Short description of this connector.
+     * \return new instance of WLModuleOutputDataCollectionable
+     */
+    static WLModuleOutputDataCollectionable< T >::SPtr instance( WModule::SPtr module, std::string name = "",
+                    std::string description = "" );
+
+    /**
+     * Constructor.
+     *
+     * \param module the module which is owner of this connector.
+     * \param name The name of this connector.
+     * \param description Short description of this connector.
+     */
+    WLModuleOutputDataCollectionable( WModule::SPtr module, std::string name = "", std::string description = "" ) :
+                    WModuleOutputData< T >( module, name, description )
     {
-    public:
-        /**
-         * Pointer to this. For convenience.
-         */
-        typedef boost::shared_ptr< WLModuleOutputDataCollectionable< T > > SPtr;
+    }
 
-        /**
-         * Pointer to this. For convenience.
-         */
-        typedef boost::shared_ptr< const WLModuleOutputDataCollectionable< T > > ConstSPtr;
+    /**
+     * Updates the data associated. addData() will be called for instances of WLModuleInputDataCollection.
+     *
+     * \param data the data do send
+     */
+    void updateData( boost::shared_ptr< T > data );
 
-        /**
-         * Constructor.
-         *
-         * \param module the module which is owner of this connector.
-         * \param name The name of this connector.
-         * \param description Short description of this connector.
-         */
-        WLModuleOutputDataCollectionable( boost::shared_ptr< WModule > module, std::string name = "",
-                        std::string description = "" ) :
-                        WModuleOutputData< T >( module, name, description )
-        {
-        }
+protected:
+private:
+};
 
-        /**
-         * Updates the data associated. addData() will be called for instances of WLModuleInputDataCollection.
-         *
-         * \param data the data do send
-         */
-        void updateData( boost::shared_ptr< T > data );
-
-    protected:
-    private:
-    };
+template< typename T >
+boost::shared_ptr< WLModuleOutputDataCollectionable< T > > WLModuleOutputDataCollectionable< T >::instance( WModule::SPtr module,
+                std::string name, std::string description )
+{
+    WLModuleOutputDataCollectionable< T >::SPtr instance = WLModuleOutputDataCollectionable< T >::SPtr(
+                    new WLModuleOutputDataCollectionable< T >( module, name, description ) );
+    return instance;
 }
 
 template< typename T >
-void LaBP::WLModuleOutputDataCollectionable< T >::updateData( boost::shared_ptr< T > data )
+void WLModuleOutputDataCollectionable< T >::updateData( boost::shared_ptr< T > data )
 {
     WModuleOutputData< T >::m_data = data;
     boost::shared_ptr< WLModuleInputDataCollection< T > > in;

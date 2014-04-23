@@ -29,33 +29,31 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <core/ui/WCustomWidget.h>
+#include <core/ui/WUIViewWidget.h>
 
 #include "core/data/WLEMMeasurement.h"
 
 #include "WLEMDDrawable2DMultiDynamic.h"
 
-namespace LaBP
+class WLEMDDrawable2DMultiDynamicSource: public WLEMDDrawable2DMultiDynamic
 {
-    class WLEMDDrawable2DMultiDynamicSource: public LaBP::WLEMDDrawable2DMultiDynamic
-    {
-    public:
-        /**
-         * Abbreviation for a shared pointer on a instance of this class.
-         */
-        typedef boost::shared_ptr< WLEMDDrawable2DMultiDynamicSource > SPtr;
+public:
+    /**
+     * Abbreviation for a shared pointer on a instance of this class.
+     */
+    typedef boost::shared_ptr< WLEMDDrawable2DMultiDynamicSource > SPtr;
 
-        /**
-         * Abbreviation for a const shared pointer on a instance of this class.
-         */
-        typedef boost::shared_ptr< const WLEMDDrawable2DMultiDynamicSource > ConstSPtr;
+    /**
+     * Abbreviation for a const shared pointer on a instance of this class.
+     */
+    typedef boost::shared_ptr< const WLEMDDrawable2DMultiDynamicSource > ConstSPtr;
 
-        static const std::string CLASS;
+    static const std::string CLASS;
 
-        explicit WLEMDDrawable2DMultiDynamicSource( WCustomWidget::SPtr widget );
-        virtual ~WLEMDDrawable2DMultiDynamicSource();
+    explicit WLEMDDrawable2DMultiDynamicSource( WUIViewWidget::SPtr widget );
+    virtual ~WLEMDDrawable2DMultiDynamicSource();
 
-        virtual void draw( WLEMMeasurement::SPtr emm );
-    };
-} /* namespace LaBP */
+    virtual void draw( WLEMMeasurement::SPtr emm );
+};
+
 #endif  // WLEMDDRAWABLE2DDYNAMICSOURCE_H_

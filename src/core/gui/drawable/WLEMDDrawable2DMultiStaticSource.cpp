@@ -27,7 +27,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include <core/common/WLogger.h>
-#include <core/ui/WCustomWidget.h>
+#include <core/ui/WUIViewWidget.h>
 
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMDSource.h"
@@ -36,36 +36,32 @@
 #include "WLEMDDrawable2DMultiStatic.h"
 #include "WLEMDDrawable2DMultiStaticSource.h"
 
-namespace LaBP
+const std::string WLEMDDrawable2DMultiStaticSource::CLASS = "WLEMDDrawable2DMultiStaticSource";
+
+WLEMDDrawable2DMultiStaticSource::WLEMDDrawable2DMultiStaticSource( WUIViewWidget::SPtr widget ) :
+                WLEMDDrawable2DMultiStatic( widget )
 {
-    const std::string WLEMDDrawable2DMultiStaticSource::CLASS = "WLEMDDrawable2DMultiStaticSource";
+}
 
-    WLEMDDrawable2DMultiStaticSource::WLEMDDrawable2DMultiStaticSource( WCustomWidget::SPtr widget ) :
-                    WLEMDDrawable2DMultiStatic( widget )
-    {
-    }
+WLEMDDrawable2DMultiStaticSource::~WLEMDDrawable2DMultiStaticSource()
+{
+}
 
-    WLEMDDrawable2DMultiStaticSource::~WLEMDDrawable2DMultiStaticSource()
+void WLEMDDrawable2DMultiStaticSource::draw( WLEMMeasurement::SPtr emm )
+{
+    bool success = false;
+    if( emm->hasModality( WLEModality::SOURCE ) )
     {
-    }
-
-    void WLEMDDrawable2DMultiStaticSource::draw( WLEMMeasurement::SPtr emm )
-    {
-        bool success = false;
-        if( emm->hasModality( WLEModality::SOURCE ) )
+        WLEMDSource::ConstSPtr emd = emm->getModality< WLEMDSource >( WLEModality::SOURCE );
+        if( emd )
         {
-            WLEMDSource::ConstSPtr emd = emm->getModality< WLEMDSource >( WLEModality::SOURCE );
-            if( emd )
-            {
-                setModality( emd->getOriginModalityType() );
-                WLEMDDrawable2DMultiStatic::draw( emm );
-                success = true;
-            }
-        }
-        if( !success )
-        {
-            wlog::error( CLASS ) << "Could not retrieve origin modality!";
+            setModality( emd->getOriginModalityType() );
+            WLEMDDrawable2DMultiStatic::draw( emm );
+            success = true;
         }
     }
-
-} /* namespace LaBP */
+    if( !success )
+    {
+        wlog::error( CLASS ) << "Could not retrieve origin modality!";
+    }
+}

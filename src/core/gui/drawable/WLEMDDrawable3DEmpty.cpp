@@ -26,62 +26,58 @@
 
 #include <osgText/Text>
 
-#include <core/ui/WCustomWidget.h>
+#include <core/ui/WUIViewWidget.h>
 
 #include "WLEMDDrawable3DEmpty.h"
 
-namespace LaBP
+WLEMDDrawable3DEmpty::WLEMDDrawable3DEmpty( WUIViewWidget::SPtr widget ) :
+                WLEMDDrawable3D( widget )
 {
-    WLEMDDrawable3DEmpty::WLEMDDrawable3DEmpty( WCustomWidget::SPtr widget ) :
-                    WLEMDDrawable3D( widget )
+}
+
+WLEMDDrawable3DEmpty::~WLEMDDrawable3DEmpty()
+{
+    if( m_textGeode.valid() )
     {
+        m_rootGroup->remove( m_textGeode );
+        m_textGeode = NULL;
+    }
+}
+
+void WLEMDDrawable3DEmpty::draw( WLEMMeasurement::SPtr emm )
+{
+    redraw();
+}
+
+void WLEMDDrawable3DEmpty::osgNodeCallback( osg::NodeVisitor* nv )
+{
+    if( !mustDraw() )
+    {
+        return;
     }
 
-    WLEMDDrawable3DEmpty::~WLEMDDrawable3DEmpty()
-    {
-        if( m_textGeode.valid() )
-        {
-            m_rootGroup->remove( m_textGeode );
-            m_textGeode = NULL;
-        }
-    }
+    m_rootGroup->removeChild( m_textGeode );
+    m_textGeode = new osg::Geode;
 
-    void WLEMDDrawable3DEmpty::draw( WLEMMeasurement::SPtr emm )
-    {
-        redraw();
-    }
+    const ValueT char_size = 16.0;
+    const std::string text = "No 3D view implemented for this modality!";
+    const ValueT x_pos = -m_widget->width() / 8;
+    const ValueT y_pos = 0;
+    const ValueT z_pos = 0;
+    const osg::Vec3 text_pos( x_pos, y_pos, z_pos );
+    const osg::Vec4 text_color( 0.0, 0.0, 0.0, 1.0 );
 
-    void WLEMDDrawable3DEmpty::osgNodeCallback( osg::NodeVisitor* nv )
-    {
-        if( !mustDraw() )
-        {
-            return;
-        }
+    osg::ref_ptr < osgText::Text > textDrawable = new osgText::Text;
+    textDrawable->setText( text );
+    textDrawable->setPosition( text_pos );
+    textDrawable->setAlignment( osgText::Text::LEFT_CENTER );
+    textDrawable->setAxisAlignment( osgText::Text::SCREEN );
+    textDrawable->setCharacterSizeMode( osgText::Text::SCREEN_COORDS );
+    textDrawable->setCharacterSize( char_size );
+    textDrawable->setColor( text_color );
 
-        m_rootGroup->removeChild( m_textGeode );
-        m_textGeode = new osg::Geode;
+    m_textGeode->addDrawable( textDrawable );
+    m_rootGroup->addChild( m_textGeode );
 
-        const ValueT char_size = 16.0;
-        const std::string text = "No 3D view implemented for this modality!";
-        const ValueT x_pos = -m_widget->width() / 8;
-        const ValueT y_pos = 0;
-        const ValueT z_pos = 0;
-        const osg::Vec3 text_pos( x_pos, y_pos, z_pos );
-        const osg::Vec4 text_color( 0.0, 0.0, 0.0, 1.0 );
-
-        osg::ref_ptr< osgText::Text > textDrawable = new osgText::Text;
-        textDrawable->setText( text );
-        textDrawable->setPosition( text_pos );
-        textDrawable->setAlignment( osgText::Text::LEFT_CENTER );
-        textDrawable->setAxisAlignment( osgText::Text::SCREEN );
-        textDrawable->setCharacterSizeMode( osgText::Text::SCREEN_COORDS );
-        textDrawable->setCharacterSize( char_size );
-        textDrawable->setColor( text_color );
-
-        m_textGeode->addDrawable( textDrawable );
-        m_rootGroup->addChild( m_textGeode );
-
-        WLEMDDrawable3D::osgNodeCallback( nv );
-    }
-
-} /* namespace LaBP */
+    WLEMDDrawable3D::osgNodeCallback( nv );
+}

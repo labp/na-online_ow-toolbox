@@ -107,11 +107,7 @@ protected:
     virtual bool processReset( WLEMMCommand::SPtr cmdIn );
 
 private:
-    // TODO(pieloth): use OW classes
-    /**
-     * Input connector for a EMM dataset
-     */
-    LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input;
+    WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input; /**< Buffered input connector. */
 
     /**
      * A condition used to notify about changes in several properties.

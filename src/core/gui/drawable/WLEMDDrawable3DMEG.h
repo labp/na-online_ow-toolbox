@@ -34,59 +34,57 @@
 #include <osg/ref_ptr>
 
 #include <core/common/math/linearAlgebra/WPosition.h>
-#include <core/ui/WCustomWidget.h>
+#include <core/ui/WUIViewWidget.h>
 
 #include "core/data/enum/WLEModality.h"
 #include "WLEMDDrawable3D.h"
 
-namespace LaBP
+class WLEMDDrawable3DMEG: public WLEMDDrawable3D
 {
-    class WLEMDDrawable3DMEG: public LaBP::WLEMDDrawable3D
-    {
-    public:
-        /**
-         * Abbreviation for a shared pointer on a instance of this class.
-         */
-        typedef boost::shared_ptr< WLEMDDrawable3DMEG > SPtr;
+public:
+    /**
+     * Abbreviation for a shared pointer on a instance of this class.
+     */
+    typedef boost::shared_ptr< WLEMDDrawable3DMEG > SPtr;
 
-        /**
-         * Abbreviation for a const shared pointer on a instance of this class.
-         */
-        typedef boost::shared_ptr< const WLEMDDrawable3DMEG > ConstSPtr;
+    /**
+     * Abbreviation for a const shared pointer on a instance of this class.
+     */
+    typedef boost::shared_ptr< const WLEMDDrawable3DMEG > ConstSPtr;
 
-        explicit WLEMDDrawable3DMEG( WCustomWidget::SPtr widget );
+    explicit WLEMDDrawable3DMEG( WUIViewWidget::SPtr widget );
 
-        WLEMDDrawable3DMEG( WCustomWidget::SPtr widget, WLEModality::Enum coilType );
+    WLEMDDrawable3DMEG( WUIViewWidget::SPtr widget, WLEModality::Enum coilType );
 
-        virtual ~WLEMDDrawable3DMEG();
-        void setLabels( bool labelOn );
+    virtual ~WLEMDDrawable3DMEG();
+    void setLabels( bool labelOn );
 
-    protected:
-        virtual bool mustDraw() const;
+protected:
+    virtual bool mustDraw() const;
 
-        virtual void osgNodeCallback( osg::NodeVisitor* nv );
+    virtual void osgNodeCallback( osg::NodeVisitor* nv );
 
-    private:
-        void osgAddLabels( const std::vector< WPosition >& positions, const std::vector< std::string >& labels );
+private:
+    void osgAddLabels( const std::vector< WPosition >& positions, const std::vector< std::string >& labels );
 
-        void osgAddNodes( const std::vector< WPosition >& positions );
+    void osgAddNodes( const std::vector< WPosition >& positions );
 
-        void osgUpdateSurfaceColor( const WLEMData::DataT& data );
+    void osgUpdateSurfaceColor( const WLEMData::DataT& data );
 
-        void osgUpdateNodesColor( const WLEMData::DataT& data );
+    void osgUpdateNodesColor( const WLEMData::DataT& data );
 
-        bool m_electrodesChanged;
+    bool m_electrodesChanged;
 
-        const WLEModality::Enum m_coilType;
+    const WLEModality::Enum m_coilType;
 
-        osg::ref_ptr< osg::Geode > m_electrodesGeode;
+    osg::ref_ptr< osg::Geode > m_electrodesGeode;
 
-        std::vector< osg::ref_ptr< osg::ShapeDrawable > > m_electrodesDrawables;
+    std::vector< osg::ref_ptr< osg::ShapeDrawable > > m_electrodesDrawables;
 
-        bool m_labelsChanged;
-        bool m_labelsOn;
+    bool m_labelsChanged;
+    bool m_labelsOn;
 
-        osg::ref_ptr< osg::Geode > m_labesGeode;
-    };
-} /* namespace LaBP */
+    osg::ref_ptr< osg::Geode > m_labesGeode;
+};
+
 #endif  // WLEMDDRAWABLE3DMEG_H_

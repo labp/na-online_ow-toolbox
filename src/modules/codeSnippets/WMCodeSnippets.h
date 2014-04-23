@@ -97,15 +97,8 @@ protected:
     virtual void properties();
 
 private:
-    /**
-     * Output connector for a EMMCommand dataset
-     */
-    LaBP::WLModuleInputDataCollection< WLEMMCommand >::SPtr m_input;
-
-    /**
-     * Output connector for a EMMCommand dataset
-     */
-    LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output;
+    WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input; /**< Buffered input connector. */
+    WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output; /**<  Output connector for buffered input connectors. */
 
     WCondition::SPtr m_propCondition;
 
@@ -120,7 +113,7 @@ private:
 
     static void generateSinusWave( WLEMData::DataT* const in, float sr, float f, float amp, float offset = 0 );
 
-    void testExtract(WLEMMeasurement::SPtr emm);
+    void testExtract( WLEMMeasurement::SPtr emm );
 };
 
 #endif  // WMCODESNIPPETS_H_

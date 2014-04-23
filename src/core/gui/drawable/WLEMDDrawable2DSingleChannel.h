@@ -34,68 +34,65 @@
 #include <osg/ref_ptr>
 
 #include <core/graphicsEngine/WGEGroupNode.h>
-#include <core/ui/WCustomWidget.h>
+#include <core/ui/WUIViewWidget.h>
 
 #include "core/data/emd/WLEMData.h"
 
 #include "WLEMDDrawable2D.h"
 
-namespace LaBP
+class WLEMDDrawable2DSingleChannel: public WLEMDDrawable2D
 {
-    class WLEMDDrawable2DSingleChannel: public WLEMDDrawable2D
-    {
-    public:
-        /**
-         * Abbreviation for a shared pointer on a instance of this class.
-         */
-        typedef boost::shared_ptr< WLEMDDrawable2DSingleChannel > SPtr;
+public:
+    /**
+     * Abbreviation for a shared pointer on a instance of this class.
+     */
+    typedef boost::shared_ptr< WLEMDDrawable2DSingleChannel > SPtr;
 
-        /**
-         * Abbreviation for a const shared pointer on a instance of this class.
-         */
-        typedef boost::shared_ptr< const WLEMDDrawable2DSingleChannel > ConstSPtr;
+    /**
+     * Abbreviation for a const shared pointer on a instance of this class.
+     */
+    typedef boost::shared_ptr< const WLEMDDrawable2DSingleChannel > ConstSPtr;
 
-        static const std::string CLASS;
+    static const std::string CLASS;
 
-        explicit WLEMDDrawable2DSingleChannel( WCustomWidget::SPtr widget );
-        virtual ~WLEMDDrawable2DSingleChannel();
+    explicit WLEMDDrawable2DSingleChannel( WUIViewWidget::SPtr widget );
+    virtual ~WLEMDDrawable2DSingleChannel();
 
-        /**
-         * Invokes a draw with the new data.
-         *
-         * @param emm data to draw.
-         */
-        virtual void draw( WLEMMeasurement::SPtr emm );
+    /**
+     * Invokes a draw with the new data.
+     *
+     * @param emm data to draw.
+     */
+    virtual void draw( WLEMMeasurement::SPtr emm );
 
-        /**
-         * Checks whether data is available.
-         */
-        virtual bool hasData() const;
+    /**
+     * Checks whether data is available.
+     */
+    virtual bool hasData() const;
 
-        virtual std::pair< WLEMMeasurement::SPtr, size_t > getSelectedData( ValueT pixel ) const;
+    virtual std::pair< WLEMMeasurement::SPtr, size_t > getSelectedData( ValueT pixel ) const;
 
-    protected:
-        WLEMMeasurement::SPtr m_emm;
+protected:
+    WLEMMeasurement::SPtr m_emm;
 
-        virtual void osgNodeCallback( osg::NodeVisitor* nv );
+    virtual void osgNodeCallback( osg::NodeVisitor* nv );
 
-        void osgAddValueGrid( const WLEMData& emd );
+    void osgAddValueGrid( const WLEMData& emd );
 
-        virtual size_t maxChannels( const WLEMData& emd ) const;
+    virtual size_t maxChannels( const WLEMData& emd ) const;
 
-        ValueT m_valueGridHeight;
-        ValueT m_valueGridWidth;
-        osg::ref_ptr< WGEGroupNode > m_valueGridGroup;
+    ValueT m_valueGridHeight;
+    ValueT m_valueGridWidth;
+    osg::ref_ptr< WGEGroupNode > m_valueGridGroup;
 
-    private:
-        void osgAddChannels( const WLEMData& emd );
+private:
+    void osgAddChannels( const WLEMData& emd );
 
-        void osgSetTrigger( const WLEMMeasurement::EDataT& events );
+    void osgSetTrigger( const WLEMMeasurement::EDataT& events );
 
-        osg::ref_ptr< osg::Geode > m_triggerGeode;
+    osg::ref_ptr< osg::Geode > m_triggerGeode;
 
-        osg::ref_ptr< WLColorArray > m_triggerColors;
-    };
+    osg::ref_ptr< WLColorArray > m_triggerColors;
+};
 
-} /* namespace LaBP */
 #endif  // WLEMDDRAWABLE2DSINGLECHANNEL_H

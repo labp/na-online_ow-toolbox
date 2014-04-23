@@ -36,16 +36,15 @@
 #include "WMFiffWriter.xpm"
 #include "WMFiffWriter.h"
 
-using namespace LaBP;
 using WLMatrix::MatrixT;
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMFiffWriter )
 
-const std::string WMFiffWriter::ERROR = "Error";
-const std::string WMFiffWriter::OPEN = "Open";
-const std::string WMFiffWriter::CLOSED = "Closed";
-const std::string WMFiffWriter::NONE = "None";
+static const std::string ERROR = "Error";
+static const std::string OPEN = "Open";
+static const std::string CLOSED = "Closed";
+static const std::string NONE = "None";
 
 WMFiffWriter::WMFiffWriter()
 {
@@ -77,12 +76,14 @@ const char** WMFiffWriter::getXPMIcon() const
 
 void WMFiffWriter::connectors()
 {
-    m_input = WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr(
-                    new WLModuleInputDataRingBuffer< WLEMMCommand >( 8, shared_from_this(), "in", "Expects a EMM-Command." ) );
+    WModule::connectors();
+
+    m_input = WLModuleInputDataRingBuffer< WLEMMCommand >::instance( WLConstantsModule::BUFFER_SIZE, shared_from_this(),
+                    WLConstantsModule::CONNECTOR_NAME_IN, WLConstantsModule::CONNECTOR_DESCR_IN );
     addConnector( m_input );
 
-    m_output = WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr(
-                    new WLModuleOutputDataCollectionable< WLEMMCommand >( shared_from_this(), "out", "A loaded dataset." ) );
+    m_output = WLModuleOutputDataCollectionable< WLEMMCommand >::instance( shared_from_this(),
+                    WLConstantsModule::CONNECTOR_NAME_OUT, WLConstantsModule::CONNECTOR_DESCR_OUT );
     addConnector( m_output );
 }
 

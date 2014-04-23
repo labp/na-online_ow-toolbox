@@ -25,7 +25,7 @@
 #include <boost/shared_ptr.hpp>
 #include <osg/Array>
 
-#include <core/ui/WCustomWidget.h>
+#include <core/ui/WUIViewWidget.h>
 
 #include "core/data/WLEMMSubject.h"
 #include "core/data/WLEMMSurface.h"
@@ -33,70 +33,65 @@
 
 #include "WLEMDDrawable3DSource.h"
 
-namespace LaBP
+WLEMDDrawable3DSource::WLEMDDrawable3DSource( WUIViewWidget::SPtr widget ) :
+                WLEMDDrawable3D( widget )
 {
-    WLEMDDrawable3DSource::WLEMDDrawable3DSource( WCustomWidget::SPtr widget ) :
-                    WLEMDDrawable3D( widget )
+    m_zoomFactor = 1;
+}
+
+WLEMDDrawable3DSource::~WLEMDDrawable3DSource()
+{
+}
+
+void WLEMDDrawable3DSource::osgUpdateSurfaceColor( const WLEMData::DataT& data )
+{
+    if( m_selectedSample >= 0 && ( m_selectedSampleChanged || m_dataChanged || m_colorMapChanged ) )
     {
-        m_zoomFactor = 1;
+        float color;
+        osg::ref_ptr < osg::FloatArray > texCoords = static_cast< osg::FloatArray* >( m_surfaceGeometry->getTexCoordArray( 0 ) );
+        WAssertDebug( data.rows() == texCoords->size(), "data.rows() == texCoords->size()" );
+        WAssertDebug( 0 <= m_selectedSample && m_selectedSample < data.cols(),
+                        "0 <= m_selectedSample && m_selectedSample < data.cols()" );
+        for( std::size_t vertexID = 0; vertexID < texCoords->size(); ++vertexID )
+        {
+            color = data( vertexID, m_selectedSample );
+            ( *texCoords )[vertexID] = m_colorMap->getTextureCoordinate( color );
+        }
+        m_surfaceGeometry->setTexCoordArray( 0, texCoords );
+        osg::ref_ptr < osg::Vec4Array > colors = new osg::Vec4Array;
+        colors->push_back( osg::Vec4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+        m_surfaceGeometry->setColorArray( colors );
+        m_surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+    }
+}
+
+void WLEMDDrawable3DSource::osgNodeCallback( osg::NodeVisitor* nv )
+{
+    if( !mustDraw() )
+    {
+        return;
     }
 
-    WLEMDDrawable3DSource::~WLEMDDrawable3DSource()
+    if( !hasData() )
     {
+        return;
     }
 
-    void WLEMDDrawable3DSource::osgUpdateSurfaceColor( const WLEMData::DataT& data )
+    WLEMMeasurement::ConstSPtr emm = m_emm;
+    WLEMDSource::ConstSPtr emd = emm->getModality< const WLEMDSource >( WLEModality::SOURCE );
+    WLEMMSubject::ConstSPtr subject = emm->getSubject();
+
+    if( m_colorMapChanged )
     {
-        if( m_selectedSample >= 0 && ( m_selectedSampleChanged || m_dataChanged || m_colorMapChanged ) )
-        {
-            float color;
-            osg::ref_ptr< osg::FloatArray > texCoords =
-                            static_cast< osg::FloatArray* >( m_surfaceGeometry->getTexCoordArray( 0 ) );
-            WAssertDebug( data.rows() == texCoords->size(), "data.rows() == texCoords->size()" );
-            WAssertDebug( 0 <= m_selectedSample && m_selectedSample < data.cols(),
-                            "0 <= m_selectedSample && m_selectedSample < data.cols()" );
-            for( std::size_t vertexID = 0; vertexID < texCoords->size(); ++vertexID )
-            {
-                color = data( vertexID, m_selectedSample );
-                ( *texCoords )[vertexID] = m_colorMap->getTextureCoordinate( color );
-            }
-            m_surfaceGeometry->setTexCoordArray( 0, texCoords );
-            osg::ref_ptr< osg::Vec4Array > colors = new osg::Vec4Array;
-            colors->push_back( osg::Vec4( 1.0f, 1.0f, 1.0f, 1.0f ) );
-            m_surfaceGeometry->setColorArray( colors );
-            m_surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
-        }
+        m_state->setTextureAttributeAndModes( 0, m_colorMap->getAsTexture() );
     }
 
-    void WLEMDDrawable3DSource::osgNodeCallback( osg::NodeVisitor* nv )
-    {
-        if( !mustDraw() )
-        {
-            return;
-        }
+    WLEMMSurface::ConstSPtr surf = subject->getSurface( WLEMMSurface::Hemisphere::BOTH );
 
-        if( !hasData() )
-        {
-            return;
-        }
+    m_zoomFactor = WLEExponent::factor( surf->getVertexExponent() ) * 1000;
+    osgAddSurface( *surf->getVertex(), *surf->getFaces() );
 
-        WLEMMeasurement::ConstSPtr emm = m_emm;
-        WLEMDSource::ConstSPtr emd = emm->getModality< const WLEMDSource >( WLEModality::SOURCE );
-        WLEMMSubject::ConstSPtr subject = emm->getSubject();
+    osgUpdateSurfaceColor( emd->getData() );
 
-        if( m_colorMapChanged )
-        {
-            m_state->setTextureAttributeAndModes( 0, m_colorMap->getAsTexture() );
-        }
-
-        WLEMMSurface::ConstSPtr surf = subject->getSurface( WLEMMSurface::Hemisphere::BOTH );
-
-        m_zoomFactor = WLEExponent::factor( surf->getVertexExponent() ) * 1000;
-        osgAddSurface( *surf->getVertex(), *surf->getFaces() );
-
-        osgUpdateSurfaceColor( emd->getData() );
-
-        WLEMDDrawable3D::osgNodeCallback( nv );
-    }
-} /* namespace LaBP */
-
+    WLEMDDrawable3D::osgNodeCallback( nv );
+}

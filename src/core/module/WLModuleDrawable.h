@@ -30,7 +30,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include <core/common/WProperties.h>
-#include <core/ui/WLEMDWidget.h>
+#include <core/ui/WUIGridWidget.h>
 #include <core/kernel/WModule.h>
 
 #include "core/data/WLEMMCommand.h"
@@ -78,10 +78,7 @@ protected:
     virtual bool processTime( WLEMMCommand::SPtr cmdIn );
     virtual bool processMisc( WLEMMCommand::SPtr cmdIn );
 
-    /**
-     * Output connector for a filtered WEEG2 dataset
-     */
-    LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output;
+    WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output; /**< Output connector for buffered input connectors. */
 
     /**
      * Initialize the properties for this module and load the widget
@@ -96,7 +93,7 @@ protected:
     /**
      * Set which elements of the view we want to see: info panels, channels and/or head. Called it after ready()!
      */
-    void viewInit( LaBP::WLEMDDrawable2D::WEGraphType::Enum graphType );
+    void viewInit( WLEMDDrawable2D::WEGraphType::Enum graphType );
 
     void viewReset();
 
@@ -130,9 +127,9 @@ protected:
 
     void hideLabelChanged( bool enable );
 
-    LaBP::WLEMDDrawable2D::SPtr m_drawable2D;
+    WLEMDDrawable2D::SPtr m_drawable2D;
 
-    LaBP::WLEMDDrawable3D::SPtr m_drawable3D;
+    WLEMDDrawable3D::SPtr m_drawable3D;
 
 private:
     void createColorMap();
@@ -157,7 +154,7 @@ private:
 
     void callbackLabelsChanged();
 
-    LaBP::WLEMDDrawable2D::WEGraphType::Enum m_graphType;
+    WLEMDDrawable2D::WEGraphType::Enum m_graphType;
 
     WPropGroup m_propView;
 
@@ -183,7 +180,9 @@ private:
 
     WPropSelection m_selectionColorMode;
 
-    LaBP::WLEMDWidget::SPtr m_widget;
+    WUIGridWidget::SPtr m_widget;
+    WUIViewWidget::SPtr m_widget2D;
+    WUIViewWidget::SPtr m_widget3D;
 
     WL2DChannelScrollHandler::RefPtr m_scrollHandler;
 
@@ -204,8 +203,6 @@ private:
     LaBP::WLColorMap::SPtr m_colorMap;
 
     double m_range;
-
-    static const int AUTO_SCALE_PACKETS;
 };
 
 #endif  // WLMODULEDRAWABLE_H
