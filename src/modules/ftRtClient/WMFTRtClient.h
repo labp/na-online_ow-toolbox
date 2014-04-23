@@ -99,7 +99,7 @@ private:
     /**
      * Input connector for a EMM data set.
      */
-    LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input;
+    WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input;
 
     /**
      * A condition used to notify about changes in several properties.
