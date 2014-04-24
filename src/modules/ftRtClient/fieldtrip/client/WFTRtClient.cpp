@@ -316,3 +316,36 @@ bool WFTRtClient::doFlush( UINT16_T command )
 
     return response->checkFlush();
 }
+
+boost::shared_ptr< WLEMMeasurement::EDataT > WFTRtClient::readEvents( const Eigen::MatrixXf& rawData,
+                WLEMDRaw::ChanPicksT ePicks )
+{
+    wlog::debug( CLASS ) << "readEvents() called.";
+
+    boost::shared_ptr< WLEMMeasurement::EDataT > events( new WLEMMeasurement::EDataT );
+
+    if( ePicks.size() == 0 )
+    {
+        wlog::error( CLASS ) << "No channels to pick.";
+        return events;
+    }
+
+    const Eigen::RowVectorXi::Index rows = ePicks.size();
+    const Eigen::MatrixXf::Index cols = rawData.cols();
+
+    events->clear();
+    events->reserve( rows );
+
+    for( Eigen::RowVectorXi::Index row = 0; row < rows; ++row )
+    {
+        WLEMMeasurement::EChannelT eChannel;
+        eChannel.reserve( cols );
+        for( Eigen::RowVectorXi::Index col = 0; col < cols; ++col )
+        {
+            eChannel.push_back( ( WLEMMeasurement::EventT )rawData( ePicks[row], col ) );
+        }
+        events->push_back( eChannel );
+    }
+
+    return events;
+}

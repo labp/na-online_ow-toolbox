@@ -99,6 +99,16 @@ public:
      */
     virtual bool channelNamesMeasInfo( WFTChunk::SPtr chunk, WLArrayList< std::string >::SPtr& names ) = 0;
 
+    /**
+     * Processes a FieldTrip chunk containing a Neuromag Isotrak file to extract the digitalization points.
+     *
+     * Inherited mehod from WFTIChunkProcessor.
+     *
+     * @param chunk The chunk.
+     * @return Returns true if the Isotrak file could processed, otherwise false.
+     */
+    virtual bool processNeuromagIsotrak( WFTChunk::SPtr chunk ) = 0;
+
 };
 
 #endif /* WFTICHUNKPROCESSOR_H_ */

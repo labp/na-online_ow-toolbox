@@ -100,6 +100,8 @@ public:
      */
     bool hasMeasurementInfo();
 
+    bool hasDigPoints();
+
     /**
      * Extracts the channel names from the FieldTrip header chunk.
      *
@@ -133,6 +135,18 @@ public:
      */
     bool channelNamesMeasInfo( WFTChunk::SPtr chunk, WLArrayList< std::string >::SPtr& names );
 
+    /**
+     * Processes a FieldTrip chunk containing a Neuromag Isotrak file to extract the digitalization points.
+     *
+     * Inherited mehod from WFTIChunkProcessor.
+     *
+     * @param chunk The chunk.
+     * @return Returns true if the Isotrak file could processed, otherwise false.
+     */
+    bool processNeuromagIsotrak( WFTChunk::SPtr chunk );
+
+    WLList< WLDigPoint >::SPtr getDigPoints();
+
 protected:
 
     /**
@@ -146,9 +160,19 @@ protected:
     static const std::string TMPFILENAME;
 
     /**
+     * The name of the temporary Neuromag Isotrak FIFF file.
+     */
+    static const std::string TMPFILENAME_ISOTRAK;
+
+    /**
      * The measurement information.
      */
     WFTHeader::MeasurementInfo_SPtr m_measInfo;
+
+    /**
+     * The digitalization points list.
+     */
+    WLList< WLDigPoint >::SPtr m_digPoints;
 
 private:
 

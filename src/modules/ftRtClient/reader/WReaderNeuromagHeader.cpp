@@ -25,8 +25,6 @@
 #include <cstdio>
 #include <iostream>
 
-#include <QtCore/qbytearray.h>
-#include <QtCore/qfile.h>
 #include <QtCore/qlist.h>
 
 #include <fiff/fiff.h>
@@ -34,7 +32,9 @@
 #include <fiff/fiff_dir_entry.h>
 #include <fiff/fiff_dir_tree.h>
 
-#include "core/common/WLogger.h"
+#include <core/common/WIOTools.h>
+#include <core/dataHandler/exceptions/WDHNoSuchFile.h>
+#include <core/common/WLogger.h>
 
 #include "WFiffTag.h"
 #include "WFiffStream.h"
@@ -45,9 +45,30 @@ using namespace FIFFLIB;
 
 const std::string WReaderNeuromagHeader::CLASS = "WReaderNeuromagHeader";
 
-WReaderNeuromagHeader::WReaderNeuromagHeader( std::string fname ) :
-                WReader( fname )
+WReaderNeuromagHeader::WReaderNeuromagHeader( std::string fname )
 {
+    m_fname = fname;
+    if( !fileExists( m_fname ) )
+    {
+        throw WDHNoSuchFile( m_fname );
+    }
+
+    m_file.setFileName( QString::fromStdString( m_fname ) );
+
+    m_ioDevice = &m_file;
+}
+
+WReaderNeuromagHeader::WReaderNeuromagHeader( const char* data, size_t size )
+{
+    m_buffer.setBuffer( &m_byteArray );
+    m_buffer.open( QIODevice::WriteOnly );
+
+    m_buffer.write( data, size );
+
+    m_buffer.seek( 0 );
+    m_buffer.close();
+
+    m_ioDevice = &m_buffer;
 }
 
 WReaderNeuromagHeader::~WReaderNeuromagHeader()
@@ -58,16 +79,18 @@ bool WReaderNeuromagHeader::read( FIFFLIB::FiffInfo* const out )
 {
     wlog::debug( CLASS ) << "Start Up.";
 
-    QFile file( QString::fromStdString( m_fname ) );
+    if( m_ioDevice == 0 )
+    {
+        return false;
+    }
 
-    WFiffStream stream( &file ); // create a stream on the file.
+    WFiffStream stream( m_ioDevice ); // create a stream on the file.
     FiffDirTree tree;
     QList< FiffDirEntry > tags;
 
     stream.setByteOrder( QDataStream::LittleEndian ); // set the byte order.
 
-    wlog::debug( CLASS ) << "File name: " << m_fname;
-    wlog::debug( CLASS ) << "File size: " << file.size() << " Byte";
+    wlog::debug( CLASS ) << "Buffer size: " << stream.device()->size();
     wlog::debug( CLASS ) << "Byte Order [0 = Big, 1 = Little]: " << stream.byteOrder();
 
     wlog::debug( CLASS ) << "Begin reading.";
@@ -79,6 +102,8 @@ bool WReaderNeuromagHeader::read( FIFFLIB::FiffInfo* const out )
         wlog::debug( CLASS ) << "Stream not opened.";
         return false;
     }
+
+    stream.device()->seek( 0 );
 
     WFiffTag::SPtr tag = FiffTag::SPtr( new FiffTag() );
 

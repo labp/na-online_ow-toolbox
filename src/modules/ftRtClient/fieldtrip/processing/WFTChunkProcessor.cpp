@@ -31,18 +31,13 @@
 #include <boost/algorithm/string/split.hpp>
 #include <boost/foreach.hpp>
 
-#include <QtCore/qstring.h>
-
-#include "core/data/emd/WLEMDEEG.h"
-#include "core/data/emd/WLEMDEOG.h"
-#include "core/data/emd/WLEMDMEG.h"
-
 #include "core/common/WLogger.h"
+#include "core/container/WLList.h"
+#include "core/data/WLDigPoint.h"
 
 #include "modules/ftRtClient/fieldtrip/dataTypes/enum/WLEFTChunkType.h"
 #include "modules/ftRtClient/reader/WReaderNeuromagHeader.h"
-
-// todo(maschke): remove unused includes
+#include "modules/ftRtClient/reader/WReaderNeuromagIsotrak.h"
 
 #include "WFTChunkProcessor.h"
 
@@ -59,6 +54,8 @@ const std::string WFTChunkProcessor::TMPDIRPATH = "/tmp/";
 #endif
 
 const std::string WFTChunkProcessor::TMPFILENAME = TMPDIRPATH + "neuromag_header.fif";
+
+const std::string WFTChunkProcessor::TMPFILENAME_ISOTRAK = TMPDIRPATH + "neuromag_isotrak.fif";
 
 WFTChunkProcessor::~WFTChunkProcessor()
 {
@@ -97,6 +94,9 @@ bool WFTChunkProcessor::processNeuromagHeader( WFTChunk::SPtr chunk )
     fostr.close();
 
     WReaderNeuromagHeader::SPtr reader( new WReaderNeuromagHeader( TMPFILENAME ) );
+
+    //WReaderNeuromagHeader::SPtr reader( new WReaderNeuromagHeader( ( const char* )chunk->getData(), chunk->getDef().size ) );
+
     if( !reader->read( m_measInfo.get() ) )
     {
         wlog::error( CLASS ) << "Neuromag header file was not read.";
@@ -114,6 +114,11 @@ WFTHeader::MeasurementInfo_SPtr WFTChunkProcessor::getMeasurementInfo()
 bool WFTChunkProcessor::hasMeasurementInfo()
 {
     return m_measInfo != 0;
+}
+
+bool WFTChunkProcessor::hasDigPoints()
+{
+    return m_digPoints != 0;
 }
 
 bool WFTChunkProcessor::channelNamesChunk( WFTChunk::SPtr chunk, WLArrayList< std::string >::SPtr& names )
@@ -147,7 +152,7 @@ bool WFTChunkProcessor::channelNamesMeasInfo( WLArrayList< std::string >::SPtr& 
 {
     names.reset( new WLArrayList< std::string > );
 
-    if(m_measInfo == 0)
+    if( m_measInfo == 0 )
     {
         return false;
     }
@@ -173,6 +178,41 @@ bool WFTChunkProcessor::channelNamesMeasInfo( WFTChunk::SPtr chunk, WLArrayList<
     }
 
     return channelNamesMeasInfo( names );
+}
+
+bool WFTChunkProcessor::processNeuromagIsotrak( WFTChunk::SPtr chunk )
+{
+    if( chunk->getType() != WLEFTChunkType::FT_CHUNK_NEUROMAG_ISOTRAK )
+    {
+        return false;
+    }
+
+    std::fstream fostr;
+    fostr.open( TMPFILENAME_ISOTRAK.c_str(), std::fstream::out );
+
+    if( !fostr.is_open() )
+    {
+        wlog::error( CLASS ) << "Neuromag Isotrak file could not opened.";
+        return false;
+    }
+
+    fostr.write( ( const char* )chunk->getData(), chunk->getDef().size );
+    fostr.close();
+
+    WReaderNeuromagIsotrak::SPtr reader( new WReaderNeuromagIsotrak( TMPFILENAME_ISOTRAK ) );
+
+    if( !reader->read( m_digPoints ) )
+    {
+        wlog::error( CLASS ) << "Neuromag header file was not read.";
+        return false;
+    }
+
+    return true;
+}
+
+WLList< WLDigPoint >::SPtr WFTChunkProcessor::getDigPoints()
+{
+    return m_digPoints;
 }
 
 /*

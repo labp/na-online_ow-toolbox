@@ -27,11 +27,13 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <QtCore/qbytearray.h>
+#include <QtCore/qbuffer.h>
+#include <QtCore/qfile.h>
+
 #include <fiff/fiff_info.h>
 #include <fiff/fiff_stream.h>
 #include <fiff/fiff_tag.h>
-
-#include <core/dataHandler/io/WReader.h>
 
 using namespace FIFFLIB;
 
@@ -39,7 +41,7 @@ using namespace FIFFLIB;
  * WReaderNeuromagHeader is a reader for binary FIFF files. It extracts he measurement information tag from the file.
  * The reader supports little endian byte order files only.
  */
-class WReaderNeuromagHeader: public WReader
+class WReaderNeuromagHeader
 {
 public:
 
@@ -64,6 +66,14 @@ public:
      * @param fname The file name.
      */
     explicit WReaderNeuromagHeader( std::string fname );
+
+    /**
+     * Constructs a new WReaderNeuromagHeader.
+     *
+     * @param data The data pointer.
+     * @param size The size of the memory storage.
+     */
+    explicit WReaderNeuromagHeader( const char* data, size_t size );
 
     /**
      * Destroys the WReaderNeuromagHeader.
@@ -93,6 +103,28 @@ protected:
      * @return index of the last read dir entry
      */
     qint32 make_dir_tree( FiffStream* p_pStream, QList< FiffDirEntry >& p_Dir, FiffDirTree& p_Tree, qint32 start = 0 );
+
+    /**
+     * A byte array to store the file.
+     */
+    QByteArray m_byteArray;
+
+    /**
+     * Describes the QIODevice interface for a QByteArray.
+     */
+    QBuffer m_buffer;
+
+    /**
+     * The file name.
+     */
+    std::string m_fname;
+
+    /**
+     * The file to read.
+     */
+    QFile m_file;
+
+    QIODevice *m_ioDevice;
 
 };
 

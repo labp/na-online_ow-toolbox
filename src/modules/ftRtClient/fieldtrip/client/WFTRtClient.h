@@ -31,6 +31,9 @@
 
 #include <message.h>
 
+#include "core/data/WLEMMeasurement.h"
+#include "core/data/emd/WLEMDRaw.h"
+
 #include "modules/ftRtClient/fieldtrip/connection/WFTConnection.h"
 #include "modules/ftRtClient/fieldtrip/dataTypes/WFTData.h"
 #include "modules/ftRtClient/fieldtrip/dataTypes/WFTEventList.h"
@@ -253,6 +256,15 @@ protected:
      * @return Returns true if the request was successful, else false.
      */
     bool doFlush( UINT16_T command );
+
+    /**
+     * Extracts the event/ stimulus channels from a data matrix. @ePicks contains the needed channel indices.
+     *
+     * @param rawData The data matrix.
+     * @param ePicks A vector contains the event channel indices.
+     * @return Returns a pointer on the event channel matrix.
+     */
+    virtual boost::shared_ptr< WLEMMeasurement::EDataT > readEvents( const Eigen::MatrixXf& rawData, WLEMDRaw::ChanPicksT ePicks );
 
     /**
      * The clients connection to the FieldTrip buffer server.

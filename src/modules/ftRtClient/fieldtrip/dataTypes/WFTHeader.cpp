@@ -95,6 +95,12 @@ bool WFTHeader::parseResponse( WFTResponse::SPtr response )
         m_chunks->push_back( iterator->getNext() );
     }
 
+    // todo(maschke): chunk processing at this place
+    if( this->hasChunks() )
+    {
+
+    }
+
     return true;
 }
 
@@ -161,7 +167,17 @@ WFTHeader::MeasurementInfo_SPtr WFTHeader::getMeasurementInfo()
     return m_measurementInfo;
 }
 
+WLList< WLDigPoint >::SPtr WFTHeader::getDigPoints()
+{
+    return m_digPoints;
+}
+
 void WFTHeader::setMeasurementInfo( MeasurementInfo_SPtr info )
 {
     m_measurementInfo = info;
+}
+
+void WFTHeader::setDigPoints( WLList< WLDigPoint >::SPtr digPoints )
+{
+    m_digPoints = digPoints;
 }

@@ -33,6 +33,8 @@
 #include <fiff/fiff_info.h>
 
 #include "core/container/WLArrayList.h"
+#include "core/container/WLList.h"
+#include "core/data/WLDigPoint.h"
 
 #include "chunks/WFTChannelNames.h"
 #include "chunks/WFTChunk.h"
@@ -174,11 +176,25 @@ public:
     MeasurementInfo_SPtr getMeasurementInfo();
 
     /**
+     * Gets the digitalization points.
+     *
+     * @return The digitalization points.
+     */
+    WLList< WLDigPoint >::SPtr getDigPoints();
+
+    /**
      * Sets the measurement information.
      *
      * @param info The measurement information.
      */
     void setMeasurementInfo( MeasurementInfo_SPtr info );
+
+    /**
+     * Sets the digitalization points.
+     *
+     * @param digPoints The digitalization points.
+     */
+    void setDigPoints( WLList< WLDigPoint >::SPtr digPoints );
 
 protected:
 
@@ -198,6 +214,11 @@ protected:
     boost::shared_ptr< FIFFLIB::FiffInfo > m_measurementInfo;
 
     /**
+     * The digitalization points.
+     */
+    WLList< WLDigPoint >::SPtr m_digPoints;
+
+    /**
      * Contains the channel names of all modalities.
      */
     WFTChannelNames::SPtr m_channelNames;
@@ -207,7 +228,7 @@ inline std::ostream& operator<<( std::ostream& str, const WFTHeader& header )
 {
     str << WFTHeader::CLASS << ":";
     str << " DataType: " << header.getHeaderDef().data_type;
-    str << ", Sample Frq:" << header.getHeaderDef().fsample;
+    str << ", Sample Frequency:" << header.getHeaderDef().fsample;
     str << ", Channels: " << header.getHeaderDef().nchans;
     str << ", Samples: " << header.getHeaderDef().nsamples;
     str << ", Events: " << header.getHeaderDef().nevents;
