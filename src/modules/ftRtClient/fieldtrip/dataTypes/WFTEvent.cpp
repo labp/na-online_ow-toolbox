@@ -26,7 +26,7 @@
 
 const std::string WFTEvent::CLASS = "WFTEvent";
 
-WFTEvent::WFTEvent( WFTObject::WFTEventDefT def, const std::string type, const std::string value ) :
+WFTEvent::WFTEvent( WFTEventDefT def, const std::string type, const std::string value ) :
                 m_def( def ), m_type( type ), m_value( value )
 {
 
@@ -45,12 +45,12 @@ UINT32_T WFTEvent::getSize() const
     return ( UINT32_T )sizeof(eventdef_t) + m_def.bufsize;
 }
 
-WFTObject::WFTEventDefT& WFTEvent::getDef()
+WFTEventDefT& WFTEvent::getDef()
 {
     return m_def;
 }
 
-WFTObject::WFTEventDefT WFTEvent::getDef() const
+WFTEventDefT WFTEvent::getDef() const
 {
     return m_def;
 }

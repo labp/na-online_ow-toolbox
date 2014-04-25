@@ -30,19 +30,19 @@ WFTRequest::WFTRequest() :
 
 }
 
-WFTRequest::WFTRequest( const WFTObject::WFTMessageT *msg )
+WFTRequest::WFTRequest( const WFTMessageT *msg )
 {
     WFTRequest(); // call based constructor
 
     m_msg = *msg;
 }
 
-WFTObject::WFTMessageDefT &WFTRequest::getMessageDef()
+WFTMessageDefT &WFTRequest::getMessageDef()
 {
     return m_def;
 }
 
-WFTObject::WFTMessageT &WFTRequest::getMessage()
+WFTMessageT &WFTRequest::getMessage()
 {
     return m_msg;
 }

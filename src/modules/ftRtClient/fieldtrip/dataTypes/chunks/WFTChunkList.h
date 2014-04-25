@@ -30,12 +30,13 @@
 #include <core/container/WLArrayList.h>
 
 #include "modules/ftRtClient/fieldtrip/dataTypes/enum/WLEFTChunkType.h"
+#include "WFTAChunk.h"
 #include "WFTChunk.h"
 
 /**
  * The WFTChunkList class provides a vector associated container structure for WFTChunk types.
  */
-class WFTChunkList: public WLArrayList< WFTChunk::SPtr >
+class WFTChunkList: public WLArrayList< WFTAChunk::SPtr >
 {
 
 public:
@@ -57,7 +58,7 @@ public:
      * @param type The chunk type
      * @return Returns true if the @chunk has the given @type, else false.
      */
-    static bool isChunkType( const WFTChunk::SPtr& chunk, WLEFTChunkType::Enum type );
+    static bool isChunkType( const WFTAChunk::SPtr& chunk, WLEFTChunkType::Enum type );
 
     /**
      * This method delivers a filtered chunk list in which all chunks has the given @chunkType.

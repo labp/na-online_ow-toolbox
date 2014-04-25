@@ -59,7 +59,7 @@ UINT32_T WFTData::getSize() const
     return m_def.bufsize + sizeof(WFTDataDefT);
 }
 
-WFTObject::WFTDataDefT& WFTData::getDataDef()
+WFTDataDefT& WFTData::getDataDef()
 {
     return m_def;
 }

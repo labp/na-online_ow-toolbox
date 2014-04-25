@@ -33,18 +33,19 @@
 
 #include <core/common/WLogger.h>
 
-#include "core/data/WLDataTypes.h"
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDEEG.h"
 #include "core/data/emd/WLEMDMEG.h"
 #include "core/data/emd/WLEMDEOG.h"
 #include "core/data/emd/WLEMDECG.h"
 #include "core/data/enum/WLEModality.h"
+#include "core/data/WLDataTypes.h"
 #include "core/dataFormat/fiff/WLFiffChType.h"
 
 #include "fieldtrip/dataTypes/chunks/WFTChunk.h"
-#include "fieldtrip/processing/WFTChunkProcessor.h"
 #include "fieldtrip/dataTypes/chunks/WFTChunkFactory.h"
+#include "fieldtrip/dataTypes/chunks/WFTChunkNeuromagHdr.h"
+#include "fieldtrip/dataTypes/chunks/WFTChunkNeuromagIsotrak.h"
 #include "WFTNeuromagClient.h"
 
 const std::string WFTNeuromagClient::CLASS = "WFTNeuromagClient";
@@ -112,9 +113,11 @@ bool WFTNeuromagClient::createEMM( WLEMMeasurement& emm )
     }
 
     // if there is no Neuromag header, return raw data.
-    if( m_header->getMeasurementInfo() == 0 )
+    if( !m_header->hasChunk( WLEFTChunkType::FT_CHUNK_NEUROMAG_HEADER ) )
     {
         emm.addModality( rawData );
+
+        wlog::debug( CLASS ) << "create raw EMM";
 
         return true;
     }
@@ -134,10 +137,11 @@ void WFTNeuromagClient::printChunks()
         return;
     }
 
-    BOOST_FOREACH(WFTChunk::SPtr chunk, *m_header->getChunks())
+    // todo(maschke): print chunks
+    BOOST_FOREACH(WFTAChunk::SPtr chunk, *m_header->getChunks())
     {
         std::string str;
-        str += "Chunk [Type=" + WLEFTChunkType::name( chunk->getType() ) + "]: " + chunk->getDataString();
+        str += "Chunk [Type=" + WLEFTChunkType::name( chunk->getType() ) + "]";
 
         wlog::debug( CLASS ) << str;
     }
@@ -211,47 +215,16 @@ bool WFTNeuromagClient::getRawData( WLEMDRaw::SPtr& modality )
 
 bool WFTNeuromagClient::createDetailedEMM( WLEMMeasurement& emm, WLEMDRaw::SPtr rawData )
 {
-    std::map< WLEModality::Enum, WLEMDRaw::ChanPicksT > modalityPicks;
-    WLEMDRaw::ChanPicksT stim_picks;
+    wlog::debug( CLASS ) << "create full detailed EMM";
 
-    // create pick vectors for all channel types.
-    for( int i = 0; i < m_header->getMeasurementInfo()->chs.size(); ++i )
-    {
-        FIFFLIB::FiffChInfo info = m_header->getMeasurementInfo()->chs.at( i );
+    WFTChunkNeuromagHdr::SPtr neuromagHdr = m_header->getChunks( WLEFTChunkType::FT_CHUNK_NEUROMAG_HEADER )->at( 0 )->getAs<
+                    WFTChunkNeuromagHdr >();
 
-        WLEMDRaw::ChanPicksT *vector;
-
-        // skip stimulus channels
-        if( info.kind == WLFiffLib::ChType::STIM )
-        {
-            vector = &stim_picks;
-        }
-        else
-        {
-            WLEModality::Enum modalityType = WLEModality::fromFiffType( info.kind );
-
-            if( modalityType == WLEModality::UNKNOWN )
-            {
-                continue;
-            }
-
-            if( modalityPicks.count( modalityType ) == 0 )
-            {
-                modalityPicks.insert(
-                                std::map< WLEModality::Enum, WLEMDRaw::ChanPicksT >::value_type( modalityType,
-                                                WLEMDRaw::ChanPicksT() ) );
-            }
-
-            vector = &modalityPicks.at( modalityType );
-        }
-
-        vector->conservativeResize( vector->cols() + 1 );
-        ( *vector )[vector->cols() - 1] = i;
-    }
-
-    // transfer data for all modalities and add channel names if exist.
-    for( std::map< WLEModality::Enum, WLEMDRaw::ChanPicksT >::iterator it = modalityPicks.begin(); it != modalityPicks.end();
-                    ++it )
+    //
+    //  transfer data for all modalities and add channel names if exist.
+    //
+    for( std::map< WLEModality::Enum, WLEMDRaw::ChanPicksT >::iterator it = neuromagHdr->getModalityPicks()->begin();
+                    it != neuromagHdr->getModalityPicks()->end(); ++it )
     {
         WLEMData::SPtr emd;
 
@@ -275,7 +248,7 @@ bool WFTNeuromagClient::createDetailedEMM( WLEMMeasurement& emm, WLEMDRaw::SPtr 
 
         emd->setData( rawData->getData( it->second, true ) );
 
-        WLArrayList< std::string >::SPtr channelNames = m_header->channelNames()->getChannelNames( it->first );
+        WLArrayList< std::string >::SPtr channelNames = neuromagHdr->getChannelNames( it->first );
 
         if( channelNames != 0 && channelNames->size() > 0 )
         {
@@ -285,18 +258,21 @@ bool WFTNeuromagClient::createDetailedEMM( WLEMMeasurement& emm, WLEMDRaw::SPtr 
         emm.addModality( emd );
     }
 
-    // add event / stimulus channels to the EMM
-    if( stim_picks.cols() > 0 )
+    //
+    //  Add event / stimulus channels to the EMM
+    //
+    if( neuromagHdr->getStimulusPicks()->cols() > 0 )
     {
-        emm.setEventChannels( readEvents( ( Eigen::MatrixXf& )rawData->getData(), stim_picks ) );
+        emm.setEventChannels( readEvents( ( Eigen::MatrixXf& )rawData->getData(), *neuromagHdr->getStimulusPicks() ) );
     }
 
     //
     //  Add digitalization points.
     //
-    if( m_header->getDigPoints() != 0 && m_header->getDigPoints()->size() > 0 )
+    if( m_header->hasChunk( WLEFTChunkType::FT_CHUNK_NEUROMAG_ISOTRAK ) )
     {
-        emm.setDigPoints( m_header->getDigPoints() );
+        emm.setDigPoints(
+                        m_header->getChunks( WLEFTChunkType::FT_CHUNK_NEUROMAG_ISOTRAK )->at( 0 )->getAs< WFTChunkNeuromagIsotrak >()->getData() );
     }
 
     return true;
@@ -304,50 +280,5 @@ bool WFTNeuromagClient::createDetailedEMM( WLEMMeasurement& emm, WLEMDRaw::SPtr 
 
 bool WFTNeuromagClient::prepareStreaming()
 {
-    if( !doHeaderRequest() )
-    {
-        return false;
-    }
-
-    WFTChunkProcessor::SPtr processor( new WFTChunkProcessor );
-
-    // receive and process Neuromag Header file.
-    if( m_header->hasChunk( WLEFTChunkType::FT_CHUNK_NEUROMAG_HEADER ) )
-    {
-        if( processor->processNeuromagHeader( m_header->getChunks( WLEFTChunkType::FT_CHUNK_NEUROMAG_HEADER )->at( 0 ) ) )
-        {
-            m_header->setMeasurementInfo( processor->getMeasurementInfo() );
-
-            wlog::debug( CLASS ) << "Measurement information created.";
-        }
-        else
-        {
-            wlog::error( CLASS ) << "Could not create measurement information.";
-            return false;
-        }
-
-        if( !m_header->channelNames()->fromFiff( m_header->getMeasurementInfo() ) )
-        {
-            wlog::error( CLASS ) << "Could not extract channel names from measurement information.";
-            return false;
-        }
-    }
-
-    // receive and process Neuromag Isotrak file.
-    if( m_header->hasChunk( WLEFTChunkType::FT_CHUNK_NEUROMAG_ISOTRAK ) )
-    {
-        if( processor->processNeuromagIsotrak( m_header->getChunks( WLEFTChunkType::FT_CHUNK_NEUROMAG_ISOTRAK )->at( 0 ) ) )
-        {
-            wlog::debug( CLASS ) << "Digitalization points read from Isotrak file.";
-
-            m_header->setDigPoints( processor->getDigPoints() );
-        }
-        else
-        {
-            wlog::error( CLASS ) << "Digitalization points were not read.";
-            return false;
-        }
-    }
-
-    return true;
+    return doHeaderRequest();
 }

@@ -22,10 +22,29 @@
 //
 //---------------------------------------------------------------------------
 
-#include "modules/ftRtClient/fieldtrip/processing/WFTIChunkProcessor.h"
+#include "WFTAChunk.h"
 
-WFTIChunkProcessor::~WFTIChunkProcessor()
+WFTAChunk::WFTAChunk( const char* data, const size_t size ) :
+                m_size( size ), m_valid( false )
 {
 
 }
 
+WFTAChunk::~WFTAChunk()
+{
+}
+
+bool WFTAChunk::isValid() const
+{
+    return m_valid;
+}
+
+size_t WFTAChunk::getSize() const
+{
+    return m_size;
+}
+
+void WFTAChunk::processData( const char* data, const size_t size )
+{
+    m_valid = process( data, size );
+}

@@ -25,10 +25,13 @@
 #include <boost/foreach.hpp>
 #include <boost/pointer_cast.hpp>
 
+#include <core/common/WLogger.h>
+
 #include "modules/ftRtClient/fieldtrip/WFTChunkIterator.h"
 #include "modules/ftRtClient/fieldtrip/io/request/WFTRequest_PutHeader.h"
 
-#include "chunks/WFTChunkFactory.h"
+#include "chunks/WFTAChunkFactory.h"
+#include "enum/WLEFTChunkType.h"
 #include "WFTHeader.h"
 
 const std::string WFTHeader::CLASS = "WFTHeader";
@@ -52,12 +55,6 @@ void WFTHeader::init( UINT32_T numChannels, UINT32_T dataType, float fsample )
     m_def.bufsize = 0;
 
     m_chunks.reset( new WFTChunkList );
-
-    m_channelNames.reset( new WFTChannelNames );
-    /*
-     = boost::dynamic_pointer_cast< WFTChannelNames >(
-     WFTAChunkFactory< WLEFTChunkType::Enum, WFTChunk >::create( WLEFTChunkType::FT_CHUNK_CHANNEL_NAMES ) );
-     */
 }
 
 WFTRequest::SPtr WFTHeader::asRequest()
@@ -70,9 +67,9 @@ WFTRequest::SPtr WFTHeader::asRequest()
     WFTRequest_PutHeader::SPtr request( new WFTRequest_PutHeader( m_def.nchans, m_def.data_type, m_def.fsample ) );
 
     // add chunks from the collection to the request object.
-    BOOST_FOREACH(WFTChunk::SPtr chunk, *m_chunks)
+    BOOST_FOREACH(WFTAChunk::SPtr chunk, *m_chunks)
     {
-        request->addChunk( chunk );
+        //request->addChunk( chunk ); todo(maschke)
     }
 
     return request;
@@ -80,6 +77,8 @@ WFTRequest::SPtr WFTHeader::asRequest()
 
 bool WFTHeader::parseResponse( WFTResponse::SPtr response )
 {
+    wlog::debug( CLASS ) << "parseResponse() called.";
+
     SimpleStorage chunkBuffer; // buffer containing only the chunk data after retrieving.
 
     if( !response->checkGetHeader( m_def, &chunkBuffer ) )
@@ -88,17 +87,15 @@ bool WFTHeader::parseResponse( WFTResponse::SPtr response )
     }
 
     m_chunks->clear();
-    // extracts the chunks from the response using an iterator and stores them in the local chunk collection.
-    WFTChunkIterator::SPtr iterator( new WFTChunkIterator( chunkBuffer, m_def.bufsize ) );
-    while( iterator->hasNext() )
-    {
-        m_chunks->push_back( iterator->getNext() );
-    }
 
-    // todo(maschke): chunk processing at this place
-    if( this->hasChunks() )
+    if( m_def.bufsize > 0 )
     {
-
+        // extracts the chunks from the response using an iterator and stores them in the local chunk collection.
+        WFTChunkIterator::SPtr iterator( new WFTChunkIterator( chunkBuffer, m_def.bufsize ) );
+        while( iterator->hasNext() )
+        {
+            m_chunks->push_back( iterator->getNext() );
+        }
     }
 
     return true;
@@ -109,24 +106,20 @@ UINT32_T WFTHeader::getSize() const
     return sizeof(WFTHeaderDefT) + m_def.bufsize;
 }
 
-WFTHeader::WFTHeaderDefT& WFTHeader::getHeaderDef()
+WFTHeaderDefT& WFTHeader::getHeaderDef()
 {
     return m_def;
 }
 
-WFTHeader::WFTHeaderDefT WFTHeader::getHeaderDef() const
+WFTHeaderDefT WFTHeader::getHeaderDef() const
 {
     return m_def;
-}
-
-WFTChannelNames::SPtr WFTHeader::channelNames() const
-{
-    return m_channelNames;
 }
 
 bool WFTHeader::hasChunks() const
 {
-    return m_def.bufsize > 0;
+    //return m_def.bufsize > 0;
+    return m_chunks != 0 && m_chunks->size() > 0;
 }
 
 bool WFTHeader::hasChunk( WLEFTChunkType::Enum chunkType ) const
@@ -136,7 +129,7 @@ bool WFTHeader::hasChunk( WLEFTChunkType::Enum chunkType ) const
         return false;
     }
 
-    BOOST_FOREACH(WFTChunk::SPtr chunk, *m_chunks)
+    BOOST_FOREACH(WFTAChunk::SPtr chunk, *m_chunks)
     {
         if( chunk->getType() == chunkType )
             return true;
@@ -145,11 +138,12 @@ bool WFTHeader::hasChunk( WLEFTChunkType::Enum chunkType ) const
     return false;
 }
 
-void WFTHeader::addChunk( WFTChunk::SPtr chunk )
+void WFTHeader::addChunk( WFTAChunk::SPtr chunk )
 {
     m_chunks->push_back( chunk );
 
-    m_def.bufsize += chunk->getSize();
+    // todo(maschke): apply chunk structure to put chunk process.
+    //m_def.bufsize += chunk->getSize();
 }
 
 WFTChunkList::ConstSPtr WFTHeader::getChunks() const
@@ -160,24 +154,4 @@ WFTChunkList::ConstSPtr WFTHeader::getChunks() const
 WFTChunkList::SPtr WFTHeader::getChunks( WLEFTChunkType::Enum chunkType )
 {
     return m_chunks->filter( chunkType );
-}
-
-WFTHeader::MeasurementInfo_SPtr WFTHeader::getMeasurementInfo()
-{
-    return m_measurementInfo;
-}
-
-WLList< WLDigPoint >::SPtr WFTHeader::getDigPoints()
-{
-    return m_digPoints;
-}
-
-void WFTHeader::setMeasurementInfo( MeasurementInfo_SPtr info )
-{
-    m_measurementInfo = info;
-}
-
-void WFTHeader::setDigPoints( WLList< WLDigPoint >::SPtr digPoints )
-{
-    m_digPoints = digPoints;
 }

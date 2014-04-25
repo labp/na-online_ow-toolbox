@@ -25,9 +25,7 @@
 #ifndef WFTOBJECT_H_
 #define WFTOBJECT_H_
 
-#include <boost/shared_ptr.hpp>
-
-#include <message.h>
+#include "WFTDataTypes.h"
 
 /**
  * The WFTObject interface provides basic types covered from the FieldTrip library and general methods for a processing object.
@@ -40,86 +38,6 @@ public:
      * A shared pointer on a WFTObject.
      */
     typedef boost::shared_ptr< WFTObject > SPtr;
-
-    /**
-     * A FieldTrip Buffer message.
-     */
-    typedef message_t WFTMessageT;
-
-    /**
-     * A shared pointer on a constant FieldTrip Buffer message.
-     */
-    typedef boost::shared_ptr< const WFTMessageT > WFTMessageT_ConstSPtr;
-
-    /**
-     * A message header.
-     */
-    typedef messagedef_t WFTMessageDefT;
-
-    /**
-     * A FieldTrip header structure.
-     */
-    typedef header_t WFTHeaderT;
-
-    /**
-     * The fixed describing part of a FieldTrip header structure.
-     */
-    typedef headerdef_t WFTHeaderDefT;
-
-    /**
-     * A FieldTrip data object.
-     */
-    typedef data_t WFTDataT;
-
-    /**
-     * A header of a FieldTrip data object.
-     */
-    typedef datadef_t WFTDataDefT;
-
-    /**
-     * A FieldTrip event.
-     */
-    typedef event_t WFTEventT;
-
-    /**
-     * A header of a FieldTrip event.
-     */
-    typedef eventdef_t WFTEventDefT;
-
-    /**
-     * The structure for doing Wait-Requests.
-     */
-    typedef waitdef_t WFTWaitDefT;
-
-    /**
-     * A FieldTrip header chunk.
-     */
-    typedef ft_chunk_t WFTChunkT;
-
-    /**
-     * A shared pointer on a FieldTrip header chunk.
-     */
-    typedef boost::shared_ptr< WFTChunkT > WFTChunkT_SPtr;
-
-    /**
-     * A header of a FieldTrip chunk.
-     */
-    typedef ft_chunkdef_t WFTChunkDefT;
-
-    /**
-     * A shared pointer on a FieldTrip chunk header.
-     */
-    typedef boost::shared_ptr< ft_chunkdef_t > WFTChunkDefT_SPtr;
-
-    /**
-     * A structure to indicating a range of samples used by a data request.
-     */
-    typedef datasel_t WFTDataSelectionT;
-
-    /**
-     * A structure, which indicates during a Wait-request, how many samples and events already read by the client.
-     */
-    typedef samples_events_t WFTSamplesEventsT;
 
     /**
      * Destroys the WFTObject.

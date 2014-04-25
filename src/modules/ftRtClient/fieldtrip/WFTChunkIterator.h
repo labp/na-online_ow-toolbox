@@ -27,14 +27,14 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "dataTypes/chunks/WFTChunk.h"
+#include "dataTypes/chunks/WFTAChunk.h"
 #include "WFTAIterator.h"
 
 /**
  * The WFTChunkIterator can be used to run through a bulk of memory containing FieldTrip chunks.
  * This class has the standard iterator appearance with its characteristic operations.
  */
-class WFTChunkIterator: public WFTAIterator< WFTChunk >
+class WFTChunkIterator: public WFTAIterator< WFTAChunk >
 {
 public:
 
@@ -63,7 +63,7 @@ public:
      *
      * @return Returns the next chunk element.
      */
-    WFTChunk::SPtr getNext();
+    WFTAChunk::SPtr getNext();
 
 };
 

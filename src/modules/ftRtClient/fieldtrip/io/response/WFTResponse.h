@@ -61,7 +61,7 @@ public:
 
     bool hasData() const;
 
-    const WFTObject::WFTMessageT getMessage() const;
+    const WFTMessageT getMessage() const;
 
 protected:
 

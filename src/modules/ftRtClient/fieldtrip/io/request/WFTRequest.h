@@ -59,21 +59,21 @@ public:
      *
      * @param msg The message
      */
-    WFTRequest( const WFTObject::WFTMessageT *msg );
+    WFTRequest( const WFTMessageT *msg );
 
     /**
      * Gets the message header.
      *
      * @return The message header.
      */
-    WFTObject::WFTMessageDefT &getMessageDef();
+    WFTMessageDefT &getMessageDef();
 
     /**
      * Gets the message.
      *
      * @return The message.
      */
-    WFTObject::WFTMessageT &getMessage();
+    WFTMessageT &getMessage();
 
     /**
      * Gets the messages content.

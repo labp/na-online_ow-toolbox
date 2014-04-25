@@ -54,7 +54,7 @@ UINT32_T WFTChunk::getSize() const
     return m_chunkdef.size + sizeof(WFTChunkDefT);
 }
 
-const WFTObject::WFTChunkDefT WFTChunk::getDef() const
+const WFTChunkDefT WFTChunk::getDef() const
 {
     return m_chunkdef;
 }

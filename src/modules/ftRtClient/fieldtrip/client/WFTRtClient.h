@@ -311,7 +311,7 @@ private:
     /**
      * Structure to store information about samples and events currently located on the server.
      */
-    WFTObject::WFTSamplesEventsT m_svr_samp_evt;
+    WFTSamplesEventsT m_svr_samp_evt;
 };
 
 #endif /* WFTRTCLIENT_H_ */

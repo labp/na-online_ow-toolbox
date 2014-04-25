@@ -30,13 +30,9 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <fiff/fiff_info.h>
-
 #include "core/container/WLArrayList.h"
-#include "core/container/WLList.h"
-#include "core/data/WLDigPoint.h"
 
-#include "chunks/WFTChannelNames.h"
+#include "chunks/WFTAChunk.h"
 #include "chunks/WFTChunk.h"
 #include "chunks/WFTChunkList.h"
 #include "WFTRequestableObject.h"
@@ -53,11 +49,6 @@ public:
      * A shared pointer on a WFTHeader.
      */
     typedef boost::shared_ptr< WFTHeader > SPtr;
-
-    /**
-     * A pointer on the measurement information.
-     */
-    typedef boost::shared_ptr< FIFFLIB::FiffInfo > MeasurementInfo_SPtr;
 
     /**
      * The class name.
@@ -124,13 +115,6 @@ public:
     WFTHeaderDefT getHeaderDef() const;
 
     /**
-     * Gets the channel names chunk class.
-     *
-     * @return Returns the channel names class.
-     */
-    WFTChannelNames::SPtr channelNames() const;
-
-    /**
      * Returns whether or not the header has chunks in its buffer.
      *
      * @return Returns true if there are chunks, else false.
@@ -150,7 +134,7 @@ public:
      *
      * @param chunk The new chunk.
      */
-    void addChunk( WFTChunk::SPtr chunk );
+    void addChunk( WFTAChunk::SPtr chunk );
 
     /**
      * Returns the chunks collection as shared pointer.
@@ -168,34 +152,6 @@ public:
      */
     WFTChunkList::SPtr getChunks( WLEFTChunkType::Enum chunkType );
 
-    /**
-     * Gets the measurement information.
-     *
-     * @return The measurement information.
-     */
-    MeasurementInfo_SPtr getMeasurementInfo();
-
-    /**
-     * Gets the digitalization points.
-     *
-     * @return The digitalization points.
-     */
-    WLList< WLDigPoint >::SPtr getDigPoints();
-
-    /**
-     * Sets the measurement information.
-     *
-     * @param info The measurement information.
-     */
-    void setMeasurementInfo( MeasurementInfo_SPtr info );
-
-    /**
-     * Sets the digitalization points.
-     *
-     * @param digPoints The digitalization points.
-     */
-    void setDigPoints( WLList< WLDigPoint >::SPtr digPoints );
-
 protected:
 
     /**
@@ -208,20 +164,6 @@ protected:
      */
     boost::shared_ptr< WFTChunkList > m_chunks;
 
-    /**
-     * The measurement information.
-     */
-    boost::shared_ptr< FIFFLIB::FiffInfo > m_measurementInfo;
-
-    /**
-     * The digitalization points.
-     */
-    WLList< WLDigPoint >::SPtr m_digPoints;
-
-    /**
-     * Contains the channel names of all modalities.
-     */
-    WFTChannelNames::SPtr m_channelNames;
 };
 
 inline std::ostream& operator<<( std::ostream& str, const WFTHeader& header )

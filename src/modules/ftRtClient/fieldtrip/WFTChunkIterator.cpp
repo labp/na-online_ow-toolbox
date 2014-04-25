@@ -22,38 +22,39 @@
 //
 //---------------------------------------------------------------------------
 
+#include "dataTypes/chunks/WFTAChunkFactory.h"
 #include "dataTypes/WFTObject.h"
-
 #include "WFTChunkIterator.h"
 
 WFTChunkIterator::WFTChunkIterator( SimpleStorage& buf, int size ) :
-                WFTAIterator< WFTChunk >::WFTAIterator( buf, size )
+                WFTAIterator< WFTAChunk >( buf, size )
 {
 }
 
 bool WFTChunkIterator::hasNext() const
 {
-    return m_pos + ( int )sizeof(WFTObject::WFTChunkDefT) < m_size;
+    return m_pos + ( int )sizeof(WFTChunkDefT) < m_size;
 }
 
-WFTChunk::SPtr WFTChunkIterator::getNext()
+WFTAChunk::SPtr WFTChunkIterator::getNext()
 {
     if( !hasNext() ) // when end arrived at the end, return an empty pointer.
     {
-        return WFTChunk::SPtr();
+        return WFTAChunk::SPtr();
     }
 
-    WFTObject::WFTChunkDefT *chunkdef = ( WFTObject::WFTChunkDefT * )( ( char * )m_store.data() + m_pos );
+    WFTChunkDefT *chunkdef = ( WFTChunkDefT * )( ( char * )m_store.data() + m_pos );
 
     // when the chunk has no data, set position to next chunk and return. (should just happens in case of an error)
     if( chunkdef->size == 0 )
     {
-        m_pos += sizeof(WFTObject::WFTChunkDefT);
-        return WFTChunk::SPtr();
+        m_pos += sizeof(WFTChunkDefT);
+        return WFTAChunk::SPtr();
     }
 
-    const char *srcBuf = ( ( char * )m_store.data() ) + m_pos + sizeof(WFTObject::WFTChunkDefT); // pointer to the chunks data.
-    m_pos += sizeof(WFTObject::WFTChunkDefT) + chunkdef->size; // start position for the next chunk (next definition).
+    char *src = ( ( char * )m_store.data() ) + m_pos + sizeof(WFTChunkDefT); // pointer to the chunks data.
+    m_pos += sizeof(WFTChunkDefT) + chunkdef->size; // start position for the next chunk (next definition).
 
-    return WFTChunk::SPtr( new WFTChunk( chunkdef->type, chunkdef->size, srcBuf ) );
+    return WFTAChunkFactory< WLEFTChunkType::Enum, WFTAChunk >::create( ( WLEFTChunkType::Enum )chunkdef->type, src,
+                    chunkdef->size );
 }

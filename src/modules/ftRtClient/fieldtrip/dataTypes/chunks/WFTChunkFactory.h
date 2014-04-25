@@ -28,9 +28,11 @@
 #include <boost/shared_ptr.hpp>
 
 #include "modules/ftRtClient/fieldtrip/dataTypes/enum/WLEFTChunkType.h"
-#include "WFTChannelNames.h"
+#include "WFTChunkChanNames.h"
+#include "WFTChunkNeuromagHdr.h"
+#include "WFTChunkNeuromagIsotrak.h"
+#include "WFTAChunk.h"
 #include "WFTAChunkFactory.h"
-#include "WFTChunk.h"
 
 /**
  * The WFTChunkFactory class creates new instances for the @Derived class type.
@@ -41,53 +43,64 @@ class WFTChunkFactory: public WFTAChunkFactory< Enum, Base >
 public:
 
     /**
+     * A shared pointer on a WFTChunkFactory.
+     */
+    typedef boost::shared_ptr< WFTChunkFactory< Enum, Base, Derived > > SPtr;
+
+    /**
      * Constructs a new WFTChunkFactory.
      *
      * @param key The enum value.
      */
-    WFTChunkFactory( Enum key );
+    WFTChunkFactory( Enum key ) :
+                    m_position(
+                                    this->lookup().insert( std::make_pair< Enum, WFTAChunkFactory< Enum, Base >* >( key, this ) ).first )
+    {
+    }
 
     /**
      * Destroys the WFTChunkFactory.
      */
     virtual ~WFTChunkFactory();
 
-private:
+protected:
 
     /**
      * Creates a new instance of @Derived.
      *
+     * Inherited method from WFTAChunkFactory.
+     *
      * @return Returns a pointer on the new instance.
      */
-    virtual boost::shared_ptr< Base > create();
+    virtual boost::shared_ptr< Base > create( const char* data, const size_t size );
+
+private:
 
     /**
      * The factories position.
      */
-    typename std::map< Enum, WFTAChunkFactory< Enum, Base >* >::iterator position;
+    typename std::map< Enum, WFTAChunkFactory< Enum, Base >* >::iterator m_position;
 };
-
-template< typename Enum, typename Base, typename Derived >
-inline WFTChunkFactory< Enum, Base, Derived >::WFTChunkFactory( Enum key ) :
-                position( this->lookup().insert( std::make_pair< Enum, WFTAChunkFactory< Enum, Base >* >( key, this ) ).first )
-{
-}
 
 template< typename Enum, typename Base, typename Derived >
 inline WFTChunkFactory< Enum, Base, Derived >::~WFTChunkFactory()
 {
-    this->lookup().erase( position );
 }
 
 template< typename Enum, typename Base, typename Derived >
-inline boost::shared_ptr< Base > WFTChunkFactory< Enum, Base, Derived >::create()
+inline boost::shared_ptr< Base > WFTChunkFactory< Enum, Base, Derived >::create( const char* data, const size_t size )
 {
-    return boost::shared_ptr< Base >( new Derived() );
+    return boost::dynamic_pointer_cast< Base >( boost::shared_ptr< Derived >( new Derived( data, size ) ) );
 }
 
 namespace
 {
-    //WFTChunkFactory< WLEFTChunkType::Enum, WFTChunk, WFTChannelNames > ChannelNamesFactory( WLEFTChunkType::FT_CHUNK_CHANNEL_NAMES );
+    WFTChunkFactory< WLEFTChunkType::Enum, WFTAChunk, WFTChunkChanNames > const ChannelNamesFactory(
+                        WLEFTChunkType::FT_CHUNK_CHANNEL_NAMES );
+    WFTChunkFactory< WLEFTChunkType::Enum, WFTAChunk, WFTChunkNeuromagHdr > const NeuromagHeaderFactory(
+                    WLEFTChunkType::FT_CHUNK_NEUROMAG_HEADER );
+    WFTChunkFactory< WLEFTChunkType::Enum, WFTAChunk, WFTChunkNeuromagIsotrak > const NeuromagIsotrakFactory(
+                    WLEFTChunkType::FT_CHUNK_NEUROMAG_ISOTRAK );
 }
 
 #endif /* WFTCHUNKFACTORY_H_ */

@@ -33,7 +33,7 @@
 
 #include "WFTChunkList.h"
 
-bool WFTChunkList::isChunkType( const WFTChunk::SPtr& chunk, WLEFTChunkType::Enum x )
+bool WFTChunkList::isChunkType( const WFTAChunk::SPtr& chunk, WLEFTChunkType::Enum x )
 {
     return chunk->getType() == x;
 }

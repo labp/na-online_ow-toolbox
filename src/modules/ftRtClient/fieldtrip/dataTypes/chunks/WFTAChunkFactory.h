@@ -29,6 +29,8 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <core/common/WLogger.h>
+
 using namespace std;
 
 /**
@@ -41,6 +43,16 @@ class WFTAChunkFactory
 public:
 
     /**
+     * A shared pointer on a WFTAChunkFactory.
+     */
+    typedef boost::shared_ptr< WFTAChunkFactory< Enum, Base > > SPtr;
+
+    /**
+     * The class name.
+     */
+    static const std::string CLASS;
+
+    /**
      * Destroys the WFTAChunkFactory.
      */
     virtual ~WFTAChunkFactory();
@@ -51,9 +63,16 @@ public:
      * @param e The enum value.
      * @return Returns a pointer on the new instance.
      */
-    static boost::shared_ptr< Base > create( Enum e );
+    static boost::shared_ptr< Base > create( Enum e, const char* data, const size_t size );
 
 protected:
+
+    /**
+     * Creates a new instance of the derived class.
+     *
+     * @return Returns a pointer to the new instance.
+     */
+    virtual boost::shared_ptr< Base > create( const char* data, const size_t size ) = 0;
 
     /**
      * Gets a static map containing the created @Enum - @Base instances.
@@ -64,13 +83,10 @@ protected:
 
 private:
 
-    /**
-     * Creates a new instance of the derived class.
-     *
-     * @return Returns a pointer to the new instance.
-     */
-    virtual boost::shared_ptr< Base > create() = 0;
 };
+
+template< typename Enum, typename Base >
+const std::string WFTAChunkFactory< Enum, Base >::CLASS = "WFTAChunkFactory";
 
 template< typename Enum, typename Base >
 inline WFTAChunkFactory< Enum, Base >::~WFTAChunkFactory()
@@ -78,13 +94,13 @@ inline WFTAChunkFactory< Enum, Base >::~WFTAChunkFactory()
 }
 
 template< typename Enum, typename Base >
-inline boost::shared_ptr< Base > WFTAChunkFactory< Enum, Base >::create( Enum e )
+inline boost::shared_ptr< Base > WFTAChunkFactory< Enum, Base >::create( Enum e, const char* data, const size_t size )
 {
     typename map< Enum, WFTAChunkFactory< Enum, Base >* >::const_iterator const it = lookup().find( e );
     if( it == lookup().end() )
         return boost::shared_ptr< Base >();
 
-    return it->second->create();
+    return it->second->create( data, size );
 }
 
 template< typename Enum, typename Base >

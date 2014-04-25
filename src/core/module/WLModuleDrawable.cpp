@@ -149,7 +149,6 @@ void WLModuleDrawable::properties()
     modalities = WLEModality::valuesDevice();
     WLEModality::ContainerT tmp = WLEModality::valuesMEGCoil();
     modalities.insert( tmp.begin(), tmp.end() );
-    modalities.insert( WLEModality::UNKNOWN ); // << maschke
     WItemSelection::SPtr viewSelection( new WItemSelection() );
     for( itMod = modalities.begin(); itMod != modalities.end(); ++itMod )
     {
