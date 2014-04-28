@@ -129,6 +129,14 @@ private:
      */
     void insertLabels();
 
+    /**
+     * Splits the @str at the @delim's positions into the result vector.
+     *
+     * @param str The string to split.
+     * @param result The result vector.
+     * @param delim The separator character.
+     * @return Returns a reference on the result vector.
+     */
     std::vector< std::string >& split( std::string str, std::vector< std::string >& result, const char delim );
 
 };

@@ -199,24 +199,6 @@ void WMFTRtClient::properties()
     m_headerBufSize = m_propGrpHeader->addProperty( "Additional header information (bytes):",
                     "Shows the number of bytes allocated by additional header information.", 0 );
     m_headerBufSize->setPurpose( PV_PURPOSE_INFORMATION );
-
-    m_trgShowChunks = m_propGrpHeader->addProperty( "Show Chunks", "Show Chunks", WPVBaseTypes::PV_TRIGGER_READY,
-                    m_propCondition );
-
-    /*
-     * property group FieldTrip buffer operations
-     */
-    m_propGrpBufferOperations = m_properties->addPropertyGroup( "FieldTrip Buffer Operations", "FieldTrip Buffer Operations",
-                    false );
-    m_trgFlushHeader = m_propGrpBufferOperations->addProperty( "Flush Header:", "Flush Header", WPVBaseTypes::PV_TRIGGER_READY,
-                    m_propCondition );
-    m_trgFlushData = m_propGrpBufferOperations->addProperty( "Flush Data:", "Flush Data", WPVBaseTypes::PV_TRIGGER_READY,
-                    m_propCondition );
-    m_trgFlushEvents = m_propGrpBufferOperations->addProperty( "Flush Events:", "Flush Events", WPVBaseTypes::PV_TRIGGER_READY,
-                    m_propCondition );
-
-    m_trgPushEvent = m_propGrpBufferOperations->addProperty( "Push Event", "Push Event", WPVBaseTypes::PV_TRIGGER_READY,
-                    boost::bind( &WMFTRtClient::callbackTrgPushEvent, this ) );
 }
 
 /**
@@ -280,34 +262,6 @@ void WMFTRtClient::moduleMain()
             callbackTrgReset();
 
             m_resetModule->set( WPVBaseTypes::PV_TRIGGER_READY, true );
-        }
-
-        if( m_trgShowChunks->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
-        {
-            callbackTrgShowChunks();
-
-            m_trgShowChunks->set( WPVBaseTypes::PV_TRIGGER_READY, true );
-        }
-
-        if( m_trgFlushHeader->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
-        {
-            callbackTrgFlushHeader();
-
-            m_trgFlushHeader->set( WPVBaseTypes::PV_TRIGGER_READY, true );
-        }
-
-        if( m_trgFlushData->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
-        {
-            callbackTrgFlushData();
-
-            m_trgFlushData->set( WPVBaseTypes::PV_TRIGGER_READY, true );
-        }
-
-        if( m_trgFlushEvents->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
-        {
-            callbackTrgFlushEvents();
-
-            m_trgFlushEvents->set( WPVBaseTypes::PV_TRIGGER_READY, true );
         }
 
         debugLog() << "Waiting for Events";
@@ -479,9 +433,14 @@ void WMFTRtClient::callbackTrgStartStreaming()
 
     m_stopStreaming = false;
 
+    WProgress::SPtr progress( new WProgress( "Start FieldTrip Streaming Client" ) );
+    m_progress->addSubProgress( progress );
+
     if( m_ftRtClient->start() )
     {
         applyStatusStreaming(); // edit GUI for client status "streaming"
+
+        m_progress->removeSubProgress( progress );
 
         dispHeaderInfo(); // display header information
         //m_ftRtClient->printChunks(); // print the chunk buffers content.
@@ -537,6 +496,10 @@ void WMFTRtClient::callbackTrgStartStreaming()
 
         m_ftRtClient->stop(); // stop streaming
     }
+    else
+    {
+        m_progress->removeSubProgress( progress );
+    }
 
     applyStatusNotStreaming();
 }
@@ -553,64 +516,6 @@ void WMFTRtClient::callbackTrgReset()
 
     WLEMMCommand::SPtr labp = WLEMMCommand::instance( WLEMMCommand::Command::RESET );
     processReset( labp );
-}
-
-void WMFTRtClient::callbackTrgShowChunks()
-{
-    debugLog() << "callbackTrgShowChunks() called.";
-
-    m_ftRtClient->printChunks();
-}
-
-void WMFTRtClient::callbackTrgFlushHeader()
-{
-    debugLog() << "callbackTrgFlushHeader() called.";
-
-    m_ftRtClient->doFlushHeaderRequest();
-}
-
-void WMFTRtClient::callbackTrgFlushData()
-{
-    debugLog() << "callbackTrgFlushData() called.";
-
-    m_ftRtClient->doFlushDataRequest();
-}
-
-void WMFTRtClient::callbackTrgFlushEvents()
-{
-    debugLog() << "callbackTrgFlushEvents() called.";
-
-    m_ftRtClient->doFlushEventsRequest();
-
-}
-
-void WMFTRtClient::callbackTrgPushEvent() // TODO(maschke): why called second times?
-{
-    debugLog() << "callbackTrgPushEvent() called.";
-
-    m_trgPushEvent->set( WPVBaseTypes::PV_TRIGGER_READY, true );
-
-    std::string type = "Eventtyp";
-    std::string value = "Hello World";
-
-    WFTRequest::SPtr request( new WFTRequest_PutEvent( 10, 0, 0, type, value ) );
-    WFTResponse::SPtr response( new WFTResponse );
-
-    if( !m_ftRtClient->doRequest( *request, *response ) )
-    {
-        errorLog() << "Error while pushing event.";
-        return;
-    }
-
-    if( response->checkPut() )
-    {
-        debugLog() << "Pushing event successful.";
-    }
-    else
-    {
-        errorLog() << "Failure on push event.";
-    }
-
 }
 
 // TODO(maschke): Is it possible to enable/disable properties during runtime?
