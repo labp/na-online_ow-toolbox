@@ -210,6 +210,33 @@ void WLModuleDrawable::setViewModality( WLEModality::Enum mod )
     WPropertyHelper::PC_NOTEMPTY::addTo( m_selectionView );
 }
 
+void WLModuleDrawable::setViewModalitySelection( std::list< WLEModality::Enum > mods )
+{
+    if( mods.empty() )
+    {
+        return;
+    }
+
+    // TODO(pieloth): dirty hack. Find a way just to select a item in the current selection.
+    m_propView->removeProperty( m_selectionView );
+
+    WItemSelection::SPtr viewSelection( new WItemSelection() );
+    std::list< WLEModality::Enum >::iterator it;
+    for( it = mods.begin(); it != mods.end(); ++it )
+    {
+        viewSelection->addItem(
+                        WItemSelectionItemTyped< WLEModality::Enum >::SPtr(
+                                        new WItemSelectionItemTyped< WLEModality::Enum >( *it, WLEModality::name( *it ),
+                                                        WLEModality::description( *it ) ) ) );
+    }
+
+    m_selectionView = m_propView->addProperty( "View modality", "Select a to visualize", viewSelection->getSelector( 0 ),
+                    boost::bind( &WLModuleDrawable::callbackViewModalityChanged, this ) );
+
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_selectionView );
+    WPropertyHelper::PC_NOTEMPTY::addTo( m_selectionView );
+}
+
 void WLModuleDrawable::hideViewModalitySelection( bool enable )
 {
     m_selectionView->setHidden( enable );
@@ -386,8 +413,7 @@ void WLModuleDrawable::viewInit( WLEMDDrawable2D::WEGraphType::Enum graphType )
     m_widget = factory->createGridWidget( getName() );
 
     // Create 2D View
-    m_widget2D = factory->createViewWidget( "2D View", WGECamera::TWO_D,
-                    m_shutdownFlag.getValueChangeCondition(), m_widget );
+    m_widget2D = factory->createViewWidget( "2D View", WGECamera::TWO_D, m_shutdownFlag.getValueChangeCondition(), m_widget );
     m_widget->placeWidget( m_widget2D, 0, 0 );
     m_drawable2D = WLEMDDrawable2D::getInstance( m_widget2D, getViewModality(), m_graphType );
     WLEMDDrawable2DMultiChannel::SPtr drawable = m_drawable2D->getAs< WLEMDDrawable2DMultiChannel >();
@@ -403,8 +429,8 @@ void WLModuleDrawable::viewInit( WLEMDDrawable2D::WEGraphType::Enum graphType )
     m_widget2D->addEventHandler( m_resize2dHandler );
 
     // Create 3D View
-    m_widget3D = factory->createViewWidget( "3D View", WGECamera::ORTHOGRAPHIC,
-                    m_shutdownFlag.getValueChangeCondition(), m_widget );
+    m_widget3D = factory->createViewWidget( "3D View", WGECamera::ORTHOGRAPHIC, m_shutdownFlag.getValueChangeCondition(),
+                    m_widget );
     m_widget->placeWidget( m_widget3D, 1, 0 );
     m_drawable3D = WLEMDDrawable3D::getInstance( m_widget3D, getViewModality() );
     m_drawable3D->setColorMap( m_colorMap );

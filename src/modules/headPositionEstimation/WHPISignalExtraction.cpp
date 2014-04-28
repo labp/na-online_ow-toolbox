@@ -27,48 +27,48 @@
 #include <core/common/WLogger.h>
 #include "core/util/profiler/WLTimeProfiler.h"
 
-#include "WHPIAmplitudeReconstruction.h"
+#include "WHPISignalExtraction.h"
 
-const std::string WHPIAmplitudeReconstruction::CLASS = "WHPIAmplitudeReconstruction";
+const std::string WHPISignalExtraction::CLASS = "WHPISignalExtraction";
 
 static const WLTimeT WINDOWS_SIZE = 0.2;
 static const WLTimeT STEP_SIZE = 0.01;
 static const WLFreqT SAMPLING_FREQ = 1000.0;
 static const float SEC_TO_MS = 1000.0;
 
-WHPIAmplitudeReconstruction::WHPIAmplitudeReconstruction() :
+WHPISignalExtraction::WHPISignalExtraction() :
                 m_isPrepared( false ), m_windowsSize( WINDOWS_SIZE ), m_stepSize( STEP_SIZE ), m_sampFreq( SAMPLING_FREQ )
 {
     m_angFrequencies.reserve( 5 );
 }
 
-WHPIAmplitudeReconstruction::~WHPIAmplitudeReconstruction()
+WHPISignalExtraction::~WHPISignalExtraction()
 {
 }
 
-WLTimeT WHPIAmplitudeReconstruction::getWindowsSize() const
+WLTimeT WHPISignalExtraction::getWindowsSize() const
 {
     return m_windowsSize * SEC_TO_MS;
 }
 
-void WHPIAmplitudeReconstruction::setWindowsSize( WLTimeT winSize )
+void WHPISignalExtraction::setWindowsSize( WLTimeT winSize )
 {
     m_windowsSize = winSize / SEC_TO_MS;
     m_isPrepared = false;
 }
 
-WLTimeT WHPIAmplitudeReconstruction::getStepSize() const
+WLTimeT WHPISignalExtraction::getStepSize() const
 {
     return m_stepSize * SEC_TO_MS;
 }
 
-void WHPIAmplitudeReconstruction::setStepSize( WLTimeT stepSize )
+void WHPISignalExtraction::setStepSize( WLTimeT stepSize )
 {
     m_stepSize = stepSize / SEC_TO_MS;
     m_isPrepared = false;
 }
 
-void WHPIAmplitudeReconstruction::addFrequency( WLFreqT freq )
+void WHPISignalExtraction::addFrequency( WLFreqT freq )
 {
     const WLFreqT angFreq = 2 * M_PI * freq;
     m_angFrequencies.push_back( angFreq );
@@ -76,7 +76,7 @@ void WHPIAmplitudeReconstruction::addFrequency( WLFreqT freq )
     m_isPrepared = false;
 }
 
-std::vector< WLFreqT > WHPIAmplitudeReconstruction::getFrequencies() const
+std::vector< WLFreqT > WHPISignalExtraction::getFrequencies() const
 {
     std::vector< WLFreqT > frequencies;
     frequencies.reserve( m_angFrequencies.size() );
@@ -89,7 +89,7 @@ std::vector< WLFreqT > WHPIAmplitudeReconstruction::getFrequencies() const
     return frequencies;
 }
 
-size_t WHPIAmplitudeReconstruction::clearFrequencies()
+size_t WHPISignalExtraction::clearFrequencies()
 {
     const size_t removed = m_angFrequencies.size();
     m_angFrequencies.clear();
@@ -97,18 +97,18 @@ size_t WHPIAmplitudeReconstruction::clearFrequencies()
     return removed;
 }
 
-WLFreqT WHPIAmplitudeReconstruction::getSamplingFrequency() const
+WLFreqT WHPISignalExtraction::getSamplingFrequency() const
 {
     return m_sampFreq;
 }
 
-void WHPIAmplitudeReconstruction::setSamplingFrequency( WLFreqT sfreq )
+void WHPISignalExtraction::setSamplingFrequency( WLFreqT sfreq )
 {
     m_sampFreq = sfreq;
     m_isPrepared = false;
 }
 
-bool WHPIAmplitudeReconstruction::prepare()
+bool WHPISignalExtraction::prepare()
 {
     wlog::debug( CLASS ) << "prepare() called!";
     WLTimeProfiler prof( CLASS, "pepare" );
@@ -155,7 +155,7 @@ bool WHPIAmplitudeReconstruction::prepare()
     return m_isPrepared;
 }
 
-bool WHPIAmplitudeReconstruction::reconstructAmplitudes( WLEMData::DataSPtr hpiOut, WLEMDMEG::ConstSPtr megIn )
+bool WHPISignalExtraction::reconstructAmplitudes( WLEMDHPI::SPtr hpiOut, WLEMDMEG::ConstSPtr megIn )
 {
     wlog::debug( CLASS ) << "reconstructAmplitudes() called!";
 
@@ -203,31 +203,37 @@ bool WHPIAmplitudeReconstruction::reconstructAmplitudes( WLEMData::DataSPtr hpiO
     const WLEMData::DataT::Index hpiChannels = channels * J;
     const WLEMData::DataT::Index samples = static_cast< WLEMData::DataT::Index >( megIn->getSamplesPerChan() );
 
+    // Prepare output data
+    WLEMDHPI::DataSPtr dataOut( new WLEMDHPI::DataT( hpiChannels, samples / S ) );
+
     // Combine last block with current block
     WLEMData::DataT data( channels, 2 * samples );
     data.block( 0, 0, channels, samples ) = m_lastMeg->getData();
     data.block( 0, samples, channels, samples ) = megIn->getData();
 
-    // Prepare output data
-    hpiOut->resize( hpiChannels, samples / S );
-
     // Processing: Move windows step by step
     // -------------------------------------
+    // TODO (pieloth): min(m_angFrequencies)/2 highpass filter is needed!
+
     WLEMData::DataT::Index hpiSmp = 0;
     for( MatrixT::Index start = samples - N; start + N < 2 * samples; start += S )
     {
         WLEMData::SampleT hpiSampel( hpiChannels );
         reconstructWindows( &hpiSampel, data, start, N );
-        hpiOut->block( 0, hpiSmp++, hpiChannels, 1 ) = hpiSampel;
+        dataOut->block( 0, hpiSmp++, hpiChannels, 1 ) = hpiSampel;
     }
 
-    wlog::debug( CLASS ) << "hpi=" << hpiOut->rows() << "x" << hpiOut->cols();
-
+    // Finalization
+    // ------------
     m_lastMeg = megIn;
+    hpiOut->setData( dataOut );
+    hpiOut->setNrHpiCoils( J );
+    hpiOut->setSampFreq( 1.0 / m_stepSize );
+
     return true;
 }
 
-void WHPIAmplitudeReconstruction::reconstructWindows( WLEMData::SampleT* const hpiOut, const WLEMData::DataT& megIn,
+void WHPISignalExtraction::reconstructWindows( WLEMData::SampleT* const hpiOut, const WLEMData::DataT& megIn,
                 MatrixT::Index start, MatrixT::Index samples )
 {
     const MatrixT::Index J = m_angFrequencies.size();
@@ -255,7 +261,7 @@ void WHPIAmplitudeReconstruction::reconstructWindows( WLEMData::SampleT* const h
     }
 }
 
-void WHPIAmplitudeReconstruction::reset()
+void WHPISignalExtraction::reset()
 {
     wlog::debug( CLASS ) << "reset() called!";
 

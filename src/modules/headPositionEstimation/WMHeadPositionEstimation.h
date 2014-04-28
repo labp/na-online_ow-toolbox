@@ -35,6 +35,8 @@
 #include "core/module/WLModuleDrawable.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 
+#include "WHPISignalExtraction.h"
+
 /**
  * Estimation of the head position using the continuous signals of HPI coils.
  *
@@ -96,6 +98,10 @@ private:
      * \return true, if successful.
      */
     bool handleApplyFreq();
+
+    WHPISignalExtraction::SPtr m_hpiSignalExtraction;
+
+    WLEMMeasurement::SPtr m_lastEmm;
 };
 
 #endif  // WMHEADPOSITIONESTIMATION_H_

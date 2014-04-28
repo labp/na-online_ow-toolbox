@@ -22,9 +22,12 @@
 //
 //---------------------------------------------------------------------------
 
+#include <list>
+
 #include <core/common/WPathHelper.h>
 
 #include "core/data/WLEMMCommand.h"
+#include "core/data/emd/WLEMDHPI.h"
 #include "core/module/WLConstantsModule.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
@@ -89,6 +92,14 @@ void WMHeadPositionEstimation::connectors()
 void WMHeadPositionEstimation::properties()
 {
     WLModuleDrawable::properties();
+    hideComputeModalitySelection( true );
+    std::list< WLEModality::Enum > viewMods;
+    viewMods.push_back( WLEModality::HPI );
+    viewMods.push_back( WLEModality::MEG );
+    viewMods.push_back( WLEModality::MEG_GRAD );
+    viewMods.push_back( WLEModality::MEG_GRAD_MERGED );
+    viewMods.push_back( WLEModality::MEG_MAG );
+    setViewModalitySelection( viewMods );
 
     m_condition = WCondition::SPtr( new WCondition() );
 
@@ -120,7 +131,8 @@ void WMHeadPositionEstimation::moduleInit()
     ready(); // signal ready state
     waitRestored();
 
-    viewInit( WLEMDDrawable2D::WEGraphType::MULTI );
+    viewInit( WLEMDDrawable2D::WEGraphType::DYNAMIC );
+    handleApplyFreq();
 
     infoLog() << "Initializing module finished!";
 }
@@ -142,7 +154,7 @@ void WMHeadPositionEstimation::moduleMain()
             break;
         }
 
-        if( m_trgApplySettings->changed() )
+        if( m_trgApplySettings->changed( true ) )
         {
             handleApplyFreq();
             m_trgApplySettings->set( WPVBaseTypes::PV_TRIGGER_READY, true );
@@ -161,8 +173,20 @@ void WMHeadPositionEstimation::moduleMain()
 
 bool WMHeadPositionEstimation::handleApplyFreq()
 {
-    m_propStatus->set( STATUS_ERROR, true );
-    return false;
+    debugLog() << "handleApplyFreq() called!";
+
+    m_hpiSignalExtraction.reset( new WHPISignalExtraction() );
+    m_hpiSignalExtraction->setWindowsSize( m_propWindowsSize->get() );
+    m_hpiSignalExtraction->setStepSize( m_propStepSize->get() );
+
+    m_hpiSignalExtraction->addFrequency( m_propHpi1Freq->get() );
+    m_hpiSignalExtraction->addFrequency( m_propHpi2Freq->get() );
+    m_hpiSignalExtraction->addFrequency( m_propHpi3Freq->get() );
+    m_hpiSignalExtraction->addFrequency( m_propHpi4Freq->get() );
+    m_hpiSignalExtraction->addFrequency( m_propHpi5Freq->get() );
+
+    m_propStatus->set( STATUS_OK, true );
+    return true;
 }
 
 bool WMHeadPositionEstimation::processInit( WLEMMCommand::SPtr cmdIn )
@@ -174,15 +198,59 @@ bool WMHeadPositionEstimation::processInit( WLEMMCommand::SPtr cmdIn )
 
 bool WMHeadPositionEstimation::processCompute( WLEMMeasurement::SPtr emmIn )
 {
-    // TODO (pieloth): implement
-    WLEMMCommand::SPtr cmdOut( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
-    cmdOut->setEmm( emmIn );
-    m_output->updateData( cmdOut );
-    return false;
+    if( !emmIn->hasModality( WLEModality::MEG ) )
+    {
+        errorLog() << "No MEG data!";
+        WLEMMCommand::SPtr cmdOut( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
+        cmdOut->setEmm( emmIn );
+        m_output->updateData( cmdOut );
+        return false;
+    }
+
+    WLEMDMEG::ConstSPtr megIn = emmIn->getModality< WLEMDMEG >( WLEModality::MEG );
+    if( megIn->getSampFreq() != m_hpiSignalExtraction->getSamplingFrequency() )
+    {
+        m_hpiSignalExtraction->setSamplingFrequency( megIn->getSampFreq() );
+    }
+
+    WLEMDHPI::SPtr emdHpi( new WLEMDHPI );
+    bool rc = m_hpiSignalExtraction->reconstructAmplitudes( emdHpi, megIn );
+
+    if( !rc )
+    {
+        errorLog() << "reconstructAmplitudes() error!";
+        m_lastEmm = emmIn;
+        return rc;
+    }
+
+    if( !emdHpi->setChannelPositions3d( emmIn->getDigPoints() ) )
+    {
+        warnLog() << "Could not set isotrak positions for HPI coils!";
+    }
+
+    // Reconstructed HPI amplitudes are for previous EMM packet
+    if( m_lastEmm.get() != NULL )
+    {
+        m_lastEmm->addModality( emdHpi );
+        viewUpdate( m_lastEmm );
+
+        WLEMMCommand::SPtr cmdOut( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
+        cmdOut->setEmm( m_lastEmm );
+        m_output->updateData( cmdOut );
+        m_lastEmm = emmIn;
+        return rc;
+    }
+    else
+    {
+        errorLog() << "Previous EMM packet is emtpy!";
+        return false;
+    }
 }
 
 bool WMHeadPositionEstimation::processReset( WLEMMCommand::SPtr cmdIn )
 {
+    m_lastEmm.reset();
+    m_hpiSignalExtraction->reset();
     m_output->updateData( cmdIn );
     return true;
 }

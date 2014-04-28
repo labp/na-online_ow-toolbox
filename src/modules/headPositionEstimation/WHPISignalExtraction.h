@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WHEADPOSITIONESTIMATION_H_
-#define WHEADPOSITIONESTIMATION_H_
+#ifndef WHEADSIGNALEXTRACTION_H_
+#define WHEADSIGNALEXTRACTION_H_
 
 #include <string>
 #include <vector>
@@ -32,26 +32,28 @@
 #include <Eigen/Dense>
 
 #include "core/data/WLDataTypes.h"
-#include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDMEG.h"
+#include "core/data/emd/WLEMDHPI.h"
 
 /**
  * Reconstructs the amplitudes of each HPI coil on each MEG sensor.
- * Using approach from: D.1 HPI-Signals, p. 73, "MaxFilter - User's Guide"; Elekta Neuromag, 2009
+ * Using approaches from:
+ * D.1 HPI-Signals, p. 73, "MaxFilter - User's Guide"; Elekta Neuromag, 2009
+ * "Detecting and Correcting for Head Movements in Neuromagnetic Measurements"; Uutela et al., 2001
  *
  * \author pieloth
  */
-class WHPIAmplitudeReconstruction
+class WHPISignalExtraction
 {
 public:
     static const std::string CLASS;
 
-    typedef boost::shared_ptr< WHPIAmplitudeReconstruction > SPtr;
+    typedef boost::shared_ptr< WHPISignalExtraction > SPtr;
 
-    typedef boost::shared_ptr< const WHPIAmplitudeReconstruction > ConstSPtr;
+    typedef boost::shared_ptr< const WHPISignalExtraction > ConstSPtr;
 
-    WHPIAmplitudeReconstruction();
-    virtual ~WHPIAmplitudeReconstruction();
+    WHPISignalExtraction();
+    virtual ~WHPISignalExtraction();
 
     /**
      * Gets the windows size.
@@ -125,13 +127,12 @@ public:
 
     /**
      * Reconstructs the amplitudes on the MEG sensors.
-     * TODO (pieloth): Do we need a highpass filter for input data?
      *
      * \param hpiOut Contains the output data, if successful
      * \param megIn MEG input data
      * \return true, if successful
      */
-    bool reconstructAmplitudes( WLEMData::DataSPtr hpiOut, WLEMDMEG::ConstSPtr megIn );
+    bool reconstructAmplitudes( WLEMDHPI::SPtr hpiOut, WLEMDMEG::ConstSPtr megIn );
 
     /**
      * Resets the algorithm.
@@ -166,4 +167,4 @@ private:
     MatrixT m_ata; /**< A^2*A. Pre-calculated by prepare(). */
 };
 
-#endif  // WHEADPOSITIONESTIMATION_H_
+#endif  // WHEADSIGNALEXTRACTION_H_

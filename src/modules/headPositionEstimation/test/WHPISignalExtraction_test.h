@@ -28,23 +28,22 @@
 #include <cxxtest/TestSuite.h>
 #include <core/common/WLogger.h>
 
-#include "../WHPIAmplitudeReconstruction.h"
+#include "../WHPISignalExtraction.h"
 
 #define DELTA 1e-6
 
-class WHPIAmplitudeReconstructionTest: public CxxTest::TestSuite
+class WHPISignalExtractionTest: public CxxTest::TestSuite
 {
 public:
 
     void setUp()
     {
-//        WLogger::startup( std::cout, LL_INFO );
         WLogger::startup( std::cout, LL_DEBUG );
     }
 
     void test_getSetWindowsSize()
     {
-        WHPIAmplitudeReconstruction hpe;
+        WHPISignalExtraction hpe;
         const WLFreqT expected = 300.0;
         hpe.setWindowsSize( expected );
         const WLFreqT actual = hpe.getWindowsSize();
@@ -53,7 +52,7 @@ public:
 
     void test_getSetStepSize()
     {
-        WHPIAmplitudeReconstruction hpe;
+        WHPISignalExtraction hpe;
         const WLFreqT expected = 42.0;
         hpe.setStepSize( expected );
         const WLFreqT actual = hpe.getStepSize();
@@ -62,7 +61,7 @@ public:
 
     void test_addGetClearFrequencies()
     {
-        WHPIAmplitudeReconstruction hpe;
+        WHPISignalExtraction hpe;
         const WLFreqT hpi1 = 154.0;
         hpe.addFrequency( hpi1 );
         const WLFreqT hpi2 = 158.0;
@@ -90,7 +89,7 @@ public:
 
     void test_prepare()
     {
-        WHPIAmplitudeReconstruction hpe;
+        WHPISignalExtraction hpe;
         const WLFreqT hpi1 = 154.0;
         hpe.addFrequency( hpi1 );
         const WLFreqT hpi2 = 158.0;
@@ -109,7 +108,7 @@ public:
 
     void test_estimateAmplitueds()
     {
-        WHPIAmplitudeReconstruction hpe;
+        WHPISignalExtraction hpe;
         const WLFreqT hpi1 = 154.0;
         hpe.addFrequency( hpi1 );
         const WLFreqT hpi2 = 158.0;
@@ -128,7 +127,7 @@ public:
         WLEMDMEG::SPtr meg( new WLEMDMEG );
         WLEMDMEG::DataSPtr data( new WLEMDMEG::DataT( WLEMDMEG::DataT::Random( 306, 1000 ) ) );
         meg->setData( data );
-        WLEMData::DataSPtr hpiOut( new WLEMData::DataT( 5, 1000 ) );
+        WLEMDHPI::SPtr hpiOut( new WLEMDHPI );
         TS_ASSERT( !hpe.reconstructAmplitudes( hpiOut, meg ) );
 
         // TODO (pieloth): Implement test case.

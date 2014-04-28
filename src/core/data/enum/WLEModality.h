@@ -38,7 +38,17 @@ namespace WLEModality
 {
     enum Enum
     {
-        EEG = 0, ECG = 1, MEG = 2, EOG = 3, PCA = 4, SOURCE = 5, MEG_MAG = 6, MEG_GRAD = 7, MEG_GRAD_MERGED = 8, UNKNOWN = -1
+        EEG = 0,
+        ECG = 1,
+        MEG = 2,
+        EOG = 3,
+        PCA = 4,
+        SOURCE = 5,
+        MEG_MAG = 6,
+        MEG_GRAD = 7,
+        MEG_GRAD_MERGED = 8,
+        HPI = 9,
+        UNKNOWN = -1
     };
 
     typedef std::set< Enum > ContainerT;
@@ -82,7 +92,7 @@ inline bool WLEModality::isMEGCoil( WLEModality::Enum val )
 
 inline bool WLEModality::isComputed( WLEModality::Enum val )
 {
-    return val == WLEModality::SOURCE || val == WLEModality::PCA;
+    return val == WLEModality::SOURCE || val == WLEModality::PCA || WLEModality::HPI;
 }
 
 inline bool WLEModality::isLocalizeable( WLEModality::Enum val )
