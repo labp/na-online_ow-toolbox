@@ -26,6 +26,8 @@
 
 #include <core/common/WAssert.h>
 
+#include "core/dataFormat/fiff/WLFiffChType.h"
+
 #include "WLEModality.h"
 
 WLEModality::ContainerT WLEModality::values()
@@ -152,14 +154,16 @@ WLEModality::Enum WLEModality::fromFiffType( int kind )
 {
     switch( kind )
     {
-        case 1:
+        case WLFiffLib::ChType::MAGN:
             return WLEModality::MEG;
-        case 2:
+        case WLFiffLib::ChType::EL:
             return WLEModality::EEG;
-        case 202:
+        case WLFiffLib::ChType::EOG:
             return WLEModality::EOG;
-        case 402:
+        case WLFiffLib::ChType::ECG:
             return WLEModality::ECG;
+        case WLFiffLib::ChType::MISC:
+            return WLEModality::UNKNOWN;
         default:
             return WLEModality::UNKNOWN;
     }

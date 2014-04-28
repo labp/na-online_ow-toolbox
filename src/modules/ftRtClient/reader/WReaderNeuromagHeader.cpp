@@ -77,8 +77,6 @@ WReaderNeuromagHeader::~WReaderNeuromagHeader()
 
 bool WReaderNeuromagHeader::read( FIFFLIB::FiffInfo* const out )
 {
-    wlog::debug( CLASS ) << "Start Up.";
-
     if( m_ioDevice == 0 )
     {
         return false;
@@ -92,8 +90,6 @@ bool WReaderNeuromagHeader::read( FIFFLIB::FiffInfo* const out )
 
     wlog::debug( CLASS ) << "Buffer size: " << stream.device()->size();
     wlog::debug( CLASS ) << "Byte Order [0 = Big, 1 = Little]: " << stream.byteOrder();
-
-    wlog::debug( CLASS ) << "Begin reading.";
 
     if( stream.device()->open( QIODevice::ReadOnly ) )
         wlog::debug( CLASS ) << "Stream opened.";
@@ -135,8 +131,6 @@ bool WReaderNeuromagHeader::read( FIFFLIB::FiffInfo* const out )
         return false;
     }
 
-    wlog::debug( CLASS ) << "Create directory tree.";
-
     tags.clear();
     qint32 dirpos = *tag->toInt();
     if( dirpos > 0 )
@@ -168,12 +162,9 @@ bool WReaderNeuromagHeader::read( FIFFLIB::FiffInfo* const out )
 
     stream.read_meas_info( tree, *out, nodeInfo );
 
-    wlog::debug( CLASS ) << "Finished reading.";
-
     // clean up
     stream.device()->seek( 0 );
     stream.device()->close();
-    wlog::debug( CLASS ) << "Stream closed.";
 
     return true;
 }

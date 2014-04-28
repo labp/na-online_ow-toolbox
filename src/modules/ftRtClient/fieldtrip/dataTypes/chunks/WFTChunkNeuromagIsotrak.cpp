@@ -61,6 +61,8 @@ WLList< WLDigPoint >::SPtr WFTChunkNeuromagIsotrak::getData() const
 
 bool WFTChunkNeuromagIsotrak::process( const char* data, size_t size )
 {
+    wlog::debug( CLASS ) << "process() called.";
+
     m_digPoints.reset( new WLList< WLDigPoint > );
 
     std::fstream fostr;
@@ -82,6 +84,8 @@ bool WFTChunkNeuromagIsotrak::process( const char* data, size_t size )
         wlog::error( CLASS ) << "Neuromag header file was not read.";
         return false;
     }
+
+    wlog::debug( CLASS ) << "DigPoints: " << m_digPoints->size();
 
     return true;
 }

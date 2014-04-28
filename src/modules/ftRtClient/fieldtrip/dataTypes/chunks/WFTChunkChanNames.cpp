@@ -33,9 +33,15 @@
 
 #include "WFTChunkChanNames.h"
 
+using namespace std;
+
+const std::string WFTChunkChanNames::CLASS = "WFTChunkChanNames";
+
 WFTChunkChanNames::WFTChunkChanNames( const char* data, const size_t size ) :
                 WFTAChunk( data, size )
 {
+    insertLabels();
+
     processData( data, size );
 }
 
@@ -56,11 +62,13 @@ WLArrayList< std::string >::ConstSPtr WFTChunkChanNames::getData( const WLEModal
 
 bool WFTChunkChanNames::process( const char* data, size_t size )
 {
+    wlog::debug( CLASS ) << "process() called.";
+
     m_namesMap.reset( new ChanNamesMapT );
     std::vector< std::string > splitVec;
     std::string str( data, size );
 
-    boost::split( splitVec, str, boost::is_any_of( "\0" ), boost::token_compress_on );
+    split( str, splitVec, '\0' );
 
     if( splitVec.size() == 0 )
     {
@@ -70,21 +78,22 @@ bool WFTChunkChanNames::process( const char* data, size_t size )
     BOOST_FOREACH(std::string chanName, splitVec)
     {
         WLEModality::Enum modality = WLEModality::UNKNOWN;
-        std::string channel = chanName;
+        bool found = false;
+        std::string channel( chanName );
         boost::algorithm::to_lower( channel );
         std::pair< std::string, WLEModality::Enum > label;
 
         BOOST_FOREACH(label, m_modalityLabels)
         {
-            std::size_t found = channel.find( label.first );
-            if( found != std::string::npos )
+            found = channel.find( label.first ) != std::string::npos;
+            if( found )
             {
                 modality = label.second;
                 break;
             }
         }
 
-        if( modality == WLEModality::UNKNOWN )
+        if( !found )
         {
             continue;
         }
@@ -93,7 +102,7 @@ bool WFTChunkChanNames::process( const char* data, size_t size )
         {
             m_namesMap->insert(
                             ChanNamesMapT::value_type( modality,
-                                            WLArrayList< std::string >::SPtr( new WLArrayList< std::string > ) ) );
+                                            WLArrayList< std::string >::SPtr( new WLArrayList< std::string >() ) ) );
         }
 
         m_namesMap->at( modality )->push_back( chanName );
@@ -108,4 +117,32 @@ void WFTChunkChanNames::insertLabels()
     m_modalityLabels.insert( ChanNameLabelT::value_type( "meg", WLEModality::MEG ) );
     m_modalityLabels.insert( ChanNameLabelT::value_type( "eog", WLEModality::EOG ) );
     m_modalityLabels.insert( ChanNameLabelT::value_type( "ecg", WLEModality::ECG ) );
+    m_modalityLabels.insert( ChanNameLabelT::value_type( "misc", WLEModality::UNKNOWN ) );
+}
+
+std::vector< std::string >& WFTChunkChanNames::split( std::string str, std::vector< std::string >& result, const char delim )
+{
+    result.clear();
+
+    size_t end = -1;
+    size_t start = 0;
+
+    int counter = 0;
+
+    BOOST_FOREACH(char ch, str)
+    {
+        ++end;
+
+        std::string cmp_str( &ch, 1 );
+
+        if( ch == delim )
+        {
+            ++counter;
+
+            result.push_back( str.substr( start, end - start ) );
+            start = end + 1;
+        }
+    }
+
+    return result;
 }

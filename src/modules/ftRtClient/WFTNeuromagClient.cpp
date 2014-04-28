@@ -210,12 +210,14 @@ bool WFTNeuromagClient::getRawData( WLEMDRaw::SPtr& modality )
 
     modality->setData( dataPtr );
 
+    wlog::debug( CLASS ) << "Read raw channels: " << dataPtr->rows();
+
     return true;
 }
 
 bool WFTNeuromagClient::createDetailedEMM( WLEMMeasurement& emm, WLEMDRaw::SPtr rawData )
 {
-    wlog::debug( CLASS ) << "create full detailed EMM";
+    wlog::debug( CLASS ) << "createDetailedEMM() called.";
 
     WFTChunkNeuromagHdr::SPtr neuromagHdr = m_header->getChunks( WLEFTChunkType::FT_CHUNK_NEUROMAG_HEADER )->at( 0 )->getAs<
                     WFTChunkNeuromagHdr >();
@@ -241,6 +243,9 @@ bool WFTNeuromagClient::createDetailedEMM( WLEMMeasurement& emm, WLEMDRaw::SPtr 
                 break;
             case WLEModality::ECG:
                 emd.reset( new WLEMDECG() );
+                break;
+            case WLEModality::UNKNOWN:
+                emd.reset( new WLEMDRaw() );
                 break;
             default:
                 continue;

@@ -80,7 +80,7 @@ public:
      * @param digPoints The list to fill.
      * @return Returns true if the file was read successfully, oherwise false.
      */
-    bool read( WLList< WLDigPoint >::SPtr digPoints );
+    bool read( WLList< WLDigPoint >::SPtr& digPoints );
 
 protected:
 

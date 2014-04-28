@@ -129,6 +129,8 @@ private:
      */
     void insertLabels();
 
+    std::vector< std::string >& split( std::string str, std::vector< std::string >& result, const char delim );
+
 };
 
 #endif /* WFTCHUNKCHANNAMES_H_ */

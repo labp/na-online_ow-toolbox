@@ -98,6 +98,8 @@ bool WFTHeader::parseResponse( WFTResponse::SPtr response )
         }
     }
 
+    wlog::debug( CLASS ) << "Chunks read.";
+
     return true;
 }
 

@@ -55,10 +55,8 @@ WReaderNeuromagIsotrak::~WReaderNeuromagIsotrak()
 
 }
 
-bool WReaderNeuromagIsotrak::read( WLList< WLDigPoint >::SPtr digPoints )
+bool WReaderNeuromagIsotrak::read( WLList< WLDigPoint >::SPtr& digPoints )
 {
-    wlog::debug( CLASS ) << "Start Up.";
-
     QFile file( QString::fromStdString( m_fname ) );
 
     digPoints.reset( new WLList< WLDigPoint > );
@@ -76,7 +74,7 @@ bool WReaderNeuromagIsotrak::read( WLList< WLDigPoint >::SPtr digPoints )
         return false;
     }
 
-    return true;
+    return readDigPoints( stream, tree, *digPoints );
 }
 
 bool WReaderNeuromagIsotrak::readDigPoints( FiffStream& stream, const FiffDirTree& p_Node, WLList< WLDigPoint >& out )

@@ -22,14 +22,17 @@
 //
 //---------------------------------------------------------------------------
 
+#include <list>
+#include <algorithm>
+
 #include <fstream>
 
-#include "core/dataFormat/fiff/WLFiffChType.h"
+#include <boost/foreach.hpp>
 
 #include <core/common/WLogger.h>
-
 #include "core/container/WLArrayList.h"
 #include "core/data/enum/WLEModality.h"
+#include "core/dataFormat/fiff/WLFiffChType.h"
 
 #include "modules/ftRtClient/reader/WReaderNeuromagHeader.h"
 #include "WFTChunkNeuromagHdr.h"
@@ -97,6 +100,8 @@ boost::shared_ptr< WLEMDRaw::ChanPicksT > WFTChunkNeuromagHdr::getStimulusPicks(
 
 bool WFTChunkNeuromagHdr::process( const char* data, size_t size )
 {
+    wlog::debug( CLASS ) << "process() called.";
+
     m_data.reset( new FIFFLIB::FiffInfo );
     m_modalityPicks.reset( new ModalityPicksT );
     m_stimulusPicks.reset( new WLEMDRaw::ChanPicksT );
@@ -121,12 +126,18 @@ bool WFTChunkNeuromagHdr::process( const char* data, size_t size )
         return false;
     }
 
+    std::list< size_t > list;
+
     //
     //  Create pick vectors for all channel types.
     //
     for( int i = 0; i < m_data->chs.size(); ++i )
     {
         FIFFLIB::FiffChInfo info = m_data->chs.at( i );
+
+        bool contains = std::find( list.begin(), list.end(), info.kind ) != list.end();
+        if( !contains )
+            list.push_back( info.kind );
 
         WLEMDRaw::ChanPicksT *vector;
 
@@ -138,11 +149,6 @@ bool WFTChunkNeuromagHdr::process( const char* data, size_t size )
         else
         {
             WLEModality::Enum modalityType = WLEModality::fromFiffType( info.kind );
-
-            if( modalityType == WLEModality::UNKNOWN )
-            {
-                continue;
-            }
 
             if( m_modalityPicks->count( modalityType ) == 0 )
             {
