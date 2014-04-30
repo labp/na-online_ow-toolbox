@@ -24,6 +24,7 @@
 
 #include "core/common/WLogger.h"
 
+#include "WFiffDirTree.h"
 #include "WFiffTag.h"
 #include "WFiffStream.h"
 
@@ -242,19 +243,19 @@ bool WFiffStream::read_meas_info( const FiffDirTree& p_Node, FiffInfo& info, Fif
                 }
         }
     }
-    // TODO(maschke): implement SSP data, CTF compensation data and bad channel list.
+    // TODO(maschke): what is to do with this data at the processing chain?
     //
     //   Load the SSP data
     //
-    //QList<FiffProj> projs = this->read_proj(meas_info[0]);
+    QList< FiffProj > projs = this->read_proj( meas_info[0] );
     //
     //   Load the CTF compensation data
     //
-    //QList<FiffCtfComp> comps = this->read_ctf_comp(meas_info[0], chs);
+    QList< FiffCtfComp > comps = this->read_ctf_comp( meas_info[0], chs );
     //
     //   Load the bad channel list
     //
-    //QStringList bads = this->read_bad_channels(p_Node);
+    QStringList bads = this->read_bad_channels( p_Node );
     //
     //   Put the data together
     //
@@ -338,13 +339,158 @@ bool WFiffStream::read_meas_info( const FiffDirTree& p_Node, FiffInfo& info, Fif
     if( !dig_trans.isEmpty() )
         info.dig_trans = dig_trans;
 
-    //info.bads  = bads;
-    //info.projs = projs;
-    //info.comps = comps;
+    info.bads = bads;
+    info.projs = projs;
+    info.comps = comps;
     info.acq_pars = acq_pars;
     info.acq_stim = acq_stim;
 
     p_NodeInfo = meas[0];
 
     return true;
+}
+
+QList< FiffProj > WFiffStream::read_proj( const FiffDirTree& p_Node )
+{
+    QList< FiffProj > projdata;    // = struct('kind',{},'active',{},'desc',{},'data',{});
+    //
+    //   Locate the projection data
+    //
+    QList< FiffDirTree > t_qListNodes = p_Node.dir_tree_find( FIFFB_PROJ );
+    if( t_qListNodes.size() == 0 )
+        return projdata;
+
+    FiffTag::SPtr t_pTag;
+    t_qListNodes[0].find_tag( this, FIFF_NCHAN, t_pTag );
+    fiff_int_t global_nchan = 0;
+    if( t_pTag )
+        global_nchan = *t_pTag->toInt();
+
+    fiff_int_t nchan;
+    QList< FiffDirTree > t_qListItems = t_qListNodes[0].dir_tree_find( FIFFB_PROJ_ITEM );
+    for( qint32 i = 0; i < t_qListItems.size(); ++i )
+    {
+        //
+        //   Find all desired tags in one item
+        //
+        WFiffDirTree* t_pFiffDirTreeItem = ( WFiffDirTree* )&t_qListItems[i];
+        t_pFiffDirTreeItem->find_tag( this, FIFF_NCHAN, t_pTag );
+        if( t_pTag )
+            nchan = *t_pTag->toInt();
+        else
+            nchan = global_nchan;
+
+        t_pFiffDirTreeItem->find_tag( this, FIFF_DESCRIPTION, t_pTag );
+        QString desc; // maybe, in some cases this has to be a struct.
+        if( t_pTag )
+        {
+            wlog::debug( CLASS ) << "read_proj: this has to be debugged";
+            desc = t_pTag->toString();
+        }
+        else
+        {
+            t_pFiffDirTreeItem->find_tag( this, FIFF_NAME, t_pTag );
+            if( t_pTag )
+                desc = t_pTag->toString();
+            else
+            {
+                wlog::warn( CLASS ) << "Projection item description missing";
+                return projdata;
+            }
+        }
+        //            t_pFiffDirTreeItem->find_tag(this, FIFF_PROJ_ITEM_CH_NAME_LIST, t_pTag);
+        //            QString namelist;
+        //            if (t_pTag)
+        //            {
+        //                namelist = t_pTag->toString();
+        //            }
+        //            else
+        //            {
+        //                printf("Projection item channel list missing\n");
+        //                return projdata;
+        //            }
+        t_pFiffDirTreeItem->find_tag( this, FIFF_PROJ_ITEM_KIND, t_pTag );
+        fiff_int_t kind;
+        if( t_pTag )
+        {
+            kind = *t_pTag->toInt();
+        }
+        else
+        {
+            wlog::warn( CLASS ) << "Projection item kind missing";
+            return projdata;
+        }
+        t_pFiffDirTreeItem->find_tag( this, FIFF_PROJ_ITEM_NVEC, t_pTag );
+        fiff_int_t nvec;
+        if( t_pTag )
+        {
+            nvec = *t_pTag->toInt();
+        }
+        else
+        {
+            wlog::warn( CLASS ) << "Number of projection vectors not specified";
+            return projdata;
+        }
+        t_pFiffDirTreeItem->find_tag( this, FIFF_PROJ_ITEM_CH_NAME_LIST, t_pTag );
+        QStringList names;
+        if( t_pTag )
+        {
+            names = split_name_list( t_pTag->toString() );
+        }
+        else
+        {
+            wlog::warn( CLASS ) << "Projection item channel list missing";
+            return projdata;
+        }
+        t_pFiffDirTreeItem->find_tag( this, FIFF_PROJ_ITEM_VECTORS, t_pTag );
+        MatrixXd data;    // = NULL;
+        if( t_pTag )
+        {
+            data = t_pTag->toFloatMatrix().cast< double >();
+            data.transposeInPlace();
+        }
+        else
+        {
+            wlog::warn( CLASS ) << "Projection item data missing";
+            return projdata;
+        }
+        t_pFiffDirTreeItem->find_tag( this, FIFF_MNE_PROJ_ITEM_ACTIVE, t_pTag );
+        bool active;
+        if( t_pTag )
+            active = *t_pTag->toInt();
+        else
+            active = false;
+
+        if( data.cols() != names.size() )
+        {
+            wlog::warn( CLASS ) << "Number of channel names does not match the size of data matrix";
+            return projdata;
+        }
+
+        //
+        //   create a named matrix for the data
+        //
+        QStringList defaultList;
+        FiffNamedMatrix t_fiffNamedMatrix( nvec, nchan, defaultList, names, data );
+
+        FiffProj one( kind, active, desc, t_fiffNamedMatrix );
+        //
+        projdata.append( one );
+    }
+
+    if( projdata.size() > 0 )
+    {
+        wlog::debug( CLASS ) << "\tRead a total of %d projection items:", projdata.size();
+        for( qint32 k = 0; k < projdata.size(); ++k )
+        {
+            wlog::debug( CLASS ) << "\t\t" << projdata[k].desc.toUtf8().constData() << " (" << projdata[k].data->nrow << " x "
+                            << projdata[k].data->ncol << ")";
+            if( projdata[k].active )
+                wlog::debug( CLASS ) << " active";
+            else
+                wlog::debug( CLASS ) << " idle";
+        }
+    }
+
+    return projdata;
 }

@@ -27,6 +27,7 @@
 
 #include <QtCore/qiodevice.h>
 
+#include <fiff/fiff_proj.h>
 #include <fiff/fiff_stream.h>
 
 using namespace FIFFLIB;
@@ -61,6 +62,19 @@ public:
      * @return the to measurement corresponding fiff_dir_tree.
      */
     bool read_meas_info( const FiffDirTree& p_Node, FiffInfo& p_Info, FiffDirTree& p_NodeInfo );
+
+    /**
+     * fiff_read_proj
+     *
+     * [ projdata ] = fiff_read_proj(fid,node)
+     *
+     * Read the SSP data under a given directory node
+     *
+     * @param[in] p_Node    The node of interest
+     *
+     * @return a list of SSP projectors
+     */
+    QList< FiffProj > read_proj( const FiffDirTree& p_Node );
 
 };
 
