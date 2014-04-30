@@ -2,10 +2,10 @@
 
 """
 Install and setup 3rd software which is not contained in distribution's packet management.
-All dependencies must use this interface:
-* install_<dep. prefix>.py ... specified __name__ == "__main__"
-* main_<dep. prefix>() ... entry point to call from global script
-* step_<dep. prefix>_<action>() ... private steps to setup and install dependency
+All dependencies should use this interface:
+* install_<dependency prefix>.py ... specified __name__ == "__main__"
+* main_<dependency prefix>() ... entry point to call from global script
+* step_<dependency prefix>_<action>() ... private steps to setup and install dependency
 
 The following function should be used for consistence CLI:
 * ask_for_execute()
