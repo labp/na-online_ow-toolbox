@@ -12,6 +12,8 @@
 #   * QT5_STATIC_QTCORE_LIBRARY - Qt5Core static library
 #   * QT5_QTNETWORK_INCLUDE_DIR - the path of Qt5Network header files
 #   * QT5_STATIC_QTNETWORK_LIBRARY - Qt5Network static library
+#   * QT5_QTCONCURRENT_INCLUDE_DIR - the path of Qt5Concurrent header files
+#   * QT5_STATIC_QTCONCURRENT_LIBRARY - Qt5Concurrent static library
 #
 # NOTE: FIND_LIBRARY is looking for *.so and *.a files!
 #---------------------------------------------------------------------------
@@ -103,6 +105,36 @@ ENDIF ( QT5_STATIC_QTNETWORK_LIBRARY AND QT5_INCLUDE_DIR )
 
 
 #---------------------------------------------------------------------------
+# QTCONCURRENT - static library and include path
+#---------------------------------------------------------------------------
+
+FIND_LIBRARY( QT5_STATIC_QTCONCURRENT_LIBRARY_RELEASE Qt5Concurrent HINTS
+	$ENV{QT5_STATIC_LIBRARY_DIR} 
+	/opt/lib/qt5_static
+	/opt/lib
+)
+
+FIND_LIBRARY( QT5_STATIC_QTCONCURRENT_LIBRARY_DEBUG Qt5Concurrent HINTS
+	$ENV{QT5_STATIC_LIBRARY_DIR} 
+	/opt/lib/qt5_staticd
+	/opt/lib
+)
+
+# Comment/Uncomment these parts to use CMake's release/debug switch
+#IF( CMAKE_BUILD_TYPE MATCHES Release )
+	SET( QT5_STATIC_QTCONCURRENT_LIBRARY ${QT5_STATIC_QTCONCURRENT_LIBRARY_RELEASE} )
+#ELSE()
+#  SET( QT5_STATIC_QTCONCURRENT_LIBRARY ${QT5_STATIC_QTCONCURRENT_LIBRARY_DEBUG} )
+#ENDIF()
+
+# Set include dir
+IF ( QT5_STATIC_QTCONCURRENT_LIBRARY AND QT5_INCLUDE_DIR )
+	SET ( QT5_QTCONCURRENT_INCLUDE_DIR ${QT5_INCLUDE_DIR}/QtConcurrent)
+ENDIF ( QT5_STATIC_QTCONCURRENT_LIBRARY AND QT5_INCLUDE_DIR )
+
+
+
+#---------------------------------------------------------------------------
 # Finalize setup
 #---------------------------------------------------------------------------
 
@@ -120,6 +152,8 @@ IF ( QT5_FOUND )
        MESSAGE( STATUS "      Qt5 core: ${QT5_STATIC_QTCORE_LIBRARY}" )
        MESSAGE( STATUS "      Qt5 network: ${QT5_QTNETWORK_INCLUDE_DIR}" )
        MESSAGE( STATUS "      Qt5 network: ${QT5_STATIC_QTNETWORK_LIBRARY}" )
+       MESSAGE( STATUS "      Qt5 concurrent: ${QT5_QTCONCURRENT_INCLUDE_DIR}" )
+       MESSAGE( STATUS "      Qt5 concurrent: ${QT5_STATIC_QTCONCURRENT_LIBRARY}" )
        MESSAGE( STATUS "      Qt5 NOTE: Please check if the found libraries are static and release/debug!" )
    ENDIF()
 ELSE ( QT5_FOUND )
