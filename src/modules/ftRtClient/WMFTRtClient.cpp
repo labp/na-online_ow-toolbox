@@ -461,7 +461,7 @@ void WMFTRtClient::callbackTrgStartStreaming()
 
                     WLEMMeasurement::SPtr emm( new WLEMMeasurement );
 
-                    if( m_ftRtClient->createEMM( *emm ) )
+                    if( m_ftRtClient->createEMM( emm ) )
                     {
                         viewUpdate( emm ); // display on screen.
 

@@ -26,8 +26,6 @@
 #define WFTRTCLIENT_H_
 
 #include <boost/shared_ptr.hpp>
-#include <boost/thread/recursive_mutex.hpp>
-#include <boost/thread/lockable_adapter.hpp>
 
 #include <message.h>
 
@@ -48,7 +46,7 @@
  * For simple I/O processing with the FieldTrip buffer server this class can be used. In case of additional processing on the retrieving
  * raw data you should prefer to inherit this client structure.
  */
-class WFTRtClient: public boost::basic_lockable_adapter< boost::recursive_mutex >
+class WFTRtClient
 {
 public:
 
@@ -174,7 +172,7 @@ public:
      * @param response The response object.
      * @return Returns true if the request was successful and the response could be read, else false.
      */
-    bool virtual doRequest( WFTRequest& request, WFTResponse& response );
+    bool virtual doRequest( WFTRequest::ConstSPtr request, WFTResponse::SPtr response );
 
     /**
      * This method does a header request and stores the resulting data in the local member, which can be accessed by getHeader().
@@ -312,6 +310,11 @@ private:
      * Structure to store information about samples and events currently located on the server.
      */
     WFTSamplesEventsT m_svr_samp_evt;
+
+    /**
+     * A shared mutex used for TCP requests.
+     */
+    boost::shared_mutex m_requestLock;
 };
 
 #endif /* WFTRTCLIENT_H_ */

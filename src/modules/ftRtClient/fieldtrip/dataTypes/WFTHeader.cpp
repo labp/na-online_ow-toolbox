@@ -143,8 +143,7 @@ void WFTHeader::addChunk( WFTAChunk::SPtr chunk )
 {
     m_chunks->push_back( chunk );
 
-    // todo(maschke): apply chunk structure to put chunk process.
-    //m_def.bufsize += chunk->getSize();
+    m_def.bufsize += chunk->getSize();
 }
 
 WFTChunkList::ConstSPtr WFTHeader::getChunks() const

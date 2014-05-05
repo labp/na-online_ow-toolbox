@@ -102,7 +102,7 @@ void WFTNeuromagClient::stop()
     m_streaming = false;
 }
 
-bool WFTNeuromagClient::createEMM( WLEMMeasurement& emm )
+bool WFTNeuromagClient::createEMM( WLEMMeasurement::SPtr emm )
 {
     WLEMDRaw::SPtr rawData;
 
@@ -114,7 +114,7 @@ bool WFTNeuromagClient::createEMM( WLEMMeasurement& emm )
     // if there is no Neuromag header, return raw data.
     if( !m_header->hasChunk( WLEFTChunkType::FT_CHUNK_NEUROMAG_HEADER ) )
     {
-        emm.addModality( rawData );
+        emm->addModality( rawData );
 
         wlog::debug( CLASS ) << "create raw EMM";
 
@@ -122,28 +122,6 @@ bool WFTNeuromagClient::createEMM( WLEMMeasurement& emm )
     }
 
     return createDetailedEMM( emm, rawData );
-}
-
-void WFTNeuromagClient::printChunks()
-{
-    if( m_header == 0 )
-    {
-        return;
-    }
-
-    if( !m_header->hasChunks() )
-    {
-        return;
-    }
-
-    // todo(maschke): print chunks
-    BOOST_FOREACH(WFTAChunk::SPtr chunk, *m_header->getChunks())
-    {
-        std::string str;
-        str += "Chunk [Type=" + WLEFTChunkType::name( chunk->getType() ) + "]";
-
-        wlog::debug( CLASS ) << str;
-    }
 }
 
 bool WFTNeuromagClient::getRawData( WLEMDRaw::SPtr& modality )
@@ -214,7 +192,7 @@ bool WFTNeuromagClient::getRawData( WLEMDRaw::SPtr& modality )
     return true;
 }
 
-bool WFTNeuromagClient::createDetailedEMM( WLEMMeasurement& emm, WLEMDRaw::SPtr rawData )
+bool WFTNeuromagClient::createDetailedEMM( WLEMMeasurement::SPtr emm, WLEMDRaw::SPtr rawData )
 {
     wlog::debug( CLASS ) << "createDetailedEMM() called.";
 
@@ -259,7 +237,7 @@ bool WFTNeuromagClient::createDetailedEMM( WLEMMeasurement& emm, WLEMDRaw::SPtr 
             emd->setChanNames( channelNames );
         }
 
-        emm.addModality( emd );
+        emm->addModality( emd );
     }
 
     //
@@ -267,7 +245,7 @@ bool WFTNeuromagClient::createDetailedEMM( WLEMMeasurement& emm, WLEMDRaw::SPtr 
     //
     if( neuromagHdr->getStimulusPicks()->cols() > 0 )
     {
-        emm.setEventChannels( readEvents( ( Eigen::MatrixXf& )rawData->getData(), *neuromagHdr->getStimulusPicks() ) );
+        emm->setEventChannels( readEvents( ( Eigen::MatrixXf& )rawData->getData(), *neuromagHdr->getStimulusPicks() ) );
     }
 
     //
@@ -275,7 +253,7 @@ bool WFTNeuromagClient::createDetailedEMM( WLEMMeasurement& emm, WLEMDRaw::SPtr 
     //
     if( m_header->hasChunk( WLEFTChunkType::FT_CHUNK_NEUROMAG_ISOTRAK ) )
     {
-        emm.setDigPoints(
+        emm->setDigPoints(
                         m_header->getChunks( WLEFTChunkType::FT_CHUNK_NEUROMAG_ISOTRAK )->at( 0 )->getAs< WFTChunkNeuromagIsotrak >()->getData() );
     }
 

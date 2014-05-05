@@ -47,6 +47,18 @@ public:
      */
     typedef boost::shared_ptr< WFTRequest > SPtr;
 
+    /**
+     * A shared pointer on a constant WFTRequest.
+     */
+    typedef boost::shared_ptr< const WFTRequest > ConstSPtr;
+
+    /**
+     * Declare the << operator as friend.
+     *
+     * @param strm The input stream.
+     * @param request The request object.
+     * @return Returns an output stream, which contains the request string.
+     */
     friend std::ostream& operator<<( std::ostream &strm, const WFTRequest &request );
 
     /**

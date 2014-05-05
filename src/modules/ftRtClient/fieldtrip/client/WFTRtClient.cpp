@@ -129,10 +129,10 @@ UINT32_T WFTRtClient::getEventCount() const
     return m_eventCount;
 }
 
-bool WFTRtClient::doRequest( WFTRequest& request, WFTResponse& response )
+bool WFTRtClient::doRequest( WFTRequest::ConstSPtr request, WFTResponse::SPtr response )
 {
     // Lock the client for thread-safe requests.
-    boost::strict_lock< WFTRtClient > guard( *this );
+    boost::unique_lock< boost::shared_mutex > unqLock( m_requestLock );
 
     if( !isConnected() )
     {
@@ -141,13 +141,15 @@ bool WFTRtClient::doRequest( WFTRequest& request, WFTResponse& response )
         return false;
     }
 
-    if( clientrequest( m_connection->getSocket(), request.out(), response.in() ) < 0 )
+    if( clientrequest( m_connection->getSocket(), request->out(), response->in() ) < 0 )
     {
         wlog::error( CLASS ) << "Error in communication - check buffer server.";
         return false;
     }
 
-    return response.isValid();
+    unqLock.unlock();
+
+    return response->isValid();
 }
 
 bool WFTRtClient::doHeaderRequest()
@@ -156,7 +158,7 @@ bool WFTRtClient::doHeaderRequest()
     WFTRequest_GetHeader::SPtr request = m_reqBuilder->buildRequest_GET_HDR();
     m_header.reset( new WFTHeader );
 
-    if( !doRequest( *request, *response ) )
+    if( !doRequest( request, response ) )
     {
         return false;
     }
@@ -179,7 +181,7 @@ bool WFTRtClient::doWaitRequest( unsigned int samples, unsigned int events )
     WFTResponse::SPtr response( new WFTResponse );
     WFTRequest_WaitData::SPtr request = m_reqBuilder->buildRequest_WAIT_DAT( samples, events, m_waitTimeout_ms );
 
-    if( !doRequest( *request, *response ) )
+    if( !doRequest( request, response ) )
     {
         wlog::error( CLASS ) << "Error while doing Wait-Request.";
 
@@ -223,7 +225,7 @@ bool WFTRtClient::getNewSamples()
     WFTRequest_GetData::SPtr request = m_reqBuilder->buildRequest_GET_DAT( m_samples, m_svr_samp_evt.nsamples - 1 );
     WFTResponse::SPtr response( new WFTResponse );
 
-    if( !doRequest( *request, *response ) )
+    if( !doRequest( request, response ) )
     {
         return false;
     }
@@ -255,7 +257,7 @@ bool WFTRtClient::getNewEvents()
     WFTRequest_GetEvent::SPtr request = m_reqBuilder->buildRequest_GET_EVT( m_eventCount, m_svr_samp_evt.nevents - 1 );
     WFTResponse::SPtr response( new WFTResponse );
 
-    if( !doRequest( *request, *response ) )
+    if( !doRequest( request, response ) )
     {
         return false;
     }
@@ -308,7 +310,7 @@ bool WFTRtClient::doFlush( UINT16_T command )
 
     WFTResponse::SPtr response( new WFTResponse );
 
-    if( !doRequest( *request, *response ) )
+    if( !doRequest( request, response ) )
     {
         return false;
     }

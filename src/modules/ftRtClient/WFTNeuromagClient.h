@@ -82,9 +82,7 @@ public:
      * @param emm The WLEMMeasurement object to fill.
      * @return Returns false in case of problems occur during EMM creation, else true.
      */
-    bool createEMM( WLEMMeasurement& emm );
-
-    void printChunks();
+    bool createEMM( WLEMMeasurement::SPtr emm );
 
 protected:
 
@@ -103,7 +101,7 @@ protected:
      * @param emm The EMM object.
      * @return Returns false in case of problems occur during EMM creation, otherwise true.
      */
-    bool createDetailedEMM( WLEMMeasurement& emm, WLEMDRaw::SPtr rawData );
+    bool createDetailedEMM( WLEMMeasurement::SPtr emm, WLEMDRaw::SPtr rawData );
 
 private:
 
