@@ -52,14 +52,9 @@ const std::string WFTChunkNeuromagHdr::TMPDIRPATH = "/tmp/";
 const std::string WFTChunkNeuromagHdr::TMPFILENAME = TMPDIRPATH + "neuromag_header.fif";
 
 WFTChunkNeuromagHdr::WFTChunkNeuromagHdr( const char* data, const size_t size ) :
-                WFTAChunk( data, size )
+                WFTAChunk( WLEFTChunkType::FT_CHUNK_NEUROMAG_HEADER, size )
 {
     processData( data, size );
-}
-
-WLEFTChunkType::Enum WFTChunkNeuromagHdr::getType() const
-{
-    return WLEFTChunkType::FT_CHUNK_NEUROMAG_HEADER;
 }
 
 boost::shared_ptr< const FIFFLIB::FiffInfo > WFTChunkNeuromagHdr::getData() const
@@ -96,6 +91,15 @@ WFTChunkNeuromagHdr::ModalityPicks_SPtr WFTChunkNeuromagHdr::getModalityPicks() 
 boost::shared_ptr< WLEMDRaw::ChanPicksT > WFTChunkNeuromagHdr::getStimulusPicks() const
 {
     return m_stimulusPicks;
+}
+
+WLSmartStorage::ConstSPtr WFTChunkNeuromagHdr::serialize() const
+{
+    WLSmartStorage::SPtr store( new WLSmartStorage );
+
+    // TODO(maschke): serialize measurement information into smart storage.
+
+    return store;
 }
 
 bool WFTChunkNeuromagHdr::process( const char* data, size_t size )

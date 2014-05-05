@@ -80,11 +80,13 @@ public:
     explicit WFTChunkChanNames( const char* data, const size_t size );
 
     /**
-     * Gets the chunk type.
+     * Gets the data as a smart storage structure. This method is used to serialize a chunk into a request message body.
      *
-     * @return Returns the chunk type.
+     * Inherited method from WFTAChunk.
+     *
+     * @return Returns a shared pointer on a constant smart storage.
      */
-    WLEFTChunkType::Enum getType() const;
+    WLSmartStorage::ConstSPtr serialize() const;
 
     /**
      * Gets the channel names for the @modality type.

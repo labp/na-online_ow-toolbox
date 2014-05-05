@@ -69,7 +69,7 @@ WFTRequest::SPtr WFTHeader::asRequest()
     // add chunks from the collection to the request object.
     BOOST_FOREACH(WFTAChunk::SPtr chunk, *m_chunks)
     {
-        //request->addChunk( chunk ); todo(maschke)
+        request->addChunk( chunk );
     }
 
     return request;
@@ -120,7 +120,6 @@ WFTHeaderDefT WFTHeader::getHeaderDef() const
 
 bool WFTHeader::hasChunks() const
 {
-    //return m_def.bufsize > 0;
     return m_chunks != 0 && m_chunks->size() > 0;
 }
 

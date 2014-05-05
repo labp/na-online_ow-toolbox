@@ -24,8 +24,8 @@
 
 #include "WFTAChunk.h"
 
-WFTAChunk::WFTAChunk( const char* data, const size_t size ) :
-                m_size( size ), m_valid( false )
+WFTAChunk::WFTAChunk( WLEFTChunkType::Enum type, const size_t size ) :
+                m_valid( false ), m_size( size ), m_type( type )
 {
 
 }
@@ -42,6 +42,11 @@ bool WFTAChunk::isValid() const
 size_t WFTAChunk::getSize() const
 {
     return m_size;
+}
+
+WLEFTChunkType::Enum WFTAChunk::getType() const
+{
+    return m_type;
 }
 
 void WFTAChunk::processData( const char* data, const size_t size )

@@ -38,16 +38,11 @@ using namespace std;
 const std::string WFTChunkChanNames::CLASS = "WFTChunkChanNames";
 
 WFTChunkChanNames::WFTChunkChanNames( const char* data, const size_t size ) :
-                WFTAChunk( data, size )
+                WFTAChunk( WLEFTChunkType::FT_CHUNK_CHANNEL_NAMES, size )
 {
     insertLabels();
 
     processData( data, size );
-}
-
-WLEFTChunkType::Enum WFTChunkChanNames::getType() const
-{
-    return WLEFTChunkType::FT_CHUNK_CHANNEL_NAMES;
 }
 
 WLArrayList< std::string >::ConstSPtr WFTChunkChanNames::getData( const WLEModality::Enum modality ) const
@@ -118,6 +113,21 @@ void WFTChunkChanNames::insertLabels()
     m_modalityLabels.insert( ChanNameLabelT::value_type( "eog", WLEModality::EOG ) );
     m_modalityLabels.insert( ChanNameLabelT::value_type( "ecg", WLEModality::ECG ) );
     m_modalityLabels.insert( ChanNameLabelT::value_type( "misc", WLEModality::UNKNOWN ) );
+}
+
+WLSmartStorage::ConstSPtr WFTChunkChanNames::serialize() const
+{
+    WLSmartStorage::SPtr store( new WLSmartStorage );
+
+    for( ChanNamesMapT::iterator it = m_namesMap->begin(); it != m_namesMap->end(); ++it )
+    {
+        BOOST_FOREACH(std::string channel, *it->second)
+        {
+            store->append( channel );
+        }
+    }
+
+    return store;
 }
 
 std::vector< std::string >& WFTChunkChanNames::split( std::string str, std::vector< std::string >& result, const char delim )

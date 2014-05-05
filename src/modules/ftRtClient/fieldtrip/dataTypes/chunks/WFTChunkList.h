@@ -31,7 +31,6 @@
 
 #include "modules/ftRtClient/fieldtrip/dataTypes/enum/WLEFTChunkType.h"
 #include "WFTAChunk.h"
-#include "WFTChunk.h"
 
 /**
  * The WFTChunkList class provides a vector associated container structure for WFTChunk types.

@@ -28,6 +28,7 @@
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/shared_ptr.hpp>
 
+#include "modules/ftRtClient/fieldtrip/container/WLSmartStorage.h"
 #include "modules/ftRtClient/fieldtrip/dataTypes/enum/WLEFTChunkType.h"
 
 /**
@@ -55,7 +56,7 @@ public:
      * @param data The memory storage, which contains the chunk data.
      * @param size The size of the memory storage.
      */
-    explicit WFTAChunk( const char* data, const size_t size );
+    explicit WFTAChunk( WLEFTChunkType::Enum type, const size_t size );
 
     /**
      * Destroys the WFTAChunk.
@@ -81,7 +82,14 @@ public:
      *
      * @return Returns the chunk type.
      */
-    virtual WLEFTChunkType::Enum getType() const = 0;
+    WLEFTChunkType::Enum getType() const;
+
+    /**
+     * Gets the data as a smart storage structure. This method is used to serialize a chunk into a request message body.
+     *
+     * @return Returns a shared pointer on a constant smart storage.
+     */
+    virtual WLSmartStorage::ConstSPtr serialize() const = 0;
 
     /**
      * Gets the chunks as desired pointer.
@@ -136,6 +144,11 @@ private:
      * The chunks buffer size.
      */
     size_t m_size;
+
+    /**
+     * The chunk type
+     */
+    WLEFTChunkType::Enum m_type;
 
 };
 

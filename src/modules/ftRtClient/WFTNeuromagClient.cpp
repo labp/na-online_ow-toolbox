@@ -42,7 +42,6 @@
 #include "core/data/WLDataTypes.h"
 #include "core/dataFormat/fiff/WLFiffChType.h"
 
-#include "fieldtrip/dataTypes/chunks/WFTChunk.h"
 #include "fieldtrip/dataTypes/chunks/WFTChunkFactory.h"
 #include "fieldtrip/dataTypes/chunks/WFTChunkNeuromagHdr.h"
 #include "fieldtrip/dataTypes/chunks/WFTChunkNeuromagIsotrak.h"

@@ -44,6 +44,16 @@ class WLSmartStorage
 public:
 
     /**
+     * A shared pointer on a WLSmartStorage.
+     */
+    typedef boost::shared_ptr< WLSmartStorage > SPtr;
+
+    /**
+     * A shared pointer on a constant WLSmartStorage.
+     */
+    typedef boost::shared_ptr< const WLSmartStorage > ConstSPtr;
+
+    /**
      * The container type.
      */
     typedef std::vector< char > ContainerT;
@@ -52,6 +62,11 @@ public:
      * A pointer on a ContainerT.
      */
     typedef boost::shared_ptr< ContainerT > ContainerT_SPtr;
+
+    /**
+     * A shared pointer on a constant Container.
+     */
+    typedef boost::shared_ptr< const ContainerT > ContainerT_ConstSPtr;
 
     /**
      * Constructs a new empty container.

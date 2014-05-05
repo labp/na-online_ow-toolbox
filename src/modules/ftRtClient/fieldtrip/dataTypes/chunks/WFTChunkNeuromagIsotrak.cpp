@@ -44,14 +44,9 @@ const std::string WFTChunkNeuromagIsotrak::TMPDIRPATH = "/tmp/";
 const std::string WFTChunkNeuromagIsotrak::TMPFILENAME = TMPDIRPATH + "neuromag_isotrak.fif";
 
 WFTChunkNeuromagIsotrak::WFTChunkNeuromagIsotrak( const char* data, const size_t size ) :
-                WFTAChunk( data, size )
+                WFTAChunk( WLEFTChunkType::FT_CHUNK_NEUROMAG_ISOTRAK, size )
 {
     processData( data, size );
-}
-
-WLEFTChunkType::Enum WFTChunkNeuromagIsotrak::getType() const
-{
-    return WLEFTChunkType::FT_CHUNK_NEUROMAG_ISOTRAK;
 }
 
 WLList< WLDigPoint >::SPtr WFTChunkNeuromagIsotrak::getData() const
@@ -88,4 +83,13 @@ bool WFTChunkNeuromagIsotrak::process( const char* data, size_t size )
     wlog::debug( CLASS ) << "DigPoints: " << m_digPoints->size();
 
     return true;
+}
+
+WLSmartStorage::ConstSPtr WFTChunkNeuromagIsotrak::serialize() const
+{
+    WLSmartStorage::SPtr store( new WLSmartStorage );
+
+    // TODO(maschke): serialize isotrak into smart storage.
+
+    return store;
 }
