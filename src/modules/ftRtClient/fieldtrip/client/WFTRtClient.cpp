@@ -22,8 +22,6 @@
 //
 //---------------------------------------------------------------------------
 
-#include <boost/thread/strict_lock.hpp>
-
 #include <buffer.h>
 #include <FtBuffer.h>
 

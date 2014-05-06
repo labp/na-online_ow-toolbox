@@ -22,11 +22,11 @@
 //
 //---------------------------------------------------------------------------
 
-#include <QtCore/qbuffer.h>
-#include <QtCore/qbytearray.h>
-#include <QtCore/qfile.h>
-#include <QtCore/qlist.h>
-#include <QtCore/qstring.h>
+#include <QtCore/QBuffer>
+#include <QtCore/QByteArray>
+#include <QtCore/QFile>
+#include <QtCore/QList>
+#include <QtCore/QString>
 
 #include <fiff/fiff.h>
 #include <fiff/fiff_ch_info.h>
