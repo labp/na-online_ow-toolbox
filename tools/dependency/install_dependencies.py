@@ -17,18 +17,24 @@ __author__ = 'pieloth'
 
 import install_mne
 import install_qt5_static
+import install_ft_buffer
 
 
 def main():
     print_dependency_header("Install Dependencies")
+
+    if ask_for_execute("Install Qt5"):
+        install_qt5_static.main_qt5()
+        
+    print
 
     if ask_for_execute("Install MNE"):
         install_mne.main_mne()
 
     print
 
-    if ask_for_execute("Install Qt5"):
-        install_qt5_static.main_qt5()
+    if ask_for_execute("Install FielTrip Buffer"):
+        install_ft_buffer.main_ft()
 
     print
 
