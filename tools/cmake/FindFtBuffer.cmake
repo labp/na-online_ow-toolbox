@@ -5,79 +5,67 @@
 # Author: Christof Pieloth
 #
 # The following variables will be filled:
-#   * FT_BUFFER_FOUND - if FT_BUFFER header and library found
-#   * FT_CLIENT_FOUND - if FT_CLIENT header and library found
-#   * FT_BUFFER_INCLUDE_DIR - the path of FT_BUFFER header files
-#   * FT_CLIENT_INCLUDE_DIR - the path of FT_CLIENT header files
-#   * FT_BUFFER_LIBRARY_DIR - the path to FT_BUFFER libraries
-#   * FT_BUFFER_LIBRARY - FT_BUFFER library
-#   * FT_CLIENT_LIBRARY_DIR - the path to FT_BUFFER libraries
-#   * FT_CLIENT_LIBRARY - FT_BUFFER library
+#   * FTB_BUFFER_FOUND - if FT_BUFFER header and library found
+#   * FTB_CLIENT_FOUND - if FT_CLIENT header and library found
+#   * FTB_BUFFER_INCLUDE_DIR - the path of FT_BUFFER header files
+#   * FTB_CLIENT_INCLUDE_DIR - the path of FT_CLIENT header files
+#   * FTB_BUFFER_LIBRARY - FT_BUFFER library
+#   * FTB_CLIENT_LIBRARY - FT_BUFFER library
 #---------------------------------------------------------------------------
 
 #---------------------------------------------------------------------------
-# FT_BUFFER_INCLUDE_DIR
+# FTB_BUFFER_INCLUDE_DIR
 #---------------------------------------------------------------------------
 
-FIND_PATH( FT_BUFFER_INCLUDE_DIR buffer.h HINTS 
-        $ENV{FT_BUFFER_INCLUDE_DIR} 
+FIND_PATH( FTB_BUFFER_INCLUDE_DIR buffer.h HINTS 
+        $ENV{FTB_BUFFER_INCLUDE_DIR} 
         /opt/include
-        /opt/include/ft_buffer
+        /opt/include/fieldtrip/realtime/src/buffer/src
 )
 
 
 
 #---------------------------------------------------------------------------
-# FT_CLIENT_INCLUDE_DIR
+# FTB_CLIENT_INCLUDE_DIR
 #---------------------------------------------------------------------------
 
-FIND_PATH( FT_CLIENT_INCLUDE_DIR FtBuffer.h HINTS 
-        $ENV{FT_CLIENT_INCLUDE_DIR} 
+FIND_PATH( FTB_CLIENT_INCLUDE_DIR FtBuffer.h HINTS 
+        $ENV{FTB_CLIENT_INCLUDE_DIR} 
         /opt/include
-        /opt/include/ft_client
+        /opt/include/fieldtrip/realtime/src/buffer/cpp
 )
 
 
 
 #---------------------------------------------------------------------------
-# FT_BUFFER_LIBRARY and FT_BUFFER_LIBRARY_DIR
+# FTB_BUFFER_LIBRARY
 #---------------------------------------------------------------------------
 
-FIND_PATH( FT_BUFFER_LIBRARY_DIR libbuffer.a HINTS 
-        $ENV{FT_BUFFER_LIBRARY_DIR} 
-        /opt/lib/ft_buffer
-        /opt/lib
-)
-
-FIND_LIBRARY( FT_BUFFER_LIBRARY buffer HINTS
-        $ENV{FT_BUFFER_LIBRARY_DIR} 
+IF ( DEFINED ENV{FTB_BUFFER_LIBRARY} )
+	SET(FTB_BUFFER_LIBRARY $ENV{FTB_BUFFER_LIBRARY})
+ELSE ( DEFINED ENV{FTB_BUFFER_LIBRARY} )
+	FIND_LIBRARY( FTB_BUFFER_LIBRARY libFtbBuffer.a HINTS
+        $ENV{FTB_LIBRARY_DIR} 
         /opt/lib/fieldtrip
         /opt/lib
-)
-
-# Retrieve library path for other MNE libraries
-get_filename_component( FT_BUFFER_LIBRARY_DIR ${FT_BUFFER_LIBRARY} PATH )
+	)
+ENDIF ( DEFINED ENV{FTB_BUFFER_LIBRARY} )
 
 
 
 #---------------------------------------------------------------------------
-# FT_CLIENT_LIBRARY and FT_CLIENT_LIBRARY_DIR
+# FTB_CLIENT_LIBRARY
 #---------------------------------------------------------------------------
 
-FIND_PATH( FT_CLIENT_LIBRARY_DIR libFtClient.a HINTS 
-        $ENV{FT_CLIENT_LIBRARY_DIR} 
-        /opt/lib/ft_client
-        /opt/lib
-)
-
-FIND_LIBRARY( FT_CLIENT_LIBRARY buffer HINTS
-        $ENV{FT_CLIENT_LIBRARY_DIR} 
+IF ( DEFINED ENV{FTB_CLIENT_LIBRARY} )
+	SET(FTB_CLIENT_LIBRARY $ENV{FTB_CLIENT_LIBRARY})
+ELSE ( DEFINED ENV{FTB_CLIENT_LIBRARY} )
+	FIND_LIBRARY( FTB_CLIENT_LIBRARY libFtbClient.a HINTS
+        $ENV{FTB_LIBRARY_DIR} 
         /opt/lib/fieldtrip
         /opt/lib
-)
-
-# Retrieve library path for other MNE libraries
-get_filename_component( FT_CLIENT_LIBRARY_DIR ${FT_CLIENT_LIBRARY} PATH )
+	)
+ENDIF ( DEFINED ENV{FTB_CLIENT_LIBRARY} )
 
 
 
@@ -85,35 +73,35 @@ get_filename_component( FT_CLIENT_LIBRARY_DIR ${FT_CLIENT_LIBRARY} PATH )
 # Finalize setup
 #---------------------------------------------------------------------------
 
-SET( FT_BUFFER_FOUND FALSE )
-IF ( FT_BUFFER_INCLUDE_DIR AND FT_BUFFER_LIBRARY_DIR )
-    SET( FT_BUFFER_FOUND TRUE )
-ENDIF ( FT_BUFFER_INCLUDE_DIR AND FT_BUFFER_LIBRARY_DIR )
+SET( FTB_BUFFER_FOUND FALSE )
+IF ( FTB_BUFFER_INCLUDE_DIR AND FTB_BUFFER_LIBRARY )
+    SET( FTB_BUFFER_FOUND TRUE )
+ENDIF ( FTB_BUFFER_INCLUDE_DIR AND FTB_BUFFER_LIBRARY )
 
-SET( FT_CLIENT_FOUND FALSE )
-IF ( FT_CLIENT_INCLUDE_DIR AND FT_CLIENT_LIBRARY_DIR )
-    SET( FT_CLIENT_FOUND TRUE )
-ENDIF ( FT_CLIENT_INCLUDE_DIR AND FT_CLIENT_LIBRARY_DIR )
+SET( FTB_CLIENT_FOUND FALSE )
+IF ( FTB_CLIENT_INCLUDE_DIR AND FTB_CLIENT_LIBRARY )
+    SET( FTB_CLIENT_FOUND TRUE )
+ENDIF ( FTB_CLIENT_INCLUDE_DIR AND FTB_CLIENT_LIBRARY )
 
 # Some status messages
-IF ( FT_BUFFER_FOUND )
-   IF ( NOT FT_BUFFER_FIND_QUIETLY )
-       MESSAGE( STATUS "Found FT buffer: ${FT_BUFFER_LIBRARY_DIR} and include in ${FT_BUFFER_INCLUDE_DIR}" )
-       MESSAGE( STATUS "      FT buffer: ${FT_BUFFER_LIBRARY}" )
+IF ( FTB_BUFFER_FOUND )
+   IF ( NOT FTB_BUFFER_FIND_QUIETLY )
+       MESSAGE( STATUS "Found FTB buffer: ${FTB_BUFFER_INCLUDE_DIR}" )
+       MESSAGE( STATUS "      FTB buffer: ${FTB_BUFFER_LIBRARY}" )
    ENDIF()
-ELSE ( FT_BUFFER_FOUND )
-   IF (FT_BUFFER_FIND_REQUIRED)
+ELSE ( FTB_BUFFER_FOUND )
+   IF (FTB_BUFFER_FIND_REQUIRED)
       MESSAGE( FATAL_ERROR "FT_BUFFER not found!" )
    ENDIF()
-ENDIF ( FT_BUFFER_FOUND )
+ENDIF ( FTB_BUFFER_FOUND )
 
-IF ( FT_CLIENT_FOUND )
-   IF ( NOT FT_CLIENT_FIND_QUIETLY )
-       MESSAGE( STATUS "Found FT client: ${FT_CLIENT_LIBRARY_DIR} and include in ${FT_CLIENT_INCLUDE_DIR}" )
-       MESSAGE( STATUS "      FT client: ${FT_CLIENT_LIBRARY}" )
+IF ( FTB_CLIENT_FOUND )
+   IF ( NOT FTB_CLIENT_FIND_QUIETLY )
+       MESSAGE( STATUS "Found FTB client: ${FTB_CLIENT_INCLUDE_DIR}" )
+       MESSAGE( STATUS "      FTB client: ${FTB_CLIENT_LIBRARY}" )
    ENDIF()
-ELSE ( FT_CLIENT_FOUND )
-   IF (FT_CLIENT_FIND_REQUIRED)
+ELSE ( FTB_CLIENT_FOUND )
+   IF (FTB_CLIENT_FIND_REQUIRED)
       MESSAGE( FATAL_ERROR "FT_CLIENT not found!" )
    ENDIF()
-ENDIF ( FT_CLIENT_FOUND )
+ENDIF ( FTB_CLIENT_FOUND )
