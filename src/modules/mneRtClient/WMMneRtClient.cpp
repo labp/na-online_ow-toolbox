@@ -32,12 +32,12 @@
 
 #include "core/data/WLEMMCommand.h"
 #include "core/data/WLEMMeasurement.h"
+#include "core/io/WLReaderIsotrak.h"
 #include "core/io/WLReaderLeadfield.h"
 #include "core/io/WLReaderSourceSpace.h"
 #include "core/module/WLConstantsModule.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
-#include "reader/WLReaderDigPoints.h"
 #include "reader/WLReaderBem.h"
 
 #include "WMMneRtClient.h"
@@ -192,6 +192,7 @@ void WMMneRtClient::moduleInit()
     const string alias = "OW-LaBP";
     m_rtClient.reset( new WRtClient( ip, alias ) );
     m_subject.reset( new WLEMMSubject() );
+    m_digPoints.reset( new WLList< WLDigPoint > );
 
     viewInit( WLEMDDrawable2D::WEGraphType::DYNAMIC );
 
@@ -218,7 +219,7 @@ void WMMneRtClient::moduleInit()
         if( handleDigPointsFileChanged( m_digPointsFile->get().string() ) )
         {
             // TODO(pieloth): set dig points
-            m_rtClient->setDigPointsAndEEG( m_digPoints );
+            m_rtClient->setDigPointsAndEEG( *m_digPoints.get() );
         }
     }
     if( m_lfEEGFile->changed( true ) )
@@ -286,7 +287,7 @@ void WMMneRtClient::moduleMain()
         {
             if( handleDigPointsFileChanged( m_digPointsFile->get().string() ) )
             {
-                m_rtClient->setDigPointsAndEEG( m_digPoints );
+                m_rtClient->setDigPointsAndEEG( *m_digPoints.get() );
             }
         }
         if( m_lfEEGFile->changed( true ) )
@@ -314,9 +315,9 @@ void WMMneRtClient::handleTrgConConnect()
 
     m_rtClient.reset( new WRtClient( m_propConIp->get(), "OW-LaBP" ) );
 
-    if( !m_digPoints.empty() )
+    if( !m_digPoints->empty() )
     {
-        m_rtClient->setDigPointsAndEEG( m_digPoints );
+        m_rtClient->setDigPointsAndEEG( *m_digPoints.get() );
     }
 
     m_rtClient->connect();
@@ -578,10 +579,10 @@ bool WMMneRtClient::handleDigPointsFileChanged( std::string fName )
     m_progress->addSubProgress( progress );
     m_additionalStatus->set( DATA_LOADING, true );
 
-    WLReaderDigPoints::SPtr reader;
+    WLReaderIsotrak::SPtr reader;
     try
     {
-        reader.reset( new WLReaderDigPoints( fName ) );
+        reader.reset( new WLReaderIsotrak( fName ) );
     }
     catch( const WDHNoSuchFile& e )
     {
@@ -591,9 +592,9 @@ bool WMMneRtClient::handleDigPointsFileChanged( std::string fName )
         return false;
     }
 
-    if( reader->read( &m_digPoints ) == WLReaderDigPoints::ReturnCode::SUCCESS )
+    if( reader->read( m_digPoints ) == WLReader::ReturnCode::SUCCESS )
     {
-        infoLog() << "Loaded dig points: " << m_digPoints.size();
+        infoLog() << "Loaded dig points: " << m_digPoints->size();
         m_additionalStatus->set( DATA_LOADED, true );
         progress->finish();
         m_progress->removeSubProgress( progress );

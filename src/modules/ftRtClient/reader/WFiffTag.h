@@ -27,6 +27,8 @@
 
 #include <fiff/fiff_tag.h>
 
+#include "WFiffStream.h"
+
 using namespace FIFFLIB;
 
 /**

@@ -35,6 +35,8 @@
 #include <fiff/fiff_stream.h>
 #include <fiff/fiff_tag.h>
 
+#include "WFiffStream.h"
+
 using namespace FIFFLIB;
 
 /**
@@ -102,29 +104,12 @@ protected:
      *
      * @return index of the last read dir entry
      */
-    qint32 make_dir_tree( FiffStream* p_pStream, QList< FiffDirEntry >& p_Dir, FiffDirTree& p_Tree, qint32 start = 0 );
+    qint32 make_dir_tree( QList< FiffDirEntry >& p_Dir, FiffDirTree& p_Tree, qint32 start = 0 );
 
     /**
-     * A byte array to store the file.
+     * The WFiffStream to read from the Neuromag Header Fiff-file. Depending on the constructor call the stream can be placed on a QFile of a QBuffer.
      */
-    QByteArray m_byteArray;
-
-    /**
-     * Describes the QIODevice interface for a QByteArray.
-     */
-    QBuffer m_buffer;
-
-    /**
-     * The file name.
-     */
-    std::string m_fname;
-
-    /**
-     * The file to read.
-     */
-    QFile m_file;
-
-    QIODevice *m_ioDevice;
+    WFiffStream::SPtr m_stream;
 
 };
 

@@ -25,8 +25,6 @@
 #include <list>
 #include <algorithm>
 
-#include <fstream>
-
 #include <boost/foreach.hpp>
 
 #include <core/common/WLogger.h>
@@ -110,19 +108,7 @@ bool WFTChunkNeuromagHdr::process( const char* data, size_t size )
     m_modalityPicks.reset( new ModalityPicksT );
     m_stimulusPicks.reset( new WLEMDRaw::ChanPicksT );
 
-    std::fstream fostr;
-    fostr.open( TMPFILENAME.c_str(), std::fstream::out );
-
-    if( !fostr.is_open() )
-    {
-        wlog::error( CLASS ) << "Neuromag Header file could not opened.";
-        return false;
-    }
-
-    fostr.write( data, size );
-    fostr.close();
-
-    WReaderNeuromagHeader::SPtr reader( new WReaderNeuromagHeader( TMPFILENAME ) );
+    WReaderNeuromagHeader::SPtr reader( new WReaderNeuromagHeader( data, size ) );
 
     if( !reader->read( m_data.get() ) )
     {

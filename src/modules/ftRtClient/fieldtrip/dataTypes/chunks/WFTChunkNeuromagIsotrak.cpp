@@ -22,26 +22,13 @@
 //
 //---------------------------------------------------------------------------
 
-#include <fstream>
-
 #include <core/common/WLogger.h>
 
-#include "modules/ftRtClient/reader/WReaderNeuromagIsotrak.h"
+#include "core/io/WLReaderIsotrak.h"
+
 #include "WFTChunkNeuromagIsotrak.h"
 
 const std::string WFTChunkNeuromagIsotrak::CLASS = "WFTChunkNeuromagIsotrak";
-
-#ifdef _WIN32
-
-const std::string WFTChunkNeuromagIsotrak::TMPDIRPATH = "C:/Windows/temp/";
-
-#else
-
-const std::string WFTChunkNeuromagIsotrak::TMPDIRPATH = "/tmp/";
-
-#endif
-
-const std::string WFTChunkNeuromagIsotrak::TMPFILENAME = TMPDIRPATH + "neuromag_isotrak.fif";
 
 WFTChunkNeuromagIsotrak::WFTChunkNeuromagIsotrak( const char* data, const size_t size ) :
                 WFTAChunk( WLEFTChunkType::FT_CHUNK_NEUROMAG_ISOTRAK, size )
@@ -60,21 +47,9 @@ bool WFTChunkNeuromagIsotrak::process( const char* data, size_t size )
 
     m_digPoints.reset( new WLList< WLDigPoint > );
 
-    std::fstream fostr;
-    fostr.open( TMPFILENAME.c_str(), std::fstream::out );
+    WLReaderIsotrak::SPtr reader( new WLReaderIsotrak( data, size ) );
 
-    if( !fostr.is_open() )
-    {
-        wlog::error( CLASS ) << "Neuromag Isotrak file could not opened.";
-        return false;
-    }
-
-    fostr.write( data, size );
-    fostr.close();
-
-    WReaderNeuromagIsotrak::SPtr reader( new WReaderNeuromagIsotrak( TMPFILENAME ) );
-
-    if( !reader->read( m_digPoints ) )
+    if( reader->read( m_digPoints ) != WLReader::ReturnCode::SUCCESS )
     {
         wlog::error( CLASS ) << "Neuromag header file was not read.";
         return false;

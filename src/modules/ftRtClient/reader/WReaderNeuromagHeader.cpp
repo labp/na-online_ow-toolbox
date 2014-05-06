@@ -33,8 +33,8 @@
 #include <fiff/fiff_dir_tree.h>
 
 #include <core/common/WIOTools.h>
-#include <core/dataHandler/exceptions/WDHNoSuchFile.h>
 #include <core/common/WLogger.h>
+#include <core/dataHandler/exceptions/WDHNoSuchFile.h>
 
 #include "WFiffTag.h"
 #include "WFiffStream.h"
@@ -47,28 +47,17 @@ const std::string WReaderNeuromagHeader::CLASS = "WReaderNeuromagHeader";
 
 WReaderNeuromagHeader::WReaderNeuromagHeader( std::string fname )
 {
-    m_fname = fname;
-    if( !fileExists( m_fname ) )
+    if( !fileExists( fname ) )
     {
-        throw WDHNoSuchFile( m_fname );
+        throw WDHNoSuchFile( fname );
     }
 
-    m_file.setFileName( QString::fromStdString( m_fname ) );
-
-    m_ioDevice = &m_file;
+    m_stream.reset( new WFiffStream( new QFile( QString::fromStdString( fname ) ) ) );
 }
 
 WReaderNeuromagHeader::WReaderNeuromagHeader( const char* data, size_t size )
 {
-    m_buffer.setBuffer( &m_byteArray );
-    m_buffer.open( QIODevice::WriteOnly );
-
-    m_buffer.write( data, size );
-
-    m_buffer.seek( 0 );
-    m_buffer.close();
-
-    m_ioDevice = &m_buffer;
+    m_stream.reset( new WFiffStream( new QBuffer( new QByteArray( data, size ) ) ) );
 }
 
 WReaderNeuromagHeader::~WReaderNeuromagHeader()
@@ -77,21 +66,15 @@ WReaderNeuromagHeader::~WReaderNeuromagHeader()
 
 bool WReaderNeuromagHeader::read( FIFFLIB::FiffInfo* const out )
 {
-    if( m_ioDevice == 0 )
-    {
-        return false;
-    }
-
-    WFiffStream stream( m_ioDevice ); // create a stream on the file.
     FiffDirTree tree;
     QList< FiffDirEntry > tags;
 
-    stream.setByteOrder( QDataStream::LittleEndian ); // set the byte order.
+    m_stream->setByteOrder( QDataStream::LittleEndian ); // set the byte order.
 
-    wlog::debug( CLASS ) << "Buffer size: " << stream.device()->size();
-    wlog::debug( CLASS ) << "Byte Order [0 = Big, 1 = Little]: " << stream.byteOrder();
+    wlog::debug( CLASS ) << "Buffer size: " << m_stream->device()->size();
+    wlog::debug( CLASS ) << "Byte Order [0 = Big, 1 = Little]: " << m_stream->byteOrder();
 
-    if( stream.device()->open( QIODevice::ReadOnly ) )
+    if( m_stream->device()->open( QIODevice::ReadOnly ) )
         wlog::debug( CLASS ) << "Stream opened.";
     else
     {
@@ -99,12 +82,12 @@ bool WReaderNeuromagHeader::read( FIFFLIB::FiffInfo* const out )
         return false;
     }
 
-    stream.device()->seek( 0 );
+    m_stream->device()->seek( 0 );
 
     WFiffTag::SPtr tag = FiffTag::SPtr( new FiffTag() );
 
     // read file_id tag.
-    WFiffTag::read_tag_info( &stream, tag );
+    WFiffTag::read_tag_info( m_stream.get(), tag );
 
     if( tag->kind != FIFF_FILE_ID )
     {
@@ -124,7 +107,7 @@ bool WReaderNeuromagHeader::read( FIFFLIB::FiffInfo* const out )
     }
 
     // read dir_pointer tag.
-    WFiffTag::read_tag( &stream, tag );
+    WFiffTag::read_tag( m_stream.get(), tag );
     if( tag->kind != FIFF_DIR_POINTER )
     {
         wlog::error( CLASS ) << "File does have a directory pointer";
@@ -135,17 +118,17 @@ bool WReaderNeuromagHeader::read( FIFFLIB::FiffInfo* const out )
     qint32 dirpos = *tag->toInt();
     if( dirpos > 0 )
     {
-        WFiffTag::read_tag( &stream, tag, dirpos );
+        WFiffTag::read_tag( m_stream.get(), tag, dirpos );
         tags = tag->toDirEntry();
     }
     else
     {
-        stream.device()->seek( 0 );
+        m_stream->device()->seek( 0 );
         FiffDirEntry t_fiffDirEntry;
         while( tag->next >= 0 )
         {
-            t_fiffDirEntry.pos = stream.device()->pos();
-            WFiffTag::read_tag_info( &stream, tag );
+            t_fiffDirEntry.pos = m_stream->device()->pos();
+            WFiffTag::read_tag_info( m_stream.get(), tag );
 
             t_fiffDirEntry.kind = tag->kind;
             t_fiffDirEntry.type = tag->type;
@@ -154,22 +137,22 @@ bool WReaderNeuromagHeader::read( FIFFLIB::FiffInfo* const out )
         }
     }
 
-    make_dir_tree( &stream, tags, tree ); // build directory structure
+    make_dir_tree( tags, tree ); // build directory structure
 
     FiffDirTree nodeInfo;
 
     wlog::debug( CLASS ) << "Read measurement information.";
 
-    stream.read_meas_info( tree, *out, nodeInfo );
+    m_stream->read_meas_info( tree, *out, nodeInfo );
 
     // clean up
-    stream.device()->seek( 0 );
-    stream.device()->close();
+    m_stream->device()->seek( 0 );
+    m_stream->device()->close();
 
     return true;
 }
 
-qint32 WReaderNeuromagHeader::make_dir_tree( FiffStream* p_pStream, QList< FiffDirEntry >& p_Dir, FiffDirTree& p_Tree,
+qint32 WReaderNeuromagHeader::make_dir_tree( QList< FiffDirEntry >& p_Dir, FiffDirTree& p_Tree,
                 qint32 start )
 {
     p_Tree.clear();
@@ -179,7 +162,7 @@ qint32 WReaderNeuromagHeader::make_dir_tree( FiffStream* p_pStream, QList< FiffD
     qint32 block;
     if( p_Dir[start].kind == FIFF_BLOCK_START )
     {
-        WFiffTag::read_tag( p_pStream, t_pTag, p_Dir[start].pos );
+        WFiffTag::read_tag( m_stream.get(), t_pTag, p_Dir[start].pos );
         block = *t_pTag->toInt();
     }
     else
@@ -200,7 +183,7 @@ qint32 WReaderNeuromagHeader::make_dir_tree( FiffStream* p_pStream, QList< FiffD
             if( current != start )
             {
                 FiffDirTree t_ChildTree;
-                current = make_dir_tree( p_pStream, p_Dir, t_ChildTree, current );
+                current = make_dir_tree( p_Dir, t_ChildTree, current );
                 ++p_Tree.nchild;
                 p_Tree.children.append( t_ChildTree );
             }
@@ -208,7 +191,7 @@ qint32 WReaderNeuromagHeader::make_dir_tree( FiffStream* p_pStream, QList< FiffD
         else
             if( p_Dir[current].kind == FIFF_BLOCK_END )
             {
-                WFiffTag::read_tag( p_pStream, t_pTag, p_Dir[start].pos );
+                WFiffTag::read_tag( m_stream.get(), t_pTag, p_Dir[start].pos );
                 if( *t_pTag->toInt() == p_Tree.block )
                     break;
             }
@@ -224,7 +207,7 @@ qint32 WReaderNeuromagHeader::make_dir_tree( FiffStream* p_pStream, QList< FiffD
                 {
                     if( p_Dir[current].kind == FIFF_FILE_ID )
                     {
-                        WFiffTag::read_tag( p_pStream, t_pTag, p_Dir[current].pos );
+                        WFiffTag::read_tag( m_stream.get(), t_pTag, p_Dir[current].pos );
                         p_Tree.id = t_pTag->toFiffID();
                     }
                 }
@@ -232,13 +215,13 @@ qint32 WReaderNeuromagHeader::make_dir_tree( FiffStream* p_pStream, QList< FiffD
                 {
                     if( p_Dir[current].kind == FIFF_BLOCK_ID )
                     {
-                        WFiffTag::read_tag( p_pStream, t_pTag, p_Dir[current].pos );
+                        WFiffTag::read_tag( m_stream.get(), t_pTag, p_Dir[current].pos );
                         p_Tree.id = t_pTag->toFiffID();
                     }
                     else
                         if( p_Dir[current].kind == FIFF_PARENT_BLOCK_ID )
                         {
-                            WFiffTag::read_tag( p_pStream, t_pTag, p_Dir[current].pos );
+                            WFiffTag::read_tag( m_stream.get(), t_pTag, p_Dir[current].pos );
                             p_Tree.parent_id = t_pTag->toFiffID();
                         }
                 }

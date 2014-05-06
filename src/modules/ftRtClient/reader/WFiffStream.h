@@ -25,6 +25,8 @@
 #ifndef WFIFFSTREAM_H_
 #define WFIFFSTREAM_H_
 
+#include <boost/shared_ptr.hpp>
+
 #include <QtCore/qiodevice.h>
 
 #include <fiff/fiff_proj.h>
@@ -38,6 +40,11 @@ using namespace FIFFLIB;
 class WFiffStream: public FiffStream
 {
 public:
+
+    /**
+     * A shared pointer on a WFiffStream.
+     */
+    typedef boost::shared_ptr< WFiffStream > SPtr;
 
     /**
      * The class name.

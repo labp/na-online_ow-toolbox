@@ -81,16 +81,6 @@ public:
 protected:
 
     /**
-     * The path to a temporary directory. It is platform dependent.
-     */
-    static const std::string TMPDIRPATH;
-
-    /**
-     * The name of the temporary Neuromag Isotrak FIFF file.
-     */
-    static const std::string TMPFILENAME;
-
-    /**
      * Based on the stored memory of @data, this method creates the chunks data structure.
      * It has to implement by a deriving class for a special chunk type.
      *

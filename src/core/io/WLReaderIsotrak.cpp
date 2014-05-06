@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <QtCore/qbuffer.h>
+#include <QtCore/qbytearray.h>
 #include <QtCore/qfile.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qstring.h>
@@ -33,54 +35,61 @@
 #include <fiff/fiff_stream.h>
 #include <fiff/fiff_tag.h>
 
+#include <core/common/WIOTools.h>
 #include <core/common/WLogger.h>
+#include <core/dataHandler/exceptions/WDHNoSuchFile.h>
 
 #include "core/data/enum/WLEPointType.h"
 
-#include "WReaderNeuromagIsotrak.h"
+#include "WLReaderIsotrak.h"
 
 using namespace std;
 using namespace FIFFLIB;
 
-const std::string WReaderNeuromagIsotrak::CLASS = "WReaderNeuromagIsotrak";
+const std::string WLReaderIsotrak::CLASS = "WReaderNeuromagIsotrak";
 
-WReaderNeuromagIsotrak::WReaderNeuromagIsotrak( std::string fname ) :
-                WReader( fname )
+WLReaderIsotrak::WLReaderIsotrak( std::string fname )
+{
+    if( !fileExists( fname ) )
+    {
+        throw WDHNoSuchFile( fname );
+    }
+
+    m_stream.reset( new FiffStream( new QFile( QString::fromStdString( fname ) ) ) );
+}
+
+WLReaderIsotrak::WLReaderIsotrak( const char* data, size_t size )
+{
+    m_stream.reset( new FiffStream( new QBuffer( new QByteArray( data, size ) ) ) );
+}
+
+WLReaderIsotrak::~WLReaderIsotrak()
 {
 
 }
 
-WReaderNeuromagIsotrak::~WReaderNeuromagIsotrak()
+WLReader::ReturnCode::Enum WLReaderIsotrak::read( WLList< WLDigPoint >::SPtr digPoints )
 {
-
-}
-
-bool WReaderNeuromagIsotrak::read( WLList< WLDigPoint >::SPtr& digPoints )
-{
-    QFile file( QString::fromStdString( m_fname ) );
-
-    digPoints.reset( new WLList< WLDigPoint > );
-    FiffStream stream( &file );
+    digPoints->clear();
     FiffDirTree tree;
     QList< FiffDirEntry > tags;
 
-    if( stream.open( tree, tags ) )
+    if( m_stream->open( tree, tags ) )
     {
         wlog::debug( CLASS ) << "Stream opened.";
     }
     else
     {
         wlog::debug( CLASS ) << "Stream not opened.";
-        return false;
+        return WLReader::ReturnCode::ERROR_FOPEN;
     }
 
-    return readDigPoints( stream, tree, *digPoints );
+    return readDigPoints( tree, digPoints ) ? WLReader::ReturnCode::SUCCESS : WLReader::ReturnCode::ERROR_FREAD;
+
 }
 
-bool WReaderNeuromagIsotrak::readDigPoints( FiffStream& stream, const FiffDirTree& p_Node, WLList< WLDigPoint >& out )
+bool WLReaderIsotrak::readDigPoints( const FiffDirTree& p_Node, WLList< WLDigPoint >::SPtr out )
 {
-    out.clear();
-
     //
     //   Find the desired blocks
     //
@@ -104,27 +113,22 @@ bool WReaderNeuromagIsotrak::readDigPoints( FiffStream& stream, const FiffDirTre
     {
         kind = isotrak[0].dir[k].kind;
         pos = isotrak[0].dir[k].pos;
-        switch( kind )
+        if( kind == FIFF_DIG_POINT )
         {
-            case FIFF_CH_INFO:
-                FiffTag::read_tag( &stream, t_pTag, pos );
-                chs.append( t_pTag->toChInfo() );
-                break;
-            case FIFF_DIG_POINT:
-                FiffTag::read_tag( &stream, t_pTag, pos );
-                const FiffDigPoint point = t_pTag->toDigPoint();
-                out.push_back( createDigPoint( point ) );
-                break;
+            FiffTag::read_tag( m_stream.get(), t_pTag, pos );
+            const FiffDigPoint point = t_pTag->toDigPoint();
+            out->push_back( createDigPoint( point ) );
         }
     }
 
-    return out.size() > 0;
+    return out->size() > 0;
 }
 
-WLDigPoint WReaderNeuromagIsotrak::createDigPoint( const FiffDigPoint& fiffDigPoint )
+WLDigPoint WLReaderIsotrak::createDigPoint( const FiffDigPoint& fiffDigPoint )
 {
     const WLDigPoint::PointT p( fiffDigPoint.r[0], fiffDigPoint.r[1], fiffDigPoint.r[2] );
     const WLDigPoint dig( p, fiffDigPoint.kind, fiffDigPoint.ident );
 
     return dig;
 }
+

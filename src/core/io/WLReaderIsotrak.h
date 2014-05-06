@@ -31,10 +31,9 @@
 #include <fiff/fiff_dir_tree.h>
 #include <fiff/fiff_stream.h>
 
-#include <core/dataHandler/io/WReader.h>
-
 #include "core/container/WLList.h"
 #include "core/data/WLDigPoint.h"
+#include "core/io/WLReader.h"
 
 using namespace FIFFLIB;
 
@@ -43,19 +42,19 @@ using namespace FIFFLIB;
  *
  * WReaderNeuromagIsotrak supports big endian files only.
  */
-class WReaderNeuromagIsotrak: public WReader
+class WLReaderIsotrak
 {
 public:
 
     /**
      * A shared pointer on a WReaderNeuromagIsotrak.
      */
-    typedef boost::shared_ptr< WReaderNeuromagIsotrak > SPtr;
+    typedef boost::shared_ptr< WLReaderIsotrak > SPtr;
 
     /**
      * A shared pointer on a constant WReaderNeuromagIsotrak.
      */
-    typedef boost::shared_ptr< const WReaderNeuromagIsotrak > ConstSPtr;
+    typedef boost::shared_ptr< const WLReaderIsotrak > ConstSPtr;
 
     /**
      * The class name.
@@ -67,12 +66,20 @@ public:
      *
      * @param fname The file name.
      */
-    explicit WReaderNeuromagIsotrak( std::string fname );
+    explicit WLReaderIsotrak( std::string fname );
+
+    /**
+     * Constructs a new WReaderNeuromagIsotrak.
+     *
+     * @param data The pointer to the memory storage.
+     * @param size The size of the file.
+     */
+    explicit WLReaderIsotrak( const char* data, size_t size );
 
     /**
      * Destroys the WReaderNeuromagIsotrak.
      */
-    virtual ~WReaderNeuromagIsotrak();
+    virtual ~WLReaderIsotrak();
 
     /**
      * Reads the big endian Neuromag Isotrak file and fills the digitalization points.
@@ -80,7 +87,7 @@ public:
      * @param digPoints The list to fill.
      * @return Returns true if the file was read successfully, oherwise false.
      */
-    bool read( WLList< WLDigPoint >::SPtr& digPoints );
+    WLReader::ReturnCode::Enum read( WLList< WLDigPoint >::SPtr digPoints );
 
 protected:
 
@@ -91,9 +98,22 @@ protected:
      * @param out The digitalization points list.
      * @return Returns true if the points were found, otherwise false.
      */
-    bool readDigPoints( FiffStream& stream, const FiffDirTree& p_Node, WLList< WLDigPoint >& out );
+    bool readDigPoints( const FiffDirTree& p_Node, WLList< WLDigPoint >::SPtr out );
 
+    /**
+     * Method to create a concrete DigPoint object.
+     *
+     * @param fiffDigPoint The MNE Dig Point.
+     * @return Returns a concrete WLDigPoint.
+     */
     WLDigPoint createDigPoint( const FiffDigPoint& fiffDigPoint );
+
+private:
+
+    /**
+     * The FiffStream to read from the Isotrak Fiff-file. Depending on the constructor call the stream can be placed on a QFile of a QBuffer.
+     */
+    boost::shared_ptr< FiffStream > m_stream;
 };
 
 #endif /* WREADERNEUROMAGISOTRAK_H_ */
