@@ -24,7 +24,10 @@ def main_mne():
 
     print
     
-    # TODO (pieloth): Checkout tested MNE version
+    if deputil.ask_for_execute("Initialize MNE repository"):
+        step_mne_init_repo()
+        
+    print
 
     if deputil.ask_for_execute("Configure MNE"):
         step_mne_configure()
@@ -49,6 +52,15 @@ def step_mne_download_repo():
 
     deputil.print_step_end("Downloading")
 
+def step_mne_init_repo():
+    deputil.print_step_begin("Initializing")
+
+    os.chdir(_MNE_DESTDIR + "/" + _MNE_REPO_FOLDER)
+    version = "140f19b51738719db5d66c5a5259ae3e5c759cac" # 2014-05-08
+    call("git checkout " + version, shell=True)
+
+    deputil.print_step_end("Initializing")
+    
 
 def step_mne_configure():
     deputil.print_step_begin("Configuring")
