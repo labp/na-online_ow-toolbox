@@ -9,91 +9,100 @@ __author__ = 'pieloth'
 from subprocess import call
 import os
 
-import install_dependencies as deputil
+from install import AInstaller
+from install import AInstaller as Utils
 
 QT5_DESTDIR = "/tmp"
-_QT5_REPO_FOLDER = "qt5_repository"
 QT5_INSTALL_FOLDER = "qt5_static"
 
 
-def main_qt5():
-    deputil.print_dependency_header("Install static Qt5")
+class Installer(AInstaller):
+    REPO_FOLDER = "qt5_repository"
 
-    if deputil.ask_for_execute("Download Qt5"):
-        step_qt5_download_repo()
+    def __init__(self, destdir, installdir):
+        AInstaller.__init__(self, "Qt5 Framework", destdir)
+        self.INSTALLDIR = installdir
 
-    print
+    def pre_install(self):
+        success = True
+        success = success and Utils.check_program("git", "--version")
+        success = success and Utils.check_program("make", "--version")
+        return success
 
-    if deputil.ask_for_execute("Initialize Qt5 repository"):
-        step_qt5_init_repo()
+    def install(self):
+        if Utils.ask_for_execute("Download " + self.NAME):
+            self._download()
 
-    print
+        print
 
-    if deputil.ask_for_execute("Configure Qt5"):
-        step_qt5_configure()
+        if Utils.ask_for_execute("Initialize " + self.NAME):
+            self._initialize()
 
-    print
+        print
 
-    if deputil.ask_for_execute("Compile & install Qt5"):
-        step_qt5_compile_install()
+        if Utils.ask_for_execute("Configure " + self.NAME):
+            self._configure()
 
-    print
+        print
 
-    print("Before compiling the toolbox, please set the following environment variables:\n")
-    print("\tQT5_STATIC_ROOT=" + QT5_DESTDIR + "/" + QT5_INSTALL_FOLDER)
-    print("\tQT5_INCLUDE_DIR=" + QT5_DESTDIR + "/" + QT5_INSTALL_FOLDER + "/include")
-    print("\tQT5_STATIC_INCLUDE_DIR=" + QT5_DESTDIR + "/" + QT5_INSTALL_FOLDER + "/include")
-    print("\tQT5_STATIC_LIBRARY_DIR=" + QT5_DESTDIR + "/" + QT5_INSTALL_FOLDER + "/lib")
+        if Utils.ask_for_execute("Compile & install " + self.NAME):
+            self._compile_install()
 
+        return True
 
-def step_qt5_download_repo():
-    deputil.print_step_begin("Downloading")
+    def post_install(self):
+        print("Before compiling the toolbox, please set the following environment variables:\n")
+        static_root = os.path.join(self.DESTDIR, self.INSTALLDIR)
+        print("\tQT5_STATIC_ROOT=" + static_root)
 
-    qt5_repo = "git://gitorious.org/qt/qt5.git"
-    call("git clone " + qt5_repo + " " + QT5_DESTDIR + "/" + _QT5_REPO_FOLDER, shell=True)
+        include_dir = os.path.join(self.DESTDIR, self.INSTALLDIR, "include")
+        print("\tQT5_INCLUDE_DIR=" + include_dir)
+        print("\tQT5_STATIC_INCLUDE_DIR=" + include_dir)
 
-    deputil.print_step_end("Downloading")
+        static_library_dir = os.path.join(self.DESTDIR, self.INSTALLDIR, "lib")
+        print("\tQT5_STATIC_LIBRARY_DIR=" + static_library_dir)
 
+        print
+        return True
 
-def step_qt5_init_repo():
-    deputil.print_step_begin("Initializing")
+    def _download(self):
+        Utils.print_step_begin("Downloading")
+        repo = "git://gitorious.org/qt/qt5.git"
+        repo_dir = os.path.join(self.DESTDIR, self.REPO_FOLDER)
+        call("git clone " + repo + " " + repo_dir, shell=True)
+        Utils.print_step_end("Downloading")
 
-    os.chdir(QT5_DESTDIR + "/" + _QT5_REPO_FOLDER)
-    qt_version = "v5.1.1"
-    call("git checkout " + qt_version, shell=True)
-    qt_module_selection = "--module-subset=qtbase"
-    call("./init-repository " + qt_module_selection, shell=True)
+    def _initialize(self):
+        Utils.print_step_begin("Initializing")
+        repo_dir = os.path.join(self.DESTDIR, self.REPO_FOLDER)
+        os.chdir(repo_dir)
+        version = "v5.1.1"
+        call("git checkout " + version, shell=True)
+        qt_module_selection = "--module-subset=qtbase"
+        call("./init-repository " + qt_module_selection, shell=True)
+        Utils.print_step_end("Initializing")
 
-    deputil.print_step_end("Initializing")
+    def _configure(self):
+        Utils.print_step_begin("Configuring")
+        install_path = os.path.join(self.DESTDIR, self.INSTALLDIR)
+        call("mkdir " + install_path, shell=True)
+        repo_dir = os.path.join(self.DESTDIR, self.REPO_FOLDER)
+        os.chdir(repo_dir)
+        qt5_configure = "./configure -prefix " + install_path + " -confirm-license -opensource -release -static " \
+                                                                "-nomake tests -nomake examples -qt-xcb"
+        call(qt5_configure, shell=True)
+        Utils.print_step_end("Configuring")
 
-
-def step_qt5_configure():
-    deputil.print_step_begin("Configuring")
-
-    qt_install_path = QT5_DESTDIR + "/" + QT5_INSTALL_FOLDER
-    call("mkdir " + qt_install_path, shell=True)
-    os.chdir(QT5_DESTDIR + "/" + _QT5_REPO_FOLDER)
-    qt5_configure = "./configure -prefix " + qt_install_path + " -confirm-license -opensource -release -static " \
-                                                               "-nomake tests -nomake examples -qt-xcb"
-    call(qt5_configure, shell=True)
-
-    deputil.print_step_end("Configuring")
-
-
-def step_qt5_compile_install():
-    deputil.print_step_begin("Compiling & Installing")
-
-    os.chdir(QT5_DESTDIR + "/" + _QT5_REPO_FOLDER)
-    try:
-        jobs = int(raw_input("Number of jobs (recommended: # of CPU cores): "))
-    except ValueError:
-        jobs = 1
-    print("Using job=" + str(jobs))
-
-    call("make -j" + str(jobs) + " install", shell=True)
-
-    deputil.print_step_end("Compiling & Installing")
+    def _compile_install(self):
+        Utils.print_step_begin("Compiling & Installing")
+        jobs = Utils.ask_for_make_jobs()
+        repo_dir = os.path.join(self.DESTDIR, self.REPO_FOLDER)
+        os.chdir(repo_dir)
+        call("make -j" + str(jobs), shell=True)
+        call("make -j" + str(jobs) + " install", shell=True)
+        Utils.print_step_end("Compiling & Installing")
 
 
 if __name__ == "__main__":
-    main_qt5()
+    installer = Installer(QT5_DESTDIR, QT5_INSTALL_FOLDER)
+    installer.do_install()
