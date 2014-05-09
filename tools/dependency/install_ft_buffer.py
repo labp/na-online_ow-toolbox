@@ -6,13 +6,12 @@ Setup FieldTrip Buffer library and includes for compilation.
 
 __author__ = 'pieloth'
 
-from subprocess import call
+import argparse
 import os
+from subprocess import call
 
 from install import AInstaller
 from install import AInstaller as Utils
-
-FT_DESTDIR = "/tmp"
 
 
 class Installer(AInstaller):
@@ -50,18 +49,18 @@ class Installer(AInstaller):
     def post_install(self):
         print("Before compiling the toolbox, please set the following environment variables:\n")
         ftb_buffer_include_dir = os.path.join(self.DESTDIR, self.REPO_FOLDER, self.FTB_BUFFER_INCLUDE)
-        print("\tFTB_BUFFER_INCLUDE_DIR=" + ftb_buffer_include_dir)
+        print("    FTB_BUFFER_INCLUDE_DIR=" + ftb_buffer_include_dir)
 
         ftb_buffer_lib = os.path.join(self.DESTDIR, self.REPO_FOLDER, self.FTB_BUFFER_INCLUDE,
                                       self.FTB_BUFFER_LIBRARY)
-        print("\tFTB_BUFFER_LIBRARY=" + ftb_buffer_lib)
+        print("    FTB_BUFFER_LIBRARY=" + ftb_buffer_lib)
 
         ftb_client_include_dir = os.path.join(self.DESTDIR, self.REPO_FOLDER, self.FTB_CLIENT_INCLUDE)
-        print("\tFTB_CLIENT_INCLUDE_DIR=" + ftb_client_include_dir)
+        print("    FTB_CLIENT_INCLUDE_DIR=" + ftb_client_include_dir)
 
         ftb_client_lib = os.path.join(self.DESTDIR, self.REPO_FOLDER, self.FTB_CLIENT_INCLUDE,
                                       self.FTB_CLIENT_LIBRARY)
-        print("\tFTB_CLIENT_LIBRARY=" + ftb_client_lib)
+        print("    FTB_CLIENT_LIBRARY=" + ftb_client_lib)
 
     def _download(self):
         Utils.print_step_begin("Downloading")
@@ -99,5 +98,13 @@ class Installer(AInstaller):
 
 
 if __name__ == "__main__":
-    installer = Installer(FT_DESTDIR)
+    parser = argparse.ArgumentParser(description="Installs FieldTrip Buffer for real-time streaming.")
+    parser.add_argument("-d", "--destdir", help="Destination path.")
+    args = parser.parse_args()
+
+    destdir = AInstaller.get_default_destdir()
+    if args.destdir:
+        destdir = args.destdir
+
+    installer = Installer(destdir)
     installer.do_install()

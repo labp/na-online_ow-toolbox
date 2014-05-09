@@ -6,13 +6,14 @@ Setup static Qt5 library and includes for compilation.
 
 __author__ = 'pieloth'
 
-from subprocess import call
+import argparse
 import os
+from subprocess import call
 
 from install import AInstaller
 from install import AInstaller as Utils
 
-QT5_DESTDIR = "/tmp"
+
 QT5_INSTALL_FOLDER = "qt5_static"
 
 
@@ -53,14 +54,14 @@ class Installer(AInstaller):
     def post_install(self):
         print("Before compiling the toolbox, please set the following environment variables:\n")
         static_root = os.path.join(self.DESTDIR, self.INSTALLDIR)
-        print("\tQT5_STATIC_ROOT=" + static_root)
+        print("    QT5_STATIC_ROOT=" + static_root)
 
         include_dir = os.path.join(self.DESTDIR, self.INSTALLDIR, "include")
-        print("\tQT5_INCLUDE_DIR=" + include_dir)
-        print("\tQT5_STATIC_INCLUDE_DIR=" + include_dir)
+        print("    QT5_INCLUDE_DIR=" + include_dir)
+        print("    QT5_STATIC_INCLUDE_DIR=" + include_dir)
 
         static_library_dir = os.path.join(self.DESTDIR, self.INSTALLDIR, "lib")
-        print("\tQT5_STATIC_LIBRARY_DIR=" + static_library_dir)
+        print("    QT5_STATIC_LIBRARY_DIR=" + static_library_dir)
 
         print
         return True
@@ -104,5 +105,13 @@ class Installer(AInstaller):
 
 
 if __name__ == "__main__":
-    installer = Installer(QT5_DESTDIR, QT5_INSTALL_FOLDER)
+    parser = argparse.ArgumentParser(description="Installs Qt5 Framework as static library.")
+    parser.add_argument("-d", "--destdir", help="Destination path.")
+    args = parser.parse_args()
+
+    destdir = AInstaller.get_default_destdir()
+    if args.destdir:
+        destdir = args.destdir
+
+    installer = Installer(destdir, QT5_INSTALL_FOLDER)
     installer.do_install()

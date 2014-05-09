@@ -6,14 +6,13 @@ Setup MNE-CPP library and includes for compilation.
 
 __author__ = 'pieloth'
 
-from subprocess import call
+import argparse
 import os
+from subprocess import call
+
 
 from install import AInstaller
 from install import AInstaller as Utils
-
-MNE_DESTDIR = "/tmp"
-MNE_QT5_ROOT = os.path.join(MNE_DESTDIR, "qt5_static")
 
 
 class Installer(AInstaller):
@@ -54,10 +53,10 @@ class Installer(AInstaller):
         print("Before compiling the toolbox, please set the following environment variables:\n")
 
         include_dir = os.path.join(self.DESTDIR, self.REPO_FOLDER, "MNE")
-        print("\tMNE_INCLUDE_DIR=" + include_dir)
+        print("    MNE_INCLUDE_DIR=" + include_dir)
 
         library_path = os.path.join(self.DESTDIR, self.REPO_FOLDER, "lib")
-        print("\tMNE_LIBRARY_DIR=" + library_path)
+        print("    MNE_LIBRARY_DIR=" + library_path)
 
     def _download(self):
         Utils.print_step_begin("Downloading")
@@ -93,5 +92,17 @@ class Installer(AInstaller):
 
 
 if __name__ == "__main__":
-    installer = Installer("/tmp", MNE_QT5_ROOT)
+    parser = argparse.ArgumentParser(description="Installs MNE-CPP library.")
+    parser.add_argument("-d", "--destdir", help="Destination path.")
+    parser.add_argument("-q", "--qt5root", help="Path to Qt5 installation.")
+    args = parser.parse_args()
+
+    destdir = AInstaller.get_default_destdir()
+    if args.destdir:
+        destdir = args.destdir
+
+    qt5_root = os.path.join(destdir, "qt5_static")
+    if args.qt5root:
+        qt5_root = args.qt5root
+    installer = Installer(destdir, qt5_root)
     installer.do_install()
