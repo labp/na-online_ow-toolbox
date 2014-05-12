@@ -523,7 +523,7 @@ void WMFTRtClient::callbackTrgStartStreaming()
 
                     if( m_ftRtClient->createEMM( emm ) )
                     {
-                        if( m_subject.get() != 0 )
+                        if( m_subject && ( m_surface || m_bems || m_leadfieldEEG || m_leadfieldMEG ) )
                         {
                             emm->setSubject( m_subject ); // add the subject information.
                         }
@@ -772,7 +772,7 @@ void WMFTRtClient::callbackTrgAdditionalReset()
     m_leadfieldMEGFile->set( STANDARD_FILE_PATH, true );
     m_leadfieldMEGFile->changed( true );
 
-    m_subject.reset();
+    m_subject.reset( new WLEMMSubject() );
     m_surface.reset();
     m_bems.reset();
     m_leadfieldEEG.reset();
