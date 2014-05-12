@@ -131,6 +131,11 @@ class Installer(AInstaller):
     
         if AInstaller.ask_for_execute("Install FielTrip Buffer"):
             call("python install_ft_buffer.py " + destdir_arg, shell=True)
+
+        print
+
+        if AInstaller.ask_for_execute("Install Point Cloud Library"):
+            call("python install_pcl.py " + destdir_arg, shell=True)
         
         return True
 
