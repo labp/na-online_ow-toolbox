@@ -133,8 +133,12 @@ class Installer(AInstaller):
 
         print
 
+        # Optional libraries, depending on versions in package repository
         if AInstaller.ask_for_execute("Install Point Cloud Library"):
             call("python install_pcl.py " + destdir_arg, shell=True)
+
+        if AInstaller.ask_for_execute("Install Eigen with sparse matrix support"):
+            call("python install_eigen3.py " + destdir_arg, shell=True)
         
         return True
 
