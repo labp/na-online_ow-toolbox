@@ -28,6 +28,7 @@ class Installer(AInstaller):
         success = True
         success = success and Utils.check_program("git", "--version")
         success = success and Utils.check_program("make", "--version")
+        success = success and Utils.check_program("g++", "--version")
         return success
 
     def install(self):

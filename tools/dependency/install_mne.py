@@ -28,6 +28,8 @@ class Installer(AInstaller):
         success = success and Utils.check_program("make", "--version")
         qmake5 = os.path.join(self.QT5_ROOT, "bin", "qmake")
         success = success and Utils.check_program(qmake5, "--version")
+        if not Utils.check_program("g++", "--version") and not Utils.check_program("c++", "--version"):
+            success = False
         return success
 
     def install(self):
