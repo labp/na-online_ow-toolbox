@@ -28,6 +28,7 @@ class Installer(AInstaller):
         success = True
         success = success and Utils.check_program("git", "--version")
         success = success and Utils.check_program("make", "--version")
+        success = success and Utils.check_program("gcc", "--version")
         success = success and Utils.check_program("g++", "--version")
         return success
 
@@ -45,7 +46,7 @@ class Installer(AInstaller):
         if Utils.ask_for_execute("Compile " + self.NAME):
             self._compile()
 
-        print
+        return True
 
     def post_install(self):
         print("Before compiling the toolbox, please set the following environment variables:\n")
@@ -62,6 +63,9 @@ class Installer(AInstaller):
         ftb_client_lib = os.path.join(self.DESTDIR, self.REPO_FOLDER, self.FTB_CLIENT_INCLUDE,
                                       self.FTB_CLIENT_LIBRARY)
         print("    FTB_CLIENT_LIBRARY=" + ftb_client_lib)
+
+        print
+        return True
 
     def _download(self):
         Utils.print_step_begin("Downloading")

@@ -52,6 +52,8 @@ class Installer(AInstaller):
         if Utils.ask_for_execute("Compile " + self.NAME):
             self._compile_install()
 
+        return True
+
     def post_install(self):
         return True
 

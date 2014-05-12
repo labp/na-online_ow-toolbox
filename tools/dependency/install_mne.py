@@ -51,6 +51,8 @@ class Installer(AInstaller):
         if Utils.ask_for_execute("Compile " + self.NAME):
             self._compile()
 
+        return True
+
     def post_install(self):
         print("Before compiling the toolbox, please set the following environment variables:\n")
 
@@ -59,6 +61,9 @@ class Installer(AInstaller):
 
         library_path = os.path.join(self.DESTDIR, self.REPO_FOLDER, "lib")
         print("    MNE_LIBRARY_DIR=" + library_path)
+
+        print
+        return True
 
     def _download(self):
         Utils.print_step_begin("Downloading")
