@@ -6,74 +6,103 @@ Setup MNE-CPP library and includes for compilation.
 
 __author__ = 'pieloth'
 
-from subprocess import call
+import argparse
 import os
-
-import install_dependencies as deputil
-import install_qt5_static as qt5
-
-_MNE_DESTDIR = "/tmp"
-_MNE_REPO_FOLDER = "mne-cpp"
-_MNE_QMAKE5 = qt5.QT5_DESTDIR + "/" + qt5.QT5_INSTALL_FOLDER + "/bin/qmake"
-
-def main_mne():
-    deputil.print_dependency_header("Install MNE")
-
-    if deputil.ask_for_execute("Download MNE"):
-        step_mne_download_repo()
-
-    print
-    
-    # TODO (pieloth): Checkout tested MNE version
-
-    if deputil.ask_for_execute("Configure MNE"):
-        step_mne_configure()
-
-    print
-
-    if deputil.ask_for_execute("Compile MNE"):
-        step_mne_compile_install()
-
-    print
-
-    print("Before compiling the toolbox, please set the following environment variables:\n")
-    print("\tMNE_INCLUDE_DIR=" + _MNE_DESTDIR + "/" + _MNE_REPO_FOLDER + "/MNE")
-    print("\tMNE_LIBRARY_DIR=" + _MNE_DESTDIR + "/" + _MNE_REPO_FOLDER + "/lib")
+from subprocess import call
 
 
-def step_mne_download_repo():
-    deputil.print_step_begin("Downloading")
-
-    mne_repo = "https://github.com/mne-tools/mne-cpp.git"
-    call("git clone " + mne_repo + " " + _MNE_DESTDIR + "/" + _MNE_REPO_FOLDER, shell=True)
-
-    deputil.print_step_end("Downloading")
+from install import AInstaller
+from install import AInstaller as Utils
 
 
-def step_mne_configure():
-    deputil.print_step_begin("Configuring")
+class Installer(AInstaller):
+    REPO_FOLDER = "mne-cpp"
 
-    os.chdir(_MNE_DESTDIR + "/" + _MNE_REPO_FOLDER + "/MNE")
-    mne_configure = _MNE_QMAKE5 + " -recursive"
-    call(mne_configure, shell=True)
+    def __init__(self, destdir, qt5_root):
+        AInstaller.__init__(self, "MNE-CPP", destdir, )
+        self.QT5_ROOT = qt5_root
 
-    deputil.print_step_end("Configuring")
+    def pre_install(self):
+        success = True
+        success = success and Utils.check_program("git", "--version")
+        success = success and Utils.check_program("make", "--version")
+        qmake5 = os.path.join(self.QT5_ROOT, "bin", "qmake")
+        success = success and Utils.check_program(qmake5, "--version")
+        return success
 
+    def install(self):
+        if Utils.ask_for_execute("Download " + self.NAME):
+            self._download()
 
-def step_mne_compile_install():
-    deputil.print_step_begin("Compiling")
+        print
 
-    os.chdir(_MNE_DESTDIR + "/" + _MNE_REPO_FOLDER + "/MNE")
-    try:
-        jobs = int(raw_input("Number of jobs (recommended: # of CPU cores): "))
-    except ValueError:
-        jobs = 1
-    print("Using job=" + str(jobs))
+        if Utils.ask_for_execute("Initialize " + self.NAME):
+            self._initialize()
 
-    call("make -j" + str(jobs), shell=True)
+        print
 
-    deputil.print_step_end("Compiling")
+        if Utils.ask_for_execute("Configure " + self.NAME):
+            self._configure()
+
+        print
+
+        if Utils.ask_for_execute("Compile " + self.NAME):
+            self._compile()
+
+    def post_install(self):
+        print("Before compiling the toolbox, please set the following environment variables:\n")
+
+        include_dir = os.path.join(self.DESTDIR, self.REPO_FOLDER, "MNE")
+        print("    MNE_INCLUDE_DIR=" + include_dir)
+
+        library_path = os.path.join(self.DESTDIR, self.REPO_FOLDER, "lib")
+        print("    MNE_LIBRARY_DIR=" + library_path)
+
+    def _download(self):
+        Utils.print_step_begin("Downloading")
+        repo = "https://github.com/mne-tools/mne-cpp.git"
+        repo_dir = os.path.join(self.DESTDIR, self.REPO_FOLDER)
+        call("git clone " + repo + " " + repo_dir, shell=True)
+        Utils.print_step_end("Downloading")
+
+    def _initialize(self):
+        Utils.print_step_begin("Initializing")
+        repo_dir = os.path.join(self.DESTDIR, self.REPO_FOLDER)
+        os.chdir(repo_dir)
+        version = "140f19b51738719db5d66c5a5259ae3e5c759cac" # 2014-05-08
+        call("git checkout " + version, shell=True)
+        Utils.print_step_end("Initializing")
+
+    def _configure(self):
+        Utils.print_step_begin("Configuring")
+        mne_dir = os.path.join(self.DESTDIR, self.REPO_FOLDER, "MNE")
+        os.chdir(mne_dir)
+        qmake5 = os.path.join(self.QT5_ROOT, "bin", "qmake")
+        mne_configure = qmake5 + " -recursive"
+        call(mne_configure, shell=True)
+        Utils.print_step_end("Configuring")
+
+    def _compile(self):
+        Utils.print_step_begin("Compiling")
+        mne_dir = os.path.join(self.DESTDIR, self.REPO_FOLDER, "MNE")
+        os.chdir(mne_dir)
+        jobs = AInstaller.ask_for_make_jobs()
+        call("make -j" + str(jobs), shell=True)
+        Utils.print_step_end("Compiling")
 
 
 if __name__ == "__main__":
-    main_mne()
+    parser = argparse.ArgumentParser(description="Installs MNE-CPP library.")
+    parser.add_argument("-d", "--destdir", help="Destination path.")
+    parser.add_argument("-q", "--qt5root", help="Path to Qt5 installation.")
+    args = parser.parse_args()
+
+    destdir = AInstaller.get_default_destdir()
+    if args.destdir:
+        destdir = args.destdir
+
+    qt5_root = os.path.join(destdir, "qt5_static")
+    if args.qt5root:
+        qt5_root = args.qt5root
+    installer = Installer(destdir, qt5_root)
+    installer.do_install()
