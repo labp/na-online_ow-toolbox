@@ -88,7 +88,10 @@ class Installer(AInstaller):
     def _configure(self):
         Utils.print_step_begin("Configuring")
         install_path = os.path.join(self.DESTDIR, self.INSTALLDIR)
-        call("mkdir " + install_path, shell=True)
+        if not os.path.exists(install_path):
+            os.mkdir(install_path)
+        else:
+            print("You may have to clear the folder:\n" + install_path)
         repo_dir = os.path.join(self.DESTDIR, self.REPO_FOLDER)
         os.chdir(repo_dir)
         qt5_configure = "./configure -prefix " + install_path + " -confirm-license -opensource -release -static " \

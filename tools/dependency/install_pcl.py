@@ -75,7 +75,10 @@ class Installer(AInstaller):
     def _configure(self):
         Utils.print_step_begin("Configuring")
         build_dir = os.path.join(self.DESTDIR, self.REPO_FOLDER, self.BUILD_FOLDER)
-        os.mkdir(build_dir)
+        if not os.path.exists(build_dir):
+            os.mkdir(build_dir)
+        else:
+            print("You may have to clear the folder:\n" + build_dir)
         os.chdir(build_dir)
         # Check and test, which options can be disabled to get required libs
         # Print dependencies with two following cmake: cmake -D...; cmake -D...
