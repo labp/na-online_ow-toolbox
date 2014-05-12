@@ -59,12 +59,11 @@ class AInstaller:
 
     @staticmethod
     def ask_for_make_jobs():
-        jobs = 1
+        jobs = 2
         try:
-            jobs = int(raw_input("Number of jobs (recommended: # of CPU cores): "))
+            jobs = int(raw_input("Number of jobs (default: 2): "))
         except ValueError:
             print("Wrong input format.")
-            jobs = 1
         if jobs < 1:
             jobs = 1
         print("Using job=" + str(jobs))
