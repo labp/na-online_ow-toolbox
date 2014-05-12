@@ -201,9 +201,6 @@ void WMFTRtClient::properties()
     m_headerBufSize->setPurpose( PV_PURPOSE_INFORMATION );
 }
 
-/**
- * Method for initialize the module.
- */
 void WMFTRtClient::moduleInit()
 {
     infoLog() << "Initializing module ...";
