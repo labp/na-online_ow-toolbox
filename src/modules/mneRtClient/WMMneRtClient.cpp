@@ -32,13 +32,12 @@
 
 #include "core/data/WLEMMCommand.h"
 #include "core/data/WLEMMeasurement.h"
+#include "core/io/WLReaderBem.h"
 #include "core/io/WLReaderIsotrak.h"
 #include "core/io/WLReaderLeadfield.h"
 #include "core/io/WLReaderSourceSpace.h"
 #include "core/module/WLConstantsModule.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
-
-#include "reader/WLReaderBem.h"
 
 #include "WMMneRtClient.h"
 #include "WMMneRtClient.xpm"
