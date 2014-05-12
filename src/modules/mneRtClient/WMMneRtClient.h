@@ -169,6 +169,12 @@ private:
 
     WPropString m_additionalStatus;
 
+    /**
+     * Reset additional infomation button.
+     */
+    WPropTrigger m_trgAdditionalReset;
+    void callbackTrgAdditionalReset();
+
     WLEMMSubject::SPtr m_subject;
 };
 

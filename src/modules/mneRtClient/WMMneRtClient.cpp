@@ -32,13 +32,12 @@
 
 #include "core/data/WLEMMCommand.h"
 #include "core/data/WLEMMeasurement.h"
+#include "core/io/WLReaderBem.h"
 #include "core/io/WLReaderIsotrak.h"
 #include "core/io/WLReaderLeadfield.h"
 #include "core/io/WLReaderSourceSpace.h"
 #include "core/module/WLConstantsModule.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
-
-#include "reader/WLReaderBem.h"
 
 #include "WMMneRtClient.h"
 #include "WMMneRtClient.xpm"
@@ -64,6 +63,7 @@ static const std::string DATA_NOT_LOADED = "No data loaded.";
 static const std::string DATA_LOADING = "Loading data ...";
 static const std::string DATA_LOADED = "Data successfully loaded.";
 static const std::string DATA_ERROR = "Could not load data.";
+static const std::string STANDARD_FILE_PATH = WPathHelper::getHomePath().string();
 
 WMMneRtClient::WMMneRtClient() :
                 m_stopStreaming( true )
@@ -177,6 +177,9 @@ void WMMneRtClient::properties()
     m_additionalStatus = m_propGrpAdditional->addProperty( "Additional data status:", "Additional data status.",
                     DATA_NOT_LOADED );
     m_additionalStatus->setPurpose( PV_PURPOSE_INFORMATION );
+    m_trgAdditionalReset = m_propGrpAdditional->addProperty( "Reset the additional information", "Reset",
+                    WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
+    m_trgAdditionalReset->changed( true );
 }
 
 void WMMneRtClient::moduleInit()
@@ -192,7 +195,6 @@ void WMMneRtClient::moduleInit()
     const string alias = "OW-LaBP";
     m_rtClient.reset( new WRtClient( ip, alias ) );
     m_subject.reset( new WLEMMSubject() );
-    m_digPoints.reset( new WLList< WLDigPoint > );
 
     viewInit( WLEMDDrawable2D::WEGraphType::DYNAMIC );
 
@@ -303,6 +305,12 @@ void WMMneRtClient::moduleMain()
             {
                 m_subject->setLeadfield( WLEModality::MEG, m_leadfieldMEG );
             }
+        }
+        if( m_trgAdditionalReset->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+        {
+            callbackTrgAdditionalReset();
+
+            m_trgAdditionalReset->set( WPVBaseTypes::PV_TRIGGER_READY, true );
         }
     }
 
@@ -578,6 +586,7 @@ bool WMMneRtClient::handleDigPointsFileChanged( std::string fName )
     WProgress::SPtr progress( new WProgress( "Reading Dig. Points" ) );
     m_progress->addSubProgress( progress );
     m_additionalStatus->set( DATA_LOADING, true );
+    m_digPoints.reset( new WLList< WLDigPoint > );
 
     WLReaderIsotrak::SPtr reader;
     try
@@ -608,6 +617,32 @@ bool WMMneRtClient::handleDigPointsFileChanged( std::string fName )
         m_progress->removeSubProgress( progress );
         return false;
     }
+}
+
+void WMMneRtClient::callbackTrgAdditionalReset()
+{
+    debugLog() << "callbackTrgAdditionalReset()";
+
+    m_additionalStatus->set( DATA_NOT_LOADED, true );
+
+    m_srcSpaceFile->set( STANDARD_FILE_PATH, true );
+    m_srcSpaceFile->changed( true );
+    m_bemFile->set( STANDARD_FILE_PATH, true );
+    m_bemFile->changed( true );
+    m_digPointsFile->set( STANDARD_FILE_PATH, true );
+    m_digPointsFile->changed( true );
+    m_lfEEGFile->set( STANDARD_FILE_PATH, true );
+    m_lfEEGFile->changed( true );
+    m_lfMEGFile->set( STANDARD_FILE_PATH, true );
+    m_lfMEGFile->changed( true );
+
+    m_subject.reset( new WLEMMSubject() );
+    m_surface.reset();
+    m_bems.reset();
+    m_digPoints.reset();
+    m_leadfieldEEG.reset();
+    m_leadfieldMEG.reset();
+
 }
 
 inline bool WMMneRtClient::processCompute( WLEMMeasurement::SPtr emm )
