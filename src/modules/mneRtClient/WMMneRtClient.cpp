@@ -636,7 +636,7 @@ void WMMneRtClient::callbackTrgAdditionalReset()
     m_lfMEGFile->set( STANDARD_FILE_PATH, true );
     m_lfMEGFile->changed( true );
 
-    m_subject.reset();
+    m_subject.reset( new WLEMMSubject() );
     m_surface.reset();
     m_bems.reset();
     m_digPoints.reset();
