@@ -29,9 +29,14 @@
 
 #include <core/kernel/WModule.h>
 
+#include "core/container/WLList.h"
+#include "core/data/WLDataTypes.h"
+#include "core/data/WLDigPoint.h"
+#include "core/data/WLEMMBemBoundary.h"
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMCommand.h"
-
+#include "core/data/WLEMMSubject.h"
+#include "core/data/WLEMMSurface.h"
 #include "core/module/WLModuleDrawable.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
@@ -244,6 +249,41 @@ private:
     WPropInt m_headerBufSize;
 
     /**
+     * Property Group for additional information.
+     */
+    WPropGroup m_propGrpAdditionalInfo;
+
+    /**
+     * The load Source Space file button.
+     */
+    WPropFilename m_sourceSpaceFile;
+
+    /**
+     * The load BEM Layer button.
+     */
+    WPropFilename m_bemLayerFile;
+
+    /**
+     * The load Leadfield EEG button.
+     */
+    WPropFilename m_leadfieldEEGFile;
+
+    /**
+     * The load Leadfield MEG button.
+     */
+    WPropFilename m_leadfieldMEGFile;
+
+    /**
+     * The reset additional information button.
+     */
+    WPropTrigger m_trgAdditionalReset;
+
+    /**
+     * File status string.
+     */
+    WPropString m_additionalFileStatus;
+
+    /**
      * The connection to the buffer.
      */
     WFTConnection::SPtr m_connection;
@@ -252,6 +292,31 @@ private:
      * The FieldTrip streaming client
      */
     WFTNeuromagClient::SPtr m_ftRtClient;
+
+    /**
+     * The subject.
+     */
+    WLEMMSubject::SPtr m_subject;
+
+    /**
+     * The head surface information.
+     */
+    WLEMMSurface::SPtr m_surface;
+
+    /**
+     * The list of BEM boundaries.
+     */
+    WLList< WLEMMBemBoundary::SPtr >::SPtr m_bems;
+
+    /**
+     * The Leadfield EEG matrix.
+     */
+    WLMatrix::SPtr m_leadfieldEEG;
+
+    /**
+     * The Leadfield MEG matrix.
+     */
+    WLMatrix::SPtr m_leadfieldMEG;
 
     /**
      * Flag for stopping the streaming.
@@ -296,6 +361,32 @@ private:
      * Callback when the reset button was clicked.
      */
     void callbackTrgReset();
+
+    /**
+     * Callback when a Source Space file was selected.
+     *
+     * @return Retruns true if the file was loaded, otherwise false.
+     */
+    bool callbackSourceSpace( std::string fName );
+
+    /**
+     * Callback when a BEM Layer file was selected.
+     *
+     * @return Retruns true if the file was loaded, otherwise false.
+     */
+    bool callbackBEMLayer( std::string fName );
+
+    /**
+     * Callback when a Leadfield EEG file was selected.
+     *
+     * @return Retruns true if the file was loaded, otherwise false.
+     */
+    bool callbackLeadfieldFile( std::string, WLMatrix::SPtr& leadfield );
+
+    /**
+     * Callback when the reset additional infomation button was clicked.
+     */
+    void callbackTrgAdditionalReset();
 
     /**
      * Switch the modules state after the client was connected to a FieldTrip Buffer server.
@@ -351,6 +442,31 @@ private:
      * The status string when not streaming.
      */
     static const std::string CLIENT_NOT_STREAMING;
+
+    /**
+     * The status string when no file was loaded.
+     */
+    static const std::string NO_FILE_LOADED;
+
+    /**
+     * The status string during a file is loading.
+     */
+    static const std::string LOADING_FILE;
+
+    /**
+     * The status string when a file was loaded successfully.
+     */
+    static const std::string FILE_LOADED;
+
+    /**
+     * The status string when an error occured at the loading of a file.
+     */
+    static const std::string FILE_ERROR;
+
+    /**
+     * The standard path for file dialogs.
+     */
+    static const std::string STANDARD_FILE_PATH;
 };
 
 #endif /* WMFTRTCLIENT_H_ */
