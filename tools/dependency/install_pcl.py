@@ -106,7 +106,7 @@ class Installer(AInstaller):
         jobs = AInstaller.ask_for_make_jobs()
         call("make -j" + str(jobs), shell=True)
         if Utils.ask_for_execute("Install PCL to system? (requires root/sudo)"):
-            call("sudo make install")
+            call("sudo make install", shell=True)
         Utils.print_step_end("Compiling & Installing")
 
 
