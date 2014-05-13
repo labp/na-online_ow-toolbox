@@ -1,4 +1,4 @@
-#---------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------------------------------
 # This script searches for Qt5 static libraries and header files on Ubuntu Linux.
 #
 # WWW: http://qt-project.org/downloads
@@ -14,55 +14,38 @@
 #   * QT5_STATIC_QTNETWORK_LIBRARY - Qt5Network static library
 #   * QT5_QTCONCURRENT_INCLUDE_DIR - the path of Qt5Concurrent header files
 #   * QT5_STATIC_QTCONCURRENT_LIBRARY - Qt5Concurrent static library
+#   * QT5_STATIC_DEPENDENCIES - Library dependencies for static Qt5
 #
 # NOTE: FIND_LIBRARY is looking for *.so and *.a files!
-#---------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------------------------------
 
-#---------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------------------------------
+# QT5_STATIC_DEPENDENCIES
+#------------------------------------------------------------------------------------------------------------------------------------------
+
+SET(QT5_STATIC_DEPENDENCIES pthread rt dl)
+
+
+#------------------------------------------------------------------------------------------------------------------------------------------
 # QT5_INCLUDE_DIR
-#---------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------------------------------
 
-FIND_PATH( QT5_INCLUDE_DIR_RELEASE QtCore/QtCore HINTS 
+FIND_PATH( QT5_INCLUDE_DIR QtCore/QtCore HINTS 
         $ENV{QT5_INCLUDE_DIR} 
         /opt/include/qt5
         /opt/include
 )
 
-FIND_PATH( QT5_INCLUDE_DIR_DEBUG QtCore/QtCore HINTS 
-        $ENV{QT5_INCLUDE_DIR} 
-        /opt/include/qt5d
-)
 
-# Comment/Uncomment these parts to use CMake's release/debug switch
-#IF( CMAKE_BUILD_TYPE MATCHES Release )
-	SET( QT5_INCLUDE_DIR ${QT5_INCLUDE_DIR_RELEASE} )
-#ELSE()
-#  SET( QT5_INCLUDE_DIR ${QT5_INCLUDE_DIR_DEBUG} )
-#ENDIF()
-
-#---------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------------------------------
 # QTCORE - static library and include path
-#---------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------------------------------
 
-FIND_LIBRARY( QT5_STATIC_QTCORE_LIBRARY_RELEASE Qt5Core HINTS
+FIND_LIBRARY( QT5_STATIC_QTCORE_LIBRARY Qt5Core HINTS
 	$ENV{QT5_STATIC_LIBRARY_DIR} 
 	/opt/lib/qt5_static
 	/opt/lib
 )
-
-FIND_LIBRARY( QT5_STATIC_QTCORE_LIBRARY_DEBUG Qt5Core HINTS
-	$ENV{QT5_STATIC_LIBRARY_DIR} 
-	/opt/lib/qt5_staticd
-	/opt/lib
-)
-
-# Comment/Uncomment these parts to use CMake's release/debug switch
-#IF( CMAKE_BUILD_TYPE MATCHES Release )
-	SET( QT5_STATIC_QTCORE_LIBRARY ${QT5_STATIC_QTCORE_LIBRARY_RELEASE} )
-#ELSE()
-#  SET( QT5_STATIC_QTNETWORK_LIBRARY ${QT5_STATIC_QTNETWORK_LIBRARY_DEBUG} )
-#ENDIF()
-
 
 # Retrieve library path for other Qt5 libraries
 get_filename_component( QT5_STATIC_LIBRARY_DIR ${QT5_STATIC_QTCORE_LIBRARY} PATH )
@@ -73,29 +56,15 @@ IF ( QT5_STATIC_QTCORE_LIBRARY AND QT5_INCLUDE_DIR )
 ENDIF()
 
 
-
-#---------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------------------------------
 # QTNETWORK - static library and include path
-#---------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------------------------------
 
-FIND_LIBRARY( QT5_STATIC_QTNETWORK_LIBRARY_RELEASE Qt5Network HINTS
+FIND_LIBRARY( QT5_STATIC_QTNETWORK_LIBRARY Qt5Network HINTS
 	$ENV{QT5_STATIC_LIBRARY_DIR} 
 	/opt/lib/qt5_static
 	/opt/lib
 )
-
-FIND_LIBRARY( QT5_STATIC_QTNETWORK_LIBRARY_DEBUG Qt5Network HINTS
-	$ENV{QT5_STATIC_LIBRARY_DIR} 
-	/opt/lib/qt5_staticd
-	/opt/lib
-)
-
-# Comment/Uncomment these parts to use CMake's release/debug switch
-#IF( CMAKE_BUILD_TYPE MATCHES Release )
-	SET( QT5_STATIC_QTNETWORK_LIBRARY ${QT5_STATIC_QTNETWORK_LIBRARY_RELEASE} )
-#ELSE()
-#  SET( QT5_STATIC_QTNETWORK_LIBRARY ${QT5_STATIC_QTNETWORK_LIBRARY_DEBUG} )
-#ENDIF()
 
 # Set include dir
 IF ( QT5_STATIC_QTNETWORK_LIBRARY AND QT5_INCLUDE_DIR )
@@ -103,29 +72,15 @@ IF ( QT5_STATIC_QTNETWORK_LIBRARY AND QT5_INCLUDE_DIR )
 ENDIF ( QT5_STATIC_QTNETWORK_LIBRARY AND QT5_INCLUDE_DIR )
 
 
-
-#---------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------------------------------
 # QTCONCURRENT - static library and include path
-#---------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------------------------------
 
-FIND_LIBRARY( QT5_STATIC_QTCONCURRENT_LIBRARY_RELEASE Qt5Concurrent HINTS
+FIND_LIBRARY( QT5_STATIC_QTCONCURRENT_LIBRARY Qt5Concurrent HINTS
 	$ENV{QT5_STATIC_LIBRARY_DIR} 
 	/opt/lib/qt5_static
 	/opt/lib
 )
-
-FIND_LIBRARY( QT5_STATIC_QTCONCURRENT_LIBRARY_DEBUG Qt5Concurrent HINTS
-	$ENV{QT5_STATIC_LIBRARY_DIR} 
-	/opt/lib/qt5_staticd
-	/opt/lib
-)
-
-# Comment/Uncomment these parts to use CMake's release/debug switch
-#IF( CMAKE_BUILD_TYPE MATCHES Release )
-	SET( QT5_STATIC_QTCONCURRENT_LIBRARY ${QT5_STATIC_QTCONCURRENT_LIBRARY_RELEASE} )
-#ELSE()
-#  SET( QT5_STATIC_QTCONCURRENT_LIBRARY ${QT5_STATIC_QTCONCURRENT_LIBRARY_DEBUG} )
-#ENDIF()
 
 # Set include dir
 IF ( QT5_STATIC_QTCONCURRENT_LIBRARY AND QT5_INCLUDE_DIR )
@@ -133,10 +88,9 @@ IF ( QT5_STATIC_QTCONCURRENT_LIBRARY AND QT5_INCLUDE_DIR )
 ENDIF ( QT5_STATIC_QTCONCURRENT_LIBRARY AND QT5_INCLUDE_DIR )
 
 
-
-#---------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------------------------------
 # Finalize setup
-#---------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------------------------------
 
 # Set QT5_FOUND
 SET( QT5_FOUND FALSE )

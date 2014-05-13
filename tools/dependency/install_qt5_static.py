@@ -95,8 +95,28 @@ class Installer(AInstaller):
             print("You may have to clear the folder:\n" + install_path)
         repo_dir = os.path.join(self.DESTDIR, self.REPO_FOLDER)
         os.chdir(repo_dir)
-        qt5_configure = "./configure -prefix " + install_path + " -confirm-license -opensource -release -static " \
-                                                                "-nomake tests -nomake examples -qt-xcb"
+        # Available options:
+        #     ./configure --help
+        #     http://qt-project.org/doc/qt-5/configure-options.html
+        options = []
+        options.append("-prefix " + install_path)
+        options.append("-confirm-license")
+        options.append("-opensource")
+        options.append("-release")
+        options.append("-static")
+        options.append("-nomake tests")
+        options.append("-nomake examples")
+        options.append("-qt-zlib")
+        options.append("-qt-xcb")
+        options.append("-qt-xkbcommon")
+        options.append("-qt-pcre")
+        options.append("-no-icu")
+        options.append("-no-glib")
+        options.append("-no-gui")
+        options.append("-no-libjpeg")
+        options.append("-no-libpng")
+        options.append("-no-widgets")
+        qt5_configure = "./configure " + ' '.join(options)
         call(qt5_configure, shell=True)
         Utils.print_step_end("Configuring")
 
@@ -106,7 +126,7 @@ class Installer(AInstaller):
         repo_dir = os.path.join(self.DESTDIR, self.REPO_FOLDER)
         os.chdir(repo_dir)
         call("make -j" + str(jobs), shell=True)
-        call("make -j" + str(jobs) + " install", shell=True)
+        call("make install", shell=True)
         Utils.print_step_end("Compiling & Installing")
 
 
