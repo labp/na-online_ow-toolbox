@@ -11,7 +11,6 @@ import os
 from subprocess import call
 import sys
 
-
 from install import AInstaller
 from install import AInstaller as Utils
 
@@ -77,7 +76,7 @@ class Installer(AInstaller):
         Utils.print_step_begin("Initializing")
         repo_dir = os.path.join(self.DESTDIR, self.REPO_FOLDER)
         os.chdir(repo_dir)
-        version = "140f19b51738719db5d66c5a5259ae3e5c759cac" # 2014-05-08
+        version = "1a80d1b6587b39f8ed2bd0eb75128f7f4bfca106"  # 2014-05-13
         call("git checkout " + version, shell=True)
         Utils.print_step_end("Initializing")
 

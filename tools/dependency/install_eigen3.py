@@ -37,11 +37,6 @@ class Installer(AInstaller):
         if Utils.ask_for_execute("Initialize " + self.NAME):
             self._initialize()
 
-        print
-
-        if Utils.ask_for_execute("Setup " + self.NAME):
-            self._setup()
-
         return True
 
     def post_install(self):
@@ -66,14 +61,6 @@ class Installer(AInstaller):
         version = "3.2.1"
         call("hg update " + version, shell=True)
         Utils.print_step_end("Initializing")
-
-    def _setup(self):
-        Utils.print_step_begin("Setup")
-        dest_dir = os.path.join(self.DESTDIR, self.REPO_FOLDER, "Eigen", "unsupported")
-        if not os.path.exists(dest_dir):
-            link_dir = os.path.join(self.DESTDIR, self.REPO_FOLDER, "unsupported", "Eigen")
-            call(["ln", "-s", link_dir, dest_dir])
-        Utils.print_step_end("Setup")
 
 
 if __name__ == "__main__":
