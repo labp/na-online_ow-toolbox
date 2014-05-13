@@ -9,6 +9,7 @@ __author__ = 'pieloth'
 import argparse
 import os
 from subprocess import call
+import sys
 
 
 from install import AInstaller
@@ -112,4 +113,7 @@ if __name__ == "__main__":
     if args.qt5root:
         qt5_root = args.qt5root
     installer = Installer(destdir, qt5_root)
-    installer.do_install()
+    if installer.do_install():
+        sys.exit(AInstaller.EXIT_SUCCESS)
+    else:
+        sys.exit(AInstaller.EXIT_ERROR)
