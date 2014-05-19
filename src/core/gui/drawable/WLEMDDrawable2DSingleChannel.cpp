@@ -38,10 +38,12 @@
 #include <core/common/exceptions/WOutOfBounds.h>
 #include <core/ui/WUIViewWidget.h>
 
+#include "core/container/WLArrayList.h"
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMData.h"
 #include "core/exception/WLNoDataException.h"
-#include "core/util/WLBoundCalculator.h"
+#include "core/util/bounds/WLBoundCalculator.h"
+#include "core/util/strategy/WLParameter.h"
 
 #include "WLEMDDrawable2DSingleChannel.h"
 
@@ -167,7 +169,7 @@ void WLEMDDrawable2DSingleChannel::osgAddValueGrid( const WLEMData& emd )
         m_valueGridGroup->addChild( zeroTextGeode );
 
         // Find maximum
-        LaBP::WLBoundCalculator bc;
+        WLBoundCalculator bc;
         WLEMData::ScalarT max = bc.getMax( emd.getData() );
 
         const ValueT y_scale = ( ( m_widget->height() / 2 ) / m_amplitudeScale );

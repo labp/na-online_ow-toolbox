@@ -22,27 +22,23 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLBOUNDCALCULATOR_H_
-#define WLBOUNDCALCULATOR_H_
+#include "WLParameter.h"
 
-#include "core/data/WLEMMeasurement.h"
-#include "core/data/emd/WLEMData.h"
-#include "core/data/enum/WLEModality.h"
-
-namespace LaBP
+WLParameter::WLParameter( const std::string name ) :
+                m_name( name )
 {
-    class WLBoundCalculator
-    {
-    public:
-        explicit WLBoundCalculator( WLEMData::ScalarT alpha = 1.5 );
-        WLEMData::ScalarT getMax2D( WLEMMeasurement::ConstSPtr emm, WLEModality::Enum modality );
-        WLEMData::ScalarT getMax3D( WLEMMeasurement::ConstSPtr emm, WLEModality::Enum modality );
-        WLEMData::ScalarT getMax( const WLEMData::DataT& data );
-        virtual ~WLBoundCalculator();
+}
 
-    private:
-        WLEMData::ScalarT m_alpha;
-    };
+WLParameter::~WLParameter()
+{
+}
 
-} /* namespace LaBP */
-#endif  // WLBOUNDCALCULATOR_H_
+std::string WLParameter::getName() const
+{
+    return m_name;
+}
+
+void WLParameter::setName( std::string name )
+{
+    m_name = name;
+}

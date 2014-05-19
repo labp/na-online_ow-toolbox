@@ -44,6 +44,8 @@
 #include "core/gui/events/WLResizeHandler.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 #include "core/module/WLEMMCommandProcessor.h"
+#include "core/util/bounds/WLABoundCalculator.h"
+#include "core/util/strategy/WLParameter.h"
 
 /**
  * Virtual Implementation of WModule to let our modules use a VIEW including just 4 lines! of code
@@ -86,6 +88,14 @@ protected:
     virtual void properties();
 
     /**
+     * Collects the algorithm depending parameters for the 3D bound calculation. By default the method returns an empty
+     * parameter list.
+     * This method can be overridden by derived classes, if they are using a different calculation algorithm.
+     *
+     * @return Returns a shared pointer on the parameter list.
+     */
+    //virtual WLArrayList< WLParameter::SPtr >::SPtr collectScaleParams3D();
+    /**
      * Sets the new data to draw.
      */
     void viewUpdate( WLEMMeasurement::SPtr emm );
@@ -126,6 +136,48 @@ protected:
     void setComputeModalitySelection( const std::set< WLEModality::Enum >& modalities );
 
     void hideLabelChanged( bool enable );
+
+    /**
+     * Gets the current bound calculator.
+     *
+     * @return Returns a shared pinter on the bound calculator.
+     */
+    WLABoundCalculator::SPtr getBoundCalculator();
+
+    /**
+     * Sets the current bound calculator.
+     *
+     * @param calculator The bound calculator.
+     */
+    void setBoundCalculator( WLABoundCalculator::SPtr calculator );
+
+    /**
+     * Gets the view properties group.
+     * This properties can be used to add some properties to the group from concrete modules.
+     * The bound calculator uses this behaviour for example.
+     *
+     * @return Returns a shared pointer on the constant property group.
+     */
+    boost::shared_ptr< WPVGroup > getViewProperties();
+
+    /**
+     * Gets the last processed EMM object.
+     *
+     * @return Returns a shared pointer on a WLEMMeasurement.
+     */
+    WLEMMeasurement::SPtr getLastEMM();
+
+    /**
+     * Sets the last processed EMM object.
+     *
+     * @param emm The EMM obejct.
+     */
+    void setLastEMM( WLEMMeasurement::SPtr emm );
+
+    /**
+     * Uses the current bound calcluator to determine the bounds for 3D and 2D views.
+     */
+    void calcBounds();
 
     WLEMDDrawable2D::SPtr m_drawable2D;
 
@@ -203,6 +255,16 @@ private:
     LaBP::WLColorMap::SPtr m_colorMap;
 
     double m_range;
+
+    /**
+     * Calculates the boundaries for 2D and 3D views based on the signal data.
+     */
+    WLABoundCalculator::SPtr m_boundCalculator;
+
+    /**
+     * The last processed EMM object.
+     */
+    WLEMMeasurement::SPtr m_lastEmm;
 };
 
 #endif  // WLMODULEDRAWABLE_H
