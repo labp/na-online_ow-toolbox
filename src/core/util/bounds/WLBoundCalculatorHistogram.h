@@ -31,6 +31,7 @@
  * WLBoundCalculatorHistogram implements the WLIBoundCalculator interface to realize a bound calculation algorithm.
  * The class uses a histogram to determine, which of the data elements have to include into the bounds and which of
  * them could be excluded.
+ * The calculation uses the absoulte values of the matrix to determine the minimum.
  */
 class WLBoundCalculatorHistogram: public WLABoundCalculator
 {

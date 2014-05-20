@@ -88,14 +88,6 @@ protected:
     virtual void properties();
 
     /**
-     * Collects the algorithm depending parameters for the 3D bound calculation. By default the method returns an empty
-     * parameter list.
-     * This method can be overridden by derived classes, if they are using a different calculation algorithm.
-     *
-     * @return Returns a shared pointer on the parameter list.
-     */
-    //virtual WLArrayList< WLParameter::SPtr >::SPtr collectScaleParams3D();
-    /**
      * Sets the new data to draw.
      */
     void viewUpdate( WLEMMeasurement::SPtr emm );

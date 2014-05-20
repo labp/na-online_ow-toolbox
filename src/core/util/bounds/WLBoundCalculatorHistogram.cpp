@@ -43,9 +43,36 @@ WLEMData::ScalarT WLBoundCalculatorHistogram::getMax( const WLEMData::DataT& dat
 
 WLEMData::ScalarT WLBoundCalculatorHistogram::getMin( const WLEMData::DataT& data )
 {
-    WLEMData::ScalarT max = getMax( data );
+    const int bins = 10; // the number of bins.
+    WLEMData::ScalarT minimum = 0;
+    const WLEMData::ScalarT p = 1 - ( ( WLEMData::ScalarT )m_percent ) / 100;
 
-    return max * ( 1 - m_percent / 100 );
+    WLEMData::DataT absolute = data.cwiseAbs();
+
+    WLEMData::ScalarT min = absolute.minCoeff(); // calc the absolute minimum.
+
+    absolute = absolute.array() - min; // switch down to 0 as base.
+    WLEMData::ScalarT scale = absolute.maxCoeff(); // get the scaling coefficient
+    absolute /= scale; // scale into [0;1]
+
+    // divide value range into ten bins
+    for( int i = 0; i < bins; ++i )
+    {
+        // calc the lower limit for each bin.
+        WLEMData::ScalarT limit = ( WLEMData::ScalarT )( 1 / ( WLEMData::ScalarT )bins );
+        limit *= i;
+
+        if( p <= limit )
+        {
+            minimum = limit;
+            break;
+        }
+    }
+
+    // scale the minimum to the original data.
+    minimum = minimum * ( scale + min );
+
+    return minimum;
 }
 
 double WLBoundCalculatorHistogram::getPercent()

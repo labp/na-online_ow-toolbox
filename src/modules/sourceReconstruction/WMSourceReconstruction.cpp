@@ -528,8 +528,6 @@ bool WMSourceReconstruction::processReset( WLEMMCommand::SPtr cmdIn )
 
 void WMSourceReconstruction::callbackIncludesChanged()
 {
-    debugLog() << "callbackIncludesChanged() called!";
-
     getBoundCalculator()->getAs< WLBoundCalculatorHistogram >()->setPercent( m_percent->get() );
 
     calcBounds();

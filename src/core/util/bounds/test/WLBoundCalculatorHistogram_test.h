@@ -67,7 +67,7 @@ public:
         TS_TRACE( max );
 
         WLEMData::ScalarT min = calc->getMin( A );
-        TS_ASSERT_EQUALS( ( ( int )( min * 100 ) ), 9 );
+        TS_ASSERT_EQUALS( ( ( int )( min * 100 ) ), 18 );
         TS_TRACE( "Minimum determined:" );
         TS_TRACE( min );
     }
