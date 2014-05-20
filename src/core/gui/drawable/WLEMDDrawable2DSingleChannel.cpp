@@ -43,7 +43,6 @@
 #include "core/data/emd/WLEMData.h"
 #include "core/exception/WLNoDataException.h"
 #include "core/util/bounds/WLBoundCalculator.h"
-#include "core/util/strategy/WLParameter.h"
 
 #include "WLEMDDrawable2DSingleChannel.h"
 

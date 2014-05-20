@@ -34,7 +34,6 @@
 #include <core/common/WLogger.h>
 
 #include "core/util/bounds/WLBoundCalculatorHistogram.h"
-#include "core/util/strategy/WLGenericParameter.h"
 
 using namespace boost::assign;
 

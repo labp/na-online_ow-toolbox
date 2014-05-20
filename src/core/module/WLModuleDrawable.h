@@ -45,7 +45,6 @@
 #include "core/module/WLModuleOutputDataCollectionable.h"
 #include "core/module/WLEMMCommandProcessor.h"
 #include "core/util/bounds/WLABoundCalculator.h"
-#include "core/util/strategy/WLParameter.h"
 
 /**
  * Virtual Implementation of WModule to let our modules use a VIEW including just 4 lines! of code
