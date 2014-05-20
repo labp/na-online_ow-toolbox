@@ -323,7 +323,7 @@ void WMMneRtClient::handleTrgConConnect()
 
     m_rtClient.reset( new WRtClient( m_propConIp->get(), "OW-LaBP" ) );
 
-    if( !m_digPoints->empty() )
+    if( ( m_digPoints ) && !m_digPoints->empty() )
     {
         m_rtClient->setDigPointsAndEEG( *m_digPoints.get() );
     }

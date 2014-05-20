@@ -56,6 +56,11 @@ class Installer(AInstaller):
         return True
 
     def post_install(self):
+        print("Before compiling the toolbox, please set the following environment variables:\n")
+        pcl_dir = os.path.join(self.DESTDIR, self.REPO_FOLDER, self.BUILD_FOLDER)
+        print("    PCL_DIR=" + pcl_dir)
+
+        print
         return True
 
     def _download(self):
