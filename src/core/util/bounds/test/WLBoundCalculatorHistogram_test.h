@@ -52,7 +52,7 @@ public:
 
         WLBoundCalculatorHistogram::SPtr calc( new WLBoundCalculatorHistogram );
 
-        double p = 95; // the lower border
+        double p = 90; // the lower border
 
         // define the test matrix
         Eigen::MatrixXd A( 4, 5 );

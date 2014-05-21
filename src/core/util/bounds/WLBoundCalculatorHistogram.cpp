@@ -59,14 +59,7 @@ WLEMData::ScalarT WLBoundCalculatorHistogram::getMin( const WLEMData::DataT& dat
 
     WLEMData::DataT absolute = data.cwiseAbs(); // get the data with absolute values
 
-    WLEMData::ScalarT scale = absolute.maxCoeff(); // get the scaling coefficient
-    absolute *= 1 / scale; // scale into [0;1]
-
-    // calc the space between each bin bound.
-    WLEMData::ScalarT space = ( WLEMData::ScalarT )1 / ( WLEMData::ScalarT )m_bins;
-    minimum = std::ceil( p / space ) * space; // get the next bin, lower than the percental value.
-
-    minimum *= scale; // scale the minimum to the original data.
+    minimum = absolute.maxCoeff() * p;
 
     return minimum;
 }
