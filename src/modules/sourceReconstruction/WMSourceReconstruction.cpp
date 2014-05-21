@@ -117,7 +117,8 @@ void WMSourceReconstruction::properties()
     WLModuleDrawable::hideLabelChanged( true );
     WLModuleDrawable::setComputeModalitySelection( WLEModality::valuesLocalizeable() );
 
-    m_percent = getViewProperties()->addProperty( "Percent of sources.", "The pecental values of sources to display.", 80,
+    m_percent = getViewProperties()->addProperty( "Percent of sources", "The pecental values of sources to display.",
+                    WLBoundCalculatorHistogram::DEFAULT_PERCENTAGE,
                     boost::bind( &WMSourceReconstruction::callbackIncludesChanged, this ), false );
     m_percent->setMax( 100 );
     m_percent->setMin( 0 );

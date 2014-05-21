@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <cmath>
+
 #include <Eigen/Core>
 
 #include <core/common/WLogger.h>
@@ -30,8 +32,12 @@
 
 const std::string WLBoundCalculatorHistogram::CLASS = "WLBoundCalculatorHistogram";
 
+const int WLBoundCalculatorHistogram::DEFAULT_PERCENTAGE = 90;
+
+const int WLBoundCalculatorHistogram::DEFAULT_BINS = 10;
+
 WLBoundCalculatorHistogram::WLBoundCalculatorHistogram() :
-                m_percent( 80.0 )
+                m_percent( DEFAULT_PERCENTAGE ), m_bins( DEFAULT_BINS )
 {
 
 }
@@ -43,39 +49,29 @@ WLEMData::ScalarT WLBoundCalculatorHistogram::getMax( const WLEMData::DataT& dat
 
 WLEMData::ScalarT WLBoundCalculatorHistogram::getMin( const WLEMData::DataT& data )
 {
-    const int bins = 10; // the number of bins.
+    if( m_percent == 0.0 )
+    {
+        return getMax( data );
+    }
+
     WLEMData::ScalarT minimum = 0;
     const WLEMData::ScalarT p = 1 - ( ( WLEMData::ScalarT )m_percent ) / 100;
 
-    WLEMData::DataT absolute = data.cwiseAbs();
+    WLEMData::DataT absolute = data.cwiseAbs(); // get the data with absolute values
 
-    WLEMData::ScalarT min = absolute.minCoeff(); // calc the absolute minimum.
-
-    absolute = absolute.array() - min; // switch down to 0 as base.
     WLEMData::ScalarT scale = absolute.maxCoeff(); // get the scaling coefficient
-    absolute /= scale; // scale into [0;1]
+    absolute *= 1 / scale; // scale into [0;1]
 
-    // divide value range into ten bins
-    for( int i = 0; i < bins; ++i )
-    {
-        // calc the lower limit for each bin.
-        WLEMData::ScalarT limit = ( WLEMData::ScalarT )( 1 / ( WLEMData::ScalarT )bins );
-        limit *= i;
+    // calc the space between each bin bound.
+    WLEMData::ScalarT space = ( WLEMData::ScalarT )1 / ( WLEMData::ScalarT )m_bins;
+    minimum = std::ceil( p / space ) * space; // get the next bin, lower than the percental value.
 
-        if( p <= limit )
-        {
-            minimum = limit;
-            break;
-        }
-    }
-
-    // scale the minimum to the original data.
-    minimum = minimum * ( scale + min );
+    minimum *= scale; // scale the minimum to the original data.
 
     return minimum;
 }
 
-double WLBoundCalculatorHistogram::getPercent()
+double WLBoundCalculatorHistogram::getPercent() const
 {
     return m_percent;
 }
@@ -83,4 +79,19 @@ double WLBoundCalculatorHistogram::getPercent()
 void WLBoundCalculatorHistogram::setPercent( double percent )
 {
     m_percent = percent;
+}
+
+int WLBoundCalculatorHistogram::getBins() const
+{
+    return m_bins;
+}
+
+void WLBoundCalculatorHistogram::setBins( int bins )
+{
+    if( bins == 0 )
+    {
+        return;
+    }
+
+    m_bins = bins;
 }

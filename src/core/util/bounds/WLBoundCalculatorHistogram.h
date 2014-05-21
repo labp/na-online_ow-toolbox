@@ -54,6 +54,16 @@ public:
     static const std::string CLASS;
 
     /**
+     * The standard percentage of values to include.
+     */
+    static const int DEFAULT_PERCENTAGE;
+
+    /**
+     * The default number of bins for deviding the value range.
+     */
+    static const int DEFAULT_BINS;
+
+    /**
      * Constructs a new WLBoundCalculatorHistogram.
      */
     WLBoundCalculatorHistogram();
@@ -81,7 +91,7 @@ public:
      *
      * @return Returns a double value.
      */
-    double getPercent();
+    double getPercent() const;
 
     /**
      * Sets the percental value.
@@ -90,12 +100,31 @@ public:
      */
     void setPercent( double percent );
 
+    /**
+     * Gets the number of bins.
+     *
+     * @return Returns an integer.
+     */
+    int getBins() const;
+
+    /**
+     * Sets the number of bins.
+     *
+     * @param bins The new number of bins.
+     */
+    void setBins( int bins );
+
 private:
 
     /**
      * the percental limit for the algorithim.
      */
     double m_percent;
+
+    /**
+     * The number of bins for deviding the value range.
+     */
+    int m_bins;
 };
 
 #endif /* WLBOUNDCALCULATORHISTOGRAM_H_ */
