@@ -31,7 +31,9 @@
 #include "WLABoundCalculator.h"
 
 /**
- * WLBoundCalculator implements the WLIBoundCalculator interface to realize a bound calculation algorithm.
+ * WLBoundCalculator implements the WLABoundCalculator interface to realize a bound calculation algorithm.
+ *
+ * \author maschke
  */
 class WLBoundCalculator: public WLABoundCalculator
 {
@@ -50,7 +52,7 @@ public:
     /**
      * Constructs a new WLBoundCalculator.
      *
-     * @param alpha A constant used by the algorithm.
+     * \param alpha A constant used by the algorithm.
      */
     explicit WLBoundCalculator( WLEMData::ScalarT alpha = 1.5 );
 
@@ -62,9 +64,9 @@ public:
     /**
      * Calculates the bound for the 3D view.
      *
-     * @param emm The measurement object.
-     * @param modality The modality to display.
-     * @return Returns a vector, which contains the calculated bounds.
+     * \param emm The measurement object.
+     * \param modality The modality to display.
+     * \return Returns a vector, which contains the calculated bounds.
      */
     WLArrayList< WLEMData::ScalarT > getBounds3D( WLEMMeasurement::ConstSPtr emm, WLEModality::Enum modality );
 
@@ -72,8 +74,8 @@ public:
      * Calculates the maximum.
      * The results of this methods depends on the algorithms, implemented by the derived classes. So they can vary.
      *
-     * @param data The data matrix.
-     * @return Returns the calculated maximum.
+     * \param data The data matrix.
+     * \return Returns the calculated maximum.
      */
     WLEMData::ScalarT getMax( const WLEMData::DataT& data );
 
@@ -81,8 +83,8 @@ public:
      * Calculates the minimum.
      * The results of this methods depends on the algorithms, implemented by the derived classes. So they can vary.
      *
-     * @param data The data matrix.
-     * @return Returns the calculated minimum.
+     * \param data The data matrix.
+     * \return Returns the calculated minimum.
      */
     WLEMData::ScalarT getMin( const WLEMData::DataT& data );
 

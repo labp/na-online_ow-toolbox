@@ -33,9 +33,11 @@
 #include "core/data/WLEMMeasurement.h"
 
 /**
- * WLIBoundCalculator is the base interface for calculating the boundaries in the modules 2D and 3D views.
+ * WLABoundCalculator is the base interface for calculating the boundaries in the modules 2D and 3D views.
  * There exists different algorithms for identifying the bounds, so the implementations are realized as a
  * parameterized strategy pattern.
+ *
+ * \author maschke
  */
 class WLABoundCalculator: public boost::enable_shared_from_this< WLABoundCalculator >
 {
@@ -65,18 +67,18 @@ public:
     /**
      * Calculates the bounds for a 2D view.
      *
-     * @param emm The measurement object.
-     * @param modality The modality to display.
-     * @return Returns a single dimension vector, which contains the maximal amplitude scaling.
+     * \param emm The measurement object.
+     * \param modality The modality to display.
+     * \return Returns a single dimension vector, which contains the maximal amplitude scaling.
      */
     virtual WLArrayList< WLEMData::ScalarT > getBounds2D( WLEMMeasurement::ConstSPtr emm, WLEModality::Enum modality );
 
     /**
      * Calculates the bound for the 3D view.
      *
-     * @param emm The measurement object.
-     * @param modality The modality to display.
-     * @return Returns a vector, which contains the calculated bounds.
+     * \param emm The measurement object.
+     * \param modality The modality to display.
+     * \return Returns a vector, which contains the calculated bounds.
      */
     virtual WLArrayList< WLEMData::ScalarT > getBounds3D( WLEMMeasurement::ConstSPtr emm, WLEModality::Enum modality );
 
@@ -84,8 +86,8 @@ public:
      * Calculates the maximum.
      * The results of this methods depends on the algorithms, implemented by the derived classes. So they can vary.
      *
-     * @param data The data matrix.
-     * @return Returns the calculated maximum.
+     * \param data The data matrix.
+     * \return Returns the calculated maximum.
      */
     virtual WLEMData::ScalarT getMax( const WLEMData::DataT& data ) = 0;
 
@@ -101,7 +103,7 @@ public:
     /**
      * Casts the base WLABoundCalculator to a derived class.
      *
-     * @return Returns a shared pointer on the casted class.
+     * \return Returns a shared pointer on the casted class.
      */
     template< typename T >
     boost::shared_ptr< T > getAs()
@@ -112,7 +114,7 @@ public:
     /**
      * Casts the base WLABoundCalculator to a derived class.
      *
-     * @return Returns a shared pointer on the casted class.
+     * \return Returns a shared pointer on the casted class.
      */
     template< typename T >
     boost::shared_ptr< const T > getAs() const

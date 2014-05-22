@@ -28,10 +28,12 @@
 #include "WLABoundCalculator.h"
 
 /**
- * WLBoundCalculatorHistogram implements the WLIBoundCalculator interface to realize a bound calculation algorithm.
+ * WLBoundCalculatorHistogram implements the WLABoundCalculator interface to realize a bound calculation algorithm.
  * The class uses a histogram to determine, which of the data elements have to include into the bounds and which of
  * them could be excluded.
- * The calculation uses the absoulte values of the matrix to determine the minimum.
+ * The calculation uses the absolute values of the matrix to determine the minimum.
+ *
+ * \author maschke
  */
 class WLBoundCalculatorHistogram: public WLABoundCalculator
 {
@@ -72,8 +74,8 @@ public:
      * Calculates the maximum.
      * The results of this methods depends on the algorithms, implemented by the derived classes. So they can vary.
      *
-     * @param data The data matrix.
-     * @return Returns the calculated maximum.
+     * \param data The data matrix.
+     * \return Returns the calculated maximum.
      */
     WLEMData::ScalarT getMax( const WLEMData::DataT& data );
 
@@ -81,36 +83,36 @@ public:
      * Calculates the minimum.
      * The results of this methods depends on the algorithms, implemented by the derived classes. So they can vary.
      *
-     * @param data The data matrix.
-     * @return Returns the calculated minimum.
+     * \param data The data matrix.
+     * \return Returns the calculated minimum.
      */
     WLEMData::ScalarT getMin( const WLEMData::DataT& data );
 
     /**
      * Gets the percental value.
      *
-     * @return Returns a double value.
+     * \return Returns a double value.
      */
     double getPercent() const;
 
     /**
      * Sets the percental value.
      *
-     * @param percent The new value.
+     * \param percent The new value.
      */
     void setPercent( double percent );
 
     /**
      * Gets the number of bins.
      *
-     * @return Returns an integer.
+     * \return Returns an integer.
      */
     int getBins() const;
 
     /**
      * Sets the number of bins.
      *
-     * @param bins The new number of bins.
+     * \param bins The new number of bins.
      */
     void setBins( int bins );
 
