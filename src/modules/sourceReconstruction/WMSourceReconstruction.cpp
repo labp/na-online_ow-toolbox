@@ -45,6 +45,7 @@
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
 #include "core/util/profiler/WLTimeProfiler.h"
+#include "core/util/bounds/WLBoundCalculatorHistogram.h"
 
 #include "WSourceReconstruction.h"
 #include "WSourceReconstructionCpu.h"
@@ -115,6 +116,12 @@ void WMSourceReconstruction::properties()
     WLModuleDrawable::hideViewModalitySelection( true );
     WLModuleDrawable::hideLabelChanged( true );
     WLModuleDrawable::setComputeModalitySelection( WLEModality::valuesLocalizeable() );
+
+    m_percent = getViewProperties()->addProperty( "Percent of strength", "The pecental value of strength to display the sources.",
+                    WLBoundCalculatorHistogram::DEFAULT_PERCENTAGE,
+                    boost::bind( &WMSourceReconstruction::callbackIncludesChanged, this ), false );
+    m_percent->setMax( 100 );
+    m_percent->setMin( 0 );
 
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
@@ -196,6 +203,8 @@ void WMSourceReconstruction::moduleInit()
     m_moduleState.setResetable( true, true ); // resetable, autoreset
     m_moduleState.add( m_input->getDataChangedCondition() ); // when inputdata changed
     m_moduleState.add( m_propCondition ); // when properties changed
+
+    setBoundCalculator( WLBoundCalculatorHistogram::SPtr( new WLBoundCalculatorHistogram ) );
 
     ready(); // signal ready state
     waitRestored();
@@ -471,6 +480,8 @@ bool WMSourceReconstruction::processCompute( WLEMMeasurement::SPtr emmIn )
 
     viewUpdate( emmOut );
 
+    setLastEMM( emmOut );
+
     WLEMMCommand::SPtr labp = WLEMMCommand::instance( WLEMMCommand::Command::COMPUTE );
     labp->setEmm( emmOut );
     m_output->updateData( labp );
@@ -514,4 +525,11 @@ bool WMSourceReconstruction::processReset( WLEMMCommand::SPtr cmdIn )
 
     m_output->updateData( cmdIn );
     return true;
+}
+
+void WMSourceReconstruction::callbackIncludesChanged()
+{
+    getBoundCalculator()->getAs< WLBoundCalculatorHistogram >()->setPercent( m_percent->get() );
+
+    calcBounds();
 }
