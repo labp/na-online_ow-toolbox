@@ -45,6 +45,7 @@
 #include "core/gui/events/WLResizeHandler.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 #include "core/module/WLEMMCommandProcessor.h"
+#include "core/util/bounds/WLABoundCalculator.h"
 
 /**
  * Virtual Implementation of WModule to let our modules use a VIEW including just 4 lines! of code
@@ -135,6 +136,48 @@ protected:
 
     void hideLabelChanged( bool enable );
 
+    /**
+     * Gets the current bound calculator.
+     *
+     * @return Returns a shared pinter on the bound calculator.
+     */
+    WLABoundCalculator::SPtr getBoundCalculator();
+
+    /**
+     * Sets the current bound calculator.
+     *
+     * @param calculator The bound calculator.
+     */
+    void setBoundCalculator( WLABoundCalculator::SPtr calculator );
+
+    /**
+     * Gets the view properties group.
+     * This properties can be used to add some properties to the group from concrete modules.
+     * The bound calculator uses this behaviour for example.
+     *
+     * @return Returns a shared pointer on the constant property group.
+     */
+    boost::shared_ptr< WPVGroup > getViewProperties();
+
+    /**
+     * Gets the last processed EMM object.
+     *
+     * @return Returns a shared pointer on a WLEMMeasurement.
+     */
+    WLEMMeasurement::SPtr getLastEMM();
+
+    /**
+     * Sets the last processed EMM object.
+     *
+     * @param emm The EMM obejct.
+     */
+    void setLastEMM( WLEMMeasurement::SPtr emm );
+
+    /**
+     * Uses the current bound calcluator to determine the bounds for 3D and 2D views.
+     */
+    void calcBounds();
+
     WLEMDDrawable2D::SPtr m_drawable2D;
 
     WLEMDDrawable3D::SPtr m_drawable3D;
@@ -211,6 +254,16 @@ private:
     LaBP::WLColorMap::SPtr m_colorMap;
 
     double m_range;
+
+    /**
+     * Calculates the boundaries for 2D and 3D views based on the signal data.
+     */
+    WLABoundCalculator::SPtr m_boundCalculator;
+
+    /**
+     * The last processed EMM object.
+     */
+    WLEMMeasurement::SPtr m_lastEmm;
 };
 
 #endif  // WLMODULEDRAWABLE_H

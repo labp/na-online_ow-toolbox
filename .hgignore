@@ -3,6 +3,7 @@ syntax: glob
 
 *~
 *.swp
+*.pyc
 
 # switch to regexp syntax.
 syntax: regexp
@@ -56,6 +57,8 @@ nbproject
 .cproject
 .settings
 .csettings
+.pydevproject
+.idea
 
 syntax: regexp
 ^Debug$

@@ -49,6 +49,7 @@
 class WMSourceReconstruction: public WLModuleDrawable
 {
 public:
+
     /**
      * standard constructor
      */
@@ -120,6 +121,11 @@ private:
      */
     WCondition::SPtr m_propCondition;
 
+    /**
+     * View property for bound calculator.
+     */
+    WPropInt m_percent;
+
     WPropGroup m_propGrpSourceReconstruction;
 
     WPropBool m_useCuda;
@@ -159,6 +165,8 @@ private:
     // data and noise covariance matices //
     WLMatrix::SPtr m_nCovarianceMatrix;
     WLMatrix::SPtr m_dCovarianceMatrix;
+
+    void callbackIncludesChanged();
 };
 
 #endif  // WMSOURCERECONSTRUCTION_H

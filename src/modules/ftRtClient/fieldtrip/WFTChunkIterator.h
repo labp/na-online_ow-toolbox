@@ -22,36 +22,49 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLREADERDIGPOINTS_H_
-#define WLREADERDIGPOINTS_H_
-
-#include <string>
-#include <list>
+#ifndef WFTCHUNKITERATOR_H_
+#define WFTCHUNKITERATOR_H_
 
 #include <boost/shared_ptr.hpp>
 
-#include "core/data/WLDigPoint.h"
-#include "core/io/WLReader.h"
+#include "dataTypes/chunks/WFTAChunk.h"
+#include "WFTAIterator.h"
 
-class WLReaderDigPoints: public WLReader
+/**
+ * The WFTChunkIterator can be used to run through a bulk of memory containing FieldTrip chunks.
+ * This class has the standard iterator appearance with its characteristic operations.
+ */
+class WFTChunkIterator: public WFTAIterator< WFTAChunk >
 {
 public:
-    static const std::string CLASS;
 
     /**
-     * Convenience typedef for a boost::shared_ptr< WLDigPoint >
+     * A shared pointer on the iterator.
      */
-    typedef boost::shared_ptr< WLReaderDigPoints > SPtr;
+    typedef boost::shared_ptr< WFTChunkIterator > SPtr;
 
     /**
-     * Convenience typedef for a  boost::shared_ptr< const WLDigPoint >
+     * The constructor defines the chunk storage for followed iterations.
+     *
+     * @param buf A reference to the chunk storage memory.
+     * @param size The memory size allocated by all chunks together.
      */
-    typedef boost::shared_ptr< const WLReaderDigPoints > ConstSPtr;
+    WFTChunkIterator( SimpleStorage& buf, int size );
 
-    explicit WLReaderDigPoints( std::string fname );
-    virtual ~WLReaderDigPoints();
+    /**
+     * Inherited method from WFTAIterator.
+     *
+     * @return Returns true if there are more chunks, else false.
+     */
+    bool hasNext() const;
 
-    ReturnCode::Enum read( std::list< WLDigPoint >* const out );
+    /**
+     * Inherited method from WFTAIterator.
+     *
+     * @return Returns the next chunk element.
+     */
+    WFTAChunk::SPtr getNext();
+
 };
 
-#endif  // WLREADERDIGPOINTS_H_
+#endif /* WFTCHUNKITERATOR_H_ */

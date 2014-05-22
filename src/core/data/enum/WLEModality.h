@@ -72,6 +72,14 @@ namespace WLEModality
     ContainerT valuesLocalizeable();
     bool isLocalizeable( Enum );
 
+    /**
+     * Returns the appropriate modality type for he FIFF channel kind.
+     *
+     * @param kind The FIFF channel kind.
+     * @return Returns the modality type
+     */
+    Enum fromFiffType( int kind );
+
     std::ostream& operator<<( std::ostream &strm, const WLEModality::Enum& obj );
 }
 

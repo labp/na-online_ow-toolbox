@@ -37,6 +37,7 @@
 #include <core/ui/WUIViewWidget.h>
 #include <core/ui/WUIWidgetFactory.h>
 
+#include "core/container/WLArrayList.h"
 #include "core/data/emd/WLEMData.h"
 #include "core/data/WLEMMCommand.h"
 #include "core/data/WLEMMeasurement.h"
@@ -50,7 +51,7 @@
 #include "core/gui/events/WLMarkTimePositionHandler.h"
 #include "core/gui/events/WLResizeHandler.h"
 #include "core/gui/colorMap/WLColorMap.h"
-#include "core/util/WLBoundCalculator.h"
+#include "core/util/bounds/WLBoundCalculator.h"
 
 #include "WLModuleDrawable.h"
 
@@ -67,6 +68,7 @@ WLModuleDrawable::WLModuleDrawable()
     m_range = -1;
     m_autoScaleCounter = AUTO_SCALE_PACKETS;
     m_graphType = WLEMDDrawable2D::WEGraphType::MULTI;
+    m_boundCalculator.reset( new WLBoundCalculator ); // define the default bound calculator.
 }
 
 WLModuleDrawable::~WLModuleDrawable()
@@ -280,6 +282,47 @@ void WLModuleDrawable::hideLabelChanged( bool enable )
     m_labelsOn->setHidden( enable );
 }
 
+WLABoundCalculator::SPtr WLModuleDrawable::getBoundCalculator()
+{
+    return m_boundCalculator;
+}
+
+void WLModuleDrawable::setBoundCalculator( WLABoundCalculator::SPtr calculator )
+{
+    m_boundCalculator = calculator;
+}
+
+WLEMMeasurement::SPtr WLModuleDrawable::getLastEMM()
+{
+    return m_lastEmm;
+}
+
+void WLModuleDrawable::setLastEMM( WLEMMeasurement::SPtr emm )
+{
+    m_lastEmm = emm;
+}
+
+boost::shared_ptr< WPVGroup > WLModuleDrawable::getViewProperties()
+{
+    return m_propView;
+}
+
+void WLModuleDrawable::calcBounds()
+{
+    if( !m_lastEmm )
+    {
+        return;
+    }
+
+    // Scale 2D
+    const WLEMData::ScalarT amplitudeScale = m_boundCalculator->getBounds2D( m_lastEmm, getViewModality() ).second;
+    m_amplitudeScale->set( amplitudeScale );
+    // Scale 3D
+    const WLABoundCalculator::MinMax sens3dScale = m_boundCalculator->getBounds3D( m_lastEmm, getViewModality() );
+    m_minSensitity3D->set( sens3dScale.first );
+    m_maxSensitity3D->set( sens3dScale.second );
+}
+
 void WLModuleDrawable::callbackAutoSensitivityChanged()
 {
     m_autoScaleCounter = AUTO_SCALE_PACKETS;
@@ -468,15 +511,14 @@ void WLModuleDrawable::viewUpdate( WLEMMeasurement::SPtr emm )
 
     if( autoScale )
     {
-        WLBoundCalculator calculator;
         --m_autoScaleCounter;
         // Scale 2D
-        const WLEMData::ScalarT amplitudeScale = calculator.getMax2D( emm, getViewModality() );
+        const WLEMData::ScalarT amplitudeScale = m_boundCalculator->getBounds2D( emm, getViewModality() ).second;
         m_amplitudeScale->set( amplitudeScale );
         // Scale 3D
-        const WLEMData::ScalarT sens3dScale = calculator.getMax3D( emm, getViewModality() );
-        m_maxSensitity3D->set( sens3dScale );
-        m_minSensitity3D->set( -sens3dScale );
+        const WLABoundCalculator::MinMax sens3dScale = m_boundCalculator->getBounds3D( emm, getViewModality() );
+        m_minSensitity3D->set( sens3dScale.first );
+        m_maxSensitity3D->set( sens3dScale.second );
     }
     if( m_autoScaleCounter == 0 )
     {

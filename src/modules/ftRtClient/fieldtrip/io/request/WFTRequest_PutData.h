@@ -22,27 +22,18 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLBOUNDCALCULATOR_H_
-#define WLBOUNDCALCULATOR_H_
+#ifndef WFTREQUEST_PUTDATA_H_
+#define WFTREQUEST_PUTDATA_H_
 
-#include "core/data/WLEMMeasurement.h"
-#include "core/data/emd/WLEMData.h"
-#include "core/data/enum/WLEModality.h"
+#include "WFTRequest.h"
 
-namespace LaBP
+class WFTRequest_PutData: public WFTRequest
 {
-    class WLBoundCalculator
-    {
-    public:
-        explicit WLBoundCalculator( WLEMData::ScalarT alpha = 1.5 );
-        WLEMData::ScalarT getMax2D( WLEMMeasurement::ConstSPtr emm, WLEModality::Enum modality );
-        WLEMData::ScalarT getMax3D( WLEMMeasurement::ConstSPtr emm, WLEModality::Enum modality );
-        WLEMData::ScalarT getMax( const WLEMData::DataT& data );
-        virtual ~WLBoundCalculator();
+public:
 
-    private:
-        WLEMData::ScalarT m_alpha;
-    };
+    WFTRequest_PutData( UINT32_T numChannels, UINT32_T numSamples, UINT32_T dataType, const void *data );
 
-} /* namespace LaBP */
-#endif  // WLBOUNDCALCULATOR_H_
+    virtual ~WFTRequest_PutData();
+};
+
+#endif /* WFTREQUEST_PUTDATA_H_ */

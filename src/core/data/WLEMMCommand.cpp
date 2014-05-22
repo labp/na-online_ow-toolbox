@@ -22,11 +22,11 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
-
 #include "WLEMMCommand.h"
 
 const std::string WLEMMCommand::CLASS = "WLEMMCommand";
+// prototype instance as singleton
+WLEMMCommand::SPtr WLEMMCommand::m_prototype = WLEMMCommand::SPtr();
 
 WLEMMCommand::WLEMMCommand( Command::Enum command ) :
                 m_command( command )
@@ -53,26 +53,16 @@ const std::string WLEMMCommand::getName() const
     return "WLEMMCommand";
 }
 
-/**
- * Gets the description for this prototype.
- *
- * \return the description
- */
 const std::string WLEMMCommand::getDescription() const
 {
     return "LaBP packet to transfer commands and data between modules.";
 }
 
-/**
- * Returns a prototype instantiated with the true type of the deriving class.
- *
- * \return the prototype.
- */
 boost::shared_ptr< WPrototyped > WLEMMCommand::getPrototype()
 {
     if( !m_prototype )
     {
-        m_prototype = boost::shared_ptr< WPrototyped >( new WLEMMCommand() );
+        m_prototype = WLEMMCommand::SPtr( new WLEMMCommand() );
     }
 
     return m_prototype;

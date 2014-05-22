@@ -26,6 +26,8 @@
 
 #include <core/common/WAssert.h>
 
+#include "core/dataFormat/fiff/WLFiffChType.h"
+
 #include "WLEModality.h"
 
 WLEModality::ContainerT WLEModality::values()
@@ -152,4 +154,23 @@ WLEModality::ContainerT WLEModality::valuesLocalizeable()
     modalities.insert( WLEModality::EEG );
     modalities.insert( WLEModality::MEG );
     return modalities;
+}
+
+WLEModality::Enum WLEModality::fromFiffType( int kind )
+{
+    switch( kind )
+    {
+        case WLFiffLib::ChType::MAGN:
+            return WLEModality::MEG;
+        case WLFiffLib::ChType::EL:
+            return WLEModality::EEG;
+        case WLFiffLib::ChType::EOG:
+            return WLEModality::EOG;
+        case WLFiffLib::ChType::ECG:
+            return WLEModality::ECG;
+        case WLFiffLib::ChType::MISC:
+            return WLEModality::UNKNOWN;
+        default:
+            return WLEModality::UNKNOWN;
+    }
 }
