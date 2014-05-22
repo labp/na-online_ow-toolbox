@@ -132,7 +132,7 @@ public:
      * \param megIn MEG input data
      * \return true, if successful
      */
-    bool reconstructAmplitudes( WLEMDHPI::SPtr hpiOut, WLEMDMEG::ConstSPtr megIn );
+    bool reconstructAmplitudes( WLEMDHPI::SPtr& hpiOut, WLEMDMEG::ConstSPtr megIn );
 
     /**
      * Resets the algorithm.

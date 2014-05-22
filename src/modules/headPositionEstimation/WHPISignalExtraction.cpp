@@ -155,7 +155,7 @@ bool WHPISignalExtraction::prepare()
     return m_isPrepared;
 }
 
-bool WHPISignalExtraction::reconstructAmplitudes( WLEMDHPI::SPtr hpiOut, WLEMDMEG::ConstSPtr megIn )
+bool WHPISignalExtraction::reconstructAmplitudes( WLEMDHPI::SPtr& hpiOut, WLEMDMEG::ConstSPtr megIn )
 {
     wlog::debug( CLASS ) << "reconstructAmplitudes() called!";
 
@@ -191,6 +191,10 @@ bool WHPISignalExtraction::reconstructAmplitudes( WLEMDHPI::SPtr hpiOut, WLEMDME
     {
         wlog::error( CLASS ) << "Matrix A seems not to be prepared!";
         return false;
+    }
+    if( !hpiOut )
+    {
+        hpiOut.reset( new WLEMDHPI );
     }
 
     // Preparation: constants, variables, data

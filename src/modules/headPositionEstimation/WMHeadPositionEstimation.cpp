@@ -213,8 +213,16 @@ bool WMHeadPositionEstimation::processCompute( WLEMMeasurement::SPtr emmIn )
         m_hpiSignalExtraction->setSamplingFrequency( megIn->getSampFreq() );
     }
 
-    WLEMDHPI::SPtr emdHpi( new WLEMDHPI );
-    bool rc = m_hpiSignalExtraction->reconstructAmplitudes( emdHpi, megIn );
+    WLEMDMEG::SPtr megMag;
+    if( !WLEMDMEG::extractCoilModality( megMag, megIn, WLEModality::MEG_MAG, true ) )
+    {
+        errorLog() << "Could not extract magnetometer!";
+        m_lastEmm = emmIn;
+        return false;
+    }
+
+    WLEMDHPI::SPtr hpiOut;
+    bool rc = m_hpiSignalExtraction->reconstructAmplitudes( hpiOut, megMag );
 
     if( !rc )
     {
@@ -223,7 +231,7 @@ bool WMHeadPositionEstimation::processCompute( WLEMMeasurement::SPtr emmIn )
         return rc;
     }
 
-    if( !emdHpi->setChannelPositions3d( emmIn->getDigPoints() ) )
+    if( !hpiOut->setChannelPositions3d( emmIn->getDigPoints() ) )
     {
         warnLog() << "Could not set isotrak positions for HPI coils!";
     }
@@ -231,11 +239,13 @@ bool WMHeadPositionEstimation::processCompute( WLEMMeasurement::SPtr emmIn )
     // Reconstructed HPI amplitudes are for previous EMM packet
     if( m_lastEmm.get() != NULL )
     {
-        m_lastEmm->addModality( emdHpi );
-        viewUpdate( m_lastEmm );
+        WLEMMeasurement::SPtr emmOut = m_lastEmm->clone();
+        emmOut->setModalityList( m_lastEmm->getModalityList() );
+        emmOut->addModality( hpiOut );
+        viewUpdate( emmOut );
 
         WLEMMCommand::SPtr cmdOut( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
-        cmdOut->setEmm( m_lastEmm );
+        cmdOut->setEmm( emmOut );
         m_output->updateData( cmdOut );
         m_lastEmm = emmIn;
         return rc;
