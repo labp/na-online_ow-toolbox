@@ -25,6 +25,10 @@
 #ifndef WLBOUNDCALCULATORHISTOGRAM_H_
 #define WLBOUNDCALCULATORHISTOGRAM_H_
 
+#include <string>
+
+#include <boost/shared_ptr.hpp>
+
 #include "WLABoundCalculator.h"
 
 /**

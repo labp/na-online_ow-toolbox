@@ -25,10 +25,12 @@
 #ifndef WLABOUNDCALCULATOR_H_
 #define WLABOUNDCALCULATOR_H_
 
+#include <string>
+#include <utility> // std::pair
+
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include "core/container/WLArrayList.h"
 #include "core/data/emd/WLEMData.h"
 #include "core/data/WLEMMeasurement.h"
 
@@ -55,6 +57,11 @@ public:
     typedef boost::shared_ptr< const WLABoundCalculator > ConstSPtr;
 
     /**
+     * A pair of Min/Max. Minimum is stored in first and maximum in second.
+     */
+    typedef std::pair< WLEMData::ScalarT, WLEMData::ScalarT > MinMax;
+
+    /**
      * The class name.
      */
     static const std::string CLASS;
@@ -69,18 +76,18 @@ public:
      *
      * \param emm The measurement object.
      * \param modality The modality to display.
-     * \return Returns a single dimension vector, which contains the maximal amplitude scaling.
+     * \return Returns a pair, which contains the minimal (0) and maximal amplitude scaling.
      */
-    virtual WLArrayList< WLEMData::ScalarT > getBounds2D( WLEMMeasurement::ConstSPtr emm, WLEModality::Enum modality );
+    virtual MinMax getBounds2D( WLEMMeasurement::ConstSPtr emm, WLEModality::Enum modality );
 
     /**
      * Calculates the bound for the 3D view.
      *
      * \param emm The measurement object.
      * \param modality The modality to display.
-     * \return Returns a vector, which contains the calculated bounds.
+     * \return Returns a pair, which contains the calculated bounds.
      */
-    virtual WLArrayList< WLEMData::ScalarT > getBounds3D( WLEMMeasurement::ConstSPtr emm, WLEModality::Enum modality );
+    virtual MinMax getBounds3D( WLEMMeasurement::ConstSPtr emm, WLEModality::Enum modality );
 
     /**
      * Calculates the maximum.
@@ -95,8 +102,8 @@ public:
      * Calculates the minimum.
      * The results of this methods depends on the algorithms, implemented by the derived classes. So they can vary.
      *
-     * @param data The data matrix.
-     * @return Returns the calculated minimum.
+     * \param data The data matrix.
+     * \return Returns the calculated minimum.
      */
     virtual WLEMData::ScalarT getMin( const WLEMData::DataT& data ) = 0;
 

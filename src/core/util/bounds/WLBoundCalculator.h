@@ -25,9 +25,9 @@
 #ifndef WLBOUNDCALCULATOR_H_
 #define WLBOUNDCALCULATOR_H_
 
-#include "core/data/WLEMMeasurement.h"
+#include <boost/shared_ptr.hpp>
+
 #include "core/data/emd/WLEMData.h"
-#include "core/data/enum/WLEModality.h"
 #include "WLABoundCalculator.h"
 
 /**
@@ -60,15 +60,6 @@ public:
      * Destroys the WLBoundCalculator.
      */
     virtual ~WLBoundCalculator();
-
-    /**
-     * Calculates the bound for the 3D view.
-     *
-     * \param emm The measurement object.
-     * \param modality The modality to display.
-     * \return Returns a vector, which contains the calculated bounds.
-     */
-    WLArrayList< WLEMData::ScalarT > getBounds3D( WLEMMeasurement::ConstSPtr emm, WLEModality::Enum modality );
 
     /**
      * Calculates the maximum.

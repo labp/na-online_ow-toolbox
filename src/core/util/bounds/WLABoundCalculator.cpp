@@ -22,19 +22,10 @@
 //
 //---------------------------------------------------------------------------
 
-#include <boost/assign.hpp>
-#include <boost/foreach.hpp>
-
-#include <Eigen/Core>
-
-#include <core/common/WLogger.h>
-
 #include "core/data/emd/WLEMDMEG.h"
 #include "core/data/emd/WLEMDSource.h"
 
 #include "WLABoundCalculator.h"
-
-using namespace boost::assign;
 
 const std::string WLABoundCalculator::CLASS = "WLABoundCalculator";
 
@@ -42,16 +33,14 @@ WLABoundCalculator::~WLABoundCalculator()
 {
 }
 
-WLArrayList< WLEMData::ScalarT > WLABoundCalculator::getBounds2D( WLEMMeasurement::ConstSPtr emm, WLEModality::Enum modality )
+WLABoundCalculator::MinMax WLABoundCalculator::getBounds2D( WLEMMeasurement::ConstSPtr emm, WLEModality::Enum modality )
 {
-    WLArrayList< WLEMData::ScalarT > max;
+    MinMax max( 0.0, 0.0 );
 
     if( modality == WLEModality::SOURCE && emm->hasModality( modality ) )
     {
         WLEModality::Enum origin_modality = emm->getModality< const WLEMDSource >( modality )->getOriginModalityType();
-
-        max += getMax( emm->getModality( origin_modality )->getData() );
-
+        max.second = getMax( emm->getModality( origin_modality )->getData() );
         return max;
     }
     if( WLEModality::isMEGCoil( modality ) )
@@ -60,48 +49,35 @@ WLArrayList< WLEMData::ScalarT > WLABoundCalculator::getBounds2D( WLEMMeasuremen
     }
     if( emm->hasModality( modality ) )
     {
-        max += getMax( emm->getModality( modality )->getData() );
-
+        max.second = getMax( emm->getModality( modality )->getData() );
         return max;
     }
     else
     {
-        max += 0;
-
         return max;
     }
 }
 
-WLArrayList< WLEMData::ScalarT > WLABoundCalculator::getBounds3D( WLEMMeasurement::ConstSPtr emm, WLEModality::Enum modality )
+WLABoundCalculator::MinMax WLABoundCalculator::getBounds3D( WLEMMeasurement::ConstSPtr emm, WLEModality::Enum modality )
 {
-    WLArrayList< WLEMData::ScalarT > bounds;
+    MinMax bounds( 0.0, 0.0 );
 
-    if( emm->hasModality( modality ) )
-    {
-        bounds += getMax( emm->getModality( modality )->getData() );
-        bounds += getMin( emm->getModality( modality )->getData() );
-
-        return bounds;
-    }
     if( WLEModality::isMEGCoil( modality ) && emm->hasModality( WLEModality::MEG ) )
     {
         WLEMDMEG::ConstSPtr meg = emm->getModality< const WLEMDMEG >( WLEModality::MEG );
         WLEMDMEG::SPtr megCoil;
         if( WLEMDMEG::extractCoilModality( megCoil, meg, modality, true ) )
         {
-            bounds += getMax( megCoil->getData() );
-            bounds += getMin( megCoil->getData() );
-            return bounds;
-        }
-        else
-        {
-            bounds += 0, 0;
+            bounds.first = getMin( megCoil->getData() );
+            bounds.second = getMax( megCoil->getData() );
             return bounds;
         }
     }
-    else
+    if( emm->hasModality( modality ) )
     {
-        bounds += 0, 0;
+        bounds.first = getMin( emm->getModality( modality )->getData() );
+        bounds.second = getMax( emm->getModality( modality )->getData() );
         return bounds;
     }
+    return bounds;
 }

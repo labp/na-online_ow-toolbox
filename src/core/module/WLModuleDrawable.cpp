@@ -288,12 +288,12 @@ void WLModuleDrawable::calcBounds()
     }
 
     // Scale 2D
-    const WLEMData::ScalarT amplitudeScale = m_boundCalculator->getBounds2D( m_lastEmm, getViewModality() ).at( 0 );
+    const WLEMData::ScalarT amplitudeScale = m_boundCalculator->getBounds2D( m_lastEmm, getViewModality() ).second;
     m_amplitudeScale->set( amplitudeScale );
     // Scale 3D
-    const WLArrayList< WLEMData::ScalarT > sens3dScale = m_boundCalculator->getBounds3D( m_lastEmm, getViewModality() );
-    m_maxSensitity3D->set( sens3dScale.at( 0 ) );
-    m_minSensitity3D->set( sens3dScale.at( 1 ) );
+    const WLABoundCalculator::MinMax sens3dScale = m_boundCalculator->getBounds3D( m_lastEmm, getViewModality() );
+    m_minSensitity3D->set( sens3dScale.first );
+    m_maxSensitity3D->set( sens3dScale.second );
 }
 
 void WLModuleDrawable::callbackAutoSensitivityChanged()
@@ -486,12 +486,12 @@ void WLModuleDrawable::viewUpdate( WLEMMeasurement::SPtr emm )
     {
         --m_autoScaleCounter;
         // Scale 2D
-        const WLEMData::ScalarT amplitudeScale = m_boundCalculator->getBounds2D( emm, getViewModality() ).at( 0 );
+        const WLEMData::ScalarT amplitudeScale = m_boundCalculator->getBounds2D( emm, getViewModality() ).second;
         m_amplitudeScale->set( amplitudeScale );
         // Scale 3D
-        const WLArrayList< WLEMData::ScalarT > sens3dScale = m_boundCalculator->getBounds3D( emm, getViewModality() );
-        m_maxSensitity3D->set( sens3dScale.at( 0 ) );
-        m_minSensitity3D->set( sens3dScale.at( 1 ) );
+        const WLABoundCalculator::MinMax sens3dScale = m_boundCalculator->getBounds3D( emm, getViewModality() );
+        m_minSensitity3D->set( sens3dScale.first );
+        m_maxSensitity3D->set( sens3dScale.second );
     }
     if( m_autoScaleCounter == 0 )
     {

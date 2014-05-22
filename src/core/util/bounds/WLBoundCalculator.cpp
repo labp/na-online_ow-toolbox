@@ -22,18 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
-#include <vector>
-
-#include <boost/assign.hpp>
-
 #include <Eigen/Core>
 
-#include "core/data/emd/WLEMDMEG.h"
-#include "core/data/emd/WLEMDSource.h"
-
 #include "WLBoundCalculator.h"
-
-using namespace boost::assign;
 
 WLBoundCalculator::WLBoundCalculator( WLEMData::ScalarT alpha ) :
                 m_alpha( alpha )
@@ -42,40 +33,6 @@ WLBoundCalculator::WLBoundCalculator( WLEMData::ScalarT alpha ) :
 
 WLBoundCalculator::~WLBoundCalculator()
 {
-}
-
-WLArrayList< WLEMData::ScalarT > WLBoundCalculator::getBounds3D( WLEMMeasurement::ConstSPtr emm, WLEModality::Enum modality )
-{
-    WLArrayList< WLEMData::ScalarT > bounds;
-
-    if( emm->hasModality( modality ) )
-    {
-        bounds += getMax( emm->getModality( modality )->getData() );
-        bounds += -bounds.at( 0 );
-
-        return bounds;
-    }
-    if( WLEModality::isMEGCoil( modality ) && emm->hasModality( WLEModality::MEG ) )
-    {
-        WLEMDMEG::ConstSPtr meg = emm->getModality< const WLEMDMEG >( WLEModality::MEG );
-        WLEMDMEG::SPtr megCoil;
-        if( WLEMDMEG::extractCoilModality( megCoil, meg, modality, true ) )
-        {
-            bounds += getMax( megCoil->getData() );
-            bounds += -bounds.at( 0 );
-            return bounds;
-        }
-        else
-        {
-            bounds += 0, 0;
-            return bounds;
-        }
-    }
-    else
-    {
-        bounds += 0, 0;
-        return bounds;
-    }
 }
 
 WLEMData::ScalarT WLBoundCalculator::getMax( const WLEMData::DataT& data )
