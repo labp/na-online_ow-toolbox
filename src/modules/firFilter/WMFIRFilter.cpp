@@ -367,7 +367,12 @@ bool WMFIRFilter::processCompute( WLEMMeasurement::SPtr emmIn )
     for( std::vector< WLEMData::SPtr >::const_iterator emdIn = emdsIn.begin(); emdIn != emdsIn.end(); ++emdIn )
     {
         debugLog() << "EMD type: " << ( *emdIn )->getModalityType();
-
+        if( ( *emdIn )->getSampFreq() != m_samplingFreq->get( false ) )
+        {
+            infoLog() << "Skip modality for FIR filter, because sampling frequencies are not equals.";
+            emmOut->addModality( *emdIn );
+            continue;
+        }
 #ifdef DEBUG
         // Show some input pieces
         const size_t nbChannels = ( *emdIn )->getNrChans();
