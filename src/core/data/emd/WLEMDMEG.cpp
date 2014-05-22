@@ -407,7 +407,6 @@ bool WLEMDMEG::extractCoilModality( WLEMDMEG::SPtr& megOut, WLEMDMEG::ConstSPtr 
     megOut.reset( new WLEMDMEG( type ) );
     if( picksAll.empty() )
     {
-        megOut.reset( new WLEMDMEG( type ) );
         wlog::warn( CLASS ) << "Requested extraction into the same type!";
         return false;
     }
@@ -451,6 +450,7 @@ bool WLEMDMEG::extractCoilModality( WLEMDMEG::SPtr& megOut, WLEMDMEG::ConstSPtr 
     }
 
     megOut->setData( dataPtr );
+    megOut->setSampFreq(megIn->getSampFreq());
     if( dataOnly )
     {
         return true;
