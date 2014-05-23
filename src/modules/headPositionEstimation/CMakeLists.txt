@@ -29,12 +29,15 @@
 # we use the directory name as module name
 GET_FILENAME_COMPONENT( MODULE_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME )
 
+
 # --------------------------------------------------------------------------------------------------------------------------------
 # Search own dependencies
 # --------------------------------------------------------------------------------------------------------------------------------
 
 SET( ADDITIONAL_LIBS "" )
 
+# TODO (pieloth): move FIR filter to core
+LIST( APPEND ADDITIONAL_LIBS firFilter )
 
 
 # --------------------------------------------------------------------------------------------------------------------------------
@@ -48,3 +51,4 @@ SETUP_MODULE( ${MODULE_NAME}                # name of the module
              "${ADDITIONAL_LIBS}"           # does your module need additional libs to compile?
              ""                             # do you want to exclude files from stylechecking? (externals for example)
 )
+ADD_DEPENDENCIES( ${MODULE_NAME}  firFilter )
