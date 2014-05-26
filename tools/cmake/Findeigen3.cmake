@@ -9,10 +9,13 @@
 
 FIND_PATH( EIGEN3_INCLUDE_DIR Eigen/Core $ENV{EIGEN3_INCLUDE_DIR} 
                                          $ENV{HOME}/.local/include/eigen3
+                                         $ENV{HOME}/na-online_dependencies/eigen321
+                                         /opt/na-online_dependencies/eigen321
                                          /usr/include/eigen3
                                          /usr/local/include/eigen3 
                                          /opt/local/include/eigen3
-                                         /sw/include/eigen3 )
+                                         /sw/include/eigen3
+                                         /opt/include/eigen3 )
 
 SET( EIGEN3_FOUND FALSE )
 IF( EIGEN3_INCLUDE_DIR )
