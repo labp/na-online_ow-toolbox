@@ -91,8 +91,8 @@ private:
         };
         static std::string name( EStreaming::Enum val );
     };
-    EStreaming::Enum m_status;
-    WPropString m_propStatus;
+    EStreaming::Enum m_statusStreaming;
+    WPropString m_propStatusStreaming;
 
     void updateStatus( EStreaming::Enum status );
 
@@ -101,14 +101,56 @@ private:
 
     WLEMMeasurement::ConstSPtr m_data;
 
-    void handleStartTrg();
-    void callbackStopTrg();
+    void hdlTrgStart();
+    void cbTrgStop();
+
+    WPropTrigger m_trgReset; /**< Reset additional data. */
+    void hdlTrgReset();
+
+    // Additional data
+    // ---------------
+    WPropGroup m_propGrpAdditional;
+
+    WPropFilename m_srcSpaceFile;
+    WLEMMSurface::SPtr m_surface;
+    bool hdlSurfaceFileChanged( std::string fName );
+
+    WPropFilename m_bemFile;
+    WLList< WLEMMBemBoundary::SPtr >::SPtr m_bems;
+    bool hdlBemFileChanged( std::string fName );
+
+    WPropFilename m_lfEEGFile;
+    WPropFilename m_lfMEGFile;
+    WLMatrix::SPtr m_leadfieldEEG;
+    WLMatrix::SPtr m_leadfieldMEG;
+    bool hdlLeadfieldFileChanged( std::string fName, WLMatrix::SPtr& lf );
+
+    WPropString m_propStatusAdditional;
+
+    struct EData
+    {
+        enum Enum
+        {
+            DATA_NOT_LOADED, DATA_LOADING, DATA_LOADED, DATA_ERROR
+        };
+        static std::string name( EData::Enum val );
+    };
+
+    WLEMMSubject::SPtr m_subject; /**< Stores a copy the input subject. */
+
+    /**
+     * If additional data is available, clones the input and sets the data.
+     *
+     * \param subjectIn Subject to clone
+     * \return True if new subject were created and additional data was set.
+     */
+    bool initAdditionalData( WLEMMSubject::ConstSPtr subjectIn );
 };
 
 inline void WMEMMSimulator::updateStatus( EStreaming::Enum status )
 {
-    m_status = status;
-    m_propStatus->set( EStreaming::name( status ), true );
+    m_statusStreaming = status;
+    m_propStatusStreaming->set( EStreaming::name( status ), true );
 }
 
 #endif  // WMEMMSIMULATOR_H_
