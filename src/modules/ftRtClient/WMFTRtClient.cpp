@@ -173,6 +173,8 @@ void WMFTRtClient::properties()
     m_streamStatus = m_propGrpFtClient->addProperty( "Streaming status:", "Shows the status of the streaming client.",
                     CLIENT_NOT_STREAMING );
     m_streamStatus->setPurpose( PV_PURPOSE_INFORMATION );
+    m_applyScaling = m_propGrpFtClient->addProperty( "Apply scaling:", "Enable scale factor (range * cal).", false,
+                    boost::bind( &WMFTRtClient::callbackApplyScaling, this ) );
     m_trgStartStream = m_propGrpFtClient->addProperty( "Start streaming:", "Start", WPVBaseTypes::PV_TRIGGER_READY,
                     m_propCondition );
     m_trgStopStream = m_propGrpFtClient->addProperty( "Stop streaming:", "Stop", WPVBaseTypes::PV_TRIGGER_READY,
@@ -475,6 +477,14 @@ void WMFTRtClient::callbackTrgDisconnect()
     infoLog() << "Connection to FieldTrip Buffer Server closed.";
 }
 
+void WMFTRtClient::callbackApplyScaling()
+{
+    if( m_ftRtClient )
+    {
+        m_ftRtClient->setScaling( m_applyScaling->get( false ) );
+    }
+}
+
 void WMFTRtClient::callbackTrgStartStreaming()
 {
     debugLog() << "callbackTrgStartStreaming() called.";
@@ -490,6 +500,7 @@ void WMFTRtClient::callbackTrgStartStreaming()
 
     // set some parameter on initializing the client
     m_ftRtClient->setTimeout( ( UINT32_T )m_waitTimeout->get() );
+    callbackApplyScaling();
 
     m_stopStreaming = false;
 
@@ -503,7 +514,6 @@ void WMFTRtClient::callbackTrgStartStreaming()
         m_progress->removeSubProgress( progress );
 
         dispHeaderInfo(); // display header information
-        //m_ftRtClient->printChunks(); // print the chunk buffers content.
         debugLog() << "Header request on startup done. Beginning data streaming";
 
         while( !m_stopStreaming && !m_shutdownFlag() )
@@ -545,19 +555,18 @@ void WMFTRtClient::callbackTrgStartStreaming()
                 {
                     m_events->set( m_ftRtClient->getEventCount(), true );
 
-                    BOOST_FOREACH(WFTEvent::SPtr event, *m_ftRtClient->getEventList())
-                    {
-                        debugLog() << "Fire Event: " << *event;
-                    }
+                    BOOST_FOREACH(WFTEvent::SPtr event, *m_ftRtClient->getEventList()){
+                    debugLog() << "Fire Event: " << *event;
                 }
             }
-            else
-            {
-                m_stopStreaming = true; // stop streaming on error during request.
-
-                errorLog() << "Error while requesting buffer server for new data. Check your connection and the server, please.";
-            }
         }
+        else
+        {
+            m_stopStreaming = true; // stop streaming on error during request.
+
+            errorLog() << "Error while requesting buffer server for new data. Check your connection and the server, please.";
+        }
+    }
 
         m_ftRtClient->stop(); // stop streaming
     }

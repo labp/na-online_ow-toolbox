@@ -50,7 +50,7 @@
 const std::string WFTNeuromagClient::CLASS = "WFTNeuromagClient";
 
 WFTNeuromagClient::WFTNeuromagClient() :
-                m_streaming( false )
+                m_streaming( false ), m_applyScaling( false )
 {
 
 }
@@ -187,15 +187,11 @@ bool WFTNeuromagClient::getRawData( WLEMDRaw::SPtr& modality )
 
     modality->setData( dataPtr );
 
-    wlog::debug( CLASS ) << "Read raw channels: " << dataPtr->rows();
-
     return true;
 }
 
 bool WFTNeuromagClient::createDetailedEMM( WLEMMeasurement::SPtr emm, WLEMDRaw::SPtr rawData )
 {
-    wlog::debug( CLASS ) << "createDetailedEMM() called.";
-
     WFTChunkNeuromagHdr::SPtr neuromagHdr = m_header->getChunks( WLEFTChunkType::FT_CHUNK_NEUROMAG_HEADER )->at( 0 )->getAs<
                     WFTChunkNeuromagHdr >();
 
@@ -229,12 +225,43 @@ bool WFTNeuromagClient::createDetailedEMM( WLEMMeasurement::SPtr emm, WLEMDRaw::
         }
 
         emd->setData( rawData->getData( it->second, true ) );
+        emd->setSampFreq( rawData->getSampFreq() );
 
+        //
+        // apply scaling
+        //
+        for( Eigen::RowVectorXi::Index row = 0; row < it->second.size(); ++row )
+        {
+            if( m_applyScaling )
+            {
+                emd->getData().row( row ) *= neuromagHdr->getScaleFactors()->at( ( int )it->second[row] );
+            }
+        }
+
+        //
+        // set channel names.
+        //
         WLArrayList< std::string >::SPtr channelNames = neuromagHdr->getChannelNames( it->first );
-
         if( channelNames != 0 && channelNames->size() > 0 )
         {
             emd->setChanNames( channelNames );
+        }
+
+        // channel positions
+        if( emd->getModalityType() == WLEModality::EEG )
+        {
+            if( !neuromagHdr->getChannelPositionsEEG()->empty() )
+            {
+                emd->getAs< WLEMDEEG >()->setChannelPositions3d( neuromagHdr->getChannelPositionsEEG() );
+            }
+        }
+
+        if( emd->getModalityType() == WLEModality::MEG )
+        {
+            if( !neuromagHdr->getChannelPositionsMEG()->empty() )
+            {
+                emd->getAs< WLEMDMEG >()->setChannelPositions3d( neuromagHdr->getChannelPositionsMEG() );
+            }
         }
 
         emm->addModality( emd );
@@ -258,6 +285,16 @@ bool WFTNeuromagClient::createDetailedEMM( WLEMMeasurement::SPtr emm, WLEMDRaw::
     }
 
     return true;
+}
+
+bool WFTNeuromagClient::isScalingApplied() const
+{
+    return m_applyScaling;
+}
+
+void WFTNeuromagClient::setScaling( bool applyScaling )
+{
+    m_applyScaling = applyScaling;
 }
 
 bool WFTNeuromagClient::prepareStreaming()

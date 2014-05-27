@@ -189,6 +189,11 @@ private:
     WPropString m_streamStatus;
 
     /**
+     * Apply the data scaling.
+     */
+    WPropBool m_applyScaling;
+
+    /**
      * The connect button.
      */
     WPropTrigger m_trgConnect;
@@ -346,6 +351,11 @@ private:
      * Callback when the disconnect button was clicked.
      */
     void callbackTrgDisconnect();
+
+    /**
+     * Callback, when the apply scaling checkboxes value was changed.
+     */
+    void callbackApplyScaling();
 
     /**
      * Callback when the start streaming button was clicked.

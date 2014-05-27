@@ -26,8 +26,11 @@
 #define WFTCHUNKNEUROMAGHDR_H_
 
 #include <map>
+#include <vector>
 
 #include <fiff/fiff_info.h>
+
+#include <core/common/math/linearAlgebra/WPosition.h>
 
 #include "core/container/WLArrayList.h"
 #include "core/data/emd/WLEMDRaw.h"
@@ -72,6 +75,16 @@ public:
      * A shared pointer on a ModalityPicksT.
      */
     typedef boost::shared_ptr< ModalityPicksT > ModalityPicks_SPtr;
+
+    /**
+     * A vector with channel positions.
+     */
+    typedef std::vector< WPosition > ChannelsPositionsT;
+
+    /**
+     * A shared pointer on a channel positions vector.
+     */
+    typedef boost::shared_ptr< ChannelsPositionsT > ChannelsPositionsSPtr;
 
     /**
      * The class name.
@@ -124,6 +137,27 @@ public:
      */
     boost::shared_ptr< WLEMDRaw::ChanPicksT > getStimulusPicks() const;
 
+    /**
+     * Gets the channel positions for EEG.
+     *
+     * @return Returns a shared pointer on a channel position vector.
+     */
+    ChannelsPositionsSPtr getChannelPositionsEEG() const;
+
+    /**
+     * Gets the channel points for MEG.
+     *
+     * @return Returns a shared pointer on a channel position vector.
+     */
+    ChannelsPositionsSPtr getChannelPositionsMEG() const;
+
+    /**
+     * Gets the scaling factors.
+     *
+     * @return Returns a shared pointer on a float vector.
+     */
+    boost::shared_ptr< std::vector< float > > getScaleFactors() const;
+
 protected:
 
     /**
@@ -164,6 +198,21 @@ private:
      * A row vector, which contains the channel indices of the event/ stimulus channels.
      */
     boost::shared_ptr< WLEMDRaw::ChanPicksT > m_stimulusPicks;
+
+    /**
+     * The channel positions for EEG.
+     */
+    ChannelsPositionsSPtr m_chPosEEG;
+
+    /**
+     * The channel position for MEG.
+     */
+    ChannelsPositionsSPtr m_chPosMEG;
+
+    /**
+     * Vector for scaling factors.
+     */
+    boost::shared_ptr< std::vector< float > > m_scaleFactors;
 };
 
 #endif /* WFTCHUNKNEUROMAGHDR_H_ */

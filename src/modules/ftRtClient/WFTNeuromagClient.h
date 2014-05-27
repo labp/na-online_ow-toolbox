@@ -84,6 +84,10 @@ public:
      */
     bool createEMM( WLEMMeasurement::SPtr emm );
 
+    bool isScalingApplied() const;
+
+    void setScaling( bool applyScaling );
+
 protected:
 
     /**
@@ -117,6 +121,7 @@ private:
      */
     bool m_streaming;
 
+    bool m_applyScaling;
 };
 
 #endif /* WFTCLIENTSTREAMING_H_ */
