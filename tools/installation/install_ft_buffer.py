@@ -9,6 +9,7 @@ __author__ = 'pieloth'
 import argparse
 import os
 from subprocess import call
+import sys
 
 from install import AInstaller
 from install import AInstaller as Utils
@@ -28,6 +29,8 @@ class Installer(AInstaller):
         success = True
         success = success and Utils.check_program("git", "--version")
         success = success and Utils.check_program("make", "--version")
+        success = success and Utils.check_program("gcc", "--version")
+        success = success and Utils.check_program("g++", "--version")
         return success
 
     def install(self):
@@ -44,7 +47,7 @@ class Installer(AInstaller):
         if Utils.ask_for_execute("Compile " + self.NAME):
             self._compile()
 
-        print
+        return True
 
     def post_install(self):
         print("Before compiling the toolbox, please set the following environment variables:\n")
@@ -61,6 +64,9 @@ class Installer(AInstaller):
         ftb_client_lib = os.path.join(self.DESTDIR, self.REPO_FOLDER, self.FTB_CLIENT_INCLUDE,
                                       self.FTB_CLIENT_LIBRARY)
         print("    FTB_CLIENT_LIBRARY=" + ftb_client_lib)
+
+        print
+        return True
 
     def _download(self):
         Utils.print_step_begin("Downloading")
@@ -107,4 +113,7 @@ if __name__ == "__main__":
         destdir = args.destdir
 
     installer = Installer(destdir)
-    installer.do_install()
+    if installer.do_install():
+        sys.exit(AInstaller.EXIT_SUCCESS)
+    else:
+        sys.exit(AInstaller.EXIT_ERROR)

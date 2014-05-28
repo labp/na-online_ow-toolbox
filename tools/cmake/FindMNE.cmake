@@ -18,87 +18,51 @@
 #   * MNE_RTCOMMAND_LIBRARY
 #---------------------------------------------------------------------------
 
-#---------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------------------------------------
 # MNE_INCLUDE_DIR
-#---------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------------------------------------
 
 FIND_PATH( MNE_INCLUDE_DIR mne/mne.h HINTS 
-        $ENV{MNE_INCLUDE_DIR} 
-        /opt/include
+        $ENV{MNE_INCLUDE_DIR}
+        $ENV{HOME}/na-online_dependencies/mne-cpp/MNE
+        /opt/na-online_dependencies/mne-cpp/MNE
         /opt/include/MNE
+        /opt/include
 )
 
 
-
-#---------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------------------------------------
 # MNE_LIBRARY and MNE_LIBRARY_DIR
-#---------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------------------------------------
 
-FIND_LIBRARY( MNE_LIBRARY_RELEASE MNE1Mne HINTS
-        $ENV{MNE_LIBRARY_DIR} 
+FIND_LIBRARY( MNE_LIBRARY MNE1Mne HINTS
+        $ENV{MNE_LIBRARY_DIR}
+        $ENV{HOME}/na-online_dependencies/mne-cpp/lib
+        /opt/na-online_dependencies/mne-cpp/lib
         /opt/lib/MNE
         /opt/lib
 )
-
-FIND_LIBRARY( MNE_LIBRARY_DEBUG MNE1Mned HINTS
-        $ENV{MNE_LIBRARY_DIR} 
-        /opt/lib/MNE
-        /opt/lib
-)
-
-# Comment/Uncomment these parts to use CMake's release/debug switch
-#IF( CMAKE_BUILD_TYPE MATCHES Release )
-	SET( MNE_LIBRARY ${MNE_LIBRARY_RELEASE} )
-#ELSE()
-#	SET( MNE_LIBRARY ${MNE_LIBRARY_DEBUG} )
-#ENDIF()
 
 # Retrieve library path for other MNE libraries
 get_filename_component( MNE_LIBRARY_DIR ${MNE_LIBRARY} PATH )
 
 
-
-#---------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------------------------------------
 # Other libraries
-#---------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------------------------------------
 
-FIND_LIBRARY( MNE_FIFF_LIBRARY_RELEASE MNE1Fiff PATHS ${MNE_LIBRARY_DIR} )
-FIND_LIBRARY( MNE_FIFF_LIBRARY_DEBUG MNE1Fiffd PATHS ${MNE_LIBRARY_DIR} )
-FIND_LIBRARY( MNE_FS_LIBRARY_RELEASE MNE1Fs PATHS ${MNE_LIBRARY_DIR} )
-FIND_LIBRARY( MNE_FS_LIBRARY_DEBUG MNE1Fsd PATHS ${MNE_LIBRARY_DIR} )
-FIND_LIBRARY( MNE_GENERICS_LIBRARY_RELEASE MNE1Generics PATHS ${MNE_LIBRARY_DIR} )
-FIND_LIBRARY( MNE_GENERICS_LIBRARY_DEBUG MNE1Genericsd PATHS ${MNE_LIBRARY_DIR} )
-FIND_LIBRARY( MNE_INVRT_LIBRARY_RELEASE MNE1InvRt PATHS ${MNE_LIBRARY_DIR} )
-FIND_LIBRARY( MNE_INVRT_LIBRARY_DEBUG MNE1InvRtd PATHS ${MNE_LIBRARY_DIR} )
-FIND_LIBRARY( MNE_UTILS_LIBRARY_RELEASE MNE1Utils PATHS ${MNE_LIBRARY_DIR} )
-FIND_LIBRARY( MNE_UTILS_LIBRARY_DEBUG MNE1Utilsd PATHS ${MNE_LIBRARY_DIR} )
-FIND_LIBRARY( MNE_RTCLIENT_LIBRARY_RELEASE MNE1RtClient PATHS ${MNE_LIBRARY_DIR} )
-FIND_LIBRARY( MNE_RTCLIENT_LIBRARY_DEBUG MNE1RtClientd PATHS ${MNE_LIBRARY_DIR} )
-FIND_LIBRARY( MNE_RTCOMMAND_LIBRARY_RELEASE MNE1RtCommand PATHS ${MNE_LIBRARY_DIR} )
-FIND_LIBRARY( MNE_RTCOMMAND_LIBRARY_DEBUG MNE1RtCommandd PATHS ${MNE_LIBRARY_DIR} )
+FIND_LIBRARY( MNE_FIFF_LIBRARY MNE1Fiff PATHS ${MNE_LIBRARY_DIR} )
+FIND_LIBRARY( MNE_FS_LIBRARY MNE1Fs PATHS ${MNE_LIBRARY_DIR} )
+FIND_LIBRARY( MNE_GENERICS_LIBRARY MNE1Generics PATHS ${MNE_LIBRARY_DIR} )
+FIND_LIBRARY( MNE_INVRT_LIBRARY MNE1InvRt PATHS ${MNE_LIBRARY_DIR} )
+FIND_LIBRARY( MNE_UTILS_LIBRARY MNE1Utils PATHS ${MNE_LIBRARY_DIR} )
+FIND_LIBRARY( MNE_RTCLIENT_LIBRARY MNE1RtClient PATHS ${MNE_LIBRARY_DIR} )
+FIND_LIBRARY( MNE_RTCOMMAND_LIBRARY MNE1RtCommand PATHS ${MNE_LIBRARY_DIR} )
 
-# Comment/Uncomment these parts to use CMake's release/debug switch
-#IF( CMAKE_BUILD_TYPE MATCHES Release )
-	SET( MNE_FIFF_LIBRARY ${MNE_FIFF_LIBRARY_RELEASE} )
-	SET( MNE_FS_LIBRARY ${MNE_FS_LIBRARY_RELEASE} )
-	SET( MNE_GENERICS_LIBRARY ${MNE_GENERICS_LIBRARY_RELEASE} )
-	SET( MNE_INVRT_LIBRARY ${MNE_INVRT_LIBRARY_RELEASE} )
-	SET( MNE_UTILS_LIBRARY ${MNE_UTILS_LIBRARY_RELEASE} )
-	SET( MNE_RTCLIENT_LIBRARY ${MNE_RTCLIENT_LIBRARY_RELEASE} )
-	SET( MNE_RTCOMMAND_LIBRARY ${MNE_RTCOMMAND_LIBRARY_RELEASE} )
-#ELSE()
-#	SET( MNE_FIFF_LIBRARY ${MNE_FIFF_LIBRARY_DEBUG} )
-#	SET( MNE_FS_LIBRARY ${MNE_FS_LIBRARY_DEBUG} )
-#	SET( MNE_GENERICS_LIBRARY ${MNE_GENERICS_LIBRARY_DEBUG} )
-#	SET( MNE_INVRT_LIBRARY ${MNE_INVRT_LIBRARY_DEBUG} )
-#	SET( MNE_UTILS_LIBRARY ${MNE_UTILS_LIBRARY_DEBUG} )
-#	SET( MNE_RTCLIENT_LIBRARY ${MNE_RTCLIENT_LIBRARY_DEBUG} )
-#	SET( MNE_RTCOMMAND_LIBRARY ${MNE_RTCOMMAND_LIBRARY_DEBUG} )
-#ENDIF()
 
-#---------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------------------------------------
 # Finalize setup
-#---------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------------------------------------
 
 SET( MNE_FOUND FALSE )
 IF ( MNE_INCLUDE_DIR AND MNE_LIBRARY_DIR )

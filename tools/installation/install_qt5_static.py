@@ -9,6 +9,7 @@ __author__ = 'pieloth'
 import argparse
 import os
 from subprocess import call
+import sys
 
 from install import AInstaller
 from install import AInstaller as Utils
@@ -28,6 +29,8 @@ class Installer(AInstaller):
         success = True
         success = success and Utils.check_program("git", "--version")
         success = success and Utils.check_program("make", "--version")
+        if not Utils.check_program("g++", "--version") and not Utils.check_program("c++", "--version"):
+            success = False
         return success
 
     def install(self):
@@ -86,11 +89,32 @@ class Installer(AInstaller):
     def _configure(self):
         Utils.print_step_begin("Configuring")
         install_path = os.path.join(self.DESTDIR, self.INSTALLDIR)
-        call("mkdir " + install_path, shell=True)
+        if not os.path.exists(install_path):
+            os.mkdir(install_path)
+        else:
+            print("You may have to clear the folder:\n" + install_path)
         repo_dir = os.path.join(self.DESTDIR, self.REPO_FOLDER)
         os.chdir(repo_dir)
-        qt5_configure = "./configure -prefix " + install_path + " -confirm-license -opensource -release -static " \
-                                                                "-nomake tests -nomake examples -qt-xcb"
+        # Available options:
+        #     ./configure --help
+        #     http://qt-project.org/doc/qt-5/configure-options.html
+        options = []
+        options.append("-prefix " + install_path)
+        options.append("-confirm-license")
+        options.append("-opensource")
+        options.append("-release")
+        options.append("-static")
+        options.append("-nomake tests")
+        options.append("-nomake examples")
+        options.append("-qt-zlib")
+        options.append("-qt-xcb")
+        options.append("-qt-xkbcommon")
+        options.append("-qt-pcre")
+        options.append("-no-icu")
+        options.append("-no-glib")
+        options.append("-no-libjpeg")
+        options.append("-no-libpng")
+        qt5_configure = "./configure " + ' '.join(options)
         call(qt5_configure, shell=True)
         Utils.print_step_end("Configuring")
 
@@ -100,7 +124,7 @@ class Installer(AInstaller):
         repo_dir = os.path.join(self.DESTDIR, self.REPO_FOLDER)
         os.chdir(repo_dir)
         call("make -j" + str(jobs), shell=True)
-        call("make -j" + str(jobs) + " install", shell=True)
+        call("make install", shell=True)
         Utils.print_step_end("Compiling & Installing")
 
 
@@ -114,4 +138,7 @@ if __name__ == "__main__":
         destdir = args.destdir
 
     installer = Installer(destdir, QT5_INSTALL_FOLDER)
-    installer.do_install()
+    if installer.do_install():
+        sys.exit(AInstaller.EXIT_SUCCESS)
+    else:
+        sys.exit(AInstaller.EXIT_ERROR)

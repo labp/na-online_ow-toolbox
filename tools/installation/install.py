@@ -12,12 +12,15 @@ import argparse
 import os
 import subprocess
 from subprocess import call
+import sys
 
 DEPENDENCY_PATH_PREFIX = "na-online_dependencies"
 
 class AInstaller:
     """Abstract installer with default implementations of pre_install, install and post_install."""
-    
+    EXIT_SUCCESS = 0
+    EXIT_ERROR = 1
+
     def __init__(self, name, destdir):
         self.NAME = name
         self.DESTDIR = destdir
@@ -38,12 +41,16 @@ class AInstaller:
         """Starts the installation process."""
         AInstaller.print_install_begin(self.NAME)
 
-        success = self.pre_install()
-        if success:
-            success = self.install()
+        try:
+            success = self.pre_install()
+            if success:
+                success = self.install()
 
-        if success:
-            success = self.post_install()
+            if success:
+                success = self.post_install()
+        except Exception as e:
+            success = False
+            print("Unexpected error: " + e.message)
 
         AInstaller.print_install_end(self.NAME)
         return success
@@ -59,12 +66,11 @@ class AInstaller:
 
     @staticmethod
     def ask_for_make_jobs():
-        jobs = 1
+        jobs = 2
         try:
-            jobs = int(raw_input("Number of jobs (recommended: # of CPU cores): "))
+            jobs = int(raw_input("Number of jobs (default: 2): "))
         except ValueError:
             print("Wrong input format.")
-            jobs = 1
         if jobs < 1:
             jobs = 1
         print("Using job=" + str(jobs))
@@ -118,21 +124,37 @@ class Installer(AInstaller):
 
     def install(self):
         destdir_arg = "-d " + self.DESTDIR
+        rc = 0
 
         if AInstaller.ask_for_execute("Install Qt5 Framework"):
-            call("python install_qt5_static.py " + destdir_arg, shell=True)
+            rc += call("python install_qt5_static.py " + destdir_arg, shell=True)
             
         print
     
         if AInstaller.ask_for_execute("Install MNE-CPP"):
-            call("python install_mne.py " + destdir_arg, shell=True)
+            rc += call("python install_mne.py " + destdir_arg, shell=True)
     
         print
     
         if AInstaller.ask_for_execute("Install FielTrip Buffer"):
-            call("python install_ft_buffer.py " + destdir_arg, shell=True)
-        
-        return True
+            rc += call("python install_ft_buffer.py " + destdir_arg, shell=True)
+
+        print
+
+        # Optional libraries, depending on versions in package repository
+        if AInstaller.ask_for_execute("Install Point Cloud Library"):
+            rc += call("python install_pcl.py " + destdir_arg, shell=True)
+
+        print
+
+        if AInstaller.ask_for_execute("Install Eigen with sparse matrix support"):
+            rc += call("python install_eigen3.py " + destdir_arg, shell=True)
+
+        if rc == 0:
+            return True
+        else:
+            print("\nErrors occurred during installation! Please check and solve it manually.\n")
+            return False
 
 
 if __name__ == "__main__":
@@ -145,4 +167,7 @@ if __name__ == "__main__":
         destdir = args.destdir
 
     installer = Installer(destdir)
-    installer.do_install()
+    if installer.do_install():
+        sys.exit(AInstaller.EXIT_SUCCESS)
+    else:
+        sys.exit(AInstaller.EXIT_ERROR)

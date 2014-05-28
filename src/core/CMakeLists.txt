@@ -82,8 +82,7 @@ INCLUDE_DIRECTORIES( ${QT5_QTCORE_INCLUDE_DIR} )
 INCLUDE_DIRECTORIES( ${QT5_QTNETWORK_INCLUDE_DIR} )
 LINK_DIRECTORIES( ${QT5_STATIC_LIBRARY_DIR} )
 LIST( APPEND ADDITIONAL_LIBS ${QT5_STATIC_QTCONCURRENT_LIBRARY} ${QT5_STATIC_QTNETWORK_LIBRARY} ${QT5_STATIC_QTCORE_LIBRARY} )
-# Libraries needed due to Qt5 static linking
-LIST( APPEND ADDITIONAL_LIBS pthread rt z icudata icui18n icuuc glib-2.0 dl )
+LIST( APPEND ADDITIONAL_LIBS ${QT5_STATIC_DEPENDENCIES} )
 
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------
