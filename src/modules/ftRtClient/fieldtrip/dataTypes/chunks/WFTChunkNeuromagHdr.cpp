@@ -25,29 +25,16 @@
 #include <list>
 #include <algorithm>
 
-#include <boost/foreach.hpp>
-
+#include <core/common/WAssert.h>
 #include <core/common/WLogger.h>
+
 #include "core/container/WLArrayList.h"
 #include "core/data/enum/WLEModality.h"
 #include "core/dataFormat/fiff/WLFiffChType.h"
-
 #include "modules/ftRtClient/reader/WReaderNeuromagHeader.h"
 #include "WFTChunkNeuromagHdr.h"
 
 const std::string WFTChunkNeuromagHdr::CLASS = "WFTChunkNeuromagHdr";
-
-#ifdef _WIN32
-
-const std::string WFTChunkNeuromagHdr::TMPDIRPATH = "C:/Windows/temp/";
-
-#else
-
-const std::string WFTChunkNeuromagHdr::TMPDIRPATH = "/tmp/";
-
-#endif
-
-const std::string WFTChunkNeuromagHdr::TMPFILENAME = TMPDIRPATH + "neuromag_header.fif";
 
 WFTChunkNeuromagHdr::WFTChunkNeuromagHdr( const char* data, const size_t size ) :
                 WFTAChunk( WLEFTChunkType::FT_CHUNK_NEUROMAG_HEADER, size )
@@ -57,24 +44,25 @@ WFTChunkNeuromagHdr::WFTChunkNeuromagHdr( const char* data, const size_t size ) 
 
 boost::shared_ptr< const FIFFLIB::FiffInfo > WFTChunkNeuromagHdr::getData() const
 {
-    return m_data;
+    return m_measInfo;
 }
 
 WLArrayList< std::string >::SPtr WFTChunkNeuromagHdr::getChannelNames( WLEModality::Enum modality ) const
 {
-    if( m_data == 0 )
+    if( m_measInfo == 0 )
     {
         return WLArrayList< std::string >::SPtr();
     }
 
     WLArrayList< std::string >::SPtr names( new WLArrayList< std::string > );
 
-    for( int i = 0; i < m_data->chs.size(); ++i )
+    for( int i = 0; i < m_measInfo->chs.size(); ++i )
     {
 
-        if( modality == WLEModality::fromFiffType( m_data->chs.at( i ).kind ) )
+        if( modality == WLEModality::fromFiffType( m_measInfo->chs.at( i ).kind ) )
         {
-            names->push_back( m_data->chs.at( i ).ch_name.toStdString() );
+            // TODO
+            //names->push_back( m_measInfo->chs.at( i ).ch_name.toStdString() );
         }
     }
 
@@ -119,7 +107,7 @@ bool WFTChunkNeuromagHdr::process( const char* data, size_t size )
 {
     wlog::debug( CLASS ) << "process() called.";
 
-    m_data.reset( new FIFFLIB::FiffInfo );
+    m_measInfo.reset( new FIFFLIB::FiffInfo );
     m_modalityPicks.reset( new ModalityPicksT );
     m_stimulusPicks.reset( new WLEMDRaw::ChanPicksT );
     m_chPosEEG.reset( new ChannelsPositionsT );
@@ -128,42 +116,32 @@ bool WFTChunkNeuromagHdr::process( const char* data, size_t size )
 
     WReaderNeuromagHeader::SPtr reader( new WReaderNeuromagHeader( data, size ) );
 
-    if( !reader->read( m_data.get() ) )
+    if( !reader->read( m_measInfo.get() ) )
     {
         wlog::error( CLASS ) << "Neuromag header file could not read.";
         return false;
     }
 
-    //std::list< size_t > list;
-
     m_scaleFactors->clear();
-    m_scaleFactors->reserve( m_data->nchan );
+    m_scaleFactors->reserve( m_measInfo->nchan );
 
     //
     //  Process channel information.
     //
-    for( int i = 0; i < m_data->chs.size(); ++i )
+    for( int i = 0; i < m_measInfo->chs.size(); ++i )
     {
-        FIFFLIB::FiffChInfo info = m_data->chs.at( i );
+        FIFFLIB::FiffChInfo info = m_measInfo->chs.at( i );
         WLEModality::Enum modalityType = WLEModality::fromFiffType( info.kind );
-
-        /*
-         bool contains = std::find( list.begin(), list.end(), info.kind ) != list.end();
-         if( !contains )
-         {
-         list.push_back( info.kind );
-         }
-         */
 
         //
         // Create pick vectors for all channel types.
         //
         WLEMDRaw::ChanPicksT *vector;
-        if( info.kind == WLFiffLib::ChType::STIM ) // skip stimulus channels
+        if( info.kind == WLFiffLib::ChType::STIM ) // use stimulus channels
         {
             vector = m_stimulusPicks.get();
         }
-        else
+        else // EEG / MEG data channels
         {
             if( m_modalityPicks->count( modalityType ) == 0 )
             {
@@ -202,6 +180,17 @@ bool WFTChunkNeuromagHdr::process( const char* data, size_t size )
             m_scaleFactors->push_back( info.range * info.cal );
         }
     }
+
+    //
+    // Validate read measurement information
+    //
+    //WAssertDebug( m_chPosEEG->size() != m_modalityPicks->at(WLEModality::EEG).cols(),
+    //                "Wrong number of EEG sensor positions or channel picks" );
+    WAssertDebug( m_modalityPicks->at(WLEModality::EEG).cols() / 3 != 0, "Wrong number of MEG channel picks" );
+    //WAssertDebug( m_chPosMEG->size() != m_modalityPicks->at(WLEModality::MEG).cols(),
+    //                "Wrong number of MEG sensor positions or channel picks" );
+    //wlog::debug( CLASS ) << "Number of scale factors: " << m_scaleFactors->size();
+    //wlog::debug( CLASS ) << "Number of event channels: " << m_stimulusPicks->cols();
 
     return true;
 }

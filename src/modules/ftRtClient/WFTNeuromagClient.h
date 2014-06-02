@@ -96,7 +96,7 @@ protected:
      * @param emm The EMM object.
      * @return Returns false in case of problems occur during EMM creation, otherwise true.
      */
-    bool getRawData( WLEMDRaw::SPtr& modality );
+    bool getRawData( WLEMDRaw::SPtr& rawData );
 
     /**
      * Creates a EMM object with a more detailed appearance. The modalities are splitted in several modalities and the EMM

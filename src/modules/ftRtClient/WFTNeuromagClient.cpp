@@ -31,6 +31,7 @@
 
 #include <Eigen/src/Core/util/Constants.h>
 
+#include <core/common/WAssert.h>
 #include <core/common/WLogger.h>
 
 #include "core/data/emd/WLEMData.h"
@@ -41,7 +42,6 @@
 #include "core/data/enum/WLEModality.h"
 #include "core/data/WLDataTypes.h"
 #include "core/dataFormat/fiff/WLFiffChType.h"
-
 #include "fieldtrip/dataTypes/chunks/WFTChunkFactory.h"
 #include "fieldtrip/dataTypes/chunks/WFTChunkNeuromagHdr.h"
 #include "fieldtrip/dataTypes/chunks/WFTChunkNeuromagIsotrak.h"
@@ -124,9 +124,9 @@ bool WFTNeuromagClient::createEMM( WLEMMeasurement::SPtr emm )
     return createDetailedEMM( emm, rawData );
 }
 
-bool WFTNeuromagClient::getRawData( WLEMDRaw::SPtr& modality )
+bool WFTNeuromagClient::getRawData( WLEMDRaw::SPtr& rawData )
 {
-    modality.reset( new WLEMDRaw );
+    rawData.reset( new WLEMDRaw );
 
     if( m_data->getDataDef().bufsize == 0 )
     {
@@ -154,7 +154,7 @@ bool WFTNeuromagClient::getRawData( WLEMDRaw::SPtr& modality )
     WLEMData::DataSPtr dataPtr( new WLEMData::DataT( chans, samps ) ); // create data matrix
     WLEMData::DataT& data = *dataPtr;
 
-    modality->setSampFreq( m_header->getHeaderDef().fsample );
+    rawData->setSampFreq( m_header->getHeaderDef().fsample );
 
     // insert value into the matrix
     for( int i = 0; i < samps; ++i ) // iterate all samples
@@ -185,13 +185,15 @@ bool WFTNeuromagClient::getRawData( WLEMDRaw::SPtr& modality )
         data.col( i ) = sample; // add sample-vector to the matrix
     }
 
-    modality->setData( dataPtr );
+    rawData->setData( dataPtr );
 
     return true;
 }
 
 bool WFTNeuromagClient::createDetailedEMM( WLEMMeasurement::SPtr emm, WLEMDRaw::SPtr rawData )
 {
+    wlog::debug( CLASS ) << "createDetailedEMM() called.";
+
     WFTChunkNeuromagHdr::SPtr neuromagHdr = m_header->getChunks( WLEFTChunkType::FT_CHUNK_NEUROMAG_HEADER )->at( 0 )->getAs<
                     WFTChunkNeuromagHdr >();
 
@@ -283,6 +285,31 @@ bool WFTNeuromagClient::createDetailedEMM( WLEMMeasurement::SPtr emm, WLEMDRaw::
         emm->setDigPoints(
                         m_header->getChunks( WLEFTChunkType::FT_CHUNK_NEUROMAG_ISOTRAK )->at( 0 )->getAs< WFTChunkNeuromagIsotrak >()->getData() );
     }
+
+    //
+    // Validate the created data structure
+    //
+    wlog::debug( CLASS ) << "Channels RawData: " << rawData->getData().rows();
+    wlog::debug( CLASS ) << "Channels Measurement information: " << neuromagHdr->getData()->nchan;
+    int rowsRaw = ( int )rawData->getData().rows();
+    int rowsInfo = ( int )neuromagHdr->getData()->nchan;
+    WAssertDebug( rowsRaw == rowsInfo, "Number of channel in raw data and measurement information are not equal" );
+    if( emm->hasModality( WLEModality::EEG ) )
+    {
+        WAssertDebug(
+                        emm->getModality( WLEModality::EEG )->getData().rows() == neuromagHdr->getModalityPicks()->at( WLEModality::EEG ).cols(),
+                        "Number of EEG data channels is not equal to the number of picks." );
+    }
+    if( emm->hasModality( WLEModality::MEG ) )
+    {
+        WAssertDebug(
+                        emm->getModality( WLEModality::MEG )->getData().rows() == neuromagHdr->getModalityPicks()->at( WLEModality::MEG ).cols(),
+                        "Number of MEG data channels are not equal to the number of picks." );
+        WAssertDebug( emm->getModality( WLEModality::MEG )->getData().rows() % 3 == 0,
+                        "Number of MEG data channels are not a mutiple of 3." );
+
+    }
+    //wlog::debug(CLASS) << "Created EMMeasurement: " << *emm;
 
     return true;
 }

@@ -141,7 +141,7 @@ bool WReaderNeuromagHeader::read( FIFFLIB::FiffInfo* const out )
 
     FiffDirTree nodeInfo;
 
-    wlog::debug( CLASS ) << "Read measurement information.";
+    wlog::debug( CLASS ) << "Measurement information read.";
 
     m_stream->read_meas_info( tree, *out, nodeInfo );
 

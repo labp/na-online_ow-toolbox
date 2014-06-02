@@ -26,6 +26,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/pointer_cast.hpp>
 
+#include <core/common/WAssert.h>
 #include <core/common/WItemSelectionItemTyped.h>
 #include <core/common/WPathHelper.h>
 #include <core/common/WPropertyHelper.h>
@@ -48,9 +49,7 @@
 #include "fieldtrip/dataTypes/enum/WLEFTDataType.h"
 #include "fieldtrip/dataTypes/WFTEventList.h"
 #include "WFTNeuromagClient.h"
-
 #include "WMFTRtClient.h"
-
 #include "WMFTRtClient.xpm"
 
 // needed by the module loader.
@@ -244,11 +243,11 @@ void WMFTRtClient::moduleInit()
 
     viewInit( WLEMDDrawable2D::WEGraphType::DYNAMIC );
 
-    m_connection.reset( new WFTConnectionTCP( DEFAULT_FT_HOST, DEFAULT_FT_PORT ) );
+    m_connection.reset( new WFTConnectionTCP( DEFAULT_FT_HOST, DEFAULT_FT_PORT ) ); // create default connection
 
     m_ftRtClient.reset( new WFTNeuromagClient ); // create streaming client.
 
-    m_subject.reset( new WLEMMSubject() );
+    m_subject.reset( new WLEMMSubject() ); // create an empty subject.
 
     callbackConnectionTypeChanged();
 
@@ -393,10 +392,11 @@ bool WMFTRtClient::processReset( WLEMMCommand::SPtr labp )
     m_waitTimeout->set( ( int )WFTRtClient::DEFAULT_WAIT_TIMEOUT, true );
     m_dataType->set( WLEFTDataType::name( WLEFTDataType::UNKNOWN ), true );
 
-    if( !m_ftRtClient->isStreaming() )
+    if( m_ftRtClient->isStreaming() )
     {
-        m_ftRtClient->resetClient();
+        callbackTrgDisconnect();
     }
+    m_ftRtClient->resetClient();
 
     return true;
 }
@@ -538,9 +538,12 @@ void WMFTRtClient::callbackTrgStartStreaming()
                             emm->setSubject( m_subject ); // add the subject information.
                         }
 
+
                         viewUpdate( emm ); // display on screen.
 
-                        updateOutput( emm ); // transmit to the next.
+                        debugLog() << *emm;
+
+                        updateOutput( emm ); // transmit to the next module.
                     }
                     else
                     {
