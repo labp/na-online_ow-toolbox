@@ -129,8 +129,6 @@ UINT32_T WFTRtClient::getEventCount() const
 
 bool WFTRtClient::doRequest( WFTRequest::ConstSPtr request, WFTResponse::SPtr response )
 {
-    wlog::debug( CLASS ) << "doRequest() called.";
-
     // Lock the client for thread-safe requests.
     boost::unique_lock< boost::shared_mutex > unqLock( m_requestLock );
 
@@ -141,10 +139,6 @@ bool WFTRtClient::doRequest( WFTRequest::ConstSPtr request, WFTResponse::SPtr re
         return false;
     }
 
-    wlog::debug( CLASS ) << *request;
-
-    wlog::debug( CLASS ) << "do client request";
-
     if( clientrequest( m_connection->getSocket(), request->out(), response->in() ) < 0 )
     {
         wlog::error( CLASS ) << "Error in communication - check buffer server.";
@@ -152,8 +146,6 @@ bool WFTRtClient::doRequest( WFTRequest::ConstSPtr request, WFTResponse::SPtr re
     }
 
     unqLock.unlock();
-
-    wlog::debug( CLASS ) << *response;
 
     return response->isValid();
 }
@@ -218,8 +210,6 @@ bool WFTRtClient::doWaitRequest( unsigned int samples, unsigned int events )
 
 bool WFTRtClient::getNewSamples()
 {
-    wlog::debug( CLASS ) << "getNewSamples() called.";
-
     if( m_header == 0 )
     {
         return false;
@@ -238,8 +228,6 @@ bool WFTRtClient::getNewSamples()
     //UINT32_T endSample = m_svr_samp_evt.nsamples - 1;
     WFTRequest_GetData::SPtr request = m_reqBuilder->buildRequest_GET_DAT( m_samples, endSample );
     WFTResponse::SPtr response( new WFTResponse );
-
-    wlog::debug( CLASS ) << *(request->getAs< WFTRequest_GetData >());
 
     if( !doRequest( request, response ) )
     {
@@ -335,10 +323,10 @@ bool WFTRtClient::doFlush( UINT16_T command )
     return response->checkFlush();
 }
 
-boost::shared_ptr< WLEMMeasurement::EDataT > WFTRtClient::readEvents( const Eigen::MatrixXf& rawData,
+boost::shared_ptr< WLEMMeasurement::EDataT > WFTRtClient::readEventChannels( const Eigen::MatrixXf& rawData,
                 WLEMDRaw::ChanPicksT ePicks )
 {
-    wlog::debug( CLASS ) << "readEvents() called.";
+    //wlog::debug( CLASS ) << "readEventChannels() called.";
 
     boost::shared_ptr< WLEMMeasurement::EDataT > events( new WLEMMeasurement::EDataT );
 

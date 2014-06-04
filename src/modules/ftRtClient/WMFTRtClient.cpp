@@ -541,8 +541,6 @@ void WMFTRtClient::callbackTrgStartStreaming()
 
                         viewUpdate( emm ); // display on screen.
 
-                        debugLog() << *emm;
-
                         updateOutput( emm ); // transmit to the next module.
                     }
                     else

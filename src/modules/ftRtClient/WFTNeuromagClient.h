@@ -84,8 +84,18 @@ public:
      */
     bool createEMM( WLEMMeasurement::SPtr emm );
 
+    /**
+     * Gets whether or not the client applies scaling factors on the samples.
+     *
+     * @return Returns true if the client applies the scaling factors, otherwise false.
+     */
     bool isScalingApplied() const;
 
+    /**
+     * Set whether or not the client has to apply scaling factors on the samples.
+     *
+     * @param applyScaling The flag.
+     */
     void setScaling( bool applyScaling );
 
 protected:
@@ -121,6 +131,9 @@ private:
      */
     bool m_streaming;
 
+    /**
+     * Flag to determine whether the scaling factors have to apply on the samples.
+     */
     bool m_applyScaling;
 };
 

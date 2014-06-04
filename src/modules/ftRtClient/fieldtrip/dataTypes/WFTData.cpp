@@ -28,7 +28,6 @@
 
 WFTData::WFTData()
 {
-
 }
 
 WFTData::WFTData( UINT32_T numChannels, UINT32_T numSamples, UINT32_T dataType )
@@ -36,6 +35,10 @@ WFTData::WFTData( UINT32_T numChannels, UINT32_T numSamples, UINT32_T dataType )
     m_def.nchans = numChannels;
     m_def.nsamples = numSamples;
     m_def.data_type = dataType;
+}
+
+WFTData::~WFTData()
+{
 }
 
 WFTRequest::SPtr WFTData::asRequest()

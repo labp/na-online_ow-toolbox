@@ -139,8 +139,4 @@ inline std::ostream& operator<<( std::ostream &strm, const WFTRequest &request )
     return strm;
 }
 
-inline WFTRequest::~WFTRequest()
-{
-}
-
 #endif /* WFTREQUEST_H_ */

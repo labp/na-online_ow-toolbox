@@ -192,10 +192,24 @@ bool WFTNeuromagClient::getRawData( WLEMDRaw::SPtr& rawData )
 
 bool WFTNeuromagClient::createDetailedEMM( WLEMMeasurement::SPtr emm, WLEMDRaw::SPtr rawData )
 {
-    wlog::debug( CLASS ) << "createDetailedEMM() called.";
-
+    // get Neuromag header
     WFTChunkNeuromagHdr::SPtr neuromagHdr = m_header->getChunks( WLEFTChunkType::FT_CHUNK_NEUROMAG_HEADER )->at( 0 )->getAs<
                     WFTChunkNeuromagHdr >();
+
+    // get Neuromag Isotrak
+    WFTChunkNeuromagIsotrak::SPtr isotrak;
+    if( m_header->hasChunk( WLEFTChunkType::FT_CHUNK_NEUROMAG_ISOTRAK ) )
+    {
+        isotrak = m_header->getChunks( WLEFTChunkType::FT_CHUNK_NEUROMAG_ISOTRAK )->at( 0 )->getAs< WFTChunkNeuromagIsotrak >();
+    }
+
+    //
+    //  Add digitalization points.
+    //
+    if( isotrak )
+    {
+        emm->setDigPoints( isotrak->getDigPoints() );
+    }
 
     //
     //  transfer data for all modalities and add channel names if exist.
@@ -203,8 +217,16 @@ bool WFTNeuromagClient::createDetailedEMM( WLEMMeasurement::SPtr emm, WLEMDRaw::
     for( std::map< WLEModality::Enum, WLEMDRaw::ChanPicksT >::iterator it = neuromagHdr->getModalityPicks()->begin();
                     it != neuromagHdr->getModalityPicks()->end(); ++it )
     {
-        WLEMData::SPtr emd;
+        // skip unknown modalities: in case of Neuromag - the "Misc" channel.
+        if( it->first == WLEModality::UNKNOWN )
+        {
+            continue;
+        }
 
+        //
+        // Create the data container.
+        //
+        WLEMData::SPtr emd;
         switch( it->first )
         {
             case WLEModality::EEG:
@@ -232,41 +254,51 @@ bool WFTNeuromagClient::createDetailedEMM( WLEMMeasurement::SPtr emm, WLEMDRaw::
         //
         // apply scaling
         //
-        for( Eigen::RowVectorXi::Index row = 0; row < it->second.size(); ++row )
+        if( m_applyScaling )
         {
-            if( m_applyScaling )
+            for( Eigen::RowVectorXi::Index row = 0; row < it->second.size(); ++row )
             {
                 emd->getData().row( row ) *= neuromagHdr->getScaleFactors()->at( ( int )it->second[row] );
             }
         }
 
         //
-        // set channel names.
+        // Channel names.
         //
         WLArrayList< std::string >::SPtr channelNames = neuromagHdr->getChannelNames( it->first );
-        if( channelNames != 0 && channelNames->size() > 0 )
+        if( channelNames )
         {
-            emd->setChanNames( channelNames );
-        }
-
-        // channel positions
-        if( emd->getModalityType() == WLEModality::EEG )
-        {
-            if( !neuromagHdr->getChannelPositionsEEG()->empty() )
+            if( channelNames->size() > 0 )
             {
-                emd->getAs< WLEMDEEG >()->setChannelPositions3d( neuromagHdr->getChannelPositionsEEG() );
+                emd->setChanNames( channelNames );
             }
         }
 
-        if( emd->getModalityType() == WLEModality::MEG )
+        //
+        // Channel positions.
+        //
+        if( emd->getModalityType() == WLEModality::EEG && isotrak ) // EEG
         {
-            if( !neuromagHdr->getChannelPositionsMEG()->empty() )
+            if( !isotrak->getEEGChanPos()->empty() )
+            {
+                emd->getAs< WLEMDEEG >()->setChannelPositions3d( isotrak->getEEGChanPos() );
+
+                if( !isotrak->getEEGFaces()->empty() )
+                {
+                    emd->getAs< WLEMDEEG >()->setFaces( isotrak->getEEGFaces() );
+                }
+            }
+        }
+
+        if( emd->getModalityType() == WLEModality::MEG ) // MEG
+        {
+            if( neuromagHdr->hasChannelPositionsMEG() )
             {
                 emd->getAs< WLEMDMEG >()->setChannelPositions3d( neuromagHdr->getChannelPositionsMEG() );
             }
         }
 
-        emm->addModality( emd );
+        emm->addModality( emd ); // add modality to measurement.
     }
 
     //
@@ -274,42 +306,29 @@ bool WFTNeuromagClient::createDetailedEMM( WLEMMeasurement::SPtr emm, WLEMDRaw::
     //
     if( neuromagHdr->getStimulusPicks()->cols() > 0 )
     {
-        emm->setEventChannels( readEvents( ( Eigen::MatrixXf& )rawData->getData(), *neuromagHdr->getStimulusPicks() ) );
-    }
-
-    //
-    //  Add digitalization points.
-    //
-    if( m_header->hasChunk( WLEFTChunkType::FT_CHUNK_NEUROMAG_ISOTRAK ) )
-    {
-        emm->setDigPoints(
-                        m_header->getChunks( WLEFTChunkType::FT_CHUNK_NEUROMAG_ISOTRAK )->at( 0 )->getAs< WFTChunkNeuromagIsotrak >()->getData() );
+        emm->setEventChannels( readEventChannels( ( Eigen::MatrixXf& )rawData->getData(), *neuromagHdr->getStimulusPicks() ) );
     }
 
     //
     // Validate the created data structure
     //
-    wlog::debug( CLASS ) << "Channels RawData: " << rawData->getData().rows();
-    wlog::debug( CLASS ) << "Channels Measurement information: " << neuromagHdr->getData()->nchan;
-    int rowsRaw = ( int )rawData->getData().rows();
-    int rowsInfo = ( int )neuromagHdr->getData()->nchan;
-    WAssertDebug( rowsRaw == rowsInfo, "Number of channel in raw data and measurement information are not equal" );
+    WAssertDebug( ( int )rawData->getDigPoints().rows() == ( int )neuromagHdr->getDigPoints()->nchan,
+                    "Number of channel in raw data and measurement information are not equal" );
     if( emm->hasModality( WLEModality::EEG ) )
     {
         WAssertDebug(
-                        emm->getModality( WLEModality::EEG )->getData().rows() == neuromagHdr->getModalityPicks()->at( WLEModality::EEG ).cols(),
+                        emm->getModality( WLEModality::EEG )->getDigPoints().rows() == neuromagHdr->getModalityPicks()->at( WLEModality::EEG ).cols(),
                         "Number of EEG data channels is not equal to the number of picks." );
     }
     if( emm->hasModality( WLEModality::MEG ) )
     {
         WAssertDebug(
-                        emm->getModality( WLEModality::MEG )->getData().rows() == neuromagHdr->getModalityPicks()->at( WLEModality::MEG ).cols(),
+                        emm->getModality( WLEModality::MEG )->getDigPoints().rows() == neuromagHdr->getModalityPicks()->at( WLEModality::MEG ).cols(),
                         "Number of MEG data channels are not equal to the number of picks." );
-        WAssertDebug( emm->getModality( WLEModality::MEG )->getData().rows() % 3 == 0,
+        WAssertDebug( emm->getModality( WLEModality::MEG )->getDigPoints().rows() % 3 == 0,
                         "Number of MEG data channels are not a mutiple of 3." );
 
     }
-    //wlog::debug(CLASS) << "Created EMMeasurement: " << *emm;
 
     return true;
 }

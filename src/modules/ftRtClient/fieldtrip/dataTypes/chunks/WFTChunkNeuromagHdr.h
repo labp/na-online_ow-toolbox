@@ -35,7 +35,6 @@
 #include "core/container/WLArrayList.h"
 #include "core/data/emd/WLEMDRaw.h"
 #include "core/data/enum/WLEModality.h"
-
 #include "WFTAChunk.h"
 
 /**
@@ -75,16 +74,6 @@ public:
      * A shared pointer on a ModalityPicksT.
      */
     typedef boost::shared_ptr< ModalityPicksT > ModalityPicks_SPtr;
-
-    /**
-     * A vector with channel positions.
-     */
-    typedef std::vector< WPosition > ChannelsPositionsT;
-
-    /**
-     * A shared pointer on a channel positions vector.
-     */
-    typedef boost::shared_ptr< ChannelsPositionsT > ChannelsPositionsSPtr;
 
     /**
      * The class name.
@@ -142,14 +131,14 @@ public:
      *
      * @return Returns a shared pointer on a channel position vector.
      */
-    ChannelsPositionsSPtr getChannelPositionsEEG() const;
+    WLArrayList<WPosition>::SPtr getChannelPositionsEEG() const;
 
     /**
      * Gets the channel points for MEG.
      *
      * @return Returns a shared pointer on a channel position vector.
      */
-    ChannelsPositionsSPtr getChannelPositionsMEG() const;
+    WLArrayList<WPosition>::SPtr getChannelPositionsMEG() const;
 
     /**
      * Gets the scaling factors.
@@ -157,6 +146,20 @@ public:
      * @return Returns a shared pointer on a float vector.
      */
     boost::shared_ptr< std::vector< float > > getScaleFactors() const;
+
+    /**
+     * Gets whether or not there exists channel position information for the EEG system.
+     *
+     * @return Returns true if there are channel positions, otherwise false.
+     */
+    bool hasChannelPositionsEEG() const;
+
+    /**
+     * Gets whether or not there exists channel position information for the MEG system.
+     *
+     * @return Returns true if there are channel positions, otherwise false.
+     */
+    bool hasChannelPositionsMEG() const;
 
 protected:
 
@@ -192,12 +195,12 @@ private:
     /**
      * The channel positions for EEG.
      */
-    ChannelsPositionsSPtr m_chPosEEG;
+    WLArrayList< WPosition >::SPtr m_chPosEEG;
 
     /**
      * The channel position for MEG.
      */
-    ChannelsPositionsSPtr m_chPosMEG;
+    WLArrayList< WPosition >::SPtr m_chPosMEG;
 
     /**
      * Vector for scaling factors.

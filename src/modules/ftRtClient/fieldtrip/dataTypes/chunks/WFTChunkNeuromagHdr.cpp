@@ -58,11 +58,9 @@ WLArrayList< std::string >::SPtr WFTChunkNeuromagHdr::getChannelNames( WLEModali
 
     for( int i = 0; i < m_measInfo->chs.size(); ++i )
     {
-
         if( modality == WLEModality::fromFiffType( m_measInfo->chs.at( i ).kind ) )
         {
-            // TODO
-            //names->push_back( m_measInfo->chs.at( i ).ch_name.toStdString() );
+            names->push_back( m_measInfo->chs.at( i ).ch_name.toStdString() );
         }
     }
 
@@ -79,14 +77,24 @@ boost::shared_ptr< WLEMDRaw::ChanPicksT > WFTChunkNeuromagHdr::getStimulusPicks(
     return m_stimulusPicks;
 }
 
-WFTChunkNeuromagHdr::ChannelsPositionsSPtr WFTChunkNeuromagHdr::getChannelPositionsEEG() const
+WLArrayList< WPosition >::SPtr WFTChunkNeuromagHdr::getChannelPositionsEEG() const
 {
-    return m_chPosEEG;
+    if( hasChannelPositionsEEG() )
+    {
+        return m_chPosEEG;
+    }
+
+    return WLArrayList< WPosition >::SPtr( new WLArrayList< WPosition > );
 }
 
-WFTChunkNeuromagHdr::ChannelsPositionsSPtr WFTChunkNeuromagHdr::getChannelPositionsMEG() const
+WLArrayList< WPosition >::SPtr WFTChunkNeuromagHdr::getChannelPositionsMEG() const
 {
-    return m_chPosMEG;
+    if( hasChannelPositionsMEG() )
+    {
+        return m_chPosMEG;
+    }
+
+    return WLArrayList< WPosition >::SPtr( new WLArrayList< WPosition > );
 }
 
 boost::shared_ptr< std::vector< float > > WFTChunkNeuromagHdr::getScaleFactors() const
@@ -94,11 +102,29 @@ boost::shared_ptr< std::vector< float > > WFTChunkNeuromagHdr::getScaleFactors()
     return m_scaleFactors;
 }
 
+bool WFTChunkNeuromagHdr::hasChannelPositionsEEG() const
+{
+    if( !m_chPosEEG )
+    {
+        return false;
+    }
+
+    return m_chPosEEG->size() > 0 && m_chPosEEG->empty() == false;
+}
+
+bool WFTChunkNeuromagHdr::hasChannelPositionsMEG() const
+{
+    if( !m_chPosMEG )
+    {
+        return false;
+    }
+
+    return m_chPosMEG->size() > 0 && m_chPosMEG->empty() == false;
+}
+
 WLSmartStorage::ConstSPtr WFTChunkNeuromagHdr::serialize() const
 {
     WLSmartStorage::SPtr store( new WLSmartStorage );
-
-    // TODO(maschke): serialize measurement information into smart storage.
 
     return store;
 }
@@ -110,8 +136,8 @@ bool WFTChunkNeuromagHdr::process( const char* data, size_t size )
     m_measInfo.reset( new FIFFLIB::FiffInfo );
     m_modalityPicks.reset( new ModalityPicksT );
     m_stimulusPicks.reset( new WLEMDRaw::ChanPicksT );
-    m_chPosEEG.reset( new ChannelsPositionsT );
-    m_chPosMEG.reset( new ChannelsPositionsT );
+    m_chPosEEG.reset( new WLArrayList< WPosition > );
+    m_chPosMEG.reset( new WLArrayList< WPosition > );
     m_scaleFactors.reset( new std::vector< float > );
 
     WReaderNeuromagHeader::SPtr reader( new WReaderNeuromagHeader( data, size ) );
@@ -182,15 +208,13 @@ bool WFTChunkNeuromagHdr::process( const char* data, size_t size )
     }
 
     //
-    // Validate read measurement information
+    // Validate the read measurement information
     //
-    //WAssertDebug( m_chPosEEG->size() != m_modalityPicks->at(WLEModality::EEG).cols(),
-    //                "Wrong number of EEG sensor positions or channel picks" );
-    WAssertDebug( m_modalityPicks->at(WLEModality::EEG).cols() / 3 != 0, "Wrong number of MEG channel picks" );
-    //WAssertDebug( m_chPosMEG->size() != m_modalityPicks->at(WLEModality::MEG).cols(),
-    //                "Wrong number of MEG sensor positions or channel picks" );
-    //wlog::debug( CLASS ) << "Number of scale factors: " << m_scaleFactors->size();
-    //wlog::debug( CLASS ) << "Number of event channels: " << m_stimulusPicks->cols();
+    WAssertDebug( m_chPosEEG->size() == m_modalityPicks->at(WLEModality::EEG).cols(),
+                    "Wrong number of EEG sensor positions or channel picks" );
+    WAssertDebug( m_modalityPicks->at(WLEModality::MEG).cols() % 3 == 0, "Wrong number of MEG channel picks" );
+    WAssertDebug( m_chPosMEG->size() == m_modalityPicks->at(WLEModality::MEG).cols(),
+                    "Wrong number of MEG sensor positions or channel picks" );
 
     return true;
 }
