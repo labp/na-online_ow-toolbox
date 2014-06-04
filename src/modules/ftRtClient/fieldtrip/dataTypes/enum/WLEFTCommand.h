@@ -124,12 +124,12 @@ namespace WLEFTCommand
         /**
          * Wait successful.
          */
-        WAITOK = 1027, //!< WAIT_OK
+        WAITOK = 1028, //!< WAIT_OK
 
         /**
          * Wait failed.
          */
-        WAITERR = 1028 //!< WAIT_ERR
+        WAITERR = 1029 //!< WAIT_ERR
     };
 
     /**

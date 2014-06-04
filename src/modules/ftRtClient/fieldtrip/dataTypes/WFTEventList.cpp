@@ -37,6 +37,10 @@
 
 const std::string WFTEventList::CLASS = "WFTEventList";
 
+WFTEventList::~WFTEventList()
+{
+}
+
 WFTRequest::SPtr WFTEventList::asRequest()
 {
     boost::shared_ptr< FtEventList > list( new FtEventList );

@@ -29,7 +29,6 @@
 
 #include "modules/ftRtClient/fieldtrip/WFTChunkIterator.h"
 #include "modules/ftRtClient/fieldtrip/io/request/WFTRequest_PutHeader.h"
-
 #include "chunks/WFTAChunkFactory.h"
 #include "enum/WLEFTChunkType.h"
 #include "WFTHeader.h"
@@ -44,6 +43,10 @@ WFTHeader::WFTHeader()
 WFTHeader::WFTHeader( UINT32_T numChannels, UINT32_T dataType, float fsample )
 {
     init( numChannels, dataType, fsample );
+}
+
+WFTHeader::~WFTHeader()
+{
 }
 
 void WFTHeader::init( UINT32_T numChannels, UINT32_T dataType, float fsample )

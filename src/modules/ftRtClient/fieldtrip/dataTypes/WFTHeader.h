@@ -69,6 +69,11 @@ public:
     WFTHeader( UINT32_T numChannels, UINT32_T dataType, float fsample );
 
     /**
+     * Destroys the WFTHeader.
+     */
+    virtual ~WFTHeader();
+
+    /**
      * Method to initialize the WFTHeader during constructor call.
      *
      * @param numChannels The number of channels.

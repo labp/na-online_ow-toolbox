@@ -26,5 +26,4 @@
 
 WFTObject::~WFTObject()
 {
-
 }

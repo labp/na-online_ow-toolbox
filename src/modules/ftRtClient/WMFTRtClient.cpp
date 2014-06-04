@@ -26,6 +26,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/pointer_cast.hpp>
 
+#include <core/common/WAssert.h>
 #include <core/common/WItemSelectionItemTyped.h>
 #include <core/common/WPathHelper.h>
 #include <core/common/WPropertyHelper.h>
@@ -48,9 +49,7 @@
 #include "fieldtrip/dataTypes/enum/WLEFTDataType.h"
 #include "fieldtrip/dataTypes/WFTEventList.h"
 #include "WFTNeuromagClient.h"
-
 #include "WMFTRtClient.h"
-
 #include "WMFTRtClient.xpm"
 
 // needed by the module loader.
@@ -173,6 +172,8 @@ void WMFTRtClient::properties()
     m_streamStatus = m_propGrpFtClient->addProperty( "Streaming status:", "Shows the status of the streaming client.",
                     CLIENT_NOT_STREAMING );
     m_streamStatus->setPurpose( PV_PURPOSE_INFORMATION );
+    m_applyScaling = m_propGrpFtClient->addProperty( "Apply scaling:", "Enable scale factor (range * cal).", false,
+                    boost::bind( &WMFTRtClient::callbackApplyScaling, this ) );
     m_trgStartStream = m_propGrpFtClient->addProperty( "Start streaming:", "Start", WPVBaseTypes::PV_TRIGGER_READY,
                     m_propCondition );
     m_trgStopStream = m_propGrpFtClient->addProperty( "Stop streaming:", "Stop", WPVBaseTypes::PV_TRIGGER_READY,
@@ -242,11 +243,11 @@ void WMFTRtClient::moduleInit()
 
     viewInit( WLEMDDrawable2D::WEGraphType::DYNAMIC );
 
-    m_connection.reset( new WFTConnectionTCP( DEFAULT_FT_HOST, DEFAULT_FT_PORT ) );
+    m_connection.reset( new WFTConnectionTCP( DEFAULT_FT_HOST, DEFAULT_FT_PORT ) ); // create default connection
 
     m_ftRtClient.reset( new WFTNeuromagClient ); // create streaming client.
 
-    m_subject.reset( new WLEMMSubject() );
+    m_subject.reset( new WLEMMSubject() ); // create an empty subject.
 
     callbackConnectionTypeChanged();
 
@@ -391,10 +392,11 @@ bool WMFTRtClient::processReset( WLEMMCommand::SPtr labp )
     m_waitTimeout->set( ( int )WFTRtClient::DEFAULT_WAIT_TIMEOUT, true );
     m_dataType->set( WLEFTDataType::name( WLEFTDataType::UNKNOWN ), true );
 
-    if( !m_ftRtClient->isStreaming() )
+    if( m_ftRtClient->isStreaming() )
     {
-        m_ftRtClient->resetClient();
+        callbackTrgDisconnect();
     }
+    m_ftRtClient->resetClient();
 
     return true;
 }
@@ -475,6 +477,14 @@ void WMFTRtClient::callbackTrgDisconnect()
     infoLog() << "Connection to FieldTrip Buffer Server closed.";
 }
 
+void WMFTRtClient::callbackApplyScaling()
+{
+    if( m_ftRtClient )
+    {
+        m_ftRtClient->setScaling( m_applyScaling->get( false ) );
+    }
+}
+
 void WMFTRtClient::callbackTrgStartStreaming()
 {
     debugLog() << "callbackTrgStartStreaming() called.";
@@ -490,6 +500,7 @@ void WMFTRtClient::callbackTrgStartStreaming()
 
     // set some parameter on initializing the client
     m_ftRtClient->setTimeout( ( UINT32_T )m_waitTimeout->get() );
+    callbackApplyScaling();
 
     m_stopStreaming = false;
 
@@ -503,7 +514,6 @@ void WMFTRtClient::callbackTrgStartStreaming()
         m_progress->removeSubProgress( progress );
 
         dispHeaderInfo(); // display header information
-        //m_ftRtClient->printChunks(); // print the chunk buffers content.
         debugLog() << "Header request on startup done. Beginning data streaming";
 
         while( !m_stopStreaming && !m_shutdownFlag() )
@@ -528,9 +538,10 @@ void WMFTRtClient::callbackTrgStartStreaming()
                             emm->setSubject( m_subject ); // add the subject information.
                         }
 
+
                         viewUpdate( emm ); // display on screen.
 
-                        updateOutput( emm ); // transmit to the next.
+                        updateOutput( emm ); // transmit to the next module.
                     }
                     else
                     {
@@ -545,19 +556,18 @@ void WMFTRtClient::callbackTrgStartStreaming()
                 {
                     m_events->set( m_ftRtClient->getEventCount(), true );
 
-                    BOOST_FOREACH(WFTEvent::SPtr event, *m_ftRtClient->getEventList())
-                    {
-                        debugLog() << "Fire Event: " << *event;
-                    }
+                    BOOST_FOREACH(WFTEvent::SPtr event, *m_ftRtClient->getEventList()){
+                    debugLog() << "Fire Event: " << *event;
                 }
             }
-            else
-            {
-                m_stopStreaming = true; // stop streaming on error during request.
-
-                errorLog() << "Error while requesting buffer server for new data. Check your connection and the server, please.";
-            }
         }
+        else
+        {
+            m_stopStreaming = true; // stop streaming on error during request.
+
+            errorLog() << "Error while requesting buffer server for new data. Check your connection and the server, please.";
+        }
+    }
 
         m_ftRtClient->stop(); // stop streaming
     }
