@@ -31,15 +31,14 @@
 #include <boost/any.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include <core/dataHandler/WDataSet.h>
-#include <core/common/WPrototyped.h>
+#include <core/common/WTransferable.h>
 
 #include "core/data/WLEMMeasurement.h"
 
 /**
  * A container class to transfer data and commands between modules.
  */
-class WLEMMCommand: public WDataSet
+class WLEMMCommand: public WTransferable
 {
 public:
     /**
@@ -87,9 +86,9 @@ public:
 
     static WLEMMCommand::SPtr instance( Command::Enum command = Command::MISC );
 
-    // ---------------------
-    // Methods from WDataSet
-    // ---------------------
+    // -----------------------
+    // Methods from WPrototype
+    // -----------------------
 
     /**
      * Gets the name of this prototype.
@@ -109,6 +108,8 @@ public:
      * Returns a prototype instantiated with the true type of the deriving class.
      *
      * \return the prototype.
+     *
+     * \note Method is needed by WModuleOutputData
      */
     static boost::shared_ptr< WPrototyped > getPrototype();
 
@@ -188,6 +189,11 @@ public:
     }
 
 private:
+    /**
+     * The prototype as singleton.
+     */
+    static WLEMMCommand::SPtr m_prototype;
+
     Command::Enum m_command;
     MiscCommandT m_miscCommand;
 

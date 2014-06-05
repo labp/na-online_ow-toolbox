@@ -40,6 +40,10 @@ WFTEvent::WFTEvent( INT32_T sample, INT32_T offset, INT32_T duration, const std:
     m_def.duration = duration;
 }
 
+WFTEvent::~WFTEvent()
+{
+}
+
 UINT32_T WFTEvent::getSize() const
 {
     return ( UINT32_T )sizeof(eventdef_t) + m_def.bufsize;

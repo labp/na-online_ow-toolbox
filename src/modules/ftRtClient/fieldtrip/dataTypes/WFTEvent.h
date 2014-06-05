@@ -32,7 +32,7 @@
 
 #include <message.h>
 
-#include <modules/ftRtClient/fieldtrip/dataTypes/WFTObject.h>
+#include "modules/ftRtClient/fieldtrip/dataTypes/WFTObject.h"
 
 /**
  * The WFTEvent represents a single FieldTrip event. Is is defined by a header contains the fixed structure and the data.
@@ -55,13 +55,27 @@ public:
     /**
      * Constructs a new WFTEvent.
      *
-     * @param def The header information.
-     * @param type The type.
-     * @param value The value
+     * @param def The header information, decribing the event.
+     * @param type The data type of event.
+     * @param value The value of the event.
      */
     WFTEvent( WFTEventDefT def, const std::string type, const std::string value );
 
+    /**
+     * Constructs a new WFTEvent.
+     *
+     * @param sample The index of sample this event relates to.
+     * @param offset The offset of event w.r.t. sample (time).
+     * @param duration The duration of the event.
+     * @param type The data type of event.
+     * @param value The value of the event.
+     */
     WFTEvent( INT32_T sample, INT32_T offset, INT32_T duration, const std::string type, const std::string value );
+
+    /**
+     * Destroys the WFTEvent.
+     */
+    virtual ~WFTEvent();
 
     /**
      * Inherited method from WFTObject.

@@ -26,34 +26,33 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/pointer_cast.hpp>
 
+#include <core/common/WAssert.h>
 #include <core/common/WItemSelectionItemTyped.h>
 #include <core/common/WPathHelper.h>
 #include <core/common/WPropertyHelper.h>
 #include <core/kernel/WModule.h>
 
-// Input & output data
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMCommand.h"
 #include "core/data/emd/WLEMData.h"
 #include "core/data/enum/WLEModality.h"
+#include "core/io/WLReaderBem.h"
+#include "core/io/WLReaderLeadfield.h"
+#include "core/io/WLReaderSourceSpace.h"
 #include "core/module/WLConstantsModule.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
-
 #include "core/util/profiler/WLTimeProfiler.h"
 
-#include "WFTNeuromagClient.h"
 #include "fieldtrip/connection/WFTConnectionTCP.h"
 #include "fieldtrip/connection/WFTConnectionUnix.h"
 #include "fieldtrip/dataTypes/enum/WLEFTDataType.h"
 #include "fieldtrip/dataTypes/WFTEventList.h"
-#include "fieldtrip/io/request/WFTRequest_PutEvent.h"
-
+#include "WFTNeuromagClient.h"
 #include "WMFTRtClient.h"
-
 #include "WMFTRtClient.xpm"
 
-// This line is needed by the module loader to actually find your module.
+// needed by the module loader.
 W_LOADABLE_MODULE( WMFTRtClient )
 
 WMFTRtClient::WMFTRtClient()
@@ -117,12 +116,14 @@ void WMFTRtClient::properties()
     WLModuleDrawable::setTimerangeInformationOnly( true );
     WLModuleDrawable::hideComputeModalitySelection( true );
 
-    /* init property container */
+    //
+    // init property container
+    //
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
-    /*
-     * property group streaming client
-     */
+    //
+    // property group streaming client
+    //
     m_propGrpFtClient = m_properties->addPropertyGroup( "FieldTrip Client", "FieldTrip Client", false );
 
     // connection type
@@ -145,7 +146,7 @@ void WMFTRtClient::properties()
                                     "Communicating with the FieldTrip buffer server using a Unix Domain Socket based connection." ) );
     m_connectionType->addItem( item );
 
-    // getting the SelectorProperty from the list an add it to the properties
+    // getting the SelectorProperty from the list and add it to the properties
     m_connectionTypeSelection = m_propGrpFtClient->addProperty( "Connection Type:", "Choose a connection type.",
                     m_connectionType->getSelectorFirst(), boost::bind( &WMFTRtClient::callbackConnectionTypeChanged, this ) );
     m_connectionTypeSelection->changed( true );
@@ -171,20 +172,24 @@ void WMFTRtClient::properties()
     m_streamStatus = m_propGrpFtClient->addProperty( "Streaming status:", "Shows the status of the streaming client.",
                     CLIENT_NOT_STREAMING );
     m_streamStatus->setPurpose( PV_PURPOSE_INFORMATION );
+    m_applyScaling = m_propGrpFtClient->addProperty( "Apply scaling:", "Enable scale factor (range * cal).", false,
+                    boost::bind( &WMFTRtClient::callbackApplyScaling, this ) );
     m_trgStartStream = m_propGrpFtClient->addProperty( "Start streaming:", "Start", WPVBaseTypes::PV_TRIGGER_READY,
                     m_propCondition );
     m_trgStopStream = m_propGrpFtClient->addProperty( "Stop streaming:", "Stop", WPVBaseTypes::PV_TRIGGER_READY,
                     boost::bind( &WMFTRtClient::callbackTrgStopStreaming, this ) );
     m_trgStopStream->setHidden( true );
 
-    /* reset button */
+    //
+    // module reset button
+    //
     m_resetModule = m_propGrpFtClient->addProperty( "Reset the module", "Reset", WPVBaseTypes::PV_TRIGGER_READY,
                     m_propCondition );
     m_resetModule->changed( true );
 
-    /*
-     * property group FieldTrip header
-     */
+    //
+    // property group FieldTrip header
+    //
     m_propGrpHeader = m_properties->addPropertyGroup( "FieldTrip Header information", "FieldTrip Header information", false );
     m_channels = m_propGrpHeader->addProperty( "Number of channels:", "Shows the number of channels.", 0 );
     m_channels->setPurpose( PV_PURPOSE_INFORMATION );
@@ -199,11 +204,31 @@ void WMFTRtClient::properties()
     m_headerBufSize = m_propGrpHeader->addProperty( "Additional header information (bytes):",
                     "Shows the number of bytes allocated by additional header information.", 0 );
     m_headerBufSize->setPurpose( PV_PURPOSE_INFORMATION );
+
+    //
+    // property group additional infomation
+    //
+    m_propGrpAdditionalInfo = m_properties->addPropertyGroup( "Additional Information", "Additional Information", false );
+    m_sourceSpaceFile = m_propGrpAdditionalInfo->addProperty( "Source space file:",
+                    "Read a FIFF file containing the source space.", WPathHelper::getHomePath(), m_propCondition );
+    m_sourceSpaceFile->changed( true );
+    m_bemLayerFile = m_propGrpAdditionalInfo->addProperty( "BEM file:", "Read a FIFF file containing BEM layers.",
+                    WPathHelper::getHomePath(), m_propCondition );
+    m_bemLayerFile->changed( true );
+    m_leadfieldEEGFile = m_propGrpAdditionalInfo->addProperty( "Leadfield EEG file:",
+                    "Read a FIFF file containing the leadfield for EEG.", WPathHelper::getHomePath(), m_propCondition );
+    m_leadfieldEEGFile->changed( true );
+    m_leadfieldMEGFile = m_propGrpAdditionalInfo->addProperty( "Leadfield MEG file:",
+                    "Read a FIFF file containing the leadfield for MEG.", WPathHelper::getHomePath(), m_propCondition );
+    m_leadfieldMEGFile->changed( true );
+    m_additionalFileStatus = m_propGrpAdditionalInfo->addProperty( "Additional data status:", "Additional data status.",
+                    NO_FILE_LOADED );
+    m_additionalFileStatus->setPurpose( PV_PURPOSE_INFORMATION );
+    m_trgAdditionalReset = m_propGrpAdditionalInfo->addProperty( "Reset the additional information", "Reset",
+                    WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
+    m_trgAdditionalReset->changed( true );
 }
 
-/**
- * Method for initialize the module.
- */
 void WMFTRtClient::moduleInit()
 {
     infoLog() << "Initializing module ...";
@@ -218,9 +243,11 @@ void WMFTRtClient::moduleInit()
 
     viewInit( WLEMDDrawable2D::WEGraphType::DYNAMIC );
 
-    m_connection.reset( new WFTConnectionTCP( DEFAULT_FT_HOST, DEFAULT_FT_PORT ) );
+    m_connection.reset( new WFTConnectionTCP( DEFAULT_FT_HOST, DEFAULT_FT_PORT ) ); // create default connection
 
     m_ftRtClient.reset( new WFTNeuromagClient ); // create streaming client.
+
+    m_subject.reset( new WLEMMSubject() ); // create an empty subject.
 
     callbackConnectionTypeChanged();
 
@@ -254,6 +281,40 @@ void WMFTRtClient::moduleMain()
         if( m_trgStartStream->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
             callbackTrgStartStreaming();
+        }
+        if( m_sourceSpaceFile->changed( true ) )
+        {
+            if( callbackSourceSpace( m_sourceSpaceFile->get().string() ) )
+            {
+                m_subject->setSurface( m_surface );
+            }
+        }
+        if( m_bemLayerFile->changed( true ) )
+        {
+            if( callbackBEMLayer( m_bemLayerFile->get().string() ) )
+            {
+                m_subject->setBemBoundaries( m_bems );
+            }
+        }
+        if( m_leadfieldEEGFile->changed( true ) )
+        {
+            if( callbackLeadfieldFile( m_leadfieldEEGFile->get().string(), m_leadfieldEEG ) )
+            {
+                m_subject->setLeadfield( WLEModality::EEG, m_leadfieldEEG );
+            }
+        }
+        if( m_leadfieldMEGFile->changed( true ) )
+        {
+            if( callbackLeadfieldFile( m_leadfieldMEGFile->get().string(), m_leadfieldMEG ) )
+            {
+                m_subject->setLeadfield( WLEModality::MEG, m_leadfieldMEG );
+            }
+        }
+        if( m_trgAdditionalReset->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+        {
+            callbackTrgAdditionalReset();
+
+            m_trgAdditionalReset->set( WPVBaseTypes::PV_TRIGGER_READY, true );
         }
 
         // button/trigger moduleReset clicked
@@ -331,10 +392,11 @@ bool WMFTRtClient::processReset( WLEMMCommand::SPtr labp )
     m_waitTimeout->set( ( int )WFTRtClient::DEFAULT_WAIT_TIMEOUT, true );
     m_dataType->set( WLEFTDataType::name( WLEFTDataType::UNKNOWN ), true );
 
-    if( !m_ftRtClient->isStreaming() )
+    if( m_ftRtClient->isStreaming() )
     {
-        m_ftRtClient->resetClient();
+        callbackTrgDisconnect();
     }
+    m_ftRtClient->resetClient();
 
     return true;
 }
@@ -415,6 +477,14 @@ void WMFTRtClient::callbackTrgDisconnect()
     infoLog() << "Connection to FieldTrip Buffer Server closed.";
 }
 
+void WMFTRtClient::callbackApplyScaling()
+{
+    if( m_ftRtClient )
+    {
+        m_ftRtClient->setScaling( m_applyScaling->get( false ) );
+    }
+}
+
 void WMFTRtClient::callbackTrgStartStreaming()
 {
     debugLog() << "callbackTrgStartStreaming() called.";
@@ -430,6 +500,7 @@ void WMFTRtClient::callbackTrgStartStreaming()
 
     // set some parameter on initializing the client
     m_ftRtClient->setTimeout( ( UINT32_T )m_waitTimeout->get() );
+    callbackApplyScaling();
 
     m_stopStreaming = false;
 
@@ -443,7 +514,6 @@ void WMFTRtClient::callbackTrgStartStreaming()
         m_progress->removeSubProgress( progress );
 
         dispHeaderInfo(); // display header information
-        //m_ftRtClient->printChunks(); // print the chunk buffers content.
         debugLog() << "Header request on startup done. Beginning data streaming";
 
         while( !m_stopStreaming && !m_shutdownFlag() )
@@ -463,9 +533,15 @@ void WMFTRtClient::callbackTrgStartStreaming()
 
                     if( m_ftRtClient->createEMM( emm ) )
                     {
+                        if( m_subject && ( m_surface || m_bems || m_leadfieldEEG || m_leadfieldMEG ) )
+                        {
+                            emm->setSubject( m_subject ); // add the subject information.
+                        }
+
+
                         viewUpdate( emm ); // display on screen.
 
-                        updateOutput( emm ); // transmit to the next.
+                        updateOutput( emm ); // transmit to the next module.
                     }
                     else
                     {
@@ -480,19 +556,18 @@ void WMFTRtClient::callbackTrgStartStreaming()
                 {
                     m_events->set( m_ftRtClient->getEventCount(), true );
 
-                    BOOST_FOREACH(WFTEvent::SPtr event, *m_ftRtClient->getEventList())
-                    {
-                        debugLog() << "Fire Event: " << *event;
-                    }
+                    BOOST_FOREACH(WFTEvent::SPtr event, *m_ftRtClient->getEventList()){
+                    debugLog() << "Fire Event: " << *event;
                 }
             }
-            else
-            {
-                m_stopStreaming = true; // stop streaming on error during request.
-
-                errorLog() << "Error while requesting buffer server for new data. Check your connection and the server, please.";
-            }
         }
+        else
+        {
+            m_stopStreaming = true; // stop streaming on error during request.
+
+            errorLog() << "Error while requesting buffer server for new data. Check your connection and the server, please.";
+        }
+    }
 
         m_ftRtClient->stop(); // stop streaming
     }
@@ -504,7 +579,7 @@ void WMFTRtClient::callbackTrgStartStreaming()
     applyStatusNotStreaming();
 }
 
-void WMFTRtClient::callbackTrgStopStreaming() // TODO(maschke): why called second times on stopping?
+void WMFTRtClient::callbackTrgStopStreaming() // TODO(maschke): why called a second time on stopping?
 {
     debugLog() << "callbackTrgStopStreaming() called.";
     m_stopStreaming = true;
@@ -518,7 +593,6 @@ void WMFTRtClient::callbackTrgReset()
     processReset( labp );
 }
 
-// TODO(maschke): Is it possible to enable/disable properties during runtime?
 void WMFTRtClient::applyStatusConnected()
 {
     m_trgConnect->set( WPVBaseTypes::PV_TRIGGER_READY, true );
@@ -576,6 +650,146 @@ void WMFTRtClient::applyStatusNotStreaming()
     m_resetModule->set( WPVBaseTypes::PV_TRIGGER_READY, true );
 }
 
+bool WMFTRtClient::callbackSourceSpace( std::string fName )
+{
+    debugLog() << "callbackSourceSpace()";
+
+    WProgress::SPtr progress( new WProgress( "Reading Surface" ) );
+    m_progress->addSubProgress( progress );
+    m_additionalFileStatus->set( NO_FILE_LOADED, true );
+
+    WLReaderSourceSpace::SPtr reader;
+    try
+    {
+        reader.reset( new WLReaderSourceSpace( fName ) );
+    }
+    catch( const WDHNoSuchFile& e )
+    {
+        errorLog() << "File does not exist: " << fName;
+        progress->finish();
+        m_progress->removeSubProgress( progress );
+        return false;
+    }
+
+    m_surface.reset( new WLEMMSurface() );
+    if( reader->read( m_surface ) == WLIOStatus::SUCCESS )
+    {
+        m_additionalFileStatus->set( FILE_LOADED, true );
+        progress->finish();
+        m_progress->removeSubProgress( progress );
+        return true;
+    }
+    else
+    {
+        errorLog() << "Could not read source space!";
+        m_additionalFileStatus->set( FILE_ERROR, true );
+        progress->finish();
+        m_progress->removeSubProgress( progress );
+        return false;
+    }
+}
+
+bool WMFTRtClient::callbackBEMLayer( std::string fName )
+{
+    debugLog() << "callbackBEMLayer()";
+
+    WProgress::SPtr progress( new WProgress( "Reading BEM Layer" ) );
+    m_progress->addSubProgress( progress );
+    m_additionalFileStatus->set( NO_FILE_LOADED, true );
+
+    WLReaderBem::SPtr reader;
+    try
+    {
+        reader.reset( new WLReaderBem( fName ) );
+    }
+    catch( const WDHNoSuchFile& e )
+    {
+        errorLog() << "File does not exist: " << fName;
+        progress->finish();
+        m_progress->removeSubProgress( progress );
+        return false;
+    }
+
+    m_bems = WLList< WLEMMBemBoundary::SPtr >::instance();
+    if( reader->read( m_bems.get() ) )
+    {
+        infoLog() << "Loaded BEM layer: " << m_bems->size();
+        m_additionalFileStatus->set( FILE_LOADED, true );
+        progress->finish();
+        m_progress->removeSubProgress( progress );
+        return true;
+    }
+    else
+    {
+        errorLog() << "Could not read BEM layers!";
+        m_additionalFileStatus->set( FILE_ERROR, true );
+        progress->finish();
+        m_progress->removeSubProgress( progress );
+        return false;
+    }
+}
+
+bool WMFTRtClient::callbackLeadfieldFile( std::string fName, WLMatrix::SPtr& leadfield )
+{
+    debugLog() << "callbackLeadfieldFile()";
+
+    WProgress::SPtr progress( new WProgress( "Reading Leadfield" ) );
+    m_progress->addSubProgress( progress );
+    m_additionalFileStatus->set( NO_FILE_LOADED, true );
+
+    WLReaderLeadfield::SPtr reader;
+    try
+    {
+        reader.reset( new WLReaderLeadfield( fName ) );
+    }
+    catch( const WDHNoSuchFile& e )
+    {
+        errorLog() << "File does not exist: " << fName;
+        progress->finish();
+        m_progress->removeSubProgress( progress );
+        return false;
+    }
+
+    if( reader->read( leadfield ) == WLIOStatus::SUCCESS )
+    {
+        m_additionalFileStatus->set( FILE_LOADED, true );
+        progress->finish();
+        m_progress->removeSubProgress( progress );
+        return true;
+    }
+    else
+    {
+        errorLog() << "Could not read leadfield!";
+        m_additionalFileStatus->set( FILE_ERROR, true );
+        progress->finish();
+        m_progress->removeSubProgress( progress );
+        return false;
+    }
+}
+
+void WMFTRtClient::callbackTrgAdditionalReset()
+{
+    debugLog() << "callbackTrgAdditionalReset()";
+
+    m_additionalFileStatus->set( NO_FILE_LOADED, true );
+
+    m_sourceSpaceFile->set( STANDARD_FILE_PATH, true );
+    m_sourceSpaceFile->changed( true );
+    m_bemLayerFile->set( STANDARD_FILE_PATH, true );
+    m_bemLayerFile->changed( true );
+    m_leadfieldEEGFile->set( STANDARD_FILE_PATH, true );
+    m_leadfieldEEGFile->changed( true );
+    m_leadfieldMEGFile->set( STANDARD_FILE_PATH, true );
+    m_leadfieldMEGFile->changed( true );
+
+    m_subject.reset( new WLEMMSubject() );
+    m_surface.reset();
+    m_bems.reset();
+    m_leadfieldEEG.reset();
+    m_leadfieldMEG.reset();
+
+}
+
 void WMFTRtClient::dispHeaderInfo()
 {
     m_channels->set( m_ftRtClient->getHeader()->getHeaderDef().nchans, true );
@@ -593,3 +807,9 @@ const std::string WMFTRtClient::CONNECTION_DISCONNECT = "Disconnect";
 
 const std::string WMFTRtClient::CLIENT_STREAMING = "Streaming";
 const std::string WMFTRtClient::CLIENT_NOT_STREAMING = "Not streaming";
+
+const std::string WMFTRtClient::NO_FILE_LOADED = "No file loaded.";
+const std::string WMFTRtClient::LOADING_FILE = "Loading file ...";
+const std::string WMFTRtClient::FILE_LOADED = "File successfully loaded.";
+const std::string WMFTRtClient::FILE_ERROR = "Could not load file.";
+const std::string WMFTRtClient::STANDARD_FILE_PATH = WPathHelper::getHomePath().string();

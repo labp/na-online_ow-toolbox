@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -32,13 +31,12 @@
 
 #include "core/data/WLEMMCommand.h"
 #include "core/data/WLEMMeasurement.h"
+#include "core/io/WLReaderBem.h"
 #include "core/io/WLReaderIsotrak.h"
 #include "core/io/WLReaderLeadfield.h"
 #include "core/io/WLReaderSourceSpace.h"
 #include "core/module/WLConstantsModule.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
-
-#include "reader/WLReaderBem.h"
 
 #include "WMMneRtClient.h"
 #include "WMMneRtClient.xpm"
@@ -64,6 +62,7 @@ static const std::string DATA_NOT_LOADED = "No data loaded.";
 static const std::string DATA_LOADING = "Loading data ...";
 static const std::string DATA_LOADED = "Data successfully loaded.";
 static const std::string DATA_ERROR = "Could not load data.";
+static const std::string STANDARD_FILE_PATH = WPathHelper::getHomePath().string();
 
 WMMneRtClient::WMMneRtClient() :
                 m_stopStreaming( true )
@@ -177,6 +176,9 @@ void WMMneRtClient::properties()
     m_additionalStatus = m_propGrpAdditional->addProperty( "Additional data status:", "Additional data status.",
                     DATA_NOT_LOADED );
     m_additionalStatus->setPurpose( PV_PURPOSE_INFORMATION );
+    m_trgAdditionalReset = m_propGrpAdditional->addProperty( "Reset the additional information", "Reset",
+                    WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
+    m_trgAdditionalReset->changed( true );
 }
 
 void WMMneRtClient::moduleInit()
@@ -192,7 +194,6 @@ void WMMneRtClient::moduleInit()
     const string alias = "OW-LaBP";
     m_rtClient.reset( new WRtClient( ip, alias ) );
     m_subject.reset( new WLEMMSubject() );
-    m_digPoints.reset( new WLList< WLDigPoint > );
 
     viewInit( WLEMDDrawable2D::WEGraphType::DYNAMIC );
 
@@ -304,6 +305,12 @@ void WMMneRtClient::moduleMain()
                 m_subject->setLeadfield( WLEModality::MEG, m_leadfieldMEG );
             }
         }
+        if( m_trgAdditionalReset->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+        {
+            handleTrgAdditionalReset();
+
+            m_trgAdditionalReset->set( WPVBaseTypes::PV_TRIGGER_READY, true );
+        }
     }
 
     viewCleanup();
@@ -315,7 +322,7 @@ void WMMneRtClient::handleTrgConConnect()
 
     m_rtClient.reset( new WRtClient( m_propConIp->get(), "OW-LaBP" ) );
 
-    if( !m_digPoints->empty() )
+    if( ( m_digPoints ) && !m_digPoints->empty() )
     {
         m_rtClient->setDigPointsAndEEG( *m_digPoints.get() );
     }
@@ -578,6 +585,7 @@ bool WMMneRtClient::handleDigPointsFileChanged( std::string fName )
     WProgress::SPtr progress( new WProgress( "Reading Dig. Points" ) );
     m_progress->addSubProgress( progress );
     m_additionalStatus->set( DATA_LOADING, true );
+    m_digPoints.reset( new WLList< WLDigPoint > );
 
     WLReaderIsotrak::SPtr reader;
     try
@@ -608,6 +616,32 @@ bool WMMneRtClient::handleDigPointsFileChanged( std::string fName )
         m_progress->removeSubProgress( progress );
         return false;
     }
+}
+
+void WMMneRtClient::handleTrgAdditionalReset()
+{
+    debugLog() << "callbackTrgAdditionalReset()";
+
+    m_additionalStatus->set( DATA_NOT_LOADED, true );
+
+    m_srcSpaceFile->set( STANDARD_FILE_PATH, true );
+    m_srcSpaceFile->changed( true );
+    m_bemFile->set( STANDARD_FILE_PATH, true );
+    m_bemFile->changed( true );
+    m_digPointsFile->set( STANDARD_FILE_PATH, true );
+    m_digPointsFile->changed( true );
+    m_lfEEGFile->set( STANDARD_FILE_PATH, true );
+    m_lfEEGFile->changed( true );
+    m_lfMEGFile->set( STANDARD_FILE_PATH, true );
+    m_lfMEGFile->changed( true );
+
+    m_subject.reset( new WLEMMSubject() );
+    m_surface.reset();
+    m_bems.reset();
+    m_digPoints.reset();
+    m_leadfieldEEG.reset();
+    m_leadfieldMEG.reset();
+
 }
 
 inline bool WMMneRtClient::processCompute( WLEMMeasurement::SPtr emm )

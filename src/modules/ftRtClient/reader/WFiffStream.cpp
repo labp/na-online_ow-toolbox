@@ -384,7 +384,7 @@ QList< FiffProj > WFiffStream::read_proj( const FiffDirTree& p_Node )
         QString desc; // maybe, in some cases this has to be a struct.
         if( t_pTag )
         {
-            wlog::debug( CLASS ) << "read_proj: this has to be debugged";
+            //wlog::debug( CLASS ) << "read_proj: this has to be debugged";
             desc = t_pTag->toString();
         }
         else
@@ -478,6 +478,7 @@ QList< FiffProj > WFiffStream::read_proj( const FiffDirTree& p_Node )
         projdata.append( one );
     }
 
+    /*
     if( projdata.size() > 0 )
     {
         wlog::debug( CLASS ) << "\tRead a total of %d projection items:", projdata.size();
@@ -491,6 +492,7 @@ QList< FiffProj > WFiffStream::read_proj( const FiffDirTree& p_Node )
                 wlog::debug( CLASS ) << " idle";
         }
     }
+    */
 
     return projdata;
 }

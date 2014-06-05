@@ -27,6 +27,7 @@
 
 #include <ostream>
 
+#include <boost/enable_shared_from_this.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include <FtBuffer.h>
@@ -38,7 +39,7 @@
  * The WFTRequest class represents a basic FieldTrip request. It adapts the FieldTrip Buffer Request and can be used to
  * create new requests.
  */
-class WFTRequest: protected FtBufferRequest
+class WFTRequest: public boost::enable_shared_from_this< WFTRequest >, protected FtBufferRequest
 {
 public:
 
@@ -74,6 +75,11 @@ public:
     WFTRequest( const WFTMessageT *msg );
 
     /**
+     * Destroys the WFTRequest.
+     */
+    virtual ~WFTRequest();
+
+    /**
      * Gets the message header.
      *
      * @return The message header.
@@ -98,6 +104,28 @@ public:
      * Inherited method from FtBufferRequest.
      */
     FtBufferRequest::out;
+
+    /**
+     * Gets the abstract request as a concrete request.
+     *
+     * @return Returns a shared pointer on a concrete request.
+     */
+    template< typename Request >
+    boost::shared_ptr< Request > getAs()
+    {
+        return boost::dynamic_pointer_cast< Request >( shared_from_this() );
+    }
+
+    /**
+     * Gets the abstract request as a concrete request.
+     *
+     * @return Returns a shared pointer on a constant concrete request.
+     */
+    template< typename Request >
+    boost::shared_ptr< const Request > getAs() const
+    {
+        return boost::dynamic_pointer_cast< Request >( shared_from_this() );
+    }
 
 };
 

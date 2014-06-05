@@ -27,7 +27,12 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <core/common/math/linearAlgebra/WMatrixFixed.h>
+#include <core/common/math/linearAlgebra/WPosition.h>
+
+#include "core/container/WLArrayList.h"
 #include "core/container/WLList.h"
+#include "core/data/enum/WLEPointType.h"
 #include "core/data/WLDigPoint.h"
 #include "WFTAChunk.h"
 
@@ -50,9 +55,19 @@ public:
     typedef boost::shared_ptr< const WFTChunkNeuromagIsotrak > Const_SPtr;
 
     /**
+     * A vector describing faces for the 3D view.
+     */
+    typedef WLArrayList< WVector3i > FacesT;
+
+    /**
      * The class name.
      */
     static const std::string CLASS;
+
+    /**
+     * A calculation factor when creating the 3D EEG faces.
+     */
+    static const int EEG_FACES_FACTOR;
 
     /**
      * Constructs a new WFTChunkNeuromagIsotrak.
@@ -76,7 +91,29 @@ public:
      *
      * @return Returns a pointer to a constant digitalization points list.
      */
-    WLList< WLDigPoint >::SPtr getData() const;
+    WLList< WLDigPoint >::SPtr getDigPoints() const;
+
+    /**
+     * Gets the digitalization points list for the @type.
+     *
+     * @param type The type of dig. points.
+     * @return Returns a shared pointer on a digitalization points list.
+     */
+    WLList< WLDigPoint >::SPtr getDigPoints( WLEPointType::Enum type ) const;
+
+    /**
+     * Gets the EEG channel positions.
+     *
+     * @return Returns a shared pointer on a WLArrayList< WPosition >.
+     */
+    WLArrayList< WPosition >::SPtr getEEGChanPos() const;
+
+    /**
+     * Gets the EEG 3D faces.
+     *
+     * @return Returns a shared pointer on a WLArrayList< WVector3i >.
+     */
+    WLArrayList< WVector3i >::SPtr getEEGFaces() const;
 
 protected:
 
@@ -93,9 +130,27 @@ protected:
     bool process( const char* data, size_t size );
 
     /**
+     * Creates the EEG channel positions from the isotak digitalization points.
+     *
+     * @param digPoints The list of digitalization points.
+     * @return Returns true if the channel positions were created, otherwise false.
+     */
+    bool createEEGPositions( WLList< WLDigPoint >::ConstSPtr digPoints );
+
+    /**
      * The digitalization points list.
      */
     WLList< WLDigPoint >::SPtr m_digPoints;
+
+    /**
+     * The EEG channel positions.
+     */
+    WLArrayList< WPosition >::SPtr m_eegChPos;
+
+    /**
+     * The EEG faces.
+     */
+    WLArrayList< WVector3i >::SPtr m_eegFaces;
 };
 
 #endif /* WFTCHUNKNEUROMAGISOTRAK_H_ */

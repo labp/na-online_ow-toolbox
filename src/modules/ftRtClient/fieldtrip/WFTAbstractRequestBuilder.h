@@ -40,31 +40,113 @@ class WFTAbstractRequestBuilder
 {
 public:
 
+    /**
+     * Destroys the WFTAbstractRequestBuilder.
+     */
     virtual ~WFTAbstractRequestBuilder();
 
+    /**
+     * Builds a get header request.
+     *
+     * @return Returns a shared pointer on a WFTRequest.
+     */
     virtual WFTRequest::SPtr buildRequest_GET_HDR() = 0;
 
+    /**
+     * Builds a put header request.
+     *
+     * @param numChannels The number of channels.
+     * @param dataType The samples data type.
+     * @param fsample The sampling frequency.
+     * @return Returns a shared pointer on a WFTRequest.
+     */
     virtual WFTRequest::SPtr buildRequest_PUT_HDR( UINT32_T numChannels, UINT32_T dataType, float fsample ) = 0;
 
+    /**
+     * Builds a put data request.
+     *
+     * @param numChannels The number of channels.
+     * @param numSamples The number of samples.
+     * @param dataType The data type.
+     * @param data The pointer to the data storage.
+     * @return Returns a shared pointer on a WFTRequest.
+     */
     virtual WFTRequest::SPtr buildRequest_PUT_DAT( UINT32_T numChannels, UINT32_T numSamples, UINT32_T dataType,
                     const void *data ) = 0;
 
+    /**
+     * Builds a get data request.
+     *
+     * @param begsample The index of the first sample.
+     * @param endsample The index of the last sample.
+     * @return Returns a shared pointer on a WFTRequest.
+     */
     virtual WFTRequest::SPtr buildRequest_GET_DAT( UINT32_T begsample, UINT32_T endsample ) = 0;
 
+    /**
+     * Builds a put event request.
+     *
+     * @param sample The index of sample this event relates to.
+     * @param offset The offset of event w.r.t. sample (time).
+     * @param duration The duration of the event.
+     * @param type The event type.
+     * @param value The event value.
+     * @return Returns a shared pointer on a WFTRequest.
+     */
     virtual WFTRequest::SPtr buildRequest_PUT_EVT( INT32_T sample, INT32_T offset, INT32_T duration, std::string& type,
                     std::string& value ) = 0;
 
+    /**
+     * Builds a put event request.
+     *
+     * @param sample The index of sample this event relates to.
+     * @param offset The offset of event w.r.t. sample (time).
+     * @param duration The duration of the event.
+     * @param type The event type.
+     * @param value The event value.
+     * @return Returns a shared pointer on a WFTRequest.
+     */
     virtual WFTRequest::SPtr buildRequest_PUT_EVT( INT32_T sample, INT32_T offset, INT32_T duration, std::string& type,
                     INT32_T value = 0 ) = 0;
 
+    /**
+     * Builds a get event request.
+     *
+     * @param begevent The index of the first event.
+     * @param endevent The index of the last event.
+     * @return Returns a shared pointer on a WFTRequest.
+     */
     virtual WFTRequest::SPtr buildRequest_GET_EVT( UINT32_T begevent, UINT32_T endevent ) = 0;
 
+    /**
+     * Builds a flush data request.
+     *
+     * @return Returns a shared pointer on a WFTRequest.
+     */
     virtual WFTRequest::SPtr buildRequest_FLUSH_DAT() = 0;
 
+    /**
+     * Builds a flush events request.
+     *
+     * @return Returns a shared pointer on a WFTRequest.
+     */
     virtual WFTRequest::SPtr buildRequest_FLUSH_EVT() = 0;
 
+    /**
+     * Builds a flush header request.
+     *
+     * @return Returns a shared pointer on a WFTRequest.
+     */
     virtual WFTRequest::SPtr buildRequest_FLUSH_HDR() = 0;
 
+    /**
+     * Builds a wait request.
+     *
+     * @param nSamples The current number of samples.
+     * @param nEvents The current number of events.
+     * @param milliseconds The wait timeout in milliseconds.
+     * @return Returns a shared pointer on a WFTRequest.
+     */
     virtual WFTRequest::SPtr buildRequest_WAIT_DAT( UINT32_T nSamples, UINT32_T nEvents, UINT32_T milliseconds ) = 0;
 
 };
