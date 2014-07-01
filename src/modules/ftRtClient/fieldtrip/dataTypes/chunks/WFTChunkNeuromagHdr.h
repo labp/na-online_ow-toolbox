@@ -26,13 +26,15 @@
 #define WFTCHUNKNEUROMAGHDR_H_
 
 #include <map>
+#include <vector>
 
 #include <fiff/fiff_info.h>
+
+#include <core/common/math/linearAlgebra/WPosition.h>
 
 #include "core/container/WLArrayList.h"
 #include "core/data/emd/WLEMDRaw.h"
 #include "core/data/enum/WLEModality.h"
-
 #include "WFTAChunk.h"
 
 /**
@@ -124,17 +126,42 @@ public:
      */
     boost::shared_ptr< WLEMDRaw::ChanPicksT > getStimulusPicks() const;
 
+    /**
+     * Gets the channel positions for EEG.
+     *
+     * @return Returns a shared pointer on a channel position vector.
+     */
+    WLArrayList<WPosition>::SPtr getChannelPositionsEEG() const;
+
+    /**
+     * Gets the channel points for MEG.
+     *
+     * @return Returns a shared pointer on a channel position vector.
+     */
+    WLArrayList<WPosition>::SPtr getChannelPositionsMEG() const;
+
+    /**
+     * Gets the scaling factors.
+     *
+     * @return Returns a shared pointer on a float vector.
+     */
+    boost::shared_ptr< std::vector< float > > getScaleFactors() const;
+
+    /**
+     * Gets whether or not there exists channel position information for the EEG system.
+     *
+     * @return Returns true if there are channel positions, otherwise false.
+     */
+    bool hasChannelPositionsEEG() const;
+
+    /**
+     * Gets whether or not there exists channel position information for the MEG system.
+     *
+     * @return Returns true if there are channel positions, otherwise false.
+     */
+    bool hasChannelPositionsMEG() const;
+
 protected:
-
-    /**
-     * The path to a temporary directory. It is platform dependent.
-     */
-    static const std::string TMPDIRPATH;
-
-    /**
-     * The name of the temporary Neuromag header FIFF file.
-     */
-    static const std::string TMPFILENAME;
 
     /**
      * Based on the stored memory of @data, this method creates the chunks data structure.
@@ -151,7 +178,7 @@ protected:
     /**
      * The measurement information.
      */
-    MeasInfo_SPtr m_data;
+    MeasInfo_SPtr m_measInfo;
 
 private:
 
@@ -164,6 +191,21 @@ private:
      * A row vector, which contains the channel indices of the event/ stimulus channels.
      */
     boost::shared_ptr< WLEMDRaw::ChanPicksT > m_stimulusPicks;
+
+    /**
+     * The channel positions for EEG.
+     */
+    WLArrayList< WPosition >::SPtr m_chPosEEG;
+
+    /**
+     * The channel position for MEG.
+     */
+    WLArrayList< WPosition >::SPtr m_chPosMEG;
+
+    /**
+     * Vector for scaling factors.
+     */
+    boost::shared_ptr< std::vector< float > > m_scaleFactors;
 };
 
 #endif /* WFTCHUNKNEUROMAGHDR_H_ */

@@ -24,3 +24,6 @@
 
 #include "WFTRequestableObject.h"
 
+WFTRequestableObject::~WFTRequestableObject()
+{
+}

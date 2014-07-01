@@ -38,12 +38,20 @@ class WFTEventList: public WLArrayList< WFTEvent::SPtr >, public WFTRequestableO
 {
 public:
 
+    /**
+     * The class name.
+     */
     static const std::string CLASS;
 
     /**
      * A shared pointer on an event list.
      */
     typedef boost::shared_ptr< WFTEventList > SPtr;
+
+    /**
+     * Destroys th WFTEventList.
+     */
+    virtual ~WFTEventList();
 
     /**
      * Inherited from WFTRequestableObject.

@@ -24,12 +24,22 @@
 
 #include "WFTRequest_GetData.h"
 
-WFTRequest_GetData::WFTRequest_GetData( UINT32_T begsample, UINT32_T endsample )
+WFTRequest_GetData::WFTRequest_GetData( UINT32_T begsample, UINT32_T endsample ) :
+                m_begSample( begsample ), m_endSample( endsample )
 {
     prepGetData( begsample, endsample );
 }
 
 WFTRequest_GetData::~WFTRequest_GetData()
 {
+}
 
+UINT32_T WFTRequest_GetData::getBegSample() const
+{
+    return m_begSample;
+}
+
+UINT32_T WFTRequest_GetData::getEndSample() const
+{
+    return m_endSample;
 }

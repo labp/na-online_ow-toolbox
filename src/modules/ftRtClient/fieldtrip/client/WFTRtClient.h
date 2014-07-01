@@ -262,7 +262,7 @@ protected:
      * @param ePicks A vector contains the event channel indices.
      * @return Returns a pointer on the event channel matrix.
      */
-    virtual boost::shared_ptr< WLEMMeasurement::EDataT > readEvents( const Eigen::MatrixXf& rawData, WLEMDRaw::ChanPicksT ePicks );
+    virtual boost::shared_ptr< WLEMMeasurement::EDataT > readEventChannels( const Eigen::MatrixXf& rawData, WLEMDRaw::ChanPicksT ePicks );
 
     /**
      * The clients connection to the FieldTrip buffer server.

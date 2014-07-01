@@ -220,7 +220,13 @@ bool WFTRtClient::getNewSamples()
         return false;
     }
 
-    WFTRequest_GetData::SPtr request = m_reqBuilder->buildRequest_GET_DAT( m_samples, m_svr_samp_evt.nsamples - 1 );
+    // calculate the last samples index depending on the sampling frequency and the number of store sample on the server.
+    UINT32_T endSample =
+                    m_svr_samp_evt.nsamples - m_samples >= m_header->getHeaderDef().fsample ? m_samples
+                                    + m_header->getHeaderDef().fsample - 1 :
+                                    m_svr_samp_evt.nsamples - 1;
+    //UINT32_T endSample = m_svr_samp_evt.nsamples - 1;
+    WFTRequest_GetData::SPtr request = m_reqBuilder->buildRequest_GET_DAT( m_samples, endSample );
     WFTResponse::SPtr response( new WFTResponse );
 
     if( !doRequest( request, response ) )
@@ -235,7 +241,8 @@ bool WFTRtClient::getNewSamples()
         return false;
     }
 
-    m_samples = m_svr_samp_evt.nsamples; // update number of read samples.
+    //m_samples = m_svr_samp_evt.nsamples; // update number of read samples.
+    m_samples = endSample + 1; // update number of read samples.
 
     return true;
 }
@@ -316,10 +323,10 @@ bool WFTRtClient::doFlush( UINT16_T command )
     return response->checkFlush();
 }
 
-boost::shared_ptr< WLEMMeasurement::EDataT > WFTRtClient::readEvents( const Eigen::MatrixXf& rawData,
+boost::shared_ptr< WLEMMeasurement::EDataT > WFTRtClient::readEventChannels( const Eigen::MatrixXf& rawData,
                 WLEMDRaw::ChanPicksT ePicks )
 {
-    wlog::debug( CLASS ) << "readEvents() called.";
+    //wlog::debug( CLASS ) << "readEventChannels() called.";
 
     boost::shared_ptr< WLEMMeasurement::EDataT > events( new WLEMMeasurement::EDataT );
 

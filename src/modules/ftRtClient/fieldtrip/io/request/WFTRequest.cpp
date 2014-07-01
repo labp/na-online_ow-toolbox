@@ -32,9 +32,13 @@ WFTRequest::WFTRequest() :
 
 WFTRequest::WFTRequest( const WFTMessageT *msg )
 {
-    WFTRequest(); // call based constructor
+    WFTRequest(); // call base constructor
 
     m_msg = *msg;
+}
+
+WFTRequest::~WFTRequest()
+{
 }
 
 WFTMessageDefT &WFTRequest::getMessageDef()

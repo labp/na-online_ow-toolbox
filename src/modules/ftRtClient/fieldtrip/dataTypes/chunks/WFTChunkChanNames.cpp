@@ -62,6 +62,7 @@ bool WFTChunkChanNames::process( const char* data, size_t size )
     m_namesMap.reset( new ChanNamesMapT );
     std::vector< std::string > splitVec;
     std::string str( data, size );
+    int chans = 0;
 
     split( str, splitVec, '\0' );
 
@@ -90,6 +91,7 @@ bool WFTChunkChanNames::process( const char* data, size_t size )
 
         if( !found )
         {
+            wlog::debug( CLASS ) << "Reject channel name: " << chanName;
             continue;
         }
 
@@ -101,6 +103,15 @@ bool WFTChunkChanNames::process( const char* data, size_t size )
         }
 
         m_namesMap->at( modality )->push_back( chanName );
+        ++chans;
+    }
+
+    wlog::debug( CLASS ) << "Channel names read. Number of assigned channels: " << chans;
+    wlog::debug( CLASS ) << "Channel names in string vector: " << splitVec.size();
+    std::pair< WLEModality::Enum, WLArrayList< std::string >::SPtr > list;
+    BOOST_FOREACH(list, *m_namesMap)
+    {
+        wlog::debug( CLASS ) << "Channel names for modality " << list.first << ": " << list.second->size();
     }
 
     return m_namesMap->size() > 0;

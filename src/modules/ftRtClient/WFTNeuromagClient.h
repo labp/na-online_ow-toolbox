@@ -84,6 +84,20 @@ public:
      */
     bool createEMM( WLEMMeasurement::SPtr emm );
 
+    /**
+     * Gets whether or not the client applies scaling factors on the samples.
+     *
+     * @return Returns true if the client applies the scaling factors, otherwise false.
+     */
+    bool isScalingApplied() const;
+
+    /**
+     * Set whether or not the client has to apply scaling factors on the samples.
+     *
+     * @param applyScaling The flag.
+     */
+    void setScaling( bool applyScaling );
+
 protected:
 
     /**
@@ -92,7 +106,7 @@ protected:
      * @param emm The EMM object.
      * @return Returns false in case of problems occur during EMM creation, otherwise true.
      */
-    bool getRawData( WLEMDRaw::SPtr& modality );
+    bool getRawData( WLEMDRaw::SPtr& rawData );
 
     /**
      * Creates a EMM object with a more detailed appearance. The modalities are splitted in several modalities and the EMM
@@ -117,6 +131,10 @@ private:
      */
     bool m_streaming;
 
+    /**
+     * Flag to determine whether the scaling factors have to apply on the samples.
+     */
+    bool m_applyScaling;
 };
 
 #endif /* WFTCLIENTSTREAMING_H_ */

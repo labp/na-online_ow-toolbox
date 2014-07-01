@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -75,20 +74,20 @@ const std::string WMPCA::getDescription() const
 
 void WMPCA::connectors()
 {
-    m_input = LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr(
-                    new LaBP::WLModuleInputDataRingBuffer< WLEMMCommand >( 32, shared_from_this(), "in",
+    m_input = WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr(
+                    new WLModuleInputDataRingBuffer< WLEMMCommand >( 32, shared_from_this(), "in",
                                     "Expects a EMM-DataSet for filtering." ) );
     addConnector( m_input );
 
-    m_output = LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr(
-                    new LaBP::WLModuleOutputDataCollectionable< WLEMMCommand >( shared_from_this(), "out",
+    m_output = WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr(
+                    new WLModuleOutputDataCollectionable< WLEMMCommand >( shared_from_this(), "out",
                                     "Provides a filtered EMM-DataSet" ) );
-    addConnector (m_output);
+    addConnector( m_output );
 }
 
 void WMPCA::properties()
 {
-    LaBP::WLModuleDrawable::properties();
+    WLModuleDrawable::properties();
 
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
@@ -135,7 +134,7 @@ void WMPCA::moduleInit()
     infoLog() << "Initializing module ...";
     waitRestored();
 
-    viewInit( LaBP::WLEMDDrawable2D::WEGraphType::DYNAMIC ); // TODO(pieloth): No 3D needed!
+    viewInit( WLEMDDrawable2D::WEGraphType::DYNAMIC ); // TODO(pieloth): No 3D needed!
     m_pca.reset( new WPCA( m_finalDimensions->get(), m_reverse->get() ) );
     infoLog() << "Initializing module finished!";
 }

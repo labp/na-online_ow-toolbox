@@ -30,10 +30,9 @@
 #include <SimpleStorage.h>
 #include <message.h>
 
-#include <modules/ftRtClient/fieldtrip/dataTypes/WFTObject.h>
-#include <modules/ftRtClient/fieldtrip/io/request/WFTRequest.h>
-#include <modules/ftRtClient/fieldtrip/io/response/WFTResponse.h>
-
+#include "modules/ftRtClient/fieldtrip/dataTypes/WFTObject.h"
+#include "modules/ftRtClient/fieldtrip/io/request/WFTRequest.h"
+#include "modules/ftRtClient/fieldtrip/io/response/WFTResponse.h"
 #include "WFTRequestableObject.h"
 
 class WFTData: public WFTRequestableObject
@@ -58,6 +57,11 @@ public:
      * @param dataType The used data type.
      */
     WFTData( UINT32_T numChannels, UINT32_T numSamples, UINT32_T dataType );
+
+    /**
+     * Destroys the WFTData.
+     */
+    virtual ~WFTData();
 
     /**
      * Inherit from WFTRequestableObject.
