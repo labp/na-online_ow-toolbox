@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -32,6 +31,7 @@
 #include "core/data/WLDataTypes.h"
 #include "core/data/WLEMMCommand.h"
 #include "core/data/WLEMMeasurement.h"
+#include "core/data/emd/WLEMDHPI.h"
 #include "core/module/WLModuleDrawable.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 
@@ -77,7 +77,7 @@ private:
 
     WCondition::SPtr m_condition; /**< Used to notify module when a property changed. */
 
-    WPropGroup m_propGroup; /**< Collects all properties of the module. */
+    WPropGroup m_propGroupExtraction; /**< Collects all properties for HPI Signal Extraction. */
 
     WPropDouble m_propHpi1Freq; /**< Frequency for HPI coil 1 in Hz. */
     WPropDouble m_propHpi2Freq; /**< Frequency for HPI coil 2 in Hz. */
@@ -101,7 +101,31 @@ private:
 
     WHPISignalExtraction::SPtr m_hpiSignalExtraction;
 
+    WPropGroup m_propGroupEstimation; /**< Collects all properties for Head Position Estimation. */
+
+    WPropInt m_propMaxIterations; /**< Maximum iterations for minimization algorithm. */
+
+    WPropDouble m_propEpsilon; /**< Epsilon/threshold for minimization algorithm. */
+
     WLEMMeasurement::SPtr m_lastEmm;
+
+    /**
+     *  Extracts the HPI signals from MEG data.
+     *
+     * \param hpiOut Will store extracted signals.
+     * \param emmIn Data to extract signals from.
+     * \return True if successful, else false.
+     */
+    bool extractHpiSignals( WLEMDHPI::SPtr& hpiOut, WLEMMeasurement::ConstSPtr emmIn );
+
+    /**
+     * Estimates the head position from the extracted HPI signals.
+     *
+     * \param out TODO Ready to use object to store the result.
+     * \param hpiIn Data to estimate position from.
+     * \return True if successful, else false.
+     */
+    bool estimateHeadPosition( int out, WLEMDHPI::ConstSPtr hpiIn, WLEMMeasurement::ConstSPtr emmIn );
 };
 
 #endif  // WMHEADPOSITIONESTIMATION_H_
