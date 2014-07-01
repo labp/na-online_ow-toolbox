@@ -309,27 +309,6 @@ bool WFTNeuromagClient::createDetailedEMM( WLEMMeasurement::SPtr emm, WLEMDRaw::
         emm->setEventChannels( readEventChannels( ( Eigen::MatrixXf& )rawData->getData(), *neuromagHdr->getStimulusPicks() ) );
     }
 
-    //
-    // Validate the created data structure
-    //
-    WAssertDebug( ( int )rawData->getDigPoints().rows() == ( int )neuromagHdr->getDigPoints()->nchan,
-                    "Number of channel in raw data and measurement information are not equal" );
-    if( emm->hasModality( WLEModality::EEG ) )
-    {
-        WAssertDebug(
-                        emm->getModality( WLEModality::EEG )->getDigPoints().rows() == neuromagHdr->getModalityPicks()->at( WLEModality::EEG ).cols(),
-                        "Number of EEG data channels is not equal to the number of picks." );
-    }
-    if( emm->hasModality( WLEModality::MEG ) )
-    {
-        WAssertDebug(
-                        emm->getModality( WLEModality::MEG )->getDigPoints().rows() == neuromagHdr->getModalityPicks()->at( WLEModality::MEG ).cols(),
-                        "Number of MEG data channels are not equal to the number of picks." );
-        WAssertDebug( emm->getModality( WLEModality::MEG )->getDigPoints().rows() % 3 == 0,
-                        "Number of MEG data channels are not a mutiple of 3." );
-
-    }
-
     return true;
 }
 
