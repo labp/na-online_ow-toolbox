@@ -60,10 +60,10 @@ double WContinuousPositionEstimation::func( const PointT& x ) const
     const MatrixT data5 = getSample( 4 );
 
     const Vector3T mom1 = lf1.colPivHouseholderQr().solve( data1 );
-    const Vector3T mom2 = lf1.colPivHouseholderQr().solve( data2 );
-    const Vector3T mom3 = lf1.colPivHouseholderQr().solve( data3 );
-    const Vector3T mom4 = lf1.colPivHouseholderQr().solve( data4 );
-    const Vector3T mom5 = lf1.colPivHouseholderQr().solve( data5 );
+    const Vector3T mom2 = lf2.colPivHouseholderQr().solve( data2 );
+    const Vector3T mom3 = lf3.colPivHouseholderQr().solve( data3 );
+    const Vector3T mom4 = lf4.colPivHouseholderQr().solve( data4 );
+    const Vector3T mom5 = lf5.colPivHouseholderQr().solve( data5 );
 
     const MatrixT dif1 = data1 - lf1 * mom1;
     const MatrixT dif2 = data2 - lf2 * mom2;
