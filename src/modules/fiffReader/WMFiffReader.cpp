@@ -81,7 +81,8 @@ std::string WMFiffReader::EDataStatus::name( EDataStatus::Enum val )
     }
 }
 
-WMFiffReader::WMFiffReader()
+WMFiffReader::WMFiffReader() :
+                WDataModule()
 {
     m_fileStatus = EFileStatus::NO_FILE;
     m_dataStatus = EDataStatus::NO_DATA;
