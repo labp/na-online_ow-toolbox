@@ -27,10 +27,13 @@
 #include <core/common/WException.h>
 #include <core/common/WItemSelectionItemTyped.h>
 #include <core/common/WPathHelper.h>
+#include <core/kernel/WDataModuleInputFile.h>
+#include <core/kernel/WDataModuleInputFilterFile.h>
 
 #include "core/data/emd/WLEMDEEG.h"
 #include "core/data/enum/WLEModality.h"
 #include "core/module/WLConstantsModule.h"
+#include "core/module/WLDataModuleInputNull.h"
 #include "core/io/WLReaderFIFF.h"
 #include "core/util/WLGeometry.h"
 
@@ -82,6 +85,9 @@ WMFiffReader::WMFiffReader()
 {
     m_fileStatus = EFileStatus::NO_FILE;
     m_dataStatus = EDataStatus::NO_DATA;
+    m_reloadFiff = false;
+    WLDataModuleInputNull::SPtr null( new WLDataModuleInputNull() );
+    setInput( null );
 }
 
 WMFiffReader::~WMFiffReader()
@@ -106,6 +112,25 @@ WModule::SPtr WMFiffReader::factory() const
 const char** WMFiffReader::getXPMIcon() const
 {
     return module_xpm;
+}
+
+std::vector< WDataModuleInputFilter::ConstSPtr > WMFiffReader::getInputFilter() const
+{
+    std::vector< WDataModuleInputFilter::ConstSPtr > filters;
+    filters.push_back( WDataModuleInputFilter::ConstSPtr( new WDataModuleInputFilterFile( "fif", "FIFF files" ) ) );
+    return filters;
+}
+
+void WMFiffReader::handleInputChange()
+{
+    WDataModuleInputFile::SPtr inputFile = getInputAs< WDataModuleInputFile >();
+    if( inputFile )
+    {
+        m_propFiffFile->set( inputFile->getFilename(), true );
+        m_moduleState.notify();
+        m_reloadFiff = true;
+        return;
+    }
 }
 
 void WMFiffReader::connectors()
@@ -154,7 +179,6 @@ void WMFiffReader::properties()
     m_itmBemFiles = WItemSelection::SPtr( new WItemSelection() );
 
     m_itmSurfaces = WItemSelection::SPtr( new WItemSelection() );
-
 }
 
 void WMFiffReader::moduleInit()
@@ -166,6 +190,7 @@ void WMFiffReader::moduleInit()
 
     ready(); // signal ready state
     waitRestored();
+
 }
 
 void WMFiffReader::moduleMain()
@@ -182,7 +207,12 @@ void WMFiffReader::moduleMain()
 
         if( m_propFiffFile->changed( true ) )
         {
+            setInput( WDataModuleInputFile::SPtr( new WDataModuleInputFile( m_propFiffFile->get() ) ) );
+        }
+        if( m_reloadFiff )
+        {
             handleFiffFileChanged();
+            m_reloadFiff = false;
         }
 
         if( m_trgLoadData->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )

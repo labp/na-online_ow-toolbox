@@ -30,7 +30,7 @@
 #include <core/common/WCondition.h>
 #include <core/common/WItemSelection.h>
 #include <core/common/WPropertyTypes.h>
-#include <core/kernel/WModule.h>
+#include <core/kernel/WDataModule.h>
 
 #include "core/data/WLEMMCommand.h"
 #include "core/data/WLEMMeasurement.h"
@@ -43,7 +43,7 @@
  *
  * \author pieloth
  */
-class WMFiffReader: public WModule
+class WMFiffReader: public WDataModule
 {
 public:
     WMFiffReader();
@@ -57,7 +57,11 @@ public:
 
     virtual const char** getXPMIcon() const;
 
+    virtual std::vector< WDataModuleInputFilter::ConstSPtr > getInputFilter() const;
+
 protected:
+    virtual void handleInputChange();
+
     virtual void connectors();
 
     virtual void properties();
@@ -94,6 +98,7 @@ private:
     void updateFileStatus( EFileStatus::Enum status );
 
     WPropFilename m_propFiffFile;
+    bool m_reloadFiff;
     void handleFiffFileChanged();
     bool readFiffFile( const std::string& fName );
 
