@@ -24,6 +24,8 @@
 
 #include <core/common/WException.h>
 #include <core/common/WPathHelper.h>
+#include <core/kernel/WDataModuleInputFile.h>
+#include <core/kernel/WDataModuleInputFilterFile.h>
 
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMSubject.h"
@@ -32,6 +34,7 @@
 #include "core/io/WLReaderMAT.h"
 #include "core/io/WLReaderSourceSpace.h"
 #include "core/module/WLConstantsModule.h"
+#include "core/module/WLDataModuleInputNull.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
 #include "reader/WReaderEEGPositions.h"
@@ -56,8 +59,12 @@ static const std::string READING_LF = "Reading Leadfield ...";
 static const std::string READING_SRC = "Reading Source Space ...";
 static const std::string READING_SENSORS = "Reading Sensor positions ...";
 
-WMMatReader::WMMatReader()
+WMMatReader::WMMatReader() :
+                WDataModule()
 {
+    m_reloadMatFile = false;
+    WLDataModuleInputNull::SPtr null( new WLDataModuleInputNull() );
+    setInput( null );
 }
 
 WMMatReader::~WMMatReader()
@@ -71,7 +78,7 @@ const std::string WMMatReader::getName() const
 
 const std::string WMMatReader::getDescription() const
 {
-    return "Reads a MATLAB MAT-file into EMM structure.";
+    return "Reads a MATLAB MAT-file as EEG raw data into EMM structure.";
 }
 
 WModule::SPtr WMMatReader::factory() const
@@ -84,12 +91,20 @@ const char** WMMatReader::getXPMIcon() const
     return module_xpm;
 }
 
+std::vector< WDataModuleInputFilter::ConstSPtr > WMMatReader::getInputFilter() const
+{
+    std::vector< WDataModuleInputFilter::ConstSPtr > filters;
+    filters.push_back(
+                    WDataModuleInputFilter::ConstSPtr( new WDataModuleInputFilterFile( "mat", "MAT files, MATLAB matrices v5" ) ) );
+    return filters;
+}
+
 void WMMatReader::connectors()
 {
     WModule::connectors();
 
     m_output = WLModuleOutputDataCollectionable< WLEMMCommand >::instance( shared_from_this(),
-                        WLConstantsModule::CONNECTOR_NAME_OUT, WLConstantsModule::CONNECTOR_DESCR_OUT );
+                    WLConstantsModule::CONNECTOR_NAME_OUT, WLConstantsModule::CONNECTOR_DESCR_OUT );
     addConnector( m_output );
 }
 
@@ -149,6 +164,11 @@ void WMMatReader::moduleMain()
 
         if( m_propMatFile->changed( true ) )
         {
+            setInput( WDataModuleInputFile::SPtr( new WDataModuleInputFile( m_propMatFile->get() ) ) );
+        }
+
+        if( m_reloadMatFile )
+        {
             m_status->set( READING_MAT, true );
             if( handleMatFileChanged() )
             {
@@ -158,6 +178,7 @@ void WMMatReader::moduleMain()
             {
                 m_status->set( ERROR_READ, true );
             }
+            m_reloadMatFile = false;
         }
 
         if( m_propSensorFile->changed( true ) )
@@ -211,6 +232,18 @@ void WMMatReader::moduleMain()
                 m_status->set( ERROR_EMM, true );
             }
         }
+    }
+}
+
+void WMMatReader::handleInputChange()
+{
+    WDataModuleInputFile::SPtr inputFile = getInputAs< WDataModuleInputFile >();
+    if( inputFile )
+    {
+        m_propMatFile->set( inputFile->getFilename(), true );
+        m_moduleState.notify();
+        m_reloadMatFile = true;
+        return;
     }
 }
 
