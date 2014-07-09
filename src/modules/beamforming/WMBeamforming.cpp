@@ -41,35 +41,38 @@
 #include "core/data/emd/WLEMDSource.h"
 #include "core/data/enum/WLEModality.h"
 #include "core/io/WLReaderLeadfield.h"
+#include "core/io/WLReaderMAT.h"
 #include "core/module/WLConstantsModule.h"
-#include "core/io/WLReaderBem.h"
-#include "core/container/WLList.h"
-#include "core/data/WLEMMBemBoundary.h"
-//#include "core/data/WLEMMBemBoundary.h"
-// Input & output connectors
+#ifdef FOUND_CUDA
+#include "WBeamformingCuda.h"
+#endif
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
-
+#include "core/io/WLWriterMAT.h"
 //include Beamforming files
 #include "WBeamforming.h"
 #include "WBeamformingCPU.h"
 #include "beam.xpm"
 #include "WMBeamforming.h"
-
+#include <string>
 using std::set;
 using WLMatrix::MatrixT;
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMBeamforming )
-
+int i;
 // Leadfield file status
 static const std::string NO_MATRIX_LOADED = "No matrix loaded.";
 static const std::string LOADING_MATRIX = "Loading matrix ...";
 static const std::string MATRIX_LOADED = "Matrix successfully loaded.";
+/*
+
+//*************************TEST************************************
 static const std::string DATA_NOT_LOADED = "No data loaded.";
 static const std::string DATA_LOADING = "Loading data ...";
 static const std::string DATA_LOADED = "Data successfully loaded.";
-static const std::string DATA_ERROR = "Could not load data.";
+//**********************************************************************
+*/
 WMBeamforming::WMBeamforming()
 {
   m_lastModality = WLEModality::UNKNOWN;
@@ -136,26 +139,44 @@ void WMBeamforming::properties()
         m_resetModule = m_propGrpBeamforming->addProperty( "Reset module:", "Re(set)", WPVBaseTypes::PV_TRIGGER_READY,      //nötig?
                         m_propCondition );
 
-    //read Leadfield,change, properties in control panel
-        m_lfMEGFile = m_propGrpBeamforming->addProperty( "Leadfield MEG file:", "Read a FIFF file containing the leadfield for MEG.",
-                        WPathHelper::getHomePath(), m_propCondition );                              //Button zum Leadfield einlesen
-        m_lfMEGFile->changed( true );                                                               //select Leadfield
+//    /*//read Leadfield,change, properties in control panel
+//        m_lfMEGFile = m_propGrpBeamforming->addProperty( "Leadfield MEG file:", "Read a FIFF file containing the leadfield for MEG.",
+//                        WPathHelper::getHomePath(), m_propCondition );                              //Button zum Leadfield einlesen
+//        m_lfMEGFile->changed( true ); */                                                              //select Leadfield
+//        //read Leadfield,change, properties in control panel
+//
 
-    // Leadfield properties,display, properties in control panel
-        m_leadfieldStatus = m_propGrpBeamforming->addProperty( "Leadfield file status:", "Leadfield file status.", NO_MATRIX_LOADED );
-        m_leadfieldStatus->setPurpose( PV_PURPOSE_INFORMATION );
+                       m_lfEEGFile = m_propGrpBeamforming->addProperty( "Leadfield EEG file:", "Read a FIFF file containing the leadfield for EEG.",
+                                       WPathHelper::getHomePath(), m_propCondition );                              //Button zum Leadfield einlesen
+                       m_lfEEGFile->changed( true );
+           // Leadfield properties,display, properties in control panel
+               m_leadfieldStatus = m_propGrpBeamforming->addProperty( "Leadfield file status:", "Leadfield file status.", NO_MATRIX_LOADED );
+               m_leadfieldStatus->setPurpose( PV_PURPOSE_INFORMATION );
 
-    //Number of leadfield col
-        m_source = m_propGrpBeamforming->addProperty( "Source number:", "The number of leadfield col ", 2 );
-        m_source->setMax( 244622 );
+///////////////////////
 
 
-        m_bemFile = m_propGrpBeamforming->addProperty( "BEM file:", "Read a FIFF file containing BEM layers.",
-                        WPathHelper::getHomePath(), m_propCondition );
-        m_bemFile->changed( true );
-       m_BemStatus= m_propGrpBeamforming->addProperty( "Bem file status:", "File status.", DATA_NOT_LOADED);
-       m_BemStatus->setPurpose( PV_PURPOSE_INFORMATION );
+               m_NoiseFile = m_propGrpBeamforming->addProperty( "Noise EEG file:", "Read a MAT file containing the leadfield for EEG.",
+                                                     WPathHelper::getHomePath(), m_propCondition );                              //Button zum Leadfield einlesen
+               m_NoiseFile->changed( true );
 
+               m_NoiseStatus= m_propGrpBeamforming->addProperty( "Noise file status:", "Noise file status.", NO_MATRIX_LOADED );
+               m_NoiseStatus->setPurpose( PV_PURPOSE_INFORMATION );
+
+               m_DataFile = m_propGrpBeamforming->addProperty( "Data EEG file:", "Read a MAT file containing the leadfield for EEG.",
+                                                                  WPathHelper::getHomePath(), m_propCondition );                              //Button zum Leadfield einlesen
+                            m_DataFile->changed( true );
+
+                            m_DataStatus= m_propGrpBeamforming->addProperty( "Data file status:", "Data file status.", NO_MATRIX_LOADED );
+                            m_DataStatus->setPurpose( PV_PURPOSE_INFORMATION );
+
+/////////////////////////////////
+
+        m_useCuda = m_propGrpBeamforming->addProperty( "Use Cuda", "Activate CUDA support.", true, m_propCondition );
+            m_useCuda->changed( true );
+        #ifndef FOUND_CUDA
+            m_useCuda->setHidden( true );
+        #endif // FOUND_CUDA
 
 }
 
@@ -170,7 +191,7 @@ void WMBeamforming::moduleInit()
         m_moduleState.add( m_propCondition );                       // when properties changed
         m_subject.reset( new WLEMMSubject() );                      //Leadfield
 //   m_beamforming.reset( new WBeamforming() );                     //ohne CPU und ohne =0 bei beam()
-        m_leadfieldMEG.reset();
+        m_leadfieldEEG.reset();
 
     ready();                                                        // signal ready state
     waitRestored();
@@ -183,21 +204,33 @@ void WMBeamforming::moduleInit()
 
     infoLog() << "Restoring module finished!";
 
-    if( m_lfMEGFile->changed( true ) )                                                              //Leadfield  File
-    {
 
-        if( handleLfFileChanged( m_lfMEGFile->get().string(), m_leadfieldMEG ) )
+        if( m_lfEEGFile->changed( true ) )                                                              //Leadfield  File MATLAB
         {
-            m_subject->setLeadfield( WLEModality::MEG, m_leadfieldMEG );
+
+            if( handleLfFileChanged( m_lfEEGFile->get().string(), m_leadfieldEEG ) )
+            {
+                m_subject->setLeadfield( WLEModality::EEG, m_leadfieldEEG );
+            }
         }
-    }
-    if( m_bemFile->changed( true ) )
-    {
-        if( handleBemFileChanged( m_bemFile->get().string() ) )
-        {
-            m_subject->setBemBoundaries( m_bems );
-        }
-    }
+        //////////////////////////////////////////
+        if( m_NoiseFile->changed( true ) )                                                          //Leadfield File MATLAB
+                {
+                    if( handleNoiseChanged( m_NoiseFile->get().string(), m_Noise ) )
+                    {
+                        m_subject->setLeadfield( WLEModality::EEG, m_Noise);
+                    }
+                }
+        //////////////////////////////////////////
+         if( m_DataFile->changed( true ) )                                                          //Leadfield File MATLAB
+                 {
+                     if( handleNoiseChanged( m_DataFile->get().string(), m_Data ) )
+                     {
+                         m_subject->setLeadfield( WLEModality::EEG, m_Data);
+                     }
+                 }
+///////////////////////////////
+
     handleImplementationChanged();
     infoLog() << "Restoring module finished!";
 
@@ -221,6 +254,10 @@ void WMBeamforming::moduleMain()
         {
             break;                                                      // break mainLoop on shutdown
         }
+        if( m_useCuda->changed( true ) )
+             {
+                 handleImplementationChanged();
+             }
 
         if( m_resetModule->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
@@ -239,20 +276,30 @@ void WMBeamforming::moduleMain()
             handleComputeModalityChanged( cmdIn );
         }
 
-        if( m_lfMEGFile->changed( true ) )                                                          //Leadfield File
+        if( m_lfEEGFile->changed( true ) )                                                          //Leadfield File MATLAB
         {
-            if( handleLfFileChanged( m_lfMEGFile->get().string(), m_leadfieldMEG ) )
+            if( handleLfFileChanged( m_lfEEGFile->get().string(), m_leadfieldEEG ) )
             {
-                m_subject->setLeadfield( WLEModality::MEG, m_leadfieldMEG );
+                m_subject->setLeadfield( WLEModality::EEG, m_leadfieldEEG );
             }
         }
-        if( m_bemFile->changed( true ) )
-        {
-            if( handleBemFileChanged( m_bemFile->get().string() ) )
-            {
-                m_subject->setBemBoundaries( m_bems );
-            }
-        }
+        //////////////////////////////////////////
+        if( m_NoiseFile->changed( true ) )                                                          //Leadfield File MATLAB
+                {
+                    if( handleNoiseChanged( m_NoiseFile->get().string(), m_Noise ) )
+                    {
+                        m_subject->setLeadfield( WLEModality::EEG, m_Noise);
+                    }
+                }
+        /////////////////////
+        if( m_DataFile->changed( true ) )                                                          //Leadfield File MATLAB
+                  {
+                      if( handleNoiseChanged( m_DataFile->get().string(), m_Data ) )
+                      {
+                          m_subject->setLeadfield( WLEModality::EEG, m_Data);
+                      }
+                  }
+///////////////////////////////
         const bool dataValid = ( cmdIn);
 
         // ---------- INPUTDATAUPDATEEVENT ----------
@@ -266,23 +313,23 @@ void WMBeamforming::moduleMain()
 }
 //void  WMBeamforming::handleImplementationChanged( void )
 //{
-////    debugLog() << "callbackImplementationChanged() called!";
-////
-////    if( m_useCuda->get() )
-////    {
-////#ifdef FOUND_CUDA
-////        infoLog() << "Using SourceReconstruction for CUDA.";
-////        m_sourceReconstruction = WSourceReconstructionCuda::SPtr( new WSourceReconstructionCuda() );
-////#else
-////        errorLog() << "Build process has detected, that your machine has no CUDA support! Using CPU instead.";
-////        m_sourceReconstruction = WSourceReconstructionCpu::SPtr( new WSourceReconstructionCpu() );
-////#endif // FOUND_CUDA
-////    }
-////    else
-////    {
-////        infoLog() << "Using SourceReconstruction for CPU.";
-////        m_beamforming = WBeamformingCPU::SPtr( new WBeamformingCPU() );
-////    }
+//    debugLog() << "callbackImplementationChanged() called!";
+//
+//    if( m_useCuda->get() )
+//    {
+//#ifdef FOUND_CUDA
+//        infoLog() << "Using Beamforming for CUDA.";
+//        m_beamforming = WBeamformingCuda::SPtr( new WBeamformingCuda() );
+//#else
+//        errorLog() << "Build process has detected, that your machine has no CUDA support! Using CPU instead.";
+//        m_beamforming = WBeamformingCPU::SPtr( new WBeamformingCPU() );
+//#endif // FOUND_CUDA
+//    }
+//    else
+//    {
+//        infoLog() << "Using SourceReconstruction for CPU.";
+//        m_beamforming = WBeamformingCPU::SPtr( new WBeamformingCPU() );
+//    }
 //}
 void WMBeamforming::handleResetTrigger()
 {
@@ -290,7 +337,7 @@ void WMBeamforming::handleResetTrigger()
 
     WLEMMCommand::SPtr cmd( new WLEMMCommand( WLEMMCommand::Command::RESET ) );
     processReset( cmd );
-
+    i=0;
 
     m_resetModule->set( WPVBaseTypes::PV_TRIGGER_READY );
 
@@ -319,10 +366,12 @@ bool WMBeamforming::handleLfFileChanged( std::string fName, WLMatrix::SPtr& lf )
     m_progress->addSubProgress( progress );
     m_leadfieldStatus->set( LOADING_MATRIX, true );
 
-    WLReaderLeadfield::SPtr reader;
+// WLReaderLeadfield::SPtr reader;
+ WLReaderMAT::SPtr reader; //Matlab
     try
     {
-        reader.reset( new WLReaderLeadfield( fName ) );
+     //reader.reset( new WLReaderLeadfield( fName ) );
+        reader.reset( new WLReaderMAT( fName ) );  //Matlab
     }
     catch( const WDHNoSuchFile& e )
     {
@@ -333,8 +382,9 @@ bool WMBeamforming::handleLfFileChanged( std::string fName, WLMatrix::SPtr& lf )
     }
 
 
+   // if( reader->read( lf ) == WLIOStatus::SUCCESS )
+   if( reader->readMatrix( lf ) == WLIOStatus::SUCCESS ) //Matlab
 
-    if( reader->read( lf ) == WLIOStatus::SUCCESS )
     {    debugLog() << "read file ";
         m_leadfieldStatus->set( MATRIX_LOADED, true );
         progress->finish();
@@ -356,18 +406,23 @@ bool WMBeamforming::handleLfFileChanged( std::string fName, WLMatrix::SPtr& lf )
 
 
 }
-bool WMBeamforming::handleBemFileChanged( std::string fName )
+
+///////////////////////////////////////////////////////////////////////
+
+bool WMBeamforming::handleNoiseChanged( std::string fName, WLMatrix::SPtr& data )            //Read Leadfield FIFF File
 {
-    debugLog() << "handleBemFileChanged()";
+    debugLog() << "handleLfFileChanged()";
 
-    WProgress::SPtr progress( new WProgress( "Reading BEM Layer" ) );
+    WProgress::SPtr progress( new WProgress( "Reading MAT" ) );
     m_progress->addSubProgress( progress );
-    m_BemStatus->set( DATA_LOADING, true );
+    m_NoiseStatus->set( LOADING_MATRIX, true );
 
-    WLReaderBem::SPtr reader;
+ //WLReaderLeadfield::SPtr reader;
+  WLReaderMAT::SPtr reader; //Matlab
     try
     {
-        reader.reset( new WLReaderBem( fName ) );
+     //   reader.reset( new WLReaderLeadfield( fName ) );
+        reader.reset( new WLReaderMAT( fName ) );  //Matlab
     }
     catch( const WDHNoSuchFile& e )
     {
@@ -377,23 +432,78 @@ bool WMBeamforming::handleBemFileChanged( std::string fName )
         return false;
     }
 
-  m_bems = WLList< WLEMMBemBoundary::SPtr >::instance();
-    if( reader->read( m_bems.get() ) )
-    {
-        infoLog() << "Loaded BEM layer: " << m_bems->size();
-        m_BemStatus->set( DATA_LOADED, true );
+
+    //if( reader->read( lf ) == WLIOStatus::SUCCESS )
+   if( reader->readMatrix( data ) == WLIOStatus::SUCCESS ) //Matlab
+
+    {    debugLog() << "read file ";
+    m_NoiseStatus->set( MATRIX_LOADED, true );
         progress->finish();
         m_progress->removeSubProgress( progress );
+
         return true;
     }
+
     else
     {
-        errorLog() << "Could not read BEM layers!";
-        m_BemStatus->set( DATA_ERROR, true );
+        errorLog() << "Could not read leadfield!";
+        m_NoiseStatus->set( NO_MATRIX_LOADED, true );
+        progress->finish();
+
+
+        m_progress->removeSubProgress( progress );
+        return false;
+    }
+
+
+}
+bool WMBeamforming::handleDataChanged( std::string fName, WLMatrix::SPtr& data )            //Read Leadfield FIFF File
+{
+    debugLog() << "handleLfFileChanged()";
+
+    WProgress::SPtr progress( new WProgress( "Reading MAT" ) );
+    m_progress->addSubProgress( progress );
+    m_DataStatus->set( LOADING_MATRIX, true );
+
+ //WLReaderLeadfield::SPtr reader;
+  WLReaderMAT::SPtr reader; //Matlab
+    try
+    {
+     //   reader.reset( new WLReaderLeadfield( fName ) );
+        reader.reset( new WLReaderMAT( fName ) );  //Matlab
+    }
+    catch( const WDHNoSuchFile& e )
+    {
+        errorLog() << "File does not exist: " << fName;
         progress->finish();
         m_progress->removeSubProgress( progress );
         return false;
     }
+
+
+    //if( reader->read( lf ) == WLIOStatus::SUCCESS )
+   if( reader->readMatrix( data ) == WLIOStatus::SUCCESS ) //Matlab
+
+    {    debugLog() << "read file ";
+    m_DataStatus->set( MATRIX_LOADED, true );
+        progress->finish();
+        m_progress->removeSubProgress( progress );
+
+        return true;
+    }
+
+    else
+    {
+        errorLog() << "Could not read leadfield!";
+        m_DataStatus->set( NO_MATRIX_LOADED, true );
+        progress->finish();
+
+
+        m_progress->removeSubProgress( progress );
+        return false;
+    }
+
+
 }
 
 bool WMBeamforming::processInit( WLEMMCommand::SPtr cmdIn )
@@ -408,38 +518,54 @@ bool WMBeamforming::processCompute( WLEMMeasurement::SPtr emmIn )
         debugLog() << "received data";
 
 
-    // hole MEG, püfe ob MEG vohanden
-        WLEMData::SPtr meg = emmIn->getModality( WLEModality::MEG );
+    // hole EEG, püfe ob EEG vohanden
+        WLEMData::SPtr eeg = emmIn->getModality( WLEModality::EEG );
 
 
-        m_beamforming->calculateBeamforming( meg->getData(), *m_leadfieldMEG  );// DATEN IN FUNKTION
+        m_beamforming->calculateBeamforming( eeg->getData(), *m_leadfieldEEG ,*m_Noise,*m_Data);// DATEN IN FUNKTION
+       // m_beamforming->calculateBeamforming( eeg->getData(), *m_leadfieldEEG );
+
+
         WLEMMeasurement::SPtr emmOut;
 
         // erstelle sourceOut und setze Daten
              WLEMDSource::SPtr sourceOut;
             try
             {
-                sourceOut = m_beamforming->beam( emmIn->getModality( WLEModality::MEG  ) );
+                sourceOut = m_beamforming->beam( emmIn->getModality( WLEModality::EEG  ) );
+       /*         MatrixT Source;
+                Source= *sourceOut;
+                i++;
+
+
+                std::string String = static_cast<std::ostringstream*>( &(std::ostringstream() << i) )->str();
+                WLEMData::DataSPtr GG(new WLEMData::DataT (*sourceOut));
+                WLMatrix::ConstSPtr RR( new  WLMatrix::ConstSPtr(GG) );
+
+                WLWriterMAT::writeMatrix( RR ,String);*/
+
             }
             catch( const std::exception& e )
             {
                 errorLog() << e.what();
                 return false;
             }
+//
         // erstelle emmOut ... bzw. clone/new ...
             emmOut = emmIn->clone();        //Quellenanzahl x Abtastwerte
-            emmOut->addModality( emmIn->getModality(  WLEModality::MEG  ) );
+            emmOut->addModality( emmIn->getModality(  WLEModality::EEG  ) );
         // setze in emmOut deine Daten addMod(emdSource)
             emmOut->addModality( sourceOut);
             infoLog() << "Matrix: " << sourceOut->getNrChans() << " x " << sourceOut->getSamplesPerChan();
 
-        //viewUpdate( emmOut );       //TODO Debug !!                                                                             //IMMER -bis true
+        viewUpdate( emmOut );                                                                                //IMMER -bis true
 
         WLEMMCommand::SPtr cmdOut = WLEMMCommand::instance( WLEMMCommand::Command::COMPUTE );
         cmdOut->setEmm( emmOut );
         m_output->updateData( cmdOut );
 
         return true;
+
 
 }
 
@@ -454,8 +580,8 @@ bool WMBeamforming::processReset( WLEMMCommand::SPtr cmdIn )
     m_output->updateData( cmdIn );
 
     //get/set col Leadfield
-        int value = m_source->get();
-        m_beamforming->setSource( value );
+//        int value = m_source->get();
+//        m_beamforming->setSource( value );
 
     return true;
 

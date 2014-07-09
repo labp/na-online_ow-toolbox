@@ -40,10 +40,7 @@
 
 #include "WBeamforming.h"
 
-using Eigen::Triplet;
-using std::minus;
 using std::set;
-using std::transform;
 using WLMatrix::MatrixT;
 using WLSpMatrix::SpMatrixT;
 
@@ -68,7 +65,7 @@ WBeamforming::~WBeamforming()
 
 void WBeamforming::reset()
 {
-//    ExclusiveLockT lock(m_lockData);
+
 
 
     m_beam.reset();
@@ -79,7 +76,7 @@ void WBeamforming::reset()
 void WBeamforming::setSource( size_t source )
 {
 
-    m_value = source;
+    //m_value = source;
 }
 
 
@@ -89,12 +86,12 @@ bool WBeamforming::hasBeam() const
     return m_beam.get() != NULL;
 }
 
-
-bool WBeamforming::calculateBeamforming(const WLMatrix::MatrixT&   data, const WLMatrix::MatrixT& Leadfield  )
+bool WBeamforming::calculateBeamforming(const WLMatrix::MatrixT&   data, const WLMatrix::MatrixT& Leadfield , const WLMatrix::MatrixT& Noise, const WLMatrix::MatrixT& Data  )
 {
     //zur übergreifenden Nutzung in WBeamfomingCPU
     //Übergabe der Daten an m_data
-            m_data.reset( new MatrixT( data) );
+
+            //Kovarianzmatrix des Rauschen als Einheitsmatrix
 
     //zur übergreifenden Nutzung in WBeamfomingCPU
     //Übergabe der Leadfield an m_leadfield
@@ -102,96 +99,110 @@ bool WBeamforming::calculateBeamforming(const WLMatrix::MatrixT&   data, const W
     //Init
             wlog::debug( CLASS ) << "calculateBeamforming() called!";
     //Leadfield Spalten zur Berechnung
-            MatrixT leadfield(Leadfield.rows(),m_value);
-            for(unsigned int j=0;j<m_value;j++)
+            MatrixT leadfield(Leadfield.rows(),Leadfield.cols()); ///TODO
+            MatrixT Cdinv; //Daten kovarianzmatrix invertiert
+            MatrixT Cd;//=MatrixT::Identity(data.rows(),data.rows()); //Daten Kovarianzmatrix
+            //Whitener
+             //RauschCov
+                MatrixT Cn;//=MatrixT::Identity(Noise.rows(),Noise.rows());
+                Cn=Noise;  //Diagonalmatrix
+
+                MatrixT E=MatrixT::Identity(data.rows(),data.rows());
+               //Covariance
+                Cd=Data;
+
+          //whitening daten
+          MatrixT Cm(data.rows(),data.rows());
+          MatrixT Cm1(data.rows(),data.rows());
+          MatrixT Cm2(data.rows(),data.rows());
+          MatrixT Cm3(data.rows(),data.rows());
+          MatrixT Proj=MatrixT::Identity(data.rows(),data.rows());
+/*          Cm1= Cd*Proj.transpose();
+          Cm2=Proj*Cm1;*/
+         Cm3=Cd*Cn.transpose();
+
+          Cm=Cn*Cm3;
+
+          //Absolutwerte Daten
+         /* MatrixT Dat;
+          Dat= data.cwiseAbs();*/
+          m_data.reset( new MatrixT( data) );
+
+          //Cm += reg * np.trace(Cm) / len(Cm) * np.eye(len(Cm)) //Datenkovarianz
+          //Regularisierung
+          MatrixT Cdr(data.rows(),data.rows());
+                          Cdr=((0.01*Cm.trace())/Cm.rows())*E;
+                                    MatrixT CD;
+                                    CD= Cm+Cdr;
+
+
+                  //Inverse DataCov
+                              MatrixT Cdinv1;
+
+                               // Cdinv=CD.inverse();//funktioniert nu ohne inverse
+                                 Cdinv1= CD.transpose()*CD;
+                                  Cdinv= Cdinv1.inverse()*CD.transpose();
+
+
+          //whitening leadfield
+          leadfield=Cn*Leadfield;            //TODO
+         // leadfield.array()=Leadfield.array();
+
+            // Leafield transpose matrix
+                    MatrixT LT = leadfield.transpose();
+
+
+
+
+
+
+    MatrixT LCd(leadfield.cols(),1);
+    MatrixT LCdinv(leadfield.cols(),1);
+                        MatrixT W(leadfield.cols(),leadfield.rows());
+
+                              MatrixT Help1(leadfield.cols(),1);
+            for( int j=0;j<leadfield.cols();j++)
+
             {
-
-                leadfield.col(j)=Leadfield.block(0,j,m_leadfield->rows(),1).array();
-
-            }
-            wlog::debug( CLASS ) << "l " << leadfield.rows() << " x " << leadfield.cols();
-
-                                                                                                                                                                //leadfield.col(0) = Leadfield.col(m_value)  ;            //eingegebene Wert ist die Spalte der Leadfield=Quelle
-
-    // Leafield transpose matrix
-            MatrixT LT = leadfield.transpose();
-//   //NOise Matrix
-//        MatrixT N;
-//
-//        const int dRows = data.rows();
-//        const int dCols = data.cols();
-//
-//        WLMatrix::SPtr U1( new MatrixT( dRows, dCols ) );
-//        U1->setRandom();
-//        WLMatrix::SPtr U2( new MatrixT( dRows, dCols ) );
-//        U2->setRandom();
-//        U1->array().abs();
-//        U2->array().abs();
-//        MatrixT U1a = 2 * M_PI * *U1; // Zufallswerte 1 cos(2*PI*u1)
-//        MatrixT U2a = U2->array() + 0.1;
-//        U2a = U2a.array().log(); //Zufallswere 2 sqrt(-2*ln (u2)); keine 0! wegen ln
-//        U2a = U2a.array() - 1.0;
-//        N = U1a.array().cos() * U2a.array().sqrt();
-//    //Kovarianzmatrix Rauschen
-//        MatrixT Cn;
-//        MatrixT NT = N.transpose();
-//        Cn = N * NT;
-            //Kovarianzmatrix des Rauschen als Einheitsmatrix
-                    MatrixT Cn=MatrixT::Identity(leadfield.rows(), leadfield.rows());
-
-    //Dipolmoment als Zufallsmenge
-            const int MdRows = leadfield.cols();
-            const int MdCols = data.cols();
-            WLMatrix::SPtr Md( new MatrixT( MdRows, MdCols ) );
-            Md->setRandom();                                         //Zufälliges Dipolmoment für jeden Dipol über die Anzahl Abtastwerte
-    // Mittel der Momente über die Anzahl Abtastwerte
-            MatrixT Mdm = Md->rowwise().mean();				        //Matrix Md(m,1)
-            MatrixT Mdmm;
-            Mdmm= Mdm.replicate(1, MdCols );                        //Erweitern der Matrix auf Spalten Dipolmoment-> durch Mittelung Spaltenvektor
-   //Covarianzmatrix Dipolmoment
-
-            MatrixT D;			                                    //Differenz
-            MatrixT Mda;
-            Mda= Md->array();
-//
-                D=Mda - Mdmm;                                       //Differenz Dipolmoment und Mittel der Momente
-                MatrixT DT ;
-                DT = D.transpose();
-                wlog::debug( CLASS ) << "DT " << DT.rows() << " x " << DT.cols();
-                wlog::debug( CLASS ) << "D " << D.rows() << " x " << D.cols();
-                MatrixT Cm;
-         Cm = D*DT;                                                 //Kovarianzmatrix Dipolmoment
-
-    //Kovarianzmarix abhängig von Daten
-            MatrixT Cd;
-            Cd = leadfield*Cm *LT  + Cn;                            //Daten-Kovarianzmatrix
-
-   // gewichtung für jeden Sensor für jede Quelle
-            MatrixT W;
-            MatrixT Cdinv = Cd.inverse();                           //Inverse Daten-Kovarianzmatrix
-
             //Zwischenmatrix=LF_tansponiert*Inverse Daten-Matrix*LF
-                MatrixT LCd = LT * Cdinv *leadfield;
-                LCd = LCd.inverse();                                //Inverse der Zwischenmatrix
+
+
+               // LCd(j,0)= LT.row(j) * Cdinv *leadfield.col(j) ;
+                LCd(j,0)= LT.row(j) * Cdinv *leadfield.col(j) ;
+                MatrixT LCdT(LCd.rows(),1);
+                LCdT.block(j,0,1,1)= LCd.block(j,0,1,1).transpose()*LCd.block(j,0,1,1);
+
+                LCdinv.block(j,0,1,1)= LCdT.block(j,0,1,1)*LCd.block(j,0,1,1).transpose();
+
+
 
                 //Gewichtungsmatrix -> ein Wert für jeden Sensor
                 //W= Inverse der Zwischenmatrix*LF_transponiert*Daten-Kovarianzmatrix invertiert
-                        W = LCd * LT * Cdinv;			            //Matrix (1,N)
-                        MatrixT Wd;
-                        W.transposeInPlace();                       //Matrix (N,1)
-                        MatrixT Wrep = W.replicate( 1, MdCols );    //Vervielfältigen auf Spalten der Datenmatrix
 
-                        wlog::debug( CLASS ) << "Wrep " << Wrep.rows() << " x " << Wrep.cols();
-                //Ergebnis an m_beam übergeben
-                        m_beam.reset( new MatrixT( Wrep) );
+                W.row(j)= LCdinv(j,0)*LT.row(j) * Cdinv;
 
-//    //gewichtung Signal
-//        Wd = Wrep.cwiseProduct( data ); // TODO check result
-//        wlog::debug( CLASS ) << "  Wd " <<   Wd.rows() << " x " <<   Wd.cols();
-//    //Beamforming Signal
-//        MatrixT B = Wd.rowwise().sum();         //Spaltenvektor, transponiert ausgeben?
-//        m_beam.reset( new MatrixT( B ) );
-//        wlog::debug( CLASS ) << "  B " <<   B.rows() << " x " <<   B.cols();
+
+
+            }
+
+
+
+
+            /*W= W.cwiseAbs();*/
+           //            //Normierung
+                             MatrixT W5;
+                             W5= W.rowwise().norm();
+                             MatrixT W2;
+                             W2= W5.replicate(1,W.cols());
+                             MatrixT W3;
+                             W3= W.array()/W2.array();
+
+
+                                   wlog::debug( CLASS ) << "W " << W.rows() << " x " << W.cols();
+            //Ergebnis an m_beam übergeben
+                                  //m_beam.reset( new MatrixT( W) );
+                                   m_beam.reset( new MatrixT(W3) );
+                                   wlog::debug( CLASS ) << "m_beam" << m_beam->rows() << " x " << m_beam->cols();
     return true;
 }
 

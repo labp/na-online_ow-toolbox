@@ -57,27 +57,20 @@ public:
     WBeamforming();
 
     virtual ~WBeamforming();
-
-    virtual bool calculateBeamforming(const WLMatrix::MatrixT&   data, const WLMatrix::MatrixT& leadfield );
-//
-//    void setLeadfieldMEG( WLMatrix::SPtr leadfield );
+virtual bool calculateBeamforming(const WLMatrix::MatrixT&   data, const WLMatrix::MatrixT& leadfield, const WLMatrix::MatrixT& Noise, const WLMatrix::MatrixT& Data);
+    //virtual bool calculateBeamforming(const WLMatrix::MatrixT&   data, const WLMatrix::MatrixT& leadfield);
     void setSource( size_t source );
 
     virtual void reset();
 
     bool hasBeam() const;
 
-//    void setData(WLMatrix::SPtr data);
+
 
     virtual WLEMDSource::SPtr beam( WLEMData::ConstSPtr emd  )=0;      //;
 
 
 protected:
-//    typedef boost::shared_mutex MutexT;
-//    typedef boost::shared_lock< MutexT > SharedLockT;
-//    typedef boost::unique_lock< MutexT > ExclusiveLockT;
-/////////////////////////////////////////////////////////////////////////////////////
-//    mutable MutexT m_lockData; ///////
 
 
 
@@ -85,7 +78,8 @@ protected:
     WLMatrix::SPtr m_leadfield; //Leadfield
     WLMatrix::SPtr m_data;		//Datenmatrix
     WLMatrix::SPtr m_result;    //Egebnis
-    size_t  m_value;            //Anzahl quellen, Spalten
+    WLMatrix::SPtr m_regular;    //regularisierungsmatrix
+    //SPtr  m_value;            //Anzahl quellen, Spalten
 
 
 /////////////////////////////////////////////////////////////////////////////////////////

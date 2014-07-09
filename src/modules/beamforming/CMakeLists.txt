@@ -46,8 +46,20 @@ INCLUDE_DIRECTORIES( ${QT5_QTNETWORK_INCLUDE_DIR} )
 LINK_DIRECTORIES( ${QT5_STATIC_LIBRARY_DIR} )
 LIST( APPEND ADDITIONAL_LIBS ${QT5_STATIC_QTNETWORK_LIBRARY} ${QT5_STATIC_QTCORE_LIBRARY} )
 # Libraries needed due to Qt5 static linking
-LIST( APPEND ADDITIONAL_LIBS pthread rt z icudata icui18n icuuc glib-2.0 dl )
+LIST( APPEND ADDITIONAL_LIBS pthread rt z icudata icui18n icuuc dl )
 
+
+# -----------------------------------------------------------------------------------------------------------------------------------------------
+# Add CUDA libraries
+# -----------------------------------------------------------------------------------------------------------------------------------------------
+
+IF( CUDA_FOUND AND OW_USE_CUDA )
+	ADD_DEFINITIONS( -DFOUND_CUDA )
+	INCLUDE_DIRECTORIES( ${CUDA_INCLUDE_DIRS} )
+	LINK_DIRECTORIES( ${CUDA_LIBRARY_DIRS} )
+    LIST( APPEND ADDITIONAL_LIBS ${CUDA_CUBLAS_LIBRARIES} ${CUDA_LIBRARIES} )
+ENDIF()
+# Remove CUDA files in SETUP_MODULE
 
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------

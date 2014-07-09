@@ -43,7 +43,7 @@
 #include "core/container/WLArrayList.h"
 #include "core/container/WLList.h"
 
-#include "core/data/WLEMMBemBoundary.h"
+//#include "core/data/WLEMMBemBoundary.h"
 
 /**
  * This module implements several onscreen status displays
@@ -119,37 +119,49 @@ private:
 
     // Input/Output connector for a EMM dataset
 
-        WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input;
-        WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output; /**<  Output connector for buffered input connectors. */
+    WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input;
+    //kein outputdefinieren, ist in draw definiert, nur den connector setzen
     /**
      * A condition used to notify about changes in several properties.
      */
-        WCondition::SPtr m_propCondition;
+    WCondition::SPtr m_propCondition;
 
-        WPropGroup m_propGrpBeamforming;
-        WPropFilename m_lfMEGFile;                                              //Für Button
-        WPropString m_leadfieldStatus;
-        WPropFilename m_BEMfile;
-        WPropString m_BemStatus;
+    WPropGroup m_propGrpBeamforming;
+    //WPropFilename m_lfMEGFile;
+    WPropFilename m_lfEEGFile;
+    //Für Button
+    WPropString m_leadfieldStatus;
+    //*******************************TEST**********
+    WPropFilename m_NoiseFile;
+     //Für Button
+    WPropString m_NoiseStatus;
+     WLMatrix::SPtr m_Noise;
+     bool handleNoiseChanged( std::string fName, WLMatrix::SPtr& data );
+     //*******************************TEST**********
+     WPropFilename m_DataFile;
+      //Für Button
+     WPropString m_DataStatus;
+      WLMatrix::SPtr m_Data;
+      bool handleDataChanged( std::string fName, WLMatrix::SPtr& data );
+     //**********************************************
+     //bool writeMa( WLMatrix::MatrixT& matrix,std::string& name );
     // algorithm properties //
-        WPropTrigger m_resetModule;
-        WBeamforming::SPtr m_beamforming;
-        void handleResetTrigger();
+    WPropTrigger m_resetModule;
+    WBeamforming::SPtr m_beamforming;
+    void handleResetTrigger();
 
     //LEADFIELD
-        bool handleLfFileChanged( std::string fName, WLMatrix::SPtr& lf );      //Arbeit mit fif File
-        WLEMMSubject::SPtr m_subject;                                           //Leadfield
-        WLMatrix::SPtr m_leadfieldMEG;                                          //LF Matrix
+    bool handleLfFileChanged( std::string fName, WLMatrix::SPtr& lf );      //Arbeit mit fif File
+    WLEMMSubject::SPtr m_subject;                                           //Leadfield
+//    WLMatrix::SPtr m_leadfieldMEG;                                          //LF Matrix
+    WLMatrix::SPtr m_leadfieldEEG;
 
     //Modality
-        WLEModality::Enum m_lastModality;
-        void handleComputeModalityChanged( WLEMMCommand::ConstSPtr cmd );
-        void handleImplementationChanged( void );
-        WPropFilename m_bemFile;
-        //WPropGroup m_propGrpAdditional;
-       WLList< WLEMMBemBoundary::SPtr >::SPtr m_bems;
-       bool handleBemFileChanged( std::string fName );
-    WPropInt m_source;
+    WLEModality::Enum m_lastModality;
+    void handleComputeModalityChanged( WLEMMCommand::ConstSPtr cmd );
+    WPropBool m_useCuda;
+    void handleImplementationChanged( void );
+
 };
 
 #endif /* WMBEAMFORMING_H_ */
