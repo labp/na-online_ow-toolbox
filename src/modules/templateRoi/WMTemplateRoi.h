@@ -27,6 +27,8 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <osg/Geode>
+
 #include <core/kernel/WModule.h>
 
 #include "core/data/WLEMMeasurement.h"
@@ -54,6 +56,10 @@ public:
     virtual const std::string getDescription() const;
 
 protected:
+
+    /**
+     *
+     */
     virtual void moduleInit();
 
     /**
@@ -90,12 +96,38 @@ protected:
 
 private:
 
+    /**
+     * Input connector
+     */
     WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input;
 
     /**
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;
+
+    WPropGroup m_propGrpBox;
+
+    WPropDouble m_width;
+    WPropDouble m_height;
+    WPropDouble m_depth;
+
+    osg::ref_ptr< osg::Geode > m_geode;
+
+    /**
+     * Do some initialization work for the 3D view.
+     */
+    void initOSG();
+
+    /**
+     * Draws some graphical OSG stuff.
+     */
+    void drawSome();
+
+    /**
+     * Resizes the 3D box after the dimension properties haved changed.
+     */
+    void resizeBox();
 };
 
 #endif /* WMTEMPLATEROI_H_ */
