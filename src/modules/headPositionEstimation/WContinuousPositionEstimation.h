@@ -26,41 +26,75 @@
 
 #include <cmath>
 #include <string>
+#include <iostream>
 #include <vector>
 
+#include <boost/shared_ptr.hpp>
 #include <Eigen/Dense>
 
 #include <core/common/math/linearAlgebra/WPosition.h>
+#include <core/common/math/linearAlgebra/WVectorFixed.h>
 
-#include "math/WDownhillSimplexMethod.hpp"
+#include "cppmath/DownhillSimplexMethod.hpp"
 
 /**
  * TODO(pieloth): documentation
  *
  * \author pieloth
  */
-class WContinuousPositionEstimation: public WDownhillSimplexMethod< 15 >
+class WContinuousPositionEstimation: public cppmath::DownhillSimplexMethod< 6 >
 {
 public:
     static const std::string CLASS;
 
-    typedef Eigen::Vector3d PositionT;
-    typedef Eigen::Vector3d Vector3T;
+    /**
+     * Abbreviation for a shared pointer.
+     */
+    typedef boost::shared_ptr< WContinuousPositionEstimation > SPtr;
+
+    typedef Eigen::Matrix< double, 3, 1 > PointT;
+    typedef Eigen::Matrix< double, 3, 1 > OrientationT;
+    typedef Eigen::Matrix< double, 3, 1 > MomentT;
+    typedef Eigen::Matrix< double, 4, 4 > TransformationT;
     typedef Eigen::MatrixXd MatrixT;
 
-    WContinuousPositionEstimation( const std::vector< PositionT >& sensPos, const std::vector< Vector3T >& sensOri );
+    WContinuousPositionEstimation( const std::vector< WPosition >& hpiPos, const std::vector< WPosition >& sensPos,
+                    const std::vector< WVector3f >& sensOri );
     virtual ~WContinuousPositionEstimation();
 
-    virtual double func( const PointT& x ) const;
+    virtual double func( const ParamsT& x ) const;
 
+    std::vector< WPosition > getResultPositions() const;
+
+    TransformationT getResultTransformation() const;
+
+    void nextSample();
     void setData( const MatrixT& data );
 
+    ParamsT getInitialStep() const;
+
+    void setInitialStep( const ParamsT& initial );
+
+protected:
+    virtual void createInitials( const ParamsT& initial );
+
 private:
-    const std::vector< PositionT > m_sensPos;
-    const std::vector< Vector3T > m_sensOri;
+    typedef Eigen::Matrix< double, 4, 1 > HPointT;
+    typedef Eigen::Matrix< double, 4, Eigen::Dynamic > HPointsT;
+    typedef PointT Vector3T;
+    typedef Eigen::Matrix3d RotationT;
+
+    TransformationT paramsToTrans( const ParamsT& params ) const;
+
+    HPointsT m_hpiPos;
+    std::vector< PointT > m_sensPos;
+    std::vector< OrientationT > m_sensOri;
+
+    ParamsT m_initStep;
 
     MatrixT getSample( size_t coilIdx ) const;
     MatrixT m_data;
+    MatrixT::Index m_smpIdx;
 
     /**
      * TODO
@@ -70,8 +104,8 @@ private:
      * \param sensPos
      * \return
      */
-    static MatrixT computeLeadfield( const PositionT& dipPos, const std::vector< PositionT >& sensPos,
-                    const std::vector< Vector3T >& sensOri );
+    static MatrixT computeLeadfield( const PointT& dipPos, const std::vector< PointT >& sensPos,
+                    const std::vector< OrientationT >& sensOri );
 
     /**
      * Compute the magnetic flux density for a magnetic dipole with a fixed strength.
@@ -81,8 +115,20 @@ private:
      * \param sensOri Orientation of the sensor, i.e. magnetometer.
      * \return Leadfield vector containing x, y, z.
      */
-    static Vector3T computeMagneticDipole( const PositionT& dipPos, const PositionT& sensPos, const Vector3T& sensOri );
+    static Vector3T computeMagneticDipole( const PointT& dipPos, const PointT& sensPos, const OrientationT& sensOri );
 
 };
+
+inline std::ostream& operator<<( std::ostream &strm, const WContinuousPositionEstimation& est )
+{
+    strm << WContinuousPositionEstimation::CLASS << ": ";
+    strm << "maxIterations=" << est.getMaximumIterations() << ", ";
+    strm << "epsilon=" << est.getEpsilon() << ", ";
+    strm << "coefficients=[" << est.getReflectionCoeff() << ", " << est.getContractionCoeff() << ", " << est.getExpansionCoeff()
+                    << "], ";
+    strm << "initFactor=" << est.getInitialFactor() << ", ";
+    strm << "initStep=" << est.getInitialStep().transpose();
+    return strm;
+}
 
 #endif  // WCONTINUOUSPOSITIONESTIMATION_H_

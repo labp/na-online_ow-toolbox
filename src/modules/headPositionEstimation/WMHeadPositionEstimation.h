@@ -35,6 +35,8 @@
 #include "core/module/WLModuleDrawable.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 
+#include "WContinuousPositionEstimation.h"
+
 #include "WHPISignalExtraction.h"
 
 /**
@@ -107,6 +109,18 @@ private:
 
     WPropDouble m_propEpsilon; /**< Epsilon/threshold for minimization algorithm. */
 
+    WPropDouble m_propInitAlpha; /**< Initial step: alpha angle (degree) for z-y-z rotation. */
+
+    WPropDouble m_propInitBeta; /**< Initial step: beta angle (degree) for z-y-z rotation. */
+
+    WPropDouble m_propInitGamma; /**< Initial step: gamma angle (degree) for z-y-z rotation. */
+
+    WPropDouble m_propInitX; /**< Initial step: x translation (meter). */
+
+    WPropDouble m_propInitY; /**< Initial step: y translation (meter). */
+
+    WPropDouble m_propInitZ; /**< Initial step: z translation (meter). */
+
     WLEMMeasurement::SPtr m_lastEmm;
 
     /**
@@ -126,6 +140,9 @@ private:
      * \return True if successful, else false.
      */
     bool estimateHeadPosition( int out, WLEMDHPI::ConstSPtr hpiIn, WLEMMeasurement::ConstSPtr emmIn );
+    WContinuousPositionEstimation::SPtr m_optim;
+
+    WContinuousPositionEstimation::ParamsT m_lastParams;
 };
 
 #endif  // WMHEADPOSITIONESTIMATION_H_

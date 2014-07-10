@@ -30,10 +30,13 @@
 #include "core/module/WLConstantsModule.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 #include "core/util/profiler/WLTimeProfiler.h"
+#include "core/util/WLGeometry.h"
 
 #include "WContinuousPositionEstimation.h"
 #include "WMHeadPositionEstimation.xpm"
 #include "WMHeadPositionEstimation.h"
+
+#include "core/io/WLReaderMAT.h"
 
 W_LOADABLE_MODULE( WMHeadPositionEstimation )
 
@@ -51,6 +54,7 @@ static const std::string STATUS_ERROR = "Error"; /**< Indicates an error in modu
 
 WMHeadPositionEstimation::WMHeadPositionEstimation()
 {
+    m_lastParams.setZero();
 }
 
 WMHeadPositionEstimation::~WMHeadPositionEstimation()
@@ -129,8 +133,19 @@ void WMHeadPositionEstimation::properties()
     m_propGroupEstimation = m_properties->addPropertyGroup( "Head Position Estimation", "Head Position Estimation" );
 
     m_propMaxIterations = m_propGroupEstimation->addProperty( "Max. Iterations:",
-                    "Maximum iterations for minimization algorithm.", 200 );
-    m_propEpsilon = m_propGroupEstimation->addProperty( "Epsilon:", "Epsilon/threshold for minimization algorithm.", 1.0 );
+                    "Maximum iterations for minimization algorithm.", 128 );
+    m_propEpsilon = m_propGroupEstimation->addProperty( "Epsilon:", "Epsilon/threshold for minimization algorithm.", 1.0e-6 );
+
+    m_propInitAlpha = m_propGroupEstimation->addProperty( "Rz:", "Initial step: alpha angle in degrees for z-y-z rotation.",
+                    10.0 );
+    m_propInitBeta = m_propGroupEstimation->addProperty( "Ry':", "Initial step: beta angle in degrees for z-y-z rotation.",
+                    10.0 );
+    m_propInitGamma = m_propGroupEstimation->addProperty( "Rz'':", "Initial step: gamma angle in degrees for z-y-z rotation.",
+                    10.0 );
+
+    m_propInitX = m_propGroupEstimation->addProperty( "Tx:", "Initial step: x translation in meter.", 0.01 );
+    m_propInitY = m_propGroupEstimation->addProperty( "Ty:", "Initial step: y translation in meter.", 0.01 );
+    m_propInitZ = m_propGroupEstimation->addProperty( "Tz:", "Initial step: z translation in meter.", 0.01 );
 }
 
 void WMHeadPositionEstimation::moduleInit()
@@ -221,12 +236,12 @@ bool WMHeadPositionEstimation::processCompute( WLEMMeasurement::SPtr emmIn )
         m_output->updateData( cmdOut );
         return false;
     }
-    else
-        if( !m_lastEmm )
-        {
-            m_lastEmm = emmIn;
-            return false;
-        }
+
+    if( !m_lastEmm )
+    {
+        m_lastEmm = emmIn;
+        return false;
+    }
 
     // TODO(pieloth): Requires origin positions, isotrak and estimates positions.
     if( !hpiOut->setChannelPositions3d( emmIn->getDigPoints() ) )
@@ -245,7 +260,6 @@ bool WMHeadPositionEstimation::processCompute( WLEMMeasurement::SPtr emmIn )
     // Reconstructed HPI amplitudes and positions are for previous EMM packet
     if( m_lastEmm.get() != NULL )
     {
-
         WLEMMeasurement::SPtr emmOut = m_lastEmm->clone();
         emmOut->setModalityList( m_lastEmm->getModalityList() );
         emmOut->addModality( hpiOut );
@@ -269,6 +283,7 @@ bool WMHeadPositionEstimation::processReset( WLEMMCommand::SPtr cmdIn )
 {
     m_lastEmm.reset();
     m_hpiSignalExtraction->reset();
+    m_optim.reset();
     m_output->updateData( cmdIn );
     return true;
 }
@@ -313,7 +328,39 @@ bool WMHeadPositionEstimation::extractHpiSignals( WLEMDHPI::SPtr& hpiOut, WLEMMe
             m_lastEmm.reset();
             return false;
         }
-
+    // Test code for matlab
+//    WLReaderMAT::SPtr reader;
+//    std::string fName = "/home/pieloth/hpi_data.mat";
+//    try
+//    {
+//        reader.reset( new WLReaderMAT( fName ) );
+//    }
+//    catch( const WDHNoSuchFile& e )
+//    {
+//        errorLog() << "File does not exist: " << fName;
+//        return false;
+//    }
+//
+//    WLIOStatus::ioStatus_t status;
+//    status = reader->init();
+//    if( status != WLIOStatus::SUCCESS )
+//    {
+//        errorLog() << reader->getIOStatusDescription( status );
+//        return false;
+//    }
+//
+//    WLMatrix::SPtr mat;
+//    status = reader->readMatrix( mat );
+//    if( status != WLIOStatus::SUCCESS )
+//    {
+//        errorLog() << reader->getIOStatusDescription( status );
+//        return false;
+//    }
+//    hpiOut.reset( new WLEMDHPI );
+//    hpiOut->setData( mat );
+//    hpiOut->setNrHpiCoils( 5 );
+//    hpiOut->setSampFreq( 1.0 );
+    return true;
 }
 
 bool WMHeadPositionEstimation::estimateHeadPosition( int out, WLEMDHPI::ConstSPtr hpiIn, WLEMMeasurement::ConstSPtr emmIn )
@@ -327,91 +374,52 @@ bool WMHeadPositionEstimation::estimateHeadPosition( int out, WLEMDHPI::ConstSPt
         return false;
     }
 
-    // TODO(pieloth): Save magnetometer information, because they are not changing
-    // Prepare MEG magnetometer data
-    WLEMDMEG::ConstSPtr megIn = emmIn->getModality< const WLEMDMEG >( WLEModality::MEG );
-    WLEMDMEG::SPtr megMag( new WLEMDMEG );
-    WLEMDMEG::extractCoilModality( megMag, megIn, WLEModality::MEG_MAG, false );
-    debugLog() << "meg_mag: " << *megMag;
-
-    WLArrayList< WPosition >::ConstSPtr magPos = megMag->getChannelPositions3d();
-    WLArrayList< WVector3f >::ConstSPtr magOri = megMag->getEz();
-    debugLog() << "magPos: " << *magPos;
-    debugLog() << "magOri: " << *magOri;
-
-    std::vector< WContinuousPositionEstimation::PositionT > magPos4hpi( magPos->begin(), magPos->end() );
-    std::vector< WContinuousPositionEstimation::Vector3T > magOri4hpi;
-    magOri4hpi.reserve( magOri->size() );
-    for( size_t i = 0; i < megMag->getNrChans(); ++i )
+    if( !m_optim )
     {
-        const WVector3f ori = magOri->at( i );
-        magOri4hpi.push_back( WContinuousPositionEstimation::Vector3T( ori.x(), ori.y(), ori.z() ) );
-    }
-    debugLog() << "magPos4hpi: " << magPos4hpi.size();
-    debugLog() << "magOri4hpi: " << magOri4hpi.size();
+        // Prepare MEG magnetometer data
+        WLEMDMEG::ConstSPtr megIn = emmIn->getModality< const WLEMDMEG >( WLEModality::MEG );
+        WLEMDMEG::SPtr megMag( new WLEMDMEG );
+        WLEMDMEG::extractCoilModality( megMag, megIn, WLEModality::MEG_MAG, false );
+        debugLog() << "meg_mag: " << *megMag;
 
-    WContinuousPositionEstimation est( magPos4hpi, magOri4hpi );
-    est.setData( hpiIn->getData() );
-    WContinuousPositionEstimation::PointT initial;
-    WLArrayList< WPosition >::const_iterator it = hpiIn->getChannelPositions3d()->begin();
-    int i = 0;
-    for( ; it != hpiIn->getChannelPositions3d()->end(); ++it )
-    {
-        initial( 0, i + 0 ) = it->x();
-        initial( 0, i + 1 ) = it->y();
-        initial( 0, i + 2 ) = it->z();
-        i += 3;
+        WLArrayList< WPosition >::ConstSPtr magPos = megMag->getChannelPositions3d();
+        WLArrayList< WVector3f >::ConstSPtr magOri = megMag->getEz();
+        debugLog() << "magPos: " << *magPos;
+        debugLog() << "magOri: " << *magOri;
+
+        m_optim.reset( new WContinuousPositionEstimation( *hpiIn->getChannelPositions3d(), *magPos, *magOri ) );
+        m_optim->setMaximumIterations( m_propMaxIterations->get() );
+        m_optim->setEpsilon( m_propEpsilon->get() );
+        WContinuousPositionEstimation::ParamsT step = WContinuousPositionEstimation::ParamsT::Zero();
+        const double toRadFac = M_PI / 180;
+        step( 0 ) = m_propInitAlpha->get() * toRadFac;
+        step( 1 ) = m_propInitBeta->get() * toRadFac;
+        step( 2 ) = m_propInitGamma->get() * toRadFac;
+        step( 3 ) = m_propInitX->get();
+        step( 4 ) = m_propInitY->get();
+        step( 5 ) = m_propInitZ->get();
+        m_optim->setInitialStep( step );
+        m_optim->setInitialFactor( 0.5 );
+        debugLog() << *m_optim;
     }
 
-    est.optimize( initial );
-    //
-    // Collect results
-    const WContinuousPositionEstimation::PointT best = est.getBestVariable();
-    // TODO(pieloth): remove logging
-    debugLog() << "Estimation: " << est.isConverged() << " " << est.getIterations() << " " << est.func( best );
-//    debugLog() << "hpiPos head: " << hpiPos->at( ch );
-    debugLog() << "hpiPos device: " << best;
-
-//    // TODO(pieloth)
-//    // Get HPI data
-//    const WLEMData::DataT& hpiData = hpiIn->getData();
-//    debugLog() << "hpiData: " << hpiData.rows() << "x" << hpiData.cols();
-//    WLArrayList< WPosition >::ConstSPtr hpiPos = hpiIn->getChannelPositions3d();
-//    debugLog() << "hpiPos: " << *hpiPos;
-//    for( size_t ch = 0; ch < hpiIn->getNrHpiCoils(); ++ch )
-//    {
-//        debugLog() << "HPI coil #" << ch;
-//        // TODO(pieloth)
-//        // Get data for HPI channel
-//        WContinuousPositionEstimation::MatrixT hpiData4Coil( hpiData.rows() / hpiIn->getNrHpiCoils(), hpiData.cols() );
-//        WLEMData::DataT::Index i = ch;
-//        WContinuousPositionEstimation::MatrixT::Index j = 0;
-//        while( i < hpiData.rows() )
-//        {
-//            hpiData4Coil.row( j ) = hpiData.row( i );
-//            i += hpiIn->getNrHpiCoils();
-//            ++j;
-//        }
-//        debugLog() << "hpiData4Coil: " << hpiData4Coil.rows() << "x" << hpiData4Coil.cols();
-//
-//        // Do estimation
-//        WContinuousPositionEstimation est;
-//        est.setMaximumIterations( 256 );
-//        est.setEpsilon( 0.04 );
-//        est.m_data = hpiData4Coil;
-//        est.m_sensPos = magPos4hpi;
-//        est.m_sensOri = magOri4hpi;
-//        const WPosition hpiCoilPos = hpiPos->at( ch );
-//        const WContinuousPositionEstimation::PointT p( hpiCoilPos.x(), hpiCoilPos.y(), hpiCoilPos.z() - 0.005 );
-//        est.optimize( p );
-//
-//        // Collect results
-//        const WContinuousPositionEstimation::PointT best = est.getBestVariable();
-//        // TODO(pieloth): remove logging
-//        debugLog() << "Estimation: " << est.isConverged() << " " << est.getIterations() << " " << est.func( best );
-//        debugLog() << "hpiPos head: " << hpiPos->at( ch );
-//        debugLog() << "hpiPos device: " << best;
-//    }
+    m_optim->setData( hpiIn->getData() );
+    WContinuousPositionEstimation::MatrixT::Index smp;
+    const WContinuousPositionEstimation::MatrixT::Index n_smp = hpiIn->getData().cols();
+    for( smp = 0; smp < n_smp; ++smp )
+    {
+        m_optim->optimize( m_lastParams );
+        m_lastParams = m_optim->getResultParams();
+        debugLog() << "Estimation: " << m_optim->converged() << " " << m_optim->getResultIterations() << " "
+                        << m_optim->getResultError();
+        debugLog() << "Best:\n" << m_lastParams;
+        debugLog() << "Transformation:\n" << m_optim->getResultTransformation();
+        std::vector< WPosition > hpiPosNew = m_optim->getResultPositions();
+        debugLog() << "HPI Positions:\n" << hpiPosNew[0] << "\n" << hpiPosNew[1] << "\n" << hpiPosNew[2] << "\n" << hpiPosNew[3]
+                        << "\n" << hpiPosNew[4];
+        m_optim->nextSample();
+        // TODO(pieloth): store result
+    }
 
     return false;
 }
