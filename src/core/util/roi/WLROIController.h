@@ -63,6 +63,12 @@ public:
      */
     typedef boost::shared_ptr< const WLROIController< DataType, FilterType > > ConstSPtr;
 
+    /**
+     * Constructs a new WLROIController.
+     *
+     * @param roi The ROI object.
+     * @param data The data to calculate.
+     */
     WLROIController( osg::ref_ptr< WROI > roi, DataTypeSPtr data );
 
     /**
