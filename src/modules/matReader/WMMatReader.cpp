@@ -34,7 +34,6 @@
 #include "core/io/WLReaderMAT.h"
 #include "core/io/WLReaderSourceSpace.h"
 #include "core/module/WLConstantsModule.h"
-#include "core/module/WLDataModuleInputNull.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
 #include "reader/WReaderEEGPositions.h"
@@ -63,8 +62,6 @@ WMMatReader::WMMatReader() :
                 WDataModule()
 {
     m_reloadMatFile = false;
-    WLDataModuleInputNull::SPtr null( new WLDataModuleInputNull() );
-    setInput( null );
 }
 
 WMMatReader::~WMMatReader()
@@ -95,7 +92,8 @@ std::vector< WDataModuleInputFilter::ConstSPtr > WMMatReader::getInputFilter() c
 {
     std::vector< WDataModuleInputFilter::ConstSPtr > filters;
     filters.push_back(
-                    WDataModuleInputFilter::ConstSPtr( new WDataModuleInputFilterFile( "mat", "MAT files, MATLAB matrices v5" ) ) );
+                    WDataModuleInputFilter::ConstSPtr(
+                                    new WDataModuleInputFilterFile( "mat", "MAT files, MATLAB matrices v5" ) ) );
     return filters;
 }
 
@@ -113,10 +111,6 @@ void WMMatReader::properties()
     WModule::properties();
 
     m_propCondition = WCondition::SPtr( new WCondition() );
-
-    m_propMatFile = m_properties->addProperty( "MAT-File:", "MATLAB MAT-File to read.", WPathHelper::getHomePath(),
-                    m_propCondition );
-    m_propMatFile->changed( true );
 
     m_propSensorFile = m_properties->addProperty( "Sensor Positions:", "FIFF file containing sensor positions.",
                     WPathHelper::getHomePath(), m_propCondition );
@@ -160,11 +154,6 @@ void WMMatReader::moduleMain()
         if( m_shutdownFlag() )
         {
             break;
-        }
-
-        if( m_propMatFile->changed( true ) )
-        {
-            setInput( WDataModuleInputFile::SPtr( new WDataModuleInputFile( m_propMatFile->get() ) ) );
         }
 
         if( m_reloadMatFile )
@@ -240,10 +229,14 @@ void WMMatReader::handleInputChange()
     WDataModuleInputFile::SPtr inputFile = getInputAs< WDataModuleInputFile >();
     if( inputFile )
     {
-        m_propMatFile->set( inputFile->getFilename(), true );
         m_moduleState.notify();
         m_reloadMatFile = true;
         return;
+    }
+    else
+    {
+        m_status->set( NONE, true );
+        m_matrix.reset();
     }
 }
 
@@ -276,7 +269,12 @@ bool WMMatReader::handleSensorFileChanged()
 
 bool WMMatReader::handleMatFileChanged()
 {
-    const std::string fName = m_propMatFile->get().string();
+    WDataModuleInputFile::SPtr inputFile = getInputAs< WDataModuleInputFile >();
+    if( !inputFile )
+    {
+        return false;
+    }
+    const std::string fName = inputFile->getFilename().string();
     infoLog() << "Start reading file: " << fName;
 
     WLReaderMAT::SPtr reader;

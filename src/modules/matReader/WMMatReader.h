@@ -79,7 +79,6 @@ private:
 
     WPropString m_status;
 
-    WPropFilename m_propMatFile;
     bool m_reloadMatFile;
     bool handleMatFileChanged();
 
