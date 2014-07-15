@@ -33,7 +33,6 @@
 #include "core/data/emd/WLEMDEEG.h"
 #include "core/data/enum/WLEModality.h"
 #include "core/module/WLConstantsModule.h"
-#include "core/module/WLDataModuleInputNull.h"
 #include "core/io/WLReaderFIFF.h"
 #include "core/util/WLGeometry.h"
 
@@ -87,8 +86,6 @@ WMFiffReader::WMFiffReader() :
     m_fileStatus = EFileStatus::NO_FILE;
     m_dataStatus = EDataStatus::NO_DATA;
     m_reloadFiff = false;
-    WLDataModuleInputNull::SPtr null( new WLDataModuleInputNull() );
-    setInput( null );
 }
 
 WMFiffReader::~WMFiffReader()
@@ -127,9 +124,17 @@ void WMFiffReader::handleInputChange()
     WDataModuleInputFile::SPtr inputFile = getInputAs< WDataModuleInputFile >();
     if( inputFile )
     {
-        m_propFiffFile->set( inputFile->getFilename(), true );
         m_moduleState.notify();
         m_reloadFiff = true;
+        return;
+    }
+    else
+    {
+        m_output->reset();
+        m_emm.reset();
+        m_subject.reset();
+        updateFileStatus( EFileStatus::NO_FILE );
+        updateDataStatus( EDataStatus::NO_DATA );
         return;
     }
 }
@@ -152,9 +157,6 @@ void WMFiffReader::properties()
     m_trgSendEMM = m_properties->addProperty( "Send EMM:", "Send", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
 
     // FIFF file //
-    m_propFiffFile = m_properties->addProperty( "FIFF file:", "FIFF file to load.", WPathHelper::getHomePath(), m_propCondition );
-    m_propFiffFile->changed( true );
-
     m_propFileStatus = m_properties->addProperty( "File status:", "FIFF file status.",
                     EFileStatus::name( EFileStatus::NO_FILE ) );
     m_propFileStatus->setPurpose( PV_PURPOSE_INFORMATION );
@@ -206,10 +208,6 @@ void WMFiffReader::moduleMain()
             break;
         }
 
-        if( m_propFiffFile->changed( true ) )
-        {
-            setInput( WDataModuleInputFile::SPtr( new WDataModuleInputFile( m_propFiffFile->get() ) ) );
-        }
         if( m_reloadFiff )
         {
             handleFiffFileChanged();
@@ -251,11 +249,18 @@ void WMFiffReader::handleTrgSendEMM()
 
 void WMFiffReader::handleFiffFileChanged()
 {
+    WDataModuleInputFile::SPtr inputFile = getInputAs< WDataModuleInputFile >();
+    if( !inputFile )
+    {
+        updateDataStatus( EDataStatus::NO_DATA );
+        return;
+    }
+    const std::string fName = inputFile->getFilename().string();
+
     WProgress::SPtr progress( new WProgress( "Reading FIFF file" ) );
     m_progress->addSubProgress( progress );
 
     updateFileStatus( EFileStatus::LOADING_FILE );
-    const std::string fName = m_propFiffFile->get().string();
     if( readFiffFile( fName ) )
     {
         updateFileStatus( EFileStatus::SUCCESS );

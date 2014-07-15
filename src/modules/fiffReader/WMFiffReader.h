@@ -97,7 +97,6 @@ private:
     WPropString m_propFileStatus;
     void updateFileStatus( EFileStatus::Enum status );
 
-    WPropFilename m_propFiffFile;
     bool m_reloadFiff;
     void handleFiffFileChanged();
     bool readFiffFile( const std::string& fName );
