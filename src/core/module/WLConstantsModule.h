@@ -30,7 +30,8 @@
 
 namespace WLConstantsModule
 {
-    const std::string NAME_PREFIX = "NA-Online:";
+    // NOTE(pieloth): "NA-Online: " causes an error on loading a saved WDataModule
+    const std::string NAME_PREFIX = "[NA-Online]";
 
     const size_t BUFFER_SIZE = 8;
 
