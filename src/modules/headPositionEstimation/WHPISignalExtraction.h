@@ -169,4 +169,14 @@ private:
     MatrixT m_ata; /**< A^2*A. Pre-calculated by prepare(). */
 };
 
+inline std::ostream& operator<<( std::ostream &strm, const WHPISignalExtraction& obj )
+{
+    strm << WHPISignalExtraction::CLASS << ": ";
+    strm << "winSize=" << obj.getWindowsSize() << ", ";
+    strm << "stepSize=" << obj.getStepSize() << ", ";
+    strm << "sFreq=" << obj.getSamplingFrequency() << ", ";
+    strm << "hpiFreqs=" << obj.getFrequencies().size();
+    return strm;
+}
+
 #endif  // WHEADSIGNALEXTRACTION_H_

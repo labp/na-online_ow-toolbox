@@ -213,6 +213,7 @@ bool WMHeadPositionEstimation::handleApplyFreq()
     m_hpiSignalExtraction->setStepSize( win_size );
     m_propWindowsSize->set( win_size, true );
 
+    infoLog() << *m_hpiSignalExtraction;
     m_propStatus->set( STATUS_OK, true );
     return true;
 }
@@ -308,6 +309,7 @@ bool WMHeadPositionEstimation::extractHpiSignals( WLEMDHPI::SPtr& hpiOut, WLEMDM
     if( magIn->getSampFreq() != m_hpiSignalExtraction->getSamplingFrequency() )
     {
         m_hpiSignalExtraction->setSamplingFrequency( magIn->getSampFreq() );
+        infoLog() << "Update signal extraction:\n" << *m_hpiSignalExtraction;
     }
 
     const bool rc = m_hpiSignalExtraction->reconstructAmplitudes( hpiOut, magIn );
@@ -380,7 +382,7 @@ bool WMHeadPositionEstimation::estimateHeadPosition( WLEMDHPI::SPtr hpiInOut, WL
         step( 5 ) = m_propInitZ->get();
         m_optim->setInitialStep( step );
         m_optim->setInitialFactor( 0.5 );
-        debugLog() << *m_optim;
+        infoLog() << *m_optim;
     }
 
     // Estimate positions
