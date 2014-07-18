@@ -38,6 +38,7 @@ static const WLTimeT WINDOWS_SIZE = 0.2;
 static const WLTimeT STEP_SIZE = 0.01;
 static const WLFreqT SAMPLING_FREQ = 1000.0;
 static const float SEC_TO_MS = 1000.0;
+static const float MIN_WINDOWS_PERIODS = 20.0;
 
 WHPISignalExtraction::WHPISignalExtraction() :
                 m_isPrepared( false ), m_windowsSize( WINDOWS_SIZE ), m_stepSize( STEP_SIZE ), m_sampFreq( SAMPLING_FREQ )
@@ -54,10 +55,29 @@ WLTimeT WHPISignalExtraction::getWindowsSize() const
     return m_windowsSize * SEC_TO_MS;
 }
 
-void WHPISignalExtraction::setWindowsSize( WLTimeT winSize )
+WLTimeT WHPISignalExtraction::setWindowsSize( WLTimeT winSize )
 {
-    m_windowsSize = winSize / SEC_TO_MS;
+    winSize = winSize / SEC_TO_MS;
+    if( !m_angFrequencies.empty() )
+    {
+        const std::vector< WLFreqT >& freqs = getFrequencies();
+        std::vector< WLFreqT >::const_iterator it = freqs.begin();
+        WLFreqT fmin = *it;
+        for( it = it + 1; it != freqs.end(); ++it )
+        {
+            fmin = std::min( fmin, *it );
+        }
+        const float N = fmin * winSize;
+        if( N < MIN_WINDOWS_PERIODS )
+        {
+            const WLTimeT wsize_old = winSize;
+            winSize = MIN_WINDOWS_PERIODS / fmin;
+            wlog::warn(CLASS) << "Windows size is to small: t_old=" << wsize_old << " t_new=" << winSize;
+        }
+    }
+    m_windowsSize = winSize;
     m_isPrepared = false;
+    return m_windowsSize * SEC_TO_MS;
 }
 
 WLTimeT WHPISignalExtraction::getStepSize() const
@@ -202,7 +222,6 @@ bool WHPISignalExtraction::reconstructAmplitudes( WLEMDHPI::SPtr& hpiOut, WLEMDM
         const WFIRFilter::WEFilterType::Enum f_type = WFIRFilter::WEFilterType::HIGHPASS;
         const WFIRFilter::WEWindowsType::Enum w_type = WFIRFilter::WEWindowsType::HAMMING;
         const size_t order = std::min< size_t >( 200, megIn->getSamplesPerChan() );
-        // TODO (pieloth): Change type to WLFreqT
         const WFIRFilter::ScalarT s_freq = m_sampFreq;
         size_t minIdx = 0;
         for( size_t i = 1; i < m_angFrequencies.size(); ++i )
@@ -214,12 +233,6 @@ bool WHPISignalExtraction::reconstructAmplitudes( WLEMDHPI::SPtr& hpiOut, WLEMDM
         m_firFilter->design( f_type, w_type, order, s_freq, c_freq, c_freq );
     }
     WLEMData::ConstSPtr megFiltered = m_firFilter->filter( megIn );
-    if( !m_lastMeg )
-    {
-        m_lastMeg = megFiltered;
-        wlog::debug( CLASS ) << "No previous data. Reconstruction starts with next block.";
-        return false;
-    }
 
     const MatrixT::Index J = m_angFrequencies.size();
     const MatrixT::Index N = m_windowsSize * m_sampFreq; // windows size in samples
@@ -229,18 +242,14 @@ bool WHPISignalExtraction::reconstructAmplitudes( WLEMDHPI::SPtr& hpiOut, WLEMDM
     const WLEMData::DataT::Index hpiChannels = channels * J;
     const WLEMData::DataT::Index samples = static_cast< WLEMData::DataT::Index >( megFiltered->getSamplesPerChan() );
 
-    // Prepare output data
+    // Prepare input/output data
     WLEMDHPI::DataSPtr dataOut( new WLEMDHPI::DataT( hpiChannels, samples / S ) );
-
-    // Combine last block with current block
-    WLEMData::DataT data( channels, 2 * samples );
-    data.block( 0, 0, channels, samples ) = m_lastMeg->getData();
-    data.block( 0, samples, channels, samples ) = megFiltered->getData();
+    const WLEMData::DataT& data = megFiltered->getData();
 
     // Processing: Move windows step by step
     // -------------------------------------
     WLEMData::DataT::Index hpiSmp = 0;
-    for( MatrixT::Index start = samples - N; start + N < 2 * samples; start += S )
+    for( MatrixT::Index start = 0; start + N < samples; start += S )
     {
         WLEMData::SampleT hpiSampel( hpiChannels );
         reconstructWindows( &hpiSampel, data, start, N );
@@ -249,7 +258,6 @@ bool WHPISignalExtraction::reconstructAmplitudes( WLEMDHPI::SPtr& hpiOut, WLEMDM
 
     // Finalization
     // ------------
-    m_lastMeg = megFiltered;
     if( !hpiOut )
     {
         hpiOut.reset( new WLEMDHPI );
@@ -272,16 +280,16 @@ void WHPISignalExtraction::reconstructWindows( WLEMData::SampleT* const hpiOut, 
         const VectorT b = megIn.row( c ).segment( start, samples ).transpose();
         const VectorT atb = m_at * b;
 
-// Solve: x = (A^T*A)^-1 * A^T*b
+        // Solve: x = (A^T*A)^-1 * A^T*b
         VectorT x = m_ata.colPivHouseholderQr().solve( atb );
-// x = x^2
+        // x = x^2
         x = x.cwiseProduct( x );
-// Reduction: tmp = x'^2 + x''^2
+        // Reduction: tmp = x'^2 + x''^2
         for( MatrixT::Index j = 0; j < J; ++j )
         {
             x( j ) += x( j + J );
         }
-// a = sqrt(x'^2 + x''^2)
+        // a = sqrt(x'^2 + x''^2)
         const VectorT a = x.segment( 0, J ).cwiseSqrt();
         hpiOut->block( hpiOffset, 0, J, 1 ) = a;
 
@@ -297,7 +305,6 @@ void WHPISignalExtraction::reset()
     m_windowsSize = WINDOWS_SIZE;
     m_stepSize = STEP_SIZE;
     m_sampFreq = SAMPLING_FREQ;
-    m_lastMeg.reset();
     m_angFrequencies.clear();
 
     wlog::debug( CLASS ) << "Algorithm reset.";

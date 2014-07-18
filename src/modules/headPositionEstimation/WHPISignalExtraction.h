@@ -64,11 +64,12 @@ public:
     WLTimeT getWindowsSize() const;
 
     /**
-     * Sets the windows size.
+     * Sets the windows size. Requested size could be change if it is to small!
      *
      * \param winSize Windows size in ms.
+     * \return set windows size in ms
      */
-    void setWindowsSize( WLTimeT winSize );
+    WLTimeT setWindowsSize( WLTimeT winSize );
 
     /**
      * Gets the step size.
@@ -156,8 +157,6 @@ private:
                     MatrixT::Index samples );
 
     WFIRFilter::SPtr m_firFilter;
-
-    WLEMData::ConstSPtr m_lastMeg; /**< Stores the previous MEG data block. */
 
     bool m_isPrepared; /**< Indicates if the algorithm is prepared. */
     WLTimeT m_windowsSize; /**< Windows size in seconds. */

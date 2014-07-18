@@ -47,7 +47,6 @@ static const double HPI4_FREQ = 166.0; /**< Default frequency (sfreq < 600Hz) fo
 static const double HPI5_FREQ = 170.0; /**< Default frequency (sfreq < 600Hz) for HPI coil 5 in Hz. */
 
 static const double WINDOWS_SIZE = 200.0; /**< Default windows size in milliseconds. */
-static const double STEP_SIZE = 10.0; /**< Default step size in milliseconds. */
 
 static const std::string STATUS_OK = "Ok"; /**< Indicates the module status is ok. */
 static const std::string STATUS_ERROR = "Error"; /**< Indicates an error in module. */
@@ -122,7 +121,6 @@ void WMHeadPositionEstimation::properties()
                     HPI5_FREQ );
 
     m_propWindowsSize = m_propGroupExtraction->addProperty( "Windows Size [ms]:", "Windows size in milliseconds.", WINDOWS_SIZE );
-    m_propStepSize = m_propGroupExtraction->addProperty( "Step Size [ms]:", "Step size in milliseconds.", STEP_SIZE );
 
     m_propStatus = m_propGroupExtraction->addProperty( "Status:", "Reports the status of actions.", STATUS_OK );
     m_propStatus->setPurpose( PV_PURPOSE_INFORMATION );
@@ -204,14 +202,16 @@ bool WMHeadPositionEstimation::handleApplyFreq()
     debugLog() << "handleApplyFreq() called!";
 
     m_hpiSignalExtraction.reset( new WHPISignalExtraction() );
-    m_hpiSignalExtraction->setWindowsSize( m_propWindowsSize->get() );
-    m_hpiSignalExtraction->setStepSize( m_propStepSize->get() );
 
     m_hpiSignalExtraction->addFrequency( m_propHpi1Freq->get() );
     m_hpiSignalExtraction->addFrequency( m_propHpi2Freq->get() );
     m_hpiSignalExtraction->addFrequency( m_propHpi3Freq->get() );
     m_hpiSignalExtraction->addFrequency( m_propHpi4Freq->get() );
     m_hpiSignalExtraction->addFrequency( m_propHpi5Freq->get() );
+
+    const WLTimeT win_size = m_hpiSignalExtraction->setWindowsSize( m_propWindowsSize->get() );
+    m_hpiSignalExtraction->setStepSize( win_size );
+    m_propWindowsSize->set( win_size, true );
 
     m_propStatus->set( STATUS_OK, true );
     return true;
@@ -227,9 +227,15 @@ bool WMHeadPositionEstimation::processInit( WLEMMCommand::SPtr cmdIn )
 bool WMHeadPositionEstimation::processCompute( WLEMMeasurement::SPtr emmIn )
 {
     WLTimeProfiler tp( "WMHeadPositionEstimation", "processCompute" );
+
+    WLEMDMEG::SPtr magIn;
+    if(!extractMagnetometer(magIn, emmIn))
+    {
+        return false;
+    }
+
     WLEMDHPI::SPtr hpiOut;
-    // TODO(pieloth): states over 2 methods with m_lastEmm is bad. change it!
-    if( !extractHpiSignals( hpiOut, emmIn ) )
+    if( !extractHpiSignals( hpiOut, magIn ) )
     {
         WLEMMCommand::SPtr cmdOut( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
         cmdOut->setEmm( emmIn );
@@ -237,19 +243,13 @@ bool WMHeadPositionEstimation::processCompute( WLEMMeasurement::SPtr emmIn )
         return false;
     }
 
-    if( !m_lastEmm )
-    {
-        m_lastEmm = emmIn;
-        return false;
-    }
-
-    // TODO(pieloth): Requires origin positions, isotrak and estimates positions.
     if( !hpiOut->setChannelPositions3d( emmIn->getDigPoints() ) )
     {
-        warnLog() << "Could not set isotrak positions for HPI coils!";
+        errorLog() << "Could not set isotrak positions for HPI coils!";
+        return false;
     }
 
-    if( !estimateHeadPosition( 0, hpiOut, emmIn ) )
+    if( !estimateHeadPosition( hpiOut, magIn ) )
     {
         WLEMMCommand::SPtr cmdOut( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
         cmdOut->setEmm( emmIn );
@@ -257,41 +257,32 @@ bool WMHeadPositionEstimation::processCompute( WLEMMeasurement::SPtr emmIn )
         return false;
     }
 
-    // Reconstructed HPI amplitudes and positions are for previous EMM packet
-    if( m_lastEmm.get() != NULL )
-    {
-        WLEMMeasurement::SPtr emmOut = m_lastEmm->clone();
-        emmOut->setModalityList( m_lastEmm->getModalityList() );
-        emmOut->addModality( hpiOut );
-        // TODO add/set positions/transformation
-        viewUpdate( emmOut );
+    // Reconstructed HPI amplitudes and positions
+    WLEMMeasurement::SPtr emmOut = emmIn->clone();
+    emmOut->setModalityList( emmIn->getModalityList() );
+    emmOut->addModality( hpiOut );
+    // TODO add/set positions/transformation
+    viewUpdate( emmOut );
 
-        WLEMMCommand::SPtr cmdOut( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
-        cmdOut->setEmm( emmOut );
-        m_output->updateData( cmdOut );
-        m_lastEmm = emmIn;
-        return true;
-    }
-    else
-    {
-        errorLog() << "Previous EMM packet is emtpy!";
-        return false;
-    }
+    WLEMMCommand::SPtr cmdOut( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
+    cmdOut->setEmm( emmOut );
+    m_output->updateData( cmdOut );
+
+    return true;
 }
 
 bool WMHeadPositionEstimation::processReset( WLEMMCommand::SPtr cmdIn )
 {
-    m_lastEmm.reset();
     m_hpiSignalExtraction->reset();
     m_optim.reset();
+    m_lastParams.setZero();
     m_output->updateData( cmdIn );
     return true;
 }
 
-bool WMHeadPositionEstimation::extractHpiSignals( WLEMDHPI::SPtr& hpiOut, WLEMMeasurement::ConstSPtr emmIn )
+bool WMHeadPositionEstimation::extractMagnetometer( WLEMDMEG::SPtr& magOut, WLEMMeasurement::ConstSPtr emmIn )
 {
-    WLTimeProfiler tp( "WMHeadPositionEstimation", "extractHpiSignals" );
-
+    WLTimeProfiler tp( "WMHeadPositionEstimation", "extractMagnetometer" );
     if( !emmIn->hasModality( WLEModality::MEG ) )
     {
         errorLog() << "No MEG data!";
@@ -299,36 +290,37 @@ bool WMHeadPositionEstimation::extractHpiSignals( WLEMDHPI::SPtr& hpiOut, WLEMMe
     }
 
     WLEMDMEG::ConstSPtr megIn = emmIn->getModality< const WLEMDMEG >( WLEModality::MEG );
-    if( megIn->getSampFreq() != m_hpiSignalExtraction->getSamplingFrequency() )
+    if( WLEMDMEG::extractCoilModality( magOut, megIn, WLEModality::MEG_MAG, false ) )
     {
-        m_hpiSignalExtraction->setSamplingFrequency( megIn->getSampFreq() );
+        return true;
     }
-
-    WLEMDMEG::SPtr megMag;
-    if( !WLEMDMEG::extractCoilModality( megMag, megIn, WLEModality::MEG_MAG, true ) )
+    else
     {
         errorLog() << "Could not extract magnetometer!";
         return false;
     }
+}
 
-    const bool rc = m_hpiSignalExtraction->reconstructAmplitudes( hpiOut, megMag );
+bool WMHeadPositionEstimation::extractHpiSignals( WLEMDHPI::SPtr& hpiOut, WLEMDMEG::ConstSPtr magIn )
+{
+    WLTimeProfiler tp( "WMHeadPositionEstimation", "extractHpiSignals" );
+
+    if( magIn->getSampFreq() != m_hpiSignalExtraction->getSamplingFrequency() )
+    {
+        m_hpiSignalExtraction->setSamplingFrequency( magIn->getSampFreq() );
+    }
+
+    const bool rc = m_hpiSignalExtraction->reconstructAmplitudes( hpiOut, magIn );
     if( rc )
     {
         return true;
     }
     else
-        if( !rc && !m_lastEmm )
-        {
-            warnLog() << "reconstructAmplitudes() error, but first packet!";
-            return true;
-        }
-        else
-        {
-            errorLog() << "reconstructAmplitudes() error!";
-            m_lastEmm.reset();
-            return false;
-        }
-    // Test code for matlab
+    {
+        errorLog() << "reconstructAmplitudes() error!";
+        return false;
+    }
+// Test code for matlab
 //    WLReaderMAT::SPtr reader;
 //    std::string fName = "/home/pieloth/hpi_data.mat";
 //    try
@@ -363,31 +355,19 @@ bool WMHeadPositionEstimation::extractHpiSignals( WLEMDHPI::SPtr& hpiOut, WLEMMe
     return true;
 }
 
-bool WMHeadPositionEstimation::estimateHeadPosition( int out, WLEMDHPI::ConstSPtr hpiIn, WLEMMeasurement::ConstSPtr emmIn )
+bool WMHeadPositionEstimation::estimateHeadPosition( WLEMDHPI::SPtr hpiInOut, WLEMDMEG::ConstSPtr magMag )
 {
     WLTimeProfiler tp( "WMHeadPositionEstimation", "estimateHeadPosition" );
 
-    // TODO
-    if( !emmIn->hasModality( WLEModality::MEG ) )
-    {
-        errorLog() << "No MEG data!";
-        return false;
-    }
-
+    // Prepare optimization and MEG magnetometer data
     if( !m_optim )
     {
-        // Prepare MEG magnetometer data
-        WLEMDMEG::ConstSPtr megIn = emmIn->getModality< const WLEMDMEG >( WLEModality::MEG );
-        WLEMDMEG::SPtr megMag( new WLEMDMEG );
-        WLEMDMEG::extractCoilModality( megMag, megIn, WLEModality::MEG_MAG, false );
-        debugLog() << "meg_mag: " << *megMag;
-
-        WLArrayList< WPosition >::ConstSPtr magPos = megMag->getChannelPositions3d();
-        WLArrayList< WVector3f >::ConstSPtr magOri = megMag->getEz();
+        WLArrayList< WPosition >::ConstSPtr magPos = magMag->getChannelPositions3d();
+        WLArrayList< WVector3f >::ConstSPtr magOri = magMag->getEz();
         debugLog() << "magPos: " << *magPos;
         debugLog() << "magOri: " << *magOri;
 
-        m_optim.reset( new WContinuousPositionEstimation( *hpiIn->getChannelPositions3d(), *magPos, *magOri ) );
+        m_optim.reset( new WContinuousPositionEstimation( *hpiInOut->getChannelPositions3d(), *magPos, *magOri ) );
         m_optim->setMaximumIterations( m_propMaxIterations->get() );
         m_optim->setEpsilon( m_propEpsilon->get() );
         WContinuousPositionEstimation::ParamsT step = WContinuousPositionEstimation::ParamsT::Zero();
@@ -403,9 +383,10 @@ bool WMHeadPositionEstimation::estimateHeadPosition( int out, WLEMDHPI::ConstSPt
         debugLog() << *m_optim;
     }
 
-    m_optim->setData( hpiIn->getData() );
+    // Estimate positions
+    m_optim->setData( hpiInOut->getData() );
     WContinuousPositionEstimation::MatrixT::Index smp;
-    const WContinuousPositionEstimation::MatrixT::Index n_smp = hpiIn->getData().cols();
+    const WContinuousPositionEstimation::MatrixT::Index n_smp = hpiInOut->getData().cols();
     for( smp = 0; smp < n_smp; ++smp )
     {
         m_optim->optimize( m_lastParams );

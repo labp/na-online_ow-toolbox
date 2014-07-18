@@ -88,7 +88,6 @@ private:
     WPropDouble m_propHpi5Freq; /**< Frequency for HPI coil 5 in Hz. */
 
     WPropDouble m_propWindowsSize; /**< Windows size in milliseconds. */
-    WPropDouble m_propStepSize; /**< Step size in milliseconds. */
 
     WPropString m_propStatus; /**< Status of the module. */
 
@@ -121,28 +120,36 @@ private:
 
     WPropDouble m_propInitZ; /**< Initial step: z translation (meter). */
 
-    WLEMMeasurement::SPtr m_lastEmm;
+    /**
+     * Extracts EMDMEG containing magnetometer data only.
+     *
+     * \param magOut Object to store magnetometer data.
+     * \param emmIn EMM containing MEG data.
+     * \return True if magnetometer data was extracted.
+     */
+    bool extractMagnetometer(WLEMDMEG::SPtr& magOut, WLEMMeasurement::ConstSPtr emmIn );
 
     /**
      *  Extracts the HPI signals from MEG data.
      *
      * \param hpiOut Will store extracted signals.
-     * \param emmIn Data to extract signals from.
+     * \param magIn Data to extract signals from.
      * \return True if successful, else false.
      */
-    bool extractHpiSignals( WLEMDHPI::SPtr& hpiOut, WLEMMeasurement::ConstSPtr emmIn );
+    bool extractHpiSignals( WLEMDHPI::SPtr& hpiOut, WLEMDMEG::ConstSPtr magIn );
 
     /**
      * Estimates the head position from the extracted HPI signals.
      *
-     * \param out TODO Ready to use object to store the result.
-     * \param hpiIn Data to estimate position from.
+     * \param magIn Magnetometer data.
+     * \param hpiInOut Data to estimate position from.
      * \return True if successful, else false.
      */
-    bool estimateHeadPosition( int out, WLEMDHPI::ConstSPtr hpiIn, WLEMMeasurement::ConstSPtr emmIn );
-    WContinuousPositionEstimation::SPtr m_optim;
+    bool estimateHeadPosition( WLEMDHPI::SPtr hpiInOut, WLEMDMEG::ConstSPtr magIn );
 
-    WContinuousPositionEstimation::ParamsT m_lastParams;
+    WContinuousPositionEstimation::SPtr m_optim; /**< Algorithm for position estimation. */
+
+    WContinuousPositionEstimation::ParamsT m_lastParams; /**< Transformation parameter of the last estimation, used as initial. */
 };
 
 #endif  // WMHEADPOSITIONESTIMATION_H_
