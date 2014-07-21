@@ -36,16 +36,13 @@ WLEMDHPI::WLEMDHPI() :
 
     m_chanPos3d = WLArrayList< WPosition >::instance();
     m_chanPos3d->reserve( 5 );
-
-    m_faces = WLArrayList< WVector3i >::instance();
-    m_faces->reserve( 0 );
+    m_transformations = WLArrayList< TransformationT >::instance();
 }
 
 WLEMDHPI::WLEMDHPI( const WLEMDHPI& hpi )
 {
     m_nrHpiCoils = hpi.m_nrHpiCoils;
     m_chanPos3d = hpi.m_chanPos3d;
-    m_faces = hpi.m_faces;
 }
 
 WLEMDHPI::~WLEMDHPI()
@@ -113,26 +110,6 @@ bool WLEMDHPI::setChannelPositions3d( WLList< WLDigPoint >::ConstSPtr digPoints 
     return m_chanPos3d->size() > 0;
 }
 
-WLArrayList< WVector3i >::ConstSPtr WLEMDHPI::getFaces() const
-{
-    return m_faces;
-}
-
-WLArrayList< WVector3i >::SPtr WLEMDHPI::getFaces()
-{
-    return m_faces;
-}
-
-void WLEMDHPI::setFaces( WLArrayList< WVector3i >::SPtr faces )
-{
-    m_faces = faces;
-}
-
-void WLEMDHPI::setFaces( boost::shared_ptr< std::vector< WVector3i > > faces )
-{
-    m_faces = WLArrayList< WVector3i >::instance( *faces );
-}
-
 WLChanNrT WLEMDHPI::getNrHpiCoils() const
 {
     return m_nrHpiCoils;
@@ -140,19 +117,34 @@ WLChanNrT WLEMDHPI::getNrHpiCoils() const
 
 bool WLEMDHPI::setNrHpiCoils( WLChanNrT count )
 {
-    const WLChanNrT chans = getNrChans();
-    if( chans == 0 )
+    const WLChanNrT n_chans = getNrChans();
+    if( n_chans > 0 && ( n_chans % count != 0 ) )
     {
-        m_nrHpiCoils = count;
-        return true;
+        wlog::error( CLASS ) << "Number of HPI coils not set! Count does not match data channels.";
+        return false;
     }
-    if( chans > 0 && ( chans % count == 0 ) )
+    const size_t n_pos = getChannelPositions3d()->size();
+    if( n_pos > 0 && ( n_pos != count ) )
     {
-        m_nrHpiCoils = count;
-        return true;
+        wlog::error( CLASS ) << "Number of HPI coils not set! Count does not match positions.";
+        return false;
     }
 
-    wlog::error( CLASS ) << "Number of HPI coils not set! Count does not match data channels.";
-    m_nrHpiCoils = 0;
-    return false;
+    m_nrHpiCoils = count;
+    return true;
+}
+
+WLArrayList< WLEMDHPI::TransformationT >::SPtr WLEMDHPI::getTransformations()
+{
+    return m_transformations;
+}
+
+WLArrayList< WLEMDHPI::TransformationT >::ConstSPtr WLEMDHPI::getTransformations() const
+{
+    return m_transformations;
+}
+
+void WLEMDHPI::setTransformations( WLArrayList< TransformationT >::SPtr trans )
+{
+    m_transformations = trans;
 }

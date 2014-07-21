@@ -230,7 +230,7 @@ bool WMHeadPositionEstimation::processCompute( WLEMMeasurement::SPtr emmIn )
     WLTimeProfiler tp( "WMHeadPositionEstimation", "processCompute" );
 
     WLEMDMEG::SPtr magIn;
-    if(!extractMagnetometer(magIn, emmIn))
+    if( !extractMagnetometer( magIn, emmIn ) )
     {
         return false;
     }
@@ -262,7 +262,6 @@ bool WMHeadPositionEstimation::processCompute( WLEMMeasurement::SPtr emmIn )
     WLEMMeasurement::SPtr emmOut = emmIn->clone();
     emmOut->setModalityList( emmIn->getModalityList() );
     emmOut->addModality( hpiOut );
-    // TODO add/set positions/transformation
     viewUpdate( emmOut );
 
     WLEMMCommand::SPtr cmdOut( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
@@ -389,6 +388,8 @@ bool WMHeadPositionEstimation::estimateHeadPosition( WLEMDHPI::SPtr hpiInOut, WL
     m_optim->setData( hpiInOut->getData() );
     WContinuousPositionEstimation::MatrixT::Index smp;
     const WContinuousPositionEstimation::MatrixT::Index n_smp = hpiInOut->getData().cols();
+    WLArrayList< WLEMDHPI::TransformationT >::SPtr trans = WLArrayList< WLEMDHPI::TransformationT >::instance();
+    trans->reserve( n_smp );
     for( smp = 0; smp < n_smp; ++smp )
     {
         m_optim->optimize( m_lastParams );
@@ -397,12 +398,13 @@ bool WMHeadPositionEstimation::estimateHeadPosition( WLEMDHPI::SPtr hpiInOut, WL
                         << m_optim->getResultError();
         debugLog() << "Best:\n" << m_lastParams;
         debugLog() << "Transformation:\n" << m_optim->getResultTransformation();
+        trans->push_back( m_optim->getResultTransformation() );
         std::vector< WPosition > hpiPosNew = m_optim->getResultPositions();
         debugLog() << "HPI Positions:\n" << hpiPosNew[0] << "\n" << hpiPosNew[1] << "\n" << hpiPosNew[2] << "\n" << hpiPosNew[3]
                         << "\n" << hpiPosNew[4];
         m_optim->nextSample();
-        // TODO(pieloth): store result
     }
+    hpiInOut->setTransformations( trans );
 
-    return false;
+    return true;
 }

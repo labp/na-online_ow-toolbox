@@ -58,6 +58,8 @@ public:
      */
     typedef boost::shared_ptr< const WLEMDHPI > ConstSPtr;
 
+    typedef Eigen::Matrix< double, 4, 4 > TransformationT;
+
     static const std::string CLASS;
 
     WLEMDHPI();
@@ -97,18 +99,6 @@ public:
     bool setChannelPositions3d( WLList< WLDigPoint >::ConstSPtr digPoints );
 
     /**
-     * Returns the faces.
-     */
-    WLArrayList< WVector3i >::ConstSPtr getFaces() const;
-
-    WLArrayList< WVector3i >::SPtr getFaces();
-
-    void setFaces( WLArrayList< WVector3i >::SPtr faces );
-
-    OW_API_DEPRECATED
-    void setFaces( boost::shared_ptr< std::vector< WVector3i > > faces );
-
-    /**
      * Gets the number of HPI coils.
      *
      * \return Number of HPI coils
@@ -119,14 +109,35 @@ public:
      * Sets the number of HPI coils.
      *
      * \param count Number of HPI coils
-     * \return true, if count matches data.
+     * \return true, if count matches data and positions.
      */
     bool setNrHpiCoils( WLChanNrT count );
+
+    /**
+     * Returns the estimated transformation matrices.
+     *
+     * \return Transformation matrices.
+     */
+    WLArrayList< TransformationT >::SPtr getTransformations();
+
+    /**
+     * Returns the estimated transformation matrices.
+     *
+     * \return Transformation matrices.
+     */
+    WLArrayList< TransformationT >::ConstSPtr getTransformations() const;
+
+    /**
+     * Sets estimated transformation matrices.
+     *
+     * \param trans Transformation matrices to set.
+     */
+    void setTransformations( WLArrayList< TransformationT >::SPtr trans );
 
 private:
     WLArrayList< WPosition >::SPtr m_chanPos3d;
 
-    WLArrayList< WVector3i >::SPtr m_faces;
+    WLArrayList< TransformationT >::SPtr m_transformations;
 
     WLChanNrT m_nrHpiCoils;
 };
