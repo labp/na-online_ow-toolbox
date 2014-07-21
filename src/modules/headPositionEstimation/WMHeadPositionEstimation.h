@@ -27,12 +27,14 @@
 #include <core/common/WCondition.h>
 #include <core/common/WPropertyTypes.h>
 #include <core/kernel/WModule.h>
+#include <core/ui/WUIViewWidget.h>
 
 #include "core/data/WLDataTypes.h"
 #include "core/data/WLEMMCommand.h"
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMDHPI.h"
-#include "core/module/WLModuleDrawable.h"
+#include "core/gui/drawable/WLEMDDrawable3DHPI.h"
+#include "core/module/WLEMMCommandProcessor.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 
 #include "WContinuousPositionEstimation.h"
@@ -45,7 +47,7 @@
  * \ingroup modules
  * \author pieloth
  */
-class WMHeadPositionEstimation: public WLModuleDrawable
+class WMHeadPositionEstimation: public WModule, public WLEMMCommandProcessor
 {
 public:
     WMHeadPositionEstimation();
@@ -74,8 +76,20 @@ protected:
 
     virtual bool processReset( WLEMMCommand::SPtr cmdIn );
 
+    virtual bool processMisc( WLEMMCommand::SPtr cmd );
+
+    virtual bool processTime( WLEMMCommand::SPtr cmd );
+
 private:
-    WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input;
+    void viewInit();
+    void viewUpdate( WLEMMeasurement::SPtr emm );
+    void viewReset();
+
+    WUIViewWidget::SPtr m_widget;
+    WLEMDDrawable3DHPI::SPtr m_drawable;
+
+    WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input; /**< Buffered input connector. */
+    WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output; /**<  Output connector for buffered input connectors. */
 
     WCondition::SPtr m_condition; /**< Used to notify module when a property changed. */
 
@@ -127,7 +141,7 @@ private:
      * \param emmIn EMM containing MEG data.
      * \return True if magnetometer data was extracted.
      */
-    bool extractMagnetometer(WLEMDMEG::SPtr& magOut, WLEMMeasurement::ConstSPtr emmIn );
+    bool extractMagnetometer( WLEMDMEG::SPtr& magOut, WLEMMeasurement::ConstSPtr emmIn );
 
     /**
      *  Extracts the HPI signals from MEG data.

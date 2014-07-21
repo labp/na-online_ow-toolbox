@@ -24,6 +24,9 @@
 #include <list>
 
 #include <core/common/WPathHelper.h>
+#include <core/kernel/WKernel.h>
+#include <core/ui/WUIWidgetFactory.h>
+#include <core/ui/WUI.h>
 
 #include "core/data/WLEMMCommand.h"
 #include "core/data/emd/WLEMDHPI.h"
@@ -49,7 +52,6 @@ static const double HPI5_FREQ = 170.0; /**< Default frequency (sfreq < 600Hz) fo
 static const double WINDOWS_SIZE = 200.0; /**< Default windows size in milliseconds. */
 
 static const std::string STATUS_OK = "Ok"; /**< Indicates the module status is ok. */
-static const std::string STATUS_ERROR = "Error"; /**< Indicates an error in module. */
 
 WMHeadPositionEstimation::WMHeadPositionEstimation()
 {
@@ -82,7 +84,7 @@ const char** WMHeadPositionEstimation::getXPMIcon() const
 
 void WMHeadPositionEstimation::connectors()
 {
-    WLModuleDrawable::connectors();
+    WModule::connectors();
 
     m_input = WLModuleInputDataRingBuffer< WLEMMCommand >::instance( WLConstantsModule::BUFFER_SIZE, shared_from_this(),
                     WLConstantsModule::CONNECTOR_NAME_IN, WLConstantsModule::CONNECTOR_DESCR_IN );
@@ -95,15 +97,7 @@ void WMHeadPositionEstimation::connectors()
 
 void WMHeadPositionEstimation::properties()
 {
-    WLModuleDrawable::properties();
-    hideComputeModalitySelection( true );
-    std::list< WLEModality::Enum > viewMods;
-    viewMods.push_back( WLEModality::HPI );
-    viewMods.push_back( WLEModality::MEG );
-    viewMods.push_back( WLEModality::MEG_GRAD );
-    viewMods.push_back( WLEModality::MEG_GRAD_MERGED );
-    viewMods.push_back( WLEModality::MEG_MAG );
-    setViewModalitySelection( viewMods );
+    WModule::properties();
 
     m_condition = WCondition::SPtr( new WCondition() );
 
@@ -146,6 +140,27 @@ void WMHeadPositionEstimation::properties()
     m_propInitZ = m_propGroupEstimation->addProperty( "Tz:", "Initial step: z translation in meter.", 0.01 );
 }
 
+void WMHeadPositionEstimation::viewInit()
+{
+    WUIWidgetFactory::SPtr factory = WKernel::getRunningKernel()->getUI()->getWidgetFactory();
+    m_widget = factory->createViewWidget( getName(), WGECamera::ORTHOGRAPHIC, m_shutdownFlag.getValueChangeCondition() );
+    m_drawable = WLEMDDrawable3DHPI::SPtr( new WLEMDDrawable3DHPI( m_widget ) );
+}
+
+void WMHeadPositionEstimation::viewUpdate( WLEMMeasurement::SPtr emm )
+{
+    if( m_widget->isClosed() || !m_widget->isVisible() )
+    {
+        return;
+    }
+    m_drawable->draw( emm );
+}
+
+void WMHeadPositionEstimation::viewReset()
+{
+    m_drawable.reset( new WLEMDDrawable3DHPI( m_widget ) );
+}
+
 void WMHeadPositionEstimation::moduleInit()
 {
     infoLog() << "Initializing module ...";
@@ -157,7 +172,7 @@ void WMHeadPositionEstimation::moduleInit()
     ready(); // signal ready state
     waitRestored();
 
-    viewInit( WLEMDDrawable2D::WEGraphType::DYNAMIC );
+    viewInit();
     handleApplyFreq();
 
     infoLog() << "Initializing module finished!";
@@ -193,8 +208,6 @@ void WMHeadPositionEstimation::moduleMain()
             process( cmdIn );
         }
     }
-
-    viewCleanup();
 }
 
 bool WMHeadPositionEstimation::handleApplyFreq()
@@ -277,6 +290,18 @@ bool WMHeadPositionEstimation::processReset( WLEMMCommand::SPtr cmdIn )
     m_optim.reset();
     m_lastParams.setZero();
     m_output->updateData( cmdIn );
+    return true;
+}
+
+bool WMHeadPositionEstimation::processTime( WLEMMCommand::SPtr cmd )
+{
+    m_output->updateData( cmd );
+    return true;
+}
+
+bool WMHeadPositionEstimation::processMisc( WLEMMCommand::SPtr cmd )
+{
+    m_output->updateData( cmd );
     return true;
 }
 
