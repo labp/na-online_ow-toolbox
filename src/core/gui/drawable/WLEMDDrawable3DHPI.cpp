@@ -21,7 +21,13 @@
 //
 //---------------------------------------------------------------------------
 
+#include <osg/BlendFunc>
+
 #include <core/common/WColor.h> // default color
+#include <core/dataHandler/exceptions/WDHException.h>
+#include <core/graphicsEngine/WGEUtils.h>
+#include <core/graphicsEngine/WGEGeodeUtils.h>
+#include <core/graphicsEngine/WTriangleMesh.h>
 
 #include "core/data/emd/WLEMDHPI.h"
 #include "core/data/emd/WLEMDMEG.h"
@@ -94,6 +100,9 @@ void WLEMDDrawable3DHPI::osgInitMegHelmet()
     const std::vector< WPosition >& positions = *( magOut->getChannelPositions3d() );
     const std::vector< WVector3i >& faces = *( magOut->getFaces() );
 
+    // osgAddMegNodes
+    // --------------
+    const WColor mag_node = defaultColor::BLUE;
     m_rootGroup->removeChild( m_magSensorsGeode );
     const float sphere_size = 1.0f;
     m_magSensorsGeode = new osg::Geode;
@@ -106,6 +115,7 @@ void WLEMDDrawable3DHPI::osgInitMegHelmet()
         // create sphere geode on electrode position
         osg::ref_ptr< osg::ShapeDrawable > shape = new osg::ShapeDrawable( new osg::Sphere( pos, sphere_size ) );
         shape->setDataVariance( osg::Object::DYNAMIC );
+        shape->setColor( mag_node );
         m_magSensorsDrawables.push_back( shape );
         m_magSensorsGeode->addDrawable( shape );
     }
@@ -114,7 +124,57 @@ void WLEMDDrawable3DHPI::osgInitMegHelmet()
 
     m_rootGroup->addChild( m_magSensorsGeode );
 
-    osgAddSurface( positions, faces );
+    // osgAddSurface
+    // -------------
+    const WColor mag_surface( 0.9, 0.9, 9.0, 0.5 );
+    const size_t nbPositions = positions.size();
+    std::vector< WPosition > scaledPos;
+    scaledPos.reserve( nbPositions );
+    for( size_t i = 0; i < nbPositions; ++i )
+    {
+        scaledPos.push_back( positions[i] * m_zoomFactor );
+    }
+    boost::shared_ptr< WTriangleMesh > tri;
+    if( faces.size() > 0 )
+    {
+        osg::ref_ptr< osg::Vec3Array > vertices = wge::osgVec3Array( scaledPos );
+        std::vector< size_t > triangles;
+        triangles.resize( faces.size() * 3 );
+
+        for( size_t i = 0; i < faces.size(); ++i )
+        {
+            triangles.push_back( faces.at( i ).x() );
+            triangles.push_back( faces.at( i ).y() );
+            triangles.push_back( faces.at( i ).z() );
+        }
+
+        tri = WTriangleMesh::SPtr( new WTriangleMesh( vertices, triangles ) );
+    }
+    else
+    {
+        try
+        {
+            tri = wge::triangulate( scaledPos, -0.005 );
+        }
+        catch( WException& e )
+        {
+            wlog::error( CLASS ) << "wge::triangulate() " << e.what();
+            return;
+        }
+    }
+    // TODO(pieloth): Optimize transparency
+    m_surfaceGeometry = wge::convertToOsgGeometry( tri, mag_surface, false, false, false );
+    m_surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+    m_state->setMode( GL_BLEND, osg::StateAttribute::ON );
+    m_state->setMode( GL_LIGHTING, osg::StateAttribute::ON );
+    m_state->setMode( GL_NORMALIZE, osg::StateAttribute::ON );
+    m_state->setRenderingHint(osg::StateSet::OPAQUE_BIN);
+    m_surfaceGeometry->setStateSet( m_state );
+    m_surfaceGeometry->setDataVariance( osg::Object::STATIC );
+
+    m_surfaceGeode = new osg::Geode;
+    m_surfaceGeode->addDrawable( m_surfaceGeometry );
+    m_rootGroup->addChild( m_surfaceGeode );
 }
 
 void WLEMDDrawable3DHPI::osgAddOrUpdateHpiCoils( const std::vector< WPosition >& positions )
