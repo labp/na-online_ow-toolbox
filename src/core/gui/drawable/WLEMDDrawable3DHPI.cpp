@@ -21,7 +21,7 @@
 //
 //---------------------------------------------------------------------------
 
-#include <osg/BlendFunc>
+#include <osg/LightModel>
 
 #include <core/common/WColor.h> // default color
 #include <core/dataHandler/exceptions/WDHException.h>
@@ -126,7 +126,7 @@ void WLEMDDrawable3DHPI::osgInitMegHelmet()
 
     // osgAddSurface
     // -------------
-    const WColor mag_surface( 0.9, 0.9, 9.0, 0.5 );
+    const WColor mag_surface( 0.9, 0.9, 9.0, 0.9 );
     const size_t nbPositions = positions.size();
     std::vector< WPosition > scaledPos;
     scaledPos.reserve( nbPositions );
@@ -134,7 +134,7 @@ void WLEMDDrawable3DHPI::osgInitMegHelmet()
     {
         scaledPos.push_back( positions[i] * m_zoomFactor );
     }
-    boost::shared_ptr< WTriangleMesh > tri;
+    WTriangleMesh::SPtr tri;
     if( faces.size() > 0 )
     {
         osg::ref_ptr< osg::Vec3Array > vertices = wge::osgVec3Array( scaledPos );
@@ -162,18 +162,19 @@ void WLEMDDrawable3DHPI::osgInitMegHelmet()
             return;
         }
     }
-    // TODO(pieloth): Optimize transparency
-    m_surfaceGeometry = wge::convertToOsgGeometry( tri, mag_surface, false, false, false );
+
+    m_surfaceGeometry = wge::convertToOsgGeometry( tri, mag_surface, true, false, false );
     m_surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
-    m_state->setMode( GL_BLEND, osg::StateAttribute::ON );
-    m_state->setMode( GL_LIGHTING, osg::StateAttribute::ON );
-    m_state->setMode( GL_NORMALIZE, osg::StateAttribute::ON );
-    m_state->setRenderingHint(osg::StateSet::OPAQUE_BIN);
-    m_surfaceGeometry->setStateSet( m_state );
-    m_surfaceGeometry->setDataVariance( osg::Object::STATIC );
 
     m_surfaceGeode = new osg::Geode;
+    wge::enableTransparency( m_surfaceGeode );
+    osg::ref_ptr< osg::LightModel > lightModel = new osg::LightModel;
+    lightModel->setTwoSided( true );
+    m_surfaceGeode->getStateSet()->setAttributeAndModes( lightModel );
+    m_surfaceGeode->getStateSet()->setMode( GL_NORMALIZE, osg::StateAttribute::ON );
+    m_surfaceGeode->getStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::ON );
     m_surfaceGeode->addDrawable( m_surfaceGeometry );
+
     m_rootGroup->addChild( m_surfaceGeode );
 }
 
