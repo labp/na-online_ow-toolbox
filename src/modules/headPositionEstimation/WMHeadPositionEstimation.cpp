@@ -142,9 +142,28 @@ void WMHeadPositionEstimation::properties()
 
 void WMHeadPositionEstimation::viewInit()
 {
+    // Create main widget
     WUIWidgetFactory::SPtr factory = WKernel::getRunningKernel()->getUI()->getWidgetFactory();
-    m_widget = factory->createViewWidget( getName(), WGECamera::ORTHOGRAPHIC, m_shutdownFlag.getValueChangeCondition() );
-    m_drawable = WLEMDDrawable3DHPI::SPtr( new WLEMDDrawable3DHPI( m_widget ) );
+    m_widget = factory->createGridWidget( getName() );
+
+    // Create views for top, side, front
+    m_widgetTop = factory->createViewWidget( "Top View", WGECamera::ORTHOGRAPHIC, m_shutdownFlag.getValueChangeCondition(),
+                    m_widget );
+    m_widget->placeWidget( m_widgetTop, 0, 0 );
+    m_drawableTop = WLEMDDrawable3DHPI::SPtr( new WLEMDDrawable3DHPI( m_widgetTop ) );
+    m_drawableTop->setView( WLEMDDrawable3DHPI::VIEW_TOP );
+
+    m_widgetSide = factory->createViewWidget( "Side View", WGECamera::ORTHOGRAPHIC, m_shutdownFlag.getValueChangeCondition(),
+                    m_widget );
+    m_widget->placeWidget( m_widgetSide, 1, 0 );
+    m_drawableSide = WLEMDDrawable3DHPI::SPtr( new WLEMDDrawable3DHPI( m_widgetSide ) );
+    m_drawableSide->setView( WLEMDDrawable3DHPI::VIEW_SIDE );
+
+    m_widgetFront = factory->createViewWidget( "Front View", WGECamera::ORTHOGRAPHIC, m_shutdownFlag.getValueChangeCondition(),
+                    m_widget );
+    m_widget->placeWidget( m_widgetFront, 2, 0 );
+    m_drawableFront = WLEMDDrawable3DHPI::SPtr( new WLEMDDrawable3DHPI( m_widgetFront ) );
+    m_drawableFront->setView( WLEMDDrawable3DHPI::VIEW_FRONT );
 }
 
 void WMHeadPositionEstimation::viewUpdate( WLEMMeasurement::SPtr emm )
@@ -153,12 +172,21 @@ void WMHeadPositionEstimation::viewUpdate( WLEMMeasurement::SPtr emm )
     {
         return;
     }
-    m_drawable->draw( emm );
+    m_drawableTop->draw( emm );
+    m_drawableSide->draw( emm );
+    m_drawableFront->draw( emm );
 }
 
 void WMHeadPositionEstimation::viewReset()
 {
-    m_drawable.reset( new WLEMDDrawable3DHPI( m_widget ) );
+    m_drawableTop = WLEMDDrawable3DHPI::SPtr( new WLEMDDrawable3DHPI( m_widgetTop ) );
+    m_drawableTop->setView( WLEMDDrawable3DHPI::VIEW_TOP );
+
+    m_drawableSide = WLEMDDrawable3DHPI::SPtr( new WLEMDDrawable3DHPI( m_widgetSide ) );
+    m_drawableSide->setView( WLEMDDrawable3DHPI::VIEW_SIDE );
+
+    m_drawableFront = WLEMDDrawable3DHPI::SPtr( new WLEMDDrawable3DHPI( m_widgetFront ) );
+    m_drawableFront->setView( WLEMDDrawable3DHPI::VIEW_FRONT );
 }
 
 void WMHeadPositionEstimation::moduleInit()
@@ -290,6 +318,7 @@ bool WMHeadPositionEstimation::processReset( WLEMMCommand::SPtr cmdIn )
     m_optim.reset();
     m_lastParams.setZero();
     m_output->updateData( cmdIn );
+    viewReset();
     return true;
 }
 

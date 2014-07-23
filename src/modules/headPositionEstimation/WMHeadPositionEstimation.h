@@ -27,6 +27,7 @@
 #include <core/common/WCondition.h>
 #include <core/common/WPropertyTypes.h>
 #include <core/kernel/WModule.h>
+#include <core/ui/WUIGridWidget.h>
 #include <core/ui/WUIViewWidget.h>
 
 #include "core/data/WLDataTypes.h"
@@ -85,8 +86,13 @@ private:
     void viewUpdate( WLEMMeasurement::SPtr emm );
     void viewReset();
 
-    WUIViewWidget::SPtr m_widget;
-    WLEMDDrawable3DHPI::SPtr m_drawable;
+    WUIGridWidget::SPtr m_widget;
+    WUIViewWidget::SPtr m_widgetTop;
+    WUIViewWidget::SPtr m_widgetSide;
+    WUIViewWidget::SPtr m_widgetFront;
+    WLEMDDrawable3DHPI::SPtr m_drawableTop;
+    WLEMDDrawable3DHPI::SPtr m_drawableSide;
+    WLEMDDrawable3DHPI::SPtr m_drawableFront;
 
     WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input; /**< Buffered input connector. */
     WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output; /**<  Output connector for buffered input connectors. */

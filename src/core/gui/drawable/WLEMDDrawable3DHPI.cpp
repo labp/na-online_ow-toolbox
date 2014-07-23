@@ -21,12 +21,16 @@
 //
 //---------------------------------------------------------------------------
 
-#include <osg/LightModel>
+#include <vector>
 
+#include <osg/LightModel>
+#include <osg/ShapeDrawable>
+
+#include <core/common/WAssert.h>
 #include <core/common/WColor.h> // default color
-#include <core/dataHandler/exceptions/WDHException.h>
 #include <core/graphicsEngine/WGEUtils.h>
 #include <core/graphicsEngine/WGEGeodeUtils.h>
+#include <core/graphicsEngine/WGENoOpManipulator.h>
 #include <core/graphicsEngine/WTriangleMesh.h>
 
 #include "core/data/emd/WLEMDHPI.h"
@@ -42,13 +46,20 @@ WLEMDDrawable3DHPI::WLEMDDrawable3DHPI( WUIViewWidget::SPtr widget ) :
                 WLEMDDrawable3D( widget )
 {
     m_modality = WLEModality::HPI;
+    m_viewTransformation = osg::Matrixd::identity();
     m_magSensorsGeode = NULL;
     m_colorMap = WLColorMap::SPtr( new WLColorMapClassic( 0, 1, WEColorMapMode::NORMAL ) );
+    m_zoomFactor = 800.0;
+    widget->getViewer()->setCameraManipulator( new WGENoOpManipulator );
 }
 
 WLEMDDrawable3DHPI::~WLEMDDrawable3DHPI()
 {
-    // TODO Auto-generated destructor stub
+}
+
+void WLEMDDrawable3DHPI::setView( View view )
+{
+    m_viewTransformation = getTransformation( view );
 }
 
 void WLEMDDrawable3DHPI::osgNodeCallback( osg::NodeVisitor* nv )
@@ -79,7 +90,7 @@ void WLEMDDrawable3DHPI::osgNodeCallback( osg::NodeVisitor* nv )
 
 void WLEMDDrawable3DHPI::osgInitMegHelmet()
 {
-    if( m_magSensorsGeode.valid() )
+    if( m_viewGeode.valid() )
     {
         return;
     }
@@ -90,6 +101,7 @@ void WLEMDDrawable3DHPI::osgInitMegHelmet()
         return;
     }
 
+    // Prepare data
     WLEMDMEG::ConstSPtr megIn = m_emm->getModality< const WLEMDMEG >( WLEModality::MEG );
     WLEMDMEG::SPtr magOut;
     if( !WLEMDMEG::extractCoilModality( magOut, megIn, WLEModality::MEG_MAG, false ) )
@@ -100,14 +112,16 @@ void WLEMDDrawable3DHPI::osgInitMegHelmet()
     const std::vector< WPosition >& positions = *( magOut->getChannelPositions3d() );
     const std::vector< WVector3i >& faces = *( magOut->getFaces() );
 
+    // Prepare view: top, side, buttom
+    m_rootGroup->removeChild( m_viewGeode );
+    m_viewGeode = new osg::MatrixTransform;
+    m_viewGeode->setMatrix( m_viewTransformation );
+
     // osgAddMegNodes
     // --------------
     const WColor mag_node = defaultColor::BLUE;
-    m_rootGroup->removeChild( m_magSensorsGeode );
     const float sphere_size = 1.0f;
     m_magSensorsGeode = new osg::Geode;
-    m_magSensorsDrawables.clear();
-    m_magSensorsDrawables.reserve( positions.size() );
     std::vector< WPosition >::const_iterator it;
     for( it = positions.begin(); it != positions.end(); ++it )
     {
@@ -116,17 +130,16 @@ void WLEMDDrawable3DHPI::osgInitMegHelmet()
         osg::ref_ptr< osg::ShapeDrawable > shape = new osg::ShapeDrawable( new osg::Sphere( pos, sphere_size ) );
         shape->setDataVariance( osg::Object::DYNAMIC );
         shape->setColor( mag_node );
-        m_magSensorsDrawables.push_back( shape );
         m_magSensorsGeode->addDrawable( shape );
     }
     m_magSensorsGeode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::ON );
     m_magSensorsGeode->getOrCreateStateSet()->setMode( GL_NORMALIZE, osg::StateAttribute::ON );
 
-    m_rootGroup->addChild( m_magSensorsGeode );
+    m_viewGeode->addChild( m_magSensorsGeode );
 
     // osgAddSurface
     // -------------
-    const WColor mag_surface( 0.9, 0.9, 9.0, 0.9 );
+    const WColor mag_surface( 0.9, 0.9, 9.0, 0.6 );
     const size_t nbPositions = positions.size();
     std::vector< WPosition > scaledPos;
     scaledPos.reserve( nbPositions );
@@ -175,29 +188,41 @@ void WLEMDDrawable3DHPI::osgInitMegHelmet()
     m_surfaceGeode->getStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::ON );
     m_surfaceGeode->addDrawable( m_surfaceGeometry );
 
-    m_rootGroup->addChild( m_surfaceGeode );
+    m_viewGeode->addChild( m_surfaceGeode );
+    m_rootGroup->addChild( m_viewGeode );
 }
 
 void WLEMDDrawable3DHPI::osgAddOrUpdateHpiCoils( const std::vector< WPosition >& positions )
 {
-    m_rootGroup->removeChild( m_hpiCoilsGeode );
+    m_viewGeode->removeChild( m_hpiCoilsGeode );
     const float sphere_size = 3.0f;
     m_hpiCoilsGeode = new osg::Geode;
-    m_hpiCoilsDrawables.clear();
-    m_hpiCoilsDrawables.reserve( positions.size() );
     std::vector< WPosition >::const_iterator it;
     for( it = positions.begin(); it != positions.end(); ++it )
     {
         const osg::Vec3 pos = *it * m_zoomFactor;
-        // create sphere geode on electrode position
+        // create sphere geode on hpi position
         osg::ref_ptr< osg::ShapeDrawable > shape = new osg::ShapeDrawable( new osg::Sphere( pos, sphere_size ) );
-        shape->setColor( defaultColor::RED );
-        shape->setDataVariance( osg::Object::DYNAMIC );
-        m_hpiCoilsDrawables.push_back( shape );
+        shape->setColor( defaultColor::DARKRED );
         m_hpiCoilsGeode->addDrawable( shape );
     }
-    m_hpiCoilsGeode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::ON );
-    m_hpiCoilsGeode->getOrCreateStateSet()->setMode( GL_NORMALIZE, osg::StateAttribute::ON );
 
-    m_rootGroup->addChild( m_hpiCoilsGeode );
+    m_viewGeode->addChild( m_hpiCoilsGeode );
+}
+
+osg::Matrixd WLEMDDrawable3DHPI::getTransformation( View view )
+{
+    switch( view )
+    {
+        case VIEW_TOP:
+            return osg::Matrixd::identity();
+        case VIEW_SIDE:
+            return osg::Matrixd::rotate( M_PI / -2, osg::Vec3d( 1, 0, 0 ) )
+                            * osg::Matrixd::rotate( M_PI / 2, osg::Vec3d( 0, 1, 0 ) );
+        case VIEW_FRONT:
+            return osg::Matrixd::rotate( M_PI / -2, osg::Vec3d( 1, 0, 0 ) ) * osg::Matrixd::rotate( M_PI, osg::Vec3d( 0, 1, 0 ) );
+        default:
+            WAssert( false, "View not supported!" );
+            return osg::Matrixd::identity();
+    }
 }
