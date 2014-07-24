@@ -138,6 +138,9 @@ void WMHeadPositionEstimation::properties()
     m_propInitX = m_propGroupEstimation->addProperty( "Tx:", "Initial step: x translation in meter.", 0.01 );
     m_propInitY = m_propGroupEstimation->addProperty( "Ty:", "Initial step: y translation in meter.", 0.01 );
     m_propInitZ = m_propGroupEstimation->addProperty( "Tz:", "Initial step: z translation in meter.", 0.01 );
+
+    m_propAvgError = m_propGroupEstimation->addProperty( "Error:", "Average fitting error of last block.", 0.0 );
+    m_propAvgError->setPurpose( PV_PURPOSE_INFORMATION );
 }
 
 void WMHeadPositionEstimation::viewInit()
@@ -318,6 +321,7 @@ bool WMHeadPositionEstimation::processReset( WLEMMCommand::SPtr cmdIn )
     m_optim.reset();
     m_lastParams.setZero();
     m_output->updateData( cmdIn );
+    m_propAvgError->set( 0.0, true );
     viewReset();
     return true;
 }
@@ -375,38 +379,7 @@ bool WMHeadPositionEstimation::extractHpiSignals( WLEMDHPI::SPtr& hpiOut, WLEMDM
         errorLog() << "reconstructAmplitudes() error!";
         return false;
     }
-// Test code for matlab
-//    WLReaderMAT::SPtr reader;
-//    std::string fName = "/home/pieloth/hpi_data.mat";
-//    try
-//    {
-//        reader.reset( new WLReaderMAT( fName ) );
-//    }
-//    catch( const WDHNoSuchFile& e )
-//    {
-//        errorLog() << "File does not exist: " << fName;
-//        return false;
-//    }
-//
-//    WLIOStatus::ioStatus_t status;
-//    status = reader->init();
-//    if( status != WLIOStatus::SUCCESS )
-//    {
-//        errorLog() << reader->getIOStatusDescription( status );
-//        return false;
-//    }
-//
-//    WLMatrix::SPtr mat;
-//    status = reader->readMatrix( mat );
-//    if( status != WLIOStatus::SUCCESS )
-//    {
-//        errorLog() << reader->getIOStatusDescription( status );
-//        return false;
-//    }
-//    hpiOut.reset( new WLEMDHPI );
-//    hpiOut->setData( mat );
-//    hpiOut->setNrHpiCoils( 5 );
-//    hpiOut->setSampFreq( 1.0 );
+
     return true;
 }
 
@@ -444,10 +417,12 @@ bool WMHeadPositionEstimation::estimateHeadPosition( WLEMDHPI::SPtr hpiInOut, WL
     const WContinuousPositionEstimation::MatrixT::Index n_smp = hpiInOut->getData().cols();
     WLArrayList< WLEMDHPI::TransformationT >::SPtr trans = WLArrayList< WLEMDHPI::TransformationT >::instance();
     trans->reserve( n_smp );
+    double error = 0.0;
     for( smp = 0; smp < n_smp; ++smp )
     {
         m_optim->optimize( m_lastParams );
         m_lastParams = m_optim->getResultParams();
+        error += m_optim->getResultError();
         debugLog() << "Estimation: " << m_optim->converged() << " " << m_optim->getResultIterations() << " "
                         << m_optim->getResultError();
         debugLog() << "Transformation:\n" << m_optim->getResultTransformation();
@@ -455,6 +430,7 @@ bool WMHeadPositionEstimation::estimateHeadPosition( WLEMDHPI::SPtr hpiInOut, WL
         m_optim->nextSample();
     }
     hpiInOut->setTransformations( trans );
+    m_propAvgError->set( error / n_smp, true );
 
     return true;
 }

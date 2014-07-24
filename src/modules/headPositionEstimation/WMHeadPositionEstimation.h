@@ -170,6 +170,8 @@ private:
     WContinuousPositionEstimation::SPtr m_optim; /**< Algorithm for position estimation. */
 
     WContinuousPositionEstimation::ParamsT m_lastParams; /**< Transformation parameter of the last estimation, used as initial. */
+
+    WPropDouble m_propAvgError;
 };
 
 #endif  // WMHEADPOSITIONESTIMATION_H_
