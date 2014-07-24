@@ -24,6 +24,8 @@
 
 #ifndef WLROICTRLFACTORY_H_
 #define WLROICTRLFACTORY_H_
+#include <boost/enable_shared_from_this.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include "WLROICtrlCreator.h"
 #include "WLROICtrlFactoryBase.h"
@@ -33,9 +35,15 @@
  * factories.
  */
 template< typename Base, typename DataType = void, typename FilterType = void >
-class WLROICtrlFactory: public WLROICtrlFactoryBase< typename WLROICtrlCreator< Base, DataType, FilterType >::type >
+class WLROICtrlFactory: public WLROICtrlFactoryBase< typename WLROICtrlCreator< Base, DataType, FilterType >::type >,
+                public boost::enable_shared_from_this< WLROICtrlFactory< Base, DataType, FilterType > >
 {
 public:
+
+    /**
+     * A shared pointer on a WLROICtrlFactory.
+     */
+    typedef boost::shared_ptr< WLROICtrlFactory > SPtr;
 
     /**
      * Destroys the WLROICtrlFactory.
@@ -51,9 +59,21 @@ public:
      * @return Returns a pointer on the new @Base instance.
      */
     virtual Base* create( const std::string& name, osg::ref_ptr< WROI > roi, boost::shared_ptr< DataType > data ) const = 0;
+
+    template< typename T >
+    boost::shared_ptr< T > getAs()
+    {
+        return boost::dynamic_pointer_cast< T >( this->shared_from_this() );
+    }
+
+    template< typename T >
+    boost::shared_ptr< const T > getAs() const
+    {
+        return boost::dynamic_pointer_cast< T >( this->shared_from_this() );
+    }
 };
 
-template< typename Base, typename DataType, typename FilterType>
+template< typename Base, typename DataType, typename FilterType >
 inline WLROICtrlFactory< Base, DataType, FilterType >::~WLROICtrlFactory()
 {
 

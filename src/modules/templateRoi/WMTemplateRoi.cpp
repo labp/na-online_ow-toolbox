@@ -22,10 +22,16 @@
 //
 //---------------------------------------------------------------------------
 
+#include <typeinfo>
+
+#include <boost/bind.hpp>
+
 #include <osg/Array>
 #include <osg/MatrixTransform>
 #include <osg/ShapeDrawable>
 
+#include "core/data/emd/WLEMDEEG.h"
+#include "core/gui/drawable/WLEMDDrawable3DSource.h"
 #include "core/module/WLConstantsModule.h"
 #include "core/util/profiler/WLTimeProfiler.h"
 #include "WLModelController.h"
@@ -107,6 +113,17 @@ void WMTemplateRoi::moduleInit()
 
     viewInit( WLEMDDrawable2D::WEGraphType::SINGLE );
 
+    // init the ROI-selector after the viewInit()-call
+    WLEMData::SPtr data( new WLEMDEEG );
+    m_roiSelector = WLROISelectorSource::SPtr( new WLROISelectorSource( data, m_drawable3D ) );
+
+    if( m_drawable3D->getAs< WLEMDDrawable3DSource >().get() )
+    {
+        m_drawable3D->getAs< WLEMDDrawable3DSource >()->setROISelector(
+                        boost::dynamic_pointer_cast< WLROISelector< boost::spirit::hold_any, boost::spirit::hold_any > >(
+                                        m_roiSelector ) );
+    }
+
     infoLog() << "Initializing module finished!";
 }
 
@@ -114,9 +131,7 @@ void WMTemplateRoi::moduleMain()
 {
     moduleInit();
 
-    initOSG();
-
-    drawSome();
+    //drawSome();
 
     WLEMMCommand::SPtr emmIn;
 
@@ -162,6 +177,10 @@ void WMTemplateRoi::moduleMain()
          debugLog() << "finished processing";
          }
          */
+
+        WLROISelectorSource::SPtr roiSelector = boost::dynamic_pointer_cast< WLROISelectorSource >(
+                        m_drawable3D->getAs< WLEMDDrawable3DSource >()->getROISelector() );
+
     }
 }
 
@@ -243,19 +262,26 @@ void WMTemplateRoi::resizeBox()
 {
     //debugLog() << "resizeBox() called!";
 
-    if( m_geode->getDrawableList().size() > 0 )
-    {
-        osg::Box *ptr_box = ( osg::Box* )m_geode->getDrawable( 0 );
-        osg::ShapeDrawable *ptr_drawable = ( osg::ShapeDrawable* )m_geode->getDrawable( 0 );
-        const osg::Vec4 color = ptr_drawable->getColor();
+    /*
+     if( m_geode->getDrawableList().size() > 0 )
+     {
+     osg::Box *ptr_box = ( osg::Box* )m_geode->getDrawable( 0 );
+     osg::ShapeDrawable *ptr_drawable = ( osg::ShapeDrawable* )m_geode->getDrawable( 0 );
+     const osg::Vec4 color = ptr_drawable->getColor();
 
-        osg::ref_ptr< osg::ShapeDrawable > drawable = new osg::ShapeDrawable(
-                        new osg::Box( ptr_box->getCenter(), m_width->get(), m_height->get(), m_depth->get() ) );
-        drawable->setColor( color );
+     osg::ref_ptr< osg::ShapeDrawable > drawable = new osg::ShapeDrawable(
+     new osg::Box( ptr_box->getCenter(), m_width->get(), m_height->get(), m_depth->get() ) );
+     drawable->setColor( color );
 
-        m_geode->removeDrawable( m_geode->getDrawable( 0 ) );
-        m_geode->addDrawable( drawable );
+     m_geode->removeDrawable( m_geode->getDrawable( 0 ) );
+     m_geode->addDrawable( drawable );
 
-        m_drawable3D->redraw();
-    }
+     m_drawable3D->redraw();
+     }
+     */
+}
+
+void WMTemplateRoi::addRoi( osg::ref_ptr< WROI > ref_ptr )
+{
+    debugLog() << "New ROI";
 }

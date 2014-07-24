@@ -26,12 +26,15 @@
 #define WLROISELECTOR_H_
 
 #include <list>
+#include <typeinfo>
 
 #include <boost/bind.hpp>
+#include <boost/enable_shared_from_this.hpp>
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include <core/common/WCondition.h>
+#include <core/common/WLogger.h>
 #include <core/graphicsEngine/WROI.h>
 #include <core/kernel/WKernel.h>
 #include <core/kernel/WROIManager.h>
@@ -46,7 +49,7 @@
  * Derived classes have to initialize the @m_factory member with a concrete controller factory.
  */
 template< typename DataType, typename FilterType >
-class WLROISelector
+class WLROISelector: public boost::enable_shared_from_this< WLROISelector< DataType, FilterType > >
 {
 public:
 
@@ -61,16 +64,48 @@ public:
     typedef boost::shared_ptr< const WLROISelector< DataType, FilterType > > ConstSPtr;
 
     /**
+     * A shared pointer on a ROI controller factory.
+     */
+    typedef boost::shared_ptr< WLROICtrlFactory< WLROIController< DataType, FilterType >, DataType, FilterType > > ControllerFactorySPtr;
+
+    /**
+     * The class name.
+     */
+    static const std::string CLASS;
+
+    /**
      * Constructs a new WLROISelector.
      *
      * @param data The data structure on which the ROIs have to applied.
      */
-    WLROISelector( boost::shared_ptr< DataType > data );
+    explicit WLROISelector( boost::shared_ptr< DataType > data );
 
     /**
      * Destroys the WLROISelector.
      */
     virtual ~WLROISelector();
+
+    /**
+     * Cast the ROI selector if possible.
+     *
+     * @return Returns a shared pointer on this.
+     */
+    template< typename T >
+    boost::shared_ptr< T > getAs()
+    {
+        return boost::dynamic_pointer_cast< T >( this->shared_from_this() );
+    }
+
+    /**
+     * Cast the ROI selector if possible.
+     *
+     * @return Returns a shared pointer on this.
+     */
+    template< typename T >
+    boost::shared_ptr< const T > getAs() const
+    {
+        return boost::dynamic_pointer_cast< T >( this->shared_from_this() );
+    }
 
     /**
      * Marks the WLROISelector as dirty and the filter structure has to recalculated.
@@ -110,21 +145,26 @@ protected:
      *
      * @param roi New ROI inserted into the ROI structure.
      */
-    void slotAddRoi( osg::ref_ptr< WROI > roi );
+    virtual void slotAddRoi( osg::ref_ptr< WROI > );
 
     /**
      * Listener function for removing ROIs.
      *
      * @param roi ROI that is being removed.
      */
-    void slotRemoveRoi( osg::ref_ptr< WROI > roi );
+    virtual void slotRemoveRoi( osg::ref_ptr< WROI > roi );
 
     /**
      * Listener function for removing ROIs.
      *
      * @param branch Branch that is being removed.
      */
-    void slotRemoveBranch( boost::shared_ptr< WRMBranch > branch );
+    virtual void slotRemoveBranch( boost::shared_ptr< WRMBranch > branch );
+
+    /**
+     * Generates new ROIs form the current  ROI configuration.
+     */
+    void generateRois();
 
     /**
      * The data to calculate.
@@ -139,7 +179,7 @@ protected:
     /**
      * The ROI controller factory.
      */
-    boost::shared_ptr< WLROICtrlFactory< WLROIController< DataType, FilterType >, DataType, FilterType > > m_factory;
+    ControllerFactorySPtr m_factory;
 
 private:
 
@@ -180,12 +220,13 @@ private:
 };
 
 template< typename DataType, typename FilterType >
+const std::string WLROISelector< DataType, FilterType >::CLASS = "WLROISelector";
+
+template< typename DataType, typename FilterType >
 inline WLROISelector< DataType, FilterType >::WLROISelector( boost::shared_ptr< DataType > data ) :
                 m_data( data ), m_filter( boost::shared_ptr< FilterType >( new FilterType ) ), m_dirty( true ), m_dirtyCondition(
                                 boost::shared_ptr< WCondition >( new WCondition() ) )
 {
-    std::vector< osg::ref_ptr< WROI > > rois = WKernel::getRunningKernel()->getRoiManager()->getRois();
-
     m_changeRoiSignal = boost::shared_ptr< boost::function< void() > >(
                     new boost::function< void() >( boost::bind( &WLROISelector< DataType, FilterType >::setDirty, this ) ) );
 
@@ -196,19 +237,13 @@ inline WLROISelector< DataType, FilterType >::WLROISelector( boost::shared_ptr< 
 
     m_removeRoiSignal = boost::shared_ptr< boost::function< void( osg::ref_ptr< WROI > ) > >(
                     new boost::function< void( osg::ref_ptr< WROI > ) >(
-                                    boost::bind( &WLROISelector< DataType, FilterType >::slotRemoveRoi, this, _1 ) ) );
+                                    boost::bind( &WLROISelector::slotRemoveRoi, this, _1 ) ) );
     WKernel::getRunningKernel()->getRoiManager()->addRemoveNotifier( m_removeRoiSignal );
 
     m_removeBranchSignal = boost::shared_ptr< boost::function< void( boost::shared_ptr< WRMBranch > ) > >(
                     new boost::function< void( boost::shared_ptr< WRMBranch > ) >(
-                                    boost::bind( &WLROISelector< DataType, FilterType >::slotRemoveBranch, this, _1 ) ) );
+                                    boost::bind( &WLROISelector::slotRemoveBranch, this, _1 ) ) );
     WKernel::getRunningKernel()->getRoiManager()->addRemoveBranchNotifier( m_removeBranchSignal );
-
-    for( size_t i = 0; i < rois.size(); ++i )
-    {
-        slotAddRoi( rois[i] );
-        ( rois[i] )->getProperties()->getProperty( "Dirty" )->toPropBool()->set( true );
-    }
 }
 
 template< typename DataType, typename FilterType >
@@ -262,6 +297,11 @@ inline boost::shared_ptr< const FilterType > WLROISelector< DataType, FilterType
 template< typename DataType, typename FilterType >
 inline void WLROISelector< DataType, FilterType >::slotAddRoi( osg::ref_ptr< WROI > roi )
 {
+    if( !m_factory ) // no controller factoy was configured.
+    {
+        return;
+    }
+
     boost::shared_ptr< WLROICtrlBranch< DataType, FilterType > > branch;
 
     for( typename std::list< boost::shared_ptr< WLROICtrlBranch< DataType, FilterType > > >::iterator iter = m_branches.begin();
@@ -322,6 +362,18 @@ inline void WLROISelector< DataType, FilterType >::slotRemoveBranch( boost::shar
         }
     }
     setDirty();
+}
+
+template< typename DataType, typename FilterType >
+inline void WLROISelector< DataType, FilterType >::generateRois()
+{
+    std::vector< osg::ref_ptr< WROI > > rois = WKernel::getRunningKernel()->getRoiManager()->getRois();
+
+    for( size_t i = 0; i < rois.size(); ++i )
+    {
+        slotAddRoi( rois[i] );
+        ( rois[i] )->getProperties()->getProperty( "Dirty" )->toPropBool()->set( true );
+    }
 }
 
 #endif /* WLROISELECTOR_H_ */

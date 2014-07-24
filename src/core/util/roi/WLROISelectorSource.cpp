@@ -22,16 +22,37 @@
 //
 //---------------------------------------------------------------------------
 
+#include <core/common/WLogger.h>
+
+#include "core/data/emd/WLEMData.h"
 #include "WLROICtrlFactorySource.h"
 #include "WLROISelectorSource.h"
 
-WLROISelectorSource::WLROISelectorSource( WLEMData::SPtr data ) :
-                WLROISelector< WLEMData, std::vector< size_t > >::WLROISelector( data )
+const std::string WLROISelectorSource::CLASS = "WLROISelectorSource";
+
+WLROISelectorSource::WLROISelectorSource( WLEMData::SPtr data, WLEMDDrawable3D::SPtr drawable3D ) :
+                WLROISelector( data ), m_drawable3D( drawable3D )
 {
-    m_factory.reset(
-                    ( WLROICtrlFactory< WLROIController< WLEMData, std::vector< size_t > >, WLEMData, std::vector< size_t > >* )new WLROICtrlFactorySource );
+    // create a controller factory first
+     m_factory.reset(
+     ( WLROICtrlFactory< WLROIController< WLEMData, std::vector< size_t > >, WLEMData, std::vector< size_t > >* )new WLROICtrlFactorySource );
+
+    // AFTER init m_factory: create ROIs from the current ROI configuration.
+    generateRois(); // envolve an existing ROI configuration.
 }
 
 void WLROISelectorSource::recalculate()
 {
+}
+
+void WLROISelectorSource::slotAddRoi( osg::ref_ptr< WROI > ref_ptr )
+{
+    WLROISelector< WLEMData, std::vector< size_t > >::slotAddRoi( ref_ptr );
+
+    if( !m_drawable3D )
+    {
+        return;
+    }
+
+    m_drawable3D->getWidget()->getScene()->addChild( ref_ptr.get() );
 }

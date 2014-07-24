@@ -26,10 +26,12 @@
 #define WLEMDDRAWABLE3DSOURCE_H_
 
 #include <boost/shared_ptr.hpp>
+#include <boost/spirit/home/support/detail/hold_any.hpp>
 
 #include <core/ui/WUIViewWidget.h>
 
 #include "core/data/emd/WLEMData.h"
+#include "core/util/roi/WLROISelector.h"
 
 #include "WLEMDDrawable3D.h"
 
@@ -50,8 +52,27 @@ public:
 
     virtual ~WLEMDDrawable3DSource();
 
+    /**
+     * Sets the ROI selector.
+     *
+     * @param roiSelector The ROI selector.
+     */
+    void setROISelector( boost::shared_ptr< WLROISelector< boost::spirit::hold_any, boost::spirit::hold_any > > roiSelector );
+
+    /**
+     * Gets the ROI selector.
+     *
+     * @return The ROI selector.
+     */
+    boost::shared_ptr< WLROISelector< boost::spirit::hold_any, boost::spirit::hold_any > > getROISelector();
+
 protected:
     virtual void osgNodeCallback( osg::NodeVisitor* nv );
+
+    /**
+     * The ROI selector.
+     */
+    boost::shared_ptr< WLROISelector< boost::spirit::hold_any, boost::spirit::hold_any > > m_roiSelecor;
 
 private:
     void osgUpdateSurfaceColor( const WLEMData::DataT& data );

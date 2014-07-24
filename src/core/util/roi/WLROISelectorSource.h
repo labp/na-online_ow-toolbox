@@ -27,7 +27,11 @@
 
 #include <vector>
 
+#include <boost/function.hpp>
+#include <boost/shared_ptr.hpp>
+
 #include "core/data/emd/WLEMData.h"
+#include "core/gui/drawable/WLEMDDrawable3D.h"
 #include "WLROISelector.h"
 
 /**
@@ -41,11 +45,26 @@ class WLROISelectorSource: public WLROISelector< WLEMData, std::vector< size_t >
 public:
 
     /**
+     * A shared pointer on a WLROISelectorSource.
+     */
+    typedef boost::shared_ptr< WLROISelectorSource > SPtr;
+
+    /**
+     * A shared pointer on a constant WLROISelectorSource.
+     */
+    typedef boost::shared_ptr< const WLROISelectorSource > ConstSPtr;
+
+    /**
+     * The class name.
+     */
+    static const std::string CLASS;
+
+    /**
      * Constructs a new WLROISelectorSource.
      *
      * @param data The data container.
      */
-    WLROISelectorSource( WLEMData::SPtr data );
+    explicit WLROISelectorSource( WLEMData::SPtr data, WLEMDDrawable3D::SPtr drawable3D );
 
 protected:
 
@@ -53,6 +72,15 @@ protected:
      * Recalculates the filter structure to select the channels includes by the ROI.
      */
     void recalculate();
+
+    virtual void slotAddRoi( osg::ref_ptr< WROI > );
+
+private:
+
+    /**
+     * The 3D drawable.
+     */
+    WLEMDDrawable3D::SPtr m_drawable3D;
 
 };
 

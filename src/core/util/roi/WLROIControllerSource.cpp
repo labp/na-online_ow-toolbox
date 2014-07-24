@@ -22,7 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
-#include <core/util/roi/WLROIControllerSource.h>
+#include <core/graphicsEngine/WROIBox.h>
+
+#include "WLROIControllerSource.h"
 
 WLROIControllerSource::WLROIControllerSource( osg::ref_ptr< WROI > roi,
                 typename WLROIController< WLEMData, std::vector< size_t > >::DataTypeSPtr data ) :
@@ -32,4 +34,8 @@ WLROIControllerSource::WLROIControllerSource( osg::ref_ptr< WROI > roi,
 
 void WLROIControllerSource::recalculate()
 {
+    if( osg::dynamic_pointer_cast< WROIBox >( m_roi ).get() )
+    {
+
+    }
 }

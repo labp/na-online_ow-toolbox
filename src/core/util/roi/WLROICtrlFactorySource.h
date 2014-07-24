@@ -27,6 +27,8 @@
 
 #include <vector>
 
+#include <boost/shared_ptr.hpp>
+
 #include "core/data/emd/WLEMData.h"
 #include "WLROIControllerSource.h"
 #include "WLROICtrlFactory.h"
@@ -38,6 +40,11 @@
 class WLROICtrlFactorySource: public WLROICtrlFactory< WLROIControllerSource, WLEMData, std::vector< size_t > >
 {
 public:
+
+    /**
+     * A shared pointer on a WLROICtrlFactorySource.
+     */
+    typedef boost::shared_ptr< WLROICtrlFactorySource > SPtr;
 
     /**
      * Creates a new instance of a WLROIControllerSource.

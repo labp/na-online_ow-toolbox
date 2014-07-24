@@ -95,3 +95,14 @@ void WLEMDDrawable3DSource::osgNodeCallback( osg::NodeVisitor* nv )
 
     WLEMDDrawable3D::osgNodeCallback( nv );
 }
+
+void WLEMDDrawable3DSource::setROISelector(
+                boost::shared_ptr< WLROISelector< boost::spirit::hold_any, boost::spirit::hold_any > > roiSelector )
+{
+    m_roiSelecor = roiSelector;
+}
+
+boost::shared_ptr< WLROISelector< boost::spirit::hold_any, boost::spirit::hold_any > > WLEMDDrawable3DSource::getROISelector()
+{
+    return m_roiSelecor;
+}
