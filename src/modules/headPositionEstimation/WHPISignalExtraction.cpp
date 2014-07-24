@@ -249,11 +249,11 @@ bool WHPISignalExtraction::reconstructAmplitudes( WLEMDHPI::SPtr& hpiOut, WLEMDM
     // Processing: Move windows step by step
     // -------------------------------------
     WLEMData::DataT::Index hpiSmp = 0;
-    for( MatrixT::Index start = 0; start + N < samples; start += S )
+    for( MatrixT::Index start = 0; start + N <= samples; start += S )
     {
-        WLEMData::SampleT hpiSampel( hpiChannels );
-        reconstructWindows( &hpiSampel, data, start, N );
-        dataOut->block( 0, hpiSmp++, hpiChannels, 1 ) = hpiSampel;
+        WLEMData::SampleT hpiSample( hpiChannels );
+        reconstructWindows( &hpiSample, data, start, N );
+        dataOut->block( 0, hpiSmp++, hpiChannels, 1 ) = hpiSample;
     }
 
     // Finalization

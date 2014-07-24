@@ -126,7 +126,7 @@ void WMHeadPositionEstimation::properties()
 
     m_propMaxIterations = m_propGroupEstimation->addProperty( "Max. Iterations:",
                     "Maximum iterations for minimization algorithm.", 128 );
-    m_propEpsilon = m_propGroupEstimation->addProperty( "Epsilon:", "Epsilon/threshold for minimization algorithm.", 1.0e-6 );
+    m_propEpsilon = m_propGroupEstimation->addProperty( "Epsilon:", "Epsilon/threshold for minimization algorithm.", 0.08 );
 
     m_propInitAlpha = m_propGroupEstimation->addProperty( "Rz:", "Initial step: alpha angle in degrees for z-y-z rotation.",
                     10.0 );
@@ -450,12 +450,8 @@ bool WMHeadPositionEstimation::estimateHeadPosition( WLEMDHPI::SPtr hpiInOut, WL
         m_lastParams = m_optim->getResultParams();
         debugLog() << "Estimation: " << m_optim->converged() << " " << m_optim->getResultIterations() << " "
                         << m_optim->getResultError();
-        debugLog() << "Best:\n" << m_lastParams;
         debugLog() << "Transformation:\n" << m_optim->getResultTransformation();
         trans->push_back( m_optim->getResultTransformation() );
-        std::vector< WPosition > hpiPosNew = m_optim->getResultPositions();
-        debugLog() << "HPI Positions:\n" << hpiPosNew[0] << "\n" << hpiPosNew[1] << "\n" << hpiPosNew[2] << "\n" << hpiPosNew[3]
-                        << "\n" << hpiPosNew[4];
         m_optim->nextSample();
     }
     hpiInOut->setTransformations( trans );
