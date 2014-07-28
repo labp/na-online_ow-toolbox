@@ -21,6 +21,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <limits> // max double
 #include <list>
 
 #include <core/common/WPathHelper.h>
@@ -139,8 +140,23 @@ void WMHeadPositionEstimation::properties()
     m_propInitY = m_propGroupEstimation->addProperty( "Ty:", "Initial step: y translation in meter.", 0.01 );
     m_propInitZ = m_propGroupEstimation->addProperty( "Tz:", "Initial step: z translation in meter.", 0.01 );
 
-    m_propAvgError = m_propGroupEstimation->addProperty( "Error:", "Average fitting error of last block.", 0.0 );
-    m_propAvgError->setPurpose( PV_PURPOSE_INFORMATION );
+    m_propErrorMin = m_infoProperties->addProperty( "Error (min.):", "Min. fitting error of last block.", 0.0 );
+    m_propErrorMin->setPurpose( PV_PURPOSE_INFORMATION );
+
+    m_propErrorAvg = m_infoProperties->addProperty( "Error (avg.):", "Average fitting error of last block.", 0.0 );
+    m_propErrorAvg->setPurpose( PV_PURPOSE_INFORMATION );
+
+    m_propErrorMax = m_infoProperties->addProperty( "Error (max):", "Max. fitting error of last block.", 0.0 );
+    m_propErrorMax->setPurpose( PV_PURPOSE_INFORMATION );
+
+    m_propItMin = m_infoProperties->addProperty( "Iterations (min.):", "Min. iterations of last block.", 0 );
+    m_propItMin->setPurpose( PV_PURPOSE_INFORMATION );
+
+    m_propItAvg = m_infoProperties->addProperty( "Iterations (avg.):", "Average iterations of last block.", 0.0 );
+    m_propItAvg->setPurpose( PV_PURPOSE_INFORMATION );
+
+    m_propItMax = m_infoProperties->addProperty( "Iterations (max):", "Max. iterations of last block.", 0 );
+    m_propItMax->setPurpose( PV_PURPOSE_INFORMATION );
 }
 
 void WMHeadPositionEstimation::viewInit()
@@ -321,7 +337,7 @@ bool WMHeadPositionEstimation::processReset( WLEMMCommand::SPtr cmdIn )
     m_optim.reset();
     m_lastParams.setZero();
     m_output->updateData( cmdIn );
-    m_propAvgError->set( 0.0, true );
+    m_propErrorAvg->set( 0.0, true );
     viewReset();
     return true;
 }
@@ -417,20 +433,75 @@ bool WMHeadPositionEstimation::estimateHeadPosition( WLEMDHPI::SPtr hpiInOut, WL
     const WContinuousPositionEstimation::MatrixT::Index n_smp = hpiInOut->getData().cols();
     WLArrayList< WLEMDHPI::TransformationT >::SPtr trans = WLArrayList< WLEMDHPI::TransformationT >::instance();
     trans->reserve( n_smp );
-    double error = 0.0;
+
+    double errorMin = std::numeric_limits< double >::max();
+    double errorAvg = 0.0;
+    double errorMax = std::numeric_limits< double >::min();
+
+    size_t itMin = std::numeric_limits< size_t >::max();
+    double itAvg = 0.0;
+    size_t itMax = std::numeric_limits< size_t >::min();
+
     for( smp = 0; smp < n_smp; ++smp )
     {
+        // Do optimization
         m_optim->optimize( m_lastParams );
         m_lastParams = m_optim->getResultParams();
-        error += m_optim->getResultError();
-        debugLog() << "Estimation: " << m_optim->converged() << " " << m_optim->getResultIterations() << " "
-                        << m_optim->getResultError();
-        debugLog() << "Transformation:\n" << m_optim->getResultTransformation();
-        trans->push_back( m_optim->getResultTransformation() );
+        const double error = m_optim->getResultError();
+        const size_t iterations = m_optim->getResultIterations();
+        const WLEMDHPI::TransformationT result = m_optim->getResultTransformation();
+
+        // Calculate errors for informational output
+        if( error < errorMin )
+        {
+            errorMin = error;
+        }
+        if( error > errorMax )
+        {
+            errorMax = error;
+        }
+        errorAvg += error;
+
+        // Calculate itreations for informational output
+        if( iterations < itMin )
+        {
+            itMin = iterations;
+        }
+        if( iterations > itMax )
+        {
+            itMax = iterations;
+        }
+        itAvg += iterations;
+
+        // Store result and set next sample
+        trans->push_back( result );
         m_optim->nextSample();
+
+#ifdef HPI_TEST
+        // Debug output
+        debugLog() << ">>>>> BEGIN";
+        debugLog() << "Estimation: " << m_optim->converged() << " " << iterations << " " << error;
+        debugLog() << "Transformation:\n" << result;
+
+        std::vector< WPosition > pos;
+        WLGeometry::transformPoints( &pos, *hpiInOut->getChannelPositions3d(), result );
+        debugLog() << "HPI positions:\n";
+        for( int i = 0; i < pos.size(); ++i )
+        {
+            debugLog() << pos[i].x() << " " << pos[i].y() << " " << pos[i].z();
+        }
+        debugLog() << "<<<<< END";
+#endif // HPI_TEST
     }
     hpiInOut->setTransformations( trans );
-    m_propAvgError->set( error / n_smp, true );
+
+    m_propErrorMin->set( errorMin, true );
+    m_propErrorAvg->set( errorAvg / n_smp, true );
+    m_propErrorMax->set( errorMax, true );
+
+    m_propItMin->set( itMin, true );
+    m_propItAvg->set( itAvg / n_smp, true );
+    m_propItMax->set( itMax, true );
 
     return true;
 }

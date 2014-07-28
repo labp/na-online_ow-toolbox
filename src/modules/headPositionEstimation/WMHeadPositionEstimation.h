@@ -171,7 +171,13 @@ private:
 
     WContinuousPositionEstimation::ParamsT m_lastParams; /**< Transformation parameter of the last estimation, used as initial. */
 
-    WPropDouble m_propAvgError;
+    WPropDouble m_propErrorMin;
+    WPropDouble m_propErrorAvg;
+    WPropDouble m_propErrorMax;
+
+    WPropInt m_propItMin;
+    WPropDouble m_propItAvg;
+    WPropInt m_propItMax;
 };
 
 #endif  // WMHEADPOSITIONESTIMATION_H_
