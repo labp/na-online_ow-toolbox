@@ -58,33 +58,36 @@ WContinuousPositionEstimation::WContinuousPositionEstimation( const std::vector<
         m_sensOri.push_back( OrientationT( itOri->x(), itOri->y(), itOri->z() ) );
     }
     m_smpIdx = 0;
+
+    // from Matlab fminsearch.m
+    m_initFactor = 0.05; // 5 percent deltas for non-zero terms
 }
 
 WContinuousPositionEstimation::~WContinuousPositionEstimation()
 {
 }
 
-WContinuousPositionEstimation::ParamsT WContinuousPositionEstimation::getInitialStep() const
-{
-    return m_initStep;
-}
-
-void WContinuousPositionEstimation::setInitialStep( const ParamsT& initial )
-{
-    m_initStep = initial;
-}
-
 void WContinuousPositionEstimation::createInitials( const ParamsT& initial )
 {
+    // from Matlab fminsearch.m
+    const double usual_delta = m_initFactor;
+    const double zero_term_delta = 0.00025; // Even smaller delta for zero elements of x
+
     typename ParamsT::Index dim = 0;
     for( size_t i = 1; i < VALUES; ++i )
     {
         ParamsT p = initial;
-        p( dim ) = p( dim ) + m_initFactor * m_initStep( dim );
+        if( p( dim ) != 0 )
+        {
+            p( dim ) = ( 1 + usual_delta ) * p( dim );
+        }
+        else
+        {
+            p( dim ) = zero_term_delta;
+        }
         m_x[i] = p;
         ++dim;
     }
-    m_x[0] = initial - m_initFactor * m_initStep;
 
     for( size_t i = 0; i < VALUES; ++i )
     {
@@ -235,33 +238,35 @@ WContinuousPositionEstimation::TransformationT WContinuousPositionEstimation::pa
     TransformationT trans = TransformationT::Identity();
     trans.block( 0, 3, 3, 1 ) = params.block( 3, 0, 3, 1 );
 
-    const double alpha = params( 0 );
-    const double beta = params( 1 );
-    const double gamma = params( 2 );
+    // the individual angles (in radians)
+    const double rx = params( 0 );
+    const double ry = params( 1 );
+    const double rz = params( 2 );
 
-    // z-y-z euler angle convention
-    const double sina = sin( alpha );
-    const double cosa = cos( alpha );
-    const double sinb = sin( beta );
-    const double cosb = cos( beta );
-    const double siny = sin( gamma );
-    const double cosy = cos( gamma );
+    // precompute the sin/cos values of the angles
+    const double sX = sin( rx );
+    const double cX = cos( rx );
+    const double sY = sin( ry );
+    const double cY = cos( ry );
+    const double sZ = sin( rz );
+    const double cZ = cos( rz );
 
-    // rot = [x_xe y_xe z_xe; x_ye y_ye z_ye; x_ze y_ze z_ze ]
+    // Rotate around z, y and then x
+    // rot = Rx * Ry * Rz
     RotationT rot = RotationT::Zero();
     // row 1
-    rot( 0, 0 ) = cosa * cosb * cosy - sina * siny;
-    rot( 0, 1 ) = -1.0 * ( cosa * cosb * siny + sina * cosy );
-    rot( 0, 2 ) = cosa * sinb;
+    rot( 0, 0 ) = cZ * cY;
+    rot( 0, 1 ) = -sZ * cY;
+    rot( 0, 2 ) = sY;
     // row 2
-    rot( 1, 0 ) = -1.0 * ( sina * cosb * cosy + cosa * siny );
-    rot( 1, 1 ) = sina * cosb * siny + cosa * cosy;
-    rot( 1, 2 ) = sina * sinb;
+    rot( 1, 0 ) = cZ * sY * sX + sZ * cX;
+    rot( 1, 1 ) = -sZ * sY * sX + cZ * cX;
+    rot( 1, 2 ) = -cY * sX;
 
     // row 3
-    rot( 2, 0 ) = -1.0 * sinb * cosy;
-    rot( 2, 1 ) = sinb * siny;
-    rot( 2, 2 ) = cosb;
+    rot( 2, 0 ) = -cZ * sY * cX + sZ * sX;
+    rot( 2, 1 ) = sZ * sY * cX + cZ * sX;
+    rot( 2, 2 ) = cY * cX;
 
     trans.block( 0, 0, 3, 3 ) = rot.block( 0, 0, 3, 3 );
     return trans;

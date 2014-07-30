@@ -128,17 +128,19 @@ private:
 
     WPropDouble m_propEpsilon; /**< Epsilon/threshold for minimization algorithm. */
 
-    WPropDouble m_propInitAlpha; /**< Initial step: alpha angle (degree) for z-y-z rotation. */
+    WPropDouble m_propInitDelta; /**< Initial delta for initial parameters. */
 
-    WPropDouble m_propInitBeta; /**< Initial step: beta angle (degree) for z-y-z rotation. */
+    WPropDouble m_propInitAlpha; /**< Initial alpha angle (degree) for z-y-x rotation. */
 
-    WPropDouble m_propInitGamma; /**< Initial step: gamma angle (degree) for z-y-z rotation. */
+    WPropDouble m_propInitBeta; /**< Initial  beta angle (degree) for z-y-x rotation. */
 
-    WPropDouble m_propInitX; /**< Initial step: x translation (meter). */
+    WPropDouble m_propInitGamma; /**< Initial  gamma angle (degree) for z-y-x rotation. */
 
-    WPropDouble m_propInitY; /**< Initial step: y translation (meter). */
+    WPropDouble m_propInitX; /**< Initial x translation (meter). */
 
-    WPropDouble m_propInitZ; /**< Initial step: z translation (meter). */
+    WPropDouble m_propInitY; /**< Initial y translation (meter). */
+
+    WPropDouble m_propInitZ; /**< Initial z translation (meter). */
 
     /**
      * Extracts EMDMEG containing magnetometer data only.

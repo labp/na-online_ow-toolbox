@@ -126,19 +126,18 @@ void WMHeadPositionEstimation::properties()
     m_propGroupEstimation = m_properties->addPropertyGroup( "Head Position Estimation", "Head Position Estimation" );
 
     m_propMaxIterations = m_propGroupEstimation->addProperty( "Max. Iterations:",
-                    "Maximum iterations for minimization algorithm.", 128 );
-    m_propEpsilon = m_propGroupEstimation->addProperty( "Epsilon:", "Epsilon/threshold for minimization algorithm.", 0.08 );
+                    "Maximum iterations for minimization algorithm.", 500 );
+    m_propEpsilon = m_propGroupEstimation->addProperty( "Epsilon:", "Epsilon/threshold for minimization algorithm.", 0.07 );
 
-    m_propInitAlpha = m_propGroupEstimation->addProperty( "Rz:", "Initial step: alpha angle in degrees for z-y-z rotation.",
-                    10.0 );
-    m_propInitBeta = m_propGroupEstimation->addProperty( "Ry':", "Initial step: beta angle in degrees for z-y-z rotation.",
-                    10.0 );
-    m_propInitGamma = m_propGroupEstimation->addProperty( "Rz'':", "Initial step: gamma angle in degrees for z-y-z rotation.",
-                    10.0 );
+    m_propInitDelta = m_propGroupEstimation->addProperty( "Delta:", "Initial delta for initial parameters.", 0.05 );
 
-    m_propInitX = m_propGroupEstimation->addProperty( "Tx:", "Initial step: x translation in meter.", 0.01 );
-    m_propInitY = m_propGroupEstimation->addProperty( "Ty:", "Initial step: y translation in meter.", 0.01 );
-    m_propInitZ = m_propGroupEstimation->addProperty( "Tz:", "Initial step: z translation in meter.", 0.01 );
+    m_propInitAlpha = m_propGroupEstimation->addProperty( "Rz:", "Initial alpha angle in degrees for z-y-x rotation.", 0.0 );
+    m_propInitBeta = m_propGroupEstimation->addProperty( "Ry:", "Initial beta angle in degrees for z-y-z rotation.", 0.0 );
+    m_propInitGamma = m_propGroupEstimation->addProperty( "Rx:", "Initial gamma angle in degrees for z-y-z rotation.", 0.0 );
+
+    m_propInitX = m_propGroupEstimation->addProperty( "Tx:", "Initial x translation in meter.", 0.0 );
+    m_propInitY = m_propGroupEstimation->addProperty( "Ty:", "Initial y translation in meter.", 0.0 );
+    m_propInitZ = m_propGroupEstimation->addProperty( "Tz:", "Initial z translation in meter.", 0.0 );
 
     m_propErrorMin = m_infoProperties->addProperty( "Error (min.):", "Min. fitting error of last block.", 0.0 );
     m_propErrorMin->setPurpose( PV_PURPOSE_INFORMATION );
@@ -414,18 +413,20 @@ bool WMHeadPositionEstimation::estimateHeadPosition( WLEMDHPI::SPtr hpiInOut, WL
         m_optim.reset( new WContinuousPositionEstimation( *hpiInOut->getChannelPositions3d(), *magPos, *magOri ) );
         m_optim->setMaximumIterations( m_propMaxIterations->get() );
         m_optim->setEpsilon( m_propEpsilon->get() );
-        WContinuousPositionEstimation::ParamsT step = WContinuousPositionEstimation::ParamsT::Zero();
+        m_optim->setInitialFactor( m_propInitDelta->get() );
         const double toRadFac = M_PI / 180;
-        step( 0 ) = m_propInitAlpha->get() * toRadFac;
-        step( 1 ) = m_propInitBeta->get() * toRadFac;
-        step( 2 ) = m_propInitGamma->get() * toRadFac;
-        step( 3 ) = m_propInitX->get();
-        step( 4 ) = m_propInitY->get();
-        step( 5 ) = m_propInitZ->get();
-        m_optim->setInitialStep( step );
-        m_optim->setInitialFactor( 0.5 );
+        m_lastParams( 0 ) = m_propInitAlpha->get() * toRadFac;
+        m_lastParams( 1 ) = m_propInitBeta->get() * toRadFac;
+        m_lastParams( 2 ) = m_propInitGamma->get() * toRadFac;
+        m_lastParams( 3 ) = m_propInitX->get();
+        m_lastParams( 4 ) = m_propInitY->get();
+        m_lastParams( 5 ) = m_propInitZ->get();
         infoLog() << *m_optim;
     }
+
+    m_optim->setMaximumIterations( m_propMaxIterations->get() );
+    m_optim->setEpsilon( m_propEpsilon->get() );
+    m_optim->setInitialFactor( m_propInitDelta->get() );
 
     // Estimate positions
     m_optim->setData( hpiInOut->getData() );
@@ -502,6 +503,9 @@ bool WMHeadPositionEstimation::estimateHeadPosition( WLEMDHPI::SPtr hpiInOut, WL
     m_propItMin->set( itMin, true );
     m_propItAvg->set( itAvg / n_smp, true );
     m_propItMax->set( itMax, true );
+
+    debugLog() << "Error (average): " << errorAvg / n_smp;
+    debugLog() << "Iterations (average): " << itAvg / n_smp;
 
     return true;
 }

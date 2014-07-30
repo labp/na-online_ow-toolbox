@@ -71,10 +71,6 @@ public:
     void nextSample();
     void setData( const MatrixT& data );
 
-    ParamsT getInitialStep() const;
-
-    void setInitialStep( const ParamsT& initial );
-
 protected:
     virtual void createInitials( const ParamsT& initial );
 
@@ -89,8 +85,6 @@ private:
     HPointsT m_hpiPos;
     std::vector< PointT > m_sensPos;
     std::vector< OrientationT > m_sensOri;
-
-    ParamsT m_initStep;
 
     MatrixT getSample( size_t coilIdx ) const;
     MatrixT m_data;
@@ -127,7 +121,6 @@ inline std::ostream& operator<<( std::ostream &strm, const WContinuousPositionEs
     strm << "coefficients=[" << est.getReflectionCoeff() << ", " << est.getContractionCoeff() << ", " << est.getExpansionCoeff()
                     << "], ";
     strm << "initFactor=" << est.getInitialFactor() << ", ";
-    strm << "initStep=" << est.getInitialStep().transpose();
     return strm;
 }
 
