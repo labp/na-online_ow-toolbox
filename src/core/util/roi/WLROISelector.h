@@ -30,6 +30,7 @@
 
 #include <boost/bind.hpp>
 #include <boost/enable_shared_from_this.hpp>
+#include <boost/foreach.hpp>
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 
@@ -39,6 +40,7 @@
 #include <core/kernel/WKernel.h>
 #include <core/kernel/WROIManager.h>
 
+#include "filterCombiner/WLROIFilterCombiner.h"
 #include "WLROIController.h"
 #include "WLROICtrlBranch.h"
 #include "WLROICtrlFactory.h"
@@ -138,7 +140,7 @@ protected:
     /**
      * Method, for recalculating the @m_filter structure for the whole ROI configuration.
      */
-    virtual void recalculate() = 0;
+    virtual void recalculate();
 
     /**
      * Listener function for inserting ROIs.
@@ -181,17 +183,22 @@ protected:
      */
     ControllerFactorySPtr m_factory;
 
+    /**
+     * The list of ROI controller branches.
+     */
+    std::list< boost::shared_ptr< WLROICtrlBranch< DataType, FilterType > > > m_branches;
+
+    /**
+     * The filter combiner.
+     */
+    WLROIFilterCombiner::SPtr m_combiner;
+
 private:
 
     /**
      * The dirty flag.
      */
     bool m_dirty;
-
-    /**
-     * The list of ROI controller branches.
-     */
-    std::list< boost::shared_ptr< WLROICtrlBranch< DataType, FilterType > > > m_branches;
 
     /**
      * Signal that can be used to update the selector.
@@ -362,6 +369,17 @@ inline void WLROISelector< DataType, FilterType >::slotRemoveBranch( boost::shar
         }
     }
     setDirty();
+}
+
+template< typename DataType, typename FilterType >
+inline void WLROISelector< DataType, FilterType >::recalculate()
+{
+    boost::shared_ptr< WLROICtrlBranch< DataType, FilterType > > branch;
+
+    BOOST_FOREACH( branch, m_branches )
+    {
+        branch->getFilter();
+    }
 }
 
 template< typename DataType, typename FilterType >

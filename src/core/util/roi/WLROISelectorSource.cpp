@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <boost/foreach.hpp>
+
 #include <core/common/WLogger.h>
 
 #include "core/data/emd/WLEMData.h"
@@ -34,20 +36,24 @@ WLROISelectorSource::WLROISelectorSource( WLEMData::SPtr data, WLEMDDrawable3D::
                 WLROISelector( data ), m_drawable3D( drawable3D )
 {
     // create a controller factory first
-     m_factory.reset(
-     ( WLROICtrlFactory< WLROIController< WLEMData, std::vector< size_t > >, WLEMData, std::vector< size_t > >* )new WLROICtrlFactorySource );
+    m_factory.reset(
+                    ( WLROICtrlFactory< WLROIController< WLEMData, std::list< size_t > >, WLEMData, std::list< size_t > >* )new WLROICtrlFactorySource );
 
     // AFTER init m_factory: create ROIs from the current ROI configuration.
     generateRois(); // envolve an existing ROI configuration.
 }
 
+/*
 void WLROISelectorSource::recalculate()
 {
+    wlog::debug(CLASS) << "recalculate()";
+
 }
+*/
 
 void WLROISelectorSource::slotAddRoi( osg::ref_ptr< WROI > ref_ptr )
 {
-    WLROISelector< WLEMData, std::vector< size_t > >::slotAddRoi( ref_ptr );
+    WLROISelector< WLEMData, std::list< size_t > >::slotAddRoi( ref_ptr );
 
     if( !m_drawable3D )
     {
@@ -55,4 +61,16 @@ void WLROISelectorSource::slotAddRoi( osg::ref_ptr< WROI > ref_ptr )
     }
 
     m_drawable3D->getWidget()->getScene()->addChild( ref_ptr.get() );
+}
+
+void WLROISelectorSource::slotRemoveRoi( osg::ref_ptr< WROI > ref_ptr )
+{
+    WLROISelector< WLEMData, std::list< size_t > >::slotRemoveRoi( ref_ptr );
+
+    if( !m_drawable3D )
+    {
+        return;
+    }
+
+    m_drawable3D->getWidget()->getScene()->removeChild( ref_ptr.get() );
 }

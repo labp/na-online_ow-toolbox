@@ -25,7 +25,7 @@
 #ifndef WLROICONTROLLERSOURCE_H_
 #define WLROICONTROLLERSOURCE_H_
 
-#include <vector>
+#include <list>
 
 #include <core/graphicsEngine/WROI.h>
 
@@ -37,12 +37,17 @@
  * source reconstruction algorithm.
  * The class uses the following structures:
  *      DataType: WLEMData - data structure and base for the source reconstruction
- *      FilterType: vector<Indices> - vector, selecting the calculated channel indices.
+ *      FilterType: list<Indices> - list, selecting the calculated channel indices.
  */
-class WLROIControllerSource: public WLROIController< WLEMData, std::vector< size_t > >
+class WLROIControllerSource: public WLROIController< WLEMData, std::list< size_t > >
 {
 
 public:
+
+    /**
+     * The class name.
+     */
+    static const std::string CLASS;
 
     /**
      * Constructs a new WLROIControllerSource.
@@ -50,7 +55,15 @@ public:
      * @param roi The region of interest.
      * @param data The data container.
      */
-    WLROIControllerSource(osg::ref_ptr< WROI > roi, typename WLROIController< WLEMData, std::vector< size_t > >::DataTypeSPtr data);
+    WLROIControllerSource( osg::ref_ptr< WROI > roi,
+                    typename WLROIController< WLEMData, std::list< size_t > >::DataTypeSPtr data );
+
+    virtual std::list< size_t > &operator+=( std::list< size_t >& f )
+    {
+        f.merge( *m_filter.get() );
+
+        return f;
+    }
 
 protected:
 

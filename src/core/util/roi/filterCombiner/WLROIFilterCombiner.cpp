@@ -22,27 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
-#include <core/common/WLogger.h>
-#include <core/graphicsEngine/WROIBox.h>
+#include "WLROIFilterCombiner.h"
 
-#include "WLROIControllerSource.h"
-
-const std::string WLROIControllerSource::CLASS = "WLROIControllerSource";
-
-WLROIControllerSource::WLROIControllerSource( osg::ref_ptr< WROI > roi,
-                typename WLROIController< WLEMData, std::list< size_t > >::DataTypeSPtr data ) :
-                WLROIController( roi, data )
+WLROIFilterCombiner::~WLROIFilterCombiner()
 {
 }
 
-void WLROIControllerSource::recalculate()
-{
-    if( osg::dynamic_pointer_cast< WROIBox >( m_roi ).get() )
-    {
-        wlog::debug( CLASS ) << "recalculate() WROIBox";
-    }
-    else
-    {
-        wlog::debug( CLASS ) << "recalculate()";
-    }
-}

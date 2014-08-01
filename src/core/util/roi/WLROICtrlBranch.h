@@ -204,7 +204,7 @@ inline typename WLROIController< DataType, FilterType >::FilterTypeSPtr WLROICtr
         recalculate();
     }
 
-    return m_filter();
+    return m_filter;
 }
 
 template< typename DataType, typename FilterType >

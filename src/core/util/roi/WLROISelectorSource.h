@@ -25,7 +25,7 @@
 #ifndef WLROISELECTORSOURCE_H_
 #define WLROISELECTORSOURCE_H_
 
-#include <vector>
+#include <list>
 
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
@@ -39,7 +39,7 @@
  * It provides the adapter between the ROI configuration, the ROI Manager of OpenWalnut
  * and the source reconstruction algorithm.
  */
-class WLROISelectorSource: public WLROISelector< WLEMData, std::vector< size_t > >
+class WLROISelectorSource: public WLROISelector< WLEMData, std::list< size_t > >
 {
 
 public:
@@ -71,9 +71,21 @@ protected:
     /**
      * Recalculates the filter structure to select the channels includes by the ROI.
      */
-    void recalculate();
+    //void recalculate();
 
+    /**
+     * Event method when creating a new ROI.
+     *
+     * @param A reference pointer on the new ROI.
+     */
     virtual void slotAddRoi( osg::ref_ptr< WROI > );
+
+    /**
+     * Event method when deleting a ROI.
+     *
+     * @param A reference pointer on the ROI to delete.
+     */
+    virtual void slotRemoveRoi( osg::ref_ptr< WROI > );
 
 private:
 

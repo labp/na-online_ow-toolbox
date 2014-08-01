@@ -101,6 +101,8 @@ public:
      */
     void setDirty();
 
+    virtual FilterType &operator+=( FilterType& f ) = 0;
+
 protected:
 
     /**
