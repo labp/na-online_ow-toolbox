@@ -195,7 +195,8 @@ template< typename DataType, typename FilterType >
 inline WLROICtrlBranch< DataType, FilterType >::WLROICtrlBranch(
                 typename WLROIController< DataType, FilterType >::DataTypeSPtr data, boost::shared_ptr< WRMBranch > branch,
                 WLROIFilterCombiner::SPtr combiner ) :
-                m_data( data ), m_branch( branch ), m_dirty( true ), m_combiner( combiner )
+                m_data( data ), m_filter( boost::shared_ptr< FilterType >( new FilterType ) ), m_branch( branch ), m_dirty(
+                                true ), m_combiner( combiner )
 {
     m_changeSignal = boost::shared_ptr< boost::function< void() > >(
                     new boost::function< void() >( boost::bind( &WLROICtrlBranch< DataType, FilterType >::setDirty, this ) ) );

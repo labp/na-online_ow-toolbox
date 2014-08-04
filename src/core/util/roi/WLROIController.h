@@ -101,8 +101,6 @@ public:
      */
     void setDirty();
 
-    virtual FilterType &operator+=( FilterType& f ) = 0;
-
 protected:
 
     /**
@@ -133,7 +131,7 @@ protected:
 
 template< typename DataType, typename FilterType >
 inline WLROIController< DataType, FilterType >::WLROIController( osg::ref_ptr< WROI > roi, DataTypeSPtr data ) :
-                m_roi( roi ), m_data( data ), m_dirty( true )
+                m_roi( roi ), m_data( data ), m_filter( boost::shared_ptr< FilterType >( new FilterType ) ), m_dirty( true )
 {
     m_changeRoiSignal = boost::shared_ptr< boost::function< void() > >(
                     new boost::function< void() >( boost::bind( &WLROIController< DataType, FilterType >::setDirty, this ) ) );

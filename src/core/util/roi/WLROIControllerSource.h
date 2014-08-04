@@ -58,13 +58,6 @@ public:
     WLROIControllerSource( osg::ref_ptr< WROI > roi,
                     typename WLROIController< WLEMData, std::list< size_t > >::DataTypeSPtr data );
 
-    virtual std::list< size_t > &operator+=( std::list< size_t >& f )
-    {
-        f.merge( *m_filter.get() );
-
-        return f;
-    }
-
 protected:
 
     /**

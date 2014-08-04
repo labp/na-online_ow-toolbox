@@ -379,6 +379,8 @@ inline void WLROISelector< DataType, FilterType >::recalculate()
         return;
     }
 
+    wlog::debug( CLASS ) << "recalculate()";
+
     boost::shared_ptr< WLROICtrlBranch< DataType, FilterType > > branch;
 
     BOOST_FOREACH( branch, m_branches )
