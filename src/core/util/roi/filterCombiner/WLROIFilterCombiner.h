@@ -43,6 +43,11 @@ public:
     typedef boost::shared_ptr< WLROIFilterCombiner > SPtr;
 
     /**
+     * A shared pointer on a constant WLROIFilterCombiner.
+     */
+    typedef boost::shared_ptr< const WLROIFilterCombiner > ConstSPtr;
+
+    /**
      * Destroys the WLROIFilterCombiner.
      */
     virtual ~WLROIFilterCombiner();
@@ -126,7 +131,7 @@ inline boost::shared_ptr< FilterType > WLROIFilterCombiner::getFilter()
         return boost::any_cast< boost::shared_ptr< FilterType > >( res );
     }
 
-    return boost::any();
+    return boost::shared_ptr< FilterType >();
 }
 
 #endif /* WLROIFILTERCOMBINER_H_ */

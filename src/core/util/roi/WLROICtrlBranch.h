@@ -28,11 +28,13 @@
 #include <list>
 
 #include <boost/bind.hpp>
+#include <boost/foreach.hpp>
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include <core/kernel/WRMBranch.h>
 
+#include "filterCombiner/WLROIFilterCombiner.h"
 #include "WLROIController.h"
 
 /**
@@ -63,7 +65,8 @@ public:
      * @param data The data container.
      * @param branch The WRMBranch the controller branch belongs to.
      */
-    WLROICtrlBranch( typename WLROIController< DataType, FilterType >::DataTypeSPtr data, boost::shared_ptr< WRMBranch > branch );
+    WLROICtrlBranch( typename WLROIController< DataType, FilterType >::DataTypeSPtr data, boost::shared_ptr< WRMBranch > branch,
+                    WLROIFilterCombiner::SPtr combiner );
 
     /**
      * Destroys the WLROICtrlBranch.
@@ -124,6 +127,20 @@ public:
      */
     void setDirty();
 
+    /**
+     * Gets the branches filter combiner.
+     *
+     * @return Returns a shared pointer on a constant WLROIFilterCombiner.
+     */
+    WLROIFilterCombiner::ConstSPtr getCombiner() const;
+
+    /**
+     * Sets the new filer combiner.
+     *
+     * @param combiner A shared pointer on the new filter combiner.
+     */
+    void setCombiner( WLROIFilterCombiner::SPtr combiner );
+
 protected:
 
     /**
@@ -168,12 +185,17 @@ private:
      */
     boost::shared_ptr< boost::function< void() > > m_changeRoiSignal;
 
+    /**
+     * The filter combiner.
+     */
+    WLROIFilterCombiner::SPtr m_combiner;
 };
 
 template< typename DataType, typename FilterType >
 inline WLROICtrlBranch< DataType, FilterType >::WLROICtrlBranch(
-                typename WLROIController< DataType, FilterType >::DataTypeSPtr data, boost::shared_ptr< WRMBranch > branch ) :
-                m_data( data ), m_branch( branch ), m_dirty( true )
+                typename WLROIController< DataType, FilterType >::DataTypeSPtr data, boost::shared_ptr< WRMBranch > branch,
+                WLROIFilterCombiner::SPtr combiner ) :
+                m_data( data ), m_branch( branch ), m_dirty( true ), m_combiner( combiner )
 {
     m_changeSignal = boost::shared_ptr< boost::function< void() > >(
                     new boost::function< void() >( boost::bind( &WLROICtrlBranch< DataType, FilterType >::setDirty, this ) ) );
@@ -260,9 +282,32 @@ inline void WLROICtrlBranch< DataType, FilterType >::setDirty()
 }
 
 template< typename DataType, typename FilterType >
+inline WLROIFilterCombiner::ConstSPtr WLROICtrlBranch< DataType, FilterType >::getCombiner() const
+{
+    return m_combiner;
+}
+
+template< typename DataType, typename FilterType >
+inline void WLROICtrlBranch< DataType, FilterType >::setCombiner( WLROIFilterCombiner::SPtr combiner )
+{
+    m_combiner = combiner;
+}
+
+template< typename DataType, typename FilterType >
 inline void WLROICtrlBranch< DataType, FilterType >::recalculate()
 {
-    // TODO(maschke): implement the recalculation of the filter structure
+    if( !m_combiner )
+    {
+        return;
+    }
+
+    boost::shared_ptr< WLROIController< DataType, FilterType > > controller;
+
+    BOOST_FOREACH(controller, m_rois)
+    {
+        m_combiner->setFilter< FilterType >( m_filter, controller->getFilter() );
+        m_filter = m_combiner->getFilter< FilterType >();
+    }
 }
 
 #endif /* WLROICTRLBRANCH_H_ */

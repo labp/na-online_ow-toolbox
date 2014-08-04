@@ -22,39 +22,54 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLROICTRLFACTORYSOURCE_H_
-#define WLROICTRLFACTORYSOURCE_H_
+#ifndef WLLISTCOMBINER_TEST_H
+#define WLLISTCOMBINER_TEST_H
 
-#include <vector>
+#include <list>
+
+#include <cxxtest/TestSuite.h>
 
 #include <boost/shared_ptr.hpp>
 
-#include "core/data/emd/WLEMData.h"
-#include "WLROIControllerSource.h"
-#include "WLROICtrlFactory.h"
+#include <core/common/WLogger.h>
 
-/**
- * WLROICtrlFactorySource is a implementation of the abstract factory WLROICtrlFactory to create new
- * instances of the WLROIControllerSource class.
- */
-class WLROICtrlFactorySource: public WLROICtrlFactory< WLROIControllerSource, WLEMData, std::vector< size_t > >
+#include "core/util/roi/filterCombiner/WLListCombiner.h"
+
+class WLListCombinerTest: public CxxTest::TestSuite
 {
 public:
 
-    /**
-     * A shared pointer on a WLROICtrlFactorySource.
-     */
-    typedef boost::shared_ptr< WLROICtrlFactorySource > SPtr;
+    void setUp( void )
+    {
+        WLogger::startup();
+    }
 
     /**
-     * Creates a new instance of a WLROIControllerSource.
-     *
-     * @param name The instance name.
-     * @param roi The ROI.
-     * @param data The data container.
-     * @return Returns a pointer on the new WLROIControllerSource instance.
+     * Unit test to test the filter combiner for a WLListCombiner.
      */
-    WLROIControllerSource *create( const std::string& name, osg::ref_ptr< WROI > roi, boost::shared_ptr< WLEMData > data ) const;
+    void test_combineList()
+    {
+        TS_TRACE( "combineList" );
+
+        boost::shared_ptr< std::list< int > > a_ptr( new std::list< int > );
+        boost::shared_ptr< std::list< int > > b_ptr( new std::list< int > );
+
+        a_ptr->push_back( 1 );
+        a_ptr->push_back( 3 );
+        a_ptr->push_back( 5 );
+
+        b_ptr->push_back( 2 );
+        b_ptr->push_back( 4 );
+        b_ptr->push_back( 5 );
+        b_ptr->push_back( 6 );
+
+        WLListCombiner< int >::SPtr combiner( new WLListCombiner< int > );
+
+        combiner->setFilter< std::list< int > >( a_ptr, b_ptr );
+        a_ptr = combiner->getFilter< std::list< int > >();
+
+        TS_ASSERT_EQUALS( a_ptr->size(), 6 );
+    }
 };
 
-#endif /* WLROICTRLFACTORYSOURCE_H_ */
+#endif // WLLISTCOMBINER_TEST_H

@@ -41,6 +41,11 @@ class WLListCombiner: public WLROIFilterCombiner
 public:
 
     /**
+     * A shared pointer on a WLListCombiner.
+     */
+    typedef boost::shared_ptr< WLListCombiner > SPtr;
+
+    /**
      * Destroys the WLListCombiner.
      */
     virtual ~WLListCombiner();
@@ -88,7 +93,9 @@ inline WLListCombiner< T >::~WLListCombiner()
 template< typename T >
 inline bool WLListCombiner< T >::combine()
 {
-    m_filter1->merge( m_filter2.get() );
+    m_filter1->merge( *m_filter2.get() );
+
+    m_filter1->unique(); // remove duplicates from the merged list.
 
     return true;
 }

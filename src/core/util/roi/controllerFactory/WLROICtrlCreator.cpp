@@ -22,5 +22,5 @@
 //
 //---------------------------------------------------------------------------
 
-#include <core/util/roi/WLROICtrlFactory.h>
+#include <core/util/roi/controllerFactory/WLROICtrlCreator.h>
 

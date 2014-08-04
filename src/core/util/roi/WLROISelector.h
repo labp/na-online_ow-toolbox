@@ -40,10 +40,10 @@
 #include <core/kernel/WKernel.h>
 #include <core/kernel/WROIManager.h>
 
+#include "controllerFactory/WLROICtrlFactory.h"
 #include "filterCombiner/WLROIFilterCombiner.h"
 #include "WLROIController.h"
 #include "WLROICtrlBranch.h"
-#include "WLROICtrlFactory.h"
 
 /**
  * The abstract class WLROISelector describes the interface between ROI configuration, ROI manager
@@ -323,7 +323,7 @@ inline void WLROISelector< DataType, FilterType >::slotAddRoi( osg::ref_ptr< WRO
     {
         branch = boost::shared_ptr< WLROICtrlBranch< DataType, FilterType > >(
                         new WLROICtrlBranch< DataType, FilterType >( m_data,
-                                        WKernel::getRunningKernel()->getRoiManager()->getBranch( roi ) ) );
+                                        WKernel::getRunningKernel()->getRoiManager()->getBranch( roi ), m_combiner ) );
         branch->getBranch()->addChangeNotifier( m_changeRoiSignal );
         m_branches.push_back( branch );
     }
@@ -374,11 +374,17 @@ inline void WLROISelector< DataType, FilterType >::slotRemoveBranch( boost::shar
 template< typename DataType, typename FilterType >
 inline void WLROISelector< DataType, FilterType >::recalculate()
 {
+    if( !m_combiner )
+    {
+        return;
+    }
+
     boost::shared_ptr< WLROICtrlBranch< DataType, FilterType > > branch;
 
     BOOST_FOREACH( branch, m_branches )
     {
-        branch->getFilter();
+        m_combiner->setFilter< FilterType >( m_filter, branch->getFilter() );
+        m_filter = m_combiner->getFilter< FilterType >();
     }
 }
 
