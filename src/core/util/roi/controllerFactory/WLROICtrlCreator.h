@@ -33,7 +33,7 @@
  * The WLROICtrlCreator provides an interface to create an instance of @Base under the
  * condition of @DataType and @FilterType.
  */
-template< typename Base, typename DataType = void, typename FilterType = void >
+template< typename Base, typename DataType = void >
 class WLROICtrlCreator
 {
 public:
@@ -41,7 +41,7 @@ public:
     /**
      * A shared pointer on a WLROICtrlCreator.
      */
-    typedef boost::shared_ptr< WLROICtrlCreator< Base, DataType, FilterType > > type;
+    typedef boost::shared_ptr< WLROICtrlCreator< Base, DataType > > type;
 
     /**
      * Destroys the WLROICtrlCreator.
@@ -59,8 +59,8 @@ public:
     virtual Base *create( osg::ref_ptr< WROI > roi, boost::shared_ptr< DataType > data ) = 0;
 };
 
-template< typename Base, typename DataType, typename FilterType >
-inline WLROICtrlCreator< Base, DataType, FilterType >::~WLROICtrlCreator()
+template< typename Base, typename DataType >
+inline WLROICtrlCreator< Base, DataType >::~WLROICtrlCreator()
 {
 
 }

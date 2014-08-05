@@ -25,8 +25,6 @@
 #ifndef WLROICTRLFACTORYSOURCE_H_
 #define WLROICTRLFACTORYSOURCE_H_
 
-#include <vector>
-
 #include <boost/shared_ptr.hpp>
 
 #include "core/data/emd/WLEMData.h"
@@ -37,7 +35,7 @@
  * WLROICtrlFactorySource is a implementation of the abstract factory WLROICtrlFactory to create new
  * instances of the WLROIControllerSource class.
  */
-class WLROICtrlFactorySource: public WLROICtrlFactory< WLROIControllerSource, WLEMData, std::vector< size_t > >
+class WLROICtrlFactorySource: public WLROICtrlFactory< WLROIControllerSource, WLEMData >
 {
 public:
 
@@ -45,6 +43,11 @@ public:
      * A shared pointer on a WLROICtrlFactorySource.
      */
     typedef boost::shared_ptr< WLROICtrlFactorySource > SPtr;
+
+    /**
+     * Contructs an new WLROICtrlFactorySource.
+     */
+    WLROICtrlFactorySource();
 
     /**
      * Creates a new instance of a WLROIControllerSource.

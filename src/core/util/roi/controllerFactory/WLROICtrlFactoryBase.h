@@ -66,12 +66,34 @@ protected:
      */
     WLROICtrlFactoryBase& operator=( const WLROICtrlFactoryBase& );
 
+    /**
+     * Method to register a controller creator at the factory.
+     *
+     * @param name The unique name of the creator.
+     * @param creator The creator instance.
+     */
     void registerCreator( const std::string& name, Creator creator );
 
+    /**
+     * Gets the begin iterator for the creators.
+     *
+     * @return Returns a constant iterator.
+     */
     citerTc begin() const;
 
+    /**
+     * Gets the end iterator for the creators.
+     *
+     * @return Returns a constant iterator.
+     */
     citerTc end() const;
 
+    /**
+     * Method to find a creator for the @name.
+     *
+     * @param name The name to look for.
+     * @return Returns a constant iterator.
+     */
     citerTc find( const std::string& name ) const;
 
     /**

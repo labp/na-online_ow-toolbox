@@ -35,6 +35,10 @@ WLROIControllerSource::WLROIControllerSource( osg::ref_ptr< WROI > roi,
 {
 }
 
+WLROIControllerSource::~WLROIControllerSource()
+{
+}
+
 void WLROIControllerSource::recalculate()
 {
     if( osg::dynamic_pointer_cast< WROIBox >( m_roi ).get() )

@@ -39,21 +39,13 @@ WLROISelectorSource::WLROISelectorSource( WLEMData::SPtr data, WLEMDDrawable3D::
 {
     // create a controller factory first
     m_factory.reset(
-                    ( WLROICtrlFactory< WLROIController< WLEMData, std::list< size_t > >, WLEMData, std::list< size_t > >* )new WLROICtrlFactorySource );
+                    ( WLROICtrlFactory< WLROIController< WLEMData, std::list< size_t > >, WLEMData >* )new WLROICtrlFactorySource );
 
     m_combiner.reset( new WLListCombiner< size_t > ); // Init the filter combiner.
 
     // AFTER init m_factory: create ROIs from the current ROI configuration.
     generateRois(); // involve an existing ROI configuration.
 }
-
-/*
- void WLROISelectorSource::recalculate()
- {
- wlog::debug(CLASS) << "recalculate()";
-
- }
- */
 
 void WLROISelectorSource::slotAddRoi( osg::ref_ptr< WROI > ref_ptr )
 {

@@ -68,7 +68,7 @@ public:
     /**
      * A shared pointer on a ROI controller factory.
      */
-    typedef boost::shared_ptr< WLROICtrlFactory< WLROIController< DataType, FilterType >, DataType, FilterType > > ControllerFactorySPtr;
+    typedef boost::shared_ptr< WLROICtrlFactory< WLROIController< DataType, FilterType >, DataType > > ControllerFactorySPtr;
 
     /**
      * The class name.

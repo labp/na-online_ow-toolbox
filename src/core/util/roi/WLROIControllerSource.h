@@ -55,15 +55,19 @@ public:
      * @param roi The region of interest.
      * @param data The data container.
      */
-    WLROIControllerSource( osg::ref_ptr< WROI > roi,
-                    typename WLROIController< WLEMData, std::list< size_t > >::DataTypeSPtr data );
+    WLROIControllerSource( osg::ref_ptr< WROI > roi, WLEMData::SPtr data );
+
+    /**
+     * Destroys the WLROIControllerSource.
+     */
+    virtual ~WLROIControllerSource();
 
 protected:
 
     /**
      * Recalculates the filter structure depending on the current ROI configuration.
      */
-    void recalculate();
+    virtual void recalculate();
 };
 
 #endif /* WLROICONTROLLERSOURCE_H_ */

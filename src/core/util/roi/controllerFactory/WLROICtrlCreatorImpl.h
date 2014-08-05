@@ -22,25 +22,34 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WLROICtrlCreatorImpl.h"
-#include "WLROICtrlFactorySource.h"
+#ifndef WLROICTRLCREATORIMPL_H_
+#define WLROICTRLCREATORIMPL_H_
 
-WLROIControllerSource* WLROICtrlFactorySource::create( const std::string& name, osg::ref_ptr< WROI > roi,
-                boost::shared_ptr< WLEMData > data ) const
+#include "WLROICtrlCreator.h"
+
+/**
+ *
+ */
+template< typename Base, typename Derived, typename DataType = void >
+class WLROICtrlCreatorImpl: public WLROICtrlCreator< Base, DataType >
 {
-    citerTc it = find( name );
-    if( it != end() && it->second && data )
-    {
-        return it->second->create( roi, data );
-    }
-    else
-    {
-        return new WLROIControllerSource( roi, data );
-    }
+public:
+
+    virtual ~WLROICtrlCreatorImpl();
+
+    virtual Base *create( osg::ref_ptr< WROI > roi, boost::shared_ptr< DataType > data );
+};
+
+template< typename Base, typename Derived, typename DataType >
+inline WLROICtrlCreatorImpl< Base, Derived, DataType >::~WLROICtrlCreatorImpl()
+{
 }
 
-WLROICtrlFactorySource::WLROICtrlFactorySource()
+template< typename Base, typename Derived, typename DataType >
+inline Base* WLROICtrlCreatorImpl< Base, Derived, DataType >::create( osg::ref_ptr< WROI > roi,
+                boost::shared_ptr< DataType > data )
 {
-    //typename WLROICtrlCreator<WLROIControllerSource,WLEMData>::SPtr creator(new WLROICtrlCreatorImpl<WLROIControllerSource, WLROIControllerSourceBox, WLEMData>);
-    //registerCreator(typeid(WROIBox*).name(), creator);
+    return new Derived( roi, data );
 }
+
+#endif /* WLROICTRLCREATORIMPL_H_ */
