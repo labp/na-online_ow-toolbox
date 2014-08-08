@@ -127,7 +127,7 @@ void WMHeadPositionEstimation::properties()
 
     m_propMaxIterations = m_propGroupEstimation->addProperty( "Max. Iterations:",
                     "Maximum iterations for minimization algorithm.", 500 );
-    m_propEpsilon = m_propGroupEstimation->addProperty( "Epsilon:", "Epsilon/threshold for minimization algorithm.", 0.07 );
+    m_propEpsilon = m_propGroupEstimation->addProperty( "Epsilon:", "Epsilon/threshold for minimization algorithm.", 1e-4 );
 
     m_propInitFactor = m_propGroupEstimation->addProperty( "Initial Factor:", "Initial factor to create initial parameter set.",
                     2.0 );
