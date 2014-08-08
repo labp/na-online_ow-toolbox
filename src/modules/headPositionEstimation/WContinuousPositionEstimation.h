@@ -71,9 +71,6 @@ public:
     void nextSample();
     void setData( const MatrixT& data );
 
-protected:
-    virtual void createInitials( const ParamsT& initial );
-
 private:
     typedef Eigen::Matrix< double, 4, 1 > HPointT;
     typedef Eigen::Matrix< double, 4, Eigen::Dynamic > HPointsT;

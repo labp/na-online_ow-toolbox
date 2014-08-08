@@ -129,7 +129,8 @@ void WMHeadPositionEstimation::properties()
                     "Maximum iterations for minimization algorithm.", 500 );
     m_propEpsilon = m_propGroupEstimation->addProperty( "Epsilon:", "Epsilon/threshold for minimization algorithm.", 0.07 );
 
-    m_propInitDelta = m_propGroupEstimation->addProperty( "Delta:", "Initial delta for initial parameters.", 0.05 );
+    m_propInitFactor = m_propGroupEstimation->addProperty( "Initial Factor:", "Initial factor to create initial parameter set.",
+                    2.0 );
 
     m_propInitAlpha = m_propGroupEstimation->addProperty( "Rz:", "Initial alpha angle in degrees for z-y-x rotation.", 0.0 );
     m_propInitBeta = m_propGroupEstimation->addProperty( "Ry:", "Initial beta angle in degrees for z-y-z rotation.", 0.0 );
@@ -413,7 +414,7 @@ bool WMHeadPositionEstimation::estimateHeadPosition( WLEMDHPI::SPtr hpiInOut, WL
         m_optim.reset( new WContinuousPositionEstimation( *hpiInOut->getChannelPositions3d(), *magPos, *magOri ) );
         m_optim->setMaximumIterations( m_propMaxIterations->get() );
         m_optim->setEpsilon( m_propEpsilon->get() );
-        m_optim->setInitialFactor( m_propInitDelta->get() );
+        m_optim->setInitialFactor( m_propInitFactor->get() );
         const double toRadFac = M_PI / 180;
         m_lastParams( 0 ) = m_propInitAlpha->get() * toRadFac;
         m_lastParams( 1 ) = m_propInitBeta->get() * toRadFac;
@@ -426,7 +427,7 @@ bool WMHeadPositionEstimation::estimateHeadPosition( WLEMDHPI::SPtr hpiInOut, WL
 
     m_optim->setMaximumIterations( m_propMaxIterations->get() );
     m_optim->setEpsilon( m_propEpsilon->get() );
-    m_optim->setInitialFactor( m_propInitDelta->get() );
+    m_optim->setInitialFactor( m_propInitFactor->get() );
 
     // Estimate positions
     m_optim->setData( hpiInOut->getData() );
@@ -446,7 +447,7 @@ bool WMHeadPositionEstimation::estimateHeadPosition( WLEMDHPI::SPtr hpiInOut, WL
     for( smp = 0; smp < n_smp; ++smp )
     {
         // Do optimization
-        m_optim->optimize( m_lastParams );
+        const WContinuousPositionEstimation::Converged conv = m_optim->optimize( m_lastParams );
         m_lastParams = m_optim->getResultParams();
         const double error = m_optim->getResultError();
         const size_t iterations = m_optim->getResultIterations();
@@ -481,13 +482,13 @@ bool WMHeadPositionEstimation::estimateHeadPosition( WLEMDHPI::SPtr hpiInOut, WL
 #ifdef HPI_TEST
         // Debug output
         debugLog() << ">>>>> BEGIN";
-        debugLog() << "Estimation: " << m_optim->converged() << " " << iterations << " " << error;
+        debugLog() << "Estimation: " << conv << " " << iterations << " " << error;
         debugLog() << "Transformation:\n" << result;
 
         std::vector< WPosition > pos;
         WLGeometry::transformPoints( &pos, *hpiInOut->getChannelPositions3d(), result );
         debugLog() << "HPI positions:\n";
-        for( int i = 0; i < pos.size(); ++i )
+        for( size_t i = 0; i < pos.size(); ++i )
         {
             debugLog() << pos[i].x() << " " << pos[i].y() << " " << pos[i].z();
         }

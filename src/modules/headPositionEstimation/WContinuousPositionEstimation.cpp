@@ -58,41 +58,10 @@ WContinuousPositionEstimation::WContinuousPositionEstimation( const std::vector<
         m_sensOri.push_back( OrientationT( itOri->x(), itOri->y(), itOri->z() ) );
     }
     m_smpIdx = 0;
-
-    // from Matlab fminsearch.m
-    m_initFactor = 0.05; // 5 percent deltas for non-zero terms
 }
 
 WContinuousPositionEstimation::~WContinuousPositionEstimation()
 {
-}
-
-void WContinuousPositionEstimation::createInitials( const ParamsT& initial )
-{
-    // from Matlab fminsearch.m
-    const double usual_delta = m_initFactor;
-    const double zero_term_delta = 0.00025; // Even smaller delta for zero elements of x
-
-    typename ParamsT::Index dim = 0;
-    for( size_t i = 1; i < VALUES; ++i )
-    {
-        ParamsT p = initial;
-        if( p( dim ) != 0 )
-        {
-            p( dim ) = ( 1 + usual_delta ) * p( dim );
-        }
-        else
-        {
-            p( dim ) = zero_term_delta;
-        }
-        m_x[i] = p;
-        ++dim;
-    }
-
-    for( size_t i = 0; i < VALUES; ++i )
-    {
-        m_y[i] = func( m_x[i] );
-    }
 }
 
 double WContinuousPositionEstimation::func( const ParamsT& x ) const

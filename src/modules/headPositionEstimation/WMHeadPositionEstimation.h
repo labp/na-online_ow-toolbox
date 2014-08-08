@@ -128,7 +128,7 @@ private:
 
     WPropDouble m_propEpsilon; /**< Epsilon/threshold for minimization algorithm. */
 
-    WPropDouble m_propInitDelta; /**< Initial delta for initial parameters. */
+    WPropDouble m_propInitFactor; /**< Initial factor to create initial parameter set. */
 
     WPropDouble m_propInitAlpha; /**< Initial alpha angle (degree) for z-y-x rotation. */
 
