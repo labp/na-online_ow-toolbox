@@ -27,9 +27,9 @@
 #include <core/common/WLogger.h>
 
 #include "core/data/emd/WLEMData.h"
-
-#include "controllerFactory/WLROICtrlFactorySource.h"
-#include "filterCombiner/WLListCombiner.h"
+#include "core/gui/roi/WLROIBox.h"
+#include "core/util/roi/controllerFactory/WLROICtrlFactorySource.h"
+#include "core/util/roi/filterCombiner/WLListCombiner.h"
 #include "WLROISelectorSource.h"
 
 const std::string WLROISelectorSource::CLASS = "WLROISelectorSource";
@@ -47,16 +47,16 @@ WLROISelectorSource::WLROISelectorSource( WLEMData::SPtr data, WLEMDDrawable3D::
     generateRois(); // involve an existing ROI configuration.
 }
 
-void WLROISelectorSource::slotAddRoi( osg::ref_ptr< WROI > ref_ptr )
+void WLROISelectorSource::slotAddRoi( osg::ref_ptr< WROI > newRoi )
 {
-    WLROISelector< WLEMData, std::list< size_t > >::slotAddRoi( ref_ptr );
+    WLROISelector< WLEMData, std::list< size_t > >::slotAddRoi( newRoi );
 
     if( !m_drawable3D )
     {
         return;
     }
 
-    m_drawable3D->getWidget()->getScene()->addChild( ref_ptr.get() );
+    m_drawable3D->getWidget()->getScene()->addChild( newRoi.get() );
 }
 
 void WLROISelectorSource::slotRemoveRoi( osg::ref_ptr< WROI > ref_ptr )

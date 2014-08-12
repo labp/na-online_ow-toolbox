@@ -133,6 +133,9 @@ void WMTemplateRoi::moduleMain()
 
     //drawSome();
 
+    WLROISelectorSource::SPtr roiSelector = boost::dynamic_pointer_cast< WLROISelectorSource >(
+                    m_drawable3D->getAs< WLEMDDrawable3DSource >()->getROISelector() );
+
     WLEMMCommand::SPtr emmIn;
 
     debugLog() << "Entering main loop";
@@ -150,37 +153,29 @@ void WMTemplateRoi::moduleMain()
             resizeBox();
         }
 
-        //m_moduleState.wait();
+        if( m_input->isEmpty() ) // continue processing if data is available
+        {
+            m_moduleState.wait(); // wait for events like input-data or properties changed
+        }
 
-        /*
-         if( m_input->isEmpty() ) // continue processing if data is available
-         {
-         m_moduleState.wait(); // wait for events like input-data or properties changed
-         }
+        // receive data form the input-connector
+        emmIn.reset();
+        if( !m_input->isEmpty() )
+        {
+            emmIn = m_input->getData();
+        }
+        const bool dataValid = ( emmIn );
 
-         // receive data form the input-connector
-         emmIn.reset();
-         if( !m_input->isEmpty() )
-         {
-         emmIn = m_input->getData();
-         }
-         const bool dataValid = ( emmIn );
+        // ---------- INPUTDATAUPDATEEVENT ----------
+        if( dataValid ) // If there was an update on the input-connector
+        {
+            // The data is valid and we received an update. The data is not NULL but may be the same as in previous loops.
+            debugLog() << "received data";
 
-         // ---------- INPUTDATAUPDATEEVENT ----------
-         if( dataValid ) // If there was an update on the input-connector
-         {
-         // The data is valid and we received an update. The data is not NULL but may be the same as in previous loops.
-         debugLog() << "received data";
+            process( emmIn );
 
-         process( emmIn );
-
-         debugLog() << "finished processing";
-         }
-         */
-
-        WLROISelectorSource::SPtr roiSelector = boost::dynamic_pointer_cast< WLROISelectorSource >(
-                        m_drawable3D->getAs< WLEMDDrawable3DSource >()->getROISelector() );
-
+            debugLog() << "finished processing";
+        }
     }
 }
 

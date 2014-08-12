@@ -28,7 +28,9 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/spirit/home/support/detail/hold_any.hpp>
 
+#include <core/common/WPropertyTypes.h>
 #include <core/ui/WUIViewWidget.h>
+#include <core/graphicsEngine/WPickInfo.h>
 
 #include "core/data/emd/WLEMData.h"
 #include "core/util/roi/WLROISelector.h"
@@ -76,6 +78,18 @@ protected:
 
 private:
     void osgUpdateSurfaceColor( const WLEMData::DataT& data );
+
+    void callbackNewRoi_Clicked();
+
+    /**
+     * The views properties.
+     */
+    boost::shared_ptr< WProperties > m_properties;
+
+    /**
+     * Trigger to create a new WLROI.
+     */
+    WPropTrigger m_trgNewRoi;
 };
 
 #endif  // WLEMDDRAWABLE3DSOURCE_H_
