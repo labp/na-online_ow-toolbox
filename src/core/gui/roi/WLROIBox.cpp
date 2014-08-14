@@ -134,11 +134,11 @@ void WLROIBox::updateGFX()
         if( m_isPicked )
         {
             osg::Vec3 in( newPixelPos.x(), newPixelPos.y(), 0.0 );
-            osg::Vec3 world = wge::unprojectFromScreen( in, m_viewer->getCamera() );
+            osg::Vec3 world = wge::unprojectFromScreen( in, m_widget->getViewer()->getCamera() );
 
             // we want the vector pointing into the screen in world coordinates
             // NOTE: set w = 0 to use it as vector and ignore translation
-            osg::Vec4 toDepth = wge::unprojectFromScreen( osg::Vec4( 0.0, 0.0, 1.0, 0.0 ), m_viewer->getCamera() );
+            osg::Vec4 toDepth = wge::unprojectFromScreen( osg::Vec4( 0.0, 0.0, 1.0, 0.0 ), m_widget->getViewer()->getCamera() );
             toDepth.normalize();
             WPosition toDepthWorld( toDepth[0], toDepth[1], toDepth[2] );
 
@@ -153,7 +153,7 @@ void WLROIBox::updateGFX()
             else
             {
                 osg::Vec3 in( m_oldPixelPosition.x(), m_oldPixelPosition.y(), 0.0 );
-                osg::Vec3 world = wge::unprojectFromScreen( in, m_viewer->getCamera() );
+                osg::Vec3 world = wge::unprojectFromScreen( in, m_widget->getViewer()->getCamera() );
                 oldPixelWorldPos = WPosition( world[0], world[1], world[2] );
             }
 
@@ -162,19 +162,19 @@ void WLROIBox::updateGFX()
             // resize Box
             // todo(maschke): change the resizing feature for width-height-depth
             /*
-            if( m_pickInfo.getModifierKey() == WPickInfo::SHIFT )
-            {
-                if( m_pickNormal[0] <= 0 && m_pickNormal[1] <= 0 && m_pickNormal[2] <= 0 )
-                {
-                    m_maxPos->set( m_maxPos->get() + ( m_pickNormal * dot( moveVec, m_pickNormal ) ) );
-                }
-                if( m_pickNormal[0] >= 0 && m_pickNormal[1] >= 0 && m_pickNormal[2] >= 0 )
-                {
-                    m_minPos->set( m_minPos->get() + ( m_pickNormal * dot( moveVec, m_pickNormal ) ) );
-                }
-                // NOTE: this sets m_needVertexUpdate
-            }
-            */
+             if( m_pickInfo.getModifierKey() == WPickInfo::SHIFT )
+             {
+             if( m_pickNormal[0] <= 0 && m_pickNormal[1] <= 0 && m_pickNormal[2] <= 0 )
+             {
+             m_maxPos->set( m_maxPos->get() + ( m_pickNormal * dot( moveVec, m_pickNormal ) ) );
+             }
+             if( m_pickNormal[0] >= 0 && m_pickNormal[1] >= 0 && m_pickNormal[2] >= 0 )
+             {
+             m_minPos->set( m_minPos->get() + ( m_pickNormal * dot( moveVec, m_pickNormal ) ) );
+             }
+             // NOTE: this sets m_needVertexUpdate
+             }
+             */
 
             // move Box
             if( m_pickInfo.getModifierKey() == WPickInfo::NONE )

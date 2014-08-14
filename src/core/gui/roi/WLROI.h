@@ -77,11 +77,6 @@ protected:
     WPickInfo m_pickInfo;
 
     /**
-     * Makes viewer available all over this class.
-     */
-    boost::shared_ptr< WGEViewer > m_viewer;
-
-    /**
      * The color of the box.
      */
     osg::Vec4 m_color;
@@ -106,6 +101,9 @@ protected:
      */
     boost::shared_mutex m_updateLock;
 
+    /**
+     * The pick handler for picking the ROI in a WLEMDDrawable view.
+     */
     WLPickHandler::RefPtr m_mouseHandler;
 
     /**

@@ -34,10 +34,7 @@ WLROI::WLROI( WUIViewWidget::SPtr widget ) :
                 WROI(), m_color( osg::Vec4( 0.188f, 0.388f, 0.773f, 0.5f ) ), m_notColor(
                                 osg::Vec4( 0.828f, 0.391f, 0.391f, 0.5f ) ), m_widget( widget )
 {
-    m_viewer = m_widget->getViewer();
-    m_pickHandler = m_viewer->getPickHandler();
-    //m_pickHandler->getPickSignal()->connect( boost::bind( &WLROI::registerRedrawRequest, this, _1 ) );
-
+    // connect the pick handler.
     m_mouseHandler = new WLPickHandler( m_widget );
     m_mouseHandler->getPickSignal()->connect( boost::bind( &WLROI::registerRedrawRequest, this, _1 ) );
     m_widget->addEventHandler( m_mouseHandler.get() );
