@@ -39,16 +39,10 @@ const std::string WLROIBox::CLASS = "WLROIBox";
 size_t WLROIBox::maxBoxId = 0;
 
 WLROIBox::WLROIBox( WPosition minPos, WPosition maxPos, WUIViewWidget::SPtr widget ) :
-                WLROI( widget ), m_boxId( maxBoxId++ ), m_pickNormal( WVector3d() ), m_oldPixelPosition( WVector2d::zero() ), m_oldScrollWheel(
-                                0 )
+                WLROI( widget ), m_boxId( maxBoxId++ ), m_minPosInit( minPos ), m_maxPosInit( maxPos ), m_isPicked( false ), m_pickNormal(
+                                WVector3d() ), m_oldPixelPosition( WVector2d::zero() ), m_oldScrollWheel( 0 )
 {
-    m_propGrp = m_properties->addPropertyGroup( "ROI Box", "Properties of this ROI Box" );
-    m_minPos = m_propGrp->addProperty( "Min Position",
-                    "When a box is described by its diagonal, this is the lower, left, front corner of it.", minPos,
-                    boost::bind( &WLROIBox::boxPropertiesChanged, this, _1 ) );
-    m_maxPos = m_propGrp->addProperty( "Max Position",
-                    "When a box is described by its diagonal, this is the upper, right, back corner of it.", maxPos,
-                    boost::bind( &WLROIBox::boxPropertiesChanged, this, _1 ) );
+    initProperties();
 
     std::stringstream ss;
     ss << "ROIBox" << m_boxId;
@@ -86,6 +80,38 @@ WLROIBox::~WLROIBox()
 {
 }
 
+void WLROIBox::initProperties()
+{
+    wlog::debug( CLASS ) << "properties()";
+
+    m_propGrp = m_properties->addPropertyGroup( "ROI Box", "Properties of this ROI Box" );
+    m_minPos = m_propGrp->addProperty( "Min Position",
+                    "When a box is described by its diagonal, this is the lower, left, front corner of it.", m_minPosInit,
+                    boost::bind( &WLROIBox::boxPropertiesChanged, this, _1 ) );
+    m_minPos->setHidden( true );
+    m_maxPos = m_propGrp->addProperty( "Max Position",
+                    "When a box is described by its diagonal, this is the upper, right, back corner of it.", m_maxPosInit,
+                    boost::bind( &WLROIBox::boxPropertiesChanged, this, _1 ) );
+    m_maxPos->setHidden( true );
+
+    m_width = m_propGrp->addProperty( "Width", "The box width.", m_maxPos->get().x() - m_minPos->get().x(),
+                    boost::bind( &WLROIBox::boxDimensionsChanged, this, _1 ) );
+    m_width->setMin( 1 );
+    m_width->setMax( 100 );
+
+    m_height = m_propGrp->addProperty( "Height", "The box height.", m_maxPos->get().y() - m_minPos->get().y(),
+                    boost::bind( &WLROIBox::boxDimensionsChanged, this, _1 ) );
+    m_height->setMin( 1 );
+    m_height->setMax( 100 );
+
+    m_depth = m_propGrp->addProperty( "Depth", "The box depth.", m_maxPos->get().z() - m_minPos->get().z(),
+                    boost::bind( &WLROIBox::boxDimensionsChanged, this, _1 ) );
+    m_depth->setMin( 1 );
+    m_depth->setMax( 100 );
+
+    m_dimensions = getMaxPos() - getMinPos();
+}
+
 WPosition WLROIBox::getMinPos() const
 {
     return m_minPos->get();
@@ -102,7 +128,7 @@ void WLROIBox::updateGFX()
     lock = boost::unique_lock< boost::shared_mutex >( m_updateLock );
 
     //if( m_pickInfo.getViewerName() == m_viewer->getName() && m_picked )
-    if( m_pickInfo.getName() == getName())
+    if( m_pickInfo.getName() == getName() )
     {
         WVector2d newPixelPos( m_pickInfo.getPickPixel() );
         if( m_isPicked )
@@ -134,6 +160,8 @@ void WLROIBox::updateGFX()
             WVector3d moveVec = newPixelWorldPos - oldPixelWorldPos;
 
             // resize Box
+            // todo(maschke): change the resizing feature for width-height-depth
+            /*
             if( m_pickInfo.getModifierKey() == WPickInfo::SHIFT )
             {
                 if( m_pickNormal[0] <= 0 && m_pickNormal[1] <= 0 && m_pickNormal[2] <= 0 )
@@ -146,6 +174,7 @@ void WLROIBox::updateGFX()
                 }
                 // NOTE: this sets m_needVertexUpdate
             }
+            */
 
             // move Box
             if( m_pickInfo.getModifierKey() == WPickInfo::NONE )
@@ -184,7 +213,7 @@ void WLROIBox::updateGFX()
     }
     if( m_isPicked && m_pickInfo.getName() == "unpick" )
     {
-        wlog::debug(CLASS) << "unpick.";
+        wlog::debug( CLASS ) << "unpick.";
 
         // Perform all actions necessary for finishing a pick
         if( m_not->get() )
@@ -195,7 +224,6 @@ void WLROIBox::updateGFX()
         {
             updateColor( m_color );
         }
-
         m_pickNormal = WVector3d();
         m_isPicked = false;
     }
@@ -247,4 +275,16 @@ void WLROIBox::updateGFX()
 void WLROIBox::boxPropertiesChanged( boost::shared_ptr< WPropertyBase > property )
 {
     m_needVertexUpdate = true;
+}
+
+void WLROIBox::boxDimensionsChanged( boost::shared_ptr< WPropertyBase > property )
+{
+    m_needVertexUpdate = true;
+
+    WVector3d delta = ( WVector3d( m_width->get(), m_height->get(), m_depth->get() ) - m_dimensions ) / 2;
+
+    m_maxPos->set( m_maxPos->get() + delta );
+    m_minPos->set( m_minPos->get() - delta );
+
+    m_dimensions = getMaxPos() - getMinPos();
 }

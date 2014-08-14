@@ -37,7 +37,7 @@
 #include "WLROI.h"
 
 /**
- *
+ * The representation of a Region of Interest as a box volume.
  */
 class WLROIBox: public WLROI
 {
@@ -77,6 +77,11 @@ protected:
      */
     virtual ~WLROIBox();
 
+    /**
+     * Initialize the box properties.
+     */
+    virtual void initProperties();
+
 private:
 
     /**
@@ -100,9 +105,39 @@ private:
     WPropPosition m_minPos;
 
     /**
+     * The initial minimal position.
+     */
+    WPosition m_minPosInit;
+
+    /**
      * The maximum position of the box.
      */
     WPropPosition m_maxPos;
+
+    /**
+     * The initial maximal position.
+     */
+    WPosition m_maxPosInit;
+
+    /**
+     * The box width property.
+     */
+    WPropDouble m_width;
+
+    /**
+     * The box height property.
+     */
+    WPropDouble m_height;
+
+    /**
+     * The box depth property.
+     */
+    WPropDouble m_depth;
+
+    /**
+     * The box dimensions.
+     */
+    WVector3d m_dimensions;
 
     /**
      * Shader for proper lighting.
@@ -174,6 +209,13 @@ private:
      * @param property The property.
      */
     void boxPropertiesChanged( boost::shared_ptr< WPropertyBase > property );
+
+    /**
+     * Called when width, height or depth was changed.
+     *
+     * @param property The changed property.
+     */
+    void boxDimensionsChanged( boost::shared_ptr< WPropertyBase > property );
 };
 
 #endif /* WLROIBOX_H_ */
