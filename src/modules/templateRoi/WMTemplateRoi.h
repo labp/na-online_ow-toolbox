@@ -43,7 +43,15 @@
 class WMTemplateRoi: public WLModuleDrawable
 {
 public:
+
+    /**
+     * Construct a new WMTemplateRoi.
+     */
     WMTemplateRoi();
+
+    /**
+     * Destroys the WMTemplateRoi.
+     */
     virtual ~WMTemplateRoi();
 
     /**
@@ -109,35 +117,11 @@ private:
      */
     boost::shared_ptr< WCondition > m_propCondition;
 
-    WPropGroup m_propGrpBox;
-
-    WPropDouble m_width;
-    WPropDouble m_height;
-    WPropDouble m_depth;
-
-    osg::ref_ptr< osg::Geode > m_geode;
-
     /**
      * The ROI selector.
      */
     WLROISelectorSource::SPtr m_roiSelector;
 
-    /**
-     * Do some initialization work for the 3D view.
-     */
-    void initOSG();
-
-    /**
-     * Draws some graphical OSG stuff.
-     */
-    void drawSome();
-
-    /**
-     * Resizes the 3D box after the dimension properties haved changed.
-     */
-    void resizeBox();
-
-    void addRoi( osg::ref_ptr< WROI > );
 };
 
 #endif /* WMTEMPLATEROI_H_ */

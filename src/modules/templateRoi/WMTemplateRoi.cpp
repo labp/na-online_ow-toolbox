@@ -86,17 +86,6 @@ void WMTemplateRoi::properties()
 
     /* init property container */
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
-
-    m_propGrpBox = m_properties->addPropertyGroup( "Box", "Box Properties", false );
-    m_width = m_propGrpBox->addProperty( "Width", "Width", 20.0, false );
-    m_width->setMin( 5 );
-    m_width->setMax( 200 );
-    m_height = m_propGrpBox->addProperty( "Height", "Height", 20.0, false );
-    m_height->setMin( 5 );
-    m_height->setMax( 200 );
-    m_depth = m_propGrpBox->addProperty( "Depth", "Depth", 20.0, false );
-    m_depth->setMin( 5 );
-    m_depth->setMax( 200 );
 }
 
 void WMTemplateRoi::moduleInit()
@@ -121,7 +110,7 @@ void WMTemplateRoi::moduleInit()
     {
         m_drawable3D->getAs< WLEMDDrawable3DSource >()->setROISelector(
                         boost::dynamic_pointer_cast< WLROISelector< boost::spirit::hold_any, boost::spirit::hold_any > >(
-                                        m_roiSelector ) );
+                                        WLROISelectorSource::SPtr( new WLROISelectorSource( data, m_drawable3D ) ) ) );
     }
 
     infoLog() << "Initializing module finished!";
@@ -130,11 +119,6 @@ void WMTemplateRoi::moduleInit()
 void WMTemplateRoi::moduleMain()
 {
     moduleInit();
-
-    //drawSome();
-
-    WLROISelectorSource::SPtr roiSelector = boost::dynamic_pointer_cast< WLROISelectorSource >(
-                    m_drawable3D->getAs< WLEMDDrawable3DSource >()->getROISelector() );
 
     WLEMMCommand::SPtr emmIn;
 
@@ -146,11 +130,6 @@ void WMTemplateRoi::moduleMain()
         if( m_shutdownFlag() )
         {
             break; // break mainLoop on shutdown
-        }
-
-        if( m_width->changed( true ) || m_height->changed( true ) || m_depth->changed( true ) )
-        {
-            resizeBox();
         }
 
         if( m_input->isEmpty() ) // continue processing if data is available
@@ -191,14 +170,15 @@ const char** WMTemplateRoi::getXPMIcon() const
 
 bool WMTemplateRoi::processCompute( WLEMMeasurement::SPtr emm )
 {
-    WLTimeProfiler tp( "WMEpochRejection", "processCompute" );
+    WLTimeProfiler tp( "WMTemplateRoi", "processCompute" );
 
     // show process visualization
     boost::shared_ptr< WProgress > processComp = boost::shared_ptr< WProgress >( new WProgress( "Do the process." ) );
     m_progress->addSubProgress( processComp );
 
     // ---------- PROCESSING ----------
-    viewUpdate( emm ); // update the GUI component
+    //viewUpdate( emm ); // update the GUI component
+    m_drawable3D->draw( emm );
 
     // ---------- OUTPUT ----------
     WLEMMCommand::SPtr cmd( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
@@ -212,6 +192,17 @@ bool WMTemplateRoi::processCompute( WLEMMeasurement::SPtr emm )
 
 bool WMTemplateRoi::processInit( WLEMMCommand::SPtr labp )
 {
+    WProgress::SPtr progress( new WProgress( "Init view" ) );
+    m_progress->addSubProgress( progress );
+
+    WLEMMeasurement::SPtr emm = labp->getEmm();
+
+    m_drawable3D->draw( emm );
+    //viewUpdate( emm );
+
+    progress->finish();
+    m_progress->removeSubProgress( progress );
+
     m_output->updateData( labp );
     return true;
 }
@@ -226,57 +217,3 @@ bool WMTemplateRoi::processReset( WLEMMCommand::SPtr labp )
     return true;
 }
 
-void WMTemplateRoi::initOSG()
-{
-    //m_drawable3D->getWidget()->add
-}
-
-void WMTemplateRoi::drawSome()
-{
-    m_geode = new osg::Geode();
-    osg::ref_ptr< osg::ShapeDrawable > drawable = new osg::ShapeDrawable( new osg::Box( osg::Vec3( 0.0f, 0.0f, 0.0f ), 20.0f ) );
-    drawable->setColor( osg::Vec4( 0.0f, 1.0f, 0.0f, 0.75f ) );
-    m_geode->addDrawable( drawable );
-
-    osg::ref_ptr< osg::MatrixTransform > mt = new osg::MatrixTransform;
-    mt->addChild( m_geode.get() );
-
-    m_drawable3D->getWidget()->getScene()->addChild( mt.get() );
-    osg::ref_ptr< WLModelController > controller = new WLModelController( mt.get() );
-    m_drawable3D->getWidget()->addEventHandler( controller );
-
-    osg::ref_ptr< WLPickingHandler > picker = new WLPickingHandler;
-    m_drawable3D->getWidget()->getScene()->addChild( picker->getOrCreateSelectionBox() );
-
-    // TODO(maschke): the picker does not work!!
-    //m_drawable3D->getWidget()->addEventHandler( picker.get() );
-    m_drawable3D->getWidget()->getViewer()->getView()->addEventHandler( picker.get() );
-}
-
-void WMTemplateRoi::resizeBox()
-{
-    //debugLog() << "resizeBox() called!";
-
-    /*
-     if( m_geode->getDrawableList().size() > 0 )
-     {
-     osg::Box *ptr_box = ( osg::Box* )m_geode->getDrawable( 0 );
-     osg::ShapeDrawable *ptr_drawable = ( osg::ShapeDrawable* )m_geode->getDrawable( 0 );
-     const osg::Vec4 color = ptr_drawable->getColor();
-
-     osg::ref_ptr< osg::ShapeDrawable > drawable = new osg::ShapeDrawable(
-     new osg::Box( ptr_box->getCenter(), m_width->get(), m_height->get(), m_depth->get() ) );
-     drawable->setColor( color );
-
-     m_geode->removeDrawable( m_geode->getDrawable( 0 ) );
-     m_geode->addDrawable( drawable );
-
-     m_drawable3D->redraw();
-     }
-     */
-}
-
-void WMTemplateRoi::addRoi( osg::ref_ptr< WROI > ref_ptr )
-{
-    debugLog() << "New ROI";
-}
