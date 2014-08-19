@@ -69,11 +69,6 @@ public:
 protected:
 
     /**
-     * Recalculates the filter structure to select the channels includes by the ROI.
-     */
-    //void recalculate();
-
-    /**
      * Event method when creating a new ROI.
      *
      * @param A reference pointer on the new ROI.

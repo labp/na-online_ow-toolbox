@@ -22,48 +22,36 @@
 //
 //---------------------------------------------------------------------------
 
-#include <typeinfo>
-
-#include <boost/bind.hpp>
-
-#include <osg/Array>
-#include <osg/MatrixTransform>
-#include <osg/ShapeDrawable>
-
 #include "core/data/emd/WLEMDEEG.h"
 #include "core/data/emd/WLEMDSource.h"
 #include "core/gui/drawable/WLEMDDrawable3DSource.h"
 #include "core/module/WLConstantsModule.h"
 #include "core/util/profiler/WLTimeProfiler.h"
-#include "WLModelController.h"
-#include "WLPickingHandler.h"
-#include "WMTemplateRoi.h"
+#include "WMTemplateRoiSelection.h"
 
-#include "WMTemplateRoi.xpm"
+#include "WMTemplateRoiSelection.xpm"
 
-W_LOADABLE_MODULE( WMTemplateRoi )
+W_LOADABLE_MODULE( WMTemplateRoiSelection )
 
-WMTemplateRoi::WMTemplateRoi()
+WMTemplateRoiSelection::WMTemplateRoiSelection()
 {
-
 }
 
-WMTemplateRoi::~WMTemplateRoi()
+WMTemplateRoiSelection::~WMTemplateRoiSelection()
 {
-
 }
 
-const std::string WMTemplateRoi::getName() const
+const std::string WMTemplateRoiSelection::getName() const
 {
-    return WLConstantsModule::NAME_PREFIX + " Template ROI";
+    return WLConstantsModule::NAME_PREFIX + " Template ROI Selection";
 }
 
-const std::string WMTemplateRoi::getDescription() const
+const std::string WMTemplateRoiSelection::getDescription() const
 {
-    return "A template module for testing the ROI functionality.";
+    return "A template module for testing the ROI selection on a 3D head model.";
 }
 
-void WMTemplateRoi::connectors()
+void WMTemplateRoiSelection::connectors()
 {
     WLModuleDrawable::connectors();
 
@@ -76,7 +64,7 @@ void WMTemplateRoi::connectors()
     addConnector( m_output );
 }
 
-void WMTemplateRoi::properties()
+void WMTemplateRoiSelection::properties()
 {
     WLModuleDrawable::properties();
     WLModuleDrawable::setTimerangeInformationOnly( true );
@@ -89,7 +77,17 @@ void WMTemplateRoi::properties()
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 }
 
-void WMTemplateRoi::moduleInit()
+boost::shared_ptr< WModule > WMTemplateRoiSelection::factory() const
+{
+    return boost::shared_ptr< WModule >( new WMTemplateRoiSelection() );
+}
+
+const char** WMTemplateRoiSelection::getXPMIcon() const
+{
+    return module_xpm;
+}
+
+void WMTemplateRoiSelection::moduleInit()
 {
     infoLog() << "Initializing module " << getName();
 
@@ -102,22 +100,9 @@ void WMTemplateRoi::moduleInit()
     waitRestored();
 
     viewInit( WLEMDDrawable2D::WEGraphType::SINGLE );
-
-    // init the ROI-selector after the viewInit()-call
-    WLEMData::SPtr data( new WLEMDEEG );
-    m_roiSelector = WLROISelectorSource::SPtr( new WLROISelectorSource( data, m_drawable3D ) );
-
-    if( m_drawable3D->getAs< WLEMDDrawable3DSource >().get() )
-    {
-        m_drawable3D->getAs< WLEMDDrawable3DSource >()->setROISelector(
-                        boost::dynamic_pointer_cast< WLROISelector< boost::spirit::hold_any, boost::spirit::hold_any > >(
-                                        WLROISelectorSource::SPtr( new WLROISelectorSource( data, m_drawable3D ) ) ) );
-    }
-
-    infoLog() << "Initializing module finished!";
 }
 
-void WMTemplateRoi::moduleMain()
+void WMTemplateRoiSelection::moduleMain()
 {
     moduleInit();
 
@@ -159,32 +144,15 @@ void WMTemplateRoi::moduleMain()
     }
 }
 
-boost::shared_ptr< WModule > WMTemplateRoi::factory() const
-{
-    return boost::shared_ptr< WModule >( new WMTemplateRoi() );
-}
-
-const char** WMTemplateRoi::getXPMIcon() const
-{
-    return module_xpm;
-}
-
-bool WMTemplateRoi::processCompute( WLEMMeasurement::SPtr emm )
+bool WMTemplateRoiSelection::processCompute( WLEMMeasurement::SPtr emm )
 {
     WLTimeProfiler tp( "WMTemplateRoi", "processCompute" );
-
-    WLEMDSource::SPtr emdSrc( new WLEMDSource() );
-    WLEMDSource::DataSPtr dataSrc( new WLEMDSource::DataT( 244000, 100 ) );
-    dataSrc->setZero();
-    emdSrc->setData( dataSrc );
-    emm->addModality( emdSrc );
 
     // show process visualization
     boost::shared_ptr< WProgress > processComp = boost::shared_ptr< WProgress >( new WProgress( "Do the process." ) );
     m_progress->addSubProgress( processComp );
 
     // ---------- PROCESSING ----------
-    //viewUpdate( emm ); // update the GUI component
     m_drawable3D->draw( emm );
 
     // ---------- OUTPUT ----------
@@ -197,14 +165,10 @@ bool WMTemplateRoi::processCompute( WLEMMeasurement::SPtr emm )
     return true;
 }
 
-bool WMTemplateRoi::processInit( WLEMMCommand::SPtr labp )
+bool WMTemplateRoiSelection::processInit( WLEMMCommand::SPtr labp )
 {
     WProgress::SPtr progress( new WProgress( "Init view" ) );
     m_progress->addSubProgress( progress );
-
-    WLEMMeasurement::SPtr emm = labp->getEmm();
-
-    //viewUpdate( emm );
 
     progress->finish();
     m_progress->removeSubProgress( progress );
@@ -213,7 +177,7 @@ bool WMTemplateRoi::processInit( WLEMMCommand::SPtr labp )
     return true;
 }
 
-bool WMTemplateRoi::processReset( WLEMMCommand::SPtr labp )
+bool WMTemplateRoiSelection::processReset( WLEMMCommand::SPtr labp )
 {
     viewReset();
 
@@ -222,4 +186,3 @@ bool WMTemplateRoi::processReset( WLEMMCommand::SPtr labp )
 
     return true;
 }
-

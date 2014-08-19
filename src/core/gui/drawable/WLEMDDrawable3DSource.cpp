@@ -131,5 +131,4 @@ void WLEMDDrawable3DSource::callbackNewRoi_Clicked()
 
     osg::ref_ptr< WLROIBox > newRoi = osg::ref_ptr< WLROIBox >( new WLROIBox( minROIPos, maxROIPos, getWidget() ) );
     WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi );
-
 }

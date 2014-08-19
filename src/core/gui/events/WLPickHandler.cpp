@@ -53,23 +53,6 @@ void WLPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& e
 
     updatePickInfoModifierKeys( &pickInfo );
 
-    // if we are in another viewer than the main view we just need the pixel position
-    /*
-     if( m_viewerName != "" && m_viewerName != "Main View" )
-     {
-     pickInfo = WPickInfo( "", m_viewerName, m_startPick.getPickPosition(), std::make_pair( x, y ),
-     m_startPick.getModifierKey(), m_mouseButton, m_startPick.getPickNormal(), m_scrollWheel );
-     m_hitResult = pickInfo;
-
-     // if nothing was picked before remember the currently picked.
-     m_startPick = pickInfo;
-
-     m_pickSignal( getHitResult() );
-
-     return;
-     }
-     */
-
     bool intersetionsExist = view->computeIntersections( x, y, intersections, 0xFFFFFFF0 );
 
     // if something is picked, get the right thing from the list, because it might be hidden.

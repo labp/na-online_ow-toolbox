@@ -62,8 +62,6 @@ public:
      */
     virtual ~WLROIControllerSource();
 
-protected:
-
     /**
      * Recalculates the filter structure depending on the current ROI configuration.
      */
