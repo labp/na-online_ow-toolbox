@@ -115,11 +115,18 @@ public:
     void setDirty();
 
     /**
+     * Sets the data.
+     *
+     * @param data A shared pointer on a DataType object.
+     */
+    void setData( boost::shared_ptr< DataType > data );
+
+    /**
      * Gets whether the WLROISelector is dated.
      *
      * @return Returns true if the WLROISelector is dated, otherwise false.
      */
-    bool getDirty() const;
+    bool isDirty() const;
 
     /**
      * Gets the dirty condition.
@@ -193,12 +200,12 @@ protected:
      */
     WLROIFilterCombiner::SPtr m_combiner;
 
-private:
-
     /**
      * The dirty flag.
      */
     bool m_dirty;
+
+private:
 
     /**
      * Signal that can be used to update the selector.
@@ -279,12 +286,26 @@ template< typename DataType, typename FilterType >
 inline void WLROISelector< DataType, FilterType >::setDirty()
 {
     m_dirty = true;
-    m_dirtyCondition->notify();
     recalculate();
+    m_dirtyCondition->notify();
 }
 
 template< typename DataType, typename FilterType >
-inline bool WLROISelector< DataType, FilterType >::getDirty() const
+inline void WLROISelector< DataType, FilterType >::setData( boost::shared_ptr< DataType > data )
+{
+    m_data = data;
+
+    boost::shared_ptr< WLROICtrlBranch< DataType, FilterType > > branch;
+    BOOST_FOREACH(branch, m_branches)
+    {
+        branch->setData( m_data );
+    }
+
+    setDirty();
+}
+
+template< typename DataType, typename FilterType >
+inline bool WLROISelector< DataType, FilterType >::isDirty() const
 {
     return m_dirty;
 }
@@ -374,7 +395,17 @@ inline void WLROISelector< DataType, FilterType >::slotRemoveBranch( boost::shar
 template< typename DataType, typename FilterType >
 inline void WLROISelector< DataType, FilterType >::recalculate()
 {
+    if( !m_dirty )
+    {
+        return;
+    }
+
     if( !m_combiner )
+    {
+        return;
+    }
+
+    if( !m_data )
     {
         return;
     }
@@ -388,6 +419,8 @@ inline void WLROISelector< DataType, FilterType >::recalculate()
         m_combiner->setFilter< FilterType >( m_filter, branch->getFilter() );
         m_filter = m_combiner->getFilter< FilterType >();
     }
+
+    m_dirty = false;
 }
 
 template< typename DataType, typename FilterType >

@@ -25,8 +25,13 @@
 #include "WLROICtrlCreatorImpl.h"
 #include "WLROICtrlFactorySource.h"
 
+WLROICtrlFactorySource::WLROICtrlFactorySource()
+{
+
+}
+
 WLROIControllerSource* WLROICtrlFactorySource::create( const std::string& name, osg::ref_ptr< WROI > roi,
-                boost::shared_ptr< WLEMData > data ) const
+                boost::shared_ptr< WLEMMSurface > data ) const
 {
     citerTc it = find( name );
     if( it != end() && it->second && data )
@@ -37,10 +42,4 @@ WLROIControllerSource* WLROICtrlFactorySource::create( const std::string& name, 
     {
         return new WLROIControllerSource( roi, data );
     }
-}
-
-WLROICtrlFactorySource::WLROICtrlFactorySource()
-{
-    //typename WLROICtrlCreator<WLROIControllerSource,WLEMData>::SPtr creator(new WLROICtrlCreatorImpl<WLROIControllerSource, WLROIControllerSourceBox, WLEMData>);
-    //registerCreator(typeid(WROIBox*).name(), creator);
 }

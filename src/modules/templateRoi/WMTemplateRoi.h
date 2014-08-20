@@ -28,8 +28,6 @@
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include <osg/Geode>
-
 #include <core/graphicsEngine/WROI.h>
 #include <core/kernel/WModule.h>
 
@@ -117,11 +115,11 @@ private:
      */
     boost::shared_ptr< WCondition > m_propCondition;
 
-    /**
-     * The ROI selector.
-     */
-    WLROISelectorSource::SPtr m_roiSelector;
+    WLEMMeasurement::SPtr m_Emm;
 
+    void updateOutput();
+
+    void roiChanged();
 };
 
 #endif /* WMTEMPLATEROI_H_ */

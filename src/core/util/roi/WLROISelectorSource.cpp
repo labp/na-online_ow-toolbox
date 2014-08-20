@@ -26,7 +26,6 @@
 
 #include <core/common/WLogger.h>
 
-#include "core/data/emd/WLEMData.h"
 #include "core/gui/roi/WLROIBox.h"
 #include "core/util/roi/controllerFactory/WLROICtrlFactorySource.h"
 #include "core/util/roi/filterCombiner/WLListCombiner.h"
@@ -34,12 +33,12 @@
 
 const std::string WLROISelectorSource::CLASS = "WLROISelectorSource";
 
-WLROISelectorSource::WLROISelectorSource( WLEMData::SPtr data, WLEMDDrawable3D::SPtr drawable3D ) :
+WLROISelectorSource::WLROISelectorSource( WLEMMSurface::SPtr data, WLEMDDrawable3D::SPtr drawable3D ) :
                 WLROISelector( data ), m_drawable3D( drawable3D )
 {
     // create a controller factory first
     m_factory.reset(
-                    ( WLROICtrlFactory< WLROIController< WLEMData, std::list< size_t > >, WLEMData >* )new WLROICtrlFactorySource );
+                    ( WLROICtrlFactory< WLROIController< WLEMMSurface, std::list< size_t > >, WLEMMSurface >* )new WLROICtrlFactorySource );
 
     m_combiner.reset( new WLListCombiner< size_t > ); // Init the filter combiner.
 
@@ -49,7 +48,7 @@ WLROISelectorSource::WLROISelectorSource( WLEMData::SPtr data, WLEMDDrawable3D::
 
 void WLROISelectorSource::slotAddRoi( osg::ref_ptr< WROI > newRoi )
 {
-    WLROISelector< WLEMData, std::list< size_t > >::slotAddRoi( newRoi );
+    WLROISelector< WLEMMSurface, std::list< size_t > >::slotAddRoi( newRoi );
 
     if( !m_drawable3D )
     {
@@ -61,7 +60,7 @@ void WLROISelectorSource::slotAddRoi( osg::ref_ptr< WROI > newRoi )
 
 void WLROISelectorSource::slotRemoveRoi( osg::ref_ptr< WROI > ref_ptr )
 {
-    WLROISelector< WLEMData, std::list< size_t > >::slotRemoveRoi( ref_ptr );
+    WLROISelector< WLEMMSurface, std::list< size_t > >::slotRemoveRoi( ref_ptr );
 
     if( !m_drawable3D )
     {

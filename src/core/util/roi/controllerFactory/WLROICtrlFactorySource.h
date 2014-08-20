@@ -27,7 +27,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "core/data/emd/WLEMData.h"
+#include "core/data/WLEMMSurface.h"
 #include "core/util/roi/WLROIControllerSource.h"
 #include "WLROICtrlFactory.h"
 
@@ -35,7 +35,7 @@
  * WLROICtrlFactorySource is a implementation of the abstract factory WLROICtrlFactory to create new
  * instances of the WLROIControllerSource class.
  */
-class WLROICtrlFactorySource: public WLROICtrlFactory< WLROIControllerSource, WLEMData >
+class WLROICtrlFactorySource: public WLROICtrlFactory< WLROIControllerSource, WLEMMSurface >
 {
 public:
 
@@ -57,7 +57,7 @@ public:
      * @param data The data container.
      * @return Returns a pointer on the new WLROIControllerSource instance.
      */
-    WLROIControllerSource *create( const std::string& name, osg::ref_ptr< WROI > roi, boost::shared_ptr< WLEMData > data ) const;
+    WLROIControllerSource *create( const std::string& name, osg::ref_ptr< WROI > roi, boost::shared_ptr< WLEMMSurface > data ) const;
 };
 
 #endif /* WLROICTRLFACTORYSOURCE_H_ */

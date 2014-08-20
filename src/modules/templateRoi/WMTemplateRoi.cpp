@@ -25,6 +25,7 @@
 #include <typeinfo>
 
 #include <boost/bind.hpp>
+#include <boost/foreach.hpp>
 
 #include <osg/Array>
 #include <osg/MatrixTransform>
@@ -35,8 +36,6 @@
 #include "core/gui/drawable/WLEMDDrawable3DSource.h"
 #include "core/module/WLConstantsModule.h"
 #include "core/util/profiler/WLTimeProfiler.h"
-#include "WLModelController.h"
-#include "WLPickingHandler.h"
 #include "WMTemplateRoi.h"
 
 #include "WMTemplateRoi.xpm"
@@ -81,9 +80,6 @@ void WMTemplateRoi::properties()
     WLModuleDrawable::properties();
     WLModuleDrawable::setTimerangeInformationOnly( true );
     WLModuleDrawable::setViewModality( WLEModality::SOURCE );
-    WLModuleDrawable::hideComputeModalitySelection( true );
-    WLModuleDrawable::hideViewModalitySelection( true );
-    WLModuleDrawable::hideLabelChanged( true );
 
     /* init property container */
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
@@ -101,17 +97,17 @@ void WMTemplateRoi::moduleInit()
     ready(); // signal ready state
     waitRestored();
 
-    viewInit( WLEMDDrawable2D::WEGraphType::SINGLE );
+    viewInit( WLEMDDrawable2D::WEGraphType::MULTI );
 
     // init the ROI-selector after the viewInit()-call
-    WLEMData::SPtr data( new WLEMDEEG );
-    m_roiSelector = WLROISelectorSource::SPtr( new WLROISelectorSource( data, m_drawable3D ) );
+    WLEMMSurface::SPtr data;
 
     if( m_drawable3D->getAs< WLEMDDrawable3DSource >().get() )
     {
         m_drawable3D->getAs< WLEMDDrawable3DSource >()->setROISelector(
-                        boost::dynamic_pointer_cast< WLROISelector< boost::spirit::hold_any, boost::spirit::hold_any > >(
-                                        WLROISelectorSource::SPtr( new WLROISelectorSource( data, m_drawable3D ) ) ) );
+                        WLROISelectorSource::SPtr( new WLROISelectorSource( data, m_drawable3D ) ) );
+        m_drawable3D->getAs< WLEMDDrawable3DSource >()->getROISelector()->getDirtyCondition()->subscribeSignal(
+                        boost::function0< void >( boost::bind( &WMTemplateRoi::roiChanged, this ) ) );
     }
 
     infoLog() << "Initializing module finished!";
@@ -174,23 +170,31 @@ bool WMTemplateRoi::processCompute( WLEMMeasurement::SPtr emm )
     WLTimeProfiler tp( "WMTemplateRoi", "processCompute" );
 
     WLEMDSource::SPtr emdSrc( new WLEMDSource() );
-    WLEMDSource::DataSPtr dataSrc( new WLEMDSource::DataT( 244000, 100 ) );
+    WLEMDSource::DataSPtr dataSrc( new WLEMDSource::DataT( 244662, 60 ) );
     dataSrc->setZero();
     emdSrc->setData( dataSrc );
     emm->addModality( emdSrc );
+
+    WLEMDEEG::SPtr emdEEG( new WLEMDEEG() );
+    WLEMDEEG::DataSPtr dataEEG( new WLEMDEEG::DataT( 30, 60 ) );
+    dataEEG->setZero();
+    emdEEG->setData( dataEEG );
+    emm->addModality( emdEEG );
+
+    m_Emm = emm;
 
     // show process visualization
     boost::shared_ptr< WProgress > processComp = boost::shared_ptr< WProgress >( new WProgress( "Do the process." ) );
     m_progress->addSubProgress( processComp );
 
     // ---------- PROCESSING ----------
-    //viewUpdate( emm ); // update the GUI component
-    m_drawable3D->draw( emm );
+    m_drawable3D->getAs< WLEMDDrawable3DSource >()->getROISelector()->setData(
+                    emm->getSubject()->getSurface( WLEMMSurface::Hemisphere::BOTH ) );
+    //m_drawable3D->draw( emm );
+    viewUpdate( m_Emm );
 
     // ---------- OUTPUT ----------
-    WLEMMCommand::SPtr cmd( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
-    cmd->setEmm( emm );
-    m_output->updateData( cmd ); // update the output-connector after processing
+    updateOutput();
 
     processComp->finish(); // finish the process visualization
 
@@ -201,10 +205,6 @@ bool WMTemplateRoi::processInit( WLEMMCommand::SPtr labp )
 {
     WProgress::SPtr progress( new WProgress( "Init view" ) );
     m_progress->addSubProgress( progress );
-
-    WLEMMeasurement::SPtr emm = labp->getEmm();
-
-    //viewUpdate( emm );
 
     progress->finish();
     m_progress->removeSubProgress( progress );
@@ -223,3 +223,43 @@ bool WMTemplateRoi::processReset( WLEMMCommand::SPtr labp )
     return true;
 }
 
+void WMTemplateRoi::updateOutput()
+{
+    WLEMMCommand::SPtr cmd( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
+    cmd->setEmm( m_Emm );
+    m_output->updateData( cmd ); // update the output-connector after processing
+}
+
+void WMTemplateRoi::roiChanged()
+{
+    boost::shared_ptr< const std::list< size_t > > filter =
+                    m_drawable3D->getAs< WLEMDDrawable3DSource >()->getROISelector()->getFilter();
+
+    if( filter->size() == 0 )
+    {
+        return;
+    }
+
+    if( !m_Emm->hasModality( WLEModality::SOURCE ) )
+    {
+        return;
+    }
+
+    WLEMData::DataT& data = m_Emm->getModality( WLEModality::SOURCE )->getData();
+    data.setZero();
+
+    debugLog() << "Filter size: " << filter->size();
+    debugLog() << "Data rows: " << data.rows() << " cols: " << data.cols();
+
+    for( std::list< size_t >::const_iterator it = filter->begin(); it != filter->end(); ++it )
+    {
+        long int i = *it;
+
+        for( long int j = 0; j < data.cols(); ++j )
+        {
+            data( i, j ) = 1;
+        }
+    }
+
+    updateOutput();
+}

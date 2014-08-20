@@ -128,6 +128,13 @@ public:
     void setDirty();
 
     /**
+     * Sets the data.
+     *
+     * @param data A shared pointer on a DataType object.
+     */
+    void setData( boost::shared_ptr< DataType > data );
+
+    /**
      * Gets the branches filter combiner.
      *
      * @return Returns a shared pointer on a constant WLROIFilterCombiner.
@@ -280,6 +287,20 @@ template< typename DataType, typename FilterType >
 inline void WLROICtrlBranch< DataType, FilterType >::setDirty()
 {
     m_dirty = true;
+}
+
+template< typename DataType, typename FilterType >
+inline void WLROICtrlBranch< DataType, FilterType >::setData( boost::shared_ptr< DataType > data )
+{
+    m_data = data;
+
+    boost::shared_ptr< WLROIController< DataType, FilterType > > controller;
+    BOOST_FOREACH(controller, m_rois)
+    {
+        controller->setData( m_data );
+    }
+
+    setDirty();
 }
 
 template< typename DataType, typename FilterType >

@@ -23,7 +23,6 @@
 //---------------------------------------------------------------------------
 
 #include <core/common/WLogger.h>
-#include <core/graphicsEngine/WPickHandler.h>
 #include <core/graphicsEngine/WPickInfo.h>
 
 #include "WLROI.h"

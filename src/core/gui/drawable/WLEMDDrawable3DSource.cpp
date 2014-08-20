@@ -49,6 +49,8 @@ WLEMDDrawable3DSource::WLEMDDrawable3DSource( WUIViewWidget::SPtr widget ) :
     m_trgNewRoi = m_properties->addProperty( "New ROI", "Insert a new ROI.", WPVBaseTypes::PV_TRIGGER_READY,
                     boost::bind( &WLEMDDrawable3DSource::callbackNewRoi_Clicked, this ) );
     m_widget->addAction( m_trgNewRoi );
+
+    drawCoords();
 }
 
 WLEMDDrawable3DSource::~WLEMDDrawable3DSource()
@@ -108,13 +110,12 @@ void WLEMDDrawable3DSource::osgNodeCallback( osg::NodeVisitor* nv )
     WLEMDDrawable3D::osgNodeCallback( nv );
 }
 
-void WLEMDDrawable3DSource::setROISelector(
-                boost::shared_ptr< WLROISelector< boost::spirit::hold_any, boost::spirit::hold_any > > roiSelector )
+void WLEMDDrawable3DSource::setROISelector( WLEMDDrawable3DSource::ROISelectorSPtr roiSelector )
 {
     m_roiSelecor = roiSelector;
 }
 
-boost::shared_ptr< WLROISelector< boost::spirit::hold_any, boost::spirit::hold_any > > WLEMDDrawable3DSource::getROISelector()
+WLEMDDrawable3DSource::ROISelectorSPtr WLEMDDrawable3DSource::getROISelector()
 {
     return m_roiSelecor;
 }
@@ -131,4 +132,25 @@ void WLEMDDrawable3DSource::callbackNewRoi_Clicked()
 
     osg::ref_ptr< WLROIBox > newRoi = osg::ref_ptr< WLROIBox >( new WLROIBox( minROIPos, maxROIPos, getWidget() ) );
     WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi );
+}
+
+void WLEMDDrawable3DSource::drawCoords()
+{
+    m_shapeX = new osg::ShapeDrawable;
+    m_shapeX->setShape( new osg::Box( osg::Vec3( 0.0, 0.0, 0.0 ), 400, 1, 1 ) );
+    m_shapeX->setColor( osg::Vec4( 1.0, 0.0, 0.0, 1.0 ) );
+
+    m_shapeY = new osg::ShapeDrawable;
+    m_shapeY->setShape( new osg::Box( osg::Vec3( 0.0, 0.0, 0.0 ), 1, 400, 1 ) );
+    m_shapeY->setColor( osg::Vec4( 0.0, 1.0, 0.0, 1.0 ) );
+
+    m_shapeZ = new osg::ShapeDrawable;
+    m_shapeZ->setShape( new osg::Box( osg::Vec3( 0.0, 0.0, 0.0 ), 1, 1, 400 ) );
+    m_shapeZ->setColor( osg::Vec4( 0.0, 0.0, 1.0, 1.0 ) );
+
+    m_coords = new osg::Geode;
+    m_coords->addDrawable( m_shapeX.get() );
+    m_coords->addDrawable( m_shapeY.get() );
+    m_coords->addDrawable( m_shapeZ.get() );
+    m_widget->getScene()->addChild( m_coords );
 }

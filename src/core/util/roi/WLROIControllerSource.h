@@ -29,17 +29,17 @@
 
 #include <core/graphicsEngine/WROI.h>
 
-#include "core/data/emd/WLEMData.h"
+#include "core/data/WLEMMSurface.h"
 #include "WLROIController.h"
 
 /**
  * The WLROIControllerSource class represents a ROI controller for selecting sources while the
  * source reconstruction algorithm.
  * The class uses the following structures:
- *      DataType: WLEMData - data structure and base for the source reconstruction
+ *      DataType: WLEMMSurface - the surface data containing the 3D head models vertices.
  *      FilterType: list<Indices> - list, selecting the calculated channel indices.
  */
-class WLROIControllerSource: public WLROIController< WLEMData, std::list< size_t > >
+class WLROIControllerSource: public WLROIController< WLEMMSurface, std::list< size_t > >
 {
 
 public:
@@ -55,7 +55,7 @@ public:
      * @param roi The region of interest.
      * @param data The data container.
      */
-    WLROIControllerSource( osg::ref_ptr< WROI > roi, WLEMData::SPtr data );
+    WLROIControllerSource( osg::ref_ptr< WROI > roi, WLEMMSurface::SPtr data );
 
     /**
      * Destroys the WLROIControllerSource.

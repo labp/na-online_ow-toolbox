@@ -101,6 +101,13 @@ public:
      */
     void setDirty();
 
+    /**
+     * Sets the data.
+     *
+     * @param data A shared pointer on a DataType object.
+     */
+    void setData( boost::shared_ptr< DataType > data );
+
 protected:
 
     /**
@@ -165,6 +172,14 @@ template< typename DataType, typename FilterType >
 inline void WLROIController< DataType, FilterType >::setDirty()
 {
     m_dirty = true;
+}
+
+template< typename DataType, typename FilterType >
+inline void WLROIController< DataType, FilterType >::setData( boost::shared_ptr< DataType > data )
+{
+    m_data = data;
+
+    setDirty();
 }
 
 #endif /* WLROICONTROLLER_H_ */

@@ -25,14 +25,20 @@
 #ifndef WLEMDDRAWABLE3DSOURCE_H_
 #define WLEMDDRAWABLE3DSOURCE_H_
 
+#include <list>
+
 #include <boost/shared_ptr.hpp>
 #include <boost/spirit/home/support/detail/hold_any.hpp>
+
+#include <osg/Geode>
+#include <osg/ShapeDrawable>
 
 #include <core/common/WPropertyTypes.h>
 #include <core/ui/WUIViewWidget.h>
 #include <core/graphicsEngine/WPickInfo.h>
 
 #include "core/data/emd/WLEMData.h"
+#include "core/data/WLEMMSurface.h"
 #include "core/util/roi/WLROISelector.h"
 
 #include "WLEMDDrawable3D.h"
@@ -50,6 +56,11 @@ public:
      */
     typedef boost::shared_ptr< const WLEMDDrawable3DSource > ConstSPtr;
 
+    /**
+     * A shared pointer on a WLROISelector< WLEMMSurface, list<size_t> >.
+     */
+    typedef boost::shared_ptr< WLROISelector< WLEMMSurface, std::list< size_t > > > ROISelectorSPtr;
+
     explicit WLEMDDrawable3DSource( WUIViewWidget::SPtr widget );
 
     virtual ~WLEMDDrawable3DSource();
@@ -59,14 +70,14 @@ public:
      *
      * @param roiSelector The ROI selector.
      */
-    void setROISelector( boost::shared_ptr< WLROISelector< boost::spirit::hold_any, boost::spirit::hold_any > > roiSelector );
+    void setROISelector( ROISelectorSPtr roiSelector );
 
     /**
      * Gets the ROI selector.
      *
      * @return The ROI selector.
      */
-    boost::shared_ptr< WLROISelector< boost::spirit::hold_any, boost::spirit::hold_any > > getROISelector();
+    ROISelectorSPtr getROISelector();
 
 protected:
     virtual void osgNodeCallback( osg::NodeVisitor* nv );
@@ -74,12 +85,17 @@ protected:
     /**
      * The ROI selector.
      */
-    boost::shared_ptr< WLROISelector< boost::spirit::hold_any, boost::spirit::hold_any > > m_roiSelecor;
+    ROISelectorSPtr m_roiSelecor;
 
 private:
     void osgUpdateSurfaceColor( const WLEMData::DataT& data );
 
+    /**
+     * Callback function when a new ROI was added to the widget.
+     */
     void callbackNewRoi_Clicked();
+
+    void drawCoords();
 
     /**
      * The views properties.
@@ -90,6 +106,11 @@ private:
      * Trigger to create a new WLROI.
      */
     WPropTrigger m_trgNewRoi;
+
+    osg::ref_ptr<osg::ShapeDrawable> m_shapeX;
+    osg::ref_ptr<osg::ShapeDrawable> m_shapeY;
+    osg::ref_ptr<osg::ShapeDrawable> m_shapeZ;
+    osg::ref_ptr<osg::Geode> m_coords;
 };
 
 #endif  // WLEMDDRAWABLE3DSOURCE_H_

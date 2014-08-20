@@ -23,14 +23,14 @@
 //---------------------------------------------------------------------------
 
 #include <core/common/WLogger.h>
-#include <core/graphicsEngine/WROIBox.h>
 
+#include "core/gui/roi/WLROIBox.h"
 #include "WLROIControllerSource.h"
 
 const std::string WLROIControllerSource::CLASS = "WLROIControllerSource";
 
 WLROIControllerSource::WLROIControllerSource( osg::ref_ptr< WROI > roi,
-                typename WLROIController< WLEMData, std::list< size_t > >::DataTypeSPtr data ) :
+                typename WLROIController< WLEMMSurface, std::list< size_t > >::DataTypeSPtr data ) :
                 WLROIController( roi, data )
 {
 }
@@ -41,12 +41,39 @@ WLROIControllerSource::~WLROIControllerSource()
 
 void WLROIControllerSource::recalculate()
 {
-    if( osg::dynamic_pointer_cast< WROIBox >( m_roi ).get() )
+    if( !m_data )
     {
-        wlog::debug( CLASS ) << "recalculate() WROIBox";
+        return;
     }
-    else
+
+    if( !m_dirty )
     {
-        wlog::debug( CLASS ) << "recalculate()";
+        return;
     }
+
+    if( !osg::dynamic_pointer_cast< WLROIBox >( m_roi ).get() )
+    {
+        return;
+    }
+
+    osg::ref_ptr< WLROIBox > box = osg::dynamic_pointer_cast< WLROIBox >( m_roi );
+
+    wlog::debug( CLASS ) << "recalculate() WLROIBox";
+
+    m_filter->clear(); // clear the list
+
+    for(size_t i = 0; i < m_data->getVertex()->size(); ++i) // iterate all vertices
+    {
+        WPosition pos = m_data->getVertex()->at(i);
+
+        if( box->getMaxPos() < pos || pos < box->getMinPos() )
+        {
+            continue;
+        }
+
+        m_filter->push_back(i);
+    }
+
+    m_dirty = false;
+
 }

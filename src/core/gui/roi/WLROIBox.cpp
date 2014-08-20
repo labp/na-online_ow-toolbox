@@ -82,8 +82,6 @@ WLROIBox::~WLROIBox()
 
 void WLROIBox::initProperties()
 {
-    wlog::debug( CLASS ) << "properties()";
-
     m_propGrp = m_properties->addPropertyGroup( "ROI Box", "Properties of this ROI Box" );
     m_minPos = m_propGrp->addProperty( "Min Position",
                     "When a box is described by its diagonal, this is the lower, left, front corner of it.", m_minPosInit,
@@ -126,6 +124,8 @@ void WLROIBox::updateGFX()
 {
     boost::unique_lock< boost::shared_mutex > lock;
     lock = boost::unique_lock< boost::shared_mutex >( m_updateLock );
+
+    bool needRecalc = false;
 
     //if( m_pickInfo.getViewerName() == m_viewer->getName() && m_picked )
     if( m_pickInfo.getName() == getName() )
@@ -207,7 +207,7 @@ void WLROIBox::updateGFX()
             m_oldScrollWheel = m_pickInfo.getScrollWheel();
         }
         m_oldPixelPosition = newPixelPos;
-        setDirty();
+        needRecalc = true;
         m_isPicked = true;
         m_oldScrollWheel = m_pickInfo.getScrollWheel();
     }
@@ -253,7 +253,7 @@ void WLROIBox::updateGFX()
         addDrawable( m_surfaceGeometry );
 
         // NOTE: as we set the roi dirty, we ensure the color gets set properly in the next if-statement.
-        setDirty();
+        needRecalc = true;
         m_needVertexUpdate = false;
     }
 
@@ -267,6 +267,11 @@ void WLROIBox::updateGFX()
         {
             updateColor( m_color );
         }
+    }
+
+    if( needRecalc )
+    {
+        setDirty();
     }
 
     lock.unlock();

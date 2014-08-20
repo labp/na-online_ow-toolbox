@@ -69,9 +69,6 @@ void WMTemplateRoiSelection::properties()
     WLModuleDrawable::properties();
     WLModuleDrawable::setTimerangeInformationOnly( true );
     WLModuleDrawable::setViewModality( WLEModality::SOURCE );
-    WLModuleDrawable::hideComputeModalitySelection( true );
-    WLModuleDrawable::hideViewModalitySelection( true );
-    WLModuleDrawable::hideLabelChanged( true );
 
     /* init property container */
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
@@ -146,14 +143,14 @@ void WMTemplateRoiSelection::moduleMain()
 
 bool WMTemplateRoiSelection::processCompute( WLEMMeasurement::SPtr emm )
 {
-    WLTimeProfiler tp( "WMTemplateRoi", "processCompute" );
+    WLTimeProfiler tp( "WMTemplateRoiSelection", "processCompute" );
 
     // show process visualization
     boost::shared_ptr< WProgress > processComp = boost::shared_ptr< WProgress >( new WProgress( "Do the process." ) );
     m_progress->addSubProgress( processComp );
 
     // ---------- PROCESSING ----------
-    m_drawable3D->draw( emm );
+    viewUpdate( emm );
 
     // ---------- OUTPUT ----------
     WLEMMCommand::SPtr cmd( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );

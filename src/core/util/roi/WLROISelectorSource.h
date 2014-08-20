@@ -30,7 +30,7 @@
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include "core/data/emd/WLEMData.h"
+#include "core/data/WLEMMSurface.h"
 #include "core/gui/drawable/WLEMDDrawable3D.h"
 #include "WLROISelector.h"
 
@@ -39,7 +39,7 @@
  * It provides the adapter between the ROI configuration, the ROI Manager of OpenWalnut
  * and the source reconstruction algorithm.
  */
-class WLROISelectorSource: public WLROISelector< WLEMData, std::list< size_t > >
+class WLROISelectorSource: public WLROISelector< WLEMMSurface, std::list< size_t > >
 {
 
 public:
@@ -64,7 +64,7 @@ public:
      *
      * @param data The data container.
      */
-    explicit WLROISelectorSource( WLEMData::SPtr data, WLEMDDrawable3D::SPtr drawable3D );
+    explicit WLROISelectorSource( WLEMMSurface::SPtr data, WLEMDDrawable3D::SPtr drawable3D );
 
 protected:
 
