@@ -161,6 +161,18 @@ void WLPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& e
     m_pickSignal( getHitResult() );
 }
 
+void WLPickHandler::unpick( )
+{
+    m_inPickMode = false;
+    if( m_hitResult != WPickInfo() )
+    {
+        m_hitResult = WPickInfo( "unpick", m_viewerName, WPosition(), std::make_pair( 0, 0 ), WPickInfo::NONE );
+        m_startPick = WPickInfo();
+        m_scrollWheel = 0;
+    }
+    m_pickSignal( getHitResult() );
+}
+
 std::string WLPickHandler::extractSuitableName( osgUtil::LineSegmentIntersector::Intersections::iterator hitr )
 {
     if( !hitr->nodePath.empty() && !( hitr->nodePath.back()->getName().empty() ) )

@@ -53,6 +53,11 @@ protected:
 
     virtual void pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea );
 
+    /**
+     * Send a pick signal with the string "unpick"
+     */
+    virtual void unpick();
+
     void updatePickInfoModifierKeys( WPickInfo* pickInfo );
 
     boost::signals2::signal1< void, WPickInfo > m_pickSignal;

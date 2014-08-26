@@ -128,6 +128,7 @@ void WLROIBox::updateGFX()
     bool needRecalc = false;
 
     //if( m_pickInfo.getViewerName() == m_viewer->getName() && m_picked )
+    //m_widget->getViewer()->getName()
     if( m_pickInfo.getName() == getName() )
     {
         WVector2d newPixelPos( m_pickInfo.getPickPixel() );
@@ -213,8 +214,6 @@ void WLROIBox::updateGFX()
     }
     if( m_isPicked && m_pickInfo.getName() == "unpick" )
     {
-        wlog::debug( CLASS ) << "unpick.";
-
         // Perform all actions necessary for finishing a pick
         if( m_not->get() )
         {

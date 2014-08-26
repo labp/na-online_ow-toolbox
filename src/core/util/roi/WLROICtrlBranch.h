@@ -323,6 +323,8 @@ inline void WLROICtrlBranch< DataType, FilterType >::recalculate()
         return;
     }
 
+    m_filter.reset( new FilterType );
+
     boost::shared_ptr< WLROIController< DataType, FilterType > > controller;
 
     BOOST_FOREACH(controller, m_rois)

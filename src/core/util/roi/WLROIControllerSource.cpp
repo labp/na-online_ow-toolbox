@@ -41,6 +41,8 @@ WLROIControllerSource::~WLROIControllerSource()
 
 void WLROIControllerSource::recalculate()
 {
+    wlog::debug( CLASS ) << "recalculate()";
+
     if( !m_data )
     {
         return;
@@ -62,16 +64,21 @@ void WLROIControllerSource::recalculate()
 
     m_filter->clear(); // clear the list
 
-    for(size_t i = 0; i < m_data->getVertex()->size(); ++i) // iterate all vertices
+    for( size_t i = 0; i < m_data->getVertex()->size(); ++i ) // iterate all vertices
     {
-        WPosition pos = m_data->getVertex()->at(i);
+        WPosition pos = m_data->getVertex()->at( i );
 
         if( box->getMaxPos() < pos || pos < box->getMinPos() )
         {
             continue;
         }
 
-        m_filter->push_back(i);
+        m_filter->push_back( i );
+    }
+
+    if( m_filter->size() > 0 )
+    {
+        wlog::debug( CLASS ) << "Vertices found: " << m_filter->size();
     }
 
     m_dirty = false;
