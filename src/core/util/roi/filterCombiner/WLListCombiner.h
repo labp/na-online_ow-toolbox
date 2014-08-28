@@ -27,7 +27,6 @@
 
 #include <list>
 
-#include <boost/any.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include "WLROIFilterCombiner.h"
@@ -36,53 +35,22 @@
  *
  */
 template< typename T >
-class WLListCombiner: public WLROIFilterCombiner
+class WLListCombiner: public WLROIFilterCombiner< std::list< T > >
 {
 public:
-
-    /**
-     * A shared pointer on a WLListCombiner.
-     */
-    typedef boost::shared_ptr< WLListCombiner > SPtr;
 
     /**
      * Destroys the WLListCombiner.
      */
     virtual ~WLListCombiner();
 
-protected:
-
-    /**
-     * The first filter.
-     */
-    boost::shared_ptr< std::list< T > > m_filter1;
-
-    /**
-     * The second filter.
-     */
-    boost::shared_ptr< std::list< T > > m_filter2;
-
     /**
      * Interface method to combine two filter structures.
      *
-     * @return Returns true if combining was successfull, otherwise false.
+     * @return Returns true if combining was successful, otherwise false.
      */
-    bool combine();
+    virtual bool combine();
 
-    /**
-     * Sets the filters to combine.
-     *
-     * @param filter1 The first filter.
-     * @param filter2 The second filter.
-     */
-    void setFilterImpl( boost::any const & filter1, boost::any const & filter2 );
-
-    /**
-     * Gets the combined filter structure.
-     *
-     * @return Returns a @boost::any object.
-     */
-    boost::any getFilterImpl() const;
 };
 
 template< typename T >
@@ -93,24 +61,12 @@ inline WLListCombiner< T >::~WLListCombiner()
 template< typename T >
 inline bool WLListCombiner< T >::combine()
 {
-    m_filter1->merge( *m_filter2.get() );
-
-    m_filter1->unique(); // remove duplicates from the merged list.
+    std::list< T >& list = *( WLROIFilterCombiner< std::list< T > >::m_first );
+    list.merge( *( WLROIFilterCombiner< std::list< T > >::m_second ) );
+    list.sort();
+    list.unique();
 
     return true;
-}
-
-template< typename T >
-inline void WLListCombiner< T >::setFilterImpl( const boost::any& filter1, const boost::any& filter2 )
-{
-    m_filter1 = boost::any_cast< boost::shared_ptr< std::list< T > > >( filter1 );
-    m_filter2 = boost::any_cast< boost::shared_ptr< std::list< T > > >( filter2 );
-}
-
-template< typename T >
-inline boost::any WLListCombiner< T >::getFilterImpl() const
-{
-    return m_filter1;
 }
 
 #endif /* WLLISTCOMBINER_H_ */

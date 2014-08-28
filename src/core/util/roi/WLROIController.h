@@ -44,16 +44,6 @@ class WLROIController
 public:
 
     /**
-     * A shared pointer on an instance of the used source data type.
-     */
-    typedef boost::shared_ptr< DataType > DataTypeSPtr;
-
-    /**
-     * A shared pointer on an instance of the used filter structure.
-     */
-    typedef boost::shared_ptr< FilterType > FilterTypeSPtr;
-
-    /**
      * A shared pointer on a WLROIController.
      */
     typedef boost::shared_ptr< WLROIController< DataType, FilterType > > SPtr;
@@ -69,7 +59,7 @@ public:
      * @param roi The ROI object.
      * @param data The data to calculate.
      */
-    WLROIController( osg::ref_ptr< WROI > roi, DataTypeSPtr data );
+    WLROIController( osg::ref_ptr< WROI > roi, boost::shared_ptr< DataType > data );
 
     /**
      * Destroys the WLROIController.
@@ -86,7 +76,7 @@ public:
      *
      * @return Returns a shared pointer on the filter structure.
      */
-    FilterTypeSPtr getFilter();
+    boost::shared_ptr< FilterType > getFilter();
 
     /**
      * Gets the graphical ROI.
@@ -118,12 +108,12 @@ protected:
     /**
      * The data container.
      */
-    DataTypeSPtr m_data;
+    boost::shared_ptr< DataType > m_data;
 
     /**
      * The filter data structure.
      */
-    FilterTypeSPtr m_filter;
+    boost::shared_ptr< FilterType > m_filter;
 
     /**
      * Flag, to determine the filter as dated.
@@ -137,7 +127,7 @@ protected:
 };
 
 template< typename DataType, typename FilterType >
-inline WLROIController< DataType, FilterType >::WLROIController( osg::ref_ptr< WROI > roi, DataTypeSPtr data ) :
+inline WLROIController< DataType, FilterType >::WLROIController( osg::ref_ptr< WROI > roi, boost::shared_ptr< DataType > data ) :
                 m_roi( roi ), m_data( data ), m_filter( boost::shared_ptr< FilterType >( new FilterType ) ), m_dirty( true )
 {
     m_changeRoiSignal = boost::shared_ptr< boost::function< void() > >(
@@ -152,7 +142,7 @@ inline WLROIController< DataType, FilterType >::~WLROIController()
 }
 
 template< typename DataType, typename FilterType >
-inline typename WLROIController< DataType, FilterType >::FilterTypeSPtr WLROIController< DataType, FilterType >::getFilter()
+inline boost::shared_ptr< FilterType > WLROIController< DataType, FilterType >::getFilter()
 {
     if( m_dirty )
     {

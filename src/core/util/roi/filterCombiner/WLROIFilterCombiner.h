@@ -25,73 +25,21 @@
 #ifndef WLROIFILTERCOMBINER_H_
 #define WLROIFILTERCOMBINER_H_
 
-#include <boost/any.hpp>
-#include <boost/enable_shared_from_this.hpp>
 #include <boost/shared_ptr.hpp>
 
 /**
  * The WLROIFilterCombiner provides an interface to combine the ROI-FilterType structures.
  * Derived classes have to implement the combining method for a concrete type.
  */
-class WLROIFilterCombiner: public boost::enable_shared_from_this< WLROIFilterCombiner >
+template< typename Filter >
+class WLROIFilterCombiner
 {
 public:
-
-    /**
-     * A shared pointer on a WLROIFilterCombiner.
-     */
-    typedef boost::shared_ptr< WLROIFilterCombiner > SPtr;
-
-    /**
-     * A shared pointer on a constant WLROIFilterCombiner.
-     */
-    typedef boost::shared_ptr< const WLROIFilterCombiner > ConstSPtr;
 
     /**
      * Destroys the WLROIFilterCombiner.
      */
     virtual ~WLROIFilterCombiner();
-
-    /**
-     * Casts the WLROIFilterCombiner to type T.
-     *
-     * @return Returns a shared pointer on a T.
-     */
-    template< typename T >
-    boost::shared_ptr< T > getAs()
-    {
-        return boost::dynamic_pointer_cast< T >( shared_from_this() );
-    }
-
-    /**
-     * Casts the WLROIFilterCombiner to type T.
-     *
-     * @return Returns a shared pointer on a constant T.
-     */
-    template< typename T >
-    boost::shared_ptr< const T > getAs() const
-    {
-        return boost::dynamic_pointer_cast< T >( shared_from_this() );
-    }
-
-    /**
-     * Sets the filters to combine.
-     *
-     * @param filter1 The first filter.
-     * @param filter2 The second filter.
-     */
-    template< typename FilterType >
-    void setFilter( boost::shared_ptr< FilterType > filter1, boost::shared_ptr< FilterType > filter2 );
-
-    /**
-     * Gets the combined filter structure.
-     *
-     * @return Returns a @FilterType object.
-     */
-    template< typename FilterType >
-    boost::shared_ptr< FilterType > getFilter();
-
-protected:
 
     /**
      * Interface method to combine two filter structures.
@@ -106,32 +54,38 @@ protected:
      * @param filter1 The first filter.
      * @param filter2 The second filter.
      */
-    virtual void setFilterImpl( boost::any const & filter1, boost::any const & filter2 ) = 0;
+    void setFilter( boost::shared_ptr< Filter > first, boost::shared_ptr< Filter > second );
 
     /**
      * Gets the combined filter structure.
      *
-     * @return Returns a @boost::any object.
+     * @return Returns a @FilterType object.
      */
-    virtual boost::any getFilterImpl() const = 0;
+    boost::shared_ptr< Filter > getCombined();
+
+protected:
+
+    boost::shared_ptr< Filter > m_first;
+
+    boost::shared_ptr< Filter > m_second;
 };
 
-template< typename FilterType >
-inline void WLROIFilterCombiner::setFilter( boost::shared_ptr< FilterType > filter1, boost::shared_ptr< FilterType > filter2 )
+template< typename Filter >
+inline WLROIFilterCombiner< Filter >::~WLROIFilterCombiner()
 {
-    setFilterImpl( boost::any( filter1 ), boost::any( filter2 ) );
 }
 
-template< typename FilterType >
-inline boost::shared_ptr< FilterType > WLROIFilterCombiner::getFilter()
+template< typename Filter >
+inline void WLROIFilterCombiner< Filter >::setFilter( boost::shared_ptr< Filter > first, boost::shared_ptr< Filter > second )
 {
-    if( combine() )
-    {
-        boost::any res = getFilterImpl();
-        return boost::any_cast< boost::shared_ptr< FilterType > >( res );
-    }
+    m_first = first;
+    m_second = second;
+}
 
-    return boost::shared_ptr< FilterType >();
+template< typename Filter >
+inline boost::shared_ptr< Filter > WLROIFilterCombiner< Filter >::getCombined()
+{
+    return m_first;
 }
 
 #endif /* WLROIFILTERCOMBINER_H_ */

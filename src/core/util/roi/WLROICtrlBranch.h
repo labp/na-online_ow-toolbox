@@ -65,8 +65,8 @@ public:
      * @param data The data container.
      * @param branch The WRMBranch the controller branch belongs to.
      */
-    WLROICtrlBranch( typename WLROIController< DataType, FilterType >::DataTypeSPtr data, boost::shared_ptr< WRMBranch > branch,
-                    WLROIFilterCombiner::SPtr combiner );
+    WLROICtrlBranch( boost::shared_ptr< DataType > data, boost::shared_ptr< WRMBranch > branch,
+                    boost::shared_ptr< WLROIFilterCombiner< FilterType > > combiner );
 
     /**
      * Destroys the WLROICtrlBranch.
@@ -78,7 +78,7 @@ public:
      *
      * @return Returns a shared pointer on the filter structure.
      */
-    typename WLROIController< DataType, FilterType >::FilterTypeSPtr getFilter();
+    boost::shared_ptr< FilterType > getFilter();
 
     /**
      * Gets the WRMBranch.
@@ -106,7 +106,7 @@ public:
      *
      * @return Returns a list of shared pointers on ROI controllers.
      */
-    std::list< typename WLROIController< DataType, FilterType >::SPtr > getROIs();
+    std::list< boost::shared_ptr< WLROIController< DataType, FilterType > > > getROIs();
 
     /**
      * Removes a roi from the branch.
@@ -139,26 +139,26 @@ public:
      *
      * @return Returns a shared pointer on a constant WLROIFilterCombiner.
      */
-    WLROIFilterCombiner::ConstSPtr getCombiner() const;
+    boost::shared_ptr< const WLROIFilterCombiner< FilterType > > getCombiner() const;
 
     /**
      * Sets the new filer combiner.
      *
      * @param combiner A shared pointer on the new filter combiner.
      */
-    void setCombiner( WLROIFilterCombiner::SPtr combiner );
+    void setCombiner( boost::shared_ptr< WLROIFilterCombiner< FilterType > > combiner );
 
 protected:
 
     /**
      * The data container.
      */
-    typename WLROIController< DataType, FilterType >::DataTypeSPtr m_data;
+    boost::shared_ptr< DataType > m_data;
 
     /**
      * The filter structure.
      */
-    typename WLROIController< DataType, FilterType >::FilterTypeSPtr m_filter;
+    boost::shared_ptr< FilterType > m_filter;
 
     /**
      * Recalculates the filter structure.
@@ -180,7 +180,7 @@ private:
     /**
      * A list of the branches ROIs (the controller of the ROIs).
      */
-    std::list< typename WLROIController< DataType, FilterType >::SPtr > m_rois;
+    std::list< boost::shared_ptr< WLROIController< DataType, FilterType > > > m_rois;
 
     /**
      * Signal that can be used to update the controller branch.
@@ -195,13 +195,12 @@ private:
     /**
      * The filter combiner.
      */
-    WLROIFilterCombiner::SPtr m_combiner;
+    boost::shared_ptr< WLROIFilterCombiner< FilterType > > m_combiner;
 };
 
 template< typename DataType, typename FilterType >
-inline WLROICtrlBranch< DataType, FilterType >::WLROICtrlBranch(
-                typename WLROIController< DataType, FilterType >::DataTypeSPtr data, boost::shared_ptr< WRMBranch > branch,
-                WLROIFilterCombiner::SPtr combiner ) :
+inline WLROICtrlBranch< DataType, FilterType >::WLROICtrlBranch( boost::shared_ptr< DataType > data,
+                boost::shared_ptr< WRMBranch > branch, boost::shared_ptr< WLROIFilterCombiner< FilterType > > combiner ) :
                 m_data( data ), m_filter( boost::shared_ptr< FilterType >( new FilterType ) ), m_branch( branch ), m_dirty(
                                 true ), m_combiner( combiner )
 {
@@ -227,7 +226,7 @@ inline WLROICtrlBranch< DataType, FilterType >::~WLROICtrlBranch()
 }
 
 template< typename DataType, typename FilterType >
-inline typename WLROIController< DataType, FilterType >::FilterTypeSPtr WLROICtrlBranch< DataType, FilterType >::getFilter()
+inline boost::shared_ptr< FilterType > WLROICtrlBranch< DataType, FilterType >::getFilter()
 {
     if( m_dirty )
     {
@@ -257,7 +256,7 @@ inline void WLROICtrlBranch< DataType, FilterType >::addRoi( boost::shared_ptr< 
 }
 
 template< typename DataType, typename FilterType >
-inline std::list< typename WLROIController< DataType, FilterType >::SPtr > WLROICtrlBranch< DataType, FilterType >::getROIs()
+inline std::list< boost::shared_ptr< WLROIController< DataType, FilterType > > > WLROICtrlBranch< DataType, FilterType >::getROIs()
 {
     return m_rois;
 }
@@ -294,23 +293,24 @@ inline void WLROICtrlBranch< DataType, FilterType >::setData( boost::shared_ptr<
 {
     m_data = data;
 
-    boost::shared_ptr< WLROIController< DataType, FilterType > > controller;
-    BOOST_FOREACH(controller, m_rois)
+    for( typename std::list< boost::shared_ptr< WLROIController< DataType, FilterType > > >::iterator it = m_rois.begin();
+                    it != m_rois.end(); ++it )
     {
-        controller->setData( m_data );
+        ( *it )->setData( m_data );
     }
 
     setDirty();
 }
 
 template< typename DataType, typename FilterType >
-inline WLROIFilterCombiner::ConstSPtr WLROICtrlBranch< DataType, FilterType >::getCombiner() const
+inline boost::shared_ptr< const WLROIFilterCombiner< FilterType > > WLROICtrlBranch< DataType, FilterType >::getCombiner() const
 {
     return m_combiner;
 }
 
 template< typename DataType, typename FilterType >
-inline void WLROICtrlBranch< DataType, FilterType >::setCombiner( WLROIFilterCombiner::SPtr combiner )
+inline void WLROICtrlBranch< DataType, FilterType >::setCombiner(
+                boost::shared_ptr< WLROIFilterCombiner< FilterType > > combiner )
 {
     m_combiner = combiner;
 }
@@ -318,19 +318,21 @@ inline void WLROICtrlBranch< DataType, FilterType >::setCombiner( WLROIFilterCom
 template< typename DataType, typename FilterType >
 inline void WLROICtrlBranch< DataType, FilterType >::recalculate()
 {
+    m_filter.reset( new FilterType );
+
     if( !m_combiner )
     {
         return;
     }
 
-    m_filter.reset( new FilterType );
-
-    boost::shared_ptr< WLROIController< DataType, FilterType > > controller;
-
-    BOOST_FOREACH(controller, m_rois)
+    for( typename std::list< boost::shared_ptr< WLROIController< DataType, FilterType > > >::iterator it = m_rois.begin();
+                    it != m_rois.end(); ++it )
     {
-        m_combiner->setFilter< FilterType >( m_filter, controller->getFilter() );
-        m_filter = m_combiner->getFilter< FilterType >();
+        m_combiner->setFilter( m_filter, ( *it )->getFilter() );
+        if( m_combiner->combine() )
+        {
+            m_filter = m_combiner->getCombined();
+        }
     }
 }
 

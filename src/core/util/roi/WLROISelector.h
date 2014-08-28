@@ -29,7 +29,6 @@
 #include <typeinfo>
 
 #include <boost/bind.hpp>
-#include <boost/enable_shared_from_this.hpp>
 #include <boost/foreach.hpp>
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
@@ -51,7 +50,7 @@
  * Derived classes have to initialize the @m_factory member with a concrete controller factory.
  */
 template< typename DataType, typename FilterType >
-class WLROISelector: public boost::enable_shared_from_this< WLROISelector< DataType, FilterType > >
+class WLROISelector
 {
 public:
 
@@ -86,28 +85,6 @@ public:
      * Destroys the WLROISelector.
      */
     virtual ~WLROISelector();
-
-    /**
-     * Cast the ROI selector if possible.
-     *
-     * @return Returns a shared pointer on this.
-     */
-    template< typename T >
-    boost::shared_ptr< T > getAs()
-    {
-        return boost::dynamic_pointer_cast< T >( this->shared_from_this() );
-    }
-
-    /**
-     * Cast the ROI selector if possible.
-     *
-     * @return Returns a shared pointer on this.
-     */
-    template< typename T >
-    boost::shared_ptr< const T > getAs() const
-    {
-        return boost::dynamic_pointer_cast< T >( this->shared_from_this() );
-    }
 
     /**
      * Marks the WLROISelector as dirty and the filter structure has to recalculated.
@@ -198,7 +175,7 @@ protected:
     /**
      * The filter combiner.
      */
-    WLROIFilterCombiner::SPtr m_combiner;
+    boost::shared_ptr< WLROIFilterCombiner< FilterType > > m_combiner;
 
     /**
      * The dirty flag.
@@ -295,10 +272,10 @@ inline void WLROISelector< DataType, FilterType >::setData( boost::shared_ptr< D
 {
     m_data = data;
 
-    boost::shared_ptr< WLROICtrlBranch< DataType, FilterType > > branch;
-    BOOST_FOREACH(branch, m_branches)
+    for( typename std::list< boost::shared_ptr< WLROICtrlBranch< DataType, FilterType > > >::iterator it = m_branches.begin();
+                    it != m_branches.end(); ++it )
     {
-        branch->setData( m_data );
+        ( *it )->setData( m_data );
     }
 
     setDirty();
@@ -325,7 +302,7 @@ inline boost::shared_ptr< const FilterType > WLROISelector< DataType, FilterType
 template< typename DataType, typename FilterType >
 inline void WLROISelector< DataType, FilterType >::slotAddRoi( osg::ref_ptr< WROI > roi )
 {
-    if( !m_factory ) // no controller factoy was configured.
+    if( !m_factory ) // no controller factory was configured.
     {
         return;
     }
@@ -400,6 +377,8 @@ inline void WLROISelector< DataType, FilterType >::recalculate()
         return;
     }
 
+    m_filter.reset( new FilterType );
+
     if( !m_combiner )
     {
         return;
@@ -412,12 +391,14 @@ inline void WLROISelector< DataType, FilterType >::recalculate()
 
     wlog::debug( CLASS ) << "recalculate()";
 
-    boost::shared_ptr< WLROICtrlBranch< DataType, FilterType > > branch;
-
-    BOOST_FOREACH( branch, m_branches )
+    for( typename std::list< boost::shared_ptr< WLROICtrlBranch< DataType, FilterType > > >::iterator it = m_branches.begin();
+                    it != m_branches.end(); ++it )
     {
-        m_combiner->setFilter< FilterType >( m_filter, branch->getFilter() );
-        m_filter = m_combiner->getFilter< FilterType >();
+        m_combiner->setFilter( m_filter, ( *it )->getFilter() );
+        if( m_combiner->combine() )
+        {
+            m_filter = m_combiner->getCombined();
+        }
     }
 
     m_dirty = false;

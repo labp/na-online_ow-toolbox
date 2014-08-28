@@ -23,8 +23,3 @@
 //---------------------------------------------------------------------------
 
 #include "WLROIFilterCombiner.h"
-
-WLROIFilterCombiner::~WLROIFilterCombiner()
-{
-}
-

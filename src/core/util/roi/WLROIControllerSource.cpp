@@ -29,8 +29,7 @@
 
 const std::string WLROIControllerSource::CLASS = "WLROIControllerSource";
 
-WLROIControllerSource::WLROIControllerSource( osg::ref_ptr< WROI > roi,
-                typename WLROIController< WLEMMSurface, std::list< size_t > >::DataTypeSPtr data ) :
+WLROIControllerSource::WLROIControllerSource( osg::ref_ptr< WROI > roi, WLEMMSurface::SPtr data ) :
                 WLROIController( roi, data )
 {
 }
@@ -62,7 +61,7 @@ void WLROIControllerSource::recalculate()
 
     wlog::debug( CLASS ) << "recalculate() WLROIBox";
 
-    m_filter->clear(); // clear the list
+    m_filter.reset( new std::list< size_t > );
 
     for( size_t i = 0; i < m_data->getVertex()->size(); ++i ) // iterate all vertices
     {
