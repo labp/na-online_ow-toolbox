@@ -22,10 +22,6 @@
 //
 //---------------------------------------------------------------------------
 
-#include <boost/foreach.hpp>
-
-#include <core/common/WLogger.h>
-
 #include "core/gui/roi/WLROIBox.h"
 #include "core/util/roi/controllerFactory/WLROICtrlFactorySource.h"
 #include "core/util/roi/filterCombiner/WLListCombiner.h"
@@ -34,16 +30,13 @@
 const std::string WLROISelectorSource::CLASS = "WLROISelectorSource";
 
 WLROISelectorSource::WLROISelectorSource( WLEMMSurface::SPtr data, WLEMDDrawable3D::SPtr drawable3D ) :
-                WLROISelector( data ), m_drawable3D( drawable3D )
+                WLROISelector( data,
+                                boost::shared_ptr<
+                                                WLROICtrlFactory< WLROIController< WLEMMSurface, std::list< size_t > >,
+                                                                WLEMMSurface > >( new WLROICtrlFactorySource ),
+                                boost::shared_ptr< WLROIFilterCombiner< std::list< size_t > > >( new WLListCombiner< size_t > ) ), m_drawable3D(
+                                drawable3D )
 {
-    // create a controller factory first
-    m_factory.reset(
-                    ( WLROICtrlFactory< WLROIController< WLEMMSurface, std::list< size_t > >, WLEMMSurface >* )new WLROICtrlFactorySource );
-
-    m_combiner.reset( new WLListCombiner< size_t > ); // Init the filter combiner.
-
-    // AFTER init m_factory: create ROIs from the current ROI configuration.
-    generateRois(); // involve an existing ROI configuration.
 }
 
 void WLROISelectorSource::slotAddRoi( osg::ref_ptr< WROI > newRoi )
