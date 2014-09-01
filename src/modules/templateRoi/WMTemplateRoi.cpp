@@ -175,11 +175,16 @@ bool WMTemplateRoi::processCompute( WLEMMeasurement::SPtr emm )
     emdSrc->setData( dataSrc );
     emm->addModality( emdSrc );
 
-    WLEMDEEG::SPtr emdEEG( new WLEMDEEG() );
-    WLEMDEEG::DataSPtr dataEEG( new WLEMDEEG::DataT( 30, 60 ) );
-    dataEEG->setZero();
-    emdEEG->setData( dataEEG );
-    emm->addModality( emdEEG );
+    WLEMData::DataT& dataEEG = emm->getModality( WLEModality::EEG )->getData();
+    wlog::debug( CLASS ) << "Rows: " << dataEEG.rows() << " Cols: " << dataEEG.cols();
+
+    /*
+     WLEMDEEG::SPtr emdEEG( new WLEMDEEG() );
+     WLEMDEEG::DataSPtr dataEEG( new WLEMDEEG::DataT( 30, 60 ) );
+     dataEEG->setZero();
+     emdEEG->setData( dataEEG );
+     emm->addModality( emdEEG );
+     */
 
     m_Emm = emm;
 
@@ -190,7 +195,6 @@ bool WMTemplateRoi::processCompute( WLEMMeasurement::SPtr emm )
     // ---------- PROCESSING ----------
     m_drawable3D->getAs< WLEMDDrawable3DSource >()->getROISelector()->setData(
                     emm->getSubject()->getSurface( WLEMMSurface::Hemisphere::BOTH ) );
-    //m_drawable3D->draw( emm );
     viewUpdate( m_Emm );
 
     // ---------- OUTPUT ----------
@@ -226,6 +230,7 @@ bool WMTemplateRoi::processReset( WLEMMCommand::SPtr labp )
 void WMTemplateRoi::updateOutput()
 {
     WLEMMCommand::SPtr cmd( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
+
     cmd->setEmm( m_Emm );
     m_output->updateData( cmd ); // update the output-connector after processing
 }
