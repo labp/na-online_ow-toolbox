@@ -35,7 +35,7 @@
  * WLROICtrlFactorySource is a implementation of the abstract factory WLROICtrlFactory to create new
  * instances of the WLROIControllerSource class.
  */
-class WLROICtrlFactorySource: public WLROICtrlFactory< WLROIControllerSource, WLEMMSurface >
+class WLROICtrlFactorySource: public WLROICtrlFactory< WLROIController< WLEMMSurface, std::list< size_t > >, WLEMMSurface >
 {
 public:
 
@@ -57,7 +57,8 @@ public:
      * @param data The data container.
      * @return Returns a pointer on the new WLROIControllerSource instance.
      */
-    WLROIControllerSource *create( const std::string& name, osg::ref_ptr< WROI > roi, boost::shared_ptr< WLEMMSurface > data ) const;
+    WLROIController< WLEMMSurface, std::list< size_t > > *create( const std::string& name, osg::ref_ptr< WROI > roi,
+                    boost::shared_ptr< WLEMMSurface > data ) const;
 };
 
 #endif /* WLROICTRLFACTORYSOURCE_H_ */

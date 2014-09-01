@@ -79,7 +79,8 @@ public:
      *
      * @param data The data structure on which the ROIs have to applied.
      */
-    explicit WLROISelector( boost::shared_ptr< DataType > data );
+    explicit WLROISelector( boost::shared_ptr< DataType > data, ControllerFactorySPtr factory,
+                    boost::shared_ptr< WLROIFilterCombiner< FilterType > > combiner );
 
     /**
      * Destroys the WLROISelector.
@@ -97,6 +98,13 @@ public:
      * @param data A shared pointer on a DataType object.
      */
     void setData( boost::shared_ptr< DataType > data );
+
+    /**
+     * Sets the factory to create new ROI controllers.
+     *
+     * @param factory A shared pointer on a ROI controller factory object.
+     */
+    void setFactory( boost::shared_ptr< ControllerFactorySPtr > factory );
 
     /**
      * Gets whether the WLROISelector is dated.
@@ -158,24 +166,24 @@ protected:
     boost::shared_ptr< DataType > m_data;
 
     /**
-     * The overall filter for the data.
-     */
-    boost::shared_ptr< FilterType > m_filter;
-
-    /**
      * The ROI controller factory.
      */
     ControllerFactorySPtr m_factory;
 
     /**
-     * The list of ROI controller branches.
-     */
-    std::list< boost::shared_ptr< WLROICtrlBranch< DataType, FilterType > > > m_branches;
-
-    /**
      * The filter combiner.
      */
     boost::shared_ptr< WLROIFilterCombiner< FilterType > > m_combiner;
+
+    /**
+     * The overall filter for the data.
+     */
+    boost::shared_ptr< FilterType > m_filter;
+
+    /**
+     * The list of ROI controller branches.
+     */
+    std::list< boost::shared_ptr< WLROICtrlBranch< DataType, FilterType > > > m_branches;
 
     /**
      * The dirty flag.
@@ -214,8 +222,10 @@ template< typename DataType, typename FilterType >
 const std::string WLROISelector< DataType, FilterType >::CLASS = "WLROISelector";
 
 template< typename DataType, typename FilterType >
-inline WLROISelector< DataType, FilterType >::WLROISelector( boost::shared_ptr< DataType > data ) :
-                m_data( data ), m_filter( boost::shared_ptr< FilterType >( new FilterType ) ), m_dirty( true ), m_dirtyCondition(
+inline WLROISelector< DataType, FilterType >::WLROISelector( boost::shared_ptr< DataType > data, ControllerFactorySPtr factory,
+                boost::shared_ptr< WLROIFilterCombiner< FilterType > > combiner ) :
+                m_data( data ), m_factory( factory ), m_combiner( combiner ), m_filter(
+                                boost::shared_ptr< FilterType >( new FilterType ) ), m_dirty( true ), m_dirtyCondition(
                                 boost::shared_ptr< WCondition >( new WCondition() ) )
 {
     m_changeRoiSignal = boost::shared_ptr< boost::function< void() > >(
@@ -235,6 +245,11 @@ inline WLROISelector< DataType, FilterType >::WLROISelector( boost::shared_ptr< 
                     new boost::function< void( boost::shared_ptr< WRMBranch > ) >(
                                     boost::bind( &WLROISelector::slotRemoveBranch, this, _1 ) ) );
     WKernel::getRunningKernel()->getRoiManager()->addRemoveBranchNotifier( m_removeBranchSignal );
+
+    if(m_factory)
+    {
+        generateRois();
+    }
 }
 
 template< typename DataType, typename FilterType >
@@ -402,6 +417,12 @@ inline void WLROISelector< DataType, FilterType >::recalculate()
     }
 
     m_dirty = false;
+}
+
+template< typename DataType, typename FilterType >
+inline void WLROISelector< DataType, FilterType >::setFactory( boost::shared_ptr< ControllerFactorySPtr > factory )
+{
+    m_factory = factory;
 }
 
 template< typename DataType, typename FilterType >

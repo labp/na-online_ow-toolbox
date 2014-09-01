@@ -30,8 +30,8 @@ WLROICtrlFactorySource::WLROICtrlFactorySource()
 
 }
 
-WLROIControllerSource* WLROICtrlFactorySource::create( const std::string& name, osg::ref_ptr< WROI > roi,
-                boost::shared_ptr< WLEMMSurface > data ) const
+WLROIController< WLEMMSurface, std::list< size_t > >* WLROICtrlFactorySource::create( const std::string& name,
+                osg::ref_ptr< WROI > roi, boost::shared_ptr< WLEMMSurface > data ) const
 {
     citerTc it = find( name );
     if( it != end() && it->second && data )

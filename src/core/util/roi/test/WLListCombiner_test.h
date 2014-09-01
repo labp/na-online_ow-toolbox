@@ -63,10 +63,10 @@ public:
         b_ptr->push_back( 5 );
         b_ptr->push_back( 6 );
 
-        WLListCombiner< int >::SPtr combiner( new WLListCombiner< int > );
+        boost::shared_ptr< WLListCombiner< int > > combiner( new WLListCombiner< int > );
 
-        combiner->setFilter< std::list< int > >( a_ptr, b_ptr );
-        a_ptr = combiner->getFilter< std::list< int > >();
+        combiner->setFilter( a_ptr, b_ptr );
+        a_ptr = combiner->getCombined();
 
         TS_ASSERT_EQUALS( a_ptr->size(), 6 );
     }
