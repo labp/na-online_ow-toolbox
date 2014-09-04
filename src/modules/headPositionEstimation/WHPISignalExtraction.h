@@ -38,6 +38,7 @@
 
 /**
  * Reconstructs the amplitudes of each HPI coil on each MEG sensor.
+ *
  * Using approaches from:
  * D.1 HPI-Signals, p. 73, "MaxFilter - User's Guide"; Elekta Neuromag, 2009
  * "Detecting and Correcting for Head Movements in Neuromagnetic Measurements"; Uutela et al., 2001
