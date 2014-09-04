@@ -78,7 +78,7 @@ public:
      * Computes the fit error between the reconstructed magnetic flux density after transforming the HPI coils
      * and the actual measured data.
      *
-     * \param x Parameter, i.e. rotation and translation.
+     * \param x Parameter, i.e. rotation (radiant) and translation (meter).
      * \return fit error
      */
     virtual double func( const ParamsT& x ) const;
@@ -116,7 +116,7 @@ private:
     typedef Eigen::Matrix3d RotationT;
 
     /**
-     * Calculates the transformation matrix from the rotation and translation.
+     * Calculates the transformation matrix from the rotation (radiant) and translation (meter).
      *
      * \param params [rx, ry, rz, tx, ty, tz]
      * \return Transformation matrix using z-y-x rotation.

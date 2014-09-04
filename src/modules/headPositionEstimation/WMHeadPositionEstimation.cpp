@@ -132,13 +132,13 @@ void WMHeadPositionEstimation::properties()
     m_propInitFactor = m_propGroupEstimation->addProperty( "Initial Factor:", "Initial factor to create initial parameter set.",
                     2.0 );
 
-    m_propInitAlpha = m_propGroupEstimation->addProperty( "Rz:", "Initial alpha angle in degrees for z-y-x rotation.", 0.0 );
-    m_propInitBeta = m_propGroupEstimation->addProperty( "Ry:", "Initial beta angle in degrees for z-y-z rotation.", 0.0 );
-    m_propInitGamma = m_propGroupEstimation->addProperty( "Rx:", "Initial gamma angle in degrees for z-y-z rotation.", 0.0 );
+    m_propInitRz = m_propGroupEstimation->addProperty( "Rz:", "Initial alpha angle in degrees for z-y-x rotation.", 0.0 );
+    m_propInitRy = m_propGroupEstimation->addProperty( "Ry:", "Initial beta angle in degrees for z-y-x rotation.", 0.0 );
+    m_propInitRx = m_propGroupEstimation->addProperty( "Rx:", "Initial gamma angle in degrees for z-y-x rotation.", 0.0 );
 
-    m_propInitX = m_propGroupEstimation->addProperty( "Tx:", "Initial x translation in meter.", 0.0 );
-    m_propInitY = m_propGroupEstimation->addProperty( "Ty:", "Initial y translation in meter.", 0.0 );
-    m_propInitZ = m_propGroupEstimation->addProperty( "Tz:", "Initial z translation in meter.", 0.0 );
+    m_propInitTx = m_propGroupEstimation->addProperty( "Tx:", "Initial x translation in meter.", 0.0 );
+    m_propInitTy = m_propGroupEstimation->addProperty( "Ty:", "Initial y translation in meter.", 0.0 );
+    m_propInitTz = m_propGroupEstimation->addProperty( "Tz:", "Initial z translation in meter.", 0.0 );
 
     m_propErrorMin = m_infoProperties->addProperty( "Error (min.):", "Min. fitting error of last block.", 0.0 );
     m_propErrorMin->setPurpose( PV_PURPOSE_INFORMATION );
@@ -416,12 +416,12 @@ bool WMHeadPositionEstimation::estimateHeadPosition( WLEMDHPI::SPtr hpiInOut, WL
         m_optim->setEpsilon( m_propEpsilon->get() );
         m_optim->setInitialFactor( m_propInitFactor->get() );
         const double toRadFac = M_PI / 180;
-        m_lastParams( 0 ) = m_propInitAlpha->get() * toRadFac;
-        m_lastParams( 1 ) = m_propInitBeta->get() * toRadFac;
-        m_lastParams( 2 ) = m_propInitGamma->get() * toRadFac;
-        m_lastParams( 3 ) = m_propInitX->get();
-        m_lastParams( 4 ) = m_propInitY->get();
-        m_lastParams( 5 ) = m_propInitZ->get();
+        m_lastParams( 0 ) = m_propInitRx->get() * toRadFac;
+        m_lastParams( 1 ) = m_propInitRy->get() * toRadFac;
+        m_lastParams( 2 ) = m_propInitRz->get() * toRadFac;
+        m_lastParams( 3 ) = m_propInitTx->get();
+        m_lastParams( 4 ) = m_propInitTy->get();
+        m_lastParams( 5 ) = m_propInitTz->get();
         infoLog() << *m_optim;
     }
 

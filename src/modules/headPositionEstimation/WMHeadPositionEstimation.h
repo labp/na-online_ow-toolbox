@@ -130,17 +130,17 @@ private:
 
     WPropDouble m_propInitFactor; /**< Initial factor to create initial parameter set. */
 
-    WPropDouble m_propInitAlpha; /**< Initial alpha angle (degree) for z-y-x rotation. */
+    WPropDouble m_propInitRz; /**< Initial alpha angle (degree) for z-y-x rotation. */
 
-    WPropDouble m_propInitBeta; /**< Initial  beta angle (degree) for z-y-x rotation. */
+    WPropDouble m_propInitRy; /**< Initial  beta angle (degree) for z-y-x rotation. */
 
-    WPropDouble m_propInitGamma; /**< Initial  gamma angle (degree) for z-y-x rotation. */
+    WPropDouble m_propInitRx; /**< Initial  gamma angle (degree) for z-y-x rotation. */
 
-    WPropDouble m_propInitX; /**< Initial x translation (meter). */
+    WPropDouble m_propInitTx; /**< Initial x translation (meter). */
 
-    WPropDouble m_propInitY; /**< Initial y translation (meter). */
+    WPropDouble m_propInitTy; /**< Initial y translation (meter). */
 
-    WPropDouble m_propInitZ; /**< Initial z translation (meter). */
+    WPropDouble m_propInitTz; /**< Initial z translation (meter). */
 
     /**
      * Extracts EMDMEG containing magnetometer data only.
