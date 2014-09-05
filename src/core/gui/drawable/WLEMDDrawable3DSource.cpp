@@ -50,7 +50,7 @@ WLEMDDrawable3DSource::WLEMDDrawable3DSource( WUIViewWidget::SPtr widget ) :
                     boost::bind( &WLEMDDrawable3DSource::callbackNewRoi_Clicked, this ) );
     m_widget->addAction( m_trgNewRoi );
 
-    drawCoords();
+    //drawCoords();
 }
 
 WLEMDDrawable3DSource::~WLEMDDrawable3DSource()
@@ -137,16 +137,16 @@ void WLEMDDrawable3DSource::callbackNewRoi_Clicked()
 void WLEMDDrawable3DSource::drawCoords()
 {
     m_shapeX = new osg::ShapeDrawable;
-    m_shapeX->setShape( new osg::Box( osg::Vec3( 0.0, 0.0, 0.0 ), 400, 1, 1 ) );
-    m_shapeX->setColor( osg::Vec4( 1.0, 0.0, 0.0, 1.0 ) );
+    m_shapeX->setShape( new osg::Box( osg::Vec3( 200.0, 0.0, 0.0 ), 400, 1, 1 ) ); // X
+    m_shapeX->setColor( osg::Vec4( 1.0, 0.0, 0.0, 1.0 ) ); // red
 
     m_shapeY = new osg::ShapeDrawable;
-    m_shapeY->setShape( new osg::Box( osg::Vec3( 0.0, 0.0, 0.0 ), 1, 400, 1 ) );
-    m_shapeY->setColor( osg::Vec4( 0.0, 1.0, 0.0, 1.0 ) );
+    m_shapeY->setShape( new osg::Box( osg::Vec3( 0.0, 200.0, 0.0 ), 1, 400, 1 ) ); // Y
+    m_shapeY->setColor( osg::Vec4( 0.0, 1.0, 0.0, 1.0 ) ); // green
 
     m_shapeZ = new osg::ShapeDrawable;
-    m_shapeZ->setShape( new osg::Box( osg::Vec3( 0.0, 0.0, 0.0 ), 1, 1, 400 ) );
-    m_shapeZ->setColor( osg::Vec4( 0.0, 0.0, 1.0, 1.0 ) );
+    m_shapeZ->setShape( new osg::Box( osg::Vec3( 0.0, 0.0, 200.0 ), 1, 1, 400 ) ); // Z
+    m_shapeZ->setColor( osg::Vec4( 0.0, 0.0, 1.0, 1.0 ) ); //blue
 
     m_coords = new osg::Geode;
     m_coords->addDrawable( m_shapeX.get() );

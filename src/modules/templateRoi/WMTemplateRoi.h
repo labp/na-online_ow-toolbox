@@ -119,7 +119,11 @@ private:
 
     void updateOutput();
 
+    void updateOutput( WLEMMeasurement::SPtr emm );
+
     void roiChanged();
+
+    void startUp( WLEMMeasurement::SPtr emm );
 };
 
 #endif /* WMTEMPLATEROI_H_ */

@@ -97,7 +97,7 @@ void WMTemplateRoi::moduleInit()
     ready(); // signal ready state
     waitRestored();
 
-    viewInit( WLEMDDrawable2D::WEGraphType::MULTI );
+    viewInit( WLEMDDrawable2D::WEGraphType::SINGLE );
 
     // init the ROI-selector after the viewInit()-call
     WLEMMSurface::SPtr data;
@@ -169,22 +169,9 @@ bool WMTemplateRoi::processCompute( WLEMMeasurement::SPtr emm )
 {
     WLTimeProfiler tp( "WMTemplateRoi", "processCompute" );
 
-    WLEMDSource::SPtr emdSrc( new WLEMDSource() );
-    WLEMDSource::DataSPtr dataSrc( new WLEMDSource::DataT( 244662, 60 ) );
-    dataSrc->setZero();
-    emdSrc->setData( dataSrc );
-    emm->addModality( emdSrc );
+    startUp( emm );
 
-    WLEMData::DataT& dataEEG = emm->getModality( WLEModality::EEG )->getData();
-    wlog::debug( CLASS ) << "Rows: " << dataEEG.rows() << " Cols: " << dataEEG.cols();
-
-    /*
-     WLEMDEEG::SPtr emdEEG( new WLEMDEEG() );
-     WLEMDEEG::DataSPtr dataEEG( new WLEMDEEG::DataT( 30, 60 ) );
-     dataEEG->setZero();
-     emdEEG->setData( dataEEG );
-     emm->addModality( emdEEG );
-     */
+    debugLog() << "Modality Count: " << emm->getModalityCount();
 
     m_Emm = emm;
 
@@ -229,9 +216,14 @@ bool WMTemplateRoi::processReset( WLEMMCommand::SPtr labp )
 
 void WMTemplateRoi::updateOutput()
 {
+    updateOutput( m_Emm );
+}
+
+void WMTemplateRoi::updateOutput( WLEMMeasurement::SPtr emm )
+{
     WLEMMCommand::SPtr cmd( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
 
-    cmd->setEmm( m_Emm );
+    cmd->setEmm( emm );
     m_output->updateData( cmd ); // update the output-connector after processing
 }
 
@@ -253,8 +245,8 @@ void WMTemplateRoi::roiChanged()
     WLEMData::DataT& data = m_Emm->getModality( WLEModality::SOURCE )->getData();
     data.setZero();
 
-    debugLog() << "Filter size: " << filter->size();
-    debugLog() << "Data rows: " << data.rows() << " cols: " << data.cols();
+    //debugLog() << "Filter size: " << filter->size();
+    //debugLog() << "Data rows: " << data.rows() << " cols: " << data.cols();
 
     for( std::list< size_t >::const_iterator it = filter->begin(); it != filter->end(); ++it )
     {
@@ -267,4 +259,36 @@ void WMTemplateRoi::roiChanged()
     }
 
     updateOutput();
+}
+
+void WMTemplateRoi::startUp( WLEMMeasurement::SPtr emm )
+{
+    WLEMDSource::SPtr emdSrc( new WLEMDSource() );
+    WLEMDSource::DataSPtr dataSrc( new WLEMDSource::DataT( 244662, 100 ) );
+    dataSrc->setZero();
+    emdSrc->setData( dataSrc );
+    emm->addModality( emdSrc );
+
+    WLEMDEEG::DataSPtr dataEEG( new WLEMDEEG::DataT( 60, 100 ) );
+    dataEEG->setOnes();
+    if( emm->hasModality( WLEModality::EEG ) )
+    {
+        emm->getModality( WLEModality::EEG )->setData( dataEEG );
+    }
+    else
+    {
+        WLEMDEEG::SPtr emdEEG( new WLEMDEEG() );
+        emdEEG->setData( dataEEG );
+        emm->addModality( emdEEG );
+    }
+
+    for( size_t i = 0; i < emm->getModalityCount(); ++i )
+    {
+        WLEMData::DataT& data = emm->getModality( i )->getData();
+        debugLog() << WLEModality::name( emm->getModality( i )->getModalityType() ) << ": Rows: " << data.rows() << " Cols: "
+                        << data.cols();
+    }
+
+    debugLog() << "Faces: " << emm->getSubject()->getSurface( WLEMMSurface::Hemisphere::BOTH )->getFaces()->size();
+    debugLog() << "Vertices: " << emm->getSubject()->getSurface( WLEMMSurface::Hemisphere::BOTH )->getVertex()->size();
 }

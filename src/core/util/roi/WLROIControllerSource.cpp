@@ -40,14 +40,14 @@ WLROIControllerSource::~WLROIControllerSource()
 
 void WLROIControllerSource::recalculate()
 {
-    wlog::debug( CLASS ) << "recalculate()";
+    m_filter.reset( new std::list< size_t > );
 
-    if( !m_data )
+    if( !m_dirty )
     {
         return;
     }
 
-    if( !m_dirty )
+    if( !m_data )
     {
         return;
     }
@@ -59,15 +59,24 @@ void WLROIControllerSource::recalculate()
 
     osg::ref_ptr< WLROIBox > box = osg::dynamic_pointer_cast< WLROIBox >( m_roi );
 
-    wlog::debug( CLASS ) << "recalculate() WLROIBox";
-
-    m_filter.reset( new std::list< size_t > );
+    //wlog::debug( CLASS ) << "recalculate() WLROIBox";
+    //wlog::debug( CLASS ) << "Box dimensions: min: " << box->getMinPos() << " | max: " << box->getMaxPos();
 
     for( size_t i = 0; i < m_data->getVertex()->size(); ++i ) // iterate all vertices
     {
         WPosition pos = m_data->getVertex()->at( i );
 
-        if( box->getMaxPos() < pos || pos < box->getMinPos() )
+        if( box->getMaxPos().x() < pos.x() || pos.x() < box->getMinPos().x() )
+        {
+            continue;
+        }
+
+        if( box->getMaxPos().y() < pos.y() || pos.y() < box->getMinPos().y() )
+        {
+            continue;
+        }
+
+        if( box->getMaxPos().z() < pos.z() || pos.z() < box->getMinPos().z() )
         {
             continue;
         }
@@ -75,10 +84,19 @@ void WLROIControllerSource::recalculate()
         m_filter->push_back( i );
     }
 
+    wlog::debug( CLASS ) << "Vertices found: " << m_filter->size();
+
+    /*
     if( m_filter->size() > 0 )
     {
-        wlog::debug( CLASS ) << "Vertices found: " << m_filter->size();
+        int i = 0;
+        for( std::list< size_t >::iterator it = m_filter->begin(); i < 10 && it != m_filter->end(); ++it )
+        {
+            wlog::debug( CLASS ) << "Source " << *it << " Point: " << m_data->getVertex()->at( *it );
+            ++i;
+        }
     }
+    */
 
     m_dirty = false;
 
