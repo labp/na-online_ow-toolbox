@@ -27,6 +27,8 @@
 #include <string>
 #include <vector>
 
+#include <fiff/fiff_ch_info.h>
+
 #include <core/common/WAssert.h>
 #include <core/common/WLogger.h>
 
@@ -86,7 +88,7 @@ WLArrayList< WPosition >::SPtr WFTChunkNeuromagHdr::getChannelPositionsEEG() con
         return m_chPosEEG;
     }
 
-    return WLArrayList< WPosition >::SPtr( new WLArrayList< WPosition > );
+    return WLArrayList< WPosition >::instance();
 }
 
 WLArrayList< WPosition >::SPtr WFTChunkNeuromagHdr::getChannelPositionsMEG() const
@@ -96,7 +98,34 @@ WLArrayList< WPosition >::SPtr WFTChunkNeuromagHdr::getChannelPositionsMEG() con
         return m_chPosMEG;
     }
 
-    return WLArrayList< WPosition >::SPtr( new WLArrayList< WPosition > );
+    return WLArrayList< WPosition >::instance();
+}
+
+WLArrayList< WVector3f >::SPtr WFTChunkNeuromagHdr::getChannelExMEG() const
+{
+    if( !m_chExMEG || m_chExMEG->empty() )
+    {
+        return WLArrayList< WVector3f >::instance();
+    }
+    return m_chExMEG;
+}
+
+WLArrayList< WVector3f >::SPtr WFTChunkNeuromagHdr::getChannelEyMEG() const
+{
+    if( !m_chEyMEG || m_chEyMEG->empty() )
+    {
+        return WLArrayList< WVector3f >::instance();
+    }
+    return m_chEyMEG;
+}
+
+WLArrayList< WVector3f >::SPtr WFTChunkNeuromagHdr::getChannelEzMEG() const
+{
+    if( !m_chEzMEG || m_chEzMEG->empty() )
+    {
+        return WLArrayList< WVector3f >::instance();
+    }
+    return m_chEzMEG;
 }
 
 boost::shared_ptr< std::vector< float > > WFTChunkNeuromagHdr::getScaleFactors() const
@@ -140,6 +169,9 @@ bool WFTChunkNeuromagHdr::process( const char* data, size_t size )
     m_stimulusPicks.reset( new WLEMDRaw::ChanPicksT );
     m_chPosEEG.reset( new WLArrayList< WPosition > );
     m_chPosMEG.reset( new WLArrayList< WPosition > );
+    m_chExMEG.reset( new WLArrayList< WVector3f > );
+    m_chEyMEG.reset( new WLArrayList< WVector3f > );
+    m_chEzMEG.reset( new WLArrayList< WVector3f > );
     m_scaleFactors.reset( new std::vector< float > );
 
     WReaderNeuromagHeader::SPtr reader( new WReaderNeuromagHeader( data, size ) );
@@ -198,6 +230,13 @@ bool WFTChunkNeuromagHdr::process( const char* data, size_t size )
             const Eigen::Matrix< double, 12, 1, Eigen::DontAlign >& chPos = info.loc;
             const WPosition pos( chPos( 0, 0 ), chPos( 1, 0 ), chPos( 2, 0 ) );
             m_chPosMEG->push_back( pos );
+
+            const WVector3f ex( chPos( 3, 0 ), chPos( 4, 0 ), chPos( 5, 0 ) );
+            m_chExMEG->push_back( ex );
+            const WVector3f ey( chPos( 6, 0 ), chPos( 7, 0 ), chPos( 8, 0 ) );
+            m_chEyMEG->push_back( ey );
+            const WVector3f ez( chPos( 9, 0 ), chPos( 10, 0 ), chPos( 11, 0 ) );
+            m_chEzMEG->push_back( ez );
         }
 
         //

@@ -31,6 +31,7 @@
 #include <fiff/fiff_info.h>
 
 #include <core/common/math/linearAlgebra/WPosition.h>
+#include <core/common/math/linearAlgebra/WVectorFixed.h>
 
 #include "core/container/WLArrayList.h"
 #include "core/data/emd/WLEMDRaw.h"
@@ -142,9 +143,30 @@ public:
     WLArrayList< WPosition >::SPtr getChannelPositionsMEG() const;
 
     /**
+     * Gets the x-axis unit vector for coil coordinate system.
+     *
+     * \return Returns a shared pointer on a vector.
+     */
+    WLArrayList< WVector3f >::SPtr getChannelExMEG() const;
+
+    /**
+     * Gets the y-axis unit vector for coil coordinate system.
+     *
+     * \return Returns a shared pointer on a vector.
+     */
+    WLArrayList< WVector3f >::SPtr getChannelEyMEG() const;
+
+    /**
+     * Gets the z-axis unit vector for coil coordinate system.
+     *
+     * \return Returns a shared pointer on a vector.
+     */
+    WLArrayList< WVector3f >::SPtr getChannelEzMEG() const;
+
+    /**
      * Gets the scaling factors.
      *
-     * @return Returns a shared pointer on a float vector.
+     * \return Returns a shared pointer on a float vector.
      */
     boost::shared_ptr< std::vector< float > > getScaleFactors() const;
 
@@ -182,29 +204,21 @@ protected:
 
 private:
     /**
-     * A map, which contains the channel indices for each modality type.
-     */
-    ModalityPicks_SPtr m_modalityPicks;
-
-    /**
      * A row vector, which contains the channel indices of the event/ stimulus channels.
      */
     boost::shared_ptr< WLEMDRaw::ChanPicksT > m_stimulusPicks;
 
-    /**
-     * The channel positions for EEG.
-     */
-    WLArrayList< WPosition >::SPtr m_chPosEEG;
+    ModalityPicks_SPtr m_modalityPicks; /**< A map, which contains the channel indices for each modality type. */
 
-    /**
-     * The channel position for MEG.
-     */
-    WLArrayList< WPosition >::SPtr m_chPosMEG;
+    WLArrayList< WPosition >::SPtr m_chPosEEG; /**< The channel positions for EEG. */
 
-    /**
-     * Vector for scaling factors.
-     */
-    boost::shared_ptr< std::vector< float > > m_scaleFactors;
+    WLArrayList< WPosition >::SPtr m_chPosMEG; /**< The channel position for MEG. */
+
+    WLArrayList< WVector3f >::SPtr m_chExMEG; /**< Coil coordinate system x-axis unit vector. */
+    WLArrayList< WVector3f >::SPtr m_chEyMEG; /**< Coil coordinate system y-axis unit vector. */
+    WLArrayList< WVector3f >::SPtr m_chEzMEG; /**< Coil coordinate system z-axis unit vector. */
+
+    boost::shared_ptr< std::vector< float > > m_scaleFactors; /**< Vector for scaling factors. */
 };
 
 #endif  // WFTCHUNKNEUROMAGHDR_H_

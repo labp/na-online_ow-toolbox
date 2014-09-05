@@ -1,29 +1,30 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFTCLIENTSTREAMING_H_
-#define WFTCLIENTSTREAMING_H_
+#ifndef WFTNEUROMAGCLIENT_H
+#define WFTNEUROMAGCLIENT_H
+
+#include <string>
 
 #include <boost/shared_ptr.hpp>
 
@@ -34,12 +35,13 @@
 
 /**
  * WFTNeuromagClient represents the basic streaming client class for the Elekta/Neuromag device. It inherits the WFTRtClient class and extends them
- * for handling the data as WLEMMeasurement objects used in Openwalnut.
+ * for handling the data as WLEMMeasurement objects used in OpenWalnut.
+ *
+ * \author maschke
  */
 class WFTNeuromagClient: public WFTRtClient
 {
 public:
-
     /**
      * Shared pointer on a WFTNeuromagClient.
      */
@@ -58,7 +60,7 @@ public:
     /**
      * Gets whether the client is streaming. Is it so, the client has an open connection to the FieldTrip buffer server.
      *
-     * @return Returns true if the client is streaming, else false.
+     * \return Returns true if the client is streaming, else false.
      */
     bool isStreaming() const;
 
@@ -67,7 +69,7 @@ public:
      * Doing this the client tries to receive the header structure from the server. If the acquisition software is not running the start
      * will fail and no header information can be retrieved.
      *
-     * @return Returns true if the preparation was successful, else false.
+     * \return Returns true if the preparation was successful, else false.
      */
     bool start();
 
@@ -79,32 +81,31 @@ public:
     /**
      * After getting data from the server this method can be used to create a WLEMMeasurement object for the process chain.
      *
-     * @param emm The WLEMMeasurement object to fill.
-     * @return Returns false in case of problems occur during EMM creation, else true.
+     * \param emm The WLEMMeasurement object to fill.
+     * \return Returns false in case of problems occur during EMM creation, else true.
      */
     bool createEMM( WLEMMeasurement::SPtr emm );
 
     /**
      * Gets whether or not the client applies scaling factors on the samples.
      *
-     * @return Returns true if the client applies the scaling factors, otherwise false.
+     * \return Returns true if the client applies the scaling factors, otherwise false.
      */
     bool isScalingApplied() const;
 
     /**
      * Set whether or not the client has to apply scaling factors on the samples.
      *
-     * @param applyScaling The flag.
+     * \param applyScaling The flag.
      */
     void setScaling( bool applyScaling );
 
 protected:
-
     /**
      * Creates a raw EMM object with all modalities in one data matrix.
      *
-     * @param emm The EMM object.
-     * @return Returns false in case of problems occur during EMM creation, otherwise true.
+     * \param emm The EMM object.
+     * \return Returns false in case of problems occur during EMM creation, otherwise true.
      */
     bool getRawData( WLEMDRaw::SPtr& rawData );
 
@@ -112,17 +113,16 @@ protected:
      * Creates a EMM object with a more detailed appearance. The modalities are splitted in several modalities and the EMM
      * contains some measurement information.
      *
-     * @param emm The EMM object.
-     * @return Returns false in case of problems occur during EMM creation, otherwise true.
+     * \param emm The EMM object.
+     * \return Returns false in case of problems occur during EMM creation, otherwise true.
      */
     bool createDetailedEMM( WLEMMeasurement::SPtr emm, WLEMDRaw::SPtr rawData );
 
 private:
-
     /**
      * Preparation method for starting the client streaming.
      *
-     * @return Returns true if the header can be received, else false.
+     * \return Returns true if the header can be received, else false.
      */
     bool prepareStreaming();
 
@@ -137,4 +137,4 @@ private:
     bool m_applyScaling;
 };
 
-#endif /* WFTCLIENTSTREAMING_H_ */
+#endif  // WFTNEUROMAGCLIENT_H

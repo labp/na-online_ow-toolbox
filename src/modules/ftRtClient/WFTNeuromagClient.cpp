@@ -1,37 +1,34 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
 #include <cmath>
-#include <fstream>
 #include <map>
-#include <sstream>
+#include <string>
 
-#include <boost/foreach.hpp>
+#include <Eigen/Core>
 
-#include <Eigen/src/Core/util/Constants.h>
+#include <SimpleStorage.h>
 
-#include <core/common/WAssert.h>
 #include <core/common/WLogger.h>
 
 #include "core/data/emd/WLEMData.h"
@@ -41,8 +38,6 @@
 #include "core/data/emd/WLEMDECG.h"
 #include "core/data/enum/WLEModality.h"
 #include "core/data/WLDataTypes.h"
-#include "core/dataFormat/fiff/WLFiffChType.h"
-#include "fieldtrip/dataTypes/chunks/WFTChunkFactory.h"
 #include "fieldtrip/dataTypes/chunks/WFTChunkNeuromagHdr.h"
 #include "fieldtrip/dataTypes/chunks/WFTChunkNeuromagIsotrak.h"
 #include "WFTNeuromagClient.h"
@@ -52,7 +47,6 @@ const std::string WFTNeuromagClient::CLASS = "WFTNeuromagClient";
 WFTNeuromagClient::WFTNeuromagClient() :
                 m_streaming( false ), m_applyScaling( false )
 {
-
 }
 
 bool WFTNeuromagClient::isStreaming() const
@@ -141,7 +135,7 @@ bool WFTNeuromagClient::getRawData( WLEMDRaw::SPtr& rawData )
     // convert data to the used floating point number format
     if( m_data->needDataToConvert< ScalarT >() )
     {
-        floatStore.resize( sizeof(ScalarT) * samps * chans );
+        floatStore.resize( sizeof( ScalarT ) * samps * chans );
         dataSrc = ( ScalarT * )floatStore.data();
 
         m_data->convertData< ScalarT >( dataSrc, m_data->getData(), samps, chans, m_data->getDataDef().data_type );
@@ -214,8 +208,8 @@ bool WFTNeuromagClient::createDetailedEMM( WLEMMeasurement::SPtr emm, WLEMDRaw::
     //
     //  transfer data for all modalities and add channel names if exist.
     //
-    for( std::map< WLEModality::Enum, WLEMDRaw::ChanPicksT >::iterator it = neuromagHdr->getModalityPicks()->begin();
-                    it != neuromagHdr->getModalityPicks()->end(); ++it )
+    std::map< WLEModality::Enum, WLEMDRaw::ChanPicksT >::const_iterator it;
+    for( it = neuromagHdr->getModalityPicks()->begin(); it != neuromagHdr->getModalityPicks()->end(); ++it )
     {
         // skip unknown modalities: in case of Neuromag - the "Misc" channel.
         if( it->first == WLEModality::UNKNOWN )
@@ -279,23 +273,28 @@ bool WFTNeuromagClient::createDetailedEMM( WLEMMeasurement::SPtr emm, WLEMDRaw::
         //
         if( emd->getModalityType() == WLEModality::EEG && isotrak ) // EEG
         {
+            WLEMDEEG::SPtr eeg = emd->getAs< WLEMDEEG >();
             if( !isotrak->getEEGChanPos()->empty() )
             {
-                emd->getAs< WLEMDEEG >()->setChannelPositions3d( isotrak->getEEGChanPos() );
+                eeg->setChannelPositions3d( isotrak->getEEGChanPos() );
 
                 if( !isotrak->getEEGFaces()->empty() )
                 {
-                    emd->getAs< WLEMDEEG >()->setFaces( isotrak->getEEGFaces() );
+                    eeg->setFaces( isotrak->getEEGFaces() );
                 }
             }
         }
 
         if( emd->getModalityType() == WLEModality::MEG ) // MEG
         {
+            WLEMDMEG::SPtr meg = emd->getAs< WLEMDMEG >();
             if( neuromagHdr->hasChannelPositionsMEG() )
             {
-                emd->getAs< WLEMDMEG >()->setChannelPositions3d( neuromagHdr->getChannelPositionsMEG() );
+                meg->setChannelPositions3d( neuromagHdr->getChannelPositionsMEG() );
             }
+            meg->setEx( neuromagHdr->getChannelExMEG() );
+            meg->setEy( neuromagHdr->getChannelEyMEG() );
+            meg->setEz( neuromagHdr->getChannelEzMEG() );
         }
 
         emm->addModality( emd ); // add modality to measurement.
