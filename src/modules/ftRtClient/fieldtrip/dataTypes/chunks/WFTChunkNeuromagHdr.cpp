@@ -1,29 +1,33 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
-#include <list>
 #include <algorithm>
+#include <list>
+#include <map>
+#include <string>
+#include <vector>
+
+#include <fiff/fiff_ch_info.h>
 
 #include <core/common/WAssert.h>
 #include <core/common/WLogger.h>
@@ -84,7 +88,7 @@ WLArrayList< WPosition >::SPtr WFTChunkNeuromagHdr::getChannelPositionsEEG() con
         return m_chPosEEG;
     }
 
-    return WLArrayList< WPosition >::SPtr( new WLArrayList< WPosition > );
+    return WLArrayList< WPosition >::instance();
 }
 
 WLArrayList< WPosition >::SPtr WFTChunkNeuromagHdr::getChannelPositionsMEG() const
@@ -94,7 +98,34 @@ WLArrayList< WPosition >::SPtr WFTChunkNeuromagHdr::getChannelPositionsMEG() con
         return m_chPosMEG;
     }
 
-    return WLArrayList< WPosition >::SPtr( new WLArrayList< WPosition > );
+    return WLArrayList< WPosition >::instance();
+}
+
+WLArrayList< WVector3f >::SPtr WFTChunkNeuromagHdr::getChannelExMEG() const
+{
+    if( !m_chExMEG || m_chExMEG->empty() )
+    {
+        return WLArrayList< WVector3f >::instance();
+    }
+    return m_chExMEG;
+}
+
+WLArrayList< WVector3f >::SPtr WFTChunkNeuromagHdr::getChannelEyMEG() const
+{
+    if( !m_chEyMEG || m_chEyMEG->empty() )
+    {
+        return WLArrayList< WVector3f >::instance();
+    }
+    return m_chEyMEG;
+}
+
+WLArrayList< WVector3f >::SPtr WFTChunkNeuromagHdr::getChannelEzMEG() const
+{
+    if( !m_chEzMEG || m_chEzMEG->empty() )
+    {
+        return WLArrayList< WVector3f >::instance();
+    }
+    return m_chEzMEG;
 }
 
 boost::shared_ptr< std::vector< float > > WFTChunkNeuromagHdr::getScaleFactors() const
@@ -138,6 +169,9 @@ bool WFTChunkNeuromagHdr::process( const char* data, size_t size )
     m_stimulusPicks.reset( new WLEMDRaw::ChanPicksT );
     m_chPosEEG.reset( new WLArrayList< WPosition > );
     m_chPosMEG.reset( new WLArrayList< WPosition > );
+    m_chExMEG.reset( new WLArrayList< WVector3f > );
+    m_chEyMEG.reset( new WLArrayList< WVector3f > );
+    m_chEzMEG.reset( new WLArrayList< WVector3f > );
     m_scaleFactors.reset( new std::vector< float > );
 
     WReaderNeuromagHeader::SPtr reader( new WReaderNeuromagHeader( data, size ) );
@@ -196,6 +230,13 @@ bool WFTChunkNeuromagHdr::process( const char* data, size_t size )
             const Eigen::Matrix< double, 12, 1, Eigen::DontAlign >& chPos = info.loc;
             const WPosition pos( chPos( 0, 0 ), chPos( 1, 0 ), chPos( 2, 0 ) );
             m_chPosMEG->push_back( pos );
+
+            const WVector3f ex( chPos( 3, 0 ), chPos( 4, 0 ), chPos( 5, 0 ) );
+            m_chExMEG->push_back( ex );
+            const WVector3f ey( chPos( 6, 0 ), chPos( 7, 0 ), chPos( 8, 0 ) );
+            m_chEyMEG->push_back( ey );
+            const WVector3f ez( chPos( 9, 0 ), chPos( 10, 0 ), chPos( 11, 0 ) );
+            m_chEzMEG->push_back( ez );
         }
 
         //
@@ -210,10 +251,10 @@ bool WFTChunkNeuromagHdr::process( const char* data, size_t size )
     //
     // Validate the read measurement information
     //
-    WAssertDebug( m_chPosEEG->size() == m_modalityPicks->at(WLEModality::EEG).cols(),
+    WAssertDebug( m_chPosEEG->size() == m_modalityPicks->at( WLEModality::EEG ).cols(),
                     "Wrong number of EEG sensor positions or channel picks" );
-    WAssertDebug( m_modalityPicks->at(WLEModality::MEG).cols() % 3 == 0, "Wrong number of MEG channel picks" );
-    WAssertDebug( m_chPosMEG->size() == m_modalityPicks->at(WLEModality::MEG).cols(),
+    WAssertDebug( m_modalityPicks->at( WLEModality::MEG ).cols() % 3 == 0, "Wrong number of MEG channel picks" );
+    WAssertDebug( m_chPosMEG->size() == m_modalityPicks->at( WLEModality::MEG ).cols(),
                     "Wrong number of MEG sensor positions or channel picks" );
 
     return true;

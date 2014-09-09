@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -26,11 +25,13 @@
 #define WFTCHUNKNEUROMAGHDR_H_
 
 #include <map>
+#include <string>
 #include <vector>
 
 #include <fiff/fiff_info.h>
 
 #include <core/common/math/linearAlgebra/WPosition.h>
+#include <core/common/math/linearAlgebra/WVectorFixed.h>
 
 #include "core/container/WLArrayList.h"
 #include "core/data/emd/WLEMDRaw.h"
@@ -40,11 +41,12 @@
 /**
  * The WFTChunkNeuromagHdr represents the FieldTrip header chunk, which contains the Neuromag header file.
  * It creates the measurement information object for online data processing.
+ *
+ * \author maschke
  */
 class WFTChunkNeuromagHdr: public WFTAChunk
 {
 public:
-
     /**
      * A shared pointer on a WFTChunkNeuromagHdr.
      */
@@ -83,8 +85,8 @@ public:
     /**
      * Constructs a new WFTChunkNeuromagHdr and processes the memory into the measurement information structure.
      *
-     * @param data The memory storage, which contains the chunk data.
-     * @param size The size of the memory storage.
+     * \param data The memory storage, which contains the chunk data.
+     * \param size The size of the memory storage.
      */
     explicit WFTChunkNeuromagHdr( const char* data, const size_t size );
 
@@ -93,85 +95,105 @@ public:
      *
      * Inherited method from WFTAChunk.
      *
-     * @return Returns a shared pointer on a constant smart storage.
+     * \return Returns a shared pointer on a constant smart storage.
      */
     WLSmartStorage::ConstSPtr serialize() const;
 
     /**
      * Gets the measurement information.
      *
-     * @return Returns a pointer to a constant measurement information.
+     * \return Returns a pointer to a constant measurement information.
      */
     MeasInfo_ConstSPtr getData() const;
 
     /**
      * Gets the channel names for the @modality if they exist.
      *
-     * @param modality The modality type.
-     * @return Returns a shared pointer on a constant string list.
+     * \param modality The modality type.
+     * \return Returns a shared pointer on a constant string list.
      */
     WLArrayList< std::string >::SPtr getChannelNames( WLEModality::Enum modality ) const;
 
     /**
      * Gets the modality picks.
      *
-     * @return Returns a shared pointer on a std::map.
+     * \return Returns a shared pointer on a std::map.
      */
     ModalityPicks_SPtr getModalityPicks() const;
 
     /**
      * Gets the stimulus picks vector.
      *
-     * @return Returns a shared pointer on a row vector.
+     * \return Returns a shared pointer on a row vector.
      */
     boost::shared_ptr< WLEMDRaw::ChanPicksT > getStimulusPicks() const;
 
     /**
      * Gets the channel positions for EEG.
      *
-     * @return Returns a shared pointer on a channel position vector.
+     * \return Returns a shared pointer on a channel position vector.
      */
-    WLArrayList<WPosition>::SPtr getChannelPositionsEEG() const;
+    WLArrayList< WPosition >::SPtr getChannelPositionsEEG() const;
 
     /**
      * Gets the channel points for MEG.
      *
-     * @return Returns a shared pointer on a channel position vector.
+     * \return Returns a shared pointer on a channel position vector.
      */
-    WLArrayList<WPosition>::SPtr getChannelPositionsMEG() const;
+    WLArrayList< WPosition >::SPtr getChannelPositionsMEG() const;
+
+    /**
+     * Gets the x-axis unit vector for coil coordinate system.
+     *
+     * \return Returns a shared pointer on a vector.
+     */
+    WLArrayList< WVector3f >::SPtr getChannelExMEG() const;
+
+    /**
+     * Gets the y-axis unit vector for coil coordinate system.
+     *
+     * \return Returns a shared pointer on a vector.
+     */
+    WLArrayList< WVector3f >::SPtr getChannelEyMEG() const;
+
+    /**
+     * Gets the z-axis unit vector for coil coordinate system.
+     *
+     * \return Returns a shared pointer on a vector.
+     */
+    WLArrayList< WVector3f >::SPtr getChannelEzMEG() const;
 
     /**
      * Gets the scaling factors.
      *
-     * @return Returns a shared pointer on a float vector.
+     * \return Returns a shared pointer on a float vector.
      */
     boost::shared_ptr< std::vector< float > > getScaleFactors() const;
 
     /**
      * Gets whether or not there exists channel position information for the EEG system.
      *
-     * @return Returns true if there are channel positions, otherwise false.
+     * \return Returns true if there are channel positions, otherwise false.
      */
     bool hasChannelPositionsEEG() const;
 
     /**
      * Gets whether or not there exists channel position information for the MEG system.
      *
-     * @return Returns true if there are channel positions, otherwise false.
+     * \return Returns true if there are channel positions, otherwise false.
      */
     bool hasChannelPositionsMEG() const;
 
 protected:
-
     /**
      * Based on the stored memory of @data, this method creates the chunks data structure.
      * It has to implement by a deriving class for a special chunk type.
      *
      * Inherited method from WFTAChunk.
      *
-     * @param data The memory storage, which contains the chunk data.
-     * @param size The size of the memory storage.
-     * @return Returns true if the processing was successful, otherwise false.
+     * \param data The memory storage, which contains the chunk data.
+     * \param size The size of the memory storage.
+     * \return Returns true if the processing was successful, otherwise false.
      */
     bool process( const char* data, size_t size );
 
@@ -181,31 +203,22 @@ protected:
     MeasInfo_SPtr m_measInfo;
 
 private:
-
-    /**
-     * A map, which contains the channel indices for each modality type.
-     */
-    ModalityPicks_SPtr m_modalityPicks;
-
     /**
      * A row vector, which contains the channel indices of the event/ stimulus channels.
      */
     boost::shared_ptr< WLEMDRaw::ChanPicksT > m_stimulusPicks;
 
-    /**
-     * The channel positions for EEG.
-     */
-    WLArrayList< WPosition >::SPtr m_chPosEEG;
+    ModalityPicks_SPtr m_modalityPicks; /**< A map, which contains the channel indices for each modality type. */
 
-    /**
-     * The channel position for MEG.
-     */
-    WLArrayList< WPosition >::SPtr m_chPosMEG;
+    WLArrayList< WPosition >::SPtr m_chPosEEG; /**< The channel positions for EEG. */
 
-    /**
-     * Vector for scaling factors.
-     */
-    boost::shared_ptr< std::vector< float > > m_scaleFactors;
+    WLArrayList< WPosition >::SPtr m_chPosMEG; /**< The channel position for MEG. */
+
+    WLArrayList< WVector3f >::SPtr m_chExMEG; /**< Coil coordinate system x-axis unit vector. */
+    WLArrayList< WVector3f >::SPtr m_chEyMEG; /**< Coil coordinate system y-axis unit vector. */
+    WLArrayList< WVector3f >::SPtr m_chEzMEG; /**< Coil coordinate system z-axis unit vector. */
+
+    boost::shared_ptr< std::vector< float > > m_scaleFactors; /**< Vector for scaling factors. */
 };
 
-#endif /* WFTCHUNKNEUROMAGHDR_H_ */
+#endif  // WFTCHUNKNEUROMAGHDR_H_
