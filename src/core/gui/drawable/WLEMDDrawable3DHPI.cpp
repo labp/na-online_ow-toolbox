@@ -23,6 +23,7 @@
 
 #include <vector>
 
+#include <osg/BoundingBox>
 #include <osg/LightModel>
 #include <osg/ShapeDrawable>
 
@@ -128,7 +129,6 @@ void WLEMDDrawable3DHPI::osgInitMegHelmet()
         const osg::Vec3 pos = *it * m_zoomFactor;
         // create sphere geode on electrode position
         osg::ref_ptr< osg::ShapeDrawable > shape = new osg::ShapeDrawable( new osg::Sphere( pos, sphere_size ) );
-        shape->setDataVariance( osg::Object::DYNAMIC );
         shape->setColor( mag_node );
         m_magSensorsGeode->addDrawable( shape );
     }
@@ -204,6 +204,7 @@ void WLEMDDrawable3DHPI::osgAddOrUpdateHpiCoils( const std::vector< WPosition >&
         // create sphere geode on hpi position
         osg::ref_ptr< osg::ShapeDrawable > shape = new osg::ShapeDrawable( new osg::Sphere( pos, sphere_size ) );
         shape->setColor( defaultColor::DARKRED );
+        shape->setInitialBound( osg::BoundingBox( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ) );
         m_hpiCoilsGeode->addDrawable( shape );
     }
 
