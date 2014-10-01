@@ -44,7 +44,6 @@
 
 #include "WLReaderIsotrak.h"
 
-using namespace std;
 using namespace FIFFLIB;
 
 const std::string WLReaderIsotrak::CLASS = "WReaderNeuromagIsotrak";

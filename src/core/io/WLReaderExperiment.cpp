@@ -53,8 +53,9 @@
 
 #include "WLReaderExperiment.h"
 
-using namespace boost::filesystem;
-using namespace std;
+using boost::filesystem::directory_iterator;
+using boost::filesystem::exists;
+using boost::filesystem::path;
 using WLMatrix::MatrixT;
 
 const std::string WLReaderExperiment::m_FOLDER_BEM = "bem";

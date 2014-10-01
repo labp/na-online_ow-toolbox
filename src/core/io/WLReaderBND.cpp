@@ -44,7 +44,9 @@
 
 #include "WLReaderBND.h"
 
-using namespace std;
+using std::ifstream;
+using std::string;
+using std::vector;
 
 const std::string WLReaderBND::CLASS = "WLReaderBND";
 

@@ -35,7 +35,10 @@
 
 #include "WLReaderMatMab.h"
 
-using namespace std;
+using std::ios;
+using std::ifstream;
+using std::string;
+using std::vector;
 using WLMatrix::MatrixT;
 
 const std::string WLReaderMatMab::CLASS = "WLReaderMatMab";
