@@ -36,6 +36,9 @@
 #include "core/data/enum/WLEUnit.h"
 #include "core/data/enum/WLEExponent.h"
 
+/**
+ * Brain surface/model.
+ */
 class WLEMMSurface
 {
 public:
@@ -86,13 +89,10 @@ public:
 
 private:
     WLArrayList< WPosition >::SPtr m_vertex;
-
-    Hemisphere::Enum m_hemisphere;
-
     WLEUnit::Enum m_vertexUnit;
     WLEExponent::Enum m_vertexExponent;
-
     WLArrayList< WVector3i >::SPtr m_faces;
+    Hemisphere::Enum m_hemisphere;
 };
 
 inline std::ostream& operator<<( std::ostream &strm, const WLEMMSurface& obj )

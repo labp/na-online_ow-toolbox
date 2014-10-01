@@ -51,12 +51,11 @@ WLEMMSurface::WLEMMSurface( WLArrayList< WPosition >::SPtr vertex, WLEUnit::Enum
 
 WLEMMSurface::WLEMMSurface( const WLEMMSurface& surface )
 {
-    m_hemisphere = surface.m_hemisphere;
+    m_vertex = WLArrayList< WPosition >::instance();
     m_vertexUnit = surface.m_vertexUnit;
     m_vertexExponent = surface.m_vertexExponent;
-
-    m_vertex = WLArrayList< WPosition >::instance();
     m_faces = WLArrayList< WVector3i >::instance();
+    m_hemisphere = surface.m_hemisphere;
 }
 
 WLEMMSurface::~WLEMMSurface()
