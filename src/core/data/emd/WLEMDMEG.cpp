@@ -114,7 +114,6 @@ WLArrayList< WPosition >::ConstSPtr WLEMDMEG::getChannelPositions3d( WLEMEGGener
     WLArrayList< WPosition >& positions = *posPtr;
     positions.reserve( picks.size() );
 
-    size_t row = 0;
     std::vector< size_t >::const_iterator it;
     for( it = picks.begin(); it != picks.end(); ++it )
     {

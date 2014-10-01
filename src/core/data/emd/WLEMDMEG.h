@@ -120,7 +120,7 @@ public:
     void setEz( WLArrayList< WVector3f >::SPtr vec );
 
     OW_API_DEPRECATED
-    WLEMEGGeneralCoilType::Enum getChannelType( size_t channelId ) const;
+    WLEMEGGeneralCoilType::Enum getChannelType( WLChanIdxT channelId ) const;
 
     /**
      * Returns the channels indices for the requested coil type.
@@ -198,7 +198,7 @@ private:
     mutable std::vector< size_t > m_picksGrad; // mutable to reset the picks after a data change and lazy load.
 };
 
-inline WLEMEGGeneralCoilType::Enum WLEMDMEG::getChannelType( size_t channelId ) const
+inline WLEMEGGeneralCoilType::Enum WLEMDMEG::getChannelType( WLChanIdxT channelId ) const
 {
     WAssert( channelId < m_data->size(), "Index out of bounds!" );
     // Sequence: GGMGGMGGM ... 01 2 34 5
