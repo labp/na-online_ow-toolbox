@@ -1,26 +1,28 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
+
+#include <list>
+#include <string>
 
 #include <core/common/WAssert.h>
 #include <core/common/WLogger.h>
@@ -160,16 +162,16 @@ bool WLMatLib::MATReader::readTagField( mDataType_t* const dataType, mNumBytes_t
                 const FileInfo_t& info )
 {
     std::streampos pos = ifs.tellg();
-    ifs.read( ( char* )dataType, sizeof(WLMatLib::mDataType_t) );
-    ifs.read( ( char* )numBytes, sizeof(WLMatLib::mNumBytes_t) );
+    ifs.read( ( char* )dataType, sizeof( WLMatLib::mDataType_t ) );
+    ifs.read( ( char* )numBytes, sizeof( WLMatLib::mNumBytes_t ) );
     if( *dataType > WLMatLib::DataTypes::miUTF32 )
     {
         wlog::debug( LIBNAME ) << "Small Data Element Format found.";
         WLMatLib::mDataTypeSmall_t typeSmall;
         WLMatLib::mNumBytesSmall_t bytesSmall;
-        ifs.seekg( -( sizeof(WLMatLib::mDataType_t) + sizeof(WLMatLib::mNumBytes_t) ), ifstream::cur );
-        ifs.read( ( char* )&typeSmall, sizeof(WLMatLib::mDataTypeSmall_t) );
-        ifs.read( ( char* )&bytesSmall, sizeof(WLMatLib::mNumBytesSmall_t) );
+        ifs.seekg( -( sizeof( WLMatLib::mDataType_t ) + sizeof( WLMatLib::mNumBytes_t ) ), ifstream::cur );
+        ifs.read( ( char* )&typeSmall, sizeof( WLMatLib::mDataTypeSmall_t ) );
+        ifs.read( ( char* )&bytesSmall, sizeof( WLMatLib::mNumBytesSmall_t ) );
         *dataType = typeSmall;
         *numBytes = bytesSmall;
     }
@@ -267,8 +269,8 @@ bool WLMatLib::MATReader::readArraySubelements( ElementInfo_t* const element, st
 
     // TODO(pieloth): Check for dimensions n > 2
     WAssert( bytes == 8, "Dimension n != 2 is not yet supported!" );
-    ifs.read( ( char* )&element->rows, sizeof(miINT32_t) );
-    ifs.read( ( char* )&element->cols, sizeof(miINT32_t) );
+    ifs.read( ( char* )&element->rows, sizeof( miINT32_t ) );
+    ifs.read( ( char* )&element->cols, sizeof( miINT32_t ) );
 
     if( element->rows < 1 || element->cols < 1 )
     {

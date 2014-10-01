@@ -1,28 +1,28 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
 #include <algorithm>
+#include <string>
 
 #include <core/common/WLogger.h>
 
@@ -81,8 +81,7 @@ size_t WLMatLib::MATWriter::writeTagField( std::ofstream& ofs, const mDataType_t
     return sizeof( dataType ) + sizeof( numBytes );
 }
 
-size_t WLMatLib::MATWriter::writeMatrixDouble( std::ofstream& ofs, const Eigen::MatrixXd& matrix,
-                const std::string& arrayName )
+size_t WLMatLib::MATWriter::writeMatrixDouble( std::ofstream& ofs, const Eigen::MatrixXd& matrix, const std::string& arrayName )
 {
     if( !ofs || ofs.bad() )
     {
@@ -179,7 +178,7 @@ size_t WLMatLib::MATWriter::writeMatrixDouble( std::ofstream& ofs, const Eigen::
     // Write matrix data //
     // ----------------- //
     type = DataTypes::miDOUBLE;
-    bytes = matrix.rows() * matrix.cols() * sizeof(miDouble_t);
+    bytes = matrix.rows() * matrix.cols() * sizeof( miDouble_t );
     tmpBytes = writeTagField( ofs, type, bytes );
     writtenBytes += tmpBytes;
     if( tmpBytes == 0 )
@@ -203,10 +202,10 @@ size_t WLMatLib::MATWriter::writeMatrixDouble( std::ofstream& ofs, const Eigen::
 
     // Set correct numBytes for miMatrix //
     // --------------------------------- //
-    bytes = writtenBytes - sizeof(mDataType_t) - sizeof(mNumBytes_t);
+    bytes = writtenBytes - sizeof( mDataType_t ) - sizeof( mNumBytes_t );
     ofs.seekp( pos );
-    ofs.seekp( sizeof(mDataType_t), ofstream::cur );
-    ofs.write( ( char* )&bytes, sizeof(mNumBytes_t) );
+    ofs.seekp( sizeof( mDataType_t ), ofstream::cur );
+    ofs.write( ( char* )&bytes, sizeof( mNumBytes_t ) );
     ofs.seekp( bytes, ofstream::cur );
 
     return writtenBytes;

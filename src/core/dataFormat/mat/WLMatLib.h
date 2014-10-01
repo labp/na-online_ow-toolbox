@@ -1,29 +1,28 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLMATFILEIO_H_
-#define WLMATFILEIO_H_
+#ifndef WLMATLIB_H_
+#define WLMATLIB_H_
 
 #include <fstream>
 #include <list>
@@ -36,7 +35,7 @@
 /**
  * A low-level C++ API to read/write MAT-file format v5 from MATLAB.
  *
- * @author pieloth
+ * \author pieloth
  */
 namespace WLMatLib
 {
@@ -87,16 +86,18 @@ namespace WLMatLib
     }
 
     /**
-     * MATLAB Array Types (Classes) for Array Flags Subelement
-     * @param type
-     * @return
+     * MATLAB Array Types (Classes) for Array Flags Subelement.
+     *
+     * \param type
+     * \return
      */
     namespace ArrayTypes
     {
         /**
          * Checks if Class/Type belongs to a numeric array.
-         * @param type
-         * @return
+         *
+         * \param type
+         * \return
          */
         bool isNumericArray( const mArrayType_t& type );
 
@@ -171,21 +172,21 @@ namespace WLMatLib
          * If returns true, file position points to the start of the first data element,
          * otherwise it points to file beginning.
          *
-         * @param info Struct to store the information.
-         * @param ifs Open input stream to read from.
+         * \param info Struct to store the information.
+         * \param ifs Open input stream to read from.
          *
-         * @return true if successful, false otherwise.
+         * \return true if successful, false otherwise.
          */
         static bool readHeader( FileInfo_t* const info, std::ifstream& ifs );
 
         /**
          * Retrieves all data elements in the file. Leaves file position at the end of the header.
          *
-         * @param elements List to store found elements.
-         * @param ifs Open input stream to read from.
-         * @param info File information e.g. to handle endia format.
+         * \param elements List to store found elements.
+         * \param ifs Open input stream to read from.
+         * \param info File information e.g. to handle endia format.
          *
-         * @return true, if successful, false otherwise.
+         * \return true, if successful, false otherwise.
          */
         static bool retrieveDataElements( std::list< ElementInfo_t >* const elements, std::ifstream& ifs,
                         const FileInfo_t& info );
@@ -193,12 +194,12 @@ namespace WLMatLib
         /**
          * Reads the matrix which is contained by the element.
          *
-         * @param matrix Matrix to fill.
-         * @param element Element which contains the matrix to read.
-         * @param ifs Open input stream to read from.
-         * @param info File information e.g. to handle endian format.
+         * \param matrix Matrix to fill.
+         * \param element Element which contains the matrix to read.
+         * \param ifs Open input stream to read from.
+         * \param info File information e.g. to handle endian format.
          *
-         * @return
+         * \return true, if successful, false otherwise.
          */
         static bool readMatrixDouble( Eigen::MatrixXd* const matrix, const ElementInfo_t& element, std::ifstream& ifs,
                         const FileInfo_t& info );
@@ -222,10 +223,10 @@ namespace WLMatLib
         /**
          * Writes the MAT-file header. Leaves file position at the end of header, if successful.
          *
-         * @param ofs Open output stream.
-         * @param description Description text for header.
+         * \param ofs Open output stream.
+         * \param description Description text for header.
          *
-         * @return true, if successful.
+         * \return true, if successful.
          */
         static bool writeHeader( std::ofstream& ofs, const std::string& description );
 
@@ -233,18 +234,17 @@ namespace WLMatLib
          * Writes 2-dim matrix to file. If successful, file position points to the end of the written data.
          * Otherwise file positions is reset, but bytes are still written!
          *
-         * @param ofs Open output stream.
-         * @param matrix Matrix to write.
-         * @param arrayName Variable name.
+         * \param ofs Open output stream.
+         * \param matrix Matrix to write.
+         * \param arrayName Variable name.
          *
-         * @return Written bytes.
+         * \return Written bytes.
          */
         static size_t writeMatrixDouble( std::ofstream& ofs, const Eigen::MatrixXd& matrix, const std::string& arrayName );
 
     private:
         static size_t writeTagField( std::ofstream& ofs, const mDataType_t& dataType, const mNumBytes_t numBytes );
     };
-
 }
 
-#endif  // WLMATFILEIO_H_
+#endif  // WLMATLIB_H_
