@@ -42,8 +42,8 @@ WLDigPoint::WLDigPoint( const PointT& pos, WLEPointType::Enum kind, WLIdentT ide
 WLDigPoint::WLDigPoint( const PointT& pos, WLFiffLib::kind_t kind, WLFiffLib::ident_t ident )
 {
     m_point = pos;
-    m_ident = ident;
     m_kind = WLEPointType::fromFIFF( kind );
+    m_ident = ident;
 }
 
 WLDigPoint::~WLDigPoint()

@@ -36,6 +36,9 @@
 #include "core/data/enum/WLECardinalPoint.h"
 #include "core/dataFormat/fiff/WLFiffLib.h"
 
+/**
+ * Digitized point, i.e. EEG sensor, HPI coil and more.
+ */
 class WLDigPoint
 {
 public:
@@ -81,11 +84,11 @@ public:
     bool checkCardinal( WLECardinalPoint::Enum ident ) const;
 
 private:
+    PointT m_point;
+
     WLEPointType::Enum m_kind;
 
     WLIdentT m_ident;
-
-    PointT m_point;
 };
 
 /**
