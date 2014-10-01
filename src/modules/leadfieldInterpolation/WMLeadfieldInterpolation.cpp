@@ -26,7 +26,7 @@
 
 #include <mne/mne_forwardsolution.h>
 
-#include <QFile>
+#include <QtCore/QFile>
 
 #include <core/common/WPathHelper.h>
 
@@ -269,7 +269,6 @@ bool WMLeadfieldInterpolation::readFiff( const std::string& fname )
             if( !m_fiffEmm->hasModality( WLEModality::EEG ) )
             {
                 errorLog() << "No EEG found!";
-                // TODO(pieloth): Support for other modalities.
                 return false;
             }
             infoLog() << "Reading FIFF file finished!";
@@ -310,7 +309,6 @@ bool WMLeadfieldInterpolation::readHDLeadfield( const std::string& fname )
 
 bool WMLeadfieldInterpolation::interpolate()
 {
-// TODO(pieloth): Support for other modalities.
     debugLog() << "interpolate() called!";
     WLTimeProfiler tp( "WMLeadfieldInterpolation", "interpolate" );
 
@@ -359,7 +357,6 @@ bool WMLeadfieldInterpolation::processCompute( WLEMMeasurement::SPtr emm )
     bool rc = true;
     if( m_leadfieldInterpolated )
     {
-        // TODO NOTE: Manipulation of a incoming packet!!!
         emm->getSubject()->setLeadfield( WLEModality::EEG, m_leadfieldInterpolated );
     }
     else
