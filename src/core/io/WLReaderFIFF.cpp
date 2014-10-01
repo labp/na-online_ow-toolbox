@@ -1,29 +1,29 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
 #include <cmath>
 #include <set>
+#include <string>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
@@ -222,7 +222,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
             {
                 if( mod == WLFiffLib::ChType::MAGN )
                 {
-                    // TODO convert to millimeter?
+                    // TODO(pieloth): convert to millimeter?
                     eVec = measinfo_in.GetLFChannelInfo()[chan]->GetEx();
                     eX->push_back( WVector3f( eVec[0], eVec[1], eVec[2] ) );
 
@@ -316,7 +316,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
     {
         wlog::debug( CLASS ) << "Event channel: " << *chan;
         eventData_out = WLEMMeasurement::EChannelT();
-        eventData_in = emdRaw->getData().row( *chan - 1 ); // TODO LFEvents counts from 1 ?
+        eventData_in = emdRaw->getData().row( *chan - 1 ); // TODO(pieloth): LFEvents counts from 1 ?
         for( size_t i = 0; i < eventData_in.size(); ++i )
             eventData_out.push_back( ( WLEMMeasurement::EventT )eventData_in( i ) );
         out->addEventChannel( eventData_out );
@@ -363,5 +363,4 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::getReturnCode( returncode_t rc )
         default:
             return ReturnCode::ERROR_UNKNOWN;
     }
-
 }

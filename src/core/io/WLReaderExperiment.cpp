@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -31,7 +30,7 @@
 #include <boost/regex.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include <QFile>
+#include <QtCore/QFile>
 
 #include <mne/mne_forwardsolution.h>
 
@@ -59,25 +58,25 @@ using namespace LaBP;
 using namespace std;
 using WLMatrix::MatrixT;
 
-const string WLReaderExperiment::m_FOLDER_BEM = "bem";
-const string WLReaderExperiment::m_FOLDER_FSLVOL = "fslvol";
-const string WLReaderExperiment::m_FOLDER_RESULTS = "results";
-const string WLReaderExperiment::m_FOLDER_SURF = "surf";
+const std::string WLReaderExperiment::m_FOLDER_BEM = "bem";
+const std::string WLReaderExperiment::m_FOLDER_FSLVOL = "fslvol";
+const std::string WLReaderExperiment::m_FOLDER_RESULTS = "results";
+const std::string WLReaderExperiment::m_FOLDER_SURF = "surf";
 
-const string WLReaderExperiment::m_PIAL = "pial";
-const string WLReaderExperiment::m_INFLATED = "inflated";
-const string WLReaderExperiment::m_LEADFIELD = "leadfield";
-const string WLReaderExperiment::m_LH = "lh";
-const string WLReaderExperiment::m_RH = "rh";
-const string WLReaderExperiment::m_LHRH = "all";
-const string WLReaderExperiment::m_EEG = "eeg";
-const string WLReaderExperiment::m_MEG = "meg";
-const string WLReaderExperiment::m_VOL = ".vol";
-const string WLReaderExperiment::m_DIP = ".dip";
-const string WLReaderExperiment::m_MAT = ".mat";
-const string WLReaderExperiment::m_FIFF = ".fif";
+const std::string WLReaderExperiment::m_PIAL = "pial";
+const std::string WLReaderExperiment::m_INFLATED = "inflated";
+const std::string WLReaderExperiment::m_LEADFIELD = "leadfield";
+const std::string WLReaderExperiment::m_LH = "lh";
+const std::string WLReaderExperiment::m_RH = "rh";
+const std::string WLReaderExperiment::m_LHRH = "all";
+const std::string WLReaderExperiment::m_EEG = "eeg";
+const std::string WLReaderExperiment::m_MEG = "meg";
+const std::string WLReaderExperiment::m_VOL = ".vol";
+const std::string WLReaderExperiment::m_DIP = ".dip";
+const std::string WLReaderExperiment::m_MAT = ".mat";
+const std::string WLReaderExperiment::m_FIFF = ".fif";
 
-const string WLReaderExperiment::CLASS = "WLReaderExperiment";
+const std::string WLReaderExperiment::CLASS = "WLReaderExperiment";
 
 WLReaderExperiment::WLReaderExperiment( std::string experimentPath, std::string subject ) throw( WDHNoSuchFile ) :
                 m_PATH_EXPERIMENT( experimentPath ), m_SUBJECT( subject )
@@ -95,7 +94,7 @@ WLReaderExperiment::~WLReaderExperiment()
 boost::filesystem::path WLReaderExperiment::getExperimentRootFromFiff( boost::filesystem::path fiffFile )
 {
     wlog::debug( CLASS ) << "fileName: " << fiffFile.filename();
-    // TODO maybe exception if first parent_path is filesystem root.
+    // TODO(pieloth) maybe exception if first parent_path is filesystem root.
     boost::filesystem::path expPath = fiffFile.parent_path().parent_path().parent_path();
     size_t isExperiment = 0;
 
@@ -200,7 +199,6 @@ std::set< std::string > WLReaderExperiment::findBems()
     {
         if( is_regular_file( it->status() ) && it->path().extension() == m_VOL )
         {
-
             volFiles.insert( it->path().filename().string() );
         }
     }
@@ -379,7 +377,6 @@ std::set< std::string > WLReaderExperiment::findLeadfieldTrials()
                     trial = tmp.substr( pos + m_SUBJECT.length(), 1 );
                     trials.insert( trial );
                 }
-
             }
         }
     }

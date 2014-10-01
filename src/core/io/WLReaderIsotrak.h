@@ -1,29 +1,30 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
-#ifndef WREADERNEUROMAGISOTRAK_H_
-#define WREADERNEUROMAGISOTRAK_H_
+#ifndef WLREADERISOTRAK_H_
+#define WLREADERISOTRAK_H_
+
+#include <string>
 
 #include <boost/shared_ptr.hpp>
 
@@ -45,6 +46,7 @@ using namespace FIFFLIB;
 class WLReaderIsotrak
 {
 public:
+    static const std::string CLASS; /**< The class name. */
 
     /**
      * A shared pointer on a WReaderNeuromagIsotrak.
@@ -57,22 +59,17 @@ public:
     typedef boost::shared_ptr< const WLReaderIsotrak > ConstSPtr;
 
     /**
-     * The class name.
-     */
-    static const std::string CLASS;
-
-    /**
      * Constructs a new WReaderNeuromagIsotrak.
      *
-     * @param fname The file name.
+     * \param fname The file name.
      */
     explicit WLReaderIsotrak( std::string fname );
 
     /**
      * Constructs a new WReaderNeuromagIsotrak.
      *
-     * @param data The pointer to the memory storage.
-     * @param size The size of the file.
+     * \param data The pointer to the memory storage.
+     * \param size The size of the file.
      */
     explicit WLReaderIsotrak( const char* data, size_t size );
 
@@ -84,36 +81,34 @@ public:
     /**
      * Reads the big endian Neuromag Isotrak file and fills the digitalization points.
      *
-     * @param digPoints The list to fill.
-     * @return Returns true if the file was read successfully, oherwise false.
+     * \param digPoints The list to fill.
+     * \return Returns true if the file was read successfully, oherwise false.
      */
     WLReader::ReturnCode::Enum read( WLList< WLDigPoint >::SPtr digPoints );
 
 protected:
-
     /**
      * Reads the digitalization points from the created FIFF directory tree.
      *
-     * @param p_Node The FIFF directory tree.
-     * @param out The digitalization points list.
-     * @return Returns true if the points were found, otherwise false.
+     * \param p_Node The FIFF directory tree.
+     * \param out The digitalization points list.
+     * \return Returns true if the points were found, otherwise false.
      */
     bool readDigPoints( const FiffDirTree& p_Node, WLList< WLDigPoint >::SPtr out );
 
     /**
      * Method to create a concrete DigPoint object.
      *
-     * @param fiffDigPoint The MNE Dig Point.
-     * @return Returns a concrete WLDigPoint.
+     * \param fiffDigPoint The MNE Dig Point.
+     * \return Returns a concrete WLDigPoint.
      */
     WLDigPoint createDigPoint( const FiffDigPoint& fiffDigPoint );
 
 private:
-
     /**
      * The FiffStream to read from the Isotrak Fiff-file. Depending on the constructor call the stream can be placed on a QFile of a QBuffer.
      */
     boost::shared_ptr< FiffStream > m_stream;
 };
 
-#endif /* WREADERNEUROMAGISOTRAK_H_ */
+#endif  // WLREADERISOTRAK_H_

@@ -1,28 +1,29 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
-#include "WLReaderDIP.h"
+#include <cstddef>
+#include <string>
+#include <vector>
 
 #include <boost/smart_ptr/shared_ptr.hpp>
 #include <core/common/exceptions/WTypeMismatch.h>
@@ -31,11 +32,11 @@
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 #include <core/common/WLogger.h>
 #include <core/common/WStringUtils.h>
-#include <cstddef>
-#include <vector>
 
-#include "../container/WLArrayList.h"
-#include "../util/WLGeometry.h"
+#include "core/container/WLArrayList.h"
+#include "core/util/WLGeometry.h"
+
+#include "WLReaderDIP.h"
 
 using namespace LaBP;
 using namespace std;
@@ -124,7 +125,6 @@ WLReaderDIP::ReturnCode::Enum WLReaderDIP::readUnit( string& line, WLEMMSurface:
         wlog::warn( CLASS ) << "Unknown unit.";
         return ReturnCode::ERROR_UNKNOWN;
     }
-
 }
 
 WLReaderDIP::ReturnCode::Enum WLReaderDIP::readNumPos( string& line, size_t& count )
@@ -145,7 +145,6 @@ WLReaderDIP::ReturnCode::Enum WLReaderDIP::readNumPoly( string& line, size_t& co
 
 WLReaderDIP::ReturnCode::Enum WLReaderDIP::readPositions( ifstream& ifs, size_t count, WLEMMSurface::SPtr surface )
 {
-
     WLArrayList< WPosition >::SPtr pos( new WLArrayList< WPosition >() );
     pos->reserve( count );
 
