@@ -59,8 +59,6 @@ using std::min;
 using std::max;
 using std::set;
 
-using namespace LaBP;
-
 static const int AUTO_SCALE_PACKETS = 8;
 
 WLModuleDrawable::WLModuleDrawable()

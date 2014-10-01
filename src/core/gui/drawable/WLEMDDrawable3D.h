@@ -107,13 +107,13 @@ public:
      *
      * \return Color map which is used.
      */
-    virtual LaBP::WLColorMap::SPtr getColorMap() const;
+    virtual WLColorMap::SPtr getColorMap() const;
 
     /**
      * Sets the color map to use fpr the surface.
      * \param colorMap
      */
-    virtual void setColorMap( LaBP::WLColorMap::SPtr colorMap );
+    virtual void setColorMap( WLColorMap::SPtr colorMap );
 
 protected:
     virtual bool mustDraw() const;
@@ -140,7 +140,7 @@ protected:
      */
     bool m_selectedSampleChanged;
 
-    LaBP::WLColorMap::SPtr m_colorMap;
+    WLColorMap::SPtr m_colorMap;
 
     bool m_surfaceChanged;
 

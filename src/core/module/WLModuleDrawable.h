@@ -242,7 +242,7 @@ private:
 
     int m_autoScaleCounter;
 
-    LaBP::WLColorMap::SPtr m_colorMap;
+    WLColorMap::SPtr m_colorMap;
 
     double m_range;
 

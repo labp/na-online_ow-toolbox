@@ -44,7 +44,6 @@
 using std::map;
 using std::set;
 using std::string;
-using namespace LaBP;
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMMneRtClient )

@@ -39,8 +39,6 @@
 
 #include "WLEMDDrawable3DEEGBEM.h"
 
-using namespace LaBP;
-
 WLEMDDrawable3DEEGBEM::WLEMDDrawable3DEEGBEM( WUIViewWidget::SPtr widget ) :
                 WLEMDDrawable3D( widget )
 {

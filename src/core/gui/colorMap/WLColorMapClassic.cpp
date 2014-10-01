@@ -26,26 +26,22 @@
 #include "WLColorMap.h"
 #include "WLColorMapClassic.h"
 
-namespace LaBP
-{
-    WLColorMapClassic::WLColorMapClassic( ValueT min, ValueT max, WEColorMapMode::Enum mode ) :
+WLColorMapClassic::WLColorMapClassic( ValueT min, ValueT max, WEColorMapMode::Enum mode ) :
                     WLColorMap( min, max, mode )
-    {
-        std::vector< ColorT > colors;
-        colors.reserve( 3 );
-        colors.push_back( osg::Vec4( 0.0, 0.0, 1.0, 1.0 ) );
-        colors.push_back( osg::Vec4( 1.0, 1.0, 1.0, 1.0 ) );
-        colors.push_back( osg::Vec4( 1.0, 0.0, 0.0, 1.0 ) );
-        WLColorMap::setColors( colors );
-    }
+{
+    std::vector< ColorT > colors;
+    colors.reserve( 3 );
+    colors.push_back( osg::Vec4( 0.0, 0.0, 1.0, 1.0 ) );
+    colors.push_back( osg::Vec4( 1.0, 1.0, 1.0, 1.0 ) );
+    colors.push_back( osg::Vec4( 1.0, 0.0, 0.0, 1.0 ) );
+    WLColorMap::setColors( colors );
+}
 
-    WLColorMapClassic::~WLColorMapClassic()
-    {
-    }
+WLColorMapClassic::~WLColorMapClassic()
+{
+}
 
-    WEColorMap::Enum WLColorMapClassic::getType() const
-    {
-        return WEColorMap::CLASSIC;
-    }
-
-} /* namespace LaBP */
+WEColorMap::Enum WLColorMapClassic::getType() const
+{
+    return WEColorMap::CLASSIC;
+}

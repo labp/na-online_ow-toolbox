@@ -26,33 +26,30 @@
 #include "WLColorMap.h"
 #include "WLColorMapHSV.h"
 
-namespace LaBP
+WLColorMapHSV::WLColorMapHSV( ValueT min, ValueT max, WEColorMapMode::Enum mode ) :
+                WLColorMap( min, max, mode )
 {
-    WLColorMapHSV::WLColorMapHSV( ValueT min, ValueT max, WEColorMapMode::Enum mode ) :
-                    WLColorMap( min, max, mode )
-    {
-        std::vector< ColorT > colors;
-        colors.reserve( 10 );
+    std::vector< ColorT > colors;
+    colors.reserve( 10 );
 
-        colors.push_back( osg::Vec4( 1.0, 0.0, 0.6, 1.0 ) );
-        colors.push_back( osg::Vec4( 0.8, 0.0, 1.0, 1.0 ) );
-        colors.push_back( osg::Vec4( 0.2, 0.0, 1.0, 1.0 ) );
-        colors.push_back( osg::Vec4( 0.0, 0.4, 1.0, 1.0 ) );
-        colors.push_back( osg::Vec4( 0.0, 1.0, 1.0, 1.0 ) );
-        colors.push_back( osg::Vec4( 0.0, 1.0, 0.4, 1.0 ) );
-        colors.push_back( osg::Vec4( 0.2, 1.0, 0.0, 1.0 ) );
-        colors.push_back( osg::Vec4( 0.8, 1.0, 0.0, 1.0 ) );
-        colors.push_back( osg::Vec4( 1.0, 0.666, 0.0, 1.0 ) );
-        colors.push_back( osg::Vec4( 1.0, 0.0, 0.0, 1.0 ) );
-        WLColorMap::setColors( colors );
-    }
+    colors.push_back( osg::Vec4( 1.0, 0.0, 0.6, 1.0 ) );
+    colors.push_back( osg::Vec4( 0.8, 0.0, 1.0, 1.0 ) );
+    colors.push_back( osg::Vec4( 0.2, 0.0, 1.0, 1.0 ) );
+    colors.push_back( osg::Vec4( 0.0, 0.4, 1.0, 1.0 ) );
+    colors.push_back( osg::Vec4( 0.0, 1.0, 1.0, 1.0 ) );
+    colors.push_back( osg::Vec4( 0.0, 1.0, 0.4, 1.0 ) );
+    colors.push_back( osg::Vec4( 0.2, 1.0, 0.0, 1.0 ) );
+    colors.push_back( osg::Vec4( 0.8, 1.0, 0.0, 1.0 ) );
+    colors.push_back( osg::Vec4( 1.0, 0.666, 0.0, 1.0 ) );
+    colors.push_back( osg::Vec4( 1.0, 0.0, 0.0, 1.0 ) );
+    WLColorMap::setColors( colors );
+}
 
-    WLColorMapHSV::~WLColorMapHSV()
-    {
-    }
+WLColorMapHSV::~WLColorMapHSV()
+{
+}
 
-    WEColorMap::Enum WLColorMapHSV::getType() const
-    {
-        return WEColorMap::HSV;
-    }
-} /* namespace LaBP */
+WEColorMap::Enum WLColorMapHSV::getType() const
+{
+    return WEColorMap::HSV;
+}

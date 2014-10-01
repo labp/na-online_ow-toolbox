@@ -55,8 +55,6 @@
 #include "WLEMDDrawable3DEmpty.h"
 #include "WLEMDDrawable3D.h"
 
-using namespace LaBP;
-
 const std::string WLEMDDrawable3D::CLASS = "WLEMDDrawable3D";
 
 WLEMDDrawable3D::WLEMDDrawable3D( WUIViewWidget::SPtr widget ) :
@@ -192,12 +190,12 @@ bool WLEMDDrawable3D::setSelectedTime( float relative )
     }
 }
 
-LaBP::WLColorMap::SPtr WLEMDDrawable3D::getColorMap() const
+WLColorMap::SPtr WLEMDDrawable3D::getColorMap() const
 {
     return m_colorMap;
 }
 
-void WLEMDDrawable3D::setColorMap( LaBP::WLColorMap::SPtr colorMap )
+void WLEMDDrawable3D::setColorMap( WLColorMap::SPtr colorMap )
 {
     m_colorMap = colorMap;
     m_colorMapChanged = true;

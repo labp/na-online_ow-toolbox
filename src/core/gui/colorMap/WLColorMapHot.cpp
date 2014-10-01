@@ -26,34 +26,30 @@
 #include "WLColorMap.h"
 #include "WLColorMapHot.h"
 
-namespace LaBP
-{
-    WLColorMapHot::WLColorMapHot( ValueT min, ValueT max, WEColorMapMode::Enum mode ) :
+WLColorMapHot::WLColorMapHot( ValueT min, ValueT max, WEColorMapMode::Enum mode ) :
                     WLColorMap( min, max, mode )
-    {
-        std::vector< ColorT > colors;
-        colors.reserve( 10 );
-        colors.push_back( ColorT( 1.0, 1.0, 1.0, 1.0 ) );
-        colors.push_back( ColorT( 1.0, 1.0, 0.75, 1.0 ) );
-        colors.push_back( ColorT( 1.0, 1.0, 0.5, 1.0 ) );
-        colors.push_back( ColorT( 1.0, 1.0, 0.25, 1.0 ) );
-        colors.push_back( ColorT( 1.0, 1.0, 0.0, 1.0 ) );
-        colors.push_back( ColorT( 1.0, 0.666, 0.0, 1.0 ) );
-        colors.push_back( ColorT( 1.0, 0.333, 0.0, 1.0 ) );
-        colors.push_back( ColorT( 1.0, 0.0, 0.0, 1.0 ) );
-        colors.push_back( ColorT( 0.666, 0.0, 0.0, 1.0 ) );
-        colors.push_back( ColorT( 0.333, 0.0, 0.0, 1.0 ) );
+{
+    std::vector< ColorT > colors;
+    colors.reserve( 10 );
+    colors.push_back( ColorT( 1.0, 1.0, 1.0, 1.0 ) );
+    colors.push_back( ColorT( 1.0, 1.0, 0.75, 1.0 ) );
+    colors.push_back( ColorT( 1.0, 1.0, 0.5, 1.0 ) );
+    colors.push_back( ColorT( 1.0, 1.0, 0.25, 1.0 ) );
+    colors.push_back( ColorT( 1.0, 1.0, 0.0, 1.0 ) );
+    colors.push_back( ColorT( 1.0, 0.666, 0.0, 1.0 ) );
+    colors.push_back( ColorT( 1.0, 0.333, 0.0, 1.0 ) );
+    colors.push_back( ColorT( 1.0, 0.0, 0.0, 1.0 ) );
+    colors.push_back( ColorT( 0.666, 0.0, 0.0, 1.0 ) );
+    colors.push_back( ColorT( 0.333, 0.0, 0.0, 1.0 ) );
 
-        WLColorMap::setColors( colors );
-    }
+    WLColorMap::setColors( colors );
+}
 
-    WLColorMapHot::~WLColorMapHot()
-    {
-    }
+WLColorMapHot::~WLColorMapHot()
+{
+}
 
-    WEColorMap::Enum WLColorMapHot::getType() const
-    {
-        return WEColorMap::HOT;
-    }
-
-} /* namespace LaBP */
+WEColorMap::Enum WLColorMapHot::getType() const
+{
+    return WEColorMap::HOT;
+}

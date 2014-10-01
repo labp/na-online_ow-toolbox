@@ -28,26 +28,23 @@
 
 #include "WLColorMap.h"
 
-namespace LaBP
+class WLColorMapHSV: public WLColorMap
 {
-    class WLColorMapHSV: public LaBP::WLColorMap
-    {
-    public:
-        /**
-         * Abbreviation for a shared pointer.
-         */
-        typedef boost::shared_ptr< WLColorMapHSV > SPtr;
+public:
+    /**
+     * Abbreviation for a shared pointer.
+     */
+    typedef boost::shared_ptr< WLColorMapHSV > SPtr;
 
-        /**
-         * Abbreviation for const shared pointer.
-         */
-        typedef boost::shared_ptr< const WLColorMapHSV > ConstSPtr;
+    /**
+     * Abbreviation for const shared pointer.
+     */
+    typedef boost::shared_ptr< const WLColorMapHSV > ConstSPtr;
 
-        WLColorMapHSV( ValueT min, ValueT max, WEColorMapMode::Enum mode );
-        virtual ~WLColorMapHSV();
+    WLColorMapHSV( ValueT min, ValueT max, WEColorMapMode::Enum mode );
+    virtual ~WLColorMapHSV();
 
-        virtual WEColorMap::Enum getType() const;
-    };
+    virtual WEColorMap::Enum getType() const;
+};
 
-} /* namespace LaBP */
 #endif  // WLCOLORMAPHSV_H_
