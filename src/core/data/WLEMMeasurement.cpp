@@ -86,28 +86,6 @@ WLEMMeasurement::SPtr WLEMMeasurement::clone() const
     return emm;
 }
 
-WLEMMeasurement::SPtr WLEMMeasurement::newModalityData( WLEMData::SPtr modality )
-{
-    WLEMMeasurement::SPtr emm( new WLEMMeasurement( *this ) );
-
-    std::vector< WLEMData::SPtr > *newModalityList = new std::vector< WLEMData::SPtr >();
-
-    for( uint i = 0; i < m_modalityList.size(); i++ )
-    {
-        if( ( m_modalityList[i] )->getModalityType() == modality->getModalityType() )
-        {
-            newModalityList->push_back( modality );
-        }
-        else
-        {
-            newModalityList->push_back( WLEMData::SPtr( m_modalityList[i] ) );
-        }
-    }
-    emm->setModalityList( *newModalityList );
-
-    return emm;
-}
-
 bool WLEMMeasurement::addModality( WLEMData::SPtr modality )
 {
     WLEModality::Enum m = modality->getModalityType();
