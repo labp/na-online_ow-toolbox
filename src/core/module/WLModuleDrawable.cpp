@@ -25,6 +25,7 @@
 #include <cstddef>
 
 #include <algorithm> // min(), max()
+#include <limits>
 #include <set>
 #include <string>
 #include <vector>
@@ -189,7 +190,7 @@ void WLModuleDrawable::setViewModality( WLEModality::Enum mod )
     std::set< WLEModality::Enum > modalities = WLEModality::values();
     std::set< WLEModality::Enum >::iterator it;
     size_t count = 0;
-    size_t selected;
+    size_t selected = std::numeric_limits< size_t >::max();
     for( it = modalities.begin(); it != modalities.end(); ++it )
     {
         viewSelection->addItem(
@@ -203,11 +204,19 @@ void WLModuleDrawable::setViewModality( WLEModality::Enum mod )
         ++count;
     }
 
-    m_selectionView = m_propView->addProperty( "View modality", "Select a to visualize", viewSelection->getSelector( selected ),
-                    boost::bind( &WLModuleDrawable::callbackViewModalityChanged, this ) );
+    if( selected <= count )
+    {
+        m_selectionView = m_propView->addProperty( "View modality", "Select a to visualize",
+                        viewSelection->getSelector( selected ),
+                        boost::bind( &WLModuleDrawable::callbackViewModalityChanged, this ) );
 
-    WPropertyHelper::PC_SELECTONLYONE::addTo( m_selectionView );
-    WPropertyHelper::PC_NOTEMPTY::addTo( m_selectionView );
+        WPropertyHelper::PC_SELECTONLYONE::addTo( m_selectionView );
+        WPropertyHelper::PC_NOTEMPTY::addTo( m_selectionView );
+    }
+    else
+    {
+        errorLog() << "Could not set view modality!";
+    }
 }
 
 void WLModuleDrawable::hideViewModalitySelection( bool enable )
