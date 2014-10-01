@@ -45,7 +45,6 @@
 #include "WMCodeSnippets.h"
 #include "WMCodeSnippets.xpm"
 
-using namespace LaBP;
 using std::ofstream;
 using std::string;
 using std::vector;
