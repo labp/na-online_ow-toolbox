@@ -29,12 +29,12 @@
 #include "WLEMDEOG.h"
 
 WLEMDEOG::WLEMDEOG() :
-                WLEMDEEG()
+                WLEMData()
 {
 }
 
 WLEMDEOG::WLEMDEOG( const WLEMDEOG& eog ) :
-                WLEMDEEG( eog )
+                WLEMData( eog )
 {
 }
 

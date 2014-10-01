@@ -27,9 +27,11 @@
 #include <boost/shared_ptr.hpp>
 
 #include "WLEMData.h"
-#include "WLEMDEEG.h"
 
-class WLEMDEOG: public WLEMDEEG // TODO(pieloth): do not extends from EEG
+/**
+ * Electrooculography data and related information. Not yet used neither developed.
+ */
+class WLEMDEOG: public WLEMData
 {
 public:
     /**
