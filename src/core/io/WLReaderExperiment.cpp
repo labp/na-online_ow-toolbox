@@ -54,7 +54,6 @@
 #include "WLReaderExperiment.h"
 
 using namespace boost::filesystem;
-using namespace LaBP;
 using namespace std;
 using WLMatrix::MatrixT;
 

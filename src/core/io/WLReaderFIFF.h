@@ -39,40 +39,38 @@
 
 #include "core/io/WLReader.h"
 
-namespace LaBP
+class WLReaderFIFF: public WLReader
 {
-    class WLReaderFIFF: public WLReader
-    {
-    public:
-        /**
-         * Shared pointer abbreviation to a instance of this class.
-         */
-        typedef boost::shared_ptr< WLReaderFIFF > SPtr;
+public:
+    /**
+     * Shared pointer abbreviation to a instance of this class.
+     */
+    typedef boost::shared_ptr< WLReaderFIFF > SPtr;
 
-        /**
-         * Shared pointer abbreviation to a const instance of this class.
-         */
-        typedef boost::shared_ptr< const WLReaderFIFF > ConstSPtr;
+    /**
+     * Shared pointer abbreviation to a const instance of this class.
+     */
+    typedef boost::shared_ptr< const WLReaderFIFF > ConstSPtr;
 
-        static const std::string CLASS;
+    static const std::string CLASS;
 
-        /**
-         * Constructs a reader object.
-         *
-         * \param fname path to file which should be loaded
-         */
-        explicit WLReaderFIFF( std::string fname );
-        /**
-         * Read the file and create a dataset out of it.
-         */
-        ReturnCode::Enum Read( WLEMMeasurement::SPtr out );
-        /**
-         * Reads subject data only.
-         */
-        ReturnCode::Enum Read( WLEMMSubject::SPtr out );
+    /**
+     * Constructs a reader object.
+     *
+     * \param fname path to file which should be loaded
+     */
+    explicit WLReaderFIFF( std::string fname );
+    /**
+     * Read the file and create a dataset out of it.
+     */
+    ReturnCode::Enum Read( WLEMMeasurement::SPtr out );
+    /**
+     * Reads subject data only.
+     */
+    ReturnCode::Enum Read( WLEMMSubject::SPtr out );
 
-    private:
-        static ReturnCode::Enum getReturnCode( returncode_t rc );
-    };
-}
+private:
+    static ReturnCode::Enum getReturnCode( returncode_t rc );
+};
+
 #endif  // WLREADERFIFF_H_

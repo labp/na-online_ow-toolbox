@@ -27,33 +27,30 @@
 #include <fstream>
 #include <string>
 
-
 #include "core/data/WLEMMSurface.h"
 
 #include "core/io/WLReader.h"
 
-namespace LaBP
+class WLReaderDIP: public WLReader
 {
-    class WLReaderDIP: public WLReader
-    {
-    public:
-        static const std::string CLASS;
+public:
+    static const std::string CLASS;
 
-        /**
-         * Constructs a reader object.
-         *
-         * \param fname path to file which should be loaded
-         */
-        explicit WLReaderDIP( std::string fname );
+    /**
+     * Constructs a reader object.
+     *
+     * \param fname path to file which should be loaded
+     */
+    explicit WLReaderDIP( std::string fname );
 
-        ReturnCode::Enum read( WLEMMSurface::SPtr surface );
+    ReturnCode::Enum read( WLEMMSurface::SPtr surface );
 
-    private:
-        ReturnCode::Enum readUnit( std::string& line, WLEMMSurface::SPtr surface );
-        ReturnCode::Enum readNumPos( std::string& line, size_t& count );
-        ReturnCode::Enum readNumPoly( std::string& line, size_t& count );
-        ReturnCode::Enum readPositions( std::ifstream& ifs, size_t count, WLEMMSurface::SPtr surface );
-        ReturnCode::Enum readPolygons( std::ifstream& ifs, size_t count, WLEMMSurface::SPtr surface );
-    };
-}
+private:
+    ReturnCode::Enum readUnit( std::string& line, WLEMMSurface::SPtr surface );
+    ReturnCode::Enum readNumPos( std::string& line, size_t& count );
+    ReturnCode::Enum readNumPoly( std::string& line, size_t& count );
+    ReturnCode::Enum readPositions( std::ifstream& ifs, size_t count, WLEMMSurface::SPtr surface );
+    ReturnCode::Enum readPolygons( std::ifstream& ifs, size_t count, WLEMMSurface::SPtr surface );
+};
+
 #endif  // WLREADERDIP_H_

@@ -38,7 +38,6 @@
 #include "WMFiffReader.xpm"
 
 using std::string;
-using namespace LaBP;
 
 W_LOADABLE_MODULE( WMFiffReader )
 

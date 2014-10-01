@@ -38,7 +38,6 @@
 
 #include "WLReaderDIP.h"
 
-using namespace LaBP;
 using namespace std;
 
 const std::string WLReaderDIP::CLASS = "WLReaderDIP";

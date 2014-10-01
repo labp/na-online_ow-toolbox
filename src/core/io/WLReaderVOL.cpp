@@ -40,7 +40,6 @@
 #include "WLReaderBND.h"
 #include "WLReaderVOL.h"
 
-using namespace LaBP;
 using namespace std;
 
 const std::string WLReaderVOL::CLASS = "WLReaderVOL";

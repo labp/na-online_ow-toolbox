@@ -39,7 +39,6 @@
 
 #include "WLReaderELC.h"
 
-using namespace LaBP;
 using namespace std;
 
 const std::string WLReaderELC::CLASS = "WLReaderELC";

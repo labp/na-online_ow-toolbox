@@ -44,7 +44,6 @@
 #include "WMLeadfieldInterpolation.xpm"
 #include "WMLeadfieldInterpolation.h"
 
-using namespace LaBP;
 using WLMatrix::MatrixT;
 
 // This line is needed by the module loader to actually find your module.

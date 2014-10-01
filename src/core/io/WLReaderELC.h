@@ -36,37 +36,35 @@
 #include "core/data/enum/WLEExponent.h"
 #include "core/io/WLReader.h"
 
-namespace LaBP
+class WLReaderELC: public WLReader
 {
-    class WLReaderELC: public WLReader
-    {
-    public:
-        static const std::string CLASS;
+public:
+    static const std::string CLASS;
 
-        /**
-         * Constructs a reader object.
-         *
-         * \param fname path to file which should be loaded
-         */
-        explicit WLReaderELC( std::string fname );
+    /**
+     * Constructs a reader object.
+     *
+     * \param fname path to file which should be loaded
+     */
+    explicit WLReaderELC( std::string fname );
 
-        /**
-         * Reads out a elc file. Positions are converted to millimeter, if necessary.
-         */
-        ReturnCode::Enum read( boost::shared_ptr< std::vector< WPosition > > posOut,
-                        boost::shared_ptr< std::vector< std::string > > labelsOut,
-                        boost::shared_ptr< std::vector< WVector3i > > facesOut );
+    /**
+     * Reads out a elc file. Positions are converted to millimeter, if necessary.
+     */
+    ReturnCode::Enum read( boost::shared_ptr< std::vector< WPosition > > posOut,
+                    boost::shared_ptr< std::vector< std::string > > labelsOut,
+                    boost::shared_ptr< std::vector< WVector3i > > facesOut );
 
-    private:
-        ReturnCode::Enum readUnit( std::string& line, WLEExponent::Enum& exp );
-        ReturnCode::Enum readNumPos( std::string& line, size_t& count );
-        ReturnCode::Enum readNumPoly( std::string& line, size_t& count );
-        ReturnCode::Enum readPositions( std::ifstream& ifs, size_t count, boost::shared_ptr< std::vector< WPosition > > posOut );
-        ReturnCode::Enum readLabels( std::ifstream& ifs, size_t count,
-                        boost::shared_ptr< std::vector< std::string > > labelsOut );
-        ReturnCode::Enum readPolygons( std::ifstream& ifs, size_t count, boost::shared_ptr< std::vector< WVector3i > > facesOut );
+private:
+    ReturnCode::Enum readUnit( std::string& line, WLEExponent::Enum& exp );
+    ReturnCode::Enum readNumPos( std::string& line, size_t& count );
+    ReturnCode::Enum readNumPoly( std::string& line, size_t& count );
+    ReturnCode::Enum readPositions( std::ifstream& ifs, size_t count, boost::shared_ptr< std::vector< WPosition > > posOut );
+    ReturnCode::Enum readLabels( std::ifstream& ifs, size_t count,
+                    boost::shared_ptr< std::vector< std::string > > labelsOut );
+    ReturnCode::Enum readPolygons( std::ifstream& ifs, size_t count, boost::shared_ptr< std::vector< WVector3i > > facesOut );
 
-        void convertToMilli( boost::shared_ptr< std::vector< WPosition > > pos, WLEExponent::Enum& exp );
-    };
-}
+    void convertToMilli( boost::shared_ptr< std::vector< WPosition > > pos, WLEExponent::Enum& exp );
+};
+
 #endif  // WLREADERELC_H_

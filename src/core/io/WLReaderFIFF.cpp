@@ -58,8 +58,6 @@
 
 #include "WLReaderFIFF.h"
 
-using namespace LaBP;
-
 const std::string WLReaderFIFF::CLASS = "WLReaderFIFF";
 
 WLReaderFIFF::WLReaderFIFF( std::string fname ) :
