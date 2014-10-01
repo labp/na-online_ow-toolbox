@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -61,7 +60,7 @@ public:
 
     explicit WLEMDMEG( const WLEMDMEG& meg );
 
-    WLEMDMEG( WLEModality::Enum modality );
+    explicit WLEMDMEG( WLEModality::Enum modality );
 
     virtual ~WLEMDMEG();
 
@@ -123,9 +122,9 @@ public:
     /**
      * Returns the channels indices for the requested coil type.
      *
-     * @param meg data to pick from
-     * @param type Requested coil type
-     * @return An array of indices for the requested coil type
+     * \param meg data to pick from
+     * \param type Requested coil type
+     * \return An array of indices for the requested coil type
      */
     static CoilPicksT coilPicks( const WLEMDMEG& meg, WLEMEGGeneralCoilType::Enum type );
 
@@ -135,8 +134,8 @@ public:
     /**
      * Returns the channels indices for the requested coil type.
      *
-     * @param type Requested coil type
-     * @return An array of indices for the requested coil type
+     * \param type Requested coil type
+     * \return An array of indices for the requested coil type
      */
     OW_API_DEPRECATED
     std::vector< size_t > getPicks( WLEMEGGeneralCoilType::Enum type ) const;
@@ -145,8 +144,8 @@ public:
      * Returns the data of the requested coil type.
      * Due to the copy effort, getPicks() is recommended for channels wise processing.
      *
-     * @param type Requested coil type
-     * @return New data containing all channels of the requested coil type
+     * \param type Requested coil type
+     * \return New data containing all channels of the requested coil type
      */
     OW_API_DEPRECATED
     DataSPtr getData( WLEMEGGeneralCoilType::Enum type ) const; // This is a copy of channels, so the data is not changed.
@@ -155,8 +154,8 @@ public:
      * Returns the data of the requested coil type without the bad channels.
      * Due to the copy effort, getPicks() is recommended for channels wise processing.
      *
-     * @param type Requested coil type.
-     * @return New data containing all channels of the requested coil type with out the bad channels.
+     * \param type Requested coil type.
+     * \return New data containing all channels of the requested coil type with out the bad channels.
      */
     DataSPtr getDataBadChannels( WLEMEGGeneralCoilType::Enum type ) const;
 
@@ -164,16 +163,16 @@ public:
      * Returns the data of the requested coil type without the bad channels.
      * Due to the copy effort, getPicks() is recommended for channels wise processing.
      *
-     * @param type Requested coil type.
-     * @return New data containing all channels of the requested coil type with out the bad channels.
+     * \param type Requested coil type.
+     * \return New data containing all channels of the requested coil type with out the bad channels.
      */
     DataSPtr getDataBadChannels( WLEMEGGeneralCoilType::Enum type, ChannelListSPtr badChans ) const;
 
     /**
      * Returns the number of bad channels for the given coil type.
      *
-     * @param type The coil type.
-     * @return The number of bad channels.
+     * \param type The coil type.
+     * \return The number of bad channels.
      */
     size_t getNrBadChans( WLEMEGGeneralCoilType::Enum type ) const;
 
@@ -226,7 +225,6 @@ inline WLEMEGGeneralCoilType::Enum WLEMDMEG::getChannelType( size_t channelId ) 
     else
     {
         return WLEMEGGeneralCoilType::GRADIOMETER;
-
     }
 }
 
