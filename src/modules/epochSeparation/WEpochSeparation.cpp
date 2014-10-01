@@ -218,7 +218,7 @@ void WEpochSeparation::setupBuffer( WLEMData::ConstSPtr emd )
         // ... 5x EMM for preSamples and 1x EMM for current sample in current EMM
         m_blockSize = emd->getSamplesPerChan();
         size_t elements = ceil( ( float )( m_preSamples + m_blockSize ) / m_blockSize );
-        m_buffer.reset( new LaBP::WLRingBuffer< WLEMMeasurement >( elements ) );
+        m_buffer.reset( new WLRingBuffer< WLEMMeasurement >( elements ) );
         wlog::debug( CLASS ) << "BlockSize: " << m_blockSize;
         wlog::debug( CLASS ) << "Samples: " << m_preSamples + 1;
         wlog::debug( CLASS ) << "Space for EMM: " << elements;

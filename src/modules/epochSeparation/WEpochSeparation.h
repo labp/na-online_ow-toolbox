@@ -205,7 +205,7 @@ private:
     size_t m_postSamples;
     size_t m_blockSize;
 
-    LaBP::WLRingBuffer< WLEMMeasurement >::SPtr m_buffer;
+    WLRingBuffer< WLEMMeasurement >::SPtr m_buffer;
     std::deque< WLEMMeasurement::SPtr > m_epochs;
     std::list< LeftEpoch::SPtr > m_leftEpochs;
 

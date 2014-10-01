@@ -50,10 +50,10 @@ public:
     void test_constructor()
     {
         TS_TRACE( "test_constructor" );
-        LaBP::WLRingBuffer< std::string >::SPtr buffer( new LaBP::WLRingBuffer< std::string >( 1 ) );
+        WLRingBuffer< std::string >::SPtr buffer( new WLRingBuffer< std::string >( 1 ) );
         TS_ASSERT( 0 < buffer->capacity() );
 
-        buffer.reset( new LaBP::WLRingBuffer< std::string >( 3 ) );
+        buffer.reset( new WLRingBuffer< std::string >( 3 ) );
         TS_ASSERT( buffer->capacity() > 2 );
     }
 
@@ -62,7 +62,7 @@ public:
         TS_TRACE( "test_nmod" );
 
         size_t capacity = 5;
-        LaBP::WLRingBuffer< std::string >::SPtr buffer( new LaBP::WLRingBuffer< std::string >( capacity ) );
+        WLRingBuffer< std::string >::SPtr buffer( new WLRingBuffer< std::string >( capacity ) );
         ptrdiff_t a;
         size_t n, result;
 
@@ -120,7 +120,7 @@ public:
         TS_TRACE( "test_size" );
 
         size_t capacity = 5;
-        LaBP::WLRingBuffer< std::string >::SPtr buffer( new LaBP::WLRingBuffer< std::string >( capacity ) );
+        WLRingBuffer< std::string >::SPtr buffer( new WLRingBuffer< std::string >( capacity ) );
         TS_ASSERT( buffer->capacity() == capacity );
         boost::shared_ptr< std::string > element;
         for( size_t i = 0; i < capacity; ++i )
@@ -146,7 +146,7 @@ public:
         TS_TRACE( "test_addPop" );
 
         size_t capacity = 10;
-        LaBP::WLRingBuffer< size_t > buffer( capacity );
+        WLRingBuffer< size_t > buffer( capacity );
         TS_ASSERT( buffer.capacity() == capacity );
 
         boost::shared_ptr< size_t > element;
@@ -176,7 +176,7 @@ public:
         TS_TRACE( "test_addPop" );
 
         size_t capacity = 10;
-        LaBP::WLRingBuffer< size_t > buffer( capacity );
+        WLRingBuffer< size_t > buffer( capacity );
 
         boost::shared_ptr< size_t > addElement;
         boost::shared_ptr< size_t > getElement;
@@ -261,7 +261,7 @@ public:
         TS_TRACE( "test_clear" );
 
         size_t capacity = 10;
-        LaBP::WLRingBuffer< size_t > buffer( capacity );
+        WLRingBuffer< size_t > buffer( capacity );
 
         boost::shared_ptr< size_t > addElement;
 
