@@ -142,7 +142,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
                                     j ) * scaleFactor;
                     break;
                 default:
-                    // LFDataBuffer::dt_unknown
+                    wlog::warn( CLASS ) << "Unknown data type: " << pBuf->GetDataType();
                     break;
             }
             current_channel++;
@@ -220,7 +220,6 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
             {
                 if( mod == WLFiffLib::ChType::MAGN )
                 {
-                    // TODO(pieloth): convert to millimeter?
                     eVec = measinfo_in.GetLFChannelInfo()[chan]->GetEx();
                     eX->push_back( WVector3f( eVec[0], eVec[1], eVec[2] ) );
 
@@ -329,8 +328,6 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
                         << out->getModalityList()[mod]->getNrChans();
     }
 
-//    if( ret == rc_normal )
-//        out->fireDataUpdateEvent();
     return getReturnCode( ret );
 }
 
