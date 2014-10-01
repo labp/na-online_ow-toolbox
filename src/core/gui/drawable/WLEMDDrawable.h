@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -75,7 +74,7 @@ public:
     /**
      * Constructor
      *
-     * @param widget widget to fill
+     * \param widget widget to fill
      */
     explicit WLEMDDrawable( WUIViewWidget::SPtr widget );
 
@@ -87,7 +86,7 @@ public:
     /**
      * Cast to DRAWABLE if possible.
      *
-     * @return Shared Pointer< DRAWABLE >
+     * \return Shared Pointer< DRAWABLE >
      */
     template< typename DRAWABLE >
     boost::shared_ptr< DRAWABLE > getAs()
@@ -98,7 +97,7 @@ public:
     /**
      * Cast to DRAWABLE if possible.
      *
-     * @return Shared Pointer< const DRAWABLE >
+     * \return Shared Pointer< const DRAWABLE >
      */
     template< typename DRAWABLE >
     boost::shared_ptr< const DRAWABLE > getAs() const
@@ -109,7 +108,7 @@ public:
     /**
      * Invokes a draw with the new data.
      *
-     * @param emm data to draw.
+     * \param emm data to draw.
      */
     virtual void draw( WLEMMeasurement::SPtr emm ) = 0;
 
@@ -126,7 +125,7 @@ public:
     /**
      * Gets modality to draw.
      *
-     * @return modality
+     * \return modality
      */
     virtual WLEModality::Enum getModality() const;
 
@@ -138,7 +137,7 @@ public:
     /**
      * Returns the widget to fill.
      *
-     * @return widget
+     * \return widget
      */
     virtual WUIViewWidget::SPtr getWidget() const;
 
@@ -203,7 +202,7 @@ private:
         /**
          * Constructor
          *
-         * @param drawable Object to delegate the callback to.
+         * \param drawable Object to delegate the callback to.
          */
         explicit WLEMDDrawableCallbackDelegator( WLEMDDrawable* drawable );
 
@@ -215,8 +214,8 @@ private:
         /**
          * Calls the osgNodeCallback() of the wrapped WLEMDDrawable
          *
-         * @param node
-         * @param nv
+         * \param node
+         * \param nv
          */
         void operator()( osg::Node* node, osg::NodeVisitor* nv );
 

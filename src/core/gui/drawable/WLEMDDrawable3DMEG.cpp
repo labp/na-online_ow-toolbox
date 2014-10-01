@@ -1,26 +1,28 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
+
+#include <string>
+#include <vector>
 
 #include <boost/lexical_cast.hpp>
 
@@ -40,7 +42,7 @@
 WLEMDDrawable3DMEG::WLEMDDrawable3DMEG( WUIViewWidget::SPtr widget, WLEModality::Enum coilType ) :
                 m_coilType( coilType ), WLEMDDrawable3D( widget )
 {
-    WAssertDebug( WLEModality::isMEG(m_coilType), "No MEG modality!" );
+    WAssertDebug( WLEModality::isMEG( m_coilType ), "No MEG modality!" );
     m_labelsChanged = true;
     m_labelsOn = true;
     m_electrodesChanged = true;
@@ -105,11 +107,11 @@ void WLEMDDrawable3DMEG::osgAddLabels( const std::vector< WPosition >& positions
             }
             else
             {
-                name = boost::lexical_cast < std::string > ( i );
+                name = boost::lexical_cast< std::string >( i );
             }
             osg::Vec3 pos = positions.at( i ) * 1000;
             // create text geode for the channel label
-            osg::ref_ptr < osgText::Text > text = new osgText::Text;
+            osg::ref_ptr< osgText::Text > text = new osgText::Text;
             text->setText( name );
             text->setPosition( pos + text_offset );
             text->setAlignment( osgText::Text::CENTER_BOTTOM );
@@ -144,7 +146,7 @@ void WLEMDDrawable3DMEG::osgAddNodes( const std::vector< WPosition >& positions 
         {
             const osg::Vec3 pos = *it * m_zoomFactor;
             // create sphere geode on electrode position
-            osg::ref_ptr < osg::ShapeDrawable > shape = new osg::ShapeDrawable( new osg::Sphere( pos, sphere_size ) );
+            osg::ref_ptr< osg::ShapeDrawable > shape = new osg::ShapeDrawable( new osg::Sphere( pos, sphere_size ) );
             shape->setDataVariance( osg::Object::DYNAMIC );
             m_electrodesDrawables.push_back( shape );
             m_electrodesGeode->addDrawable( shape );
@@ -164,7 +166,7 @@ void WLEMDDrawable3DMEG::osgUpdateSurfaceColor( const WLEMData::DataT& data )
         {
             return;
         }
-        osg::ref_ptr < osg::FloatArray > texCoords = static_cast< osg::FloatArray* >( m_surfaceGeometry->getTexCoordArray( 0 ) );
+        osg::ref_ptr< osg::FloatArray > texCoords = static_cast< osg::FloatArray* >( m_surfaceGeometry->getTexCoordArray( 0 ) );
 
         WAssertDebug( data.rows() == texCoords->size(), "data.rows() == texCoords->size()" );
         WAssertDebug( 0 <= m_selectedSample && m_selectedSample < data.cols(),
@@ -175,7 +177,7 @@ void WLEMDDrawable3DMEG::osgUpdateSurfaceColor( const WLEMData::DataT& data )
             ( *texCoords )[vertexID] = m_colorMap->getTextureCoordinate( color );
         }
         m_surfaceGeometry->setTexCoordArray( 0, texCoords );
-        osg::ref_ptr < osg::Vec4Array > colors = new osg::Vec4Array;
+        osg::ref_ptr< osg::Vec4Array > colors = new osg::Vec4Array;
         colors->push_back( osg::Vec4( 1.0f, 1.0f, 1.0f, 1.0f ) );
         m_surfaceGeometry->setColorArray( colors );
         m_surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
@@ -211,7 +213,7 @@ void WLEMDDrawable3DMEG::osgNodeCallback( osg::NodeVisitor* nv )
 
     WLEMDMEG::ConstSPtr emd = m_emm->getModality< const WLEMDMEG >( WLEModality::MEG );
 
-    if( WLEModality::isMEGCoil (m_coilType) )
+    if( WLEModality::isMEGCoil( m_coilType ) )
     {
         WLEMDMEG::SPtr meg;
         if( WLEMDMEG::extractCoilModality( meg, emd, m_coilType, false ) )
