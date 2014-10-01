@@ -104,7 +104,7 @@ WLEMData::DataSPtr WLEMData::getDataBadChannels() const
     WLEMData::DataSPtr dataPtr( new WLEMData::DataT( m_data->rows() - m_badChannels->size(), getSamplesPerChan() ) );
     WLEMData::DataT& data = *dataPtr;
 
-    size_t row = 0, it;
+    WLChanNrT row = 0, it;
     for( it = 0; it < getNrChans(); ++it )
     {
         if( isBadChannel( it ) )
@@ -128,7 +128,7 @@ WLEMData::DataSPtr WLEMData::getDataBadChannels( ChannelListSPtr badChans ) cons
     WLEMData::DataSPtr dataPtr( new WLEMData::DataT( m_data->rows() - m_badChannels->size(), getSamplesPerChan() ) );
     WLEMData::DataT& data = *dataPtr;
 
-    size_t row = 0, it;
+    WLChanNrT row = 0, it;
     for( it = 0; it < getNrChans(); ++it )
     {
         if( isBadChannel( it ) || std::find( badChans->begin(), badChans->end(), it ) != badChans->end() )
