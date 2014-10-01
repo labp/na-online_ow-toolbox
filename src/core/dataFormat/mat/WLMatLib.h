@@ -205,10 +205,9 @@ namespace WLMatLib
                         const FileInfo_t& info );
 
     private:
-        static bool readTagField( mDataType_t* const dataType, mNumBytes_t* const numBytes, std::ifstream& ifs,
-                        const FileInfo_t& info );
+        static bool readTagField( mDataType_t* const dataType, mNumBytes_t* const numBytes, std::ifstream& ifs );
 
-        static bool readArraySubelements( ElementInfo_t* const element, std::ifstream& ifs, const FileInfo_t& info );
+        static bool readArraySubelements( ElementInfo_t* const element, std::ifstream& ifs );
 
         static void nextElement( std::ifstream& ifs, const std::streampos& tagStart, size_t numBytes );
     };

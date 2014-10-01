@@ -121,12 +121,12 @@ bool WLMatLib::MATReader::retrieveDataElements( std::list< ElementInfo_t >* cons
     WLMatLib::mNumBytes_t bytes;
     std::streampos pos;
     const std::streamoff min_tag_size = 4;
-    while( ifs.good() && ifs.tellg() + min_tag_size < info.fileSize )
+    while( ifs.good() && static_cast< size_t >( ifs.tellg() + min_tag_size ) < info.fileSize )
     {
         type = 0;
         bytes = 0;
         pos = ifs.tellg();
-        if( !readTagField( &type, &bytes, ifs, info ) )
+        if( !readTagField( &type, &bytes, ifs ) )
         {
             wlog::error( LIBNAME ) << "Unknown data type or wrong data structure. Cancel retrieving!";
             ifs.seekg( 128 );
@@ -142,7 +142,7 @@ bool WLMatLib::MATReader::retrieveDataElements( std::list< ElementInfo_t >* cons
 
         if( element.dataType == WLMatLib::DataTypes::miMATRIX )
         {
-            if( !readArraySubelements( &element, ifs, info ) )
+            if( !readArraySubelements( &element, ifs ) )
             {
                 nextElement( ifs, element.pos, element.numBytes );
                 continue;
@@ -158,8 +158,7 @@ bool WLMatLib::MATReader::retrieveDataElements( std::list< ElementInfo_t >* cons
     return true;
 }
 
-bool WLMatLib::MATReader::readTagField( mDataType_t* const dataType, mNumBytes_t* const numBytes, std::ifstream& ifs,
-                const FileInfo_t& info )
+bool WLMatLib::MATReader::readTagField( mDataType_t* const dataType, mNumBytes_t* const numBytes, std::ifstream& ifs )
 {
     std::streampos pos = ifs.tellg();
     ifs.read( ( char* )dataType, sizeof( WLMatLib::mDataType_t ) );
@@ -184,7 +183,7 @@ bool WLMatLib::MATReader::readTagField( mDataType_t* const dataType, mNumBytes_t
     return true;
 }
 
-bool WLMatLib::MATReader::readArraySubelements( ElementInfo_t* const element, std::ifstream& ifs, const FileInfo_t& info )
+bool WLMatLib::MATReader::readArraySubelements( ElementInfo_t* const element, std::ifstream& ifs )
 {
     if( element == NULL )
     {
@@ -196,7 +195,7 @@ bool WLMatLib::MATReader::readArraySubelements( ElementInfo_t* const element, st
     ifs.seekg( 8, ifstream::cur );
     if( !ifs.good() )
     {
-        wlog::error( LIBNAME ) << "Could not jump to element: " << element->pos << "/" << info.fileSize;
+        wlog::error( LIBNAME ) << "Could not jump to element: " << element->pos;
         ifs.seekg( element->pos );
         return false;
     }
@@ -206,7 +205,7 @@ bool WLMatLib::MATReader::readArraySubelements( ElementInfo_t* const element, st
     std::streampos tagStart;
     // Read Array Flags //
     // ---------------- //
-    if( !readTagField( &type, &bytes, ifs, info ) )
+    if( !readTagField( &type, &bytes, ifs ) )
     {
         wlog::error( LIBNAME ) << "Could not read Array Flags!";
         return false;
@@ -254,7 +253,7 @@ bool WLMatLib::MATReader::readArraySubelements( ElementInfo_t* const element, st
     // Read Dimension //
     // -------------- //
     tagStart = ifs.tellg();
-    if( !readTagField( &type, &bytes, ifs, info ) )
+    if( !readTagField( &type, &bytes, ifs ) )
     {
         wlog::error( LIBNAME ) << "Could not read Dimension!";
         return false;
@@ -285,7 +284,7 @@ bool WLMatLib::MATReader::readArraySubelements( ElementInfo_t* const element, st
     // Read Array Name //
     // --------------- //
     tagStart = ifs.tellg();
-    if( !readTagField( &type, &bytes, ifs, info ) )
+    if( !readTagField( &type, &bytes, ifs ) )
     {
         wlog::error( LIBNAME ) << "Could not read Array Name!";
         return false;
@@ -322,7 +321,7 @@ bool WLMatLib::MATReader::readMatrixDouble( Eigen::MatrixXd* const matrix, const
         return false;
     }
 
-    if( info.fileSize <= element.posData )
+    if( info.fileSize <= static_cast< size_t >( element.posData ) )
     {
         wlog::error( LIBNAME ) << "Data position is beyond file end!";
         return false;
@@ -348,7 +347,7 @@ bool WLMatLib::MATReader::readMatrixDouble( Eigen::MatrixXd* const matrix, const
     ifs.seekg( element.posData );
     mDataType_t type;
     mNumBytes_t bytes;
-    if( !readTagField( &type, &bytes, ifs, info ) )
+    if( !readTagField( &type, &bytes, ifs ) )
     {
         wlog::error( LIBNAME ) << "Could not read Data Element!";
         ifs.seekg( pos );
