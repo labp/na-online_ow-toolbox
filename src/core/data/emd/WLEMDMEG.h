@@ -39,6 +39,9 @@
 
 #include "WLEMData.h"
 
+/**
+ * MEG data and related measurement information.
+ */
 class WLEMDMEG: public WLEMData
 {
 public:
@@ -193,25 +196,6 @@ private:
     mutable std::vector< size_t > m_picksMag; // mutable to reset the picks after a data change and lazy load.
     OW_API_DEPRECATED
     mutable std::vector< size_t > m_picksGrad; // mutable to reset the picks after a data change and lazy load.
-
-    /*
-     * member contains absolute position of channel with coordinate system in this position
-     * TODO(fuchs): Definition der Speicherung der Kanalpositionen und des zugehörig. Koord.-systems
-     *
-     * HPI
-     *
-     * number of coils used to track the head position
-     * uint8_t m_nrHpiCoils;
-     *
-     * name of corresponding HPI eventchannel
-     * std::string m_eventChanName;
-     *
-     *
-     * vector<Coils>
-     * Coils: uint8_t m_nr;
-     *        int32_t m_bitmask;
-     *        float m_freq;
-     */
 };
 
 inline WLEMEGGeneralCoilType::Enum WLEMDMEG::getChannelType( size_t channelId ) const
