@@ -41,6 +41,7 @@
 
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDMEG.h"
+#include "core/util/WLDefines.h"
 
 #include "WLEMDDrawable.h"
 #include "WLEMDDrawable2D.h"
@@ -137,6 +138,7 @@ osg::ref_ptr< osg::Geode > WLEMDDrawable2D::drawChannel( const WLEMData::Channel
 
 void WLEMDDrawable2D::osgNodeCallback( osg::NodeVisitor* nv )
 {
+    WL_UNUSED( nv );
     if( mustDraw() )
     {
         osgAddMarkLine();

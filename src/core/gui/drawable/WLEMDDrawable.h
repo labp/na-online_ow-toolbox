@@ -39,6 +39,7 @@
 
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/enum/WLEModality.h"
+#include "core/util/WLDefines.h"
 
 /**
  * An abstract class to draw EMD data into a widget.
@@ -233,6 +234,7 @@ private:
 
 inline void WLEMDDrawable::WLEMDDrawableCallbackDelegator::operator()( osg::Node* node, osg::NodeVisitor* nv )
 {
+    WL_UNUSED( node );
     if( m_drawable != NULL )
         m_drawable->osgNodeCallback( nv );
 }

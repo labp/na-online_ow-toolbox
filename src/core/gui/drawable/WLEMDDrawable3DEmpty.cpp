@@ -27,6 +27,7 @@
 
 #include <core/ui/WUIViewWidget.h>
 
+#include "core/util/WLDefines.h"
 #include "WLEMDDrawable3DEmpty.h"
 
 WLEMDDrawable3DEmpty::WLEMDDrawable3DEmpty( WUIViewWidget::SPtr widget ) :
@@ -45,6 +46,7 @@ WLEMDDrawable3DEmpty::~WLEMDDrawable3DEmpty()
 
 void WLEMDDrawable3DEmpty::draw( WLEMMeasurement::SPtr emm )
 {
+    WL_UNUSED( emm );
     redraw();
 }
 
@@ -66,7 +68,7 @@ void WLEMDDrawable3DEmpty::osgNodeCallback( osg::NodeVisitor* nv )
     const osg::Vec3 text_pos( x_pos, y_pos, z_pos );
     const osg::Vec4 text_color( 0.0, 0.0, 0.0, 1.0 );
 
-    osg::ref_ptr < osgText::Text > textDrawable = new osgText::Text;
+    osg::ref_ptr< osgText::Text > textDrawable = new osgText::Text;
     textDrawable->setText( text );
     textDrawable->setPosition( text_pos );
     textDrawable->setAlignment( osgText::Text::LEFT_CENTER );

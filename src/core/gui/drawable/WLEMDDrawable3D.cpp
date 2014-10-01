@@ -47,6 +47,7 @@
 
 #include "core/data/emd/WLEMDMEG.h"
 #include "core/gui/colorMap/WLColorMap.h"
+#include "core/util/WLDefines.h"
 
 #include "WLEMDDrawable.h"
 #include "WLEMDDrawable3DEEG.h"
@@ -129,6 +130,7 @@ void WLEMDDrawable3D::draw( WLEMMeasurement::SPtr emm )
 
 void WLEMDDrawable3D::osgNodeCallback( osg::NodeVisitor* nv )
 {
+    WL_UNUSED( nv );
     osgAddColorMap();
 
     m_colorMapChanged = false;

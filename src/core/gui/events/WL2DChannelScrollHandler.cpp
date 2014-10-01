@@ -25,6 +25,8 @@
 
 #include <core/common/WLogger.h>
 
+#include "core/util/WLDefines.h"
+
 #include "WL2DChannelScrollHandler.h"
 
 const std::string WL2DChannelScrollHandler::CLASS = "WL2DChannelScrollHandler";
@@ -41,6 +43,8 @@ WL2DChannelScrollHandler::~WL2DChannelScrollHandler()
 
 void WL2DChannelScrollHandler::handleScroll( GUIEvents::ScrollingMotion motion, float deltaX, float deltaY )
 {
+    WL_UNUSED( motion );
+    WL_UNUSED( deltaX );
     if( deltaY < 0.0 ) // down
     {
         const size_t channelNr = m_initiator->getChannelBegin();

@@ -21,36 +21,12 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
+#ifndef WLDEFINES_H_
+#define WLDEFINES_H_
 
-#include <core/common/WLogger.h>
+/**
+ * Define to switch warning about unused variable.
+ */
+#define WL_UNUSED( var ) ( void )var;
 
-#include "core/util/WLDefines.h"
-
-#include "WLResizeHandler.h"
-
-const std::string WLResizeHandler::CLASS = "WLResizeHandler";
-
-WLResizeHandler::WLResizeHandler( WLEMDDrawable::SPtr drawable ) :
-                WUIViewEventHandler( drawable->getWidget() ), m_drawable( drawable )
-{
-    m_preselection |= GUIEvents::RESIZE;
-}
-
-WLResizeHandler::~WLResizeHandler()
-{
-}
-
-void WLResizeHandler::handleResize( int xPos, int yPos, int width, int height )
-{
-    WL_UNUSED( xPos );
-    WL_UNUSED( yPos );
-    WL_UNUSED( width );
-    WL_UNUSED( height );
-    m_drawable->redraw();
-}
-
-void WLResizeHandler::setDrawable( WLEMDDrawable::SPtr drawable )
-{
-    m_drawable = drawable;
-}
+#endif  // WLDEFINES_H_
