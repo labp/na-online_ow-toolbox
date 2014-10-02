@@ -30,9 +30,9 @@
 #include <Eigen/Core>
 
 #include "core/data/WLDataTypes.h"
-#include "core/io/WLReader.h"
+#include "core/io/WLReaderGeneric.h"
 
-class WLReaderMatMab: public WLReader
+class WLReaderMatMab: public WLReaderGeneric< WLMatrix::SPtr >
 {
 public:
     static const std::string CLASS;
@@ -55,10 +55,10 @@ public:
     explicit WLReaderMatMab( std::string fname );
     virtual ~WLReaderMatMab();
 
-    ReturnCode::Enum read( WLMatrix::SPtr& matrix );
+    virtual WLIOStatus::IOStatusT read( WLMatrix::SPtr* const matrix );
 
 private:
-    ReturnCode::Enum readMab( WLMatrix::SPtr matrix, std::string fName, size_t rows, size_t cols );
+    WLIOStatus::IOStatusT readMab( WLMatrix::SPtr matrix, std::string fName, size_t rows, size_t cols );
 };
 
 #endif  // WLREADERMATMAB_H_

@@ -478,8 +478,8 @@ bool WLReaderExperiment::readLeadFieldMat( const std::string& fName, WLMatrix::S
     wlog::info( CLASS ) << "Read file: " << fName;
 
     WLReaderMatMab reader( fName );
-    WLReaderMatMab::ReturnCode::Enum rc = reader.read( matrix );
-    return rc == WLReaderMatMab::ReturnCode::SUCCESS;
+    WLIOStatus::IOStatusT rc = reader.read( &matrix );
+    return rc == WLIOStatus::SUCCESS;
 }
 
 bool WLReaderExperiment::readLeadFieldFiff( const std::string& fName, WLMatrix::SPtr& matrix )
