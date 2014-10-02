@@ -580,7 +580,7 @@ bool WMEmMeasurement::readElc( std::string fname )
         return false;
     }
 
-    if( elcReader->read( m_elcPositions3d, m_elcLabels, m_elcFaces ) == WLReaderELC::ReturnCode::SUCCESS )
+    if( elcReader->read( m_elcPositions3d.get(), m_elcLabels.get(), m_elcFaces.get() ) == WLIOStatus::SUCCESS )
     {
         m_elcChanLabelCount->set( m_elcLabels->size(), true );
         m_elcChanPositionCount->set( m_elcPositions3d->size(), true );

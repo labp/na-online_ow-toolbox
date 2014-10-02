@@ -32,11 +32,12 @@
 
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
+#include "core/dataHandler/io/WReader.h"
 
 #include "core/data/enum/WLEExponent.h"
-#include "core/io/WLReader.h"
+#include "core/io/WLIOStatus.h"
 
-class WLReaderELC: public WLReader
+class WLReaderELC: public WReader
 {
 public:
     static const std::string CLASS;
@@ -51,20 +52,18 @@ public:
     /**
      * Reads out a elc file. Positions are converted to millimeter, if necessary.
      */
-    ReturnCode::Enum read( boost::shared_ptr< std::vector< WPosition > > posOut,
-                    boost::shared_ptr< std::vector< std::string > > labelsOut,
-                    boost::shared_ptr< std::vector< WVector3i > > facesOut );
+    WLIOStatus::IOStatusT read( std::vector< WPosition >* const posOut, std::vector< std::string >* const labelsOut,
+                    std::vector< WVector3i >* const facesOut );
 
 private:
-    ReturnCode::Enum readUnit( std::string& line, WLEExponent::Enum& exp );
-    ReturnCode::Enum readNumPos( std::string& line, size_t& count );
-    ReturnCode::Enum readNumPoly( std::string& line, size_t& count );
-    ReturnCode::Enum readPositions( std::ifstream& ifs, size_t count, boost::shared_ptr< std::vector< WPosition > > posOut );
-    ReturnCode::Enum readLabels( std::ifstream& ifs, size_t count,
-                    boost::shared_ptr< std::vector< std::string > > labelsOut );
-    ReturnCode::Enum readPolygons( std::ifstream& ifs, size_t count, boost::shared_ptr< std::vector< WVector3i > > facesOut );
+    WLIOStatus::IOStatusT readUnit( WLEExponent::Enum* const exp, const std::string& line );
+    WLIOStatus::IOStatusT readNumPos( size_t* const count, const std::string& line );
+    WLIOStatus::IOStatusT readNumPoly( size_t* const count, const std::string& line );
+    WLIOStatus::IOStatusT readPositions( std::ifstream& ifs, size_t count, std::vector< WPosition >* const posOut );
+    WLIOStatus::IOStatusT readLabels( std::ifstream& ifs, size_t count, std::vector< std::string >* const labelsOut );
+    WLIOStatus::IOStatusT readPolygons( std::ifstream& ifs, size_t count, std::vector< WVector3i >* const facesOut );
 
-    void convertToMilli( boost::shared_ptr< std::vector< WPosition > > pos, WLEExponent::Enum& exp );
+    void convertToMilli( std::vector< WPosition >* const pos, WLEExponent::Enum exp );
 };
 
 #endif  // WLREADERELC_H_
