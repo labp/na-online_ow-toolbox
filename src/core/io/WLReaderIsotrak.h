@@ -24,6 +24,7 @@
 #ifndef WLREADERISOTRAK_H_
 #define WLREADERISOTRAK_H_
 
+#include <list>
 #include <string>
 
 #include <boost/shared_ptr.hpp>
@@ -32,9 +33,8 @@
 #include <fiff/fiff_dir_tree.h>
 #include <fiff/fiff_stream.h>
 
-#include "core/container/WLList.h"
 #include "core/data/WLDigPoint.h"
-#include "core/io/WLReader.h"
+#include "core/io/WLReaderGeneric.h"
 
 using namespace FIFFLIB;
 
@@ -43,7 +43,7 @@ using namespace FIFFLIB;
  *
  * WReaderNeuromagIsotrak supports big endian files only.
  */
-class WLReaderIsotrak
+class WLReaderIsotrak : public WLReaderGeneric< std::list< WLDigPoint > >
 {
 public:
     static const std::string CLASS; /**< The class name. */
@@ -82,19 +82,20 @@ public:
      * Reads the big endian Neuromag Isotrak file and fills the digitalization points.
      *
      * \param digPoints The list to fill.
-     * \return Returns true if the file was read successfully, oherwise false.
+     * \return Returns true if the file was read successfully, otherwise false.
      */
-    WLReader::ReturnCode::Enum read( WLList< WLDigPoint >::SPtr digPoints );
+    WLIOStatus::IOStatusT read( std::list< WLDigPoint >* const digPoints );
 
 protected:
     /**
      * Reads the digitalization points from the created FIFF directory tree.
      *
-     * \param p_Node The FIFF directory tree.
      * \param out The digitalization points list.
+     * \param p_Node The FIFF directory tree.
+     *
      * \return Returns true if the points were found, otherwise false.
      */
-    bool readDigPoints( const FiffDirTree& p_Node, WLList< WLDigPoint >::SPtr out );
+    bool readDigPoints( std::list< WLDigPoint >* const out, const FiffDirTree& p_Node );
 
     /**
      * Method to create a concrete DigPoint object.

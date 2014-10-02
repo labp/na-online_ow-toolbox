@@ -77,7 +77,7 @@ bool WFTChunkNeuromagIsotrak::process( const char* data, size_t size )
 
     WLReaderIsotrak::SPtr reader( new WLReaderIsotrak( data, size ) );
 
-    if( reader->read( m_digPoints ) != WLReader::ReturnCode::SUCCESS )
+    if( reader->read( m_digPoints.get() ) != WLIOStatus::SUCCESS )
     {
         wlog::error( CLASS ) << "Neuromag header file was not read.";
         return false;

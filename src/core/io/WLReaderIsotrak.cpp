@@ -48,17 +48,14 @@ using namespace FIFFLIB;
 
 const std::string WLReaderIsotrak::CLASS = "WReaderNeuromagIsotrak";
 
-WLReaderIsotrak::WLReaderIsotrak( std::string fname )
+WLReaderIsotrak::WLReaderIsotrak( std::string fname ) :
+                WLReaderGeneric< std::list< WLDigPoint > >( fname )
 {
-    if( !fileExists( fname ) )
-    {
-        throw WDHNoSuchFile( fname );
-    }
-
     m_stream.reset( new FiffStream( new QFile( QString::fromStdString( fname ) ) ) );
 }
 
-WLReaderIsotrak::WLReaderIsotrak( const char* data, size_t size )
+WLReaderIsotrak::WLReaderIsotrak( const char* data, size_t size ) :
+                WLReaderGeneric< std::list< WLDigPoint > >( std::string( data ) )
 {
     m_stream.reset( new FiffStream( new QBuffer( new QByteArray( data, size ) ) ) );
 }
@@ -67,7 +64,7 @@ WLReaderIsotrak::~WLReaderIsotrak()
 {
 }
 
-WLReader::ReturnCode::Enum WLReaderIsotrak::read( WLList< WLDigPoint >::SPtr digPoints )
+WLIOStatus::IOStatusT WLReaderIsotrak::read( std::list< WLDigPoint >* const digPoints )
 {
     digPoints->clear();
     FiffDirTree tree;
@@ -80,13 +77,13 @@ WLReader::ReturnCode::Enum WLReaderIsotrak::read( WLList< WLDigPoint >::SPtr dig
     else
     {
         wlog::debug( CLASS ) << "Stream not opened.";
-        return WLReader::ReturnCode::ERROR_FOPEN;
+        return WLIOStatus::ERROR_FOPEN;
     }
 
-    return readDigPoints( tree, digPoints ) ? WLReader::ReturnCode::SUCCESS : WLReader::ReturnCode::ERROR_FREAD;
+    return readDigPoints( digPoints, tree ) ? WLIOStatus::SUCCESS : WLIOStatus::ERROR_FREAD;
 }
 
-bool WLReaderIsotrak::readDigPoints( const FiffDirTree& p_Node, WLList< WLDigPoint >::SPtr out )
+bool WLReaderIsotrak::readDigPoints( std::list< WLDigPoint >* const out, const FiffDirTree& p_Node )
 {
     //
     //   Find the desired blocks

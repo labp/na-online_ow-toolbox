@@ -599,7 +599,7 @@ bool WMMneRtClient::handleDigPointsFileChanged( std::string fName )
         return false;
     }
 
-    if( reader->read( m_digPoints ) == WLReader::ReturnCode::SUCCESS )
+    if( reader->read( m_digPoints.get() ) == WLIOStatus::SUCCESS )
     {
         infoLog() << "Loaded dig points: " << m_digPoints->size();
         m_additionalStatus->set( DATA_LOADED, true );
