@@ -28,9 +28,9 @@
 #include <string>
 
 #include "core/data/WLEMMBemBoundary.h"
-#include "core/io/WLReader.h"
+#include "core/io/WLReaderGeneric.h"
 
-class WLReaderBND: public WLReader
+class WLReaderBND: public WLReaderGeneric< WLEMMBemBoundary::SPtr >
 {
 public:
     static const std::string CLASS;
@@ -42,15 +42,15 @@ public:
      */
     explicit WLReaderBND( std::string fname );
 
-    ReturnCode::Enum read( WLEMMBemBoundary::SPtr boundary );
+    virtual WLIOStatus::IOStatusT read( WLEMMBemBoundary::SPtr* const boundary );
 
 private:
-    ReturnCode::Enum readType( std::string& line, WLEMMBemBoundary::SPtr boundary );
-    ReturnCode::Enum readUnit( std::string& line, WLEMMBemBoundary::SPtr boundary );
-    ReturnCode::Enum readNumPos( std::string& line, size_t& count );
-    ReturnCode::Enum readNumPoly( std::string& line, size_t& count );
-    ReturnCode::Enum readPositions( std::ifstream& ifs, size_t count, WLEMMBemBoundary::SPtr boundary );
-    ReturnCode::Enum readPolygons( std::ifstream& ifs, size_t count, WLEMMBemBoundary::SPtr boundary );
+    WLIOStatus::IOStatusT readType( WLEMMBemBoundary::SPtr boundary, const std::string& line );
+    WLIOStatus::IOStatusT readUnit( WLEMMBemBoundary::SPtr boundary, const std::string& line );
+    WLIOStatus::IOStatusT readNumPos( size_t* const count, const std::string& line );
+    WLIOStatus::IOStatusT readNumPoly( size_t* const count, const std::string& line );
+    WLIOStatus::IOStatusT readPositions( std::ifstream& ifs, size_t count, WLEMMBemBoundary::SPtr boundary );
+    WLIOStatus::IOStatusT readPolygons( std::ifstream& ifs, size_t count, WLEMMBemBoundary::SPtr boundary );
 };
 
 #endif  // WLREADERBND_H_

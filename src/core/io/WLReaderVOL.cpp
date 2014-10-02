@@ -180,7 +180,7 @@ WLIOStatus::IOStatusT WLReaderVOL::readBndFiles( std::ifstream& ifs, string* con
         vector< string > tokens = string_utils::tokenize( *line );
         string fname = tokens.at( 1 );
         WLReaderBND reader( path + fname );
-        if( reader.read( *bit ) != WLReaderBND::ReturnCode::SUCCESS )
+        if( reader.read( &( *bit ) ) != WLIOStatus::SUCCESS )
         {
             wlog::error( CLASS ) << "Error while reading " << fname;
         }

@@ -51,78 +51,78 @@ using std::vector;
 const std::string WLReaderBND::CLASS = "WLReaderBND";
 
 WLReaderBND::WLReaderBND( std::string fname ) :
-                WLReader( fname )
+                WLReaderGeneric< WLEMMBemBoundary::SPtr >( fname )
 {
     wlog::debug( CLASS ) << "file: " << fname;
 }
 
-WLReaderBND::ReturnCode::Enum WLReaderBND::read( WLEMMBemBoundary::SPtr boundary )
+WLIOStatus::IOStatusT WLReaderBND::read( WLEMMBemBoundary::SPtr* const boundary )
 {
     ifstream ifs;
     ifs.open( m_fname.c_str(), ifstream::in );
 
     if( !ifs || ifs.bad() )
     {
-        return ReturnCode::ERROR_FOPEN;
+        return WLIOStatus::ERROR_FOPEN;
     }
 
     string line;
     size_t countPos = 0, countPoly = 0;
     bool hasPos = false, hasFaces = false;
-    ReturnCode::Enum rc = ReturnCode::ERROR_UNKNOWN;
+    WLIOStatus::IOStatusT rc = WLIOStatus::ERROR_UNKNOWN;
     try
     {
         while( getline( ifs, line ) && ( !hasPos || !hasFaces ) )
         {
             if( line.find( "UnitPosition" ) == 0 )
             {
-                rc = readUnit( line, boundary );
+                rc = readUnit( *boundary, line );
             }
             else
                 if( line.find( "NumberPositions=" ) == 0 )
                 {
-                    rc = readNumPos( line, countPos );
+                    rc = readNumPos( &countPos, line );
                 }
                 else
                     if( line.find( "Positions" ) == 0 )
                     {
-                        rc = readPositions( ifs, countPos, boundary );
+                        rc = readPositions( ifs, countPos, *boundary );
                         hasPos = true;
                     }
                     else
                         if( line.find( "NumberPolygons=" ) == 0 )
                         {
-                            rc = readNumPoly( line, countPoly );
+                            rc = readNumPoly( &countPoly, line );
                         }
                         else
                             if( line.find( "Polygons" ) == 0 )
                             {
-                                rc = readPolygons( ifs, countPoly, boundary );
+                                rc = readPolygons( ifs, countPoly, *boundary );
                             }
                             else
                                 if( line.find( "Type=" ) == 0 )
                                 {
-                                    rc = readType( line, boundary );
+                                    rc = readType( *boundary, line );
                                 }
         }
     }
     catch( WTypeMismatch& e )
     {
         wlog::error( CLASS ) << e.what();
-        rc = ReturnCode::ERROR_UNKNOWN;
+        rc = WLIOStatus::ERROR_UNKNOWN;
     }
 
-    if( boundary->getFaces()->empty() )
+    if( ( *boundary )->getFaces()->empty() )
     {
         wlog::warn( "WReaderBND" ) << "No faces found! Faces will be generated.";
-        WLGeometry::computeTriangulation( boundary->getFaces().get(), *boundary->getVertex() );
+        WLGeometry::computeTriangulation( ( *boundary )->getFaces().get(), *( *boundary )->getVertex() );
     }
 
     ifs.close();
     return rc;
 }
 
-WLReaderBND::ReturnCode::Enum WLReaderBND::readType( string& line, WLEMMBemBoundary::SPtr boundary )
+WLIOStatus::IOStatusT WLReaderBND::readType( WLEMMBemBoundary::SPtr boundary, const string& line )
 {
     vector< string > tokens = string_utils::tokenize( line );
     string type = tokens.at( 1 );
@@ -131,16 +131,16 @@ WLReaderBND::ReturnCode::Enum WLReaderBND::readType( string& line, WLEMMBemBound
     if( bem != WLEBemType::UNKNOWN )
     {
         boundary->setBemType( bem );
-        return ReturnCode::SUCCESS;
+        return WLIOStatus::SUCCESS;
     }
     else
     {
         wlog::error( CLASS ) << "Unknown BEM type.";
-        return ReturnCode::ERROR_UNKNOWN;
+        return WLIOStatus::ERROR_UNKNOWN;
     }
 }
 
-WLReaderBND::ReturnCode::Enum WLReaderBND::readUnit( string& line, WLEMMBemBoundary::SPtr boundary )
+WLIOStatus::IOStatusT WLReaderBND::readUnit( WLEMMBemBoundary::SPtr boundary, const string& line )
 {
     vector< string > tokens = string_utils::tokenize( line );
     string unit = tokens.at( 1 );
@@ -149,32 +149,32 @@ WLReaderBND::ReturnCode::Enum WLReaderBND::readUnit( string& line, WLEMMBemBound
     {
         boundary->setVertexUnit( WLEUnit::METER );
         boundary->setVertexExponent( WLEExponent::MILLI );
-        return ReturnCode::SUCCESS;
+        return WLIOStatus::SUCCESS;
     }
     else
     {
         wlog::warn( CLASS ) << "Unknown unit.";
-        return ReturnCode::ERROR_UNKNOWN;
+        return WLIOStatus::ERROR_UNKNOWN;
     }
 }
 
-WLReaderBND::ReturnCode::Enum WLReaderBND::readNumPos( string& line, size_t& count )
+WLIOStatus::IOStatusT WLReaderBND::readNumPos( size_t* const count, const string& line )
 {
     vector< string > tokens = string_utils::tokenize( line );
-    count = string_utils::fromString< size_t >( tokens.at( 1 ) );
-    wlog::debug( CLASS ) << "Number of positions: " << count;
-    return ReturnCode::SUCCESS;
+    *count = string_utils::fromString< size_t >( tokens.at( 1 ) );
+    wlog::debug( CLASS ) << "Number of positions: " << *count;
+    return WLIOStatus::SUCCESS;
 }
 
-WLReaderBND::ReturnCode::Enum WLReaderBND::readNumPoly( string& line, size_t& count )
+WLIOStatus::IOStatusT WLReaderBND::readNumPoly( size_t* const count, const string& line )
 {
     vector< string > tokens = string_utils::tokenize( line );
-    count = string_utils::fromString< size_t >( tokens.at( 1 ) );
-    wlog::debug( CLASS ) << "Number of polygons: " << count;
-    return ReturnCode::SUCCESS;
+    *count = string_utils::fromString< size_t >( tokens.at( 1 ) );
+    wlog::debug( CLASS ) << "Number of polygons: " << *count;
+    return WLIOStatus::SUCCESS;
 }
 
-WLReaderBND::ReturnCode::Enum WLReaderBND::readPositions( ifstream& ifs, size_t count, WLEMMBemBoundary::SPtr boundary )
+WLIOStatus::IOStatusT WLReaderBND::readPositions( ifstream& ifs, size_t count, WLEMMBemBoundary::SPtr boundary )
 {
     WLArrayList< WPosition >::SPtr pos( new WLArrayList< WPosition >() );
     pos->reserve( count );
@@ -192,14 +192,14 @@ WLReaderBND::ReturnCode::Enum WLReaderBND::readPositions( ifstream& ifs, size_t 
     }
     if( pos->size() < count )
     {
-        return ReturnCode::ERROR_FREAD;
+        return WLIOStatus::ERROR_FREAD;
     }
     boundary->setVertex( pos );
 
-    return ReturnCode::SUCCESS;
+    return WLIOStatus::SUCCESS;
 }
 
-WLReaderBND::ReturnCode::Enum WLReaderBND::readPolygons( ifstream& ifs, size_t count, WLEMMBemBoundary::SPtr surface )
+WLIOStatus::IOStatusT WLReaderBND::readPolygons( ifstream& ifs, size_t count, WLEMMBemBoundary::SPtr surface )
 {
     WLArrayList< WVector3i >::SPtr faces( new WLArrayList< WVector3i >() );
     faces->reserve( count );
@@ -217,9 +217,9 @@ WLReaderBND::ReturnCode::Enum WLReaderBND::readPolygons( ifstream& ifs, size_t c
     }
     if( faces->size() < count )
     {
-        return ReturnCode::ERROR_FREAD;
+        return WLIOStatus::ERROR_FREAD;
     }
     surface->setFaces( faces );
 
-    return ReturnCode::SUCCESS;
+    return WLIOStatus::SUCCESS;
 }
