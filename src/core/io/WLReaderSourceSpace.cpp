@@ -56,7 +56,7 @@ WLReaderSourceSpace::~WLReaderSourceSpace()
 {
 }
 
-WLIOStatus::ioStatus_t WLReaderSourceSpace::read( WLEMMSurface::SPtr& surface )
+WLIOStatus::IOStatusT WLReaderSourceSpace::read( WLEMMSurface::SPtr& surface )
 {
     // Reading MNE type
     QFile file( m_fname.c_str() );

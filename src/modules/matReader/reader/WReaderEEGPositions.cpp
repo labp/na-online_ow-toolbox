@@ -49,7 +49,7 @@ WReaderEEGPositions::~WReaderEEGPositions()
 {
 }
 
-WLIOStatus::ioStatus_t WReaderEEGPositions::read( boost::shared_ptr< std::vector< WPosition > >& positions )
+WLIOStatus::IOStatusT WReaderEEGPositions::read( boost::shared_ptr< std::vector< WPosition > >& positions )
 {
     QFile file( QString::fromStdString( m_fname ) );
 

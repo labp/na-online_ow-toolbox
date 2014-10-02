@@ -27,7 +27,7 @@
 
 #include "WLIOStatus.h"
 
-std::string WLIOStatus::description( ioStatus_t statusCode )
+std::string WLIOStatus::description( IOStatusT statusCode )
 {
     switch( statusCode )
     {
@@ -59,7 +59,7 @@ WLIOStatus::WLIOStatusInterpreter::~WLIOStatusInterpreter()
 {
 }
 
-std::string WLIOStatus::WLIOStatusInterpreter::getIOStatusDescription( WLIOStatus::ioStatus_t status )
+std::string WLIOStatus::WLIOStatusInterpreter::getIOStatusDescription( WLIOStatus::IOStatusT status )
 {
     return WLIOStatus::description( status );
 }

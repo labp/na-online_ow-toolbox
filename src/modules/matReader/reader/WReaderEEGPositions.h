@@ -55,7 +55,7 @@ public:
 
     virtual ~WReaderEEGPositions();
 
-    WLIOStatus::ioStatus_t read( boost::shared_ptr< std::vector< WPosition > >& positions );
+    WLIOStatus::IOStatusT read( boost::shared_ptr< std::vector< WPosition > >& positions );
 };
 
 #endif  // WREADEREEGPOSITIONS_H_

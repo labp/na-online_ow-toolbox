@@ -33,15 +33,15 @@
  */
 namespace WLIOStatus
 {
-    typedef char ioStatus_t;
+    typedef char IOStatusT;
 
-    const ioStatus_t _USER_OFFSET = 64; /**< Offset for user defined (reader/writer) status codes. */
+    const IOStatusT _USER_OFFSET = 64; /**< Offset for user defined (reader/writer) status codes. */
 
-    const ioStatus_t SUCCESS = 0;
-    const ioStatus_t ERROR_UNKNOWN = 1; /**< Unknown error */
-    const ioStatus_t ERROR_FOPEN = 2; /**< Error opening file */
-    const ioStatus_t ERROR_FREAD = 3; /**< File read error */
-    const ioStatus_t ERROR_FWRITE = 4; /**< File write error */
+    const IOStatusT SUCCESS = 0; /**< I/O operation successful. */
+    const IOStatusT ERROR_UNKNOWN = 1; /**< Unknown error */
+    const IOStatusT ERROR_FOPEN = 2; /**< Error opening file */
+    const IOStatusT ERROR_FREAD = 3; /**< File read error */
+    const IOStatusT ERROR_FWRITE = 4; /**< File write error */
 
     /**
      * Returns a description for a status code.
@@ -50,7 +50,7 @@ namespace WLIOStatus
      *
      * \return Description for status code.
      */
-    std::string description( ioStatus_t statusCode );
+    std::string description( IOStatusT statusCode );
 
     /**
      * Provides an interface for user-defined status codes, e.g. for reader and writer.
@@ -68,7 +68,7 @@ namespace WLIOStatus
          *
          * \return Description for status code.
          */
-        virtual std::string getIOStatusDescription( WLIOStatus::ioStatus_t status );
+        virtual std::string getIOStatusDescription( WLIOStatus::IOStatusT status );
 
     protected:
         WLIOStatusInterpreter();

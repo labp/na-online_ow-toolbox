@@ -43,7 +43,7 @@ WLReaderLeadfield::~WLReaderLeadfield()
 {
 }
 
-WLIOStatus::ioStatus_t WLReaderLeadfield::read( WLMatrix::SPtr& leadfield )
+WLIOStatus::IOStatusT WLReaderLeadfield::read( WLMatrix::SPtr& leadfield )
 {
     QFile fileIn( m_fname.c_str() );
 

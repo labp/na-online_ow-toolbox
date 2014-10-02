@@ -46,7 +46,7 @@ WLReaderMAT::~WLReaderMAT()
     close();
 }
 
-WLIOStatus::ioStatus_t WLReaderMAT::init()
+WLIOStatus::IOStatusT WLReaderMAT::init()
 {
     if( m_isInitialized && m_ifs.is_open() )
     {
@@ -89,18 +89,18 @@ void WLReaderMAT::close()
     }
 }
 
-WLIOStatus::ioStatus_t WLReaderMAT::readMatrix( WLMatrix::SPtr& matrix )
+WLIOStatus::IOStatusT WLReaderMAT::readMatrix( WLMatrix::SPtr& matrix )
 {
     if( !m_isInitialized )
     {
-        WLIOStatus::ioStatus_t state = init();
+        WLIOStatus::IOStatusT state = init();
         if( state != WLIOStatus::SUCCESS )
         {
             return state;
         }
     }
 
-    WLIOStatus::ioStatus_t rc = WLIOStatus::ERROR_UNKNOWN;
+    WLIOStatus::IOStatusT rc = WLIOStatus::ERROR_UNKNOWN;
     std::list< WLMatLib::ElementInfo_t >::const_iterator it;
     for( it = m_elements.begin(); it != m_elements.end(); ++it )
     {

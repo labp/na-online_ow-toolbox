@@ -51,7 +51,7 @@ public:
     explicit WLReaderLeadfield( std::string fname ) throw( WDHNoSuchFile );
     virtual ~WLReaderLeadfield();
 
-    WLIOStatus::ioStatus_t read( WLMatrix::SPtr& leadfield );
+    WLIOStatus::IOStatusT read( WLMatrix::SPtr& leadfield );
 };
 
 #endif  // WLREADERLEADFIELD_H_

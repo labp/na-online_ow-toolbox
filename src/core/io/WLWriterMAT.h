@@ -62,7 +62,7 @@ public:
      *
      * \return SUCCESS, if successful.
      */
-    WLIOStatus::ioStatus_t init();
+    WLIOStatus::IOStatusT init();
 
     /**
      * Writes a matrix to a file.
@@ -72,9 +72,9 @@ public:
      *
      * \return SUCCESS, if successful.
      */
-    WLIOStatus::ioStatus_t writeMatrix( WLMatrix::ConstSPtr matrix, const std::string& name = "M" );
+    WLIOStatus::IOStatusT writeMatrix( WLMatrix::ConstSPtr matrix, const std::string& name = "M" );
 
-    WLIOStatus::ioStatus_t writeMatrix( const WLMatrix::MatrixT& matrix, const std::string& name = "M" );
+    WLIOStatus::IOStatusT writeMatrix( const WLMatrix::MatrixT& matrix, const std::string& name = "M" );
 
     /**
      * Closes the output stream.

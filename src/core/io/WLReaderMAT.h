@@ -66,7 +66,7 @@ public:
      *
      * \return SUCCESS, if successful.
      */
-    WLIOStatus::ioStatus_t init();
+    WLIOStatus::IOStatusT init();
 
     /**
      * Reads the first matrix from the file which matchs the data type.
@@ -75,7 +75,7 @@ public:
      *
      * \return SUCCESS, if successful.
      */
-    WLIOStatus::ioStatus_t readMatrix( WLMatrix::SPtr& matrix );
+    WLIOStatus::IOStatusT readMatrix( WLMatrix::SPtr& matrix );
 
     /**
      * Closes the input stream.

@@ -48,7 +48,7 @@ WLWriterMAT::~WLWriterMAT()
     close();
 }
 
-WLIOStatus::ioStatus_t WLWriterMAT::init()
+WLIOStatus::IOStatusT WLWriterMAT::init()
 {
     if( m_isInitialized && m_ofs.is_open() )
     {
@@ -87,16 +87,16 @@ WLIOStatus::ioStatus_t WLWriterMAT::init()
     }
 }
 
-WLIOStatus::ioStatus_t WLWriterMAT::writeMatrix( WLMatrix::ConstSPtr matrix, const std::string& name )
+WLIOStatus::IOStatusT WLWriterMAT::writeMatrix( WLMatrix::ConstSPtr matrix, const std::string& name )
 {
     return writeMatrix( *matrix, name );
 }
 
-WLIOStatus::ioStatus_t WLWriterMAT::writeMatrix( const WLMatrix::MatrixT& matrix, const std::string& name )
+WLIOStatus::IOStatusT WLWriterMAT::writeMatrix( const WLMatrix::MatrixT& matrix, const std::string& name )
 {
     if( !m_isInitialized )
     {
-        WLIOStatus::ioStatus_t state = init();
+        WLIOStatus::IOStatusT state = init();
         if( state != WLIOStatus::SUCCESS )
         {
             return state;

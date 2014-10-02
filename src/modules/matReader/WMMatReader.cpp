@@ -257,7 +257,7 @@ bool WMMatReader::handleMatFileChanged()
         return false;
     }
 
-    WLIOStatus::ioStatus_t status;
+    WLIOStatus::IOStatusT status;
     status = reader->init();
     if( status != WLIOStatus::SUCCESS )
     {
@@ -344,7 +344,7 @@ bool WMMatReader::handleLfFileChanged()
         return false;
     }
 
-    WLIOStatus::ioStatus_t state = reader->read( m_leadfield );
+    WLIOStatus::IOStatusT state = reader->read( m_leadfield );
     if( state == WLIOStatus::SUCCESS )
     {
         infoLog() << SUCCESS_READ << " (Leadfield)";
@@ -371,7 +371,7 @@ bool WMMatReader::handleSurfaceFileChanged()
         return false;
     }
 
-    WLIOStatus::ioStatus_t state = reader->read( m_surface );
+    WLIOStatus::IOStatusT state = reader->read( m_surface );
     if( state == WLIOStatus::SUCCESS )
     {
         infoLog() << SUCCESS_READ << " (Source Space)";
