@@ -84,7 +84,7 @@ public:
      * \param digPoints The list to fill.
      * \return Returns true if the file was read successfully, otherwise false.
      */
-    WLIOStatus::IOStatusT read( std::list< WLDigPoint >* const digPoints );
+    virtual WLIOStatus::IOStatusT read( std::list< WLDigPoint >* const digPoints );
 
 protected:
     /**
