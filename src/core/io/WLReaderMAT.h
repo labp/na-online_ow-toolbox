@@ -31,19 +31,18 @@
 #include <boost/shared_ptr.hpp>
 
 #include <core/dataHandler/exceptions/WDHNoSuchFile.h>
-#include <core/dataHandler/io/WReader.h>
 
 #include "core/data/WLDataTypes.h"
 #include "core/dataFormat/mat/WLMatLib.h"
-
 #include "WLIOStatus.h"
+#include "WLReaderGeneric.h"
 
 /**
  * Reads a matrix from a MATLAB MAT-file.
  *
  * \author pieloth
  */
-class WLReaderMAT: public WReader, public WLIOStatus::WLIOStatusInterpreter
+class WLReaderMAT: public WLReaderGeneric< WLMatrix::SPtr >
 {
 public:
     const static std::string CLASS;
@@ -75,12 +74,9 @@ public:
      *
      * \return SUCCESS, if successful.
      */
-    WLIOStatus::IOStatusT readMatrix( WLMatrix::SPtr& matrix );
+    virtual WLIOStatus::IOStatusT read( WLMatrix::SPtr* const matrix );
 
-    /**
-     * Closes the input stream.
-     */
-    void close();
+    virtual void close();
 
 private:
     std::ifstream m_ifs;

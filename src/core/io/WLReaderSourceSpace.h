@@ -28,12 +28,10 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <core/dataHandler/io/WReader.h>
-
 #include "core/data/WLEMMSurface.h"
-#include "core/io/WLIOStatus.h"
+#include "core/io/WLReaderGeneric.h"
 
-class WLReaderSourceSpace: public WReader, public WLIOStatus::WLIOStatusInterpreter
+class WLReaderSourceSpace: public WLReaderGeneric< WLEMMSurface::SPtr >
 {
 public:
     static const std::string CLASS;
@@ -51,7 +49,7 @@ public:
     explicit WLReaderSourceSpace( std::string fname ) throw( WDHNoSuchFile );
     virtual ~WLReaderSourceSpace();
 
-    WLIOStatus::IOStatusT read( WLEMMSurface::SPtr& surface );
+    virtual WLIOStatus::IOStatusT read( WLEMMSurface::SPtr* const surface );
 };
 
 #endif  // WLREADERSOURCESPACE_H_

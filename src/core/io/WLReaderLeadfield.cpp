@@ -35,7 +35,7 @@ using std::string;
 const std::string WLReaderLeadfield::CLASS = "WLReaderLeadfield";
 
 WLReaderLeadfield::WLReaderLeadfield( string fname ) throw( WDHNoSuchFile ) :
-                WReader( fname )
+                WLReaderGeneric< WLMatrix::SPtr >( fname )
 {
 }
 
@@ -43,7 +43,7 @@ WLReaderLeadfield::~WLReaderLeadfield()
 {
 }
 
-WLIOStatus::IOStatusT WLReaderLeadfield::read( WLMatrix::SPtr& leadfield )
+WLIOStatus::IOStatusT WLReaderLeadfield::read( WLMatrix::SPtr* const leadfield )
 {
     QFile fileIn( m_fname.c_str() );
 
@@ -59,7 +59,7 @@ WLIOStatus::IOStatusT WLReaderLeadfield::read( WLMatrix::SPtr& leadfield )
 #else
     WLMatrix::MatrixT* matrix = new WLMatrix::MatrixT( fwdSolution->sol->data );
 #endif  // LABP_FLOAT_COMPUTATION
-    leadfield.reset( matrix );
-    wlog::info( CLASS ) << "Matrix size: " << leadfield->rows() << "x" << leadfield->cols();
+    leadfield->reset( matrix );
+    wlog::info( CLASS ) << "Matrix size: " << matrix->rows() << "x" << matrix->cols();
     return WLIOStatus::SUCCESS;
 }

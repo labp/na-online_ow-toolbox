@@ -21,35 +21,4 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLREADERLEADFIELD_H_
-#define WLREADERLEADFIELD_H_
-
-#include <string>
-
-#include <boost/shared_ptr.hpp>
-
-#include "core/data/WLDataTypes.h"
-#include "core/io/WLReaderGeneric.h"
-
-class WLReaderLeadfield: public WLReaderGeneric< WLMatrix::SPtr >
-{
-public:
-    static const std::string CLASS;
-
-    /**
-     * Shared pointer abbreviation to a instance of this class.
-     */
-    typedef boost::shared_ptr< WLReaderLeadfield > SPtr;
-
-    /**
-     * Shared pointer abbreviation to a const instance of this class.
-     */
-    typedef boost::shared_ptr< const WLReaderLeadfield > ConstSPtr;
-
-    explicit WLReaderLeadfield( std::string fname ) throw( WDHNoSuchFile );
-    virtual ~WLReaderLeadfield();
-
-    virtual WLIOStatus::IOStatusT read( WLMatrix::SPtr* const leadfield );
-};
-
-#endif  // WLREADERLEADFIELD_H_
+#include "WLReaderGeneric.h"

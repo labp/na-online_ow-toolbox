@@ -89,7 +89,7 @@ void WMMatReader::connectors()
     WModule::connectors();
 
     m_output = WLModuleOutputDataCollectionable< WLEMMCommand >::instance( shared_from_this(),
-                        WLConstantsModule::CONNECTOR_NAME_OUT, WLConstantsModule::CONNECTOR_DESCR_OUT );
+                    WLConstantsModule::CONNECTOR_NAME_OUT, WLConstantsModule::CONNECTOR_DESCR_OUT );
     addConnector( m_output );
 }
 
@@ -218,7 +218,6 @@ bool WMMatReader::handleSensorFileChanged()
 {
     const std::string fName = m_propSensorFile->get().string();
     infoLog() << "Start reading file: " << fName;
-    m_sensorPos.reset();
 
     WReaderEEGPositions::SPtr reader;
     try
@@ -231,7 +230,8 @@ bool WMMatReader::handleSensorFileChanged()
         return false;
     }
 
-    if( reader->read( m_sensorPos ) != WLIOStatus::SUCCESS )
+    m_sensorPos.reset( new std::vector< WPosition > );
+    if( reader->read( m_sensorPos.get() ) != WLIOStatus::SUCCESS )
     {
         errorLog() << ERROR_READ << " (Sensor Positions)";
         return false;
@@ -261,15 +261,15 @@ bool WMMatReader::handleMatFileChanged()
     status = reader->init();
     if( status != WLIOStatus::SUCCESS )
     {
-        errorLog() << reader->getIOStatusDescription( status );
+        errorLog() << WLIOStatus::description( status );
         return false;
     }
 
     m_matrix.reset();
-    status = reader->readMatrix( m_matrix );
+    status = reader->read( &m_matrix );
     if( status != WLIOStatus::SUCCESS )
     {
-        errorLog() << reader->getIOStatusDescription( status );
+        errorLog() << WLIOStatus::description( status );
         return false;
     }
     reader->close();
@@ -344,7 +344,7 @@ bool WMMatReader::handleLfFileChanged()
         return false;
     }
 
-    WLIOStatus::IOStatusT state = reader->read( m_leadfield );
+    WLIOStatus::IOStatusT state = reader->read( &m_leadfield );
     if( state == WLIOStatus::SUCCESS )
     {
         infoLog() << SUCCESS_READ << " (Leadfield)";
@@ -352,7 +352,7 @@ bool WMMatReader::handleLfFileChanged()
     }
     else
     {
-        errorLog() << reader->getIOStatusDescription( state );
+        errorLog() << WLIOStatus::description( state );
         return false;
     }
 }
@@ -371,7 +371,7 @@ bool WMMatReader::handleSurfaceFileChanged()
         return false;
     }
 
-    WLIOStatus::IOStatusT state = reader->read( m_surface );
+    WLIOStatus::IOStatusT state = reader->read( &m_surface );
     if( state == WLIOStatus::SUCCESS )
     {
         infoLog() << SUCCESS_READ << " (Source Space)";
@@ -379,7 +379,7 @@ bool WMMatReader::handleSurfaceFileChanged()
     }
     else
     {
-        errorLog() << reader->getIOStatusDescription( state );
+        errorLog() << WLIOStatus::description( state );
         return false;
     }
 }

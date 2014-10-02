@@ -41,7 +41,7 @@ using namespace FIFFLIB;
 const std::string WReaderEEGPositions::CLASS = "WReaderEEGPositions";
 
 WReaderEEGPositions::WReaderEEGPositions( std::string fname ) throw( WDHNoSuchFile ) :
-                WReader( fname )
+                WLReaderGeneric< std::vector< WPosition > >( fname )
 {
 }
 
@@ -49,7 +49,7 @@ WReaderEEGPositions::~WReaderEEGPositions()
 {
 }
 
-WLIOStatus::IOStatusT WReaderEEGPositions::read( boost::shared_ptr< std::vector< WPosition > >& positions )
+WLIOStatus::IOStatusT WReaderEEGPositions::read( std::vector< WPosition >* const positions )
 {
     QFile file( QString::fromStdString( m_fname ) );
 
@@ -101,7 +101,7 @@ WLIOStatus::IOStatusT WReaderEEGPositions::read( boost::shared_ptr< std::vector<
         fiffChInfos.append( tag->toChInfo() );
     }
 
-    positions.reset( new std::vector< WPosition > );
+    positions->clear();
     QList< FiffChInfo >::Iterator itChInfo;
     size_t skipped = 0;
     for( itChInfo = fiffChInfos.begin(); itChInfo != fiffChInfos.end(); ++itChInfo )

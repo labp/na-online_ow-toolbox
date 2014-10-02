@@ -21,35 +21,57 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLREADERLEADFIELD_H_
-#define WLREADERLEADFIELD_H_
+#ifndef WLREADERGENERIC_H_
+#define WLREADERGENERIC_H_
 
 #include <string>
 
-#include <boost/shared_ptr.hpp>
+#include <core/dataHandler/io/WReader.h>
 
-#include "core/data/WLDataTypes.h"
-#include "core/io/WLReaderGeneric.h"
+#include "core/io/WLIOStatus.h"
 
-class WLReaderLeadfield: public WLReaderGeneric< WLMatrix::SPtr >
+/**
+ * Generic interface/abstract class for a uniform file reader.
+ *
+ * \author pieloth
+ */
+template< typename T >
+class WLReaderGeneric: public WReader
 {
 public:
-    static const std::string CLASS;
+    explicit WLReaderGeneric( std::string fname );
+
+    virtual ~WLReaderGeneric();
 
     /**
-     * Shared pointer abbreviation to a instance of this class.
+     * Reads the data into out.
+     *
+     * \param out Instance to set read data.
+     * \return WLIOStatus::SUCCESS if data was read successfully.
      */
-    typedef boost::shared_ptr< WLReaderLeadfield > SPtr;
+    virtual WLIOStatus::IOStatusT read( T* const out ) = 0;
 
     /**
-     * Shared pointer abbreviation to a const instance of this class.
+     * Closes streams, releases handles and more.
      */
-    typedef boost::shared_ptr< const WLReaderLeadfield > ConstSPtr;
-
-    explicit WLReaderLeadfield( std::string fname ) throw( WDHNoSuchFile );
-    virtual ~WLReaderLeadfield();
-
-    virtual WLIOStatus::IOStatusT read( WLMatrix::SPtr* const leadfield );
+    virtual void close();
 };
 
-#endif  // WLREADERLEADFIELD_H_
+template< typename T >
+WLReaderGeneric< T >::WLReaderGeneric( std::string fname ) :
+                WReader( fname )
+{
+}
+
+template< typename T >
+WLReaderGeneric< T >::~WLReaderGeneric()
+{
+    close();
+}
+
+template< typename T >
+void WLReaderGeneric< T >::close()
+{
+}
+
+#endif  // WLREADERGENERIC_H_

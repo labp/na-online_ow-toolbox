@@ -481,7 +481,7 @@ bool WMMneRtClient::handleLfFileChanged( std::string fName, WLMatrix::SPtr& lf )
         return false;
     }
 
-    if( reader->read( lf ) == WLIOStatus::SUCCESS )
+    if( reader->read( &lf ) == WLIOStatus::SUCCESS )
     {
         m_additionalStatus->set( DATA_LOADED, true );
         progress->finish();
@@ -520,7 +520,7 @@ bool WMMneRtClient::handleSurfaceFileChanged( std::string fName )
     }
 
     m_surface.reset( new WLEMMSurface() );
-    if( reader->read( m_surface ) == WLIOStatus::SUCCESS )
+    if( reader->read( &m_surface ) == WLIOStatus::SUCCESS )
     {
         m_additionalStatus->set( DATA_LOADED, true );
         progress->finish();

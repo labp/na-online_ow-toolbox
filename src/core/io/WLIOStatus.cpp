@@ -42,12 +42,13 @@ std::string WLIOStatus::description( IOStatusT statusCode )
         case ERROR_UNKNOWN:
             return "Unknown error occurred!";
         case _USER_OFFSET:
-            wlog::warn( "WLIOStatus" )
-                            << "This is not a I/ status code - this constant should be user for user-defined status codes!";
-            return "This is not a I/ status code - this constant should be user for user-defined status codes!";
+            const std::string desc = "This is not a I/ status code - this constant should be user for user-defined status codes!";
+            wlog::warn( "WLIOStatus" ) << desc;
+            return desc;
         default:
-            wlog::warn( "WLIOStatus" ) << "Unknown I/O status code!";
-            return "Unknown I/O status code!";
+            const std::string desc = "Unknown I/O status code!";
+            wlog::warn( "WLIOStatus" ) << desc;
+            return desc;
     }
 }
 

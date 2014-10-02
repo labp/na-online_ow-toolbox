@@ -48,7 +48,7 @@ using namespace MNELIB;
 const std::string WLReaderSourceSpace::CLASS = "WLReaderSourceSpace";
 
 WLReaderSourceSpace::WLReaderSourceSpace( std::string fname ) throw( WDHNoSuchFile ) :
-                WReader( fname )
+                WLReaderGeneric< WLEMMSurface::SPtr >( fname )
 {
 }
 
@@ -56,7 +56,7 @@ WLReaderSourceSpace::~WLReaderSourceSpace()
 {
 }
 
-WLIOStatus::IOStatusT WLReaderSourceSpace::read( WLEMMSurface::SPtr& surface )
+WLIOStatus::IOStatusT WLReaderSourceSpace::read( WLEMMSurface::SPtr* const surface )
 {
     // Reading MNE type
     QFile file( m_fname.c_str() );
@@ -100,15 +100,16 @@ WLIOStatus::IOStatusT WLReaderSourceSpace::read( WLEMMSurface::SPtr& surface )
         return WLIOStatus::ERROR_UNKNOWN;
     }
 
-    if( !surface )
+    if( !( *surface ) )
     {
         wlog::debug( CLASS ) << "No surface instance! Creating a new one.";
-        surface.reset( new WLEMMSurface() );
+        surface->reset( new WLEMMSurface() );
     }
+    WLEMMSurface* const pSurface = surface->get();
 
     // Convert to LaBP type
-    surface->setVertexExponent( WLEExponent::MILLI );
-    surface->setHemisphere( WLEMMSurface::Hemisphere::BOTH );
+    pSurface->setVertexExponent( WLEExponent::MILLI );
+    pSurface->setHemisphere( WLEMMSurface::Hemisphere::BOTH );
     const QString LH = "lh";
     const QString RH = "rh";
 
@@ -125,7 +126,7 @@ WLIOStatus::IOStatusT WLReaderSourceSpace::read( WLEMMSurface::SPtr& surface )
         WPosition dip( sourceSpace[RH].rr.row( i ).cast< WPosition::ValueType >() * 1000 );
         pos->push_back( dip );
     }
-    surface->setVertex( pos );
+    pSurface->setVertex( pos );
     wlog::info( CLASS ) << "Vertices: " << pos->size();
 
     WLArrayList< WVector3i >::SPtr faces( new WLArrayList< WVector3i >() );
@@ -146,7 +147,7 @@ WLIOStatus::IOStatusT WLReaderSourceSpace::read( WLEMMSurface::SPtr& surface )
         faces->push_back( WVector3i( x, y, z ) );
     }
 
-    surface->setFaces( faces );
+    pSurface->setFaces( faces );
     wlog::info( CLASS ) << "Faces: " << faces->size();
     return WLIOStatus::SUCCESS;
 }

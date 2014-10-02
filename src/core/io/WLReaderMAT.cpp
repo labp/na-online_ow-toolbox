@@ -36,14 +36,13 @@ using std::ifstream;
 const std::string WLReaderMAT::CLASS = "WLReaderMat";
 
 WLReaderMAT::WLReaderMAT( std::string fname ) throw( WDHNoSuchFile ) :
-                WReader( fname )
+                WLReaderGeneric< WLMatrix::SPtr >( fname )
 {
     m_isInitialized = false;
 }
 
 WLReaderMAT::~WLReaderMAT()
 {
-    close();
 }
 
 WLIOStatus::IOStatusT WLReaderMAT::init()
@@ -89,7 +88,7 @@ void WLReaderMAT::close()
     }
 }
 
-WLIOStatus::IOStatusT WLReaderMAT::readMatrix( WLMatrix::SPtr& matrix )
+WLIOStatus::IOStatusT WLReaderMAT::read( WLMatrix::SPtr* const matrix )
 {
     if( !m_isInitialized )
     {
@@ -110,12 +109,12 @@ WLIOStatus::IOStatusT WLReaderMAT::readMatrix( WLMatrix::SPtr& matrix )
             if( WLMatLib::ArrayFlags::getArrayType( it->arrayFlags ) == WLMatLib::ArrayTypes::mxDOUBLE_CLASS )
             {
                 wlog::debug( CLASS ) << "Found matrix element with double class.";
-                if( !matrix )
+                if( !( *matrix ) )
                 {
-                    matrix.reset( new WLMatrix::MatrixT() );
+                    matrix->reset( new WLMatrix::MatrixT() );
                 }
 #ifndef LABP_FLOAT_COMPUTATION
-                if( WLMatLib::MATReader::readMatrixDouble( matrix.get(), *it, m_ifs, m_fileInfo ) )
+                if( WLMatLib::MATReader::readMatrixDouble( matrix->get(), *it, m_ifs, m_fileInfo ) )
                 {
                     rc = WLIOStatus::SUCCESS;
                     break;
