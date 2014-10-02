@@ -218,8 +218,8 @@ bool WLReaderExperiment::readBem( std::string fname, WLEMMSubject::SPtr subject 
 
     WLList< WLEMMBemBoundary::SPtr >::SPtr bems( new WLList< WLEMMBemBoundary::SPtr >() );
     WLReaderVOL reader( path.string() );
-    WLReaderVOL::ReturnCode::Enum rc = reader.read( bems.get() );
-    if( rc == WLReaderVOL::ReturnCode::SUCCESS )
+    WLIOStatus::IOStatusT rc = reader.read( bems.get() );
+    if( rc == WLIOStatus::SUCCESS )
     {
         subject->setBemBoundaries( bems );
         wlog::info( CLASS ) << "Read " << bems->size() << " BEM boundaries.";

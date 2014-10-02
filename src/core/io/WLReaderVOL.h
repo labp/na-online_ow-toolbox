@@ -34,9 +34,9 @@
 
 #include "core/data/WLEMMSubject.h"
 #include "core/data/WLEMMBemBoundary.h"
-#include "core/io/WLReader.h"
+#include "core/io/WLReaderGeneric.h"
 
-class WLReaderVOL: public WLReader
+class WLReaderVOL: public WLReaderGeneric< std::list< WLEMMBemBoundary::SPtr > >
 {
 public:
     static const std::string CLASS;
@@ -51,13 +51,14 @@ public:
     {
     }
 
-    ReturnCode::Enum read( std::list< WLEMMBemBoundary::SPtr >* const boundaries );
+    virtual WLIOStatus::IOStatusT read( std::list< WLEMMBemBoundary::SPtr >* const boundaries );
 
 private:
-    ReturnCode::Enum readNumBoundaries( std::string& line, size_t& count );
-    ReturnCode::Enum readConductUnit( std::string& line, WLEUnit::Enum& unit );
-    ReturnCode::Enum readConductivities( std::ifstream& ifs, std::list< WLEMMBemBoundary::SPtr >* const boundaries );
-    ReturnCode::Enum readBndFiles( std::ifstream& ifs, std::string& line, std::list< WLEMMBemBoundary::SPtr >* const boundaries );
+    WLIOStatus::IOStatusT readNumBoundaries( size_t* const count, const std::string& line );
+    WLIOStatus::IOStatusT readConductUnit( WLEUnit::Enum* const unit, const std::string& line );
+    WLIOStatus::IOStatusT readConductivities( std::ifstream& ifs, std::list< WLEMMBemBoundary::SPtr >* const boundaries );
+    WLIOStatus::IOStatusT readBndFiles( std::ifstream& ifs, std::string* const line,
+                    std::list< WLEMMBemBoundary::SPtr >* const boundaries );
 };
 
 #endif  // WLREADERVOL_H_

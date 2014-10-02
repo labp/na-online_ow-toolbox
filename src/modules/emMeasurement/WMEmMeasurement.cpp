@@ -702,7 +702,7 @@ bool WMEmMeasurement::readVol( std::string fname )
     }
 
     m_volBoundaries = WLList< WLEMMBemBoundary::SPtr >::instance();
-    if( reader->read( m_volBoundaries.get() ) == WLReaderVOL::ReturnCode::SUCCESS )
+    if( reader->read( m_volBoundaries.get() ) == WLIOStatus::SUCCESS )
     {
         m_volBoundaryCount->set( m_volBoundaries->size(), true );
         m_volFileStatus->set( FILE_LOADED, true );
