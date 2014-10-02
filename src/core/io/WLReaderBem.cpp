@@ -44,7 +44,7 @@ using namespace MNELIB;
 const std::string WLReaderBem::CLASS = "WLReaderBem";
 
 WLReaderBem::WLReaderBem( std::string fname ) throw( WDHNoSuchFile ) :
-                WReader( fname )
+                WLReaderGeneric< std::list< WLEMMBemBoundary::SPtr > >( fname )
 {
 }
 
@@ -52,14 +52,14 @@ WLReaderBem::~WLReaderBem()
 {
 }
 
-bool WLReaderBem::read( std::list< WLEMMBemBoundary::SPtr >* const bems )
+WLIOStatus::IOStatusT WLReaderBem::read( std::list< WLEMMBemBoundary::SPtr >* const bems )
 {
     QFile file( QString::fromStdString( m_fname ) );
     QList< MNESurface::SPtr > surfaces;
     if( !MNESurface::read( file, surfaces ) )
     {
         wlog::error( CLASS ) << "Could not load BEM layers!" << endl;
-        return false;
+        return WLIOStatus::ERROR_FREAD;
     }
 
     QList< MNESurface::SPtr >::ConstIterator it;
@@ -98,5 +98,5 @@ bool WLReaderBem::read( std::list< WLEMMBemBoundary::SPtr >* const bems )
         wlog::debug( CLASS ) << "Adding BEM: " << bem->getBemType() << "; " << vertex->size() << "; " << faces->size();
     }
 
-    return true;
+    return WLIOStatus::SUCCESS;
 }

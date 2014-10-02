@@ -29,11 +29,10 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <core/dataHandler/io/WReader.h>
-
 #include "core/data/WLEMMBemBoundary.h"
+#include "core/io/WLReaderGeneric.h"
 
-class WLReaderBem: public WReader
+class WLReaderBem: public WLReaderGeneric< std::list< WLEMMBemBoundary::SPtr > >
 {
 public:
     /**
@@ -51,7 +50,7 @@ public:
     explicit WLReaderBem( std::string fname ) throw( WDHNoSuchFile );
     virtual ~WLReaderBem();
 
-    bool read( std::list< WLEMMBemBoundary::SPtr >* const bems );
+    virtual WLIOStatus::IOStatusT read( std::list< WLEMMBemBoundary::SPtr >* const bems );
 };
 
 #endif  // WLREADERBEM_H_
