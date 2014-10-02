@@ -319,8 +319,8 @@ void WMEmMeasurement::streamData()
         WRealtimeTimer waitTimer;
 
         const double SEC_PER_BLOCK = ( double )m_fiffStreamBlockSize->get() / 1000; // blockSize in seconds
-        size_t blockSize = 0; // blockSize depending on SEC_PER_BLOCK and sampling frequency
-        size_t blockOffset = 0; // start index for current block
+        WLSampleNrT blockSize = 0; // blockSize depending on SEC_PER_BLOCK and sampling frequency
+        WLSampleNrT blockOffset = 0; // start index for current block
         size_t blockCount = 0;
         int smplFrq;
         WLEMData::DataT fiffData;
@@ -360,9 +360,9 @@ void WMEmMeasurement::streamData()
                 fiffData = ( *emd )->getData();
 
                 // copy each channel
-                for( size_t chan = 0; chan < ( *emd )->getNrChans(); ++chan )
+                for( WLChanIdxT chan = 0; chan < ( *emd )->getNrChans(); ++chan )
                 {
-                    for( size_t sample = 0; sample < blockSize && ( blockOffset + sample ) < fiffData.cols(); ++sample )
+                    for( WLSampleIdxT sample = 0; sample < blockSize && ( blockOffset + sample ) < fiffData.cols(); ++sample )
                     {
                         ( *data )( chan, sample ) = fiffData( chan, blockOffset + sample );
                     }
@@ -386,7 +386,7 @@ void WMEmMeasurement::streamData()
             {
                 WLEMMeasurement::EChannelT data;
                 data.reserve( blockSize );
-                for( size_t event = 0; event < blockSize && ( blockOffset + event ) < ( *eChannel ).size(); ++event )
+                for( WLSampleIdxT event = 0; event < blockSize && ( blockOffset + event ) < ( *eChannel ).size(); ++event )
                 {
                     data.push_back( ( *eChannel )[blockOffset + event] );
                 }

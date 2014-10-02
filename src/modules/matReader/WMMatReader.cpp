@@ -295,7 +295,7 @@ bool WMMatReader::handleGenerateEMM()
     eeg->setSampFreq( m_propSamplFreq->get() );
     if( m_sensorPos.get() != NULL )
     {
-        if( m_sensorPos->size() == eeg->getNrChans() )
+        if( ( m_sensorPos->size() - eeg->getNrChans() ) == 0 )
         {
             infoLog() << "Set sensor positions for EEG.";
             eeg->setChannelPositions3d( m_sensorPos );

@@ -61,11 +61,11 @@ bool WFIRFilterCpu::filter( WLEMData::DataT& out, const WLEMData::DataT& in, con
     WLTimeProfiler prfTime( CLASS, "filter" );
 
     // CHANGE original: for( int n = 1; (uint) n < in.size(); n++ )
-    const size_t nbCoeff = m_coeffitients.size();
+    const WLSampleNrT nbCoeff = m_coeffitients.size();
     out.setZero();
-    for( WLEMData::ChannelT::Index n = 0; n < in.cols(); ++n )
+    for( WLSampleIdxT n = 0; n < in.cols(); ++n )
     {
-        for( size_t k = 0; k < nbCoeff; ++k )
+        for( WLSampleIdxT k = 0; k < nbCoeff; ++k )
         {
             // CHANGE from ( long int )( n - k ) >= 0 ? m_coeffitients[k] * in[n - k] : 0;
             // tmp += ( n >= k ) ? m_coeffitients[k] * in[n - k] : 0;

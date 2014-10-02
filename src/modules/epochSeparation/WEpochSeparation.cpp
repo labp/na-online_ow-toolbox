@@ -44,7 +44,7 @@ WEpochSeparation::WEpochSeparation()
     reset();
 }
 
-WEpochSeparation::WEpochSeparation( size_t channel, std::set< WLEMMeasurement::EventT > triggerMask, size_t preSamples,
+WEpochSeparation::WEpochSeparation( WLChanIdxT channel, std::set< WLEMMeasurement::EventT > triggerMask, size_t preSamples,
                 size_t postSamples ) :
                 m_channel( channel ), m_triggerMask( triggerMask ), m_preSamples( preSamples ), m_postSamples( postSamples ), m_blockSize(
                                 0 )
@@ -55,12 +55,12 @@ WEpochSeparation::~WEpochSeparation()
 {
 }
 
-size_t WEpochSeparation::getChannel() const
+WLChanIdxT WEpochSeparation::getChannel() const
 {
     return m_channel;
 }
 
-void WEpochSeparation::setChannel( size_t channel )
+void WEpochSeparation::setChannel( WLChanIdxT channel )
 {
     m_channel = channel;
 }

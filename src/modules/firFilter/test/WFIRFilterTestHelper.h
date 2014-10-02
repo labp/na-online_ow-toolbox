@@ -137,7 +137,7 @@ public:
 
         const WLEMData::DataT& out = emdOut->getData();
         WLEMData::ChannelT outExpected = out.row( 0 );
-        for( size_t i = coefficients; i < outExpected.size(); ++i )
+        for( WLEMData::ChannelT::Index i = coefficients; i < outExpected.size(); ++i )
         {
             outExpected( i ) = firSum;
         }

@@ -534,7 +534,7 @@ const WLEMData::DataT& WFIRFilter::getPreviousData( WLEMData::ConstSPtr emd )
 void WFIRFilter::storePreviousData( WLEMData::ConstSPtr emd )
 {
     const WLEMData::DataT& dataIn = emd->getData();
-    WAssert( m_coeffitients.size() <= emd->getSamplesPerChan(), "More coefficients than samples per channel!" );
+    WAssert( 0 <= emd->getSamplesPerChan() - m_coeffitients.size(), "More coefficients than samples per channel!" );
 
     WLEMData::DataT data = dataIn.block( 0, dataIn.cols() - m_coeffitients.size(), dataIn.rows(), m_coeffitients.size() );
     // TODO(pieloth): correct previous size / shift?

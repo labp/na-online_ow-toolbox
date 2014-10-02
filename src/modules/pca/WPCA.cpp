@@ -161,7 +161,7 @@ WLEMData::SPtr WPCA::convertPCAToModality( WLEMDPCA::SPtr pcaIn )
     WLEMData::DataSPtr modalityData( new WLEMData::DataT( transMatrix.cols(), pcaMatrix.cols() ) );
     VectorT& channelMeans = pcaIn->getChannelMeans();
 
-    for( size_t i = 0; i < ( *modalityData ).rows(); ++i )
+    for( WLChanIdxT i = 0; i < ( *modalityData ).rows(); ++i )
     {
         for( MatrixXd::Index j = 0; j < pcaMatrix.cols(); ++j )
         {

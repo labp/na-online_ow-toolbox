@@ -58,7 +58,7 @@ public:
 
     WEpochSeparation();
 
-    WEpochSeparation( size_t channel, std::set< WLEMMeasurement::EventT > triggerMask, size_t preSamples, size_t postSamples );
+    WEpochSeparation( WLChanIdxT channel, std::set< WLEMMeasurement::EventT > triggerMask, size_t preSamples, size_t postSamples );
 
     virtual ~WEpochSeparation();
 
@@ -67,12 +67,12 @@ public:
     /**
      * Returns the chosen index of the event channel.
      */
-    size_t getChannel() const;
+    WLChanIdxT getChannel() const;
 
     /**
      * Sets the index to be used for the event channel.
      */
-    void setChannel( size_t channel );
+    void setChannel( WLChanIdxT channel );
 
     /**
      * Returns the trigger mask to be tested.
@@ -199,7 +199,7 @@ private:
      */
     bool processPostSamples( LeftEpoch::SPtr leftEpoch, WLEMMeasurement::ConstSPtr emmIn );
 
-    size_t m_channel;
+    WLChanIdxT m_channel;
     std::set< WLEMMeasurement::EventT > m_triggerMask;
     size_t m_preSamples;
     size_t m_postSamples;
