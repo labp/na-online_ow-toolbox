@@ -285,8 +285,8 @@ bool WLReaderExperiment::readSourceSpace( std::string surfaceKind, WLEMMSubject:
 
     WLEMMSurface::SPtr lhSurface( new WLEMMSurface() );
     WLReaderDIP lhReader( lhFile.string() );
-    WLReaderDIP::ReturnCode::Enum lhReturn = lhReader.read( lhSurface );
-    if( lhReturn == WLReaderDIP::ReturnCode::SUCCESS )
+    WLIOStatus::IOStatusT lhReturn = lhReader.read( &lhSurface );
+    if( lhReturn == WLIOStatus::SUCCESS )
     {
         wlog::info( CLASS ) << "Successfully read left surface!";
         lhSurface->setHemisphere( WLEMMSurface::Hemisphere::LEFT );
@@ -304,8 +304,8 @@ bool WLReaderExperiment::readSourceSpace( std::string surfaceKind, WLEMMSubject:
 
     WLEMMSurface::SPtr rhSurface( new WLEMMSurface() );
     WLReaderDIP rhReader( rhFile.string() );
-    WLReaderDIP::ReturnCode::Enum rhReturn = rhReader.read( rhSurface );
-    if( rhReturn == WLReaderDIP::ReturnCode::SUCCESS )
+    WLIOStatus::IOStatusT rhReturn = rhReader.read( &rhSurface );
+    if( rhReturn == WLIOStatus::SUCCESS )
     {
         wlog::info( CLASS ) << "Successfully read right surface!";
         rhSurface->setHemisphere( WLEMMSurface::Hemisphere::RIGHT );

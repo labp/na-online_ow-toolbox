@@ -646,7 +646,7 @@ bool WMEmMeasurement::readDip( std::string fname )
     }
 
     m_dipSurface.reset( new WLEMMSurface() );
-    if( reader->read( m_dipSurface ) == WLReaderDIP::ReturnCode::SUCCESS )
+    if( reader->read( &m_dipSurface ) == WLIOStatus::SUCCESS )
     {
         m_dipPositionCount->set( m_dipSurface->getVertex()->size(), true );
         m_dipFacesCount->set( m_dipSurface->getFaces()->size(), true );

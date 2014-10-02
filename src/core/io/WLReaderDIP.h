@@ -29,9 +29,9 @@
 
 #include "core/data/WLEMMSurface.h"
 
-#include "core/io/WLReader.h"
+#include "core/io/WLReaderGeneric.h"
 
-class WLReaderDIP: public WLReader
+class WLReaderDIP: public WLReaderGeneric< WLEMMSurface::SPtr >
 {
 public:
     static const std::string CLASS;
@@ -43,14 +43,14 @@ public:
      */
     explicit WLReaderDIP( std::string fname );
 
-    ReturnCode::Enum read( WLEMMSurface::SPtr surface );
+    virtual WLIOStatus::IOStatusT read( WLEMMSurface::SPtr* const surface );
 
 private:
-    ReturnCode::Enum readUnit( std::string& line, WLEMMSurface::SPtr surface );
-    ReturnCode::Enum readNumPos( std::string& line, size_t& count );
-    ReturnCode::Enum readNumPoly( std::string& line, size_t& count );
-    ReturnCode::Enum readPositions( std::ifstream& ifs, size_t count, WLEMMSurface::SPtr surface );
-    ReturnCode::Enum readPolygons( std::ifstream& ifs, size_t count, WLEMMSurface::SPtr surface );
+    WLIOStatus::IOStatusT readUnit( WLEMMSurface::SPtr surface, const std::string& line );
+    WLIOStatus::IOStatusT readNumPos( size_t* const count, const std::string& line );
+    WLIOStatus::IOStatusT readNumPoly( size_t* const count, const std::string& line );
+    WLIOStatus::IOStatusT readPositions( std::ifstream& ifs, size_t count, WLEMMSurface::SPtr surface );
+    WLIOStatus::IOStatusT readPolygons( std::ifstream& ifs, size_t count, WLEMMSurface::SPtr surface );
 };
 
 #endif  // WLREADERDIP_H_
