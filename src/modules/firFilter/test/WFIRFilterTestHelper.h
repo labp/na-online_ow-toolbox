@@ -183,7 +183,7 @@ private:
         const std::string fName = W_FIXTURE_PATH + "lp_hamming_o200fs1000fc50.fcf";
         filter->reset();
         filter->setCoefficients( fName );
-        filterSineDoLowpassTest( filter, 200, 1000.0, 50.0 );
+        filterSineDoLowpassTest( filter, 200, 1000.0 );
 
         // Test with designed coefficients //
         wlog::info( "WFIRFilterTestHelper" ) << "filterSineDoLowpassTest() with designed coefficients.";
@@ -201,10 +201,10 @@ private:
         filter->setWindowsType( windows, false );
         filter->design();
 
-         filterSineDoLowpassTest( filter, 200, 1000.0, 50.0 );
+         filterSineDoLowpassTest( filter, 200, 1000.0 );
     }
 
-    static void filterSineDoLowpassTest( WFIRFilter::SPtr filter, const size_t order, const float fs, const float fc )
+    static void filterSineDoLowpassTest( WFIRFilter::SPtr filter, const size_t order, const float fs )
     {
         // Parameter
         // ---------
@@ -266,7 +266,7 @@ private:
         const std::string fName = W_FIXTURE_PATH + "hp_hamming_o200fs1000fc50.fcf";
         filter->reset();
         filter->setCoefficients( fName );
-        filterSineDoHighpassTest( filter, 200, 1000.0, 50.0 );
+        filterSineDoHighpassTest( filter, 200, 1000.0 );
 
         // Test with designed coefficients //
         wlog::info( "WFIRFilterTestHelper" ) << "filterSineDoHighpassTest() with designed coefficients.";
@@ -284,10 +284,10 @@ private:
         filter->setWindowsType( windows, false );
         filter->design();
 
-         filterSineDoHighpassTest( filter, 200, 1000.0, 50.0 );
+         filterSineDoHighpassTest( filter, 200, 1000.0 );
     }
 
-    static void filterSineDoHighpassTest( WFIRFilter::SPtr filter, const size_t order, const float fs, const float fc )
+    static void filterSineDoHighpassTest( WFIRFilter::SPtr filter, const size_t order, const float fs )
     {
         // Parameter
         // ---------
@@ -349,7 +349,7 @@ private:
         const std::string fName = W_FIXTURE_PATH + "bp_hamming_o200fs1000fc50_100.fcf";
         filter->reset();
         filter->setCoefficients( fName );
-        filterSineDoBandpassTest( filter, 200, 1000.0, 50.0, 100.0 );
+        filterSineDoBandpassTest( filter, 200, 1000.0 );
 
         // Test with designed coefficients //
         wlog::info( "WFIRFilterTestHelper" ) << "filterSineDoBandpassTest() with designed coefficients.";
@@ -369,11 +369,10 @@ private:
         filter->setWindowsType( windows, false );
         filter->design();
 
-         filterSineDoBandpassTest( filter, 200, 1000.0, 50.0, 100.0 );
+         filterSineDoBandpassTest( filter, 200, 1000.0 );
     }
 
-    static void filterSineDoBandpassTest( WFIRFilter::SPtr filter, const size_t order, const float fs, const float fc1,
-                    const float fc2 )
+    static void filterSineDoBandpassTest( WFIRFilter::SPtr filter, const size_t order, const float fs )
     {
         // Parameter
         // ---------
@@ -455,7 +454,7 @@ private:
         const std::string fName = W_FIXTURE_PATH + "bs_hamming_o200fs1000fc50_100.fcf";
         filter->reset();
         filter->setCoefficients( fName );
-        filterSineDoBandstopTest( filter, 200, 1000.0, 50.0, 100.0 );
+        filterSineDoBandstopTest( filter, 200, 1000.0 );
 
         // Test with designed coefficients //
         wlog::info( "WFIRFilterTestHelper" ) << "filterSineDoBandstopTest() with designed coefficients.";
@@ -475,11 +474,10 @@ private:
         filter->setWindowsType( windows, false );
         filter->design();
 
-         filterSineDoBandstopTest( filter, 200, 1000.0, 50.0, 100.0 );
+         filterSineDoBandstopTest( filter, 200, 1000.0 );
     }
 
-    static void filterSineDoBandstopTest( WFIRFilter::SPtr filter, const size_t order, const float fs, const float fc1,
-                    const float fc2 )
+    static void filterSineDoBandstopTest( WFIRFilter::SPtr filter, const size_t order, const float fs )
     {
         // Parameter
         // ---------

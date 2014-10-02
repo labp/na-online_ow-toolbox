@@ -126,7 +126,7 @@ private:
 
     bool readChannelNames( WLEMData* const emd, const Eigen::RowVectorXi& picks );
     bool readChannelPositions( WLEMData* const emd, const Eigen::RowVectorXi& picks );
-    bool readChannelFaces( WLEMData* const emd, const Eigen::RowVectorXi& picks );
+    bool readChannelFaces( WLEMData* const emd );
 
     RTCLIENTLIB::RtCmdClient::SPtr m_rtCmdClient;
     RTCLIENTLIB::RtDataClient::SPtr m_rtDataClient;

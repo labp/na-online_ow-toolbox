@@ -269,7 +269,7 @@ void WMSourceReconstruction::moduleMain()
 
         if( m_lastModality != getCalculateModality() )
         {
-            handleComputeModalityChanged( cmd );
+            handleComputeModalityChanged();
         }
 
         const bool dataValid = ( cmd );
@@ -379,7 +379,7 @@ void WMSourceReconstruction::handleSnrChanged()
     m_progress->removeSubProgress( progress );
 }
 
-void WMSourceReconstruction::handleComputeModalityChanged( WLEMMCommand::ConstSPtr cmd )
+void WMSourceReconstruction::handleComputeModalityChanged()
 {
     debugLog() << "handleComputeModalityChanged()";
     m_lastModality = getCalculateModality();

@@ -250,7 +250,6 @@ WEpochSeparation::LeftEpoch::SPtr WEpochSeparation::processPreSamples( size_t eI
     }
 
     // Prepare event channels //
-    const size_t eChannels = emm->getEventChannelCount();
     emmEpoch->getEventChannels()->resize( 1 );
     emmEpoch->getEventChannel( 0 ).reserve( m_preSamples + 1 + m_postSamples );
     WAssertDebug( emmEpoch->getEventChannel( 0 ).size() == 0, "emmEpoch->getEventChannel( chan ).size() == 0" );

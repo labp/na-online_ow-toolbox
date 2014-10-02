@@ -154,7 +154,7 @@ private:
     void handleSnrChanged();
 
     WLEModality::Enum m_lastModality;
-    void handleComputeModalityChanged( WLEMMCommand::ConstSPtr cmd );
+    void handleComputeModalityChanged();
 
     // Generate inverse solution //
     WPropString m_inverseStatus;
