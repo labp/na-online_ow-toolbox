@@ -40,7 +40,7 @@
 #include "WLEMDDrawable3DMEG.h"
 
 WLEMDDrawable3DMEG::WLEMDDrawable3DMEG( WUIViewWidget::SPtr widget, WLEModality::Enum coilType ) :
-                m_coilType( coilType ), WLEMDDrawable3D( widget )
+                WLEMDDrawable3D( widget ), m_coilType( coilType )
 {
     WAssertDebug( WLEModality::isMEG( m_coilType ), "No MEG modality!" );
     m_labelsChanged = true;
@@ -50,7 +50,7 @@ WLEMDDrawable3DMEG::WLEMDDrawable3DMEG( WUIViewWidget::SPtr widget, WLEModality:
 }
 
 WLEMDDrawable3DMEG::WLEMDDrawable3DMEG( WUIViewWidget::SPtr widget ) :
-                m_coilType( WLEModality::MEG ), WLEMDDrawable3D( widget )
+                WLEMDDrawable3D( widget ), m_coilType( WLEModality::MEG )
 {
     m_labelsChanged = true;
     m_labelsOn = true;

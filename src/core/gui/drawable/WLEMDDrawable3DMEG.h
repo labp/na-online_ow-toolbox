@@ -65,6 +65,8 @@ protected:
     virtual void osgNodeCallback( osg::NodeVisitor* nv );
 
 private:
+    const WLEModality::Enum m_coilType;
+
     void osgAddLabels( const std::vector< WPosition >& positions, const std::vector< std::string >& labels );
 
     void osgAddNodes( const std::vector< WPosition >& positions );
@@ -74,8 +76,6 @@ private:
     void osgUpdateNodesColor( const WLEMData::DataT& data );
 
     bool m_electrodesChanged;
-
-    const WLEModality::Enum m_coilType;
 
     osg::ref_ptr< osg::Geode > m_electrodesGeode;
 
