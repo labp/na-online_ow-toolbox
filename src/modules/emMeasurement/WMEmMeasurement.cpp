@@ -526,7 +526,7 @@ bool WMEmMeasurement::readFiff( std::string fname )
     {
         WLReaderFIFF fiffReader( fname );
         m_fiffEmm.reset( new WLEMMeasurement() );
-        if( fiffReader.Read( m_fiffEmm ) == WLReaderFIFF::ReturnCode::SUCCESS )
+        if( fiffReader.read( &m_fiffEmm ) == WLIOStatus::SUCCESS )
         {
             if( m_fiffEmm->hasModality( WLEModality::EEG ) )
             {

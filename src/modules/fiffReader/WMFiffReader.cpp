@@ -254,7 +254,7 @@ bool WMFiffReader::readFiffFile( const std::string& fName )
     {
         fiffReader.reset( new WLReaderFIFF( fName ) );
         m_emm.reset( new WLEMMeasurement() );
-        if( fiffReader->Read( m_emm ) == WLReaderFIFF::ReturnCode::SUCCESS )
+        if( fiffReader->read( &m_emm ) == WLIOStatus::SUCCESS )
         {
             if( m_emm->hasModality( WLEModality::EEG ) )
             {

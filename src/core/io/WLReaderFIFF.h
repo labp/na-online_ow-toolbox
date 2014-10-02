@@ -37,9 +37,9 @@
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMSubject.h"
 
-#include "core/io/WLReader.h"
+#include "core/io/WLReaderGeneric.h"
 
-class WLReaderFIFF: public WLReader
+class WLReaderFIFF: public WLReaderGeneric< WLEMMeasurement::SPtr >
 {
 public:
     /**
@@ -60,17 +60,19 @@ public:
      * \param fname path to file which should be loaded
      */
     explicit WLReaderFIFF( std::string fname );
+
     /**
      * Read the file and create a dataset out of it.
      */
-    ReturnCode::Enum Read( WLEMMeasurement::SPtr out );
+    virtual WLIOStatus::IOStatusT read( WLEMMeasurement::SPtr* const out );
+
     /**
      * Reads subject data only.
      */
-    ReturnCode::Enum Read( WLEMMSubject::SPtr out );
+    WLIOStatus::IOStatusT read( WLEMMSubject::SPtr* const out );
 
 private:
-    static ReturnCode::Enum getReturnCode( returncode_t rc );
+    static WLIOStatus::IOStatusT getReturnCode( returncode_t rc );
 };
 
 #endif  // WLREADERFIFF_H_

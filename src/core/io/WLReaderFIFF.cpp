@@ -61,12 +61,12 @@
 const std::string WLReaderFIFF::CLASS = "WLReaderFIFF";
 
 WLReaderFIFF::WLReaderFIFF( std::string fname ) :
-                WLReader( fname )
+                WLReaderGeneric< WLEMMeasurement::SPtr >( fname )
 {
     wlog::debug( CLASS ) << "file: " << fname;
 }
 
-WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
+WLIOStatus::IOStatusT WLReaderFIFF::read( WLEMMeasurement::SPtr* const out )
 {
     LFData data;
     returncode_t ret = LFInterface::fiffRead( data, m_fname.data() );
@@ -75,10 +75,10 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
 
     // Set subject information
     WLEMMSubject::SPtr subject_out( new WLEMMSubject() );
-    ReturnCode::Enum rc = Read( subject_out );
-    if( rc != ReturnCode::SUCCESS )
+    WLIOStatus::IOStatusT rc = read( &subject_out );
+    if( rc != WLIOStatus::SUCCESS )
         return rc;
-    out->setSubject( subject_out );
+    ( *out )->setSubject( subject_out );
 
     // Create temporary EMMEMD
     WLEMDRaw::SPtr emdRaw( new WLEMDRaw() );
@@ -104,7 +104,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
     }
 
     subject_out->setIsotrak( itPos );
-    out->setDigPoints( digPointsOut );
+    ( *out )->setDigPoints( digPointsOut );
     wlog::debug( CLASS ) << "Isotrak size: " << itPos->size();
 
     // Read raw data
@@ -301,7 +301,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
                 break;
         }
 
-        out->addModality( emd );
+        ( *out )->addModality( emd );
     }
 
     // Create event/stimulus channel
@@ -318,46 +318,46 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
         {
             eventData_out.push_back( ( WLEMMeasurement::EventT )eventData_in( i ) );
         }
-        out->addEventChannel( eventData_out );
+        ( *out )->addEventChannel( eventData_out );
     }
 
     // Some debug out
     wlog::debug( CLASS ) << "LaBP::EMM data:";
-    wlog::debug( CLASS ) << "\tLaBP::EMM::Event channels=" << out->getEventChannelCount();
-    for( size_t mod = 0; mod < out->getModalityList().size(); ++mod )
+    wlog::debug( CLASS ) << "\tLaBP::EMM::Event channels=" << ( *out )->getEventChannelCount();
+    for( size_t mod = 0; mod < ( *out )->getModalityList().size(); ++mod )
     {
-        wlog::debug( CLASS ) << "\tLaBP::EMM::EMD type=" << out->getModalityList()[mod]->getModalityType() << ", channels="
-                        << out->getModalityList()[mod]->getNrChans();
+        wlog::debug( CLASS ) << "\tLaBP::EMM::EMD type=" << ( *out )->getModalityList()[mod]->getModalityType() << ", channels="
+                        << ( *out )->getModalityList()[mod]->getNrChans();
     }
 
     return getReturnCode( ret );
 }
 
-WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMSubject::SPtr out )
+WLIOStatus::IOStatusT WLReaderFIFF::read( WLEMMSubject::SPtr* const out )
 {
     LFSubject data;
     returncode_t ret = LFInterface::fiffRead( data, m_fname.data() );
     if( ret != rc_normal )
         return getReturnCode( ret );
-    out->setName( data.GetFirstName() + "" + data.GetMiddleName() + "" + data.GetLastName() );
-    out->setHisId( data.GetHIS_ID() );
-    out->setComment( data.GetComment() );
+    ( *out )->setName( data.GetFirstName() + "" + data.GetMiddleName() + "" + data.GetLastName() );
+    ( *out )->setHisId( data.GetHIS_ID() );
+    ( *out )->setComment( data.GetComment() );
     return getReturnCode( ret );
 }
 
-WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::getReturnCode( returncode_t rc )
+WLIOStatus::IOStatusT WLReaderFIFF::getReturnCode( returncode_t rc )
 {
     switch( rc )
     {
         case rc_normal:
-            return ReturnCode::SUCCESS;
+            return WLIOStatus::SUCCESS;
         case rc_error_file_open:
-            return ReturnCode::ERROR_FOPEN;
+            return WLIOStatus::ERROR_FOPEN;
         case rc_error_file_read:
-            return ReturnCode::ERROR_FREAD;
+            return WLIOStatus::ERROR_FREAD;
         case rc_error_unknown:
-            return ReturnCode::ERROR_UNKNOWN;
+            return WLIOStatus::ERROR_UNKNOWN;
         default:
-            return ReturnCode::ERROR_UNKNOWN;
+            return WLIOStatus::ERROR_UNKNOWN;
     }
 }
