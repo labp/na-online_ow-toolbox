@@ -123,7 +123,7 @@ size_t WLEMDDrawable2DMultiChannel::getChannelBegin( const WLEMData& emd )
 
 size_t WLEMDDrawable2DMultiChannel::maxChannels( const WLEMData& emd ) const
 {
-    size_t channels = ( m_widget->height() / ( m_channelHeight ) );
+    WLChanNrT channels = ( m_widget->height() / ( m_channelHeight ) );
     channels = channels < emd.getNrChans() ? channels : emd.getNrChans();
     return channels;
 }
@@ -138,7 +138,7 @@ void WLEMDDrawable2DMultiChannel::osgNodeCallback( osg::NodeVisitor* nv )
 
 void WLEMDDrawable2DMultiChannel::osgAddLabels( const WLEMData& emd )
 {
-    if( m_labelsText->getNumChildren() != emd.getNrChans() || m_channelHeightChanged )
+    if( ( m_labelsText->getNumChildren() - emd.getNrChans() ) != 0 || m_channelHeightChanged )
     {
         // Because GL_DEPTH_TEST is OFF this, order is important:
         // 1. graph data

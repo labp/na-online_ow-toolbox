@@ -253,17 +253,16 @@ WLEMDMEG::DataSPtr WLEMDMEG::getDataBadChannels( WLEMEGGeneralCoilType::Enum typ
 
     size_t row = 0;
 
-    BOOST_FOREACH( size_t it, picks )
+    BOOST_FOREACH( size_t it, picks ){
+    if( isBadChannel( it ) )
     {
-        if( isBadChannel( it ) )
-        {
-            continue;
-        }
-
-        data.row( row ) = m_data->row( it );
-
-        ++row;
+        continue;
     }
+
+    data.row( row ) = m_data->row( it );
+
+    ++row;
+}
 
     return dataPtr;
 }
@@ -286,24 +285,23 @@ WLEMDMEG::DataSPtr WLEMDMEG::getDataBadChannels( WLEMEGGeneralCoilType::Enum typ
 
     size_t row = 0;
 
-    BOOST_FOREACH( size_t it, picks )
+    BOOST_FOREACH( size_t it, picks ){
+    if( isBadChannel( it ) || std::find( badChans->begin(), badChans->end(), it ) != badChans->end() )
     {
-        if( isBadChannel( it ) || std::find( badChans->begin(), badChans->end(), it ) != badChans->end() )
-        {
-            continue;
-        }
-
-        data.row( row ) = m_data->row( it );
-
-        ++row;
+        continue;
     }
+
+    data.row( row ) = m_data->row( it );
+
+    ++row;
+}
 
     return dataPtr;
 }
 
 std::vector< size_t > WLEMDMEG::getPicks( WLEMEGGeneralCoilType::Enum type ) const
 {
-    if( m_picksMag.size() + m_picksGrad.size() != getNrChans() )
+    if( m_picksMag.size() + m_picksGrad.size() != static_cast< size_t >( getNrChans() ) )
     {
         m_picksGrad.clear();
         m_picksMag.clear();

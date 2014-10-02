@@ -26,6 +26,7 @@
 #include <fiff/fiff_dir_entry.h>
 #include <fiff/fiff_dir_tree.h>
 #include <fiff/fiff_stream.h>
+#include <fiff/fiff_types.h>
 #include <mne/mne_sourcespace.h>
 #include <mne/mne_hemisphere.h>
 
@@ -114,12 +115,12 @@ WLIOStatus::ioStatus_t WLReaderSourceSpace::read( WLEMMSurface::SPtr& surface )
     // Append left and right hemispheres: BOTH = LH|RH
     WLArrayList< WPosition >::SPtr pos( new WLArrayList< WPosition >() );
     pos->reserve( sourceSpace[LH].np + sourceSpace[RH].np );
-    for( size_t i = 0; i < sourceSpace[LH].np; ++i )
+    for( fiff_int_t i = 0; i < sourceSpace[LH].np; ++i )
     {
         WPosition dip( sourceSpace[LH].rr.row( i ).cast< WPosition::ValueType >() * 1000 );
         pos->push_back( dip );
     }
-    for( size_t i = 0; i < sourceSpace[RH].np; ++i )
+    for( fiff_int_t i = 0; i < sourceSpace[RH].np; ++i )
     {
         WPosition dip( sourceSpace[RH].rr.row( i ).cast< WPosition::ValueType >() * 1000 );
         pos->push_back( dip );
@@ -129,7 +130,7 @@ WLIOStatus::ioStatus_t WLReaderSourceSpace::read( WLEMMSurface::SPtr& surface )
 
     WLArrayList< WVector3i >::SPtr faces( new WLArrayList< WVector3i >() );
     faces->reserve( sourceSpace[LH].ntri + sourceSpace[RH].ntri );
-    for( size_t i = 0; i < sourceSpace[LH].ntri; ++i )
+    for( fiff_int_t i = 0; i < sourceSpace[LH].ntri; ++i )
     {
         const int x = sourceSpace[LH].tris( i, 0 );
         const int y = sourceSpace[LH].tris( i, 1 );
@@ -137,7 +138,7 @@ WLIOStatus::ioStatus_t WLReaderSourceSpace::read( WLEMMSurface::SPtr& surface )
         faces->push_back( WVector3i( x, y, z ) );
     }
     const int triOffset = sourceSpace[LH].np;
-    for( size_t i = 0; i < sourceSpace[RH].ntri; ++i )
+    for( fiff_int_t i = 0; i < sourceSpace[RH].ntri; ++i )
     {
         const int x = sourceSpace[RH].tris( i, 0 ) + triOffset;
         const int y = sourceSpace[RH].tris( i, 1 ) + triOffset;

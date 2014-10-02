@@ -314,8 +314,10 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
         wlog::debug( CLASS ) << "Event channel: " << *chan;
         eventData_out = WLEMMeasurement::EChannelT();
         eventData_in = emdRaw->getData().row( *chan - 1 ); // TODO(pieloth): LFEvents counts from 1 ?
-        for( size_t i = 0; i < eventData_in.size(); ++i )
+        for( WLEMData::ChannelT::Index i = 0; i < eventData_in.size(); ++i )
+        {
             eventData_out.push_back( ( WLEMMeasurement::EventT )eventData_in( i ) );
+        }
         out->addEventChannel( eventData_out );
     }
 
