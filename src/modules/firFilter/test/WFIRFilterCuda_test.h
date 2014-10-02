@@ -76,15 +76,13 @@ public:
 
     void test_filterSine( void )
     {
-//            std::string fileName = W_FIXTURE_PATH + COEFFILE;
-        wlog::info("WFIRFilterCudaTest") << "test_filterSine() called!";
-        std::string fileName = "/home/pieloth/fdacoefs.h";
+        std::string fileName = W_FIXTURE_PATH + COEFFILE;
         WFIRFilterCuda::SPtr filter( new WFIRFilterCuda( fileName.c_str() ) );
         WFIRFilterTestHelper::filterSineTest( filter );
 
-//        filter.reset( new WFIRFilterCuda( WFIRFilter::WEFilterType::BANDPASS, WFIRFilter::WEWindowsType::HAMMING, ORDER, SFREQ,
-//        C1FREQ, C2FREQ ) );
-//        WFIRFilterTestHelper::filterSineTest( filter );
+        filter.reset( new WFIRFilterCuda( WFIRFilter::WEFilterType::BANDPASS, WFIRFilter::WEWindowsType::HAMMING, ORDER, SFREQ,
+        C1FREQ, C2FREQ ) );
+        WFIRFilterTestHelper::filterSineTest( filter );
     }
 };
 

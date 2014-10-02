@@ -58,9 +58,8 @@ public:
         WFIRFilterCpu::SPtr filter( new WFIRFilterCpu( fileName.c_str() ) );
         WFIRFilterTestHelper::filterImpulseTest( filter );
 
-        filter.reset(
-                        new WFIRFilterCpu( WFIRFilter::WEFilterType::BANDPASS, WFIRFilter::WEWindowsType::HAMMING, ORDER, SFREQ,
-                                        C1FREQ, C2FREQ ) );
+        filter.reset( new WFIRFilterCpu( WFIRFilter::WEFilterType::BANDPASS, WFIRFilter::WEWindowsType::HAMMING, ORDER, SFREQ,
+        C1FREQ, C2FREQ ) );
         WFIRFilterTestHelper::filterImpulseTest( filter );
     }
 
@@ -70,25 +69,21 @@ public:
         WFIRFilterCpu::SPtr filter( new WFIRFilterCpu( fileName.c_str() ) );
         WFIRFilterTestHelper::filterStepTest( filter );
 
-        filter.reset(
-                        new WFIRFilterCpu( WFIRFilter::WEFilterType::BANDPASS, WFIRFilter::WEWindowsType::HAMMING, ORDER, SFREQ,
-                                        C1FREQ, C2FREQ ) );
+        filter.reset( new WFIRFilterCpu( WFIRFilter::WEFilterType::BANDPASS, WFIRFilter::WEWindowsType::HAMMING, ORDER, SFREQ,
+        C1FREQ, C2FREQ ) );
         WFIRFilterTestHelper::filterStepTest( filter );
     }
 
     void test_filterSine( void )
-        {
-//            std::string fileName = W_FIXTURE_PATH + COEFFILE;
-        wlog::info("WFIRFilterCpuTest") << "test_filterSine() called!";
-            std::string fileName = "/home/pieloth/fdacoefs.h";
-            WFIRFilterCpu::SPtr filter( new WFIRFilterCpu( fileName.c_str() ) );
-            WFIRFilterTestHelper::filterSineTest( filter );
+    {
+        std::string fileName = W_FIXTURE_PATH + COEFFILE;
+        WFIRFilterCpu::SPtr filter( new WFIRFilterCpu( fileName.c_str() ) );
+        WFIRFilterTestHelper::filterSineTest( filter );
 
-//            filter.reset(
-//                            new WFIRFilterCpu( WFIRFilter::WEFilterType::BANDPASS, WFIRFilter::WEWindowsType::HAMMING, ORDER, SFREQ,
-//                                            C1FREQ, C2FREQ ) );
-//            WFIRFilterTestHelper::filterSineTest( filter );
-        }
+        filter.reset( new WFIRFilterCpu( WFIRFilter::WEFilterType::BANDPASS, WFIRFilter::WEWindowsType::HAMMING, ORDER, SFREQ,
+        C1FREQ, C2FREQ ) );
+        WFIRFilterTestHelper::filterSineTest( filter );
+    }
 };
 
-#endif // WFIRFILTERCPU_TEST_H
+#endif  // WFIRFILTERCPU_TEST_H
