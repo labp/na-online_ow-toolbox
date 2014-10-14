@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Setup static Qt5 library and includes for compilation.
+Setup Qt5 library and includes for compilation.
 """
 
 __author__ = 'pieloth'
@@ -15,7 +15,7 @@ from install import AInstaller
 from install import AInstaller as Utils
 
 
-QT5_INSTALL_FOLDER = "qt5_static"
+QT5_INSTALL_FOLDER = "qt5"
 
 
 class Installer(AInstaller):
@@ -56,15 +56,14 @@ class Installer(AInstaller):
 
     def post_install(self):
         print("Before compiling the toolbox, please set the following environment variables:\n")
-        static_root = os.path.join(self.DESTDIR, self.INSTALLDIR)
-        print("    QT5_STATIC_ROOT=" + static_root)
+        root_dir = os.path.join(self.DESTDIR, self.INSTALLDIR)
+        print("    QT5_ROOT=" + root_dir)
 
         include_dir = os.path.join(self.DESTDIR, self.INSTALLDIR, "include")
         print("    QT5_INCLUDE_DIR=" + include_dir)
-        print("    QT5_STATIC_INCLUDE_DIR=" + include_dir)
 
-        static_library_dir = os.path.join(self.DESTDIR, self.INSTALLDIR, "lib")
-        print("    QT5_STATIC_LIBRARY_DIR=" + static_library_dir)
+        library_dir = os.path.join(self.DESTDIR, self.INSTALLDIR, "lib")
+        print("    QT5_LIBRARY_DIR=" + library_dir)
 
         print
         return True
@@ -103,7 +102,6 @@ class Installer(AInstaller):
         options.append("-confirm-license")
         options.append("-opensource")
         options.append("-release")
-        options.append("-static")
         options.append("-nomake tests")
         options.append("-nomake examples")
         options.append("-qt-zlib")
@@ -129,7 +127,7 @@ class Installer(AInstaller):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Installs Qt5 Framework as static library.")
+    parser = argparse.ArgumentParser(description="Installs Qt5 Framework.")
     parser.add_argument("-d", "--destdir", help="Destination path.")
     args = parser.parse_args()
 

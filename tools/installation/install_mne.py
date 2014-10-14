@@ -108,7 +108,7 @@ if __name__ == "__main__":
     if args.destdir:
         destdir = args.destdir
 
-    qt5_root = os.path.join(destdir, "qt5_static")
+    qt5_root = os.path.join(destdir, "qt5")
     if args.qt5root:
         qt5_root = args.qt5root
     installer = Installer(destdir, qt5_root)

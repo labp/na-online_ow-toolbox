@@ -127,7 +127,7 @@ class Installer(AInstaller):
         rc = 0
 
         if AInstaller.ask_for_execute("Install Qt5 Framework"):
-            rc += call("python install_qt5_static.py " + destdir_arg, shell=True)
+            rc += call("python install_qt5.py " + destdir_arg, shell=True)
             
         print
     
