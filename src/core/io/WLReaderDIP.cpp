@@ -1,28 +1,29 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
-#include "WLReaderDIP.h"
+#include <cstddef>
+#include <string>
+#include <vector>
 
 #include <boost/smart_ptr/shared_ptr.hpp>
 #include <core/common/exceptions/WTypeMismatch.h>
@@ -31,84 +32,85 @@
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 #include <core/common/WLogger.h>
 #include <core/common/WStringUtils.h>
-#include <cstddef>
-#include <vector>
 
-#include "../container/WLArrayList.h"
-#include "../util/WLGeometry.h"
+#include "core/container/WLArrayList.h"
+#include "core/util/WLGeometry.h"
 
-using namespace LaBP;
-using namespace std;
+#include "WLReaderDIP.h"
+
+using std::ifstream;
+using std::string;
+using std::vector;
 
 const std::string WLReaderDIP::CLASS = "WLReaderDIP";
 
 WLReaderDIP::WLReaderDIP( std::string fname ) :
-                WLReader( fname )
+                WLReaderGeneric< WLEMMSurface::SPtr >( fname )
 {
 }
 
-WLReaderDIP::ReturnCode::Enum WLReaderDIP::read( WLEMMSurface::SPtr surface )
+WLIOStatus::IOStatusT WLReaderDIP::read( WLEMMSurface::SPtr* const surface )
 {
     ifstream ifs;
     ifs.open( m_fname.c_str(), ifstream::in );
 
     if( !ifs || ifs.bad() )
     {
-        return ReturnCode::ERROR_FOPEN;
+        return WLIOStatus::ERROR_FOPEN;
     }
 
     string line;
     size_t countPos = 0, countPoly = 0;
     bool hasPos = false, hasFaces = false;
-    ReturnCode::Enum rc = ReturnCode::ERROR_UNKNOWN;
+    WLIOStatus::IOStatusT rc = WLIOStatus::ERROR_UNKNOWN;
     try
     {
         while( getline( ifs, line ) && ( !hasPos || !hasFaces ) )
         {
             if( line.find( "UnitPosition" ) == 0 )
             {
-                rc = readUnit( line, surface );
+                rc = readUnit( *surface, line );
             }
             else
                 if( line.find( "NumberPositions=" ) == 0 )
                 {
-                    rc = readNumPos( line, countPos );
+                    rc = readNumPos( &countPos, line );
                 }
                 else
                     if( line.find( "Positions" ) == 0 )
                     {
-                        rc = readPositions( ifs, countPos, surface );
+                        rc = readPositions( ifs, countPos, *surface );
                         hasPos = true;
                     }
                     else
                         if( line.find( "NumberPolygons=" ) == 0 )
                         {
-                            rc = readNumPoly( line, countPoly );
+                            rc = readNumPoly( &countPoly, line );
                         }
                         else
                             if( line.find( "Polygons" ) == 0 )
                             {
-                                rc = readPolygons( ifs, countPoly, surface );
+                                rc = readPolygons( ifs, countPoly, *surface );
                             }
         }
     }
-    catch( WTypeMismatch& e )
+    catch( const WTypeMismatch& e )
     {
         wlog::error( CLASS ) << e.what();
-        rc = ReturnCode::ERROR_UNKNOWN;
+        rc = WLIOStatus::ERROR_UNKNOWN;
     }
 
-    if( surface->getFaces()->empty() )
+    if( ( *surface )->getFaces()->empty() )
     {
         wlog::warn( CLASS ) << "No faces found! Faces will be generated.";
-        WLGeometry::computeTriangulation( surface->getFaces().get(), *surface->getVertex() );
+        WLGeometry::computeTriangulation( ( *surface )->getFaces().get(), *( *surface )->getVertex() );
     }
 
     ifs.close();
     return rc;
 }
 
-WLReaderDIP::ReturnCode::Enum WLReaderDIP::readUnit( string& line, WLEMMSurface::SPtr surface )
+WLIOStatus::IOStatusT WLReaderDIP::readUnit( WLEMMSurface::SPtr surface, const string& line )
 {
     vector< string > tokens = string_utils::tokenize( line );
     string unit = tokens.at( 1 );
@@ -117,35 +119,33 @@ WLReaderDIP::ReturnCode::Enum WLReaderDIP::readUnit( string& line, WLEMMSurface:
     {
         surface->setVertexUnit( WLEUnit::METER );
         surface->setVertexExponent( WLEExponent::MILLI );
-        return ReturnCode::SUCCESS;
+        return WLIOStatus::SUCCESS;
     }
     else
     {
         wlog::warn( CLASS ) << "Unknown unit.";
-        return ReturnCode::ERROR_UNKNOWN;
+        return WLIOStatus::ERROR_UNKNOWN;
     }
-
 }
 
-WLReaderDIP::ReturnCode::Enum WLReaderDIP::readNumPos( string& line, size_t& count )
+WLIOStatus::IOStatusT WLReaderDIP::readNumPos( size_t* const count, const string& line )
 {
     vector< string > tokens = string_utils::tokenize( line );
-    count = string_utils::fromString< size_t >( tokens.at( 1 ) );
-    wlog::debug( "WReaderDIP" ) << "Number of positions: " << count;
-    return ReturnCode::SUCCESS;
+    *count = string_utils::fromString< size_t >( tokens.at( 1 ) );
+    wlog::debug( "WReaderDIP" ) << "Number of positions: " << *count;
+    return WLIOStatus::SUCCESS;
 }
 
-WLReaderDIP::ReturnCode::Enum WLReaderDIP::readNumPoly( string& line, size_t& count )
+WLIOStatus::IOStatusT WLReaderDIP::readNumPoly( size_t* const count, const string& line )
 {
     vector< string > tokens = string_utils::tokenize( line );
-    count = string_utils::fromString< size_t >( tokens.at( 1 ) );
-    wlog::debug( CLASS ) << "Number of polygons: " << count;
-    return ReturnCode::SUCCESS;
+    *count = string_utils::fromString< size_t >( tokens.at( 1 ) );
+    wlog::debug( CLASS ) << "Number of polygons: " << *count;
+    return WLIOStatus::SUCCESS;
 }
 
-WLReaderDIP::ReturnCode::Enum WLReaderDIP::readPositions( ifstream& ifs, size_t count, WLEMMSurface::SPtr surface )
+WLIOStatus::IOStatusT WLReaderDIP::readPositions( ifstream& ifs, size_t count, WLEMMSurface::SPtr surface )
 {
-
     WLArrayList< WPosition >::SPtr pos( new WLArrayList< WPosition >() );
     pos->reserve( count );
 
@@ -162,14 +162,14 @@ WLReaderDIP::ReturnCode::Enum WLReaderDIP::readPositions( ifstream& ifs, size_t 
     }
     if( pos->size() < count )
     {
-        return ReturnCode::ERROR_FREAD;
+        return WLIOStatus::ERROR_FREAD;
     }
     surface->setVertex( pos );
 
-    return ReturnCode::SUCCESS;
+    return WLIOStatus::SUCCESS;
 }
 
-WLReaderDIP::ReturnCode::Enum WLReaderDIP::readPolygons( ifstream& ifs, size_t count, WLEMMSurface::SPtr surface )
+WLIOStatus::IOStatusT WLReaderDIP::readPolygons( ifstream& ifs, size_t count, WLEMMSurface::SPtr surface )
 {
     WLArrayList< WVector3i >::SPtr faces( new WLArrayList< WVector3i >() );
     faces->reserve( count );
@@ -187,9 +187,9 @@ WLReaderDIP::ReturnCode::Enum WLReaderDIP::readPolygons( ifstream& ifs, size_t c
     }
     if( faces->size() < count )
     {
-        return ReturnCode::ERROR_FREAD;
+        return WLIOStatus::ERROR_FREAD;
     }
     surface->setFaces( faces );
 
-    return ReturnCode::SUCCESS;
+    return WLIOStatus::SUCCESS;
 }

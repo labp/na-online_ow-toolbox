@@ -1,25 +1,49 @@
-// TODO doc & license
+//---------------------------------------------------------------------------
+//
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
+//
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
+//
+// This file is part of NA-Online.
+//
+// NA-Online is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// NA-Online is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
+//
+//---------------------------------------------------------------------------
 
 #include <fstream>
 #include <string>
+#include <vector>
 
 #include <boost/shared_ptr.hpp>
 
 #include <core/common/WLogger.h>
 #include <core/common/WStringUtils.h>
-#include <core/dataHandler/io/WReader.h>
 
 #include "core/data/WLDataTypes.h"
 
 #include "WLReaderMatMab.h"
 
-using namespace std;
+using std::ios;
+using std::ifstream;
+using std::string;
+using std::vector;
 using WLMatrix::MatrixT;
 
-const string CLASS = "WLReaderMatMab";
+const std::string WLReaderMatMab::CLASS = "WLReaderMatMab";
 
 WLReaderMatMab::WLReaderMatMab( std::string fname ) :
-                WLReader( fname )
+                WLReaderGeneric< WLMatrix::SPtr >( fname )
 {
     wlog::debug( CLASS ) << "file: " << fname;
 }
@@ -28,20 +52,19 @@ WLReaderMatMab::~WLReaderMatMab()
 {
 }
 
-WLReaderMatMab::ReturnCode::Enum WLReaderMatMab::read( WLMatrix::SPtr& matrix )
+WLIOStatus::IOStatusT WLReaderMatMab::read( WLMatrix::SPtr* const matrix )
 {
-
     ifstream ifs;
     ifs.open( m_fname.c_str(), ifstream::in );
 
     if( !ifs || ifs.bad() )
     {
-        return ReturnCode::ERROR_FOPEN;
+        return WLIOStatus::ERROR_FOPEN;
     }
 
     string line;
 
-    ReturnCode::Enum rc = ReturnCode::ERROR_UNKNOWN;
+    WLIOStatus::IOStatusT rc = WLIOStatus::ERROR_UNKNOWN;
     size_t cols = 0, rows = 0;
     try
     {
@@ -63,10 +86,10 @@ WLReaderMatMab::ReturnCode::Enum WLReaderMatMab::read( WLMatrix::SPtr& matrix )
                 }
         }
     }
-    catch( WTypeMismatch& e )
+    catch( const WTypeMismatch& e )
     {
         wlog::error( CLASS ) << e.what();
-        rc = ReturnCode::ERROR_UNKNOWN;
+        rc = WLIOStatus::ERROR_UNKNOWN;
     }
     ifs.close();
 
@@ -75,8 +98,8 @@ WLReaderMatMab::ReturnCode::Enum WLReaderMatMab::read( WLMatrix::SPtr& matrix )
         string mabFile = m_fname.substr( 0, m_fname.find_last_of( ".mat" ) - 3 );
         mabFile = mabFile.append( ".mab" );
         wlog::debug( CLASS ) << "Matix file: " << mabFile;
-        matrix.reset( new MatrixT( rows, cols ) );
-        rc = readMab( matrix, mabFile, rows, cols );
+        matrix->reset( new MatrixT( rows, cols ) );
+        rc = readMab( *matrix, mabFile, rows, cols );
     }
     else
     {
@@ -84,15 +107,14 @@ WLReaderMatMab::ReturnCode::Enum WLReaderMatMab::read( WLMatrix::SPtr& matrix )
     }
 
     return rc;
-
 }
 
-WLReaderMatMab::ReturnCode::Enum WLReaderMatMab::readMab( WLMatrix::SPtr matrix, std::string fName, size_t rows, size_t cols )
+WLIOStatus::IOStatusT WLReaderMatMab::readMab( WLMatrix::SPtr matrix, std::string fName, size_t rows, size_t cols )
 {
     if( static_cast< size_t >( matrix->rows() ) != rows || static_cast< size_t >( matrix->cols() ) != cols )
     {
         wlog::error( CLASS ) << "Row or column size incorrect!";
-        return ReturnCode::ERROR_UNKNOWN;
+        return WLIOStatus::ERROR_UNKNOWN;
     }
 
     ifstream ifs;
@@ -100,7 +122,7 @@ WLReaderMatMab::ReturnCode::Enum WLReaderMatMab::readMab( WLMatrix::SPtr matrix,
 
     if( !ifs || ifs.bad() )
     {
-        return ReturnCode::ERROR_FOPEN;
+        return WLIOStatus::ERROR_FOPEN;
     }
 
     ifs.seekg( 0, ifs.end );
@@ -130,6 +152,6 @@ WLReaderMatMab::ReturnCode::Enum WLReaderMatMab::readMab( WLMatrix::SPtr matrix,
     ifs.seekg( 0, ifs.end );
     wlog::debug( CLASS ) << "Bytes left: " << ifs.tellg() - current;
 
-    return ReturnCode::SUCCESS;
+    return WLIOStatus::SUCCESS;
 }
 

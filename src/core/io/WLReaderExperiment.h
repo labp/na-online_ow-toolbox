@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -49,6 +48,8 @@ public:
      */
     typedef boost::shared_ptr< const WLReaderExperiment > ConstSPtr;
 
+    static const std::string CLASS;
+
     WLReaderExperiment( std::string experimentPath, std::string subject ) throw( WDHNoSuchFile );
     virtual ~WLReaderExperiment();
 
@@ -58,11 +59,11 @@ public:
 
     // BEM Layer //
     std::set< std::string > findBems();
-    bool readBem( std::string fname, WLEMMSubject::SPtr subject ); // TODO evt return code
+    bool readBem( std::string fname, WLEMMSubject::SPtr subject ); // TODO(pieloth) evt return code
 
     // Source Space //
-    std::set< std::string > findSurfaceKinds(); // TODO evt. Enum als Rückgabe
-    bool readSourceSpace( std::string surfaceKind, WLEMMSubject::SPtr subject ); // TODO evt return code
+    std::set< std::string > findSurfaceKinds(); // TODO(pieloth) evt. Enum als Rückgabe
+    bool readSourceSpace( std::string surfaceKind, WLEMMSubject::SPtr subject ); // TODO(pieloth) evt return code
 
     // Leadfield //
     std::set< std::string > findLeadfieldTrials();
@@ -96,7 +97,6 @@ private:
     static const std::string m_DIP;
     static const std::string m_MAT;
     static const std::string m_FIFF;
-    static const std::string CLASS;
 };
 
-#endif /* WLREADEREXPERIMENT_H_ */
+#endif  // WLREADEREXPERIMENT_H_

@@ -188,7 +188,7 @@ bool WMMatWriter::handleMatFileChanged()
     try
     {
         m_writer.reset( new WLWriterMAT( fname ) );
-        WLIOStatus::ioStatus_t state = m_writer->init();
+        WLIOStatus::IOStatusT state = m_writer->init();
         if( state == WLIOStatus::SUCCESS )
         {
             infoLog() << SUCCESS_OPEN;
@@ -224,7 +224,7 @@ bool WMMatWriter::writeData( WLEMMeasurement::ConstSPtr emmIn )
     }
     WLEMData::ConstSPtr emd = emmIn->getModality( mod );
     const WLEMData::DataT& data = emd->getData();
-    WLIOStatus::ioStatus_t state = m_writer->writeMatrix( data );
+    WLIOStatus::IOStatusT state = m_writer->writeMatrix( data );
     if( state == WLIOStatus::SUCCESS )
     {
         infoLog() << SUCCESS_WRITE;

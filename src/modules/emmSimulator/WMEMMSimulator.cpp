@@ -427,7 +427,7 @@ bool WMEMMSimulator::hdlLeadfieldFileChanged( std::string fName, WLMatrix::SPtr&
         return false;
     }
 
-    if( reader->read( lf ) == WLIOStatus::SUCCESS )
+    if( reader->read( &lf ) == WLIOStatus::SUCCESS )
     {
         m_propStatusAdditional->set( EData::name( EData::DATA_LOADED ), true );
         progress->finish();
@@ -466,7 +466,7 @@ bool WMEMMSimulator::hdlSurfaceFileChanged( std::string fName )
     }
 
     m_surface.reset( new WLEMMSurface() );
-    if( reader->read( m_surface ) == WLIOStatus::SUCCESS )
+    if( reader->read( &m_surface ) == WLIOStatus::SUCCESS )
     {
         m_propStatusAdditional->set( EData::name( EData::DATA_LOADED ), true );
         progress->finish();

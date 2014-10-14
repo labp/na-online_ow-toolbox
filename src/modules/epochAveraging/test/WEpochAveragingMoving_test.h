@@ -65,9 +65,9 @@ public:
                 emdAverage = emmAverage->getModality( mod );
                 TS_ASSERT_EQUALS( emdAverage->getNrChans(), emd->getNrChans() );
                 TS_ASSERT_EQUALS( emdAverage->getSamplesPerChan(), emd->getSamplesPerChan() );
-                for( size_t chan = 0; chan < emdAverage->getNrChans(); ++chan )
+                for( WLChanIdxT chan = 0; chan < emdAverage->getNrChans(); ++chan )
                 {
-                    for( size_t smp = 0; smp < emdAverage->getSamplesPerChan(); ++smp )
+                    for( WLSampleIdxT smp = 0; smp < emdAverage->getSamplesPerChan(); ++smp )
                     {
                         TS_ASSERT_DELTA( emdAverage->getData()( chan, smp ),
                                         getSum( std::min( i, averager->getSize() - 1 ), ( i + mod ) * SAMPLES + smp, SAMPLES )
@@ -95,9 +95,9 @@ public:
                 emdAverage = emmAverage->getModality( mod );
                 TS_ASSERT_EQUALS( emdAverage->getNrChans(), emd->getNrChans() );
                 TS_ASSERT_EQUALS( emdAverage->getSamplesPerChan(), emd->getSamplesPerChan() );
-                for( size_t chan = 0; chan < emdAverage->getNrChans(); ++chan )
+                for( WLChanIdxT chan = 0; chan < emdAverage->getNrChans(); ++chan )
                 {
-                    for( size_t smp = 0; smp < emdAverage->getSamplesPerChan(); ++smp )
+                    for( WLSampleIdxT smp = 0; smp < emdAverage->getSamplesPerChan(); ++smp )
                     {
                         TS_ASSERT_DELTA( emdAverage->getData()( chan, smp ),
                                         getSum( std::min( i, averager->getSize() - 1 ), ( i + mod ) * SAMPLES + smp, SAMPLES )

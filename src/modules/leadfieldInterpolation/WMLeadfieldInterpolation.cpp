@@ -26,7 +26,7 @@
 
 #include <mne/mne_forwardsolution.h>
 
-#include <QFile>
+#include <QtCore/QFile>
 
 #include <core/common/WPathHelper.h>
 
@@ -44,7 +44,6 @@
 #include "WMLeadfieldInterpolation.xpm"
 #include "WMLeadfieldInterpolation.h"
 
-using namespace LaBP;
 using WLMatrix::MatrixT;
 
 // This line is needed by the module loader to actually find your module.
@@ -265,12 +264,11 @@ bool WMLeadfieldInterpolation::readFiff( const std::string& fname )
     {
         WLReaderFIFF fiffReader( fname );
         m_fiffEmm.reset( new WLEMMeasurement() );
-        if( fiffReader.Read( m_fiffEmm ) == WLReaderFIFF::ReturnCode::SUCCESS )
+        if( fiffReader.read( &m_fiffEmm ) == WLIOStatus::SUCCESS )
         {
             if( !m_fiffEmm->hasModality( WLEModality::EEG ) )
             {
                 errorLog() << "No EEG found!";
-                // TODO(pieloth): Support for other modalities.
                 return false;
             }
             infoLog() << "Reading FIFF file finished!";
@@ -311,7 +309,6 @@ bool WMLeadfieldInterpolation::readHDLeadfield( const std::string& fname )
 
 bool WMLeadfieldInterpolation::interpolate()
 {
-// TODO(pieloth): Support for other modalities.
     debugLog() << "interpolate() called!";
     WLTimeProfiler tp( "WMLeadfieldInterpolation", "interpolate" );
 
@@ -360,7 +357,6 @@ bool WMLeadfieldInterpolation::processCompute( WLEMMeasurement::SPtr emm )
     bool rc = true;
     if( m_leadfieldInterpolated )
     {
-        // TODO NOTE: Manipulation of a incoming packet!!!
         emm->getSubject()->setLeadfield( WLEModality::EEG, m_leadfieldInterpolated );
     }
     else

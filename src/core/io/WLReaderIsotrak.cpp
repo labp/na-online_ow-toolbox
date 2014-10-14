@@ -1,26 +1,27 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
+
+#include <string>
 
 #include <QtCore/QBuffer>
 #include <QtCore/QByteArray>
@@ -43,32 +44,27 @@
 
 #include "WLReaderIsotrak.h"
 
-using namespace std;
 using namespace FIFFLIB;
 
 const std::string WLReaderIsotrak::CLASS = "WReaderNeuromagIsotrak";
 
-WLReaderIsotrak::WLReaderIsotrak( std::string fname )
+WLReaderIsotrak::WLReaderIsotrak( std::string fname ) :
+                WLReaderGeneric< std::list< WLDigPoint > >( fname )
 {
-    if( !fileExists( fname ) )
-    {
-        throw WDHNoSuchFile( fname );
-    }
-
     m_stream.reset( new FiffStream( new QFile( QString::fromStdString( fname ) ) ) );
 }
 
-WLReaderIsotrak::WLReaderIsotrak( const char* data, size_t size )
+WLReaderIsotrak::WLReaderIsotrak( const char* data, size_t size ) :
+                WLReaderGeneric< std::list< WLDigPoint > >( std::string( data ) )
 {
     m_stream.reset( new FiffStream( new QBuffer( new QByteArray( data, size ) ) ) );
 }
 
 WLReaderIsotrak::~WLReaderIsotrak()
 {
-
 }
 
-WLReader::ReturnCode::Enum WLReaderIsotrak::read( WLList< WLDigPoint >::SPtr digPoints )
+WLIOStatus::IOStatusT WLReaderIsotrak::read( std::list< WLDigPoint >* const digPoints )
 {
     digPoints->clear();
     FiffDirTree tree;
@@ -81,14 +77,13 @@ WLReader::ReturnCode::Enum WLReaderIsotrak::read( WLList< WLDigPoint >::SPtr dig
     else
     {
         wlog::debug( CLASS ) << "Stream not opened.";
-        return WLReader::ReturnCode::ERROR_FOPEN;
+        return WLIOStatus::ERROR_FOPEN;
     }
 
-    return readDigPoints( tree, digPoints ) ? WLReader::ReturnCode::SUCCESS : WLReader::ReturnCode::ERROR_FREAD;
-
+    return readDigPoints( digPoints, tree ) ? WLIOStatus::SUCCESS : WLIOStatus::ERROR_FREAD;
 }
 
-bool WLReaderIsotrak::readDigPoints( const FiffDirTree& p_Node, WLList< WLDigPoint >::SPtr out )
+bool WLReaderIsotrak::readDigPoints( std::list< WLDigPoint >* const out, const FiffDirTree& p_Node )
 {
     //
     //   Find the desired blocks

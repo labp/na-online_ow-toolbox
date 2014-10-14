@@ -31,12 +31,11 @@
 #include <boost/shared_ptr.hpp>
 
 #include <core/common/math/linearAlgebra/WPosition.h>
-#include <core/dataHandler/io/WReader.h>
 #include <core/dataHandler/exceptions/WDHNoSuchFile.h>
 
-#include "core/io/WLIOStatus.h"
+#include "core/io/WLReaderGeneric.h"
 
-class WReaderEEGPositions: public WReader, public WLIOStatus::WLIOStatusInterpreter
+class WReaderEEGPositions: public WLReaderGeneric< std::vector< WPosition > >
 {
 public:
     /**
@@ -55,7 +54,7 @@ public:
 
     virtual ~WReaderEEGPositions();
 
-    WLIOStatus::ioStatus_t read( boost::shared_ptr< std::vector< WPosition > >& positions );
+    virtual WLIOStatus::IOStatusT read( std::vector< WPosition >* const positions );
 };
 
 #endif  // WREADEREEGPOSITIONS_H_

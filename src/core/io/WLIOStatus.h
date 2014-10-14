@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -30,28 +29,28 @@
 /**
  * Return Codes and type for I/O objects, e.g. reader and writer.
  *
- * @author pieloth
+ * \author pieloth
  */
 namespace WLIOStatus
 {
-    typedef char ioStatus_t;
+    typedef char IOStatusT;
 
-    const ioStatus_t _USER_OFFSET = 64; /**< Offset for user defined (reader/writer) status codes. */
+    const IOStatusT _USER_OFFSET = 64; /**< Offset for user defined (reader/writer) status codes. */
 
-    const ioStatus_t SUCCESS = 0;
-    const ioStatus_t ERROR_UNKNOWN = 1; /**< Unknown error */
-    const ioStatus_t ERROR_FOPEN = 2; /**< Error opening file */
-    const ioStatus_t ERROR_FREAD = 3; /**< File read error */
-    const ioStatus_t ERROR_FWRITE = 4; /**< File write error */
+    const IOStatusT SUCCESS = 0; /**< I/O operation successful. */
+    const IOStatusT ERROR_UNKNOWN = 1; /**< Unknown error */
+    const IOStatusT ERROR_FOPEN = 2; /**< Error opening file */
+    const IOStatusT ERROR_FREAD = 3; /**< File read error */
+    const IOStatusT ERROR_FWRITE = 4; /**< File write error */
 
     /**
      * Returns a description for a status code.
      *
-     * @param statusCode
+     * \param statusCode
      *
-     * @return Description for status code.
+     * \return Description for status code.
      */
-    std::string description( ioStatus_t statusCode );
+    std::string description( IOStatusT statusCode );
 
     /**
      * Provides an interface for user-defined status codes, e.g. for reader and writer.
@@ -65,11 +64,11 @@ namespace WLIOStatus
          * Returns a description for a status code.
          * Default implementation wraps WLIOStatus::description().
          *
-         * @param status
+         * \param status
          *
-         * @return Description for status code.
+         * \return Description for status code.
          */
-        virtual std::string getIOStatusDescription( WLIOStatus::ioStatus_t status );
+        virtual std::string getIOStatusDescription( WLIOStatus::IOStatusT status );
 
     protected:
         WLIOStatusInterpreter();

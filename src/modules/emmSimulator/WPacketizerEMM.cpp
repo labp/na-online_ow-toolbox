@@ -56,8 +56,8 @@ WLEMMeasurement::SPtr WPacketizerEMM::next()
     m_hasData = false;
 
     float smplFrq;
-    size_t samples;
-    size_t samplesOffset;
+    WLSampleNrT samples = 0;
+    WLSampleNrT samplesOffset;
     // clone each modality
     std::vector< WLEMData::ConstSPtr >::const_iterator itEmd;
     for( itEmd = m_emds.begin(); itEmd != m_emds.end(); ++itEmd )
@@ -70,9 +70,9 @@ WLEMMeasurement::SPtr WPacketizerEMM::next()
         const WLEMData::DataT orgData = ( *itEmd )->getData();
 
         // copy each channel
-        for( size_t chan = 0; chan < ( *itEmd )->getNrChans(); ++chan )
+        for( WLChanIdxT chan = 0; chan < ( *itEmd )->getNrChans(); ++chan )
         {
-            for( size_t sample = 0; sample < samples && ( samplesOffset + sample ) < orgData.cols(); ++sample )
+            for( WLSampleIdxT sample = 0; sample < samples && ( samplesOffset + sample ) < orgData.cols(); ++sample )
             {
                 ( *emdData )( chan, sample ) = orgData( chan, samplesOffset + sample );
             }
@@ -98,7 +98,7 @@ WLEMMeasurement::SPtr WPacketizerEMM::next()
     {
         WLEMMeasurement::EChannelT eChan;
         eChan.reserve( samples );
-        for( size_t event = 0; event < samples && ( samplesOffset + event ) < ( *itEChans ).size(); ++event )
+        for( WLSampleIdxT event = 0; event < samples && ( samplesOffset + event ) < ( *itEChans ).size(); ++event )
         {
             eChan.push_back( ( *itEChans )[samplesOffset + event] );
         }

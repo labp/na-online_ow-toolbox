@@ -26,10 +26,10 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <QtGlobal>
-#include <QList>
-#include <QMap>
-#include <QString>
+#include <QtCore/QtGlobal>
+#include <QtCore/QList>
+#include <QtCore/QMap>
+#include <QtCore/QString>
 
 #include <fiff/fiff_ch_info.h>
 #include <fiff/fiff_dig_point.h>
@@ -609,7 +609,7 @@ bool WRtClient::preparePrototype( WLEMData* const emd, const Eigen::RowVectorXi&
     readChannelNames( emd, picks );
     if( readChannelPositions( emd, picks ) )
     {
-        readChannelFaces( emd, picks );
+        readChannelFaces( emd );
         return true;
     }
     else
@@ -726,7 +726,7 @@ bool WRtClient::readChannelPositions( WLEMData* const emd, const Eigen::RowVecto
     return false;
 }
 
-bool WRtClient::readChannelFaces( WLEMData* const emd, const Eigen::RowVectorXi& picks )
+bool WRtClient::readChannelFaces( WLEMData* const emd )
 {
     wlog::debug( CLASS ) << "readChannelFaces() called!";
 

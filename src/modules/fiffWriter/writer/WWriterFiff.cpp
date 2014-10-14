@@ -29,9 +29,9 @@
 #include <fiff/fiff_dig_point.h>
 #include <fiff/fiff_info.h>
 #include <fiff/fiff_stream.h>
-#include <QFile>
-#include <QList>
-#include <QString>
+#include <QtCore/QFile>
+#include <QtCore/QList>
+#include <QtCore/QString>
 
 #include <core/common/WLogger.h>
 #include "core/data/WLEMMeasurement.h"
@@ -225,10 +225,10 @@ bool WWriterFiff::writeData( const WLEMMeasurement* const emm )
         return false;
     }
 
-    size_t nchan = 0;
-    size_t samples = 0;
+    WLChanNrT nchan = 0;
+    WLSampleNrT samples = 0;
     WLEMData::ConstSPtr eeg;
-    size_t nchanEEG = 0;
+    WLChanNrT nchanEEG = 0;
     if( m_pickEEG && emm->hasModality( WLEModality::EEG ) )
     {
         eeg = emm->getModality( WLEModality::EEG );
@@ -237,7 +237,7 @@ bool WWriterFiff::writeData( const WLEMMeasurement* const emm )
         samples = eeg->getSamplesPerChan();
     }
     WLEMData::ConstSPtr meg;
-    size_t nchanMEG = 0;
+    WLChanNrT nchanMEG = 0;
     if( m_pickMEG && emm->hasModality( WLEModality::MEG ) )
     {
         meg = emm->getModality( WLEModality::MEG );
@@ -255,13 +255,13 @@ bool WWriterFiff::writeData( const WLEMMeasurement* const emm )
     }
 
     WLEMMeasurement::EDataT* stim = NULL;
-    size_t nchanStim = 0;
+    WLChanNrT nchanStim = 0;
     if( m_pickStim )
     {
         stim = emm->getEventChannels().get(); // dirty hack to get pointer
         nchanStim = stim->size();
         nchan += nchanStim;
-        if( samples > 0 && samples != stim->at( 0 ).size() )
+        if( samples > 0 && samples != static_cast< WLSampleNrT >( stim->at( 0 ).size() ) )
         {
             wlog::error( CLASS ) << "Samples are not equal!";
             return false;
@@ -289,9 +289,9 @@ bool WWriterFiff::writeData( const WLEMMeasurement* const emm )
     if( nchanStim > 0 )
     {
         wlog::debug( CLASS ) << "Writing stimuli (" << nchanStim << ") ...";
-        for( size_t c = 0; c < nchanStim; ++c )
+        for( WLChanIdxT c = 0; c < nchanStim; ++c )
         {
-            for( size_t t = 0; t < samples; ++t )
+            for( WLSampleIdxT t = 0; t < samples; ++t )
             {
                 data( c + offsetChan, t ) = ( *stim )[c][t];
             }
@@ -336,7 +336,7 @@ void WWriterFiff::setChannelInfo( QList< FIFFLIB::FiffChInfo >* const chs, const
 {
     const std::vector< std::string >& chNames = *eeg->getChanNames();
     const std::vector< WPosition >& pos = *eeg->getChannelPositions3d();
-    for( size_t c = 0; c < eeg->getNrChans(); ++c )
+    for( WLChanIdxT c = 0; c < eeg->getNrChans(); ++c )
     {
         FiffChInfo chInfo;
         const WPosition p = pos.at( c );
@@ -359,7 +359,7 @@ void WWriterFiff::setChannelInfo( QList< FIFFLIB::FiffChInfo >* const chs, const
 {
     const std::vector< std::string >& chNames = *meg->getChanNames();
     const std::vector< WPosition >& pos = *meg->getChannelPositions3d();
-    for( size_t c = 0; c < meg->getNrChans(); ++c )
+    for( WLChanIdxT c = 0; c < meg->getNrChans(); ++c )
     {
         FiffChInfo chInfo;
         setChannelInfo( &chInfo );

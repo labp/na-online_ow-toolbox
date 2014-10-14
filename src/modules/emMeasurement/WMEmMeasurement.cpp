@@ -65,7 +65,6 @@
 #include "WMEmMeasurement.xpm"
 
 using std::string;
-using namespace LaBP;
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMEmMeasurement )
@@ -320,8 +319,8 @@ void WMEmMeasurement::streamData()
         WRealtimeTimer waitTimer;
 
         const double SEC_PER_BLOCK = ( double )m_fiffStreamBlockSize->get() / 1000; // blockSize in seconds
-        size_t blockSize = 0; // blockSize depending on SEC_PER_BLOCK and sampling frequency
-        size_t blockOffset = 0; // start index for current block
+        WLSampleNrT blockSize = 0; // blockSize depending on SEC_PER_BLOCK and sampling frequency
+        WLSampleNrT blockOffset = 0; // start index for current block
         size_t blockCount = 0;
         int smplFrq;
         WLEMData::DataT fiffData;
@@ -361,9 +360,9 @@ void WMEmMeasurement::streamData()
                 fiffData = ( *emd )->getData();
 
                 // copy each channel
-                for( size_t chan = 0; chan < ( *emd )->getNrChans(); ++chan )
+                for( WLChanIdxT chan = 0; chan < ( *emd )->getNrChans(); ++chan )
                 {
-                    for( size_t sample = 0; sample < blockSize && ( blockOffset + sample ) < fiffData.cols(); ++sample )
+                    for( WLSampleIdxT sample = 0; sample < blockSize && ( blockOffset + sample ) < fiffData.cols(); ++sample )
                     {
                         ( *data )( chan, sample ) = fiffData( chan, blockOffset + sample );
                     }
@@ -387,7 +386,7 @@ void WMEmMeasurement::streamData()
             {
                 WLEMMeasurement::EChannelT data;
                 data.reserve( blockSize );
-                for( size_t event = 0; event < blockSize && ( blockOffset + event ) < ( *eChannel ).size(); ++event )
+                for( WLSampleIdxT event = 0; event < blockSize && ( blockOffset + event ) < ( *eChannel ).size(); ++event )
                 {
                     data.push_back( ( *eChannel )[blockOffset + event] );
                 }
@@ -525,9 +524,9 @@ bool WMEmMeasurement::readFiff( std::string fname )
     m_fiffFileStatus->set( LOADING_FILE, true );
     if( boost::filesystem::exists( fname ) && boost::filesystem::is_regular_file( fname ) )
     {
-        LaBP::WLReaderFIFF fiffReader( fname );
+        WLReaderFIFF fiffReader( fname );
         m_fiffEmm.reset( new WLEMMeasurement() );
-        if( fiffReader.Read( m_fiffEmm ) == LaBP::WLReaderFIFF::ReturnCode::SUCCESS )
+        if( fiffReader.read( &m_fiffEmm ) == WLIOStatus::SUCCESS )
         {
             if( m_fiffEmm->hasModality( WLEModality::EEG ) )
             {
@@ -569,10 +568,10 @@ bool WMEmMeasurement::readElc( std::string fname )
     m_elcPositions3d.reset( new std::vector< WPosition >() );
     m_elcFaces.reset( new std::vector< WVector3i >() );
 
-    LaBP::WLReaderELC* elcReader;
+    WLReaderELC* elcReader;
     try
     {
-        elcReader = new LaBP::WLReaderELC( fname );
+        elcReader = new WLReaderELC( fname );
     }
     catch( const std::exception& e )
     {
@@ -581,7 +580,7 @@ bool WMEmMeasurement::readElc( std::string fname )
         return false;
     }
 
-    if( elcReader->read( m_elcPositions3d, m_elcLabels, m_elcFaces ) == LaBP::WLReaderELC::ReturnCode::SUCCESS )
+    if( elcReader->read( m_elcPositions3d.get(), m_elcLabels.get(), m_elcFaces.get() ) == WLIOStatus::SUCCESS )
     {
         m_elcChanLabelCount->set( m_elcLabels->size(), true );
         m_elcChanPositionCount->set( m_elcPositions3d->size(), true );
@@ -634,10 +633,10 @@ bool WMEmMeasurement::readDip( std::string fname )
     m_dipFileStatus->set( LOADING_FILE, true );
     m_dipSurface.reset();
 
-    LaBP::WLReaderDIP* reader;
+    WLReaderDIP* reader;
     try
     {
-        reader = new LaBP::WLReaderDIP( fname );
+        reader = new WLReaderDIP( fname );
     }
     catch( const std::exception& e )
     {
@@ -647,7 +646,7 @@ bool WMEmMeasurement::readDip( std::string fname )
     }
 
     m_dipSurface.reset( new WLEMMSurface() );
-    if( reader->read( m_dipSurface ) == LaBP::WLReaderDIP::ReturnCode::SUCCESS )
+    if( reader->read( &m_dipSurface ) == WLIOStatus::SUCCESS )
     {
         m_dipPositionCount->set( m_dipSurface->getVertex()->size(), true );
         m_dipFacesCount->set( m_dipSurface->getFaces()->size(), true );
@@ -690,10 +689,10 @@ bool WMEmMeasurement::readVol( std::string fname )
     m_volFileStatus->set( LOADING_FILE, true );
     m_volBoundaries.reset();
 
-    LaBP::WLReaderVOL* reader;
+    WLReaderVOL* reader;
     try
     {
-        reader = new LaBP::WLReaderVOL( fname );
+        reader = new WLReaderVOL( fname );
     }
     catch( const std::exception& e )
     {
@@ -703,7 +702,7 @@ bool WMEmMeasurement::readVol( std::string fname )
     }
 
     m_volBoundaries = WLList< WLEMMBemBoundary::SPtr >::instance();
-    if( reader->read( m_volBoundaries.get() ) == LaBP::WLReaderVOL::ReturnCode::SUCCESS )
+    if( reader->read( m_volBoundaries.get() ) == WLIOStatus::SUCCESS )
     {
         m_volBoundaryCount->set( m_volBoundaries->size(), true );
         m_volFileStatus->set( FILE_LOADED, true );
