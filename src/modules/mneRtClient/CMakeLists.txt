@@ -36,18 +36,6 @@ SET( ADDITIONAL_LIBS "" )
 
 
 # --------------------------------------------------------------------------------------------------------------------------------
-# TODO(pieloth) #178: Runtime error on debug build with -O0 
-# --------------------------------------------------------------------------------------------------------------------------------
-
-IF( CMAKE_BUILD_TYPE MATCHES Debug )
-	IF( CMAKE_COMPILER_IS_GNUCXX )
-		MESSAGE( "[mneRtClient] TODO(pieloth) #178: Runtime error on debug build with -O0, using -O1 instead!" )
-		ADD_DEFINITIONS( -O1 )
-	ENDIF()
-ENDIF()
-
-
-# --------------------------------------------------------------------------------------------------------------------------------
 # Add MNE Library for Real Time Streaming
 # --------------------------------------------------------------------------------------------------------------------------------
 # NOTE: Order of static libs is important. Wrong order can produce undefined references and symbols!
