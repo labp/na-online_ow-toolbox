@@ -61,7 +61,7 @@ WLIOStatus::WLIOStatusInterpreter::~WLIOStatusInterpreter()
 {
 }
 
-std::string WLIOStatus::WLIOStatusInterpreter::getIOStatusDescription( WLIOStatus::IOStatusT status )
+std::string WLIOStatus::WLIOStatusInterpreter::getIOStatusDescription( WLIOStatus::IOStatusT status ) const
 {
     return WLIOStatus::description( status );
 }

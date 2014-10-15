@@ -42,10 +42,12 @@
  *
  * \author pieloth
  */
-class WLReaderMAT: public WLReaderGeneric< WLMatrix::SPtr >
+class WLReaderMAT: public WLReaderGeneric< WLMatrix::SPtr >, public WLIOStatus::WLIOStatusInterpreter
 {
 public:
     const static std::string CLASS;
+
+    const static WLIOStatus::IOStatusT ERROR_NO_MATRIXD; /**< File does not contain a double matrix. */
 
     /**
      * Shared pointer abbreviation to a instance of this class.
@@ -77,6 +79,8 @@ public:
     virtual WLIOStatus::IOStatusT read( WLMatrix::SPtr* const matrix );
 
     virtual void close();
+
+    virtual std::string getIOStatusDescription( WLIOStatus::IOStatusT status ) const;
 
 private:
     std::ifstream m_ifs;

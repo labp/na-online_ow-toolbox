@@ -267,12 +267,14 @@ bool WMMatReader::handleMatFileChanged()
 
     m_matrix.reset();
     status = reader->read( &m_matrix );
+    reader->close();
+
     if( status != WLIOStatus::SUCCESS )
     {
-        errorLog() << WLIOStatus::description( status );
+        errorLog() << reader->getIOStatusDescription( status );
         return false;
     }
-    reader->close();
+
     infoLog() << SUCCESS_READ << " Matrix: " << m_matrix->rows() << "x" << m_matrix->cols();
     return true;
 }

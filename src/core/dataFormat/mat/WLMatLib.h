@@ -204,6 +204,19 @@ namespace WLMatLib
         static bool readMatrixDouble( Eigen::MatrixXd* const matrix, const ElementInfo_t& element, std::ifstream& ifs,
                         const FileInfo_t& info );
 
+        /**
+         * Reads the matrix which is contained by the element.
+         *
+         * \param matrix Matrix to fill.
+         * \param element Element which contains the matrix to read.
+         * \param ifs Open input stream to read from.
+         * \param info File information e.g. to handle endian format.
+         *
+         * \return true, if successful, false otherwise.
+         */
+        static bool readMatrixComplex( Eigen::MatrixXcd* const matrix, const ElementInfo_t& element, std::ifstream& ifs,
+                        const FileInfo_t& info );
+
     private:
         static bool readTagField( mDataType_t* const dataType, mNumBytes_t* const numBytes, std::ifstream& ifs );
 
