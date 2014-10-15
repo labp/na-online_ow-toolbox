@@ -118,9 +118,9 @@ namespace WLMatLib
      */
     namespace ArrayFlags
     {
-        const miUINT32_t MASK_COMPLEX = 0x00000080;
-        const miUINT32_t MASK_GLOBAL = 0x00000040;
-        const miUINT32_t MASK_LOGICAL = 0x00000020;
+        const miUINT32_t MASK_COMPLEX = 0x00000800;
+        const miUINT32_t MASK_GLOBAL = 0x00000400;
+        const miUINT32_t MASK_LOGICAL = 0x00000200;
         const miUINT32_t MASK_GET_CLASS = 0x0000000F;
 
         bool isComplex( const mArrayFlags_t& data );

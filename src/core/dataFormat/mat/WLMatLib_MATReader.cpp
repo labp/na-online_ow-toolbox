@@ -224,9 +224,9 @@ bool WLMatLib::MATReader::readArraySubelements( ElementInfo_t* const element, st
     ifs.read( ( char* )&arrayFlags, 8 );
     const mArrayFlags_t arrayFlag = arrayFlags[0];
     wlog::debug( LIBNAME ) << "Array Flag: " << arrayFlag;
-    // FIXME(pieloth): ArrayFlag/Complex/Global/Logical is not recognized correctly!
     if( ArrayFlags::isComplex( arrayFlag ) )
     {
+        // TODO(pieloth): handle complex flag.
         wlog::debug( LIBNAME ) << "Is complex.";
     }
     if( ArrayFlags::isGlobal( arrayFlag ) )
