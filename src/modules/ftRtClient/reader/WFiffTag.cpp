@@ -25,9 +25,14 @@
 
 #include "WFiffTag.h"
 
-bool WFiffTag::read_tag_info( FiffStream* p_pStream, FiffTag::SPtr &p_pTag, bool p_bDoSkip )
+using namespace FIFFLIB;
+
+bool WFiffTag::read_tag_info( FiffTag* const p_pTag, FiffStream* const p_pStream, bool p_bDoSkip )
 {
-    p_pTag = FiffTag::SPtr( new FiffTag() );
+    if( p_pTag == NULL )
+    {
+        return false;
+    }
 
     // read tag kind
     if( 0 > p_pStream->readRawData( ( char * )&p_pTag->kind, sizeof( p_pTag->kind ) ) )
@@ -81,14 +86,17 @@ bool WFiffTag::read_tag_info( FiffStream* p_pStream, FiffTag::SPtr &p_pTag, bool
     return true;
 }
 
-bool WFiffTag::read_tag( FiffStream* p_pStream, FiffTag::SPtr& p_pTag, qint64 pos )
+bool WFiffTag::read_tag( FiffTag* const p_pTag, FiffStream* const p_pStream, qint64 pos )
 {
+    if( p_pTag == NULL )
+    {
+        return false;
+    }
+
     if( pos >= 0 )
     {
         p_pStream->device()->seek( pos );
     }
-
-    p_pTag = FiffTag::SPtr( new FiffTag() );
 
     // read tag kind
     if( 0 > p_pStream->readRawData( ( char * )&p_pTag->kind, sizeof( p_pTag->kind ) ) )

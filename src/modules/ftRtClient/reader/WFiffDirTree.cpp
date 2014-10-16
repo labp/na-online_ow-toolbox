@@ -23,18 +23,21 @@
 
 #include "WFiffDirTree.h"
 
-bool WFiffDirTree::find_tag( FiffStream* p_pStream, fiff_int_t findkind, FiffTag::SPtr& p_pTag ) const
+bool WFiffDirTree::find_tag( FiffTag* const p_pTag, FiffStream* const p_pStream, fiff_int_t findkind ) const
 {
+    if( p_pTag == NULL )
+    {
+        return false;
+    }
+
     for( qint32 p = 0; p < this->nent; ++p )
     {
         if( this->dir[p].kind == findkind )
         {
-            WFiffTag::read_tag( p_pStream, p_pTag, this->dir[p].pos );
+            WFiffTag::read_tag( p_pTag, p_pStream, this->dir[p].pos );
             return true;
         }
     }
-    if( p_pTag )
-        p_pTag.clear();
 
     return false;
 }

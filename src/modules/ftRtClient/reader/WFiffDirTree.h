@@ -33,12 +33,11 @@ using namespace FIFFLIB;
 /**
 * Replaces _fiffDirNode struct
 *
-* @brief Directory tree structure
+* \brief Directory tree structure
 */
 class WFiffDirTree: public FiffDirTree
 {
 public:
-
     /**
      * Implementation of the find_tag function in various files e.g. fiff_read_named_matrix.m
      *
@@ -46,14 +45,13 @@ public:
      * Note: In difference to mne-matlab this is not a static function. This is a method of the WFiffDirTree
      *       class, that's why a tree object doesn't need to be handed to the function.
      *
-     * @param[in] p_pStream the opened fif file
-     * @param[in] findkind the kind which should be found
-     * @param[out] p_pTag the found tag
+     * \param[out] p_pTag the found tag
+     * \param[in] p_pStream the opened fif file
+     * \param[in] findkind the kind which should be found
      *
-     * @return true if found, false otherwise
+     * \return true if found, false otherwise
      */
-    bool find_tag( FiffStream* p_pStream, fiff_int_t findkind, FiffTag::SPtr& p_pTag ) const;
-
+    bool find_tag( FiffTag* const p_pTag, FiffStream* const p_pStream, fiff_int_t findkind ) const;
 };
 
-#endif /* WFIFFDIRTREE_H_ */
+#endif  // WFIFFDIRTREE_H_

@@ -28,38 +28,35 @@
 
 #include "WFiffStream.h"
 
-using namespace FIFFLIB;
-
 /**
  * Tags are used in front of data items to tell what they are.
  */
-class WFiffTag: public FiffTag
+class WFiffTag: public FIFFLIB::FiffTag
 {
 public:
-
     /**
      * Read tag information of one tag from a fif file.
      * if pos is not provided, reading starts from the current file position
      *
-     * @param[in] p_pStream opened fif file
-     * @param[out] p_pTag the read tag info
-     * @param[in] p_bDoSkip if true it skips the data of the tag (optional, default = true)
+     * \param[out] p_pTag the read tag info
+     * \param[in] p_pStream opened fif file
+     * \param[in] p_bDoSkip if true it skips the data of the tag (optional, default = true)
      *
-     * @return true if succeeded, false otherwise
+     * \return true if succeeded, false otherwise
      */
-    static bool read_tag_info( FiffStream* p_pStream, FiffTag::SPtr &p_pTag, bool p_bDoSkip = true );
+    static bool read_tag_info( FIFFLIB::FiffTag* const p_pTag, FIFFLIB::FiffStream* const p_pStream, bool p_bDoSkip = true );
 
     /**
      * Read one tag from a fif file.
      * if pos is not provided, reading starts from the current file position
      *
-     * @param[in] p_pStream opened fif file
-     * @param[out] p_pTag the read tag
-     * @param[in] pos position of the tag inside the fif file
+     * \param[out] p_pTag the read tag
+     * \param[in] p_pStream opened fif file
+     * \param[in] pos position of the tag inside the fif file
      *
-     * @return true if succeeded, false otherwise
+     * \return true if succeeded, false otherwise
      */
-    static bool read_tag( FiffStream* p_pStream, FiffTag::SPtr& p_pTag, qint64 pos = -1 );
+    static bool read_tag( FIFFLIB::FiffTag* const p_pTag, FIFFLIB::FiffStream* const p_pStream, qint64 pos = -1 );
 };
 
-#endif /* WFIFFTAG_H_ */
+#endif  // WFIFFTAG_H_

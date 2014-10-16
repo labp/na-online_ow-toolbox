@@ -21,7 +21,9 @@
 //
 //---------------------------------------------------------------------------
 
-#include "core/common/WLogger.h"
+#include <string>
+
+#include <core/common/WLogger.h>
 
 #include "WFiffDirTree.h"
 #include "WFiffTag.h"
@@ -35,7 +37,6 @@ const std::string WFiffStream::CLASS = "WFiffStream";
 WFiffStream::WFiffStream( QIODevice *p_pIODevice ) :
                 FiffStream( p_pIODevice )
 {
-
 }
 
 bool WFiffStream::read_meas_info( const FiffDirTree& p_Node, FiffInfo& info, FiffDirTree& p_NodeInfo )
@@ -64,7 +65,7 @@ bool WFiffStream::read_meas_info( const FiffDirTree& p_Node, FiffInfo& info, Fif
     //
     //   Read measurement info
     //
-    WFiffTag::SPtr t_pTag;
+    WFiffTag t_pTag;
 
     fiff_int_t nchan = -1;
     float sfreq = -1.0f;
@@ -92,38 +93,44 @@ bool WFiffStream::read_meas_info( const FiffDirTree& p_Node, FiffInfo& info, Fif
         switch( kind )
         {
             case FIFF_NCHAN:
-                WFiffTag::read_tag( this, t_pTag, pos );
-                nchan = *t_pTag->toInt();
+                WFiffTag::read_tag( &t_pTag, this, pos );
+                nchan = *t_pTag.toInt();
                 break;
             case FIFF_SFREQ:
-                WFiffTag::read_tag( this, t_pTag, pos );
-                sfreq = *t_pTag->toFloat();
+                WFiffTag::read_tag( &t_pTag, this, pos );
+                sfreq = *t_pTag.toFloat();
                 break;
             case FIFF_CH_INFO:
-                WFiffTag::read_tag( this, t_pTag, pos );
-                chs.append( t_pTag->toChInfo() );
+                WFiffTag::read_tag( &t_pTag, this, pos );
+                chs.append( t_pTag.toChInfo() );
                 break;
             case FIFF_LOWPASS:
-                WFiffTag::read_tag( this, t_pTag, pos );
-                lowpass = *t_pTag->toFloat();
+                WFiffTag::read_tag( &t_pTag, this, pos );
+                lowpass = *t_pTag.toFloat();
                 break;
             case FIFF_HIGHPASS:
-                WFiffTag::read_tag( this, t_pTag, pos );
-                highpass = *t_pTag->toFloat();
+                WFiffTag::read_tag( &t_pTag, this, pos );
+                highpass = *t_pTag.toFloat();
                 break;
             case FIFF_MEAS_DATE:
-                WFiffTag::read_tag( this, t_pTag, pos );
-                meas_date[0] = t_pTag->toInt()[0];
-                meas_date[1] = t_pTag->toInt()[1];
+                WFiffTag::read_tag( &t_pTag, this, pos );
+                meas_date[0] = t_pTag.toInt()[0];
+                meas_date[1] = t_pTag.toInt()[1];
                 break;
             case FIFF_COORD_TRANS:
-                WFiffTag::read_tag( this, t_pTag, pos );
-                cand = t_pTag->toCoordTrans();
+                WFiffTag::read_tag( &t_pTag, this, pos );
+                cand = t_pTag.toCoordTrans();
                 if( cand.from == FIFFV_COORD_DEVICE && cand.to == FIFFV_COORD_HEAD )
+                {
                     dev_head_t = cand;
+                }
                 else
+                {
                     if( cand.from == FIFFV_MNE_COORD_CTF_HEAD && cand.to == FIFFV_COORD_HEAD )
+                    {
                         ctf_head_t = cand;
+                    }
+                }
                 break;
         }
     }
@@ -162,13 +169,19 @@ bool WFiffStream::read_meas_info( const FiffDirTree& p_Node, FiffInfo& info, Fif
                 pos = hpi_result[0].dir[k].pos;
                 if( kind == FIFF_COORD_TRANS )
                 {
-                    WFiffTag::read_tag( this, t_pTag, pos );
-                    cand = t_pTag->toCoordTrans();
+                    WFiffTag::read_tag( &t_pTag, this, pos );
+                    cand = t_pTag.toCoordTrans();
                     if( cand.from == FIFFV_COORD_DEVICE && cand.to == FIFFV_COORD_HEAD )
+                    {
                         dev_head_t = cand;
+                    }
                     else
+                    {
                         if( cand.from == FIFFV_MNE_COORD_CTF_HEAD && cand.to == FIFFV_COORD_HEAD )
+                        {
                             ctf_head_t = cand;
+                        }
+                    }
                 }
             }
         }
@@ -191,21 +204,21 @@ bool WFiffStream::read_meas_info( const FiffDirTree& p_Node, FiffInfo& info, Fif
             pos = isotrak[0].dir[k].pos;
             if( kind == FIFF_DIG_POINT )
             {
-                WFiffTag::read_tag( this, t_pTag, pos );
-                dig.append( t_pTag->toDigPoint() );
+                WFiffTag::read_tag( &t_pTag, this, pos );
+                dig.append( t_pTag.toDigPoint() );
             }
             else
             {
                 if( kind == FIFF_MNE_COORD_FRAME )
                 {
-                    WFiffTag::read_tag( this, t_pTag, pos );
-                    coord_frame = *t_pTag->toInt();
+                    WFiffTag::read_tag( &t_pTag, this, pos );
+                    coord_frame = *t_pTag.toInt();
                 }
                 else
                     if( kind == FIFF_COORD_TRANS )
                     {
-                        WFiffTag::read_tag( this, t_pTag, pos );
-                        dig_trans = t_pTag->toCoordTrans();
+                        WFiffTag::read_tag( &t_pTag, this, pos );
+                        dig_trans = t_pTag.toCoordTrans();
                     }
             }
         }
@@ -231,14 +244,14 @@ bool WFiffStream::read_meas_info( const FiffDirTree& p_Node, FiffInfo& info, Fif
             pos = acqpars[0].dir.at( k ).pos;
             if( kind == FIFF_DACQ_PARS )
             {
-                WFiffTag::read_tag( this, t_pTag, pos );
-                acq_pars = t_pTag->toString();
+                WFiffTag::read_tag( &t_pTag, this, pos );
+                acq_pars = t_pTag.toString();
             }
             else
                 if( kind == FIFF_DACQ_STIM )
                 {
-                    WFiffTag::read_tag( this, t_pTag, pos );
-                    acq_stim = t_pTag->toString();
+                    WFiffTag::read_tag( &t_pTag, this, pos );
+                    acq_stim = t_pTag.toString();
                 }
         }
     }
@@ -259,9 +272,13 @@ bool WFiffStream::read_meas_info( const FiffDirTree& p_Node, FiffInfo& info, Fif
     //   Put the data together
     //
     if( p_Node.id.version != -1 )
+    {
         info.file_id = p_Node.id;
+    }
     else
+    {
         info.file_id.version = -1;
+    }
 
     //
     //  Make the most appropriate selection for the measurement id
@@ -273,19 +290,28 @@ bool WFiffStream::read_meas_info( const FiffDirTree& p_Node, FiffInfo& info, Fif
             if( meas[0].id.version == -1 )
             {
                 if( meas[0].parent_id.version == -1 )
+                {
                     info.meas_id = info.file_id;
+                }
                 else
+                {
                     info.meas_id = meas[0].parent_id;
+                }
             }
             else
+            {
                 info.meas_id = meas[0].id;
+            }
         }
         else
+        {
             info.meas_id = meas_info[0].id;
+        }
     }
     else
+    {
         info.meas_id = meas_info[0].parent_id;
-
+    }
     if( meas_date[0] == -1 )
     {
         info.meas_date[0] = info.meas_id.time.secs;
@@ -300,14 +326,21 @@ bool WFiffStream::read_meas_info( const FiffDirTree& p_Node, FiffInfo& info, Fif
     info.nchan = nchan;
     info.sfreq = sfreq;
     if( highpass != -1.0f )
+    {
         info.highpass = highpass;
+    }
     else
+    {
         info.highpass = 0.0f;
-
+    }
     if( lowpass != -1.0f )
+    {
         info.lowpass = lowpass;
+    }
     else
+    {
         info.lowpass = info.sfreq / 2.0;
+    }
 
     //
     //   Add the channel information and make a list of channel names
@@ -329,14 +362,18 @@ bool WFiffStream::read_meas_info( const FiffDirTree& p_Node, FiffInfo& info, Fif
         info.dev_ctf_t.trans = ctf_head_t.trans.inverse() * info.dev_ctf_t.trans;
     }
     else
+    {
         info.dev_ctf_t.clear();
+    }
 
     //
     //   All kinds of auxliary stuff
     //
     info.dig = dig;
     if( !dig_trans.isEmpty() )
+    {
         info.dig_trans = dig_trans;
+    }
 
     info.bads = bads;
     info.projs = projs;
@@ -363,7 +400,9 @@ QList< FiffProj > WFiffStream::read_proj( const FiffDirTree& p_Node )
     t_qListNodes[0].find_tag( this, FIFF_NCHAN, t_pTag );
     fiff_int_t global_nchan = 0;
     if( t_pTag )
+    {
         global_nchan = *t_pTag->toInt();
+    }
 
     fiff_int_t nchan;
     QList< FiffDirTree > t_qListItems = t_qListNodes[0].dir_tree_find( FIFFB_PROJ_ITEM );
@@ -373,24 +412,27 @@ QList< FiffProj > WFiffStream::read_proj( const FiffDirTree& p_Node )
         //   Find all desired tags in one item
         //
         WFiffDirTree* t_pFiffDirTreeItem = ( WFiffDirTree* )&t_qListItems[i];
-        t_pFiffDirTreeItem->find_tag( this, FIFF_NCHAN, t_pTag );
-        if( t_pTag )
+        if( t_pFiffDirTreeItem->find_tag( t_pTag.data(), this, FIFF_NCHAN ) )
+        {
             nchan = *t_pTag->toInt();
+        }
         else
+        {
             nchan = global_nchan;
+        }
 
-        t_pFiffDirTreeItem->find_tag( this, FIFF_DESCRIPTION, t_pTag );
         QString desc; // maybe, in some cases this has to be a struct.
-        if( t_pTag )
+        if( t_pFiffDirTreeItem->find_tag( t_pTag.data(), this, FIFF_DESCRIPTION ) )
         {
             //wlog::debug( CLASS ) << "read_proj: this has to be debugged";
             desc = t_pTag->toString();
         }
         else
         {
-            t_pFiffDirTreeItem->find_tag( this, FIFF_NAME, t_pTag );
-            if( t_pTag )
+            if( t_pFiffDirTreeItem->find_tag( t_pTag.data(), this, FIFF_NAME ) )
+            {
                 desc = t_pTag->toString();
+            }
             else
             {
                 wlog::warn( CLASS ) << "Projection item description missing";
@@ -408,9 +450,8 @@ QList< FiffProj > WFiffStream::read_proj( const FiffDirTree& p_Node )
         //                printf("Projection item channel list missing\n");
         //                return projdata;
         //            }
-        t_pFiffDirTreeItem->find_tag( this, FIFF_PROJ_ITEM_KIND, t_pTag );
         fiff_int_t kind;
-        if( t_pTag )
+        if( t_pFiffDirTreeItem->find_tag( t_pTag.data(), this, FIFF_PROJ_ITEM_KIND ) )
         {
             kind = *t_pTag->toInt();
         }
@@ -419,9 +460,8 @@ QList< FiffProj > WFiffStream::read_proj( const FiffDirTree& p_Node )
             wlog::warn( CLASS ) << "Projection item kind missing";
             return projdata;
         }
-        t_pFiffDirTreeItem->find_tag( this, FIFF_PROJ_ITEM_NVEC, t_pTag );
         fiff_int_t nvec;
-        if( t_pTag )
+        if( t_pFiffDirTreeItem->find_tag( t_pTag.data(), this, FIFF_PROJ_ITEM_NVEC ) )
         {
             nvec = *t_pTag->toInt();
         }
@@ -430,9 +470,9 @@ QList< FiffProj > WFiffStream::read_proj( const FiffDirTree& p_Node )
             wlog::warn( CLASS ) << "Number of projection vectors not specified";
             return projdata;
         }
-        t_pFiffDirTreeItem->find_tag( this, FIFF_PROJ_ITEM_CH_NAME_LIST, t_pTag );
+
         QStringList names;
-        if( t_pTag )
+        if( t_pFiffDirTreeItem->find_tag( t_pTag.data(), this, FIFF_PROJ_ITEM_CH_NAME_LIST ) )
         {
             names = split_name_list( t_pTag->toString() );
         }
@@ -441,9 +481,9 @@ QList< FiffProj > WFiffStream::read_proj( const FiffDirTree& p_Node )
             wlog::warn( CLASS ) << "Projection item channel list missing";
             return projdata;
         }
-        t_pFiffDirTreeItem->find_tag( this, FIFF_PROJ_ITEM_VECTORS, t_pTag );
+
         MatrixXd data;    // = NULL;
-        if( t_pTag )
+        if( t_pFiffDirTreeItem->find_tag( t_pTag.data(), this, FIFF_PROJ_ITEM_VECTORS ) )
         {
             data = t_pTag->toFloatMatrix().cast< double >();
             data.transposeInPlace();
@@ -453,12 +493,16 @@ QList< FiffProj > WFiffStream::read_proj( const FiffDirTree& p_Node )
             wlog::warn( CLASS ) << "Projection item data missing";
             return projdata;
         }
-        t_pFiffDirTreeItem->find_tag( this, FIFF_MNE_PROJ_ITEM_ACTIVE, t_pTag );
+
         bool active;
-        if( t_pTag )
+        if( t_pFiffDirTreeItem->find_tag( t_pTag.data(), this, FIFF_MNE_PROJ_ITEM_ACTIVE ) )
+        {
             active = *t_pTag->toInt();
+        }
         else
+        {
             active = false;
+        }
 
         if( data.cols() != names.size() )
         {
@@ -478,20 +522,20 @@ QList< FiffProj > WFiffStream::read_proj( const FiffDirTree& p_Node )
     }
 
     /*
-    if( projdata.size() > 0 )
-    {
-        wlog::debug( CLASS ) << "\tRead a total of %d projection items:", projdata.size();
-        for( qint32 k = 0; k < projdata.size(); ++k )
-        {
-            wlog::debug( CLASS ) << "\t\t" << projdata[k].desc.toUtf8().constData() << " (" << projdata[k].data->nrow << " x "
-                            << projdata[k].data->ncol << ")";
-            if( projdata[k].active )
-                wlog::debug( CLASS ) << " active";
-            else
-                wlog::debug( CLASS ) << " idle";
-        }
-    }
-    */
+     if( projdata.size() > 0 )
+     {
+     wlog::debug( CLASS ) << "\tRead a total of %d projection items:", projdata.size();
+     for( qint32 k = 0; k < projdata.size(); ++k )
+     {
+     wlog::debug( CLASS ) << "\t\t" << projdata[k].desc.toUtf8().constData() << " (" << projdata[k].data->nrow << " x "
+     << projdata[k].data->ncol << ")";
+     if( projdata[k].active )
+     wlog::debug( CLASS ) << " active";
+     else
+     wlog::debug( CLASS ) << " idle";
+     }
+     }
+     */
 
     return projdata;
 }
