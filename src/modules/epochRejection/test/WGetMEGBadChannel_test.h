@@ -1,9 +1,25 @@
-/*
- * WGetMEGBadChannel_test.h
- *
- *  Created on: 31.01.2014
- *      Author: maschke
- */
+//---------------------------------------------------------------------------
+//
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
+//
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
+//
+// This file is part of NA-Online.
+//
+// NA-Online is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// NA-Online is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
+//
+//---------------------------------------------------------------------------
 
 #ifndef WGETMEGBADCHANNEL_TEST_H_
 #define WGETMEGBADCHANNEL_TEST_H_
@@ -24,7 +40,6 @@
 class WGetMEGBadChannel: public CxxTest::TestSuite
 {
 public:
-
     WGetMEGBadChannel()
     {
         this->m_helper.reset( new WEpochRejectionTestHelper() ); // create helper class
@@ -74,11 +89,11 @@ public:
         TS_ASSERT_EQUALS( meg->getData( WLEMEGGeneralCoilType::GRADIOMETER )->rows(), 200 );
         TS_ASSERT_EQUALS( meg->getData( WLEMEGGeneralCoilType::MAGNETOMETER )->rows(), 100 );
 
-        TS_ASSERT_EQUALS( meg->isBadChannel(2), true );
-        TS_ASSERT_EQUALS( meg->isBadChannel(5), true );
-        TS_ASSERT_EQUALS( meg->isBadChannel(12), false );
-        TS_ASSERT_EQUALS( meg->isBadChannel(14), true );
-        TS_ASSERT_EQUALS( meg->isBadChannel(9), false );
+        TS_ASSERT_EQUALS( meg->isBadChannel( 2 ), true );
+        TS_ASSERT_EQUALS( meg->isBadChannel( 5 ), true );
+        TS_ASSERT_EQUALS( meg->isBadChannel( 12 ), false );
+        TS_ASSERT_EQUALS( meg->isBadChannel( 14 ), true );
+        TS_ASSERT_EQUALS( meg->isBadChannel( 9 ), false );
         TS_ASSERT_EQUALS( meg->getDataBadChannels( WLEMEGGeneralCoilType::GRADIOMETER )->rows(), 200 );
         TS_ASSERT_EQUALS( meg->getDataBadChannels( WLEMEGGeneralCoilType::MAGNETOMETER )->rows(), 95 );
     }
@@ -87,4 +102,4 @@ private:
     WEpochRejectionTestHelper::SPtr m_helper;
 };
 
-#endif /* WGETMEGBADCHANNEL_TEST_H_ */
+#endif  // WGETMEGBADCHANNEL_TEST_H_

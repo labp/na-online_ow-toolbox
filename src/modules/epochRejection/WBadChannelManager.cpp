@@ -1,28 +1,28 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
 #include <map>
+#include <utility>  // std::pair
 
 #include "core/data/emd/WLEMData.h"
 #include "core/data/enum/WLEModality.h"
@@ -38,7 +38,6 @@ WBadChannelManager::WBadChannelManager()
 
 WBadChannelManager::~WBadChannelManager()
 {
-
 }
 
 WBadChannelManager *WBadChannelManager::instance()
@@ -106,14 +105,14 @@ bool WBadChannelManager::isChannelBad( const WLEModality::Enum& modality, const 
 
 bool WBadChannelManager::hasBadChannels( const WLEModality::Enum& modality ) const
 {
-    if(m_map->empty())
+    if( m_map->empty() )
         return false;
 
-    if(m_map->count(modality) == 0)
+    if( m_map->count( modality ) == 0 )
         return false;
 
-    if(m_map->at(modality)->empty())
-            return false;
+    if( m_map->at( modality )->empty() )
+        return false;
 
     return true;
 }
@@ -143,10 +142,14 @@ size_t WBadChannelManager::countChannels( const WLEModality::Enum& modality ) co
 WLEMData::ChannelListSPtr WBadChannelManager::getChannelList( const WLEModality::Enum& mod )
 {
     if( m_map->count( mod ) == 0 )
+    {
         return WLEMData::ChannelListSPtr();
-    else
-        if( m_map->at( mod )->empty() )
-            return WLEMData::ChannelListSPtr();
+    }
+
+    if( m_map->at( mod )->empty() )
+    {
+        return WLEMData::ChannelListSPtr();
+    }
 
     WLEMData::ChannelListSPtr listSPtr( new WLEMData::ChannelList() );
     WLEMData::ChannelList& list = *listSPtr;
@@ -162,17 +165,17 @@ WLEMData::ChannelListSPtr WBadChannelManager::getChannelList( const WLEModality:
 
 WBadChannelManager::ChannelMap_SPtr WBadChannelManager::getChannelMap()
 {
-    if(m_map->empty())
+    if( m_map->empty() )
         return WBadChannelManager::ChannelMap_SPtr();
 
     WBadChannelManager::ChannelMap_SPtr mapSPtr( new WBadChannelManager::ChannelMap() );
     WBadChannelManager::ChannelMap& map = *mapSPtr;
     WBadChannelManager::ChannelMap::iterator it;
-    for(it = m_map->begin(); it != m_map->end(); ++it)
+    for( it = m_map->begin(); it != m_map->end(); ++it )
     {
-        if(hasBadChannels(it->first))
+        if( hasBadChannels( it->first ) )
         {
-            map.insert(WBadChannelManager::ChannelMap::value_type(it->first, getChannelList(it->first)));
+            map.insert( WBadChannelManager::ChannelMap::value_type( it->first, getChannelList( it->first ) ) );
         }
     }
 
