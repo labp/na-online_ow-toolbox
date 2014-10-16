@@ -24,6 +24,8 @@
 #ifndef WMFTRTCLIENT_H_
 #define WMFTRTCLIENT_H_
 
+#include <string>
+
 #include <boost/shared_ptr.hpp>
 
 #include <core/kernel/WModule.h>
@@ -51,7 +53,6 @@
 class WMFTRtClient: public WLModuleDrawable
 {
 public:
-
     /**
      * Constructs a new WMFTRtClient.
      */
@@ -75,7 +76,6 @@ public:
     virtual const std::string getDescription() const;
 
 protected:
-
     /**
      * Method for initialize the module.
      *
@@ -114,29 +114,28 @@ protected:
     /**
      * Inherited method from WLEMMCommandProcessor.
      *
-     * @param emm The measurement object.
-     * @return Returns true if the computaion was successfully, otherwise false.
+     * \param emm The measurement object.
+     * \return Returns true if the computaion was successfully, otherwise false.
      */
     virtual bool processCompute( WLEMMeasurement::SPtr emm );
 
     /**
      * Inherited method from WLEMMCommandProcessor.
      *
-     * @param labp The command object.
-     * @return Returns true if the module was initialized successfully, otherwise false.
+     * \param labp The command object.
+     * \return Returns true if the module was initialized successfully, otherwise false.
      */
     virtual bool processInit( WLEMMCommand::SPtr labp );
 
     /**
      * Inherited method from WLEMMCommandProcessor.
      *
-     * @param labp The command object.
-     * @return Returns true if the module was reseted successfully, otherwise false.
+     * \param labp The command object.
+     * \return Returns true if the module was reseted successfully, otherwise false.
      */
     virtual bool processReset( WLEMMCommand::SPtr labp );
 
 private:
-
     /**
      * Input connector for a EMM data set.
      */
@@ -330,7 +329,7 @@ private:
     /**
      * Method for updating the modules output connector and some GUI fields.
      *
-     * @param emm The EMM object for delivering to the output connector.
+     * \param emm The EMM object for delivering to the output connector.
      */
     void updateOutput( WLEMMeasurement::SPtr emm );
 
@@ -342,7 +341,7 @@ private:
     /**
      * Callback when the connect button was clicked.
      *
-     * @return Returns true if the callback was successfully, otherwise false.
+     * \return Returns true if the callback was successfully, otherwise false.
      */
     bool callbackTrgConnect();
 
@@ -374,23 +373,23 @@ private:
     /**
      * Callback when a Source Space file was selected.
      *
-     * @return Retruns true if the file was loaded, otherwise false.
+     * \return Retruns true if the file was loaded, otherwise false.
      */
     bool callbackSourceSpace( std::string fName );
 
     /**
      * Callback when a BEM Layer file was selected.
      *
-     * @return Retruns true if the file was loaded, otherwise false.
+     * \return Retruns true if the file was loaded, otherwise false.
      */
     bool callbackBEMLayer( std::string fName );
 
     /**
      * Callback when a Leadfield EEG file was selected.
      *
-     * @return Retruns true if the file was loaded, otherwise false.
+     * \return Retruns true if the file was loaded, otherwise false.
      */
-    bool callbackLeadfieldFile( std::string, WLMatrix::SPtr& leadfield );
+    bool callbackLeadfieldFile( WLMatrix::SPtr* const leadfield, std::string );
 
     /**
      * Callback when the reset additional infomation button was clicked.
@@ -478,4 +477,4 @@ private:
     static const std::string STANDARD_FILE_PATH;
 };
 
-#endif /* WMFTRTCLIENT_H_ */
+#endif  // WMFTRTCLIENT_H_

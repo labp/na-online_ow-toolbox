@@ -21,6 +21,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include <boost/exception/all.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/pointer_cast.hpp>
@@ -61,7 +63,6 @@ WMFTRtClient::WMFTRtClient()
 
 WMFTRtClient::~WMFTRtClient()
 {
-
 }
 
 boost::shared_ptr< WModule > WMFTRtClient::factory() const
@@ -297,14 +298,14 @@ void WMFTRtClient::moduleMain()
         }
         if( m_leadfieldEEGFile->changed( true ) )
         {
-            if( callbackLeadfieldFile( m_leadfieldEEGFile->get().string(), m_leadfieldEEG ) )
+            if( callbackLeadfieldFile( &m_leadfieldEEG, m_leadfieldEEGFile->get().string() ) )
             {
                 m_subject->setLeadfield( WLEModality::EEG, m_leadfieldEEG );
             }
         }
         if( m_leadfieldMEGFile->changed( true ) )
         {
-            if( callbackLeadfieldFile( m_leadfieldMEGFile->get().string(), m_leadfieldMEG ) )
+            if( callbackLeadfieldFile( &m_leadfieldMEG, m_leadfieldMEGFile->get().string() ) )
             {
                 m_subject->setLeadfield( WLEModality::MEG, m_leadfieldMEG );
             }
@@ -453,7 +454,6 @@ bool WMFTRtClient::callbackTrgConnect()
 
         return false;
     }
-
 }
 
 void WMFTRtClient::callbackTrgDisconnect()
@@ -468,7 +468,6 @@ void WMFTRtClient::callbackTrgDisconnect()
         }
 
         m_ftRtClient->disconnect(); // disconnect client
-
     }
 
     applyStatusDisconnected();
@@ -537,7 +536,6 @@ void WMFTRtClient::callbackTrgStartStreaming()
                             emm->setSubject( m_subject ); // add the subject information.
                         }
 
-
                         viewUpdate( emm ); // display on screen.
 
                         updateOutput( emm ); // transmit to the next module.
@@ -547,7 +545,6 @@ void WMFTRtClient::callbackTrgStartStreaming()
                         errorLog() << "Error while extracting values from response. The streaming will be stopped.";
                         m_stopStreaming = true;
                     }
-
                 }
 
                 // get new events
@@ -555,19 +552,19 @@ void WMFTRtClient::callbackTrgStartStreaming()
                 {
                     m_events->set( m_ftRtClient->getEventCount(), true );
 
-                    BOOST_FOREACH(WFTEvent::SPtr event, *m_ftRtClient->getEventList()){
-                    debugLog() << "Fire Event: " << *event;
+                    BOOST_FOREACH( WFTEvent::SPtr event, *m_ftRtClient->getEventList() )
+                    {
+                        debugLog() << "Fire Event: " << *event;
+                    }
                 }
             }
-        }
-        else
-        {
-            m_stopStreaming = true; // stop streaming on error during request.
+            else
+            {
+                m_stopStreaming = true; // stop streaming on error during request.
 
-            errorLog() << "Error while requesting buffer server for new data. Check your connection and the server, please.";
+                errorLog() << "Error while requesting buffer server for new data. Check your connection and the server, please.";
+            }
         }
-    }
-
         m_ftRtClient->stop(); // stop streaming
     }
     else
@@ -600,7 +597,6 @@ void WMFTRtClient::applyStatusConnected()
     m_trgConnect->setHidden( true );
     m_trgDisconnect->setHidden( false );
     m_conStatus->set( CONNECTION_CONNECT, true );
-
 }
 
 void WMFTRtClient::applyStatusDisconnected()
@@ -611,7 +607,6 @@ void WMFTRtClient::applyStatusDisconnected()
     m_trgConnect->setHidden( false );
     m_trgDisconnect->setHidden( true );
     m_conStatus->set( CONNECTION_DISCONNECT, true );
-
 }
 
 void WMFTRtClient::applyStatusStreaming()
@@ -728,7 +723,7 @@ bool WMFTRtClient::callbackBEMLayer( std::string fName )
     }
 }
 
-bool WMFTRtClient::callbackLeadfieldFile( std::string fName, WLMatrix::SPtr& leadfield )
+bool WMFTRtClient::callbackLeadfieldFile( WLMatrix::SPtr* const leadfield, std::string fName )
 {
     debugLog() << "callbackLeadfieldFile()";
 
@@ -749,7 +744,7 @@ bool WMFTRtClient::callbackLeadfieldFile( std::string fName, WLMatrix::SPtr& lea
         return false;
     }
 
-    if( reader->read( leadfield ) == WLIOStatus::SUCCESS )
+    if( reader->read( *leadfield ) == WLIOStatus::SUCCESS )
     {
         m_additionalFileStatus->set( FILE_LOADED, true );
         progress->finish();
@@ -786,7 +781,6 @@ void WMFTRtClient::callbackTrgAdditionalReset()
     m_bems.reset();
     m_leadfieldEEG.reset();
     m_leadfieldMEG.reset();
-
 }
 
 void WMFTRtClient::dispHeaderInfo()
