@@ -21,10 +21,13 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef PACKETIZEREMM_H_
-#define PACKETIZEREMM_H_
+#ifndef WPACKETIZEREMM_H_
+#define WPACKETIZEREMM_H_
 
 #include <string>
+#include <vector>
+
+#include <boost/shared_ptr.hpp>
 
 #include "core/data/WLEMMeasurement.h"
 
@@ -50,4 +53,4 @@ private:
     bool m_hasData;
 };
 
-#endif  // PACKETIZEREMM_H_
+#endif  // WPACKETIZEREMM_H_

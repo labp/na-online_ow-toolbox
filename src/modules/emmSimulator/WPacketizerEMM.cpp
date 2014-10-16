@@ -21,6 +21,10 @@
 //
 //---------------------------------------------------------------------------
 
+#include <set>
+#include <string>
+#include <vector>
+
 #include <core/common/WLogger.h>
 
 #include "WPacketizerEMM.h"

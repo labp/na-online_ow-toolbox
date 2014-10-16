@@ -123,7 +123,7 @@ private:
     WPropFilename m_lfMEGFile;
     WLMatrix::SPtr m_leadfieldEEG;
     WLMatrix::SPtr m_leadfieldMEG;
-    bool hdlLeadfieldFileChanged( std::string fName, WLMatrix::SPtr& lf );
+    bool hdlLeadfieldFileChanged( WLMatrix::SPtr* const lf, std::string fName );
 
     WPropString m_propStatusAdditional;
 
