@@ -21,8 +21,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMLEADFIELDINTERPOLATION_H_
-#define WMLEADFIELDINTERPOLATION_H_
+#ifndef WMFIFFWRITER_H_
+#define WMFIFFWRITER_H_
 
 #include <string>
 
@@ -109,4 +109,4 @@ private:
     WWriterFiff::SPtr m_fiffWriter;
 };
 
-#endif  // WMLEADFIELDINTERPOLATION_H_
+#endif  // WMFIFFWRITER_H_
