@@ -666,7 +666,7 @@ bool WMFTRtClient::callbackSourceSpace( std::string fName )
     }
 
     m_surface.reset( new WLEMMSurface() );
-    if( reader->read( m_surface ) == WLIOStatus::SUCCESS )
+    if( reader->read( &m_surface ) == WLIOStatus::SUCCESS )
     {
         m_additionalFileStatus->set( FILE_LOADED, true );
         progress->finish();
@@ -744,7 +744,7 @@ bool WMFTRtClient::callbackLeadfieldFile( WLMatrix::SPtr* const leadfield, std::
         return false;
     }
 
-    if( reader->read( *leadfield ) == WLIOStatus::SUCCESS )
+    if( reader->read( leadfield ) == WLIOStatus::SUCCESS )
     {
         m_additionalFileStatus->set( FILE_LOADED, true );
         progress->finish();

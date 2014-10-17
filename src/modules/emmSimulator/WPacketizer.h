@@ -21,8 +21,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef PACKETIZER_H_
-#define PACKETIZER_H_
+#ifndef WPACKETIZER_H_
+#define WPACKETIZER_H_
 
 #include <boost/shared_ptr.hpp>
 
@@ -48,4 +48,4 @@ protected:
     const size_t m_blockSize;
 };
 
-#endif  // PACKETIZER_H_
+#endif  // WPACKETIZER_H_

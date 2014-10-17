@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -35,32 +34,31 @@
 
 #include "core/data/WLEMMSubject.h"
 #include "core/data/WLEMMBemBoundary.h"
-#include "core/io/WLReader.h"
+#include "core/io/WLReaderGeneric.h"
 
-namespace LaBP
+class WLReaderVOL: public WLReaderGeneric< std::list< WLEMMBemBoundary::SPtr > >
 {
+public:
+    static const std::string CLASS;
 
-    class WLReaderVOL: public WLReader
+    /**
+     * Constructs a reader object.
+     *
+     * \param fname path to file which should be loaded
+     */
+    explicit WLReaderVOL( std::string fname );
+    virtual ~WLReaderVOL()
     {
-    public:
-        /**
-         * Constructs a reader object.
-         *
-         * \param fname path to file which should be loaded
-         */
-        explicit WLReaderVOL( std::string fname );
-        virtual ~WLReaderVOL()
-        {
-        }
+    }
 
-        ReturnCode::Enum read( std::list< WLEMMBemBoundary::SPtr >* const boundaries );
+    virtual WLIOStatus::IOStatusT read( std::list< WLEMMBemBoundary::SPtr >* const boundaries );
 
-    private:
-        ReturnCode::Enum readNumBoundaries( std::string& line, size_t& count );
-        ReturnCode::Enum readConductUnit( std::string& line, WLEUnit::Enum& unit );
-        ReturnCode::Enum readConductivities( std::ifstream& ifs, std::list< WLEMMBemBoundary::SPtr >* const boundaries );
-        ReturnCode::Enum readBndFiles( std::ifstream& ifs, std::string& line,
-                        std::list< WLEMMBemBoundary::SPtr >* const boundaries );
-    };
-}
-#endif /* WLREADERVOL_H_ */
+private:
+    WLIOStatus::IOStatusT readNumBoundaries( size_t* const count, const std::string& line );
+    WLIOStatus::IOStatusT readConductUnit( WLEUnit::Enum* const unit, const std::string& line );
+    WLIOStatus::IOStatusT readConductivities( std::ifstream& ifs, std::list< WLEMMBemBoundary::SPtr >* const boundaries );
+    WLIOStatus::IOStatusT readBndFiles( std::ifstream& ifs, std::string* const line,
+                    std::list< WLEMMBemBoundary::SPtr >* const boundaries );
+};
+
+#endif  // WLREADERVOL_H_

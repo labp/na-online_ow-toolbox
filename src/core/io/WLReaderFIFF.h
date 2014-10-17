@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -38,42 +37,42 @@
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMSubject.h"
 
-#include "core/io/WLReader.h"
+#include "core/io/WLReaderGeneric.h"
 
-namespace LaBP
+class WLReaderFIFF: public WLReaderGeneric< WLEMMeasurement::SPtr >
 {
-    class WLReaderFIFF: public WLReader
-    {
-    public:
-        /**
-         * Shared pointer abbreviation to a instance of this class.
-         */
-        typedef boost::shared_ptr< WLReaderFIFF > SPtr;
+public:
+    /**
+     * Shared pointer abbreviation to a instance of this class.
+     */
+    typedef boost::shared_ptr< WLReaderFIFF > SPtr;
 
-        /**
-         * Shared pointer abbreviation to a const instance of this class.
-         */
-        typedef boost::shared_ptr< const WLReaderFIFF > ConstSPtr;
+    /**
+     * Shared pointer abbreviation to a const instance of this class.
+     */
+    typedef boost::shared_ptr< const WLReaderFIFF > ConstSPtr;
 
-        static const std::string CLASS;
+    static const std::string CLASS;
 
-        /**
-         * Constructs a reader object.
-         *
-         * \param fname path to file which should be loaded
-         */
-        explicit WLReaderFIFF( std::string fname );
-        /**
-         * Read the file and create a dataset out of it.
-         */
-        ReturnCode::Enum Read( WLEMMeasurement::SPtr out );
-        /**
-         * Reads subject data only.
-         */
-        ReturnCode::Enum Read( WLEMMSubject::SPtr out );
+    /**
+     * Constructs a reader object.
+     *
+     * \param fname path to file which should be loaded
+     */
+    explicit WLReaderFIFF( std::string fname );
 
-    private:
-        static ReturnCode::Enum getReturnCode( returncode_t rc );
-    };
-}
-#endif /* WLREADERFIFF_H_ */
+    /**
+     * Read the file and create a dataset out of it.
+     */
+    virtual WLIOStatus::IOStatusT read( WLEMMeasurement::SPtr* const out );
+
+    /**
+     * Reads subject data only.
+     */
+    WLIOStatus::IOStatusT read( WLEMMSubject::SPtr* const out );
+
+private:
+    static WLIOStatus::IOStatusT getReturnCode( returncode_t rc );
+};
+
+#endif  // WLREADERFIFF_H_

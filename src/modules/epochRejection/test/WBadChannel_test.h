@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -159,16 +158,16 @@ public:
 
         // add a new channel list to the manager
         WLEMData::ChannelListSPtr listEEG( new WLEMData::ChannelList() );
-        listEEG->push_back(1);
-        listEEG->push_back(2);
-        listEEG->push_back(3);
-        listEEG->push_back(5);
-        listEEG->push_back(8);
+        listEEG->push_back( 1 );
+        listEEG->push_back( 2 );
+        listEEG->push_back( 3 );
+        listEEG->push_back( 5 );
+        listEEG->push_back( 8 );
         WBadChannelManager::instance()->merge( WLEModality::EEG, listEEG );
 
         listEEG->clear(); // remove all elements from the list.
 
-        WLEMData::ChannelListSPtr listToTest = WBadChannelManager::instance()->getChannelList(WLEModality::EEG); // store the channels in a new list
+        WLEMData::ChannelListSPtr listToTest = WBadChannelManager::instance()->getChannelList( WLEModality::EEG ); // store the channels in a new list
         WBadChannelManager::ChannelMap_SPtr mapToTest = WBadChannelManager::instance()->getChannelMap();
 
         WBadChannelManager::instance()->reset(); // clear the manager
@@ -180,4 +179,4 @@ public:
     }
 };
 
-#endif /* WBADCHANNEL_TEST_H_ */
+#endif  // WBADCHANNEL_TEST_H_

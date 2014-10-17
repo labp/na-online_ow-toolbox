@@ -1,3 +1,26 @@
+//---------------------------------------------------------------------------
+//
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
+//
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
+//
+// This file is part of NA-Online.
+//
+// NA-Online is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// NA-Online is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
+//
+//---------------------------------------------------------------------------
+
 #ifndef WEPOCHSEPARATION_TEST_H
 #define WEPOCHSEPARATION_TEST_H
 
@@ -30,9 +53,9 @@ public:
     {
         TS_TRACE( "test_setGetReset ..." );
 
-        const size_t PRESAMPLES = 42;
-        const size_t POSTSAMPLES = 23;
-        const size_t ECHANNEL = 2;
+        const WLSampleNrT PRESAMPLES = 42;
+        const WLSampleNrT POSTSAMPLES = 23;
+        const WLSampleNrT ECHANNEL = 2;
         set< WLEMMeasurement::EventT > triggers;
         triggers.insert( 50 );
 
@@ -87,9 +110,9 @@ public:
     {
         TS_TRACE( "test_extractSinglePacketCheckMaskCheckChannel ..." );
 
-        const size_t SAMPLES = 500;
-        const size_t PRESAMPLES = SAMPLES / 3;
-        const size_t POSTSAMPLES = SAMPLES / 3;
+        const WLSampleNrT SAMPLES = 500;
+        const WLSampleNrT PRESAMPLES = SAMPLES / 3;
+        const WLSampleNrT POSTSAMPLES = SAMPLES / 3;
         const WLEMMeasurement::EventT TRIGGER_MATCH = 4;
         set< WLEMMeasurement::EventT > triggersMatch;
         triggersMatch.insert( TRIGGER_MATCH + 5 );
@@ -130,9 +153,9 @@ public:
     {
         TS_TRACE( "test_extractSinglePacketCheckData ..." );
 
-        const size_t SAMPLES = 500;
-        const size_t PRESAMPLES = SAMPLES / 3;
-        const size_t POSTSAMPLES = SAMPLES / 3;
+        const WLSampleNrT SAMPLES = 500;
+        const WLSampleNrT PRESAMPLES = SAMPLES / 3;
+        const WLSampleNrT POSTSAMPLES = SAMPLES / 3;
         const WLEMMeasurement::EventT TRIGGER_MATCH = 4;
         set< WLEMMeasurement::EventT > triggersMatch;
         triggersMatch.insert( TRIGGER_MATCH + 42 );
@@ -172,9 +195,9 @@ public:
         {
             emdEpoch = emmEpoch->getModality( mod );
             startValue = mod * SAMPLES + ( EINDEX - PRESAMPLES );
-            for( size_t chan = 0; chan < emdEpoch->getNrChans(); ++chan )
+            for( WLChanIdxT chan = 0; chan < emdEpoch->getNrChans(); ++chan )
             {
-                for( size_t smp = 0; smp < ( PRESAMPLES + POSTSAMPLES + 1 ); ++smp )
+                for( WLSampleIdxT smp = 0; smp < ( PRESAMPLES + POSTSAMPLES + 1 ); ++smp )
                 {
                     TS_ASSERT_EQUALS( emdEpoch->getData()( chan, smp ), startValue + smp );
                 }
@@ -200,10 +223,10 @@ public:
     {
         TS_TRACE( "test_extractMultiPacketCheckData ..." );
 
-        const size_t BLOCKSIZE = 250;
-        const size_t SAMPLES = BLOCKSIZE * 20;
-        const size_t PRESAMPLES = 3 * BLOCKSIZE;
-        const size_t POSTSAMPLES = 2 * BLOCKSIZE;
+        const WLSampleNrT BLOCKSIZE = 250;
+        const WLSampleNrT SAMPLES = BLOCKSIZE * 20;
+        const WLSampleNrT PRESAMPLES = 3 * BLOCKSIZE;
+        const WLSampleNrT POSTSAMPLES = 2 * BLOCKSIZE;
         const WLEMMeasurement::EventT TRIGGER_MATCH = 4;
         set< WLEMMeasurement::EventT > triggersMatch;
         triggersMatch.insert( TRIGGER_MATCH + 21 );
@@ -223,7 +246,7 @@ public:
 
         WLEMMeasurement::SPtr emmEpoch;
         WLEMMeasurement::SPtr emmPacket;
-        for( size_t smp = 0; smp < SAMPLES; smp += BLOCKSIZE )
+        for( WLSampleIdxT smp = 0; smp < SAMPLES; smp += BLOCKSIZE )
         {
             emmPacket = splitToPacket( emm, smp, BLOCKSIZE );
             if( separation->extract( emmPacket ) )
@@ -252,9 +275,9 @@ public:
         {
             emd = emmEpoch->getModality( mod );
             startValue = mod * SAMPLES + ( EINDEX - PRESAMPLES );
-            for( size_t chan = 0; chan < emd->getNrChans(); ++chan )
+            for( WLChanIdxT chan = 0; chan < emd->getNrChans(); ++chan )
             {
-                for( size_t smp = 0; smp < ( PRESAMPLES + POSTSAMPLES + 1 ); ++smp )
+                for( WLSampleIdxT smp = 0; smp < ( PRESAMPLES + POSTSAMPLES + 1 ); ++smp )
                 {
                     TS_ASSERT_EQUALS( emd->getData()( chan, smp ), startValue + smp );
                 }
@@ -280,12 +303,12 @@ public:
     {
         TS_TRACE( "test_extractMultiResultsCheckData ..." );
 
-        const size_t CHANNELS = 42;
-        const size_t BLOCKSIZE = 200;
-        const size_t SAMPLES = BLOCKSIZE * 20;
-        const size_t PRESAMPLES = BLOCKSIZE / 2;
-        const size_t POSTSAMPLES = BLOCKSIZE;
-        const size_t EPOCHLENGTH = PRESAMPLES + POSTSAMPLES + 1;
+        const WLChanNrT CHANNELS = 42;
+        const WLSampleNrT BLOCKSIZE = 200;
+        const WLSampleNrT SAMPLES = BLOCKSIZE * 20;
+        const WLSampleNrT PRESAMPLES = BLOCKSIZE / 2;
+        const WLSampleNrT POSTSAMPLES = BLOCKSIZE;
+        const WLSampleNrT EPOCHLENGTH = PRESAMPLES + POSTSAMPLES + 1;
         const WLEMMeasurement::EventT TRIGGER_MATCH1 = 1;
         const WLEMMeasurement::EventT TRIGGER_MATCH2 = 8;
         const WLEMMeasurement::EventT TRIGGER_MATCH3 = 20;
@@ -331,7 +354,7 @@ public:
 
         WLEMMeasurement::SPtr emmPacket;
         std::list< WLEMMeasurement::ConstSPtr > epochs;
-        for( size_t smp = 0; smp < SAMPLES; smp += BLOCKSIZE )
+        for( WLSampleIdxT smp = 0; smp < SAMPLES; smp += BLOCKSIZE )
         {
             emmPacket = splitToPacket( emm, smp, BLOCKSIZE );
             if( separation->extract( emmPacket ) )
@@ -370,7 +393,7 @@ public:
 
                 // Compare data
                 const WLEMData::DataT& resData = emdEpoch->getData();
-                for( size_t chan = 0; chan < emdEpoch->getNrChans(); ++chan )
+                for( WLChanIdxT chan = 0; chan < emdEpoch->getNrChans(); ++chan )
                 {
                     TS_ASSERT_EQUALS( resData.cols(), EPOCHLENGTH );
                     for( WLEMData::DataT::Index smp = 0; smp < resData.cols(); ++smp )
@@ -384,24 +407,22 @@ public:
             TS_ASSERT_EQUALS( emmEpoch->getEventChannelCount(), 1 );
             WLEMMeasurement::EChannelT& evEpoch = emmEpoch->getEventChannel( 0 );
             TS_ASSERT_EQUALS( evEpoch.size(), EPOCHLENGTH );
-            for( size_t smp = 0; smp < evEpoch.size(); ++smp )
+            for( WLSampleIdxT smp = 0; smp < static_cast< WLSampleNrT >( evEpoch.size() ); ++smp )
             {
                 TS_ASSERT_EQUALS( evEpoch[smp], eChannel1[event - PRESAMPLES + smp] );
             }
         }
     }
 
-protected:
-
 private:
-    WLEMData::SPtr createEmd( size_t channels, size_t samples, int startValue = 0 )
+    WLEMData::SPtr createEmd( WLChanNrT channels, WLSampleIdxT samples, int startValue = 0 )
     {
         WLEMData::SPtr emd( new WLEMDEEG() );
         WLEMData::DataSPtr data( new WLEMData::DataT( channels, samples ) );
 
-        for( size_t chan = 0; chan < channels; ++chan )
+        for( WLChanIdxT chan = 0; chan < channels; ++chan )
         {
-            for( size_t smp = 0; smp < samples; ++smp )
+            for( WLSampleIdxT smp = 0; smp < samples; ++smp )
             {
                 ( *data )( chan, smp ) = startValue + smp;
             }
@@ -411,7 +432,7 @@ private:
         return emd;
     }
 
-    WLEMMeasurement::SPtr splitToPacket( WLEMMeasurement::ConstSPtr emmIn, size_t start, size_t blockSize )
+    WLEMMeasurement::SPtr splitToPacket( WLEMMeasurement::ConstSPtr emmIn, WLSampleIdxT start, WLSampleNrT blockSize )
     {
         WLEMMeasurement::SPtr emmOut( new WLEMMeasurement( *emmIn ) );
         WLEMData::ConstSPtr emdIn;
@@ -432,11 +453,11 @@ private:
 
         // copy event
         boost::shared_ptr< WLEMMeasurement::EDataT > data( new WLEMMeasurement::EDataT() );
-        for( size_t chan = 0; chan < emmIn->getEventChannelCount(); ++chan )
+        for( WLChanIdxT chan = 0; chan < emmIn->getEventChannelCount(); ++chan )
         {
+            const WLSampleNrT n_samples = emmIn->getEventChannel( chan ).size();
             WLEMMeasurement::EChannelT channel( emmIn->getEventChannel( chan ).begin() + start,
-                            start + blockSize <= emmIn->getEventChannel( chan ).size() ? emmIn->getEventChannel( chan ).begin()
-                                            + start + blockSize :
+                            start + blockSize <= n_samples ? emmIn->getEventChannel( chan ).begin() + start + blockSize :
                                             emmIn->getEventChannel( chan ).end() );
             data->push_back( channel );
         }
@@ -444,7 +465,6 @@ private:
 
         return emmOut;
     }
-
 };
 
-#endif // WEPOCHSEPARATION_TEST_H
+#endif  // WEPOCHSEPARATION_TEST_H

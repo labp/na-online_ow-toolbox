@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -136,15 +135,15 @@ WLEMDSource::SPtr WSourceReconstructionCuda::reconstruct( WLEMData::ConstSPtr em
         {
             CublasSafeCall( cublasFree( m_A_dev ) );
         }
-        CublasSafeCall( cublasAlloc( ROWS_A * COLS_A, sizeof(ScalarT), ( void** )&m_A_dev ) );
-        CublasSafeCall( cublasSetMatrix( ROWS_A, COLS_A, sizeof(ScalarT), A_host, ROWS_A, m_A_dev, ROWS_A ) );
+        CublasSafeCall( cublasAlloc( ROWS_A * COLS_A, sizeof( ScalarT ), ( void** )&m_A_dev ) );
+        CublasSafeCall( cublasSetMatrix( ROWS_A, COLS_A, sizeof( ScalarT ), A_host, ROWS_A, m_A_dev, ROWS_A ) );
         m_inverseChanged = false;
     }
 
-    CublasSafeCall( cublasAlloc( ROWS_B * COLS_B, sizeof(ScalarT), ( void** )&B_dev ) );
-    CublasSafeCall( cublasSetMatrix( ROWS_B, COLS_B, sizeof(ScalarT), B_host, ROWS_B, B_dev, ROWS_B ) );
+    CublasSafeCall( cublasAlloc( ROWS_B * COLS_B, sizeof( ScalarT ), ( void** )&B_dev ) );
+    CublasSafeCall( cublasSetMatrix( ROWS_B, COLS_B, sizeof( ScalarT ), B_host, ROWS_B, B_dev, ROWS_B ) );
 
-    CublasSafeCall( cublasAlloc( ROWS_C * COLS_C, sizeof(ScalarT), ( void** )&C_dev ) );
+    CublasSafeCall( cublasAlloc( ROWS_C * COLS_C, sizeof( ScalarT ), ( void** )&C_dev ) );
 
     // Call cuBLAS kernel //
     // C_dev = 1.0 * A_dev * B_dev + 0.0 * C_dev
@@ -165,7 +164,7 @@ WLEMDSource::SPtr WSourceReconstructionCuda::reconstruct( WLEMData::ConstSPtr em
     // Copy out //
     WLTimeProfiler prfCopyOut( CLASS, "reconstruct_copyOut", false );
     prfCopyOut.start();
-    CublasSafeCall( cublasGetMatrix( ROWS_C, COLS_C, sizeof(ScalarT), C_dev, ROWS_C, C_host, ROWS_C ) );
+    CublasSafeCall( cublasGetMatrix( ROWS_C, COLS_C, sizeof( ScalarT ), C_dev, ROWS_C, C_host, ROWS_C ) );
     prfCopyOut.stop();
     wlprofiler::log() << prfCopyOut;
 

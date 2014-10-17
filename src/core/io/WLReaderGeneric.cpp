@@ -21,15 +21,4 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
-
-#include "WLNoDataException.h"
-
-WLNoDataException::WLNoDataException( const std::string& msg ) :
-                WException( msg )
-{
-}
-
-WLNoDataException::~WLNoDataException() throw()
-{
-}
+#include "WLReaderGeneric.h"

@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -28,6 +27,7 @@
 #include <algorithm>
 #include <iostream>
 #include <list>
+#include <string>
 
 #include "core/common/WLogger.h"
 #include "core/data/emd/WLEMData.h"
@@ -40,8 +40,7 @@ typedef boost::shared_ptr< Eigen::MatrixXd > MatrixSPtr;
 class WEpochRejectionTestHelper
 {
 public:
-
-    typedef boost::shared_ptr<WEpochRejectionTestHelper> SPtr;
+    typedef boost::shared_ptr< WEpochRejectionTestHelper > SPtr;
 
     WEpochRejectionTestHelper()
     {
@@ -93,8 +92,7 @@ public:
         return emd;
     }
 
-    WLEMData::SPtr createModality( size_t channels, size_t samples, size_t rejections, double threshold,
-                    WLEMData::SPtr emd )
+    WLEMData::SPtr createModality( size_t channels, size_t samples, size_t rejections, double threshold, WLEMData::SPtr emd )
     {
         MatrixSPtr matrix_ptr( new Eigen::MatrixXd( channels, samples ) );
         Eigen::MatrixXd& matrix = *matrix_ptr;
@@ -115,7 +113,6 @@ public:
     }
 
 private:
-
     std::string CLASS;
 
     double THRESHOLD_EEG;
@@ -129,11 +126,11 @@ private:
      *
      * Creates a vector with [size] components within the value area of [min] - [max] including a number of rejections.
      *
-     * @param size
-     * @param max
-     * @param min
-     * @param rejections
-     * @return
+     * \param size
+     * \param max
+     * \param min
+     * \param rejections
+     * \return
      */
     Eigen::VectorXd createRow( size_t size, double max, double min, size_t rejections )
     {
@@ -178,9 +175,10 @@ private:
      *
      * Returns a double value between two borders.
      *
-     * @param min
-     * @param max
-     * @return
+     * \param min
+     * \param max
+     *
+     * \return
      */
     double getRandD( double min, double max )
     {
@@ -191,15 +189,16 @@ private:
      *
      * Returns a list of indices, which specifies, at which position a rejection has to be placed.
      *
-     * @param size
-     * @param rejections
-     * @return
+     * \param size
+     * \param rejections
+     *
+     * \return
      */
     std::list< size_t > getRecjetionIndex( size_t size, size_t rejections )
     {
         std::list< size_t > list;
 
-        if(rejections == 0)
+        if( rejections == 0 )
             return list;
 
         while( list.size() < rejections )
@@ -214,7 +213,6 @@ private:
 
         return list;
     }
-
 };
 
-#endif /* WEPOCHREJECTIONTESTHELPER_H_ */
+#endif  // WEPOCHREJECTIONTESTHELPER_H_

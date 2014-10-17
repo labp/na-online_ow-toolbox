@@ -1,26 +1,27 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
+
+#include <string>
 
 #include <core/common/WException.h>
 #include <core/common/WPathHelper.h>
@@ -89,7 +90,7 @@ void WMMatReader::connectors()
     WModule::connectors();
 
     m_output = WLModuleOutputDataCollectionable< WLEMMCommand >::instance( shared_from_this(),
-                        WLConstantsModule::CONNECTOR_NAME_OUT, WLConstantsModule::CONNECTOR_DESCR_OUT );
+                    WLConstantsModule::CONNECTOR_NAME_OUT, WLConstantsModule::CONNECTOR_DESCR_OUT );
     addConnector( m_output );
 }
 
@@ -218,7 +219,6 @@ bool WMMatReader::handleSensorFileChanged()
 {
     const std::string fName = m_propSensorFile->get().string();
     infoLog() << "Start reading file: " << fName;
-    m_sensorPos.reset();
 
     WReaderEEGPositions::SPtr reader;
     try
@@ -231,7 +231,8 @@ bool WMMatReader::handleSensorFileChanged()
         return false;
     }
 
-    if( reader->read( m_sensorPos ) != WLIOStatus::SUCCESS )
+    m_sensorPos.reset( new std::vector< WPosition > );
+    if( reader->read( m_sensorPos.get() ) != WLIOStatus::SUCCESS )
     {
         errorLog() << ERROR_READ << " (Sensor Positions)";
         return false;
@@ -257,22 +258,24 @@ bool WMMatReader::handleMatFileChanged()
         return false;
     }
 
-    WLIOStatus::ioStatus_t status;
+    WLIOStatus::IOStatusT status;
     status = reader->init();
+    if( status != WLIOStatus::SUCCESS )
+    {
+        errorLog() << WLIOStatus::description( status );
+        return false;
+    }
+
+    m_matrix.reset();
+    status = reader->read( &m_matrix );
+    reader->close();
+
     if( status != WLIOStatus::SUCCESS )
     {
         errorLog() << reader->getIOStatusDescription( status );
         return false;
     }
 
-    m_matrix.reset();
-    status = reader->readMatrix( m_matrix );
-    if( status != WLIOStatus::SUCCESS )
-    {
-        errorLog() << reader->getIOStatusDescription( status );
-        return false;
-    }
-    reader->close();
     infoLog() << SUCCESS_READ << " Matrix: " << m_matrix->rows() << "x" << m_matrix->cols();
     return true;
 }
@@ -295,7 +298,7 @@ bool WMMatReader::handleGenerateEMM()
     eeg->setSampFreq( m_propSamplFreq->get() );
     if( m_sensorPos.get() != NULL )
     {
-        if( m_sensorPos->size() == eeg->getNrChans() )
+        if( ( m_sensorPos->size() - eeg->getNrChans() ) == 0 )
         {
             infoLog() << "Set sensor positions for EEG.";
             eeg->setChannelPositions3d( m_sensorPos );
@@ -344,7 +347,7 @@ bool WMMatReader::handleLfFileChanged()
         return false;
     }
 
-    WLIOStatus::ioStatus_t state = reader->read( m_leadfield );
+    WLIOStatus::IOStatusT state = reader->read( &m_leadfield );
     if( state == WLIOStatus::SUCCESS )
     {
         infoLog() << SUCCESS_READ << " (Leadfield)";
@@ -352,7 +355,7 @@ bool WMMatReader::handleLfFileChanged()
     }
     else
     {
-        errorLog() << reader->getIOStatusDescription( state );
+        errorLog() << WLIOStatus::description( state );
         return false;
     }
 }
@@ -371,7 +374,7 @@ bool WMMatReader::handleSurfaceFileChanged()
         return false;
     }
 
-    WLIOStatus::ioStatus_t state = reader->read( m_surface );
+    WLIOStatus::IOStatusT state = reader->read( &m_surface );
     if( state == WLIOStatus::SUCCESS )
     {
         infoLog() << SUCCESS_READ << " (Source Space)";
@@ -379,7 +382,7 @@ bool WMMatReader::handleSurfaceFileChanged()
     }
     else
     {
-        errorLog() << reader->getIOStatusDescription( state );
+        errorLog() << WLIOStatus::description( state );
         return false;
     }
 }

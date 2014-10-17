@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -46,6 +45,9 @@ using namespace std;
 using namespace Eigen;
 
 const std::string WPCA::CLASS = "WPCA";
+
+// TODO(pieloth): Optimize implementation for Eigen::Matrix.
+// It was not updated after switch from vector<vector> to Eigen::Matrix.
 
 WPCA::WPCA( int newNumDimensions, bool newReverse )
 {
@@ -99,30 +101,30 @@ WLEMData::SPtr WPCA::processData( WLEMData::SPtr emdIn )
     {
         wlog::debug( CLASS ) << "EEG, MEG ... to PCA";
         WLEMData::DataT& dataIn = emdIn->getData();
-        wlog::debug( CLASS ) << "dataIn: " << dataIn.size() << " x " << dataIn.front().size();
+        wlog::debug( CLASS ) << "dataIn: " << dataIn.rows() << " x " << dataIn.cols();
 #ifdef DEBUG
         wlog::debug( CLASS ) << "dataIn (first channels and samples only):";
-        for( size_t row = 0; row < dataIn.size() && row < 5; ++row )
+        for( size_t row = 0; row < dataIn.rows() && row < 5; ++row )
         {
             std::stringstream ss;
-            for( size_t col = 0; col < dataIn[row].size() && col < 10; ++col )
+            for( size_t col = 0; col < dataIn.cols() && col < 10; ++col )
             {
-                ss << dataIn[row][col] << " ";
+                ss << dataIn(row, col) << " ";
             }
             wlog::debug( CLASS ) << ss.str();
         }
 #endif /* DEBUG */
 
-        boost::shared_ptr< WLEMDPCA::DataT > dataOut = computePCA( dataIn );
-        wlog::debug( CLASS ) << "dataOut: " << dataOut->size() << " x " << dataOut->front().size();
+        WLEMDPCA::DataSPtr dataOut = computePCA( dataIn );
+        wlog::debug( CLASS ) << "dataOut: " << dataOut->rows() << " x " << dataOut->cols();
 #ifdef DEBUG
         wlog::debug( CLASS ) << "dataOut (first channels and samples only):";
-        for( size_t row = 0; row < dataOut->size() && row < 5; ++row )
+        for( size_t row = 0; row < dataOut->rows() && row < 5; ++row )
         {
             std::stringstream ss;
-            for( size_t col = 0; col < ( *dataOut )[row].size() && col < 10; ++col )
+            for( size_t col = 0; col < dataOut->cols() && col < 10; ++col )
             {
-                ss << ( *dataOut )[row][col] << " ";
+                ss << ( *dataOut )(row, col) << " ";
             }
             wlog::debug( CLASS ) << ss.str();
         }
@@ -150,30 +152,20 @@ WLEMData::SPtr WPCA::processData( WLEMData::SPtr emdIn )
 WLEMData::SPtr WPCA::convertPCAToModality( WLEMDPCA::SPtr pcaIn )
 {
     wlog::debug( CLASS ) << "convertPCAToModality() called!";
-    std::vector< std::vector< double > >& oldPcaData = pcaIn->getData();
-    MatrixXd pcaMatrix( oldPcaData.size(), oldPcaData.front().size() );
-    for( MatrixXd::Index i = 0; i < pcaMatrix.rows(); ++i )
-    {
-        for( MatrixXd::Index j = 0; j < pcaMatrix.cols(); ++j )
-        {
-            pcaMatrix( i, j ) = oldPcaData[i][j];
-        }
-    }
+    const WLEMDPCA::DataT& oldPcaData = pcaIn->getData();
+    MatrixXd pcaMatrix( oldPcaData );
 
     MatrixXd& transMatrix = pcaIn->getTransformationMatrix();
     MatrixXd transPcaMat = transMatrix.transpose() * pcaMatrix;
 
-    boost::shared_ptr< std::vector< std::vector< double > > > modalityData( new std::vector< std::vector< double > >() );
-    modalityData->reserve( transMatrix.cols() );
-    modalityData->resize( transMatrix.cols() );
+    WLEMData::DataSPtr modalityData( new WLEMData::DataT( transMatrix.cols(), pcaMatrix.cols() ) );
     VectorT& channelMeans = pcaIn->getChannelMeans();
 
-    for( size_t i = 0; i < ( *modalityData ).size(); ++i )
+    for( WLChanIdxT i = 0; i < ( *modalityData ).rows(); ++i )
     {
-        ( *modalityData )[i].reserve( pcaMatrix.cols() );
         for( MatrixXd::Index j = 0; j < pcaMatrix.cols(); ++j )
         {
-            ( *modalityData )[i].push_back( transPcaMat( i, j ) + channelMeans[i] );
+            ( *modalityData )( i, j ) = ( transPcaMat( i, j ) + channelMeans[i] );
         }
     }
 
@@ -202,12 +194,12 @@ WLEMData::SPtr WPCA::convertPCAToModality( WLEMDPCA::SPtr pcaIn )
     }
 
     wlog::debug( CLASS ) << "Modality data:";
-    for( size_t i = 0; i < ( *modalityData ).size() && i < 5; ++i )
+    for( size_t i = 0; i < modalityData->rows() && i < 5; ++i )
     {
         std::stringstream ss;
-        for( size_t j = 0; j < ( *modalityData )[i].size() && j < 10; ++j )
+        for( size_t j = 0; j < modalityData->cols() && j < 10; ++j )
         {
-            ss << ( *modalityData )[i][j] << " ";
+            ss << ( *modalityData )(i, j) << " ";
         }
         wlog::debug( CLASS ) << ss.str();
     }
@@ -217,8 +209,7 @@ WLEMData::SPtr WPCA::convertPCAToModality( WLEMDPCA::SPtr pcaIn )
     return emdOut;
 }
 
-WLEMDPCA::SPtr WPCA::createPCAContainer( WLEMData::SPtr emdIn,
-                boost::shared_ptr< WLEMDPCA::DataT > pcaData )
+WLEMDPCA::SPtr WPCA::createPCAContainer( WLEMData::SPtr emdIn, boost::shared_ptr< WLEMDPCA::DataT > pcaData )
 {
     WLEMDPCA::SPtr pcaOut( new WLEMDPCA( *emdIn ) );
     pcaOut->setData( pcaData );
@@ -254,12 +245,12 @@ boost::shared_ptr< WLEMData::DataT > WPCA::computePCA( WLEMData::DataT& rawData 
 {
     wlog::debug( CLASS ) << "computePCA() called!";
     wlog::debug( CLASS ) << "Allocating data into Eigen structure ...";
-    MatrixXd data( rawData.size(), rawData[0].size() );
+    MatrixXd data( rawData.rows(), rawData.cols() );
     for( size_t i = 0; i < ( size_t )data.rows(); ++i )
     {
         for( size_t j = 0; j < ( size_t )data.cols(); ++j )
         {
-            data( i, j ) = rawData[i][j];
+            data( i, j ) = rawData( i, j );
         }
     }
 
@@ -327,10 +318,11 @@ boost::shared_ptr< WLEMData::DataT > WPCA::computePCA( WLEMData::DataT& rawData 
     //m_transformation_matrix = eigenMatrixTo2DVector( rowFeatureVector );
 
     // copy the matrix form back into the c++ 2D vector type
-    boost::shared_ptr< std::vector< std::vector< double > > > retData = eigenMatrixTo2DVector( PCAData );
+//    boost::shared_ptr< std::vector< std::vector< double > > > retData = eigenMatrixTo2DVector( PCAData );
 
     wlog::debug( CLASS ) << "Done allocating results, PCA computation completed successfully.";
-    return retData;
+//    return retData;
+    return WLEMData::DataSPtr( new WLEMData::DataT( PCAData ) );
 }
 
 boost::shared_ptr< std::vector< std::vector< double > > > WPCA::eigenMatrixTo2DVector( Eigen::MatrixXd& matrix )

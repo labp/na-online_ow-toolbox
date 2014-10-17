@@ -147,24 +147,26 @@ unsigned int WLEFTDataType::wordSize( Enum val )
 {
     switch( val )
     {
-        case DATATYPE_CHAR :
+        case DATATYPE_CHAR:
             return WORDSIZE_CHAR;
-        case DATATYPE_UINT8 :
-        case DATATYPE_INT8 :
+        case DATATYPE_UINT8:
+        case DATATYPE_INT8:
             return WORDSIZE_INT8;
-        case DATATYPE_UINT16 :
-        case DATATYPE_INT16 :
+        case DATATYPE_UINT16:
+        case DATATYPE_INT16:
             return WORDSIZE_INT16;
-        case DATATYPE_UINT32 :
-        case DATATYPE_INT32 :
+        case DATATYPE_UINT32:
+        case DATATYPE_INT32:
             return WORDSIZE_INT32;
-        case DATATYPE_UINT64 :
-        case DATATYPE_INT64 :
+        case DATATYPE_UINT64:
+        case DATATYPE_INT64:
             return WORDSIZE_INT64;
-        case DATATYPE_FLOAT32 :
+        case DATATYPE_FLOAT32:
             return WORDSIZE_FLOAT32;
-        case DATATYPE_FLOAT64 :
+        case DATATYPE_FLOAT64:
             return WORDSIZE_FLOAT64;
+        case DATATYPE_UNKNOWN:
+            WAssert( false, "Data type not supported!" );
     }
     return 0;
 }

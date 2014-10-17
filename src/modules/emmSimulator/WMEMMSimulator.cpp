@@ -21,6 +21,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include <core/common/WPathHelper.h>
 #include <core/common/WRealtimeTimer.h>
 
@@ -223,11 +225,11 @@ void WMEMMSimulator::moduleMain()
 
         if( m_lfEEGFile->changed( true ) )
         {
-            hdlLeadfieldFileChanged( m_lfEEGFile->get().string(), m_leadfieldEEG );
+            hdlLeadfieldFileChanged( &m_leadfieldEEG, m_lfEEGFile->get().string() );
         }
         if( m_lfMEGFile->changed( true ) )
         {
-            hdlLeadfieldFileChanged( m_lfMEGFile->get().string(), m_leadfieldMEG );
+            hdlLeadfieldFileChanged( &m_leadfieldMEG, m_lfMEGFile->get().string() );
         }
 
         bool dataUpdated = m_input->updated();
@@ -406,7 +408,7 @@ bool WMEMMSimulator::processReset( WLEMMCommand::SPtr cmdIn )
 // Additional data
 // -------------------------------------------------------------------------------------------------------------------------------
 
-bool WMEMMSimulator::hdlLeadfieldFileChanged( std::string fName, WLMatrix::SPtr& lf )
+bool WMEMMSimulator::hdlLeadfieldFileChanged( WLMatrix::SPtr* const lf, std::string fName )
 {
     debugLog() << "handleLfFileChanged()";
 
@@ -466,7 +468,7 @@ bool WMEMMSimulator::hdlSurfaceFileChanged( std::string fName )
     }
 
     m_surface.reset( new WLEMMSurface() );
-    if( reader->read( m_surface ) == WLIOStatus::SUCCESS )
+    if( reader->read( &m_surface ) == WLIOStatus::SUCCESS )
     {
         m_propStatusAdditional->set( EData::name( EData::DATA_LOADED ), true );
         progress->finish();

@@ -21,15 +21,57 @@
 //
 //---------------------------------------------------------------------------
 
+#ifndef WLREADERGENERIC_H_
+#define WLREADERGENERIC_H_
+
 #include <string>
 
-#include "WLNoDataException.h"
+#include <core/dataHandler/io/WReader.h>
 
-WLNoDataException::WLNoDataException( const std::string& msg ) :
-                WException( msg )
+#include "core/io/WLIOStatus.h"
+
+/**
+ * Generic interface/abstract class for a uniform file reader.
+ *
+ * \author pieloth
+ */
+template< typename T >
+class WLReaderGeneric: public WReader
+{
+public:
+    explicit WLReaderGeneric( std::string fname );
+
+    virtual ~WLReaderGeneric();
+
+    /**
+     * Reads the data into out.
+     *
+     * \param out Instance to set read data.
+     * \return WLIOStatus::SUCCESS if data was read successfully.
+     */
+    virtual WLIOStatus::IOStatusT read( T* const out ) = 0;
+
+    /**
+     * Closes streams, releases handles and more.
+     */
+    virtual void close();
+};
+
+template< typename T >
+WLReaderGeneric< T >::WLReaderGeneric( std::string fname ) :
+                WReader( fname )
 {
 }
 
-WLNoDataException::~WLNoDataException() throw()
+template< typename T >
+WLReaderGeneric< T >::~WLReaderGeneric()
+{
+    close();
+}
+
+template< typename T >
+void WLReaderGeneric< T >::close()
 {
 }
+
+#endif  // WLREADERGENERIC_H_

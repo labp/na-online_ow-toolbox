@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -72,10 +71,10 @@ bool WFIRFilterCuda::filter( WLEMData::DataT& out, const WLEMData::DataT& in, co
     const WLEMData::DataT::Index samples = in.cols();
     const WLEMData::DataT::Index prevSamples = static_cast< WLEMData::DataT::Index >( m_coeffitients.size() );
 
-    WLEMData::ScalarT *coeffs = ( WLEMData::ScalarT* )malloc( prevSamples * sizeof(WLEMData::ScalarT) );
-    WLEMData::ScalarT *input = ( WLEMData::ScalarT* )malloc( channels * samples * sizeof(WLEMData::ScalarT) );
-    WLEMData::ScalarT *previous = ( WLEMData::ScalarT* )malloc( channels * prevSamples * sizeof(WLEMData::ScalarT) );
-    WLEMData::ScalarT *output = ( WLEMData::ScalarT* )malloc( channels * samples * sizeof(WLEMData::ScalarT) );
+    WLEMData::ScalarT *coeffs = ( WLEMData::ScalarT* )malloc( prevSamples * sizeof( WLEMData::ScalarT ) );
+    WLEMData::ScalarT *input = ( WLEMData::ScalarT* )malloc( channels * samples * sizeof( WLEMData::ScalarT ) );
+    WLEMData::ScalarT *previous = ( WLEMData::ScalarT* )malloc( channels * prevSamples * sizeof( WLEMData::ScalarT ) );
+    WLEMData::ScalarT *output = ( WLEMData::ScalarT* )malloc( channels * samples * sizeof( WLEMData::ScalarT ) );
 
     // CHANGE from for( size_t i = 0; i < 32; ++i ) to
     WLEMData::ScalarT* chanWriteTmp;
@@ -147,20 +146,20 @@ float WFIRFilterCuda::cudaFilter( WLEMData::ScalarT* const output, const WLEMDat
 
     try
     {
-        CudaThrowsCall( cudaMallocPitch( ( void** )&dev_in, &pitchIn, samples * sizeof(CuScalarT), channels ) );
+        CudaThrowsCall( cudaMallocPitch( ( void** )&dev_in, &pitchIn, samples * sizeof( CuScalarT ), channels ) );
         CudaThrowsCall(
-                        cudaMemcpy2D( dev_in, pitchIn, input, samples * sizeof(CuScalarT), samples * sizeof(CuScalarT), channels,
-                                        cudaMemcpyHostToDevice ) );
-
-        CudaThrowsCall( cudaMallocPitch( ( void** )&dev_prev, &pitchPrev, coeffSize * sizeof(CuScalarT), channels ) );
-        CudaThrowsCall(
-                        cudaMemcpy2D( dev_prev, pitchPrev, previous, coeffSize * sizeof(CuScalarT), coeffSize * sizeof(CuScalarT),
+                        cudaMemcpy2D( dev_in, pitchIn, input, samples * sizeof( CuScalarT ), samples * sizeof( CuScalarT ),
                                         channels, cudaMemcpyHostToDevice ) );
 
-        CudaThrowsCall( cudaMallocPitch( ( void** )&dev_out, &pitchOut, samples * sizeof(CuScalarT), channels ) );
+        CudaThrowsCall( cudaMallocPitch( ( void** )&dev_prev, &pitchPrev, coeffSize * sizeof( CuScalarT ), channels ) );
+        CudaThrowsCall(
+                        cudaMemcpy2D( dev_prev, pitchPrev, previous, coeffSize * sizeof( CuScalarT ),
+                                        coeffSize * sizeof( CuScalarT ), channels, cudaMemcpyHostToDevice ) );
 
-        CudaThrowsCall( cudaMalloc( ( void** )&dev_co, coeffSize * sizeof(CuScalarT) ) );
-        CudaThrowsCall( cudaMemcpy( dev_co, coeffs, coeffSize * sizeof(CuScalarT), cudaMemcpyHostToDevice ) );
+        CudaThrowsCall( cudaMallocPitch( ( void** )&dev_out, &pitchOut, samples * sizeof( CuScalarT ), channels ) );
+
+        CudaThrowsCall( cudaMalloc( ( void** )&dev_co, coeffSize * sizeof( CuScalarT ) ) );
+        CudaThrowsCall( cudaMemcpy( dev_co, coeffs, coeffSize * sizeof( CuScalarT ), cudaMemcpyHostToDevice ) );
     }
     catch( const WException& e )
     {
@@ -186,7 +185,7 @@ float WFIRFilterCuda::cudaFilter( WLEMData::ScalarT* const output, const WLEMDat
 
     size_t threadsPerBlock = 32;
     size_t blocksPerGrid = ( samples + threadsPerBlock - 1 ) / threadsPerBlock;
-    size_t sharedMem = coeffSize * sizeof(CuScalarT);
+    size_t sharedMem = coeffSize * sizeof( CuScalarT );
 
     cudaEvent_t start, stop;
     cudaEventCreate( &start );
@@ -213,7 +212,7 @@ float WFIRFilterCuda::cudaFilter( WLEMData::ScalarT* const output, const WLEMDat
             throw WException( "CUDA kernel failed: " + err );
         }
         CudaThrowsCall(
-                        cudaMemcpy2D( output, samples * sizeof(CuScalarT), dev_out, pitchOut, samples * sizeof(CuScalarT),
+                        cudaMemcpy2D( output, samples * sizeof( CuScalarT ), dev_out, pitchOut, samples * sizeof( CuScalarT ),
                                         channels, cudaMemcpyDeviceToHost ) );
     }
     catch( const WException& e )

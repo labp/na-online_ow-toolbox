@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -46,7 +45,8 @@
 #include "core/util/profiler/WLLifetimeProfiler.h"
 
 /**
- * TODO(kaehler): Comments
+ * Electro-magnetic measurement contains all data and information about a measurement,
+ * e.g. EEG/MEG data, subject information, surfaces and more.
  */
 class WLEMMeasurement
 {
@@ -69,14 +69,8 @@ public:
 
     static const std::string CLASS;
 
-    /**
-     * TODO(kaehler): Comments
-     */
     WLEMMeasurement();
 
-    /**
-     * TODO(kaehler): Comments
-     */
     explicit WLEMMeasurement( WLEMMSubject::SPtr subject );
 
     /**
@@ -88,9 +82,6 @@ public:
 
     WLEMMeasurement::SPtr clone() const;
 
-    /**
-     * TODO(kaehler): Comments
-     */
     virtual ~WLEMMeasurement();
 
     /**
@@ -133,17 +124,23 @@ public:
     WLEMData::ConstSPtr getModality( size_t i ) const;
 
     /**
-     * Returns the first occurrence of EMMEMD  with the given type or an empty shared pointer. Throws WNotFound if requested type is not available.
+     * Returns the first occurrence of EMMEMD  with the given type or an empty shared pointer.
+     *
+     * \throws WNotFound if requested type is not available.
      */
     WLEMData::SPtr getModality( WLEModality::Enum type );
 
     /**
-     * Returns the first occurrence of EMMEMD  with the given type or an empty shared pointer. Throws WNotFound if requested type is not available.
+     * Returns the first occurrence of EMMEMD  with the given type or an empty shared pointer.
+     *
+     * \throws WNotFound if requested type is not available.
      */
     WLEMData::ConstSPtr getModality( WLEModality::Enum type ) const;
 
     /**
-     * Returns the first occurrence of EMMEMD  with the given type or an empty shared pointer. Throws WNotFound if requested type is not available.
+     * Returns the first occurrence of EMMEMD  with the given type or an empty shared pointer.
+     *
+     * \throws WNotFound if requested type is not available.
      */
     template< typename EMD >
     boost::shared_ptr< EMD > getModality( WLEModality::Enum type )
@@ -157,7 +154,9 @@ public:
     }
 
     /**
-     * Returns the first occurrence of EMMEMD  with the given type or an empty shared pointer. Throws WNotFound if requested type is not available.
+     * Returns the first occurrence of EMMEMD  with the given type or an empty shared pointer.
+     *
+     * \throws WNotFound if requested type is not available.
      */
     template< typename EMD >
     boost::shared_ptr< const EMD > getModality( WLEModality::Enum type ) const
@@ -181,16 +180,6 @@ public:
      * \return true if modality type is available, false if not.
      */
     bool hasModality( WLEModality::Enum type ) const;
-
-    /**
-     * swaps given modality with modality of the same modality type in list, there is only one list per modality at the time
-     * TODO (pieloth): why returning WDataSetEMM
-     *
-     * \param modality modality to swap with
-     */
-    WLEMMeasurement::SPtr newModalityData( WLEMData::SPtr modality );
-
-    // -----------getter and setter-----------------------------------------------------------------------------
 
     /**
      * getter for experimenter
@@ -270,12 +259,32 @@ public:
     WLLifetimeProfiler::ConstSPtr getProfiler() const;
     void setProfiler( WLLifetimeProfiler::SPtr profiler );
 
+    /**
+     * Gets the digitized points, i.e. EEG and HPI.
+     *
+     * \return points
+     */
     WLList< WLDigPoint >::SPtr getDigPoints();
 
+    /**
+     * Gets the digitized points, i.e. EEG and HPI.
+     *
+     * \return points
+     */
     WLList< WLDigPoint >::ConstSPtr getDigPoints() const;
 
+    /**
+     * Gets the digitized points of a specified kind, e.g. EEG or HPI.
+     *
+     * \return A new list containing all points of the requested kind, maybe empty.
+     */
     WLList< WLDigPoint >::SPtr getDigPoints( WLEPointType::Enum kind ) const;
 
+    /**
+     * Sets the digitized points, i.e. EEG and HPI.
+     *
+     * \param digPoints
+     */
     void setDigPoints( WLList< WLDigPoint >::SPtr digPoints );
 
     const WLMatrix4::Matrix4T& getDevToFidTransformation() const;
@@ -289,30 +298,15 @@ public:
 private:
     WLLifetimeProfiler::SPtr m_profiler;
 
-    /**
-     * experiment supervisor
-     */
-    std::string m_experimenter;
+    std::string m_experimenter; /**< experiment supervisor */
 
-    /**
-     * optional description of experiment
-     */
-    std::string m_expDescription;
+    std::string m_expDescription; /**< description of experiment */
 
-    /**
-     * list with modality specific measurements WLEMData
-     */
-    std::vector< WLEMData::SPtr > m_modalityList;
+    std::vector< WLEMData::SPtr > m_modalityList; /**< Container for EMDs */
 
-    /**
-     * subject information
-     */
-    WLEMMSubject::SPtr m_subject;
+    WLEMMSubject::SPtr m_subject; /**< subject information */
 
-    /**
-     * Event/Stimuli channels
-     */
-    boost::shared_ptr< std::vector< EChannelT > > m_eventChannels;
+    boost::shared_ptr< std::vector< EChannelT > > m_eventChannels; /**< Event/Stimuli channels */
 
     WLList< WLDigPoint >::SPtr m_digPoints;
 

@@ -21,15 +21,12 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
+#ifndef WLDEFINES_H_
+#define WLDEFINES_H_
 
-#include "WLNoDataException.h"
+/**
+ * Define to switch warning about unused variable.
+ */
+#define WL_UNUSED( var ) ( void )var;
 
-WLNoDataException::WLNoDataException( const std::string& msg ) :
-                WException( msg )
-{
-}
-
-WLNoDataException::~WLNoDataException() throw()
-{
-}
+#endif  // WLDEFINES_H_
