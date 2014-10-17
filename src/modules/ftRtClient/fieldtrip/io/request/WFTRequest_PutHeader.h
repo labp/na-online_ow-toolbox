@@ -32,7 +32,6 @@
 class WFTRequest_PutHeader: public WFTRequest
 {
 public:
-
     /**
      * A pointer on a WFTRequest_PutHeader.
      */
@@ -45,7 +44,6 @@ public:
     bool addChunk( UINT32_T chunkType, UINT32_T chunkSize, const void *data );
 
     bool addChunk( WFTAChunk::SPtr chunk );
-
 };
 
-#endif /* WFTREQUEST_PUTHEADER_H_ */
+#endif  // WFTREQUEST_PUTHEADER_H_

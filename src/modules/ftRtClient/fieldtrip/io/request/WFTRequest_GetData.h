@@ -31,12 +31,11 @@
 class WFTRequest_GetData: public WFTRequest
 {
 public:
-
     /**
      * Constructs a new WFTRequest_GetData.
      *
-     * @param begsample The index of the first sample.
-     * @param endsample The indes of the last sample.
+     * \param begsample The index of the first sample.
+     * \param endsample The indes of the last sample.
      */
     WFTRequest_GetData( UINT32_T begsample, UINT32_T endsample );
 
@@ -48,19 +47,18 @@ public:
     /**
      * Gets the index of the first sample.
      *
-     * @return Returns a 32 bit unsigned integer.
+     * \return Returns a 32 bit unsigned integer.
      */
     UINT32_T getBegSample() const;
 
     /**
      * Gets the index of the last sample.
      *
-     * @return Returns a 32 bit unsigned integer.
+     * \return Returns a 32 bit unsigned integer.
      */
     UINT32_T getEndSample() const;
 
 private:
-
     /**
      * The index of the first sample.
      */
@@ -81,4 +79,4 @@ inline std::ostream& operator<<( std::ostream& str, const WFTRequest_GetData& re
     return str;
 }
 
-#endif /* WFTREQUEST_GETDATA_H_ */
+#endif  // WFTREQUEST_GETDATA_H_

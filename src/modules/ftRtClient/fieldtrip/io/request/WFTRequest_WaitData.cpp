@@ -30,5 +30,4 @@ WFTRequest_WaitData::WFTRequest_WaitData( UINT32_T nSamples, UINT32_T nEvents, U
 
 WFTRequest_WaitData::~WFTRequest_WaitData()
 {
-
 }

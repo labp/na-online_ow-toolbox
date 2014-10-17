@@ -30,5 +30,4 @@ WFTRequest_GetEvent::WFTRequest_GetEvent( UINT32_T begevent, UINT32_T endevent )
 
 WFTRequest_GetEvent::~WFTRequest_GetEvent()
 {
-
 }

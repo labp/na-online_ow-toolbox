@@ -29,10 +29,9 @@
 class WFTRequest_PutData: public WFTRequest
 {
 public:
-
     WFTRequest_PutData( UINT32_T numChannels, UINT32_T numSamples, UINT32_T dataType, const void *data );
 
     virtual ~WFTRequest_PutData();
 };
 
-#endif /* WFTREQUEST_PUTDATA_H_ */
+#endif  // WFTREQUEST_PUTDATA_H_

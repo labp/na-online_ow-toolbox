@@ -30,5 +30,4 @@ WFTRequest_PutData::WFTRequest_PutData( UINT32_T numChannels, UINT32_T numSample
 
 WFTRequest_PutData::~WFTRequest_PutData()
 {
-
 }

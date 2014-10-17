@@ -29,9 +29,9 @@
 class WFTRequest_WaitData: public WFTRequest
 {
 public:
-    WFTRequest_WaitData(UINT32_T nSamples, UINT32_T nEvents, UINT32_T milliseconds);
+    WFTRequest_WaitData( UINT32_T nSamples, UINT32_T nEvents, UINT32_T milliseconds );
 
     virtual ~WFTRequest_WaitData();
 };
 
-#endif /* WFTREQUEST_WAITDATA_H_ */
+#endif  // WFTREQUEST_WAITDATA_H_

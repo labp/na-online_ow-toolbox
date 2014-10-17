@@ -25,6 +25,7 @@
 #define WFTRESPONSE_H_
 
 #include <ostream>
+#include <string>
 
 #include <boost/shared_ptr.hpp>
 
@@ -39,7 +40,6 @@
 class WFTResponse: public FtBufferResponse
 {
 public:
-
     static const std::string CLASS;
 
     /**
@@ -54,7 +54,7 @@ public:
     /**
      * This method tests the arrived data for mistakes. It should be called before getting any data for the response.
      *
-     * @return True if the data are valid, else false.
+     * \return True if the data are valid, else false.
      */
     bool isValid() const;
 
@@ -63,7 +63,6 @@ public:
     const WFTMessageT getMessage() const;
 
 protected:
-
     /**
      * Forbid direct access to the buffer space. Use getMessage() instead.
      */
@@ -80,4 +79,4 @@ inline std::ostream& operator<<( std::ostream &strm, const WFTResponse &response
     return strm;
 }
 
-#endif /* WFTRESPONSE_H_ */
+#endif  // WFTRESPONSE_H_

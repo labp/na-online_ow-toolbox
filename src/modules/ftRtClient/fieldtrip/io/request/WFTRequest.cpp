@@ -26,7 +26,6 @@
 WFTRequest::WFTRequest() :
                 FtBufferRequest::FtBufferRequest()
 {
-
 }
 
 WFTRequest::WFTRequest( const WFTMessageT *msg )

@@ -30,6 +30,5 @@ WFTRequest_GetHeader::WFTRequest_GetHeader()
 
 WFTRequest_GetHeader::~WFTRequest_GetHeader()
 {
-
 }
 

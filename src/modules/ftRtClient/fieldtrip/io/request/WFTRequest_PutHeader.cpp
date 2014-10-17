@@ -31,7 +31,6 @@ WFTRequest_PutHeader::WFTRequest_PutHeader( UINT32_T numChannels, UINT32_T dataT
 
 WFTRequest_PutHeader::~WFTRequest_PutHeader()
 {
-
 }
 
 bool WFTRequest_PutHeader::addChunk( UINT32_T chunkType, UINT32_T chunkSize, const void *data )

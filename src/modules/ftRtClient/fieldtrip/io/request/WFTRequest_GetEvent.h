@@ -29,10 +29,9 @@
 class WFTRequest_GetEvent: public WFTRequest
 {
 public:
-
     WFTRequest_GetEvent( UINT32_T begevent, UINT32_T endevent );
 
     virtual ~WFTRequest_GetEvent();
 };
 
-#endif /* WFTREQUEST_GETEVENT_H_ */
+#endif  // WFTREQUEST_GETEVENT_H_

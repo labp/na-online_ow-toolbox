@@ -41,7 +41,6 @@
 class WFTRequest: public boost::enable_shared_from_this< WFTRequest >, protected FtBufferRequest
 {
 public:
-
     /**
      * A shared pointer on a WFTRequest.
      */
@@ -55,9 +54,10 @@ public:
     /**
      * Declare the << operator as friend.
      *
-     * @param strm The input stream.
-     * @param request The request object.
-     * @return Returns an output stream, which contains the request string.
+     * \param strm The input stream.
+     * \param request The request object.
+     *
+     * \return Returns an output stream, which contains the request string.
      */
     friend std::ostream& operator<<( std::ostream &strm, const WFTRequest &request );
 
@@ -69,9 +69,9 @@ public:
     /**
      * Creates a new WFTRequest with an existing message.
      *
-     * @param msg The message
+     * \param msg The message
      */
-    WFTRequest( const WFTMessageT *msg );
+    explicit WFTRequest( const WFTMessageT *msg );
 
     /**
      * Destroys the WFTRequest.
@@ -81,7 +81,7 @@ public:
     /**
      * Gets the message header.
      *
-     * @return The message header.
+     * \return The message header.
      */
     WFTMessageDefT &getMessageDef();
 
@@ -95,7 +95,7 @@ public:
     /**
      * Gets the messages content.
      *
-     * @return The messages content.
+     * \return The messages content.
      */
     SimpleStorage &getBuffer();
 
@@ -107,7 +107,7 @@ public:
     /**
      * Gets the abstract request as a concrete request.
      *
-     * @return Returns a shared pointer on a concrete request.
+     * \return Returns a shared pointer on a concrete request.
      */
     template< typename Request >
     boost::shared_ptr< Request > getAs()
@@ -118,14 +118,13 @@ public:
     /**
      * Gets the abstract request as a concrete request.
      *
-     * @return Returns a shared pointer on a constant concrete request.
+     * \return Returns a shared pointer on a constant concrete request.
      */
     template< typename Request >
     boost::shared_ptr< const Request > getAs() const
     {
         return boost::dynamic_pointer_cast< Request >( shared_from_this() );
     }
-
 };
 
 inline std::ostream& operator<<( std::ostream &strm, const WFTRequest &request )
@@ -138,4 +137,4 @@ inline std::ostream& operator<<( std::ostream &strm, const WFTRequest &request )
     return strm;
 }
 
-#endif /* WFTREQUEST_H_ */
+#endif  // WFTREQUEST_H_

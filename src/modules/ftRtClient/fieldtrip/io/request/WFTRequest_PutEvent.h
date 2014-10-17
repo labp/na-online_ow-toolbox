@@ -24,12 +24,13 @@
 #ifndef WFTREQUEST_PUTEVENT_H_
 #define WFTREQUEST_PUTEVENT_H_
 
+#include <string>
+
 #include "WFTRequest.h"
 
 class WFTRequest_PutEvent: public WFTRequest
 {
 public:
-
     WFTRequest_PutEvent( INT32_T sample, INT32_T offset, INT32_T duration, const std::string& type, const std::string& value );
 
     WFTRequest_PutEvent( INT32_T sample, INT32_T offset, INT32_T duration, const std::string& type, INT32_T value );
@@ -37,7 +38,4 @@ public:
     virtual ~WFTRequest_PutEvent();
 };
 
-
-
-
-#endif /* WFTREQUEST_PUTEVENT_H_ */
+#endif  // WFTREQUEST_PUTEVENT_H_

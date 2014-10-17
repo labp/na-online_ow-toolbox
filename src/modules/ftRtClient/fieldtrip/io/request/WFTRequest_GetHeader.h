@@ -29,10 +29,9 @@
 class WFTRequest_GetHeader: public WFTRequest
 {
 public:
-
     WFTRequest_GetHeader();
 
     virtual ~WFTRequest_GetHeader();
 };
 
-#endif /* WFTREQUEST_GETHEADER_H_ */
+#endif  // WFTREQUEST_GETHEADER_H_
