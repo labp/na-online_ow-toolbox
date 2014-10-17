@@ -21,6 +21,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include "boost/lexical_cast.hpp"
 
 #include "WFTConnectionTCP.h"
@@ -30,12 +32,10 @@ const std::string WFTConnectionTCP::CLASS = "WFTConnectionTCP";
 WFTConnectionTCP::WFTConnectionTCP( std::string host, int port, int retry ) :
                 WFTConnection::WFTConnection( retry ), m_host( host ), m_port( port )
 {
-
 }
 
 WFTConnectionTCP::~WFTConnectionTCP()
 {
-
 }
 
 bool WFTConnectionTCP::connect()

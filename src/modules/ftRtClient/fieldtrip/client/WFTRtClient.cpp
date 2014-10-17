@@ -21,6 +21,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include <buffer.h>
 #include <FtBuffer.h>
 
@@ -50,7 +52,6 @@ WFTRtClient::WFTRtClient() :
 
 WFTRtClient::~WFTRtClient()
 {
-
 }
 
 void WFTRtClient::resetClient()

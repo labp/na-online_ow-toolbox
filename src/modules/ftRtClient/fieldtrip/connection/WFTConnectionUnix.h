@@ -25,6 +25,7 @@
 #define WFTCONNECTIONUNIX_H_
 
 #include <ostream>
+#include <string>
 
 #include "WFTConnection.h"
 
@@ -34,7 +35,6 @@
 class WFTConnectionUnix: public WFTConnection
 {
 public:
-
     /**
      * The class name.
      */
@@ -43,8 +43,8 @@ public:
     /**
      * Constructs a new Unix Domain Socket.
      *
-     * @param pathname The connection address, which has to math the pattern: <host>:<port>
-     * @param retry The number of retries in case of failure.
+     * \param pathname The connection address, which has to math the pattern: <host>:<port>
+     * \param retry The number of retries in case of failure.
      */
     WFTConnectionUnix( std::string pathname, int retry = 0 );
 
@@ -56,47 +56,46 @@ public:
     /**
      * Inherited method from WFTConnection.
      *
-     * @return Returns true if connecting was successful, else false.
+     * \return Returns true if connecting was successful, else false.
      */
     virtual bool connect();
 
     /**
      * Inherited method from WFTConnection.
      *
-     * @return The connection as string.
+     * \return The connection as string.
      */
     std::string getConnectionString() const;
 
     /**
      * Inherited method from WFTConnection.
      *
-     * @return The connections name.
+     * \return The connections name.
      */
     std::string getName() const;
 
     /**
      * Gets the connection address.
      *
-     * @return The connection address.
+     * \return The connection address.
      */
     const std::string getPathName() const;
 
     /**
      * Sets the connection address.
      *
-     * @param pathname The connection address.
+     * \param pathname The connection address.
      */
     void set( std::string pathname );
 
 protected:
-
     /**
      * The connection address.
      */
     std::string m_pathname;
 };
 
-inline std::ostream& operator<<(std::ostream& str, const WFTConnectionUnix& connection )
+inline std::ostream& operator<<( std::ostream& str, const WFTConnectionUnix& connection )
 {
     str << WFTConnectionUnix::CLASS << ":";
     str << " Pathname: " << connection.getPathName();
@@ -104,4 +103,4 @@ inline std::ostream& operator<<(std::ostream& str, const WFTConnectionUnix& conn
     return str;
 }
 
-#endif /* WFTCONNECTIONUNIX_H_ */
+#endif  // WFTCONNECTIONUNIX_H_

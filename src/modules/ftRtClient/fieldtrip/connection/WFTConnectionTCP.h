@@ -25,6 +25,7 @@
 #define WFTCONNECTIONTCP_H_
 
 #include <ostream>
+#include <string>
 
 #include "WFTConnection.h"
 
@@ -35,15 +36,14 @@
 class WFTConnectionTCP: public WFTConnection
 {
 public:
-
     static const std::string CLASS;
 
     /**
      * Constructs a new TCP connection.
      *
-     * @param host The host name.
-     * @param port The port number on the host.
-     * @param retry The number of retries in case of failure.
+     * \param host The host name.
+     * \param port The port number on the host.
+     * \param retry The number of retries in case of failure.
      */
     WFTConnectionTCP( std::string host, int port, int retry = 0 );
 
@@ -55,48 +55,47 @@ public:
     /**
      * Inherited method from WFTConnection.
      *
-     * @return Returns true if connecting was successful, else false.
+     * \return Returns true if connecting was successful, else false.
      */
     bool connect();
 
     /**
      * Inherited method from WFTConnection.
      *
-     * @return The connection as string.
+     * \return The connection as string.
      */
     std::string getConnectionString() const;
 
     /**
      * Inherited method from WFTConnection.
      *
-     * @return The connections name.
+     * \return The connections name.
      */
     std::string getName() const;
 
     /**
      * Gets the host name.
      *
-     * @return The host name.
+     * \return The host name.
      */
     const std::string getHost() const;
 
     /**
      * Gets the port number.
      *
-     * @return The port number.
+     * \return The port number.
      */
     int getPort() const;
 
     /**
      * Sets the host name and the port number.
      *
-     * @param host The host name.
-     * @param port The port number.
+     * \param host The host name.
+     * \param port The port number.
      */
     void set( std::string host, int port );
 
 protected:
-
     /**
      * The host name.
      */
@@ -117,4 +116,4 @@ inline std::ostream& operator<<( std::ostream& str, const WFTConnectionTCP& conn
     return str;
 }
 
-#endif /* WFTCONNECTIONTCP_H_ */
+#endif  // WFTCONNECTIONTCP_H_

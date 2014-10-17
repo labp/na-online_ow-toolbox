@@ -24,6 +24,8 @@
 #ifndef WFTCONNECTION_H_
 #define WFTCONNECTION_H_
 
+#include <string>
+
 #include <boost/shared_ptr.hpp>
 
 #include <FtBuffer.h>
@@ -35,7 +37,6 @@
 class WFTConnection: protected FtConnection
 {
 public:
-
     /**
      * A shared pointer on a WFTConnection.
      */
@@ -49,9 +50,9 @@ public:
     /**
      * Creates a connection object with a number of retries in case of fail while connecting.
      *
-     * @param retry The number of retries.
+     * \param retry The number of retries.
      */
-    WFTConnection( int retry = 0 );
+    explicit WFTConnection( int retry = 0 );
 
     /**
      * Destroys the WFTConnection.
@@ -61,7 +62,7 @@ public:
     /**
      * This method establishes a connection to the FieldTrip Buffer.
      *
-     * @return Returns true if connecting was successful, else false.
+     * \return Returns true if connecting was successful, else false.
      */
     virtual bool connect() = 0;
 
@@ -70,22 +71,22 @@ public:
      *
      *      <host>:<port>
      *
-     * @param address The address string.
-     * @return Returns true if connecting was successful, else false.
+     * \param address The address string.
+     * \return Returns true if connecting was successful, else false.
      */
     virtual bool connect( std::string address );
 
     /**
      * Gets the configured connection information as a string.
      *
-     * @return The connection as string.
+     * \return The connection as string.
      */
     virtual std::string getConnectionString() const = 0;
 
     /**
      * Gets a defined name for the connection.
      *
-     * @return The connections name.
+     * \return The connections name.
      */
     virtual std::string getName() const = 0;
 
@@ -113,4 +114,4 @@ inline std::ostream& operator<<( std::ostream& str, const WFTConnection& connect
     return str;
 }
 
-#endif /* WFTCONNECTION_H_ */
+#endif  // WFTCONNECTION_H_

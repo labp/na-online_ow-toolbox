@@ -21,6 +21,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include "WFTConnectionUnix.h"
 
 const std::string WFTConnectionUnix::CLASS = "WFTConnectionUnix";
@@ -28,12 +30,10 @@ const std::string WFTConnectionUnix::CLASS = "WFTConnectionUnix";
 WFTConnectionUnix::WFTConnectionUnix( std::string pathname, int retry ) :
                 WFTConnection::WFTConnection( retry ), m_pathname( pathname )
 {
-
 }
 
 WFTConnectionUnix::~WFTConnectionUnix()
 {
-
 }
 
 bool WFTConnectionUnix::connect()
