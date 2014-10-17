@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -39,9 +38,7 @@
  */
 class WFTEvent: public WFTObject
 {
-
 public:
-
     /**
      * A shared pointer on an WFTEvent.
      */
@@ -55,20 +52,20 @@ public:
     /**
      * Constructs a new WFTEvent.
      *
-     * @param def The header information, decribing the event.
-     * @param type The data type of event.
-     * @param value The value of the event.
+     * \param def The header information, decribing the event.
+     * \param type The data type of event.
+     * \param value The value of the event.
      */
     WFTEvent( WFTEventDefT def, const std::string type, const std::string value );
 
     /**
      * Constructs a new WFTEvent.
      *
-     * @param sample The index of sample this event relates to.
-     * @param offset The offset of event w.r.t. sample (time).
-     * @param duration The duration of the event.
-     * @param type The data type of event.
-     * @param value The value of the event.
+     * \param sample The index of sample this event relates to.
+     * \param offset The offset of event w.r.t. sample (time).
+     * \param duration The duration of the event.
+     * \param type The data type of event.
+     * \param value The value of the event.
      */
     WFTEvent( INT32_T sample, INT32_T offset, INT32_T duration, const std::string type, const std::string value );
 
@@ -80,40 +77,39 @@ public:
     /**
      * Inherited method from WFTObject.
      *
-     * @return Returns the size of the whole object including the event header.
+     * \return Returns the size of the whole object including the event header.
      */
     UINT32_T getSize() const;
 
     /**
      * Gets a reference on the event header.
      *
-     * @return A reference on the event header.
+     * \return A reference on the event header.
      */
     WFTEventDefT& getDef();
 
     /**
      * Gets the event header.
      *
-     * @return The event header.
+     * \return The event header.
      */
     WFTEventDefT getDef() const;
 
     /**
      * Gets the type.
      *
-     * @return The type.
+     * \return The type.
      */
     std::string const getType() const;
 
     /**
      * Gets the value.
      *
-     * @return The value.
+     * \return The value.
      */
     std::string const getValue() const;
 
 private:
-
     /**
      * The event header.
      */
@@ -133,9 +129,10 @@ private:
 /**
  * Overloads the << operator to print the events data.
  *
- * @param strm The ostream.
- * @param event The event object.
- * @return Returns an ostream, which contains the events information.
+ * \param strm The ostream.
+ * \param event The event object.
+ *
+ * \return Returns an ostream, which contains the events information.
  */
 inline std::ostream& operator<<( std::ostream &strm, const WFTEvent& event )
 {
@@ -149,4 +146,4 @@ inline std::ostream& operator<<( std::ostream &strm, const WFTEvent& event )
     return strm;
 }
 
-#endif /* WFTEVENT_H_ */
+#endif  // WFTEVENT_H_

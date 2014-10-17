@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -26,9 +25,14 @@
 
 #include "WFiffTag.h"
 
-bool WFiffTag::read_tag_info( FiffStream* p_pStream, FiffTag::SPtr &p_pTag, bool p_bDoSkip )
+using namespace FIFFLIB;
+
+bool WFiffTag::read_tag_info( FiffTag* const p_pTag, FiffStream* const p_pStream, bool p_bDoSkip )
 {
-    p_pTag = FiffTag::SPtr( new FiffTag() );
+    if( p_pTag == NULL )
+    {
+        return false;
+    }
 
     // read tag kind
     if( 0 > p_pStream->readRawData( ( char * )&p_pTag->kind, sizeof( p_pTag->kind ) ) )
@@ -82,14 +86,17 @@ bool WFiffTag::read_tag_info( FiffStream* p_pStream, FiffTag::SPtr &p_pTag, bool
     return true;
 }
 
-bool WFiffTag::read_tag( FiffStream* p_pStream, FiffTag::SPtr& p_pTag, qint64 pos )
+bool WFiffTag::read_tag( FiffTag* const p_pTag, FiffStream* const p_pStream, qint64 pos )
 {
+    if( p_pTag == NULL )
+    {
+        return false;
+    }
+
     if( pos >= 0 )
     {
         p_pStream->device()->seek( pos );
     }
-
-    p_pTag = FiffTag::SPtr( new FiffTag() );
 
     // read tag kind
     if( 0 > p_pStream->readRawData( ( char * )&p_pTag->kind, sizeof( p_pTag->kind ) ) )

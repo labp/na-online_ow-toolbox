@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -26,12 +25,11 @@
 #define WFTACHUNKFACTORY_H_
 
 #include <map>
+#include <string>
 
 #include <boost/shared_ptr.hpp>
 
 #include <core/common/WLogger.h>
-
-using namespace std;
 
 /**
  * WFTAChunkFactory is a generic abstract factory to map classes representing the different FieldTrip chunks with their specific methods and
@@ -41,7 +39,6 @@ template< typename Enum, typename Base >
 class WFTAChunkFactory
 {
 public:
-
     /**
      * A shared pointer on a WFTAChunkFactory.
      */
@@ -60,29 +57,25 @@ public:
     /**
      * Commands the derived class to create a new instance.
      *
-     * @param e The enum value.
-     * @return Returns a pointer on the new instance.
+     * \param e The enum value.
+     * \return Returns a pointer on the new instance.
      */
     static boost::shared_ptr< Base > create( Enum e, const char* data, const size_t size );
 
 protected:
-
     /**
      * Creates a new instance of the derived class.
      *
-     * @return Returns a pointer to the new instance.
+     * \return Returns a pointer to the new instance.
      */
     virtual boost::shared_ptr< Base > create( const char* data, const size_t size ) = 0;
 
     /**
      * Gets a static map containing the created @Enum - @Base instances.
      *
-     * @return Returns a static map containing the created @Enum - @Base instances.
+     * \return Returns a static map containing the created @Enum - @Base instances.
      */
-    static map< Enum, WFTAChunkFactory< Enum, Base >* >& lookup();
-
-private:
-
+    static std::map< Enum, WFTAChunkFactory< Enum, Base >* >& lookup();
 };
 
 template< typename Enum, typename Base >
@@ -96,7 +89,7 @@ inline WFTAChunkFactory< Enum, Base >::~WFTAChunkFactory()
 template< typename Enum, typename Base >
 inline boost::shared_ptr< Base > WFTAChunkFactory< Enum, Base >::create( Enum e, const char* data, const size_t size )
 {
-    typename map< Enum, WFTAChunkFactory< Enum, Base >* >::const_iterator const it = lookup().find( e );
+    typename std::map< Enum, WFTAChunkFactory< Enum, Base >* >::const_iterator const it = lookup().find( e );
     if( it == lookup().end() )
         return boost::shared_ptr< Base >();
 
@@ -104,11 +97,11 @@ inline boost::shared_ptr< Base > WFTAChunkFactory< Enum, Base >::create( Enum e,
 }
 
 template< typename Enum, typename Base >
-inline map< Enum, WFTAChunkFactory< Enum, Base >* >& WFTAChunkFactory< Enum, Base >::lookup()
+inline std::map< Enum, WFTAChunkFactory< Enum, Base >* >& WFTAChunkFactory< Enum, Base >::lookup()
 {
-    static map< Enum, WFTAChunkFactory< Enum, Base >* > l;
+    static std::map< Enum, WFTAChunkFactory< Enum, Base >* > l;
 
     return l;
 }
 
-#endif /* WFTACHUNKFACTORY_H_ */
+#endif  // WFTACHUNKFACTORY_H_

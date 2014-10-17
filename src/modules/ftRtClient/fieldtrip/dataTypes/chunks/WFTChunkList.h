@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -37,9 +36,7 @@
  */
 class WFTChunkList: public WLArrayList< WFTAChunk::SPtr >
 {
-
 public:
-
     /**
      * Shared pointer on a chunk list.
      */
@@ -53,9 +50,10 @@ public:
     /**
      * This static method detects whether the @chunk is from the wished chunk type @type.
      *
-     * @param chunk The chunk object.
-     * @param type The chunk type
-     * @return Returns true if the @chunk has the given @type, else false.
+     * \param chunk The chunk object.
+     * \param type The chunk type
+     *
+     * \return Returns true if the @chunk has the given @type, else false.
      */
     static bool isChunkType( const WFTAChunk::SPtr& chunk, WLEFTChunkType::Enum type );
 
@@ -63,11 +61,10 @@ public:
      * This method delivers a filtered chunk list in which all chunks has the given @chunkType.
      * The returning list is just a copy of the original collection.
      *
-     * @param chunkType The type to filter
-     * @return Returns a shared pointer on the filtered list.
+     * \param chunkType The type to filter
+     * \return Returns a shared pointer on the filtered list.
      */
     WFTChunkList::SPtr filter( WLEFTChunkType::Enum chunkType );
-
 };
 
-#endif /* WFTCHUNKLIST_H_ */
+#endif  // WFTCHUNKLIST_H_

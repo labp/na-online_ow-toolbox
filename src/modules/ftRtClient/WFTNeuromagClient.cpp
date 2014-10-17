@@ -100,7 +100,7 @@ bool WFTNeuromagClient::createEMM( WLEMMeasurement::SPtr emm )
 {
     WLEMDRaw::SPtr rawData;
 
-    if( !getRawData( rawData ) )
+    if( !getRawData( &rawData ) )
     {
         return false;
     }
@@ -118,9 +118,9 @@ bool WFTNeuromagClient::createEMM( WLEMMeasurement::SPtr emm )
     return createDetailedEMM( emm, rawData );
 }
 
-bool WFTNeuromagClient::getRawData( WLEMDRaw::SPtr& rawData )
+bool WFTNeuromagClient::getRawData( WLEMDRaw::SPtr* const rawData )
 {
-    rawData.reset( new WLEMDRaw );
+    rawData->reset( new WLEMDRaw );
 
     if( m_data->getDataDef().bufsize == 0 )
     {
@@ -148,7 +148,7 @@ bool WFTNeuromagClient::getRawData( WLEMDRaw::SPtr& rawData )
     WLEMData::DataSPtr dataPtr( new WLEMData::DataT( chans, samps ) ); // create data matrix
     WLEMData::DataT& data = *dataPtr;
 
-    rawData->setSampFreq( m_header->getHeaderDef().fsample );
+    ( *rawData )->setSampFreq( m_header->getHeaderDef().fsample );
 
     // insert value into the matrix
     for( int i = 0; i < samps; ++i ) // iterate all samples
@@ -179,7 +179,7 @@ bool WFTNeuromagClient::getRawData( WLEMDRaw::SPtr& rawData )
         data.col( i ) = sample; // add sample-vector to the matrix
     }
 
-    rawData->setData( dataPtr );
+    ( *rawData )->setData( dataPtr );
 
     return true;
 }
