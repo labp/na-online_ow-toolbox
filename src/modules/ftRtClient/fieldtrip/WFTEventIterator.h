@@ -24,6 +24,8 @@
 #ifndef WFTEVENTITERATOR_H_
 #define WFTEVENTITERATOR_H_
 
+#include <string>
+
 #include <boost/shared_ptr.hpp>
 
 #include "WFTAIterator.h"
@@ -36,7 +38,6 @@
 class WFTEventIterator: public WFTAIterator< WFTEvent >
 {
 public:
-
     /**
      * Represents the name of the class.
      */
@@ -50,25 +51,24 @@ public:
     /**
      * Constructs a new WFTEventIterator.
      *
-     * @param buf A reference to the event storage memory.
-     * @param size The size of the memory area.
+     * \param buf A reference to the event storage memory.
+     * \param size The size of the memory area.
      */
-    WFTEventIterator( SimpleStorage& buf, int size );
+    WFTEventIterator( SimpleStorage* const buf, int size );
 
     /**
      * Inherited method from WFTAIterator.
      *
-     * @return Returns true if there are more events, else false.
+     * \return Returns true if there are more events, else false.
      */
     bool hasNext() const;
 
     /**
      * Inherited method from WFTAIterator.
      *
-     * @return Returns the next event.
+     * \return Returns the next event.
      */
     WFTEvent::SPtr getNext();
-
 };
 
-#endif /* WFTEVENTITERATOR_H_ */
+#endif  // WFTEVENTITERATOR_H_

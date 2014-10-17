@@ -63,7 +63,7 @@ bool WFTEventList::parseResponse( WFTResponse::SPtr response )
         return false;
     }
 
-    WFTEventIterator::SPtr it( new WFTEventIterator( storage, response->getMessage().def->bufsize ) );
+    WFTEventIterator::SPtr it( new WFTEventIterator( &storage, response->getMessage().def->bufsize ) );
 
     while( it->hasNext() )
     {

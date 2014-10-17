@@ -23,19 +23,19 @@
 
 #include "WFTRequest_PutEvent.h"
 
-WFTRequest_PutEvent::WFTRequest_PutEvent( INT32_T sample, INT32_T offset, INT32_T duration, std::string& type,
-                std::string& value )
+WFTRequest_PutEvent::WFTRequest_PutEvent( INT32_T sample, INT32_T offset, INT32_T duration, const std::string& type,
+                const std::string& value )
 {
     prepPutEvent( sample, offset, duration, type.c_str(), value.c_str() );
 }
 
-WFTRequest_PutEvent::WFTRequest_PutEvent( INT32_T sample, INT32_T offset, INT32_T duration, std::string& type, INT32_T value )
+WFTRequest_PutEvent::WFTRequest_PutEvent( INT32_T sample, INT32_T offset, INT32_T duration, const std::string& type,
+                INT32_T value )
 {
     prepPutEvent( sample, offset, duration, type.c_str(), value );
 }
 
 WFTRequest_PutEvent::~WFTRequest_PutEvent()
 {
-
 }
 

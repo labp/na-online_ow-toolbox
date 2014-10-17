@@ -21,7 +21,7 @@
 //
 //---------------------------------------------------------------------------
 
-#include "core/common/WLogger.h"
+#include <string>
 
 #include "dataTypes/WFTObject.h"
 #include "dataTypes/enum/WLEFTDataType.h"
@@ -30,14 +30,14 @@
 
 const std::string WFTEventIterator::CLASS = "WFTEventIterator";
 
-WFTEventIterator::WFTEventIterator( SimpleStorage& buf, int size ) :
+WFTEventIterator::WFTEventIterator( SimpleStorage* const buf, int size ) :
                 WFTAIterator< WFTEvent >::WFTAIterator( buf, size )
 {
 }
 
 bool WFTEventIterator::hasNext() const
 {
-    return m_pos + ( int )sizeof(WFTEventDefT) < m_size;
+    return m_pos + ( int )sizeof( WFTEventDefT ) < m_size;
 }
 
 WFTEvent::SPtr WFTEventIterator::getNext()
@@ -47,11 +47,11 @@ WFTEvent::SPtr WFTEventIterator::getNext()
         return WFTEvent::SPtr();
     }
 
-    WFTEventDefT *def = ( WFTEventDefT * )( ( char * )m_store.data() + m_pos );
+    WFTEventDefT *def = ( WFTEventDefT * )( ( char * )m_store->data() + m_pos );
     unsigned int wsType, wsValue;
 
     // test whether the events is included completely
-    if( m_pos + ( int )( sizeof(WFTEventDefT) + def->bufsize ) > m_size )
+    if( m_pos + ( int )( sizeof( WFTEventDefT ) + def->bufsize ) > m_size )
     {
         return WFTEvent::SPtr();
     }
@@ -63,13 +63,13 @@ WFTEvent::SPtr WFTEventIterator::getNext()
     uint lenType = wsType * def->type_numel;
     uint lenValue = wsValue * def->value_numel;
     // create pointers to types and values location.
-    const char *srcType = ( ( const char* )m_store.data() ) + m_pos + sizeof(WFTEventDefT);
+    const char *srcType = ( ( const char* )m_store->data() ) + m_pos + sizeof( WFTEventDefT );
     const char *srcValue = srcType + lenType;
 
     std::string type( srcType, lenType );
     std::string value( srcValue, lenValue );
 
-    m_pos += sizeof(WFTEventDefT) + def->bufsize; // increase the position to the next event.
+    m_pos += sizeof( WFTEventDefT ) + def->bufsize; // increase the position to the next event.
 
     return WFTEvent::SPtr( new WFTEvent( *def, type, value ) ); // create the event object and return.
 }

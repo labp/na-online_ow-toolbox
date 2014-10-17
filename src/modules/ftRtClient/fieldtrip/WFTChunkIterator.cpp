@@ -25,7 +25,7 @@
 #include "dataTypes/WFTObject.h"
 #include "WFTChunkIterator.h"
 
-WFTChunkIterator::WFTChunkIterator( SimpleStorage& buf, int size ) :
+WFTChunkIterator::WFTChunkIterator( SimpleStorage* const buf, int size ) :
                 WFTAIterator< WFTAChunk >( buf, size )
 {
 }
@@ -42,17 +42,17 @@ WFTAChunk::SPtr WFTChunkIterator::getNext()
         return WFTAChunk::SPtr();
     }
 
-    WFTChunkDefT *chunkdef = ( WFTChunkDefT * )( ( char * )m_store.data() + m_pos );
+    WFTChunkDefT *chunkdef = ( WFTChunkDefT * )( ( char * )m_store->data() + m_pos );
 
     // when the chunk has no data, set position to next chunk and return. (should just happens in case of an error)
     if( chunkdef->size == 0 )
     {
-        m_pos += sizeof(WFTChunkDefT);
+        m_pos += sizeof( WFTChunkDefT );
         return WFTAChunk::SPtr();
     }
 
-    char *src = ( ( char * )m_store.data() ) + m_pos + sizeof(WFTChunkDefT); // pointer to the chunks data.
-    m_pos += sizeof(WFTChunkDefT) + chunkdef->size; // start position for the next chunk (next definition).
+    char *src = ( ( char * )m_store->data() ) + m_pos + sizeof( WFTChunkDefT ); // pointer to the chunks data.
+    m_pos += sizeof( WFTChunkDefT ) + chunkdef->size; // start position for the next chunk (next definition).
 
     return WFTAChunkFactory< WLEFTChunkType::Enum, WFTAChunk >::create( ( WLEFTChunkType::Enum )chunkdef->type, src,
                     chunkdef->size );

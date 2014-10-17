@@ -36,14 +36,13 @@ template< typename T >
 class WFTAIterator
 {
 public:
-
     /**
      * Constructs a new WFTAIterator.
      *
-     * @param buf The memory area to iterate.
-     * @param size The size of the memory area.
+     * \param buf The memory area to iterate.
+     * \param size The size of the memory area.
      */
-    WFTAIterator( SimpleStorage& buf, int size );
+    WFTAIterator( SimpleStorage* const buf, int size );
 
     /**
      * Destroys the WFTAIterator.
@@ -53,7 +52,7 @@ public:
     /**
      * Indicates whether more data objects exist in the storage.
      *
-     * @return Returns true if there is another data object, else false.
+     * \return Returns true if there is another data object, else false.
      */
     virtual bool hasNext() const = 0;
 
@@ -65,16 +64,15 @@ public:
     /**
      * Returns the next data object in the storage as shared pointer.
      *
-     * @return The next data object.
+     * \return The next data object.
      */
     virtual boost::shared_ptr< T > getNext() = 0;
 
 protected:
-
     /**
-     * A reference on a memory area containing the data after initializing.
+     * A pointer on a memory area containing the data after initializing.
      */
-    SimpleStorage &m_store;
+    SimpleStorage* const m_store;
 
     /**
      * Defines the iterators position inside of the data storage.
@@ -85,11 +83,10 @@ protected:
      * Contains the memory size of the data storage.
      */
     int m_pos;
-
 };
 
 template< typename T >
-inline WFTAIterator< T >::WFTAIterator( SimpleStorage &buf, int size ) :
+inline WFTAIterator< T >::WFTAIterator( SimpleStorage* const buf, int size ) :
                 m_store( buf ), m_size( size ), m_pos( 0 )
 {
 }
@@ -105,4 +102,4 @@ inline void WFTAIterator< T >::reset()
     m_pos = 0;
 }
 
-#endif /* WFTAITERATOR_H_ */
+#endif  // WFTAITERATOR_H_

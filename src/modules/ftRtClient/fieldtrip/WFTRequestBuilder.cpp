@@ -21,6 +21,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include <buffer.h>
 
 #include "io/request/WFTRequest_GetData.h"
@@ -34,7 +36,6 @@
 
 WFTRequestBuilder::WFTRequestBuilder()
 {
-
 }
 
 WFTRequest::SPtr WFTRequestBuilder::buildRequest_GET_HDR()
@@ -58,14 +59,14 @@ WFTRequest::SPtr WFTRequestBuilder::buildRequest_GET_DAT( UINT32_T begsample, UI
     return WFTRequest::SPtr( new WFTRequest_GetData( begsample, endsample ) );
 }
 
-WFTRequest::SPtr WFTRequestBuilder::buildRequest_PUT_EVT( INT32_T sample, INT32_T offset, INT32_T duration, std::string& type,
-                std::string& value )
+WFTRequest::SPtr WFTRequestBuilder::buildRequest_PUT_EVT( INT32_T sample, INT32_T offset, INT32_T duration,
+                const std::string& type, const std::string& value )
 {
     return WFTRequest::SPtr( new WFTRequest_PutEvent( sample, offset, duration, type, value ) );
 }
 
-WFTRequest::SPtr WFTRequestBuilder::buildRequest_PUT_EVT( INT32_T sample, INT32_T offset, INT32_T duration, std::string& type,
-                INT32_T value )
+WFTRequest::SPtr WFTRequestBuilder::buildRequest_PUT_EVT( INT32_T sample, INT32_T offset, INT32_T duration,
+                const std::string& type, INT32_T value )
 {
     return WFTRequest::SPtr( new WFTRequest_PutEvent( sample, offset, duration, type, value ) );
 }

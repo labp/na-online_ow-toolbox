@@ -36,7 +36,6 @@
 class WFTChunkIterator: public WFTAIterator< WFTAChunk >
 {
 public:
-
     /**
      * A shared pointer on the iterator.
      */
@@ -45,25 +44,24 @@ public:
     /**
      * The constructor defines the chunk storage for followed iterations.
      *
-     * @param buf A reference to the chunk storage memory.
-     * @param size The memory size allocated by all chunks together.
+     * \param buf A pointer to the chunk storage memory.
+     * \param size The memory size allocated by all chunks together.
      */
-    WFTChunkIterator( SimpleStorage& buf, int size );
+    WFTChunkIterator( SimpleStorage* const buf, int size );
 
     /**
      * Inherited method from WFTAIterator.
      *
-     * @return Returns true if there are more chunks, else false.
+     * \return Returns true if there are more chunks, else false.
      */
     bool hasNext() const;
 
     /**
      * Inherited method from WFTAIterator.
      *
-     * @return Returns the next chunk element.
+     * \return Returns the next chunk element.
      */
     WFTAChunk::SPtr getNext();
-
 };
 
-#endif /* WFTCHUNKITERATOR_H_ */
+#endif  // WFTCHUNKITERATOR_H_

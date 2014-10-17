@@ -93,7 +93,7 @@ bool WFTHeader::parseResponse( WFTResponse::SPtr response )
     if( m_def.bufsize > 0 )
     {
         // extracts the chunks from the response using an iterator and stores them in the local chunk collection.
-        WFTChunkIterator::SPtr iterator( new WFTChunkIterator( chunkBuffer, m_def.bufsize ) );
+        WFTChunkIterator::SPtr iterator( new WFTChunkIterator( &chunkBuffer, m_def.bufsize ) );
         while( iterator->hasNext() )
         {
             m_chunks->push_back( iterator->getNext() );
