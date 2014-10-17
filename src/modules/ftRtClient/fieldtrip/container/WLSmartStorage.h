@@ -25,6 +25,7 @@
 #define WLSMARTSTORAGE_H_
 
 #include <ostream>
+#include <string>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
@@ -41,7 +42,6 @@
 class WLSmartStorage
 {
 public:
-
     /**
      * A shared pointer on a WLSmartStorage.
      */
@@ -75,22 +75,22 @@ public:
     /**
      * Constructs a new container, which includes the @data.
      *
-     * @param value The new data.
+     * \param value The new data.
      */
-    WLSmartStorage( std::string data );
+    explicit WLSmartStorage( std::string data );
 
     /**
      * Constructs a new container, which includes the @data.
      *
-     * @param data The pointer to the data.
-     * @param size The size of data.
+     * \param data The pointer to the data.
+     * \param size The size of data.
      */
     WLSmartStorage( const void * data, size_t size );
 
     /**
      * Gets the containing data as string. This makes sense when the container contains string only data.
      *
-     * @return The data string.
+     * \return The data string.
      */
     std::string toString() const;
 
@@ -107,7 +107,7 @@ public:
     /**
      * Gets the size of memory inside of the container.
      *
-     * @return The size of memory.
+     * \return The size of memory.
      */
     size_t getSize() const;
 
@@ -119,35 +119,34 @@ public:
     /**
      * Sets the containers content. Existing content will be deleted before.
      *
-     * @param data The pointer to the data.
-     * @param size The size of the data.
+     * \param data The pointer to the data.
+     * \param size The size of the data.
      */
     void setData( const void * data, size_t size );
 
     /**
      * Sets the containers content. Existing content will be deleted before.
      *
-     * @param data The data string.
+     * \param data The data string.
      */
     void setData( std::string data );
 
     /**
      * Appends new data to the container. Existing content will be untouched.
      *
-     * @param data The pointer to the data.
-     * @param size The size of the data.
+     * \param data The pointer to the data.
+     * \param size The size of the data.
      */
     void append( const void * data, size_t size );
 
     /**
      * Appends new data to the container. Existing content will be untouched.
      *
-     * @param data The data string.
+     * \param data The data string.
      */
     void append( std::string data );
 
 private:
-
     /**
      * Method to clear the container by resetting the shared pointer and initializing them with a new empty container.
      */
@@ -162,9 +161,9 @@ private:
 /**
  * Returns an out stream containing the @store as string at its end.
  *
- * @param str The output stream.
- * @param store The WLSmartStorage object to concatenate.
- * @return The out stream.
+ * \param str The output stream.
+ * \param store The WLSmartStorage object to concatenate.
+ * \return The out stream.
  */
 inline std::ostream& operator<<( std::ostream &str, const WLSmartStorage &store )
 {
@@ -173,4 +172,4 @@ inline std::ostream& operator<<( std::ostream &str, const WLSmartStorage &store 
     return str;
 }
 
-#endif /* WLSMARTSTORAGE_H_ */
+#endif  // WLSMARTSTORAGE_H_

@@ -22,7 +22,7 @@
 //---------------------------------------------------------------------------
 
 #include <algorithm>
-#include <string.h>
+#include <string>
 
 #include <modules/ftRtClient/fieldtrip/container/WLSmartStorage.h>
 
