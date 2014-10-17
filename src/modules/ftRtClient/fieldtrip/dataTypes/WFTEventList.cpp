@@ -21,18 +21,18 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include <boost/foreach.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include <message.h>
 
-#include "core/common/WLogger.h"
-
-#include <modules/ftRtClient/fieldtrip/dataTypes/enum/WLEFTDataType.h>
-#include <modules/ftRtClient/fieldtrip/dataTypes/WFTEventList.h>
-#include <modules/ftRtClient/fieldtrip/io/request/WFTRequest.h>
-#include <modules/ftRtClient/fieldtrip/io/response/WFTResponse.h>
-#include <modules/ftRtClient/fieldtrip/WFTEventIterator.h>
+#include "modules/ftRtClient/fieldtrip/dataTypes/enum/WLEFTDataType.h"
+#include "modules/ftRtClient/fieldtrip/dataTypes/WFTEventList.h"
+#include "modules/ftRtClient/fieldtrip/io/request/WFTRequest.h"
+#include "modules/ftRtClient/fieldtrip/io/response/WFTResponse.h"
+#include "modules/ftRtClient/fieldtrip/WFTEventIterator.h"
 
 const std::string WFTEventList::CLASS = "WFTEventList";
 
@@ -44,7 +44,7 @@ WFTRequest::SPtr WFTEventList::asRequest()
 {
     boost::shared_ptr< FtEventList > list( new FtEventList );
 
-    BOOST_FOREACH(WFTEvent::SPtr event, *this)
+    BOOST_FOREACH( WFTEvent::SPtr event, *this )
     {
         list->add( event->getDef().sample, event->getType().c_str(), event->getValue().c_str() );
     }
@@ -80,9 +80,9 @@ bool WFTEventList::parseResponse( WFTResponse::SPtr response )
 
 UINT32_T WFTEventList::getSize() const
 {
-    UINT32_T size = sizeof(WFTMessageDefT);
+    UINT32_T size = sizeof( WFTMessageDefT );
 
-    BOOST_FOREACH(WFTEvent::SPtr event, *this)
+    BOOST_FOREACH( WFTEvent::SPtr event, *this )
     {
         size += event->getSize();
     }

@@ -32,7 +32,6 @@
 class WFTObject
 {
 public:
-
     /**
      * A shared pointer on a WFTObject.
      */
@@ -46,9 +45,9 @@ public:
     /**
      * Gets the objects memory size including all header data.
      *
-     * @return The memory size.
+     * \return The memory size.
      */
     virtual UINT32_T getSize() const = 0;
 };
 
-#endif /* WFTOBJECT_H_ */
+#endif  // WFTOBJECT_H_

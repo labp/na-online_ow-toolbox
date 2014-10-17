@@ -21,6 +21,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include <core/common/WAssert.h>
 
 #include "WLEFTCommand.h"

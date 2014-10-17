@@ -36,9 +36,7 @@
  */
 class WFTChunkList: public WLArrayList< WFTAChunk::SPtr >
 {
-
 public:
-
     /**
      * Shared pointer on a chunk list.
      */
@@ -52,9 +50,10 @@ public:
     /**
      * This static method detects whether the @chunk is from the wished chunk type @type.
      *
-     * @param chunk The chunk object.
-     * @param type The chunk type
-     * @return Returns true if the @chunk has the given @type, else false.
+     * \param chunk The chunk object.
+     * \param type The chunk type
+     *
+     * \return Returns true if the @chunk has the given @type, else false.
      */
     static bool isChunkType( const WFTAChunk::SPtr& chunk, WLEFTChunkType::Enum type );
 
@@ -62,11 +61,10 @@ public:
      * This method delivers a filtered chunk list in which all chunks has the given @chunkType.
      * The returning list is just a copy of the original collection.
      *
-     * @param chunkType The type to filter
-     * @return Returns a shared pointer on the filtered list.
+     * \param chunkType The type to filter
+     * \return Returns a shared pointer on the filtered list.
      */
     WFTChunkList::SPtr filter( WLEFTChunkType::Enum chunkType );
-
 };
 
-#endif /* WFTCHUNKLIST_H_ */
+#endif  // WFTCHUNKLIST_H_

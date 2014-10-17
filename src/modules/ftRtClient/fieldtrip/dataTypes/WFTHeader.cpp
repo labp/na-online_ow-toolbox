@@ -21,6 +21,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include <boost/foreach.hpp>
 #include <boost/pointer_cast.hpp>
 
@@ -69,7 +71,7 @@ WFTRequest::SPtr WFTHeader::asRequest()
     WFTRequest_PutHeader::SPtr request( new WFTRequest_PutHeader( m_def.nchans, m_def.data_type, m_def.fsample ) );
 
     // add chunks from the collection to the request object.
-    BOOST_FOREACH(WFTAChunk::SPtr chunk, *m_chunks)
+    BOOST_FOREACH( WFTAChunk::SPtr chunk, *m_chunks )
     {
         request->addChunk( chunk );
     }
@@ -107,7 +109,7 @@ bool WFTHeader::parseResponse( WFTResponse::SPtr response )
 
 UINT32_T WFTHeader::getSize() const
 {
-    return sizeof(WFTHeaderDefT) + m_def.bufsize;
+    return sizeof( WFTHeaderDefT ) + m_def.bufsize;
 }
 
 WFTHeaderDefT& WFTHeader::getHeaderDef()
@@ -132,7 +134,7 @@ bool WFTHeader::hasChunk( WLEFTChunkType::Enum chunkType ) const
         return false;
     }
 
-    BOOST_FOREACH(WFTAChunk::SPtr chunk, *m_chunks)
+    BOOST_FOREACH( WFTAChunk::SPtr chunk, *m_chunks )
     {
         if( chunk->getType() == chunkType )
             return true;

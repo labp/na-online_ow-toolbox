@@ -21,14 +21,15 @@
 //
 //---------------------------------------------------------------------------
 
-#include <modules/ftRtClient/fieldtrip/dataTypes/WFTEvent.h>
+#include <string>
+
+#include "modules/ftRtClient/fieldtrip/dataTypes/WFTEvent.h"
 
 const std::string WFTEvent::CLASS = "WFTEvent";
 
 WFTEvent::WFTEvent( WFTEventDefT def, const std::string type, const std::string value ) :
                 m_def( def ), m_type( type ), m_value( value )
 {
-
 }
 
 WFTEvent::WFTEvent( INT32_T sample, INT32_T offset, INT32_T duration, const std::string type, const std::string value ) :

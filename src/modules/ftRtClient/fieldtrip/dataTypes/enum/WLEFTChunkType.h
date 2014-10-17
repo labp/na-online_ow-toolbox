@@ -30,7 +30,6 @@
 
 namespace WLEFTChunkType
 {
-
     /**
      * An enum describing the FieldTrip chunk types.
      */
@@ -106,39 +105,39 @@ namespace WLEFTChunkType
     /**
      * Returns a container with all possible value.
      *
-     * @return A value container.
+     * \return A value container.
      */
     ContainerT values();
 
     /**
      * Gets the appropriate name of the value.
      *
-     * @param val The WLEFTChunkType::Enum value.
-     * @return The name
+     * \param val The WLEFTChunkType::Enum value.
+     * \return The name
      */
     std::string name( Enum val );
 
     /**
      * Returns a container with all printable chunks.
      *
-     * @return A value container.
+     * \return A value container.
      */
     ContainerT valuesPrintable();
 
     /**
      * Gets whether the chunk type is a printable chunk.
      *
-     * @param val The chunk type.
-     * @return Returns true if the chunk is printbale, else false.
+     * \param val The chunk type.
+     * \return Returns true if the chunk is printbale, else false.
      */
     bool isPrintable( Enum val );
 
     /**
      * Overrides the concatenation operator for console outputs.
      *
-     * @param strm
-     * @param obj
-     * @return
+     * \param strm
+     * \param obj
+     * \return
      */
     std::ostream& operator<<( std::ostream &strm, const WLEFTChunkType::Enum& obj );
 
@@ -157,4 +156,4 @@ inline std::ostream& WLEFTChunkType::operator<<( std::ostream &strm, const WLEFT
     return strm;
 }
 
-#endif /* WLEFTCHUNKTYPE_H_ */
+#endif  // WLEFTCHUNKTYPE_H_

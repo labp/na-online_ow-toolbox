@@ -24,6 +24,8 @@
 #ifndef WFTEVENTLIST_H_
 #define WFTEVENTLIST_H_
 
+#include <string>
+
 #include <boost/shared_ptr.hpp>
 
 #include <FtBuffer.h>
@@ -36,7 +38,6 @@
 class WFTEventList: public WLArrayList< WFTEvent::SPtr >, public WFTRequestableObject
 {
 public:
-
     /**
      * The class name.
      */
@@ -55,27 +56,24 @@ public:
     /**
      * Inherited from WFTRequestableObject.
      *
-     * @return The event list as FieldTrip request.
+     * \return The event list as FieldTrip request.
      */
     WFTRequest::SPtr asRequest();
 
     /**
      * Inherited from WFTRequestableObject.
      *
-     * @param The response to parse.
-     * @return True if the parsing was successful, else false.
+     * \param The response to parse.
+     * \return True if the parsing was successful, else false.
      */
     bool parseResponse( WFTResponse::SPtr );
 
     /**
      * Inherited from WFTRequestableObject
      *
-     * @return The whole size of the object including definition and buffer.
+     * \return The whole size of the object including definition and buffer.
      */
     UINT32_T getSize() const;
-
-private:
-
 };
 
-#endif /* WFTEVENTLIST_H_ */
+#endif  // WFTEVENTLIST_H_

@@ -31,7 +31,6 @@
 class WFTRequestableObject: public WFTObject
 {
 public:
-
     /**
      * Destroys the WFTRequestableObject.
      */
@@ -40,24 +39,24 @@ public:
     /**
      * Gets the object as FieldTrip put request.
      *
-     * @return Returns a shared pointer on a WFTRequest.
+     * \return Returns a shared pointer on a WFTRequest.
      */
     virtual WFTRequest::SPtr asRequest() = 0;
 
     /**
      * Parses a WFTResponse into a concrete object.
      *
-     * @param The response to parse.
-     * @return Returns true if the parsing was successful, otherwise false.
+     * \param The response to parse.
+     * \return Returns true if the parsing was successful, otherwise false.
      */
     virtual bool parseResponse( WFTResponse::SPtr ) = 0;
 
     /**
      * Gets the amount of bytes, which are reserved by the object. Each Fieldrip object has to determine its size itself.
      *
-     * @return Returns an unsigned 32 bit integer.
+     * \return Returns an unsigned 32 bit integer.
      */
     virtual UINT32_T getSize() const = 0;
 };
 
-#endif /* WFTREQUESTABLEOBJECT_H_ */
+#endif  // WFTREQUESTABLEOBJECT_H_

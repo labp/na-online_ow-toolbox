@@ -123,4 +123,4 @@ typedef datasel_t WFTDataSelectionT;
  */
 typedef samples_events_t WFTSamplesEventsT;
 
-#endif /* WFTDATATYPES_H_ */
+#endif  // WFTDATATYPES_H_

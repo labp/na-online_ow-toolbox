@@ -26,7 +26,6 @@
 WFTAChunk::WFTAChunk( WLEFTChunkType::Enum type, const size_t size ) :
                 m_valid( false ), m_size( size ), m_type( type )
 {
-
 }
 
 WFTAChunk::~WFTAChunk()

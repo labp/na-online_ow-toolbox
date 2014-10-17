@@ -95,7 +95,6 @@ namespace WLEFTDataType
          * Unknown or unsupported data type.
          */
         UNKNOWN = -1 //!< UNKNOWN
-
     };
 
     typedef std::set< Enum > ContainerT;
@@ -119,4 +118,4 @@ inline std::ostream& WLEFTDataType::operator<<( std::ostream &strm, const WLEFTD
     return strm;
 }
 
-#endif /* WLEFTDATATYPE_H_ */
+#endif  // WLEFTDATATYPE_H_

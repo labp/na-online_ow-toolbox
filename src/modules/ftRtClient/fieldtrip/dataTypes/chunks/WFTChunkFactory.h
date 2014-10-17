@@ -24,6 +24,8 @@
 #ifndef WFTCHUNKFACTORY_H_
 #define WFTCHUNKFACTORY_H_
 
+#include <map>
+
 #include <boost/shared_ptr.hpp>
 
 #include "modules/ftRtClient/fieldtrip/dataTypes/enum/WLEFTChunkType.h"
@@ -40,7 +42,6 @@ template< typename Enum, typename Base, typename Derived >
 class WFTChunkFactory: public WFTAChunkFactory< Enum, Base >
 {
 public:
-
     /**
      * A shared pointer on a WFTChunkFactory.
      */
@@ -49,9 +50,9 @@ public:
     /**
      * Constructs a new WFTChunkFactory.
      *
-     * @param key The enum value.
+     * \param key The enum value.
      */
-    WFTChunkFactory( Enum key ) :
+    explicit WFTChunkFactory( Enum key ) :
                     m_position(
                                     this->lookup().insert( std::make_pair< Enum, WFTAChunkFactory< Enum, Base >* >( key, this ) ).first )
     {
@@ -63,18 +64,16 @@ public:
     virtual ~WFTChunkFactory();
 
 protected:
-
     /**
      * Creates a new instance of @Derived.
      *
      * Inherited method from WFTAChunkFactory.
      *
-     * @return Returns a pointer on the new instance.
+     * \return Returns a pointer on the new instance.
      */
     virtual boost::shared_ptr< Base > create( const char* data, const size_t size );
 
 private:
-
     /**
      * The factories position.
      */
@@ -102,4 +101,4 @@ namespace
                     WLEFTChunkType::FT_CHUNK_NEUROMAG_ISOTRAK );
 }
 
-#endif /* WFTCHUNKFACTORY_H_ */
+#endif  // WFTCHUNKFACTORY_H_

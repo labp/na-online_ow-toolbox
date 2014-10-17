@@ -139,24 +139,24 @@ namespace WLEFTCommand
     /**
      * Returns a container with all possible value.
      *
-     * @return A value container.
+     * \return A value container.
      */
     ContainerT values();
 
     /**
      * Gets the appropriate name of the value.
      *
-     * @param val The WLEFTCommand::Enum value.
-     * @return The name
+     * \param val The WLEFTCommand::Enum value.
+     * \return The name
      */
     std::string name( Enum val );
 
     /**
      * Overrides the concatenation operator for console outputs.
      *
-     * @param strm
-     * @param obj
-     * @return
+     * \param strm
+     * \param obj
+     * \return
      */
     std::ostream& operator<<( std::ostream &strm, const WLEFTCommand::Enum& obj );
 
@@ -168,4 +168,4 @@ inline std::ostream& WLEFTCommand::operator<<( std::ostream &strm, const WLEFTCo
     return strm;
 }
 
-#endif /* WLEFTCOMMAND_H_ */
+#endif  // WLEFTCOMMAND_H_

@@ -24,6 +24,8 @@
 #ifndef WFTCHUNKNEUROMAGISOTRAK_H_
 #define WFTCHUNKNEUROMAGISOTRAK_H_
 
+#include <string>
+
 #include <boost/shared_ptr.hpp>
 
 #include <core/common/math/linearAlgebra/WMatrixFixed.h>
@@ -42,7 +44,6 @@
 class WFTChunkNeuromagIsotrak: public WFTAChunk
 {
 public:
-
     /**
      * A shared pointer on a WFTChunkNeuromagIsotrak.
      */
@@ -71,8 +72,8 @@ public:
     /**
      * Constructs a new WFTChunkNeuromagIsotrak.
      *
-     * @param data The memory storage, which contains the chunk data.
-     * @param size The size of the memory storage.
+     * \param data The memory storage, which contains the chunk data.
+     * \param size The size of the memory storage.
      */
     explicit WFTChunkNeuromagIsotrak( const char* data, const size_t size );
 
@@ -81,58 +82,58 @@ public:
      *
      * Inherited method from WFTAChunk.
      *
-     * @return Returns a shared pointer on a constant smart storage.
+     * \return Returns a shared pointer on a constant smart storage.
      */
     WLSmartStorage::ConstSPtr serialize() const;
 
     /**
      * Gets the digitalization points list.
      *
-     * @return Returns a pointer to a constant digitalization points list.
+     * \return Returns a pointer to a constant digitalization points list.
      */
     WLList< WLDigPoint >::SPtr getDigPoints() const;
 
     /**
      * Gets the digitalization points list for the @type.
      *
-     * @param type The type of dig. points.
-     * @return Returns a shared pointer on a digitalization points list.
+     * \param type The type of dig. points.
+     * \return Returns a shared pointer on a digitalization points list.
      */
     WLList< WLDigPoint >::SPtr getDigPoints( WLEPointType::Enum type ) const;
 
     /**
      * Gets the EEG channel positions.
      *
-     * @return Returns a shared pointer on a WLArrayList< WPosition >.
+     * \return Returns a shared pointer on a WLArrayList< WPosition >.
      */
     WLArrayList< WPosition >::SPtr getEEGChanPos() const;
 
     /**
      * Gets the EEG 3D faces.
      *
-     * @return Returns a shared pointer on a WLArrayList< WVector3i >.
+     * \return Returns a shared pointer on a WLArrayList< WVector3i >.
      */
     WLArrayList< WVector3i >::SPtr getEEGFaces() const;
 
 protected:
-
     /**
      * Based on the stored memory of @data, this method creates the chunks data structure.
      * It has to implement by a deriving class for a special chunk type.
      *
      * Inherited method from WFTAChunk.
      *
-     * @param data The memory storage, which contains the chunk data.
-     * @param size The size of the memory storage.
-     * @return Returns true if the processing was successful, otherwise false.
+     * \param data The memory storage, which contains the chunk data.
+     * \param size The size of the memory storage.
+     *
+     * \return Returns true if the processing was successful, otherwise false.
      */
     bool process( const char* data, size_t size );
 
     /**
      * Creates the EEG channel positions from the isotak digitalization points.
      *
-     * @param digPoints The list of digitalization points.
-     * @return Returns true if the channel positions were created, otherwise false.
+     * \param digPoints The list of digitalization points.
+     * \return Returns true if the channel positions were created, otherwise false.
      */
     bool createEEGPositions( WLList< WLDigPoint >::ConstSPtr digPoints );
 
@@ -152,4 +153,4 @@ protected:
     WLArrayList< WVector3i >::SPtr m_eegFaces;
 };
 
-#endif /* WFTCHUNKNEUROMAGISOTRAK_H_ */
+#endif  // WFTCHUNKNEUROMAGISOTRAK_H_

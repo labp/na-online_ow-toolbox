@@ -38,7 +38,6 @@
 class WFTAChunk: public boost::enable_shared_from_this< WFTAChunk >
 {
 public:
-
     /**
      * A shared pointer on a WFTAChunk.
      */
@@ -52,8 +51,8 @@ public:
     /**
      * Constructs a new WFTAChunk and processes the memory into the generic chunk data structure.
      *
-     * @param data The memory storage, which contains the chunk data.
-     * @param size The size of the memory storage.
+     * \param data The memory storage, which contains the chunk data.
+     * \param size The size of the memory storage.
      */
     explicit WFTAChunk( WLEFTChunkType::Enum type, const size_t size );
 
@@ -65,35 +64,35 @@ public:
     /**
      * Determines whether the chunk was processed successfully.
      *
-     * @return Returns true if the process was successful, otherwise false.
+     * \return Returns true if the process was successful, otherwise false.
      */
     bool isValid() const;
 
     /**
      * Gets the chunks buffer size.
      *
-     * @return Returns the chunks buffer size.
+     * \return Returns the chunks buffer size.
      */
     size_t getSize() const;
 
     /**
      * Gets the chunk type.
      *
-     * @return Returns the chunk type.
+     * \return Returns the chunk type.
      */
     WLEFTChunkType::Enum getType() const;
 
     /**
      * Gets the data as a smart storage structure. This method is used to serialize a chunk into a request message body.
      *
-     * @return Returns a shared pointer on a constant smart storage.
+     * \return Returns a shared pointer on a constant smart storage.
      */
     virtual WLSmartStorage::ConstSPtr serialize() const = 0;
 
     /**
      * Gets the chunks as desired pointer.
      *
-     * @return Returns the chunk as shared pointer.
+     * \return Returns the chunk as shared pointer.
      */
     template< typename Chunk >
     boost::shared_ptr< Chunk > getAs()
@@ -104,7 +103,7 @@ public:
     /**
      * Gets the chunks as desired pointer.
      *
-     * @return Returns the chunk as shared pointer.
+     * \return Returns the chunk as shared pointer.
      */
     template< typename Chunk >
     boost::shared_ptr< const Chunk > getAs() const
@@ -113,27 +112,25 @@ public:
     }
 
 protected:
-
     /**
      * Based on the stored memory of @data, this method creates the chunks data structure.
      * It has to implement by a deriving class for a special chunk type.
      *
-     * @param data The memory storage, which contains the chunk data.
-     * @param size The size of the memory storage.
-     * @return Returns true if the processing was successful, otherwise false.
+     * \param data The memory storage, which contains the chunk data.
+     * \param size The size of the memory storage.
+     * \return Returns true if the processing was successful, otherwise false.
      */
     virtual bool process( const char* data, size_t size ) = 0;
 
     /**
      * Private method to call the pure virtual method "process()" not directly at the constructor.
      *
-     * @param data The memory storage, which contains the chunk data.
-     * @param size The size of the memory storage.
+     * \param data The memory storage, which contains the chunk data.
+     * \param size The size of the memory storage.
      */
     void processData( const char* data, const size_t size );
 
 private:
-
     /**
      * Determines the validation of the chunk.
      */
@@ -148,7 +145,6 @@ private:
      * The chunk type
      */
     WLEFTChunkType::Enum m_type;
-
 };
 
-#endif /* WFTACHUNK_H_ */
+#endif  // WFTACHUNK_H_

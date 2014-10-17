@@ -21,6 +21,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include <core/common/WLogger.h>
 
 #include "core/io/WLReaderIsotrak.h"

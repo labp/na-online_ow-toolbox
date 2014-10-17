@@ -21,7 +21,9 @@
 //
 //---------------------------------------------------------------------------
 
-#include <vector>
+#include <list>
+#include <string>
+#include <utility>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/classification.hpp>
@@ -59,18 +61,18 @@ bool WFTChunkChanNames::process( const char* data, size_t size )
     wlog::debug( CLASS ) << "process() called.";
 
     m_namesMap.reset( new ChanNamesMapT );
-    std::vector< std::string > splitVec;
+    std::list< std::string > splitVec;
     std::string str( data, size );
     int chans = 0;
 
-    split( str, splitVec, '\0' );
+    split( &splitVec, str, '\0' );
 
-    if( splitVec.size() == 0 )
+    if( splitVec.empty() )
     {
         return false;
     }
 
-    BOOST_FOREACH(std::string chanName, splitVec)
+    BOOST_FOREACH( std::string chanName, splitVec )
     {
         WLEModality::Enum modality = WLEModality::UNKNOWN;
         bool found = false;
@@ -78,7 +80,7 @@ bool WFTChunkChanNames::process( const char* data, size_t size )
         boost::algorithm::to_lower( channel );
         std::pair< std::string, WLEModality::Enum > label;
 
-        BOOST_FOREACH(label, m_modalityLabels)
+        BOOST_FOREACH( label, m_modalityLabels )
         {
             found = channel.find( label.first ) != std::string::npos;
             if( found )
@@ -108,7 +110,7 @@ bool WFTChunkChanNames::process( const char* data, size_t size )
     wlog::debug( CLASS ) << "Channel names read. Number of assigned channels: " << chans;
     wlog::debug( CLASS ) << "Channel names in string vector: " << splitVec.size();
     std::pair< WLEModality::Enum, WLArrayList< std::string >::SPtr > list;
-    BOOST_FOREACH(list, *m_namesMap)
+    BOOST_FOREACH( list, *m_namesMap )
     {
         wlog::debug( CLASS ) << "Channel names for modality " << list.first << ": " << list.second->size();
     }
@@ -131,7 +133,7 @@ WLSmartStorage::ConstSPtr WFTChunkChanNames::serialize() const
 
     for( ChanNamesMapT::iterator it = m_namesMap->begin(); it != m_namesMap->end(); ++it )
     {
-        BOOST_FOREACH(std::string channel, *it->second)
+        BOOST_FOREACH( std::string channel, *it->second )
         {
             store->append( channel );
         }
@@ -140,16 +142,16 @@ WLSmartStorage::ConstSPtr WFTChunkChanNames::serialize() const
     return store;
 }
 
-std::vector< std::string >& WFTChunkChanNames::split( std::string str, std::vector< std::string >& result, const char delim )
+void WFTChunkChanNames::split( std::list< std::string >* const result, const std::string& str, const char delim )
 {
-    result.clear();
+    result->clear();
 
     size_t end = -1;
     size_t start = 0;
 
     int counter = 0;
 
-    BOOST_FOREACH(char ch, str)
+    BOOST_FOREACH( char ch, str )
     {
         ++end;
 
@@ -159,10 +161,8 @@ std::vector< std::string >& WFTChunkChanNames::split( std::string str, std::vect
         {
             ++counter;
 
-            result.push_back( str.substr( start, end - start ) );
+            result->push_back( str.substr( start, end - start ) );
             start = end + 1;
         }
     }
-
-    return result;
 }

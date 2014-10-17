@@ -21,6 +21,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include <core/common/WAssert.h>
 
 #include "WLEFTDataType.h"
@@ -81,29 +83,29 @@ UINT32_T WLEFTDataType::codeByType( Enum val )
     switch( val )
     {
         case WLEFTDataType::CHAR:
-            return DATATYPE_CHAR ;
+            return DATATYPE_CHAR;
         case WLEFTDataType::UINT8:
-            return DATATYPE_UINT8 ;
+            return DATATYPE_UINT8;
         case WLEFTDataType::UINT16:
-            return DATATYPE_UINT16 ;
+            return DATATYPE_UINT16;
         case WLEFTDataType::UINT32:
-            return DATATYPE_UINT32 ;
+            return DATATYPE_UINT32;
         case WLEFTDataType::UINT64:
-            return DATATYPE_UINT64 ;
+            return DATATYPE_UINT64;
         case WLEFTDataType::INT8:
-            return DATATYPE_INT8 ;
+            return DATATYPE_INT8;
         case WLEFTDataType::INT16:
-            return DATATYPE_INT16 ;
+            return DATATYPE_INT16;
         case WLEFTDataType::INT32:
-            return DATATYPE_INT32 ;
+            return DATATYPE_INT32;
         case WLEFTDataType::INT64:
-            return DATATYPE_INT64 ;
+            return DATATYPE_INT64;
         case WLEFTDataType::FLOAT32:
-            return DATATYPE_FLOAT32 ;
+            return DATATYPE_FLOAT32;
         case WLEFTDataType::FLOAT64:
-            return DATATYPE_FLOAT64 ;
+            return DATATYPE_FLOAT64;
         case WLEFTDataType::UNKNOWN:
-            return DATATYPE_UNKNOWN ;
+            return DATATYPE_UNKNOWN;
         default:
             WAssert( false, "Unknown WLEFTDataType!" );
             return WLEFTDataType::codeByType( WLEFTDataType::UNKNOWN );
