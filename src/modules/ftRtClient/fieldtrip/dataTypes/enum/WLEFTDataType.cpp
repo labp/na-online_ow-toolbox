@@ -1,26 +1,27 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
+
+#include <string>
 
 #include <core/common/WAssert.h>
 
@@ -82,29 +83,29 @@ UINT32_T WLEFTDataType::codeByType( Enum val )
     switch( val )
     {
         case WLEFTDataType::CHAR:
-            return DATATYPE_CHAR ;
+            return DATATYPE_CHAR;
         case WLEFTDataType::UINT8:
-            return DATATYPE_UINT8 ;
+            return DATATYPE_UINT8;
         case WLEFTDataType::UINT16:
-            return DATATYPE_UINT16 ;
+            return DATATYPE_UINT16;
         case WLEFTDataType::UINT32:
-            return DATATYPE_UINT32 ;
+            return DATATYPE_UINT32;
         case WLEFTDataType::UINT64:
-            return DATATYPE_UINT64 ;
+            return DATATYPE_UINT64;
         case WLEFTDataType::INT8:
-            return DATATYPE_INT8 ;
+            return DATATYPE_INT8;
         case WLEFTDataType::INT16:
-            return DATATYPE_INT16 ;
+            return DATATYPE_INT16;
         case WLEFTDataType::INT32:
-            return DATATYPE_INT32 ;
+            return DATATYPE_INT32;
         case WLEFTDataType::INT64:
-            return DATATYPE_INT64 ;
+            return DATATYPE_INT64;
         case WLEFTDataType::FLOAT32:
-            return DATATYPE_FLOAT32 ;
+            return DATATYPE_FLOAT32;
         case WLEFTDataType::FLOAT64:
-            return DATATYPE_FLOAT64 ;
+            return DATATYPE_FLOAT64;
         case WLEFTDataType::UNKNOWN:
-            return DATATYPE_UNKNOWN ;
+            return DATATYPE_UNKNOWN;
         default:
             WAssert( false, "Unknown WLEFTDataType!" );
             return WLEFTDataType::codeByType( WLEFTDataType::UNKNOWN );
@@ -146,24 +147,26 @@ unsigned int WLEFTDataType::wordSize( Enum val )
 {
     switch( val )
     {
-        case DATATYPE_CHAR :
+        case DATATYPE_CHAR:
             return WORDSIZE_CHAR;
-        case DATATYPE_UINT8 :
-        case DATATYPE_INT8 :
+        case DATATYPE_UINT8:
+        case DATATYPE_INT8:
             return WORDSIZE_INT8;
-        case DATATYPE_UINT16 :
-        case DATATYPE_INT16 :
+        case DATATYPE_UINT16:
+        case DATATYPE_INT16:
             return WORDSIZE_INT16;
-        case DATATYPE_UINT32 :
-        case DATATYPE_INT32 :
+        case DATATYPE_UINT32:
+        case DATATYPE_INT32:
             return WORDSIZE_INT32;
-        case DATATYPE_UINT64 :
-        case DATATYPE_INT64 :
+        case DATATYPE_UINT64:
+        case DATATYPE_INT64:
             return WORDSIZE_INT64;
-        case DATATYPE_FLOAT32 :
+        case DATATYPE_FLOAT32:
             return WORDSIZE_FLOAT32;
-        case DATATYPE_FLOAT64 :
+        case DATATYPE_FLOAT64:
             return WORDSIZE_FLOAT64;
+        case DATATYPE_UNKNOWN:
+            WAssert( false, "Data type not supported!" );
     }
     return 0;
 }

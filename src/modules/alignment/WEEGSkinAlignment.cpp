@@ -1,28 +1,29 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
+#include <limits>
 #include <list>
+#include <string>
 #include <vector>
 
 #include <core/common/WLogger.h>
@@ -131,7 +132,7 @@ bool WEEGSkinAlignment::extractFiducialPoints( WPosition* const lpa, WPosition* 
 {
     WLTimeProfiler tp( CLASS, "extractFiducialPoints" );
     WLList< WLDigPoint >::SPtr digPoints = emm.getDigPoints( WLEPointType::CARDINAL );
-    char count = 0;
+    int count = 0;
     WLList< WLDigPoint >::const_iterator cit;
     for( cit = digPoints->begin(); cit != digPoints->end() && count < 3; ++cit )
     {
@@ -157,7 +158,7 @@ bool WEEGSkinAlignment::extractFiducialPoints( WPosition* const lpa, WPosition* 
     }
     else
     {
-        wlog::warn( CLASS ) << "Could not found fiducial points: " << ( short )count;
+        wlog::warn( CLASS ) << "Could not found fiducial points: " << count;
         return false;
     }
 }

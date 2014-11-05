@@ -41,8 +41,6 @@
 #include "core/util/WLGeometry.h"
 #include "WLEMDDrawable3DHPI.h"
 
-using namespace LaBP;
-
 WLEMDDrawable3DHPI::WLEMDDrawable3DHPI( WUIViewWidget::SPtr widget ) :
                 WLEMDDrawable3D( widget )
 {

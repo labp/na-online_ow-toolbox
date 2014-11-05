@@ -1,29 +1,28 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
-#ifndef WEPOCHRECJECTIONSINGLE_TEST_H_
-#define WEPOCHRECJECTIONSINGLE_TEST_H_
+#ifndef WEPOCHREJECTIONSINGLE_TEST_H
+#define WEPOCHREJECTIONSINGLE_TEST_H
 
 #include <iostream>
 
@@ -50,9 +49,7 @@
 
 class WEpochRejectionSingleTest: public CxxTest::TestSuite
 {
-
 public:
-
     void setUp( void )
     {
         WLogger::startup();
@@ -105,27 +102,28 @@ public:
         emm->addModality( m_helper->createModality( 400, 350, 0, THRESHOLD_EOG, modalityEOG ) );
         emm->addModality( m_helper->createModality( 300, 350, 15, modalityMEG ) );
 
-        TS_ASSERT_EQUALS( rejectTotal->doRejection(emm), true ); // total rejection first
-        TS_ASSERT_EQUALS( rejectSingle->doRejection(emm), true ); // single rejection with bad channel detection second
+        TS_ASSERT_EQUALS( rejectTotal->doRejection( emm ), true ); // total rejection first
+        TS_ASSERT_EQUALS( rejectSingle->doRejection( emm ), true ); // single rejection with bad channel detection second
 
         // update the bad channels in the EMM object
         WBadChannelManager::instance()->reset();
         //WBadChannelManager::instance()->merge(rejectSingle->getRejectedMap());
-        emm->getModality(WLEModality::EEG)->setBadChannels(WBadChannelManager::instance()->getChannelList(WLEModality::EEG));
-        emm->getModality(WLEModality::MEG)->setBadChannels(WBadChannelManager::instance()->getChannelList(WLEModality::MEG));
+        emm->getModality( WLEModality::EEG )->setBadChannels(
+                        WBadChannelManager::instance()->getChannelList( WLEModality::EEG ) );
+        emm->getModality( WLEModality::MEG )->setBadChannels(
+                        WBadChannelManager::instance()->getChannelList( WLEModality::MEG ) );
 
         // test the number of bad channels after updating
-        TS_ASSERT_EQUALS(emm->getModality(WLEModality::EEG)->getBadChannels()->size(), 10);
-        TS_ASSERT_EQUALS(emm->getModality(WLEModality::EOG)->getBadChannels()->size(), 0);
-        TS_ASSERT_EQUALS(emm->getModality(WLEModality::MEG)->getBadChannels()->size(), 15);
+        TS_ASSERT_EQUALS( emm->getModality( WLEModality::EEG )->getBadChannels()->size(), 10 );
+        TS_ASSERT_EQUALS( emm->getModality( WLEModality::EOG )->getBadChannels()->size(), 0 );
+        TS_ASSERT_EQUALS( emm->getModality( WLEModality::MEG )->getBadChannels()->size(), 15 );
 
         // test total rejection again. Now their should be no problem, because all bad channels were rejected.
-        TS_ASSERT_EQUALS( rejectTotal->doRejection(emm), false );
+        TS_ASSERT_EQUALS( rejectTotal->doRejection( emm ), false );
     }
 
 private:
     WEpochRejectionTestHelper::SPtr m_helper;
-
 };
 
-#endif /* WEPOCHRECJECTIONSINGLE_TEST_H_ */
+#endif  // WEPOCHREJECTIONSINGLE_TEST_H

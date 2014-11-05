@@ -44,7 +44,6 @@
 using std::map;
 using std::set;
 using std::string;
-using namespace LaBP;
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMMneRtClient )
@@ -225,14 +224,14 @@ void WMMneRtClient::moduleInit()
     }
     if( m_lfEEGFile->changed( true ) )
     {
-        if( handleLfFileChanged( m_lfEEGFile->get().string(), m_leadfieldEEG ) )
+        if( handleLfFileChanged( &m_leadfieldEEG, m_lfEEGFile->get().string() ) )
         {
             m_subject->setLeadfield( WLEModality::EEG, m_leadfieldEEG );
         }
     }
     if( m_lfMEGFile->changed( true ) )
     {
-        if( handleLfFileChanged( m_lfMEGFile->get().string(), m_leadfieldMEG ) )
+        if( handleLfFileChanged( &m_leadfieldMEG, m_lfMEGFile->get().string() ) )
         {
             m_subject->setLeadfield( WLEModality::MEG, m_leadfieldMEG );
         }
@@ -293,14 +292,14 @@ void WMMneRtClient::moduleMain()
         }
         if( m_lfEEGFile->changed( true ) )
         {
-            if( handleLfFileChanged( m_lfEEGFile->get().string(), m_leadfieldEEG ) )
+            if( handleLfFileChanged( &m_leadfieldEEG, m_lfEEGFile->get().string() ) )
             {
                 m_subject->setLeadfield( WLEModality::EEG, m_leadfieldEEG );
             }
         }
         if( m_lfMEGFile->changed( true ) )
         {
-            if( handleLfFileChanged( m_lfMEGFile->get().string(), m_leadfieldMEG ) )
+            if( handleLfFileChanged( &m_leadfieldMEG, m_lfMEGFile->get().string() ) )
             {
                 m_subject->setLeadfield( WLEModality::MEG, m_leadfieldMEG );
             }
@@ -330,7 +329,6 @@ void WMMneRtClient::handleTrgConConnect()
     m_rtClient->connect();
     if( m_rtClient->isConnected() )
     {
-
         map< int, string > cMap;
         const int selCon = m_rtClient->getConnectors( &cMap );
         map< int, string >::const_iterator itMap = cMap.begin();
@@ -402,7 +400,7 @@ void WMMneRtClient::handleTrgDataStart()
         while( !m_stopStreaming && !m_shutdownFlag() )
         {
             WLEMMeasurement::SPtr emm;
-            if( m_rtClient->readData( emm ) )
+            if( m_rtClient->readData( &emm ) )
             {
                 if( m_subject && ( m_surface || m_bems || m_leadfieldEEG || m_leadfieldMEG ) )
                 {
@@ -461,7 +459,7 @@ void WMMneRtClient::handleTrgConnectorChanged()
     }
 }
 
-bool WMMneRtClient::handleLfFileChanged( std::string fName, WLMatrix::SPtr& lf )
+bool WMMneRtClient::handleLfFileChanged( WLMatrix::SPtr* const lf, std::string fName )
 {
     debugLog() << "handleLfFileChanged()";
 
@@ -521,7 +519,7 @@ bool WMMneRtClient::handleSurfaceFileChanged( std::string fName )
     }
 
     m_surface.reset( new WLEMMSurface() );
-    if( reader->read( m_surface ) == WLIOStatus::SUCCESS )
+    if( reader->read( &m_surface ) == WLIOStatus::SUCCESS )
     {
         m_additionalStatus->set( DATA_LOADED, true );
         progress->finish();
@@ -600,7 +598,7 @@ bool WMMneRtClient::handleDigPointsFileChanged( std::string fName )
         return false;
     }
 
-    if( reader->read( m_digPoints ) == WLReader::ReturnCode::SUCCESS )
+    if( reader->read( m_digPoints.get() ) == WLIOStatus::SUCCESS )
     {
         infoLog() << "Loaded dig points: " << m_digPoints->size();
         m_additionalStatus->set( DATA_LOADED, true );
@@ -641,7 +639,6 @@ void WMMneRtClient::handleTrgAdditionalReset()
     m_digPoints.reset();
     m_leadfieldEEG.reset();
     m_leadfieldMEG.reset();
-
 }
 
 inline bool WMMneRtClient::processCompute( WLEMMeasurement::SPtr emm )

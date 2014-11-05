@@ -1,30 +1,31 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
-#include <algorithm> // min(), max()
 #include <cmath>
 #include <cstddef>
+
+#include <algorithm> // min(), max()
+#include <limits>
 #include <set>
 #include <string>
 #include <vector>
@@ -58,8 +59,6 @@
 using std::min;
 using std::max;
 using std::set;
-
-using namespace LaBP;
 
 static const int AUTO_SCALE_PACKETS = 8;
 
@@ -191,7 +190,7 @@ void WLModuleDrawable::setViewModality( WLEModality::Enum mod )
     std::set< WLEModality::Enum > modalities = WLEModality::values();
     std::set< WLEModality::Enum >::iterator it;
     size_t count = 0;
-    size_t selected;
+    size_t selected = std::numeric_limits< size_t >::max();
     for( it = modalities.begin(); it != modalities.end(); ++it )
     {
         viewSelection->addItem(
@@ -205,11 +204,19 @@ void WLModuleDrawable::setViewModality( WLEModality::Enum mod )
         ++count;
     }
 
-    m_selectionView = m_propView->addProperty( "View modality", "Select a to visualize", viewSelection->getSelector( selected ),
-                    boost::bind( &WLModuleDrawable::callbackViewModalityChanged, this ) );
+    if( selected <= count )
+    {
+        m_selectionView = m_propView->addProperty( "View modality", "Select a to visualize",
+                        viewSelection->getSelector( selected ),
+                        boost::bind( &WLModuleDrawable::callbackViewModalityChanged, this ) );
 
-    WPropertyHelper::PC_SELECTONLYONE::addTo( m_selectionView );
-    WPropertyHelper::PC_NOTEMPTY::addTo( m_selectionView );
+        WPropertyHelper::PC_SELECTONLYONE::addTo( m_selectionView );
+        WPropertyHelper::PC_NOTEMPTY::addTo( m_selectionView );
+    }
+    else
+    {
+        errorLog() << "Could not set view modality!";
+    }
 }
 
 void WLModuleDrawable::setViewModalitySelection( std::list< WLEModality::Enum > mods )

@@ -1,27 +1,27 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
+#include <list>
 #include <map>
 #include <string>
 #include <typeinfo>
@@ -77,25 +77,16 @@ const char** WMEpochRejection::getXPMIcon() const
     return module_xpm;
 }
 
-/**
- * Returns the module name.
- */
 const std::string WMEpochRejection::getName() const
 {
     return WLConstantsModule::NAME_PREFIX + " Epoch Rejection";
 }
 
-/**
- * Returns the module description.
- */
 const std::string WMEpochRejection::getDescription() const
 {
     return "Checks the input values of each modality for defined thresholds. Module supports LaBP data types only!";
 }
 
-/**
- * Create the module connectors.
- */
 void WMEpochRejection::connectors()
 {
     WLModuleDrawable::connectors();
@@ -109,9 +100,6 @@ void WMEpochRejection::connectors()
     addConnector( m_output );
 }
 
-/**
- * Define the property panel.
- */
 void WMEpochRejection::properties()
 {
     WLModuleDrawable::properties();
@@ -201,9 +189,6 @@ void WMEpochRejection::properties()
     m_badEpochCount->setPurpose( PV_PURPOSE_INFORMATION );
 }
 
-/**
- * Method for init the module.
- */
 void WMEpochRejection::moduleInit()
 {
     infoLog() << "Initializing module ...";
@@ -403,14 +388,17 @@ void WMEpochRejection::updateOutput( WLEMMeasurement::SPtr emm )
 void WMEpochRejection::setThresholds( boost::shared_ptr< std::list< WThreshold > > thresholdList )
 {
     if( m_modalityLabelMap == 0 )
-        return;
-
-    BOOST_FOREACH(WThreshold threshold, *thresholdList.get()){
-    if( m_modalityLabelMap->count( threshold.getModaliyType() ) )
     {
-        m_modalityLabelMap->at( threshold.getModaliyType() )->set( threshold.getValue(), true );
+        return;
     }
-}
+
+    BOOST_FOREACH( WThreshold threshold, *thresholdList.get() )
+    {
+        if( m_modalityLabelMap->count( threshold.getModaliyType() ) )
+        {
+            m_modalityLabelMap->at( threshold.getModaliyType() )->set( threshold.getValue(), true );
+        }
+    }
 }
 
 void WMEpochRejection::updateBadChannels( WLEMMeasurement::SPtr emm )
@@ -460,12 +448,13 @@ void WMEpochRejection::handleApplyThresholds()
 {
     debugLog() << "Apply thresholds.";
 
-    BOOST_FOREACH(WThreshold& value, *m_thresholds.get()){
-    if( m_modalityLabelMap->count( value.getModaliyType() ) )
+    BOOST_FOREACH( WThreshold& value, *m_thresholds.get() )
     {
-        value.setValue( m_modalityLabelMap->at( value.getModaliyType() )->get() );
+        if( m_modalityLabelMap->count( value.getModaliyType() ) )
+        {
+            value.setValue( m_modalityLabelMap->at( value.getModaliyType() )->get() );
+        }
     }
-}
 
     m_rejection->setThresholds( m_thresholds );
 
@@ -500,22 +489,28 @@ bool WMEpochRejection::checkBadChannels( WLEMMeasurement::SPtr emm )
 {
     bool rc = false;
 
-    // TODO: when the EMMs bad channels differs from the current bad channels in the buffer manager, merge the lists or set the EMM lists as new lists? Currently the channels will be merged.
+    // TODO(maschke): when the EMMs bad channels differs from the current bad channels in the buffer manager,
+    // merge the lists or set the EMM lists as new lists? Currently the channels will be merged.
 
-    BOOST_FOREACH( WLEMData::SPtr modality, emm->getModalityList()){
-    if( !m_rejection->validModality( modality->getModalityType() ) )
-    continue;
-
-    if( modality->getBadChannels()->size() == 0 )
-    continue;
-
-    if( *WBadChannelManager::instance()->getChannelList( modality->getModalityType() ) != *modality->getBadChannels() )
+    BOOST_FOREACH( WLEMData::SPtr modality, emm->getModalityList() )
     {
-        WBadChannelManager::instance()->merge( modality->getModalityType(), modality->getBadChannels() );
+        if( !m_rejection->validModality( modality->getModalityType() ) )
+        {
+            continue;
+        }
 
-        rc = true;
+        if( modality->getBadChannels()->size() == 0 )
+        {
+            continue;
+        }
+
+        if( *WBadChannelManager::instance()->getChannelList( modality->getModalityType() ) != *modality->getBadChannels() )
+        {
+            WBadChannelManager::instance()->merge( modality->getModalityType(), modality->getBadChannels() );
+
+            rc = true;
+        }
     }
-}
 
     return rc;
 }

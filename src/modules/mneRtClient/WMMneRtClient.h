@@ -164,7 +164,7 @@ private:
     WPropFilename m_lfMEGFile;
     WLMatrix::SPtr m_leadfieldEEG;
     WLMatrix::SPtr m_leadfieldMEG;
-    bool handleLfFileChanged( std::string fName, WLMatrix::SPtr& lf );
+    bool handleLfFileChanged( WLMatrix::SPtr* const lf, std::string fName );
 
     WPropString m_additionalStatus;
 

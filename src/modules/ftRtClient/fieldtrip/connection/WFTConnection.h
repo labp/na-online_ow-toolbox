@@ -1,29 +1,30 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
 #ifndef WFTCONNECTION_H_
 #define WFTCONNECTION_H_
+
+#include <string>
 
 #include <boost/shared_ptr.hpp>
 
@@ -36,7 +37,6 @@
 class WFTConnection: protected FtConnection
 {
 public:
-
     /**
      * A shared pointer on a WFTConnection.
      */
@@ -50,9 +50,9 @@ public:
     /**
      * Creates a connection object with a number of retries in case of fail while connecting.
      *
-     * @param retry The number of retries.
+     * \param retry The number of retries.
      */
-    WFTConnection( int retry = 0 );
+    explicit WFTConnection( int retry = 0 );
 
     /**
      * Destroys the WFTConnection.
@@ -62,7 +62,7 @@ public:
     /**
      * This method establishes a connection to the FieldTrip Buffer.
      *
-     * @return Returns true if connecting was successful, else false.
+     * \return Returns true if connecting was successful, else false.
      */
     virtual bool connect() = 0;
 
@@ -71,22 +71,22 @@ public:
      *
      *      <host>:<port>
      *
-     * @param address The address string.
-     * @return Returns true if connecting was successful, else false.
+     * \param address The address string.
+     * \return Returns true if connecting was successful, else false.
      */
     virtual bool connect( std::string address );
 
     /**
      * Gets the configured connection information as a string.
      *
-     * @return The connection as string.
+     * \return The connection as string.
      */
     virtual std::string getConnectionString() const = 0;
 
     /**
      * Gets a defined name for the connection.
      *
-     * @return The connections name.
+     * \return The connections name.
      */
     virtual std::string getName() const = 0;
 
@@ -114,4 +114,4 @@ inline std::ostream& operator<<( std::ostream& str, const WFTConnection& connect
     return str;
 }
 
-#endif /* WFTCONNECTION_H_ */
+#endif  // WFTCONNECTION_H_

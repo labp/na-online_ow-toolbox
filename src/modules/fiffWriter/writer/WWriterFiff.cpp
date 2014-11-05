@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -29,9 +28,9 @@
 #include <fiff/fiff_dig_point.h>
 #include <fiff/fiff_info.h>
 #include <fiff/fiff_stream.h>
-#include <QFile>
-#include <QList>
-#include <QString>
+#include <QtCore/QFile>
+#include <QtCore/QList>
+#include <QtCore/QString>
 
 #include <core/common/WLogger.h>
 #include "core/data/WLEMMeasurement.h"
@@ -225,10 +224,10 @@ bool WWriterFiff::writeData( const WLEMMeasurement* const emm )
         return false;
     }
 
-    size_t nchan = 0;
-    size_t samples = 0;
+    WLChanNrT nchan = 0;
+    WLSampleNrT samples = 0;
     WLEMData::ConstSPtr eeg;
-    size_t nchanEEG = 0;
+    WLChanNrT nchanEEG = 0;
     if( m_pickEEG && emm->hasModality( WLEModality::EEG ) )
     {
         eeg = emm->getModality( WLEModality::EEG );
@@ -237,7 +236,7 @@ bool WWriterFiff::writeData( const WLEMMeasurement* const emm )
         samples = eeg->getSamplesPerChan();
     }
     WLEMData::ConstSPtr meg;
-    size_t nchanMEG = 0;
+    WLChanNrT nchanMEG = 0;
     if( m_pickMEG && emm->hasModality( WLEModality::MEG ) )
     {
         meg = emm->getModality( WLEModality::MEG );
@@ -255,13 +254,13 @@ bool WWriterFiff::writeData( const WLEMMeasurement* const emm )
     }
 
     WLEMMeasurement::EDataT* stim = NULL;
-    size_t nchanStim = 0;
+    WLChanNrT nchanStim = 0;
     if( m_pickStim )
     {
         stim = emm->getEventChannels().get(); // dirty hack to get pointer
         nchanStim = stim->size();
         nchan += nchanStim;
-        if( samples > 0 && samples != stim->at( 0 ).size() )
+        if( samples > 0 && samples != static_cast< WLSampleNrT >( stim->at( 0 ).size() ) )
         {
             wlog::error( CLASS ) << "Samples are not equal!";
             return false;
@@ -289,9 +288,9 @@ bool WWriterFiff::writeData( const WLEMMeasurement* const emm )
     if( nchanStim > 0 )
     {
         wlog::debug( CLASS ) << "Writing stimuli (" << nchanStim << ") ...";
-        for( size_t c = 0; c < nchanStim; ++c )
+        for( WLChanIdxT c = 0; c < nchanStim; ++c )
         {
-            for( size_t t = 0; t < samples; ++t )
+            for( WLSampleIdxT t = 0; t < samples; ++t )
             {
                 data( c + offsetChan, t ) = ( *stim )[c][t];
             }
@@ -336,7 +335,7 @@ void WWriterFiff::setChannelInfo( QList< FIFFLIB::FiffChInfo >* const chs, const
 {
     const std::vector< std::string >& chNames = *eeg->getChanNames();
     const std::vector< WPosition >& pos = *eeg->getChannelPositions3d();
-    for( size_t c = 0; c < eeg->getNrChans(); ++c )
+    for( WLChanIdxT c = 0; c < eeg->getNrChans(); ++c )
     {
         FiffChInfo chInfo;
         const WPosition p = pos.at( c );
@@ -359,7 +358,7 @@ void WWriterFiff::setChannelInfo( QList< FIFFLIB::FiffChInfo >* const chs, const
 {
     const std::vector< std::string >& chNames = *meg->getChanNames();
     const std::vector< WPosition >& pos = *meg->getChannelPositions3d();
-    for( size_t c = 0; c < meg->getNrChans(); ++c )
+    for( WLChanIdxT c = 0; c < meg->getNrChans(); ++c )
     {
         FiffChInfo chInfo;
         setChannelInfo( &chInfo );

@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -40,32 +39,32 @@
 
 #include "WLReaderELC.h"
 
-using namespace LaBP;
-using namespace std;
+using std::ifstream;
+using std::string;
+using std::vector;
 
-const string CLASS = "WLReaderELC";
+const std::string WLReaderELC::CLASS = "WLReaderELC";
 
 WLReaderELC::WLReaderELC( std::string fname ) :
-                WLReader( fname )
+                WReader( fname )
 {
 }
 
-WLReaderELC::ReturnCode::Enum WLReaderELC::read( boost::shared_ptr< std::vector< WPosition > > posOut,
-                boost::shared_ptr< std::vector< std::string > > labelsOut,
-                boost::shared_ptr< std::vector< WVector3i > > facesOut )
+WLIOStatus::IOStatusT WLReaderELC::read( std::vector< WPosition >* const posOut, std::vector< std::string >* const labelsOut,
+                std::vector< WVector3i >* const facesOut )
 {
     ifstream ifs;
     ifs.open( m_fname.c_str(), ifstream::in );
 
     if( !ifs || ifs.bad() )
     {
-        return ReturnCode::ERROR_FOPEN;
+        return WLIOStatus::ERROR_FOPEN;
     }
 
     string line;
     size_t countPos = 0, countPoly = 0;
     bool hasPos = false, hasLabels = false, hasFaces = false;
-    ReturnCode::Enum rc = ReturnCode::ERROR_UNKNOWN;
+    WLIOStatus::IOStatusT rc = WLIOStatus::ERROR_UNKNOWN;
     WLEExponent::Enum exp = WLEExponent::BASE;
     try
     {
@@ -73,12 +72,12 @@ WLReaderELC::ReturnCode::Enum WLReaderELC::read( boost::shared_ptr< std::vector<
         {
             if( line.find( "UnitPosition" ) == 0 )
             {
-                rc = readUnit( line, exp );
+                rc = readUnit( &exp, line );
             }
             else
                 if( line.substr( 0, 16 ) == "NumberPositions=" )
                 {
-                    rc = readNumPos( line, countPos );
+                    rc = readNumPos( &countPos, line );
                 }
                 else
                     if( line.substr( 0, 9 ) == "Positions" )
@@ -95,7 +94,7 @@ WLReaderELC::ReturnCode::Enum WLReaderELC::read( boost::shared_ptr< std::vector<
                         else
                             if( line.substr( 0, 15 ) == "NumberPolygons=" )
                             {
-                                rc = readNumPoly( line, countPoly );
+                                rc = readNumPoly( &countPoly, line );
                             }
                             else
                                 if( line.substr( 0, 8 ) == "Polygons" )
@@ -108,23 +107,23 @@ WLReaderELC::ReturnCode::Enum WLReaderELC::read( boost::shared_ptr< std::vector<
             convertToMilli( posOut, exp );
         }
     }
-    catch( WTypeMismatch& e )
+    catch( const WTypeMismatch& e )
     {
         wlog::error( CLASS ) << e.what();
-        rc = ReturnCode::ERROR_UNKNOWN;
+        rc = WLIOStatus::ERROR_UNKNOWN;
     }
 
     if( facesOut->empty() )
     {
         wlog::warn( CLASS ) << "No faces found! Faces will be generated.";
-        WLGeometry::computeTriangulation( facesOut.get(), *posOut );
+        WLGeometry::computeTriangulation( facesOut, *posOut );
     }
 
     ifs.close();
     return rc;
 }
 
-void WLReaderELC::convertToMilli( boost::shared_ptr< std::vector< WPosition > > pos, WLEExponent::Enum& exp )
+void WLReaderELC::convertToMilli( std::vector< WPosition >* const pos, WLEExponent::Enum exp )
 {
     wlog::info( CLASS ) << "Points will be converted from " << exp << " to " << WLEExponent::MILLI;
     const double fromFactor = WLEExponent::factor( exp );
@@ -138,54 +137,53 @@ void WLReaderELC::convertToMilli( boost::shared_ptr< std::vector< WPosition > > 
     }
 }
 
-WLReaderELC::ReturnCode::Enum WLReaderELC::readUnit( string& line, WLEExponent::Enum& exp )
+WLIOStatus::IOStatusT WLReaderELC::readUnit( WLEExponent::Enum* const exp, const string& line )
 {
     vector< string > tokens = string_utils::tokenize( line );
     string unit = tokens.at( 1 );
     wlog::debug( CLASS ) << "Unit: " << unit;
     if( unit.find( "mm" ) != string::npos )
     {
-        exp = WLEExponent::MILLI;
-        return ReturnCode::SUCCESS;
+        *exp = WLEExponent::MILLI;
+        return WLIOStatus::SUCCESS;
     }
     else
         if( unit.find( "m" ) != string::npos )
         {
-            exp = WLEExponent::BASE;
-            return ReturnCode::SUCCESS;
+            *exp = WLEExponent::BASE;
+            return WLIOStatus::SUCCESS;
         }
         else
         {
             wlog::warn( CLASS ) << "Unknown unit.";
-            return ReturnCode::ERROR_UNKNOWN;
+            return WLIOStatus::ERROR_UNKNOWN;
         }
 
 }
 
-WLReaderELC::ReturnCode::Enum WLReaderELC::readNumPos( string& line, size_t& count )
+WLIOStatus::IOStatusT WLReaderELC::readNumPos( size_t* const count, const string& line )
 {
     vector< string > tokens = string_utils::tokenize( line );
-    count = string_utils::fromString< size_t >( tokens.at( 1 ) );
-    wlog::debug( CLASS ) << "Number of positions: " << count;
-    return ReturnCode::SUCCESS;
+    *count = string_utils::fromString< size_t >( tokens.at( 1 ) );
+    wlog::debug( CLASS ) << "Number of positions: " << *count;
+    return WLIOStatus::SUCCESS;
 }
 
-WLReaderELC::ReturnCode::Enum WLReaderELC::readNumPoly( string& line, size_t& count )
+WLIOStatus::IOStatusT WLReaderELC::readNumPoly( size_t* const count, const string& line )
 {
     vector< string > tokens = string_utils::tokenize( line );
-    count = string_utils::fromString< size_t >( tokens.at( 1 ) );
-    wlog::debug( CLASS ) << "Number of polygons: " << count;
-    return ReturnCode::SUCCESS;
+    *count = string_utils::fromString< size_t >( tokens.at( 1 ) );
+    wlog::debug( CLASS ) << "Number of polygons: " << *count;
+    return WLIOStatus::SUCCESS;
 }
 
-WLReaderELC::ReturnCode::Enum WLReaderELC::readPositions( ifstream& ifs, size_t count,
-                boost::shared_ptr< std::vector< WPosition > > posOut )
+WLIOStatus::IOStatusT WLReaderELC::readPositions( ifstream& ifs, size_t count, std::vector< WPosition >* const posOut )
 {
     // Check output data
     if( !posOut )
     {
         wlog::error( CLASS ) << "Position vector is null!";
-        return ReturnCode::ERROR_UNKNOWN;
+        return WLIOStatus::ERROR_UNKNOWN;
     }
     posOut->reserve( count );
 
@@ -202,20 +200,19 @@ WLReaderELC::ReturnCode::Enum WLReaderELC::readPositions( ifstream& ifs, size_t 
     }
     if( posOut->size() < count )
     {
-        return ReturnCode::ERROR_FREAD;
+        return WLIOStatus::ERROR_FREAD;
     }
 
-    return ReturnCode::SUCCESS;
+    return WLIOStatus::SUCCESS;
 }
 
-WLReaderELC::ReturnCode::Enum WLReaderELC::readLabels( ifstream& ifs, size_t count,
-                boost::shared_ptr< std::vector< std::string > > labelsOut )
+WLIOStatus::IOStatusT WLReaderELC::readLabels( ifstream& ifs, size_t count, std::vector< std::string >* const labelsOut )
 {
     // Check output data
     if( !labelsOut )
     {
         wlog::error( CLASS ) << "Label vector is null!";
-        return ReturnCode::ERROR_UNKNOWN;
+        return WLIOStatus::ERROR_UNKNOWN;
     }
     labelsOut->reserve( count );
 
@@ -228,24 +225,22 @@ WLReaderELC::ReturnCode::Enum WLReaderELC::readLabels( ifstream& ifs, size_t cou
             ++i;
             labelsOut->push_back( labelTokens[j] );
         }
-
     }
     if( labelsOut->size() < count )
     {
-        return ReturnCode::ERROR_FREAD;
+        return WLIOStatus::ERROR_FREAD;
     }
 
-    return ReturnCode::SUCCESS;
+    return WLIOStatus::SUCCESS;
 }
 
-WLReaderELC::ReturnCode::Enum WLReaderELC::readPolygons( ifstream& ifs, size_t count,
-                boost::shared_ptr< std::vector< WVector3i > > facesOut )
+WLIOStatus::IOStatusT WLReaderELC::readPolygons( ifstream& ifs, size_t count, std::vector< WVector3i >* const facesOut )
 {
     // Check output data
     if( !facesOut )
     {
         wlog::error( CLASS ) << "Polygon vector is null!";
-        return ReturnCode::ERROR_UNKNOWN;
+        return WLIOStatus::ERROR_UNKNOWN;
     }
     facesOut->reserve( count );
 
@@ -263,8 +258,8 @@ WLReaderELC::ReturnCode::Enum WLReaderELC::readPolygons( ifstream& ifs, size_t c
 
     if( facesOut->size() < count )
     {
-        return ReturnCode::ERROR_FREAD;
+        return WLIOStatus::ERROR_FREAD;
     }
 
-    return ReturnCode::SUCCESS;
+    return WLIOStatus::SUCCESS;
 }

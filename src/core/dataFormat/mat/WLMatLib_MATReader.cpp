@@ -1,26 +1,28 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
+
+#include <list>
+#include <string>
 
 #include <core/common/WAssert.h>
 #include <core/common/WLogger.h>
@@ -119,12 +121,12 @@ bool WLMatLib::MATReader::retrieveDataElements( std::list< ElementInfo_t >* cons
     WLMatLib::mNumBytes_t bytes;
     std::streampos pos;
     const std::streamoff min_tag_size = 4;
-    while( ifs.good() && ifs.tellg() + min_tag_size < info.fileSize )
+    while( ifs.good() && static_cast< size_t >( ifs.tellg() + min_tag_size ) < info.fileSize )
     {
         type = 0;
         bytes = 0;
         pos = ifs.tellg();
-        if( !readTagField( &type, &bytes, ifs, info ) )
+        if( !readTagField( &type, &bytes, ifs ) )
         {
             wlog::error( LIBNAME ) << "Unknown data type or wrong data structure. Cancel retrieving!";
             ifs.seekg( 128 );
@@ -140,7 +142,7 @@ bool WLMatLib::MATReader::retrieveDataElements( std::list< ElementInfo_t >* cons
 
         if( element.dataType == WLMatLib::DataTypes::miMATRIX )
         {
-            if( !readArraySubelements( &element, ifs, info ) )
+            if( !readArraySubelements( &element, ifs ) )
             {
                 nextElement( ifs, element.pos, element.numBytes );
                 continue;
@@ -156,20 +158,19 @@ bool WLMatLib::MATReader::retrieveDataElements( std::list< ElementInfo_t >* cons
     return true;
 }
 
-bool WLMatLib::MATReader::readTagField( mDataType_t* const dataType, mNumBytes_t* const numBytes, std::ifstream& ifs,
-                const FileInfo_t& info )
+bool WLMatLib::MATReader::readTagField( mDataType_t* const dataType, mNumBytes_t* const numBytes, std::ifstream& ifs )
 {
-    std::streampos pos = ifs.tellg();
-    ifs.read( ( char* )dataType, sizeof(WLMatLib::mDataType_t) );
-    ifs.read( ( char* )numBytes, sizeof(WLMatLib::mNumBytes_t) );
+    const std::streampos pos = ifs.tellg();
+    ifs.read( ( char* )dataType, sizeof( WLMatLib::mDataType_t ) );
+    ifs.read( ( char* )numBytes, sizeof( WLMatLib::mNumBytes_t ) );
     if( *dataType > WLMatLib::DataTypes::miUTF32 )
     {
         wlog::debug( LIBNAME ) << "Small Data Element Format found.";
         WLMatLib::mDataTypeSmall_t typeSmall;
         WLMatLib::mNumBytesSmall_t bytesSmall;
-        ifs.seekg( -( sizeof(WLMatLib::mDataType_t) + sizeof(WLMatLib::mNumBytes_t) ), ifstream::cur );
-        ifs.read( ( char* )&typeSmall, sizeof(WLMatLib::mDataTypeSmall_t) );
-        ifs.read( ( char* )&bytesSmall, sizeof(WLMatLib::mNumBytesSmall_t) );
+        ifs.seekg( -( sizeof( WLMatLib::mDataType_t ) + sizeof( WLMatLib::mNumBytes_t ) ), ifstream::cur );
+        ifs.read( ( char* )&typeSmall, sizeof( WLMatLib::mDataTypeSmall_t ) );
+        ifs.read( ( char* )&bytesSmall, sizeof( WLMatLib::mNumBytesSmall_t ) );
         *dataType = typeSmall;
         *numBytes = bytesSmall;
     }
@@ -182,7 +183,7 @@ bool WLMatLib::MATReader::readTagField( mDataType_t* const dataType, mNumBytes_t
     return true;
 }
 
-bool WLMatLib::MATReader::readArraySubelements( ElementInfo_t* const element, std::ifstream& ifs, const FileInfo_t& info )
+bool WLMatLib::MATReader::readArraySubelements( ElementInfo_t* const element, std::ifstream& ifs )
 {
     if( element == NULL )
     {
@@ -194,7 +195,7 @@ bool WLMatLib::MATReader::readArraySubelements( ElementInfo_t* const element, st
     ifs.seekg( 8, ifstream::cur );
     if( !ifs.good() )
     {
-        wlog::error( LIBNAME ) << "Could not jump to element: " << element->pos << "/" << info.fileSize;
+        wlog::error( LIBNAME ) << "Could not jump to element: " << element->pos;
         ifs.seekg( element->pos );
         return false;
     }
@@ -204,7 +205,7 @@ bool WLMatLib::MATReader::readArraySubelements( ElementInfo_t* const element, st
     std::streampos tagStart;
     // Read Array Flags //
     // ---------------- //
-    if( !readTagField( &type, &bytes, ifs, info ) )
+    if( !readTagField( &type, &bytes, ifs ) )
     {
         wlog::error( LIBNAME ) << "Could not read Array Flags!";
         return false;
@@ -251,7 +252,7 @@ bool WLMatLib::MATReader::readArraySubelements( ElementInfo_t* const element, st
     // Read Dimension //
     // -------------- //
     tagStart = ifs.tellg();
-    if( !readTagField( &type, &bytes, ifs, info ) )
+    if( !readTagField( &type, &bytes, ifs ) )
     {
         wlog::error( LIBNAME ) << "Could not read Dimension!";
         return false;
@@ -282,7 +283,7 @@ bool WLMatLib::MATReader::readArraySubelements( ElementInfo_t* const element, st
     // Read Array Name //
     // --------------- //
     tagStart = ifs.tellg();
-    if( !readTagField( &type, &bytes, ifs, info ) )
+    if( !readTagField( &type, &bytes, ifs ) )
     {
         wlog::error( LIBNAME ) << "Could not read Array Name!";
         return false;
@@ -319,7 +320,7 @@ bool WLMatLib::MATReader::readMatrixDouble( Eigen::MatrixXd* const matrix, const
         return false;
     }
 
-    if( info.fileSize <= element.posData )
+    if( info.fileSize <= static_cast< size_t >( element.posData ) )
     {
         wlog::error( LIBNAME ) << "Data position is beyond file end!";
         return false;
@@ -338,14 +339,14 @@ bool WLMatLib::MATReader::readMatrixDouble( Eigen::MatrixXd* const matrix, const
         return false;
     }
 
-    std::streampos pos = ifs.tellg();
+    const std::streampos pos = ifs.tellg();
 
     // Read data //
     // --------- //
     ifs.seekg( element.posData );
     mDataType_t type;
     mNumBytes_t bytes;
-    if( !readTagField( &type, &bytes, ifs, info ) )
+    if( !readTagField( &type, &bytes, ifs ) )
     {
         wlog::error( LIBNAME ) << "Could not read Data Element!";
         ifs.seekg( pos );
@@ -360,6 +361,84 @@ bool WLMatLib::MATReader::readMatrixDouble( Eigen::MatrixXd* const matrix, const
 
     matrix->resize( element.rows, element.cols );
     ifs.read( ( char* )matrix->data(), bytes );
+
+    nextElement( ifs, element.posData, bytes );
+    return true;
+}
+
+bool WLMatLib::MATReader::readMatrixComplex( Eigen::MatrixXcd* const matrix, const ElementInfo_t& element, std::ifstream& ifs,
+                const FileInfo_t& info )
+{
+    // Check some errors //
+    // ----------------- //
+    if( matrix == NULL )
+    {
+        wlog::error( LIBNAME ) << "Matrix object is null!";
+        return false;
+    }
+
+    if( info.fileSize <= static_cast< size_t >( element.posData ) )
+    {
+        wlog::error( LIBNAME ) << "Data position is beyond file end!";
+        return false;
+    }
+
+    if( element.dataType != DataTypes::miMATRIX )
+    {
+        wlog::error( LIBNAME ) << "Data type is not a matrix: " << element.dataType;
+        return false;
+    }
+
+    const bool isDouble = ArrayFlags::getArrayType( element.arrayFlags ) == ArrayTypes::mxDOUBLE_CLASS;
+    const bool isComplex = ArrayFlags::isComplex( element.arrayFlags );
+    if( !isDouble || !isComplex )
+    {
+        wlog::error( LIBNAME ) << "Numeric Types does not match!";
+        return false;
+    }
+
+    const std::streampos pos = ifs.tellg();
+
+    // Read data //
+    // --------- //
+    ifs.seekg( element.posData );
+    mDataType_t type;
+    mNumBytes_t bytes;
+    if( !readTagField( &type, &bytes, ifs ) )
+    {
+        wlog::error( LIBNAME ) << "Could not read real data tag!";
+        ifs.seekg( pos );
+        return false;
+    }
+    if( type != DataTypes::miDOUBLE )
+    {
+        wlog::error( LIBNAME ) << "Numeric Type does not match or compressed data, which is not supported: " << type;
+        ifs.seekg( pos );
+        return false;
+    }
+
+    Eigen::MatrixXd real( element.rows, element.cols );
+    ifs.read( ( char* )real.data(), bytes );
+
+    if( !readTagField( &type, &bytes, ifs ) )
+    {
+        wlog::error( LIBNAME ) << "Could not read imag data tag!";
+        ifs.seekg( pos );
+        return false;
+    }
+    if( type != DataTypes::miDOUBLE )
+    {
+        wlog::error( LIBNAME ) << "Numeric Type does not match or compressed data, which is not supported: " << type;
+        ifs.seekg( pos );
+        return false;
+    }
+
+    Eigen::MatrixXd imag( element.rows, element.cols );
+    ifs.read( ( char* )imag.data(), bytes );
+
+    matrix->resize( element.rows, element.cols );
+    matrix->real() = real;
+    matrix->imag() = imag;
 
     nextElement( ifs, element.posData, bytes );
     return true;
