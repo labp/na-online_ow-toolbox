@@ -25,11 +25,25 @@
 #define WLPREPROCESSING_H_
 
 #include "core/data/WLDataTypes.h"
+#include "core/data/emd/WLEMData.h"
 #include "WLWindowFunction.h"
 
 namespace WLPreprocessing
 {
     typedef WLVector::VectorT VectorT;
+
+    /**
+     * Subtracts the baseline from the data.
+     *
+     * \param dataOut Contains the corrected data. In error case dataOut contains the input data.
+     * \param dataIn Data to correct.
+     * \param start Start index for mean calculation.
+     * \param offset Number of samples for mean calculation.
+     *
+     * \return True if successful.
+     */
+    bool baselineCorrection( WLEMData::DataT* const dataOut, const WLEMData::DataT& dataIn, WLSampleIdxT start,
+                    WLSampleNrT offset );
 
     void detrend( VectorT* const yptr, const VectorT& x );
 
