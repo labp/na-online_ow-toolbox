@@ -189,7 +189,7 @@ private:
         wlog::info( "WFIRFilterTestHelper" ) << "filterSineDoLowpassTest() with designed coefficients.";
         // Setup lowpass filter
         const WFIRFilter::WEFilterType::Enum type = WFIRFilter::WEFilterType::LOWPASS;
-        const WFIRFilter::WEWindowsType::Enum windows = WFIRFilter::WEWindowsType::HAMMING;
+        const WLWindowsFunction::WLEWindows windows = WLWindowsFunction::HAMMING;
         const size_t order = 200;
         const float f_cutoff = 50.0;
         const WFIRFilter::ScalarT sampling_frequency = 1000;
@@ -272,7 +272,7 @@ private:
         wlog::info( "WFIRFilterTestHelper" ) << "filterSineDoHighpassTest() with designed coefficients.";
         // Setup lowpass filter
         const WFIRFilter::WEFilterType::Enum type = WFIRFilter::WEFilterType::HIGHPASS;
-        const WFIRFilter::WEWindowsType::Enum windows = WFIRFilter::WEWindowsType::HAMMING;
+        const WLWindowsFunction::WLEWindows windows = WLWindowsFunction::HAMMING;
         const size_t order = 200;
         const float f_cutoff = 50.0;
         const WFIRFilter::ScalarT sampling_frequency = 1000;
@@ -355,7 +355,7 @@ private:
         wlog::info( "WFIRFilterTestHelper" ) << "filterSineDoBandpassTest() with designed coefficients.";
         // Setup lowpass filter
         const WFIRFilter::WEFilterType::Enum type = WFIRFilter::WEFilterType::BANDPASS;
-        const WFIRFilter::WEWindowsType::Enum windows = WFIRFilter::WEWindowsType::HAMMING;
+        const WLWindowsFunction::WLEWindows windows = WLWindowsFunction::HAMMING;
         const size_t order = 200;
         const float fc1 = 50.0;
         const float fc2 = 100.0;
@@ -460,7 +460,7 @@ private:
         wlog::info( "WFIRFilterTestHelper" ) << "filterSineDoBandstopTest() with designed coefficients.";
         // Setup lowpass filter
         const WFIRFilter::WEFilterType::Enum type = WFIRFilter::WEFilterType::BANDSTOP;
-        const WFIRFilter::WEWindowsType::Enum windows = WFIRFilter::WEWindowsType::HAMMING;
+        const WLWindowsFunction::WLEWindows windows = WLWindowsFunction::HAMMING;
         const size_t order = 200;
         const float fc1 = 50.0;
         const float fc2 = 100.0;

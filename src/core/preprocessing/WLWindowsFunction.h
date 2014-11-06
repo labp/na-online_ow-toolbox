@@ -24,6 +24,9 @@
 #ifndef WLWINDOWSFUNCTION_H_
 #define WLWINDOWSFUNCTION_H_
 
+#include <set>
+#include <string>
+
 #include "core/data/WLDataTypes.h"
 
 /**
@@ -39,6 +42,10 @@ namespace WLWindowsFunction
     {
         HAMMING, RECTANGLE, BARLETT, BLACKMAN, HANNING, UNKNOWN
     };
+
+    std::set< WLEWindows > values();
+
+    std::string name( WLEWindows value );
 
     VectorT windows( WLSampleNrT samples, WLEWindows type );
 

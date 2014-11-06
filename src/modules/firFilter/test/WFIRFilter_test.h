@@ -58,7 +58,7 @@ public:
 
     void test_setGetCoefficientsVector( void )
     {
-        WFIRFilterCpu filter( WFIRFilter::WEFilterType::BANDPASS, WFIRFilter::WEWindowsType::HAMMING, ORDER, SFREQ, C1FREQ,
+        WFIRFilterCpu filter( WFIRFilter::WEFilterType::BANDPASS, WLWindowsFunction::HAMMING, ORDER, SFREQ, C1FREQ,
         C2FREQ );
 
         std::vector< WFIRFilter::ScalarT > coeffs;
@@ -100,7 +100,7 @@ public:
         coeffs.push_back( -0.000054211287529328173236814469859723431 );
         coeffs.push_back( -0.000284684171276985325052533148948441521 );
 
-        WFIRFilterCpu filter( WFIRFilter::WEFilterType::BANDPASS, WFIRFilter::WEWindowsType::HAMMING, ORDER, SFREQ, C1FREQ,
+        WFIRFilterCpu filter( WFIRFilter::WEFilterType::BANDPASS, WLWindowsFunction::HAMMING, ORDER, SFREQ, C1FREQ,
         C2FREQ );
         filter.setCoefficients( fileName.c_str() );
 
@@ -110,7 +110,7 @@ public:
 
     void test_designLowpass( void )
     {
-        WFIRFilterCpu filter( WFIRFilter::WEFilterType::LOWPASS, WFIRFilter::WEWindowsType::HAMMING, ORDER, SFREQ, C1FREQ,
+        WFIRFilterCpu filter( WFIRFilter::WEFilterType::LOWPASS, WLWindowsFunction::HAMMING, ORDER, SFREQ, C1FREQ,
         C2FREQ );
 
         std::vector< WFIRFilter::ScalarT > coeffs;
@@ -126,7 +126,7 @@ public:
 
     void test_designHighpass( void )
     {
-        WFIRFilterCpu filter( WFIRFilter::WEFilterType::HIGHPASS, WFIRFilter::WEWindowsType::HAMMING, ORDER, SFREQ, C1FREQ,
+        WFIRFilterCpu filter( WFIRFilter::WEFilterType::HIGHPASS, WLWindowsFunction::HAMMING, ORDER, SFREQ, C1FREQ,
         C2FREQ );
 
         std::vector< WFIRFilter::ScalarT > coeffs;
@@ -142,7 +142,7 @@ public:
 
     void test_designBandpass( void )
     {
-        WFIRFilterCpu filter( WFIRFilter::WEFilterType::BANDPASS, WFIRFilter::WEWindowsType::HAMMING, ORDER, SFREQ, C1FREQ,
+        WFIRFilterCpu filter( WFIRFilter::WEFilterType::BANDPASS, WLWindowsFunction::HAMMING, ORDER, SFREQ, C1FREQ,
         C2FREQ );
 
         std::vector< WFIRFilter::ScalarT > coeffs;
@@ -158,7 +158,7 @@ public:
 
     void test_designBandstop( void )
     {
-        WFIRFilterCpu filter( WFIRFilter::WEFilterType::BANDSTOP, WFIRFilter::WEWindowsType::HAMMING, ORDER, SFREQ, C1FREQ,
+        WFIRFilterCpu filter( WFIRFilter::WEFilterType::BANDSTOP, WLWindowsFunction::HAMMING, ORDER, SFREQ, C1FREQ,
         C2FREQ );
 
         std::vector< WFIRFilter::ScalarT > coeffs;
@@ -174,7 +174,7 @@ public:
 
     void test_previousDataSize( void )
     {
-        WFIRFilterCpu filter( WFIRFilter::WEFilterType::BANDSTOP, WFIRFilter::WEWindowsType::HAMMING, ORDER, SFREQ, C1FREQ,
+        WFIRFilterCpu filter( WFIRFilter::WEFilterType::BANDSTOP, WLWindowsFunction::HAMMING, ORDER, SFREQ, C1FREQ,
         C2FREQ );
         const size_t channels = 42;
         const size_t samples = 666;
@@ -193,7 +193,7 @@ public:
 
     void test_previousDataContent( void )
     {
-        WFIRFilterCpu filter( WFIRFilter::WEFilterType::BANDSTOP, WFIRFilter::WEWindowsType::HAMMING, ORDER, SFREQ, C1FREQ,
+        WFIRFilterCpu filter( WFIRFilter::WEFilterType::BANDSTOP, WLWindowsFunction::HAMMING, ORDER, SFREQ, C1FREQ,
         C2FREQ );
         const size_t channels = 42;
         const size_t samples = 666;
@@ -227,7 +227,7 @@ public:
 
     void test_doPostProcessing( void )
     {
-        WFIRFilterCpu filter( WFIRFilter::WEFilterType::BANDSTOP, WFIRFilter::WEWindowsType::HAMMING, ORDER, SFREQ, C1FREQ,
+        WFIRFilterCpu filter( WFIRFilter::WEFilterType::BANDSTOP, WLWindowsFunction::HAMMING, ORDER, SFREQ, C1FREQ,
         C2FREQ );
         const size_t eChannels = 3;
         const size_t samples = 666;

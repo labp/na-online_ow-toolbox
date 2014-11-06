@@ -24,6 +24,7 @@
 #include <algorithm>    // std::max
 #include <fstream>
 #include <iostream>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -41,6 +42,7 @@
 #include "core/module/WLConstantsModule.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
+#include "core/preprocessing/WLWindowsFunction.h"
 #include "core/util/profiler/WLTimeProfiler.h"
 
 // FIR filter implementations
@@ -49,7 +51,6 @@
 #include "WFIRFilterCuda.h"
 #endif //FOUND_CUDA
 #include "WFIRFilterCpu.h"
-#include "WFIRDesignWindow.h"
 
 #include "WMFIRFilter.h"
 #include "WMFIRFilter.xpm"
@@ -119,8 +120,8 @@ void WMFIRFilter::properties()
 
     // creating the list of Filtertypes
     m_filterTypes = WItemSelection::SPtr( new WItemSelection() );
-    std::vector< WFIRFilter::WEFilterType::Enum > fEnums = WFIRFilter::WEFilterType::values();
-    for( std::vector< WFIRFilter::WEFilterType::Enum >::iterator it = fEnums.begin(); it != fEnums.end(); ++it )
+    const std::set< WFIRFilter::WEFilterType::Enum > fEnums = WFIRFilter::WEFilterType::values();
+    for( std::set< WFIRFilter::WEFilterType::Enum >::const_iterator it = fEnums.begin(); it != fEnums.end(); ++it )
     {
         m_filterTypes->addItem(
                         WItemSelectionItemTyped< WFIRFilter::WEFilterType::Enum >::SPtr(
@@ -139,14 +140,13 @@ void WMFIRFilter::properties()
 
     // same with windows
     m_windows = WItemSelection::SPtr( new WItemSelection() );
-    std::vector< WFIRFilter::WEWindowsType::Enum > wEnums = WFIRFilter::WEWindowsType::values();
-    for( std::vector< WFIRFilter::WEWindowsType::Enum >::iterator it = wEnums.begin(); it != wEnums.end(); ++it )
+    const std::set< WLWindowsFunction::WLEWindows > wEnums = WLWindowsFunction::values();
+    for( std::set< WLWindowsFunction::WLEWindows >::const_iterator it = wEnums.begin(); it != wEnums.end(); ++it )
     {
         m_windows->addItem(
-                        WItemSelectionItemTyped< WFIRFilter::WEWindowsType::Enum >::SPtr(
-                                        new WItemSelectionItemTyped< WFIRFilter::WEWindowsType::Enum >( *it,
-                                                        WFIRFilter::WEWindowsType::name( *it ),
-                                                        WFIRFilter::WEWindowsType::name( *it ) ) ) );
+                        WItemSelectionItemTyped< WLWindowsFunction::WLEWindows >::SPtr(
+                                        new WItemSelectionItemTyped< WLWindowsFunction::WLEWindows >( *it,
+                                                        WLWindowsFunction::name( *it ), WLWindowsFunction::name( *it ) ) ) );
     }
 
     m_windowSelection = m_propGrpFirFilter->addProperty( "Window",
@@ -276,8 +276,8 @@ void WMFIRFilter::handleImplementationChanged( void )
 
     WFIRFilter::WEFilterType::Enum fType = m_filterTypeSelection->get().at( 0 )->getAs<
                     WItemSelectionItemTyped< WFIRFilter::WEFilterType::Enum > >()->getValue();
-    WFIRFilter::WEWindowsType::Enum wType = m_windowSelection->get().at( 0 )->getAs<
-                    WItemSelectionItemTyped< WFIRFilter::WEWindowsType::Enum > >()->getValue();
+    WLWindowsFunction::WLEWindows wType = m_windowSelection->get().at( 0 )->getAs<
+                    WItemSelectionItemTyped< WLWindowsFunction::WLEWindows > >()->getValue();
 
     if( m_useCuda->get() )
     {
@@ -318,7 +318,7 @@ void WMFIRFilter::handleDesignButtonPressed( void )
     m_firFilter->setFilterType(
                     m_filterTypeSelection->get().at( 0 )->getAs< WItemSelectionItemTyped< WFIRFilter::WEFilterType::Enum > >()->getValue() );
     m_firFilter->setWindowsType(
-                    m_windowSelection->get().at( 0 )->getAs< WItemSelectionItemTyped< WFIRFilter::WEWindowsType::Enum > >()->getValue() );
+                    m_windowSelection->get().at( 0 )->getAs< WItemSelectionItemTyped< WLWindowsFunction::WLEWindows > >()->getValue() );
     m_firFilter->setOrder( m_order->get() );
     m_firFilter->setSamplingFrequency( m_samplingFreq->get() );
     m_firFilter->setCutOffFrequency1( m_cFreq1->get() );

@@ -29,6 +29,37 @@
 
 namespace WLWindowsFunction
 {
+    std::set< WLEWindows > values()
+    {
+        std::set< WLEWindows > values;
+        values.insert( HAMMING );
+        values.insert( RECTANGLE );
+        values.insert( BARLETT );
+        values.insert( BLACKMAN );
+        values.insert( HANNING );
+        return values;
+    }
+
+    std::string name( WLEWindows value )
+    {
+        switch( value )
+        {
+            case HAMMING:
+                return "Hamming";
+            case RECTANGLE:
+                return "Rectangle";
+            case BARLETT:
+                return "Barlett";
+            case BLACKMAN:
+                return "Blackman";
+            case HANNING:
+                return "Hanning";
+            default:
+                WAssert( false, "Unknown WLEWindows!" );
+                return "ERROR: Undefined!";
+        }
+    }
+
     VectorT windows( WLSampleNrT samples, WLEWindows type )
     {
         switch( type )
