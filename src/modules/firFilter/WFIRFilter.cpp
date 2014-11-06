@@ -48,7 +48,7 @@ WFIRFilter::WFIRFilter()
     m_cFreq2 = 0;
     m_order = 0;
     m_type = WEFilterType::UNKNOWN;
-    m_window = WLWindowsFunction::RECTANGLE;
+    m_window = WLWindowFunction::RECTANGLE;
 }
 
 WFIRFilter::WFIRFilter( const std::string& pathToFcf )
@@ -58,11 +58,11 @@ WFIRFilter::WFIRFilter( const std::string& pathToFcf )
     m_cFreq2 = 0;
     m_order = 0;
     m_type = WEFilterType::UNKNOWN;
-    m_window = WLWindowsFunction::RECTANGLE;
+    m_window = WLWindowFunction::RECTANGLE;
     setCoefficients( pathToFcf );
 }
 
-WFIRFilter::WFIRFilter( WFIRFilter::WEFilterType::Enum filtertype, WLWindowsFunction::WLEWindows windowtype, int order,
+WFIRFilter::WFIRFilter( WFIRFilter::WEFilterType::Enum filtertype, WLWindowFunction::WLEWindow windowtype, int order,
                 ScalarT sFreq, ScalarT cFreq1, ScalarT cFreq2 )
 {
     design( filtertype, windowtype, order, sFreq, cFreq1, cFreq2 );
@@ -151,7 +151,7 @@ void WFIRFilter::setFilterType( WFIRFilter::WEFilterType::Enum value, bool redes
     }
 }
 
-void WFIRFilter::setWindowsType( WLWindowsFunction::WLEWindows value, bool redesign )
+void WFIRFilter::setWindowType( WLWindowFunction::WLEWindow value, bool redesign )
 {
     m_window = value;
     if( redesign )
@@ -205,7 +205,7 @@ void WFIRFilter::setCoefficients( std::vector< ScalarT > values )
     m_cFreq1 = 0;
     m_cFreq2 = 0;
     m_type = WEFilterType::UNKNOWN;
-    m_window = WLWindowsFunction::RECTANGLE;
+    m_window = WLWindowFunction::RECTANGLE;
 
     wlog::debug( CLASS ) << "setCoefficients() m_coeffitients: " << m_coeffitients.size();
 #ifdef DEBUG
@@ -222,7 +222,7 @@ bool WFIRFilter::setCoefficients( const std::string& pathToFcf )
     m_cFreq1 = 0;
     m_cFreq2 = 0;
     m_type = WEFilterType::UNKNOWN;
-    m_window = WLWindowsFunction::RECTANGLE;
+    m_window = WLWindowFunction::RECTANGLE;
 
     std::ifstream f( pathToFcf.c_str() );
     std::string s;
@@ -338,7 +338,7 @@ void WFIRFilter::design()
 #endif // DEBUG
 }
 
-void WFIRFilter::design( WFIRFilter::WEFilterType::Enum filtertype, WLWindowsFunction::WLEWindows windowtype, size_t order,
+void WFIRFilter::design( WFIRFilter::WEFilterType::Enum filtertype, WLWindowFunction::WLEWindow windowtype, size_t order,
                 ScalarT sFreq, ScalarT cFreq1, ScalarT cFreq2 )
 {
     wlog::debug( CLASS ) << "design(...) called!";
@@ -354,7 +354,7 @@ void WFIRFilter::design( WFIRFilter::WEFilterType::Enum filtertype, WLWindowsFun
 }
 
 void WFIRFilter::designLowpass( std::vector< ScalarT >* pCoeff, size_t order, ScalarT cFreq, ScalarT sFreq,
-                WLWindowsFunction::WLEWindows windowtype )
+                WLWindowFunction::WLEWindow windowtype )
 {
     wlog::debug( CLASS ) << "designLowpass() called!";
 
@@ -367,7 +367,7 @@ void WFIRFilter::designLowpass( std::vector< ScalarT >* pCoeff, size_t order, Sc
     ScalarT a = 0.0;
     ScalarT b = 0.0;
 
-    WLWindowsFunction::VectorT win = WLWindowsFunction::windows( order + 1, windowtype );
+    WLWindowFunction::VectorT win = WLWindowFunction::window( order + 1, windowtype );
     for( size_t i = 0; i < order + 1; ++i )
     {
         a = ( ( 2 * i - order ) * M_PI ) * ( cFreq / sFreq );

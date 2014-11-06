@@ -27,10 +27,10 @@
 #include <core/common/WLogger.h>
 
 #include "core/preprocessing/WLPreprocessing.h"
-#include "core/preprocessing/WLWindowsFunction.h"
 #include "core/util/profiler/WLTimeProfiler.h"
 
 #include "WHPISignalExtraction.h"
+#include "../../core/preprocessing/WLWindowFunction.h"
 
 const std::string WHPISignalExtraction::CLASS = "WHPISignalExtraction";
 
@@ -251,7 +251,7 @@ bool WHPISignalExtraction::reconstructAmplitudes( WLEMDHPI::SPtr& hpiOut, WLEMDM
 void WHPISignalExtraction::preprocessBlock( WLEMData::DataT* const megOut, const WLEMData::DataT& megIn )
 {
     const WLSampleNrT samples = megIn.cols();
-    VectorT win = WLWindowsFunction::hamming( samples );
+    VectorT win = WLWindowFunction::hamming( samples );
     VectorT det( samples );
     for( WLEMDMEG::DataT::Index c = 0; c < megIn.rows(); ++c )
     {

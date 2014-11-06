@@ -45,9 +45,9 @@ namespace WLPreprocessing
         y = x - a * ( a.colPivHouseholderQr().solve( x ) );   // Remove best fit
     }
 
-    void windowing( VectorT* const yptr, const VectorT& x, WLWindowsFunction::WLEWindows type )
+    void windowing( VectorT* const yptr, const VectorT& x, WLWindowFunction::WLEWindow type )
     {
-        const VectorT win = WLWindowsFunction::windows( x.size(), type );
+        const VectorT win = WLWindowFunction::window( x.size(), type );
         *yptr = win.cwiseProduct( x );
     }
 } /* namespace WLPreProcessing */

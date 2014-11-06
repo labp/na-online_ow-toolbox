@@ -25,7 +25,7 @@
 #define WLPREPROCESSING_H_
 
 #include "core/data/WLDataTypes.h"
-#include "WLWindowsFunction.h"
+#include "WLWindowFunction.h"
 
 namespace WLPreprocessing
 {
@@ -33,7 +33,7 @@ namespace WLPreprocessing
 
     void detrend( VectorT* const yptr, const VectorT& x );
 
-    void windowing( VectorT* const yptr, const VectorT& x, WLWindowsFunction::WLEWindows type );
+    void windowing( VectorT* const yptr, const VectorT& x, WLWindowFunction::WLEWindow type );
 } /* namespace WLPreprocessing */
 
 #endif  // WLPREPROCESSING_H_

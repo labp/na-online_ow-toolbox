@@ -21,8 +21,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLWINDOWSFUNCTION_H_
-#define WLWINDOWSFUNCTION_H_
+#ifndef WLWINDOWFUNCTION_H_
+#define WLWINDOWFUNCTION_H_
 
 #include <set>
 #include <string>
@@ -34,20 +34,20 @@
  *
  * \author pieloth
  */
-namespace WLWindowsFunction
+namespace WLWindowFunction
 {
     typedef WLVector::VectorT VectorT;
 
-    enum WLEWindows
+    enum WLEWindow
     {
         HAMMING, RECTANGLE, BARLETT, BLACKMAN, HANNING, UNKNOWN
     };
 
-    std::set< WLEWindows > values();
+    std::set< WLEWindow > values();
 
-    std::string name( WLEWindows value );
+    std::string name( WLEWindow value );
 
-    VectorT windows( WLSampleNrT samples, WLEWindows type );
+    VectorT window( WLSampleNrT samples, WLEWindow type );
 
     VectorT hamming( WLSampleNrT samples );
 
@@ -58,6 +58,6 @@ namespace WLWindowsFunction
     VectorT blackman( WLSampleNrT samples );
 
     VectorT hanning( WLSampleNrT samples );
-} /* namespace WLWindowsFunction */
+} /* namespace WLWindowFunction */
 
-#endif  // WLWINDOWSFUNCTION_H_
+#endif  // WLWINDOWFUNCTION_H_

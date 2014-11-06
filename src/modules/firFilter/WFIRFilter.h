@@ -32,10 +32,10 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include "core/preprocessing/WLWindowFunction.h"
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMData.h"
 #include "core/data/enum/WLEModality.h"
-#include "core/preprocessing/WLWindowsFunction.h"
 
 class WFIRFilter
 {
@@ -71,7 +71,7 @@ public:
 
     explicit WFIRFilter( const std::string& pathToFcf );
 
-    WFIRFilter( WEFilterType::Enum filtertype, WLWindowsFunction::WLEWindows windowtype, int order, ScalarT sFreq, ScalarT cFreq1,
+    WFIRFilter( WEFilterType::Enum filtertype, WLWindowFunction::WLEWindow windowtype, int order, ScalarT sFreq, ScalarT cFreq1,
                     ScalarT cFreq2 );
 
     virtual ~WFIRFilter();
@@ -88,7 +88,7 @@ public:
     void doPostProcessing( WLEMMeasurement::SPtr emmOut, WLEMMeasurement::ConstSPtr emmIn );
 
     void setFilterType( WEFilterType::Enum value, bool redesign = false );
-    void setWindowsType( WLWindowsFunction::WLEWindows value, bool redesign = false );
+    void setWindowType( WLWindowFunction::WLEWindow value, bool redesign = false );
     void setOrder( size_t value, bool redesign = false );
     void setSamplingFrequency( ScalarT value, bool redesign = false );
     void setCutOffFrequency1( ScalarT value, bool redesign = false );
@@ -99,7 +99,7 @@ public:
     std::vector< ScalarT > getCoefficients();
 
     void design();
-    void design( WEFilterType::Enum filtertype, WLWindowsFunction::WLEWindows windowtype, size_t order, ScalarT sFreq,
+    void design( WEFilterType::Enum filtertype, WLWindowFunction::WLEWindow windowtype, size_t order, ScalarT sFreq,
                     ScalarT cFreq1, ScalarT cFreq2 );
 
     void reset();
@@ -108,7 +108,7 @@ protected:
     virtual bool filter( WLEMData::DataT& out, const WLEMData::DataT& in, const WLEMData::DataT& prev ) = 0;
 
     std::vector< ScalarT > m_coeffitients;
-    WLWindowsFunction::WLEWindows m_window;
+    WLWindowFunction::WLEWindow m_window;
     WEFilterType::Enum m_type;
     ScalarT m_sFreq;
     ScalarT m_cFreq1;
@@ -121,7 +121,7 @@ protected:
 
 private:
     void designLowpass( std::vector< ScalarT >* pCoeff, size_t order, ScalarT cFreq1, ScalarT sFreq,
-                    WLWindowsFunction::WLEWindows windowtype );
+                    WLWindowFunction::WLEWindow windowtype );
     void designHighpass();
     void designBandpass();
     void designBandstop();

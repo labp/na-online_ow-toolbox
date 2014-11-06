@@ -25,13 +25,13 @@
 
 #include <core/common/WAssert.h>
 
-#include "WLWindowsFunction.h"
+#include "WLWindowFunction.h"
 
-namespace WLWindowsFunction
+namespace WLWindowFunction
 {
-    std::set< WLEWindows > values()
+    std::set< WLEWindow > values()
     {
-        std::set< WLEWindows > values;
+        std::set< WLEWindow > values;
         values.insert( HAMMING );
         values.insert( RECTANGLE );
         values.insert( BARLETT );
@@ -40,7 +40,7 @@ namespace WLWindowsFunction
         return values;
     }
 
-    std::string name( WLEWindows value )
+    std::string name( WLEWindow value )
     {
         switch( value )
         {
@@ -55,12 +55,12 @@ namespace WLWindowsFunction
             case HANNING:
                 return "Hanning";
             default:
-                WAssert( false, "Unknown WLEWindows!" );
+                WAssert( false, "Unknown WLEWindow!" );
                 return "ERROR: Undefined!";
         }
     }
 
-    VectorT windows( WLSampleNrT samples, WLEWindows type )
+    VectorT window( WLSampleNrT samples, WLEWindow type )
     {
         switch( type )
         {
@@ -75,7 +75,7 @@ namespace WLWindowsFunction
             case RECTANGLE:
                 return rectangle( samples );
             default:
-                WAssert( false, "Unknown WLEWindows!" );
+                WAssert( false, "Unknown WLEWindows" );
                 return rectangle( samples );
         }
     }
@@ -132,4 +132,4 @@ namespace WLWindowsFunction
         }
         return w;
     }
-} /* namespace WLWindowsFunction */
+} /* namespace WLWindowFunction */

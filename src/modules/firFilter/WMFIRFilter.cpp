@@ -42,7 +42,7 @@
 #include "core/module/WLConstantsModule.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
-#include "core/preprocessing/WLWindowsFunction.h"
+#include "core/preprocessing/WLWindowFunction.h"
 #include "core/util/profiler/WLTimeProfiler.h"
 
 // FIR filter implementations
@@ -140,13 +140,13 @@ void WMFIRFilter::properties()
 
     // same with windows
     m_windows = WItemSelection::SPtr( new WItemSelection() );
-    const std::set< WLWindowsFunction::WLEWindows > wEnums = WLWindowsFunction::values();
-    for( std::set< WLWindowsFunction::WLEWindows >::const_iterator it = wEnums.begin(); it != wEnums.end(); ++it )
+    const std::set< WLWindowFunction::WLEWindow > wEnums = WLWindowFunction::values();
+    for( std::set< WLWindowFunction::WLEWindow >::const_iterator it = wEnums.begin(); it != wEnums.end(); ++it )
     {
         m_windows->addItem(
-                        WItemSelectionItemTyped< WLWindowsFunction::WLEWindows >::SPtr(
-                                        new WItemSelectionItemTyped< WLWindowsFunction::WLEWindows >( *it,
-                                                        WLWindowsFunction::name( *it ), WLWindowsFunction::name( *it ) ) ) );
+                        WItemSelectionItemTyped< WLWindowFunction::WLEWindow >::SPtr(
+                                        new WItemSelectionItemTyped< WLWindowFunction::WLEWindow >( *it,
+                                                        WLWindowFunction::name( *it ), WLWindowFunction::name( *it ) ) ) );
     }
 
     m_windowSelection = m_propGrpFirFilter->addProperty( "Window",
@@ -276,8 +276,8 @@ void WMFIRFilter::handleImplementationChanged( void )
 
     WFIRFilter::WEFilterType::Enum fType = m_filterTypeSelection->get().at( 0 )->getAs<
                     WItemSelectionItemTyped< WFIRFilter::WEFilterType::Enum > >()->getValue();
-    WLWindowsFunction::WLEWindows wType = m_windowSelection->get().at( 0 )->getAs<
-                    WItemSelectionItemTyped< WLWindowsFunction::WLEWindows > >()->getValue();
+    WLWindowFunction::WLEWindow wType = m_windowSelection->get().at( 0 )->getAs<
+                    WItemSelectionItemTyped< WLWindowFunction::WLEWindow > >()->getValue();
 
     if( m_useCuda->get() )
     {
@@ -317,8 +317,8 @@ void WMFIRFilter::handleDesignButtonPressed( void )
 
     m_firFilter->setFilterType(
                     m_filterTypeSelection->get().at( 0 )->getAs< WItemSelectionItemTyped< WFIRFilter::WEFilterType::Enum > >()->getValue() );
-    m_firFilter->setWindowsType(
-                    m_windowSelection->get().at( 0 )->getAs< WItemSelectionItemTyped< WLWindowsFunction::WLEWindows > >()->getValue() );
+    m_firFilter->setWindowType(
+                    m_windowSelection->get().at( 0 )->getAs< WItemSelectionItemTyped< WLWindowFunction::WLEWindow > >()->getValue() );
     m_firFilter->setOrder( m_order->get() );
     m_firFilter->setSamplingFrequency( m_samplingFreq->get() );
     m_firFilter->setCutOffFrequency1( m_cFreq1->get() );
