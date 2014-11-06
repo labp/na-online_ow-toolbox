@@ -34,8 +34,6 @@
 #include "core/data/emd/WLEMDMEG.h"
 #include "core/data/emd/WLEMDHPI.h"
 
-#include "../firFilter/WFIRFilter.h"
-
 /**
  * Reconstructs the amplitudes of each HPI coil on each MEG sensor.
  *
@@ -147,6 +145,14 @@ private:
     typedef WLVector::VectorT VectorT;
 
     /**
+     * Detrends the data and applies a windows function.
+     *
+     * \param megOut Output data.
+     * \param megIn Input data.
+     */
+    void preprocessBlock( WLEMData::DataT* const megOut, const WLEMData::DataT& megIn );
+
+    /**
      * Reconstructs the amplitudes for one windows.
      *
      * \param hpiOut Sample vector to store reconstructed amplitudes.
@@ -154,10 +160,7 @@ private:
      * \param start Start sample for the windows.
      * \param samples Samples to read/windows size.
      */
-    void reconstructWindows( WLEMData::SampleT* const hpiOut, const WLEMData::DataT& megIn, MatrixT::Index start,
-                    MatrixT::Index samples );
-
-    WFIRFilter::SPtr m_firFilter;
+    void reconstructWindows( WLEMData::SampleT* const hpiOut, const WLEMData::DataT& megIn );
 
     bool m_isPrepared; /**< Indicates if the algorithm is prepared. */
     WLTimeT m_windowsSize; /**< Windows size in seconds. */

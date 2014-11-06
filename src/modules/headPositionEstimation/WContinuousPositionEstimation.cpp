@@ -93,11 +93,11 @@ double WContinuousPositionEstimation::func( const ParamsT& x ) const
     const MomentT mom4 = lf4.colPivHouseholderQr().solve( data4 );
     const MomentT mom5 = lf5.colPivHouseholderQr().solve( data5 );
 
-    const MatrixT dif1 = data1 - lf1 * mom1;
-    const MatrixT dif2 = data2 - lf2 * mom2;
-    const MatrixT dif3 = data3 - lf3 * mom3;
-    const MatrixT dif4 = data4 - lf4 * mom4;
-    const MatrixT dif5 = data5 - lf5 * mom5;
+    const MatrixT dif1 = data1 - ( lf1 * mom1 ).cwiseAbs();
+    const MatrixT dif2 = data2 - ( lf2 * mom2 ).cwiseAbs();
+    const MatrixT dif3 = data3 - ( lf3 * mom3 ).cwiseAbs();
+    const MatrixT dif4 = data4 - ( lf4 * mom4 ).cwiseAbs();
+    const MatrixT dif5 = data5 - ( lf5 * mom5 ).cwiseAbs();
 
     const double difNorm = dif1.squaredNorm() + dif2.squaredNorm() + dif3.squaredNorm() + dif4.squaredNorm() + dif5.squaredNorm();
     const double dataNorm = data1.squaredNorm() + data2.squaredNorm() + data3.squaredNorm() + data4.squaredNorm()
@@ -154,9 +154,9 @@ WContinuousPositionEstimation::Vector3T WContinuousPositionEstimation::computeMa
                 const PointT& sensPos, const OrientationT& sensOri )
 {
     // NOTE: Implementation from FieldTrip
-    // TODO(pieloth): Check math
     // Move coordinate system to the dipole source.
     const PointT r = sensPos - dipPos;
+
     const double r2 = pow( r.norm(), 2 );
     const double r5 = pow( r.norm(), 5 );
 

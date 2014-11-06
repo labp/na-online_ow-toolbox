@@ -26,9 +26,9 @@
 
 #include <core/common/WLogger.h>
 
+#include "core/preprocessing/WLPreprocessing.h"
+#include "core/preprocessing/WLWindowsFunction.h"
 #include "core/util/profiler/WLTimeProfiler.h"
-
-#include "../firFilter/WFIRFilterCpu.h"
 
 #include "WHPISignalExtraction.h"
 
@@ -72,7 +72,7 @@ WLTimeT WHPISignalExtraction::setWindowsSize( WLTimeT winSize )
         {
             const WLTimeT wsize_old = winSize;
             winSize = MIN_WINDOWS_PERIODS / fmin;
-            wlog::warn(CLASS) << "Windows size is to small: t_old=" << wsize_old << " t_new=" << winSize;
+            wlog::warn( CLASS ) << "Windows size is to small: t_old=" << wsize_old << " t_new=" << winSize;
         }
     }
     m_windowsSize = winSize;
@@ -174,9 +174,6 @@ bool WHPISignalExtraction::prepare()
     m_ata = m_at * m_a;
     wlog::debug( CLASS ) << "A^T*A=" << m_ata.rows() << "x" << m_ata.cols();
 
-    // Prepare with packet size later
-    m_firFilter.reset();
-
     m_isPrepared = true;
     return m_isPrepared;
 }
@@ -213,46 +210,28 @@ bool WHPISignalExtraction::reconstructAmplitudes( WLEMDHPI::SPtr& hpiOut, WLEMDM
         return false;
     }
 
-    // Preparation: highpass filter, constants, variables, data
-    // --------------------------------------------------------
-    if( !m_firFilter )
-    {
-        // Prepare filter
-        m_firFilter.reset( new WFIRFilterCpu );
-        const WFIRFilter::WEFilterType::Enum f_type = WFIRFilter::WEFilterType::HIGHPASS;
-        const WFIRFilter::WEWindowsType::Enum w_type = WFIRFilter::WEWindowsType::HAMMING;
-        const size_t order = std::min< size_t >( 200, megIn->getSamplesPerChan() );
-        const WFIRFilter::ScalarT s_freq = m_sampFreq;
-        size_t minIdx = 0;
-        for( size_t i = 1; i < m_angFrequencies.size(); ++i )
-        {
-            minIdx = m_angFrequencies[i] < m_angFrequencies[minIdx] ? i : minIdx;
-        }
-        const WFIRFilter::ScalarT c_freq = 0.5 * ( m_angFrequencies[minIdx] / ( 2 * M_PI ) );
-        wlog::info( CLASS ) << "Using highpass filter: " << c_freq << " Hz";
-        m_firFilter->design( f_type, w_type, order, s_freq, c_freq, c_freq );
-    }
-    WLEMData::ConstSPtr megFiltered = m_firFilter->filter( megIn );
-
+    // Preparation
+    // ----------
     const MatrixT::Index J = m_angFrequencies.size();
     const MatrixT::Index N = m_windowsSize * m_sampFreq; // windows size in samples
     const MatrixT::Index S = m_stepSize * m_sampFreq; // step size in samples
 
-    const WLEMData::DataT::Index channels = static_cast< WLEMData::DataT::Index >( megFiltered->getNrChans() );
+    const WLEMData::DataT::Index channels = static_cast< WLEMData::DataT::Index >( megIn->getNrChans() );
     const WLEMData::DataT::Index hpiChannels = channels * J;
-    const WLEMData::DataT::Index samples = static_cast< WLEMData::DataT::Index >( megFiltered->getSamplesPerChan() );
+    const WLEMData::DataT::Index samples = static_cast< WLEMData::DataT::Index >( megIn->getSamplesPerChan() );
 
-    // Prepare input/output data
     WLEMDHPI::DataSPtr dataOut( new WLEMDHPI::DataT( hpiChannels, samples / S ) );
-    const WLEMData::DataT& data = megFiltered->getData();
+    const WLEMData::DataT& data = megIn->getData();
 
     // Processing: Move windows step by step
     // -------------------------------------
     WLEMData::DataT::Index hpiSmp = 0;
+    WLEMData::DataT blockPreproc( channels, N );
+    WLEMData::SampleT hpiSample( hpiChannels );
     for( MatrixT::Index start = 0; start + N <= samples; start += S )
     {
-        WLEMData::SampleT hpiSample( hpiChannels );
-        reconstructWindows( &hpiSample, data, start, N );
+        preprocessBlock( &blockPreproc, data.block( 0, start, channels, N ) );
+        reconstructWindows( &hpiSample, blockPreproc );
         dataOut->block( 0, hpiSmp++, hpiChannels, 1 ) = hpiSample;
     }
 
@@ -269,19 +248,31 @@ bool WHPISignalExtraction::reconstructAmplitudes( WLEMDHPI::SPtr& hpiOut, WLEMDM
     return true;
 }
 
-void WHPISignalExtraction::reconstructWindows( WLEMData::SampleT* const hpiOut, const WLEMData::DataT& megIn,
-                MatrixT::Index start, MatrixT::Index samples )
+void WHPISignalExtraction::preprocessBlock( WLEMData::DataT* const megOut, const WLEMData::DataT& megIn )
+{
+    const WLSampleNrT samples = megIn.cols();
+    VectorT win = WLWindowsFunction::hamming( samples );
+    VectorT det( samples );
+    for( WLEMDMEG::DataT::Index c = 0; c < megIn.rows(); ++c )
+    {
+        WLPreprocessing::detrend( &det, megIn.row( c ).transpose() );
+        megOut->row( c ) = win.cwiseProduct( det );
+    }
+}
+
+void WHPISignalExtraction::reconstructWindows( WLEMData::SampleT* const hpiOut, const WLEMData::DataT& megIn )
 {
     const MatrixT::Index J = m_angFrequencies.size();
     MatrixT::Index hpiOffset = 0;
 
     for( WLEMDMEG::DataT::Index c = 0; c < megIn.rows(); ++c )
     {
-        const VectorT b = megIn.row( c ).segment( start, samples ).transpose();
+        const VectorT& b = megIn.row( c );
         const VectorT atb = m_at * b;
 
         // Solve: x = (A^T*A)^-1 * A^T*b
         VectorT x = m_ata.colPivHouseholderQr().solve( atb );
+
         // x = x^2
         x = x.cwiseProduct( x );
         // Reduction: tmp = x'^2 + x''^2
