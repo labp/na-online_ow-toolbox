@@ -28,6 +28,11 @@
 #include "core/data/emd/WLEMData.h"
 #include "WLWindowFunction.h"
 
+/**
+ * Basic preprocessing routines.
+ *
+ * \author pieloth
+ */
 namespace WLPreprocessing
 {
     typedef WLVector::VectorT VectorT;
@@ -45,8 +50,21 @@ namespace WLPreprocessing
     bool baselineCorrection( WLEMData::DataT* const dataOut, const WLEMData::DataT& dataIn, WLSampleIdxT start,
                     WLSampleNrT offset );
 
+    /**
+     * Removes linear trend from a vector.
+     *
+     * \param yptr Corrected output data.
+     * \param x Input data.
+     */
     void detrend( VectorT* const yptr, const VectorT& x );
 
+    /**
+     * Applies a window function on a vector.
+     *
+     * \param yptr Output data.
+     * \param x Input data.
+     * \param type Window function to use.
+     */
     void windowing( VectorT* const yptr, const VectorT& x, WLWindowFunction::WLEWindow type );
 } /* namespace WLPreprocessing */
 

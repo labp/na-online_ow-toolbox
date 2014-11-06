@@ -30,7 +30,7 @@
 #include "core/data/WLDataTypes.h"
 
 /**
- * TODO(pieloth): documentation
+ * Window functions, e.g. for FIR filter.
  *
  * \author pieloth
  */
@@ -43,21 +43,40 @@ namespace WLWindowFunction
         HAMMING, RECTANGLE, BARLETT, BLACKMAN, HANNING, UNKNOWN
     };
 
+    /**
+     * Gets a set of all supported window functions.
+     *
+     * \return A set of all supported window functions.
+     */
     std::set< WLEWindow > values();
 
+    /**
+     * Gets the name of a window function.
+     *
+     * \param value identifier
+     * \return Name for the identifier.
+     */
     std::string name( WLEWindow value );
 
+    /**
+     *  Calculates the factors for a window function.
+     *
+     * \param samples Number of samples.
+     * \param type Window function to use.
+     *
+     * \return A vector of factors.
+     */
     VectorT window( WLSampleNrT samples, WLEWindow type );
 
-    VectorT hamming( WLSampleNrT samples );
+    VectorT hamming( WLSampleNrT samples ); /**< Hamming window function. */
 
-    VectorT rectangle( WLSampleNrT samples );
+    VectorT rectangle( WLSampleNrT samples ); /**< Rectangle window. */
 
-    VectorT barlett( WLSampleNrT samples );
+    VectorT barlett( WLSampleNrT samples ); /**< Barlett window function. */
 
-    VectorT blackman( WLSampleNrT samples );
+    VectorT blackman( WLSampleNrT samples ); /**< Blackman window function. */
 
-    VectorT hanning( WLSampleNrT samples );
+    VectorT hanning( WLSampleNrT samples ); /**< Hanning window function. */
 } /* namespace WLWindowFunction */
 
 #endif  // WLWINDOWFUNCTION_H_
