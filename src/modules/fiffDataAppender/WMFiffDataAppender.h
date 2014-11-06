@@ -44,11 +44,11 @@
  *
  * \author pieloth
  */
-class WMDataAppender: public WModule
+class WMFiffDataAppender: public WModule
 {
 public:
-    WMDataAppender();
-    virtual ~WMDataAppender();
+    WMFiffDataAppender();
+    virtual ~WMFiffDataAppender();
 
     virtual WModule::SPtr factory() const;
 

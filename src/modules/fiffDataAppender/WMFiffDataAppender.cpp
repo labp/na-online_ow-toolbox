@@ -32,46 +32,46 @@
 #include "core/module/WLConstantsModule.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
+#include "WMFiffDataAppender.h"
+#include "WMFiffDataAppender.xpm"
 
-#include "WMDataAppender.h"
-#include "WMDataAppender.xpm"
 
-W_LOADABLE_MODULE( WMDataAppender )
+W_LOADABLE_MODULE( WMFiffDataAppender )
 
 static const std::string DATA_NOT_LOADED = "No data loaded.";
 static const std::string DATA_LOADING = "Loading data ...";
 static const std::string DATA_LOADED = "Data successfully loaded.";
 static const std::string DATA_ERROR = "Could not load data.";
 
-WMDataAppender::WMDataAppender()
+WMFiffDataAppender::WMFiffDataAppender()
 {
 }
 
-WMDataAppender::~WMDataAppender()
+WMFiffDataAppender::~WMFiffDataAppender()
 {
 }
 
-WModule::SPtr WMDataAppender::factory() const
+WModule::SPtr WMFiffDataAppender::factory() const
 {
-    return WModule::SPtr( new WMDataAppender );
+    return WModule::SPtr( new WMFiffDataAppender );
 }
 
-const std::string WMDataAppender::getName() const
+const std::string WMFiffDataAppender::getName() const
 {
-    return WLConstantsModule::generateModuleName( "Data Appender" );
+    return WLConstantsModule::generateModuleName( "FIFF Data Appender" );
 }
 
-const std::string WMDataAppender::getDescription() const
+const std::string WMFiffDataAppender::getDescription() const
 {
     return "Appends an EMM block by additional data, e.g. source space.";
 }
 
-const char** WMDataAppender::getXPMIcon() const
+const char** WMFiffDataAppender::getXPMIcon() const
 {
     return module_xpm;
 }
 
-void WMDataAppender::connectors()
+void WMFiffDataAppender::connectors()
 {
     WModule::connectors();
 
@@ -84,7 +84,7 @@ void WMDataAppender::connectors()
     addConnector( m_output );
 }
 
-void WMDataAppender::properties()
+void WMFiffDataAppender::properties()
 {
     WModule::properties();
 
@@ -110,10 +110,10 @@ void WMDataAppender::properties()
     m_propStatus->setPurpose( PV_PURPOSE_INFORMATION );
 
     m_trgReset = m_properties->addProperty( "Reset:", "Reset", WPVBaseTypes::PV_TRIGGER_READY,
-                    boost::bind( &WMDataAppender::cbReset, this ) );
+                    boost::bind( &WMFiffDataAppender::cbReset, this ) );
 }
 
-void WMDataAppender::moduleInit()
+void WMFiffDataAppender::moduleInit()
 {
 
     // init moduleState for using Events in mainLoop
@@ -125,7 +125,7 @@ void WMDataAppender::moduleInit()
     waitRestored();
 }
 
-void WMDataAppender::moduleMain()
+void WMFiffDataAppender::moduleMain()
 {
     moduleInit();
 
@@ -169,7 +169,7 @@ void WMDataAppender::moduleMain()
     }
 }
 
-bool WMDataAppender::hdlLeadfieldFileChanged( WLMatrix::SPtr* const lf, std::string fName )
+bool WMFiffDataAppender::hdlLeadfieldFileChanged( WLMatrix::SPtr* const lf, std::string fName )
 {
     debugLog() << __func__ << "()";
 
@@ -207,7 +207,7 @@ bool WMDataAppender::hdlLeadfieldFileChanged( WLMatrix::SPtr* const lf, std::str
     }
 }
 
-bool WMDataAppender::hdlSurfaceFileChanged( std::string fName )
+bool WMFiffDataAppender::hdlSurfaceFileChanged( std::string fName )
 {
     debugLog() << __func__ << "() called!";
 
@@ -246,7 +246,7 @@ bool WMDataAppender::hdlSurfaceFileChanged( std::string fName )
     }
 }
 
-bool WMDataAppender::hdlBemFileChanged( std::string fName )
+bool WMFiffDataAppender::hdlBemFileChanged( std::string fName )
 {
     debugLog() << __func__ << "() called!";
 
@@ -286,7 +286,7 @@ bool WMDataAppender::hdlBemFileChanged( std::string fName )
     }
 }
 
-void WMDataAppender::cbReset()
+void WMFiffDataAppender::cbReset()
 {
     debugLog() << __func__ << "() called!";
 
@@ -305,7 +305,7 @@ void WMDataAppender::cbReset()
     m_trgReset->set( WPVBaseTypes::PV_TRIGGER_READY, true );
 }
 
-void WMDataAppender::process( WLEMMCommand::SPtr cmd )
+void WMFiffDataAppender::process( WLEMMCommand::SPtr cmd )
 {
     if( !cmd->hasEmm() )
     {
