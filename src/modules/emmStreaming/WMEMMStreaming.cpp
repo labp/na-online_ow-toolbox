@@ -21,6 +21,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include "../emmStreaming/WMEMMSimulator.xpm"
+
 #include <string>
 
 #include <core/common/WPathHelper.h>
@@ -33,17 +35,16 @@
 #include "core/module/WLConstantsModule.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
+#include "WMEMMStreaming.h"
 #include "WPacketizerEMM.h"
-#include "WMEMMSimulator.h"
-#include "WMEMMSimulator.xpm"
 
-W_LOADABLE_MODULE( WMEMMSimulator )
+W_LOADABLE_MODULE( WMEMMStreaming )
 
 // -------------------------------------------------------------------------------------------------------------------------------
 // Init
 // -------------------------------------------------------------------------------------------------------------------------------
 
-std::string WMEMMSimulator::EStreaming::name( EStreaming::Enum val )
+std::string WMEMMStreaming::EStreaming::name( EStreaming::Enum val )
 {
     switch( val )
     {
@@ -60,7 +61,7 @@ std::string WMEMMSimulator::EStreaming::name( EStreaming::Enum val )
     }
 }
 
-std::string WMEMMSimulator::EData::name( EData::Enum val )
+std::string WMEMMStreaming::EData::name( EData::Enum val )
 {
     switch( val )
     {
@@ -77,12 +78,12 @@ std::string WMEMMSimulator::EData::name( EData::Enum val )
     }
 }
 
-WMEMMSimulator::WMEMMSimulator()
+WMEMMStreaming::WMEMMStreaming()
 {
     m_statusStreaming = EStreaming::NO_DATA;
 }
 
-WMEMMSimulator::~WMEMMSimulator()
+WMEMMStreaming::~WMEMMStreaming()
 {
 }
 
@@ -90,27 +91,27 @@ WMEMMSimulator::~WMEMMSimulator()
 // Module
 // -------------------------------------------------------------------------------------------------------------------------------
 
-const std::string WMEMMSimulator::getName() const
+const std::string WMEMMStreaming::getName() const
 {
-    return WLConstantsModule::NAME_PREFIX + " EMM Simulator";
+    return WLConstantsModule::NAME_PREFIX + " EMM Streaming";
 }
 
-const std::string WMEMMSimulator::getDescription() const
+const std::string WMEMMStreaming::getDescription() const
 {
     return "Splits a EMM data in blocks and streams it through the signal processing chain.";
 }
 
-WModule::SPtr WMEMMSimulator::factory() const
+WModule::SPtr WMEMMStreaming::factory() const
 {
-    return WModule::SPtr( new WMEMMSimulator );
+    return WModule::SPtr( new WMEMMStreaming );
 }
 
-const char** WMEMMSimulator::getXPMIcon() const
+const char** WMEMMStreaming::getXPMIcon() const
 {
     return module_xpm;
 }
 
-void WMEMMSimulator::connectors()
+void WMEMMStreaming::connectors()
 {
     WLModuleDrawable::connectors();
 
@@ -124,7 +125,7 @@ void WMEMMSimulator::connectors()
     addConnector( m_output );
 }
 
-void WMEMMSimulator::properties()
+void WMEMMStreaming::properties()
 {
     WLModuleDrawable::properties();
 
@@ -139,7 +140,7 @@ void WMEMMSimulator::properties()
     m_trgStart = m_properties->addProperty( "Start:", "Start streaming.", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
 
     m_trgStop = m_properties->addProperty( "Stop:", "Stop streaming.", WPVBaseTypes::PV_TRIGGER_READY,
-                    boost::bind( &WMEMMSimulator::cbTrgStop, this ) );
+                    boost::bind( &WMEMMStreaming::cbTrgStop, this ) );
 
     m_propStatusStreaming = m_properties->addProperty( "Status:", "Status of streaming.",
                     EStreaming::name( EStreaming::NO_DATA ) );
@@ -176,7 +177,7 @@ void WMEMMSimulator::properties()
     m_propStatusAdditional->setPurpose( PV_PURPOSE_INFORMATION );
 }
 
-void WMEMMSimulator::moduleInit()
+void WMEMMStreaming::moduleInit()
 {
     infoLog() << "Initializing module ...";
     // init moduleState for using Events in mainLoop
@@ -190,7 +191,7 @@ void WMEMMSimulator::moduleInit()
     viewInit( WLEMDDrawable2D::WEGraphType::DYNAMIC );
 }
 
-void WMEMMSimulator::moduleMain()
+void WMEMMStreaming::moduleMain()
 {
     moduleInit();
 
@@ -245,9 +246,9 @@ void WMEMMSimulator::moduleMain()
     viewCleanup();
 }
 
-void WMEMMSimulator::reset()
+void WMEMMStreaming::reset()
 {
-    debugLog() << "reset() called!";
+    debugLog() << __func__ << "() called!";
     EStreaming::Enum state = !m_data ? EStreaming::NO_DATA : EStreaming::READY;
     updateStatus( state );
     m_propBlockSize->set( 1000, true );
@@ -278,7 +279,7 @@ void WMEMMSimulator::reset()
     m_propStatusAdditional->set( EData::name( EData::DATA_NOT_LOADED ), true );
 }
 
-void WMEMMSimulator::hdlTrgReset()
+void WMEMMStreaming::hdlTrgReset()
 {
     reset();
     m_trgReset->set( WPVBaseTypes::PV_TRIGGER_READY, true );
@@ -288,9 +289,9 @@ void WMEMMSimulator::hdlTrgReset()
 // Streaming
 // -------------------------------------------------------------------------------------------------------------------------------
 
-void WMEMMSimulator::hdlTrgStart()
+void WMEMMStreaming::hdlTrgStart()
 {
-    debugLog() << "handleStartTrg() called!";
+    debugLog() << __func__ << "() called!";
     if( m_statusStreaming == EStreaming::READY )
     {
         debugLog() << "Sending reset command.";
@@ -310,15 +311,15 @@ void WMEMMSimulator::hdlTrgStart()
     m_trgStart->set( WPVBaseTypes::PV_TRIGGER_READY, true );
 }
 
-void WMEMMSimulator::cbTrgStop()
+void WMEMMStreaming::cbTrgStop()
 {
-    debugLog() << "callbackStopTrg() called!";
+    debugLog() << __func__ << "() called!";
     infoLog() << "Requesting streaming stop ...";
     updateStatus( EStreaming::STOP_REQUEST );
     m_trgStop->set( WPVBaseTypes::PV_TRIGGER_READY, true );
 }
 
-void WMEMMSimulator::stream()
+void WMEMMStreaming::stream()
 {
     WPacketizerEMM packetizer( m_data, m_propBlockSize->get() );
     const bool set_subject = initAdditionalData( m_data->getSubject() );
@@ -373,7 +374,7 @@ void WMEMMSimulator::stream()
 // Signal chain processing
 // -------------------------------------------------------------------------------------------------------------------------------
 
-bool WMEMMSimulator::processCompute( WLEMMeasurement::SPtr emm )
+bool WMEMMStreaming::processCompute( WLEMMeasurement::SPtr emm )
 {
     WLEMMCommand::SPtr cmdReset = WLEMMCommand::instance( WLEMMCommand::Command::RESET );
     m_output->updateData( cmdReset );
@@ -392,12 +393,12 @@ bool WMEMMSimulator::processCompute( WLEMMeasurement::SPtr emm )
     return true;
 }
 
-bool WMEMMSimulator::processInit( WLEMMCommand::SPtr cmdIn )
+bool WMEMMStreaming::processInit( WLEMMCommand::SPtr cmdIn )
 {
     return processReset( cmdIn );
 }
 
-bool WMEMMSimulator::processReset( WLEMMCommand::SPtr cmdIn )
+bool WMEMMStreaming::processReset( WLEMMCommand::SPtr cmdIn )
 {
     reset();
     m_output->updateData( cmdIn );
@@ -408,9 +409,9 @@ bool WMEMMSimulator::processReset( WLEMMCommand::SPtr cmdIn )
 // Additional data
 // -------------------------------------------------------------------------------------------------------------------------------
 
-bool WMEMMSimulator::hdlLeadfieldFileChanged( WLMatrix::SPtr* const lf, std::string fName )
+bool WMEMMStreaming::hdlLeadfieldFileChanged( WLMatrix::SPtr* const lf, std::string fName )
 {
-    debugLog() << "handleLfFileChanged()";
+    debugLog() << __func__ << "()";
 
     WProgress::SPtr progress( new WProgress( "Reading Leadfield" ) );
     m_progress->addSubProgress( progress );
@@ -446,9 +447,9 @@ bool WMEMMSimulator::hdlLeadfieldFileChanged( WLMatrix::SPtr* const lf, std::str
     }
 }
 
-bool WMEMMSimulator::hdlSurfaceFileChanged( std::string fName )
+bool WMEMMStreaming::hdlSurfaceFileChanged( std::string fName )
 {
-    debugLog() << "handleSurfaceFileChanged()";
+    debugLog() << __func__ << "() called!";
 
     WProgress::SPtr progress( new WProgress( "Reading Surface" ) );
     m_progress->addSubProgress( progress );
@@ -485,9 +486,9 @@ bool WMEMMSimulator::hdlSurfaceFileChanged( std::string fName )
     }
 }
 
-bool WMEMMSimulator::hdlBemFileChanged( std::string fName )
+bool WMEMMStreaming::hdlBemFileChanged( std::string fName )
 {
-    debugLog() << "handleBemFileChanged()";
+    debugLog() << __func__ << "() called!";
 
     WProgress::SPtr progress( new WProgress( "Reading BEM Layer" ) );
     m_progress->addSubProgress( progress );
@@ -525,7 +526,7 @@ bool WMEMMSimulator::hdlBemFileChanged( std::string fName )
     }
 }
 
-bool WMEMMSimulator::initAdditionalData( WLEMMSubject::ConstSPtr subjectIn )
+bool WMEMMStreaming::initAdditionalData( WLEMMSubject::ConstSPtr subjectIn )
 {
     if( !m_leadfieldEEG && !m_leadfieldMEG && !m_bems && !m_surface )
     {

@@ -21,8 +21,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMEMMSIMULATOR_H_
-#define WMEMMSIMULATOR_H_
+#ifndef WMEMMSTREAMING_H_
+#define WMEMMSTREAMING_H_
 
 #include <string>
 
@@ -40,11 +40,11 @@
  *
  * \author pieloth
  */
-class WMEMMSimulator: public WLModuleDrawable
+class WMEMMStreaming: public WLModuleDrawable
 {
 public:
-    WMEMMSimulator();
-    virtual ~WMEMMSimulator();
+    WMEMMStreaming();
+    virtual ~WMEMMStreaming();
 
     virtual const std::string getName() const;
 
@@ -147,10 +147,10 @@ private:
     bool initAdditionalData( WLEMMSubject::ConstSPtr subjectIn );
 };
 
-inline void WMEMMSimulator::updateStatus( EStreaming::Enum status )
+inline void WMEMMStreaming::updateStatus( EStreaming::Enum status )
 {
     m_statusStreaming = status;
     m_propStatusStreaming->set( EStreaming::name( status ), true );
 }
 
-#endif  // WMEMMSIMULATOR_H_
+#endif  // WMEMMSTREAMING_H_
