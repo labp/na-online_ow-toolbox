@@ -189,7 +189,7 @@ private:
         wlog::info( "WFIRFilterTestHelper" ) << "filterSineDoLowpassTest() with designed coefficients.";
         // Setup lowpass filter
         const WFIRFilter::WEFilterType::Enum type = WFIRFilter::WEFilterType::LOWPASS;
-        const WFIRFilter::WEWindowsType::Enum windows = WFIRFilter::WEWindowsType::HAMMING;
+        const WLWindowFunction::WLEWindow windows = WLWindowFunction::HAMMING;
         const size_t order = 200;
         const float f_cutoff = 50.0;
         const WFIRFilter::ScalarT sampling_frequency = 1000;
@@ -198,7 +198,7 @@ private:
         filter->setFilterType( type, false );
         filter->setOrder( order, false );
         filter->setSamplingFrequency( sampling_frequency, false );
-        filter->setWindowsType( windows, false );
+        filter->setWindowType( windows, false );
         filter->design();
 
          filterSineDoLowpassTest( filter, 200, 1000.0 );
@@ -272,7 +272,7 @@ private:
         wlog::info( "WFIRFilterTestHelper" ) << "filterSineDoHighpassTest() with designed coefficients.";
         // Setup lowpass filter
         const WFIRFilter::WEFilterType::Enum type = WFIRFilter::WEFilterType::HIGHPASS;
-        const WFIRFilter::WEWindowsType::Enum windows = WFIRFilter::WEWindowsType::HAMMING;
+        const WLWindowFunction::WLEWindow windows = WLWindowFunction::HAMMING;
         const size_t order = 200;
         const float f_cutoff = 50.0;
         const WFIRFilter::ScalarT sampling_frequency = 1000;
@@ -281,7 +281,7 @@ private:
         filter->setFilterType( type, false );
         filter->setOrder( order, false );
         filter->setSamplingFrequency( sampling_frequency, false );
-        filter->setWindowsType( windows, false );
+        filter->setWindowType( windows, false );
         filter->design();
 
          filterSineDoHighpassTest( filter, 200, 1000.0 );
@@ -355,7 +355,7 @@ private:
         wlog::info( "WFIRFilterTestHelper" ) << "filterSineDoBandpassTest() with designed coefficients.";
         // Setup lowpass filter
         const WFIRFilter::WEFilterType::Enum type = WFIRFilter::WEFilterType::BANDPASS;
-        const WFIRFilter::WEWindowsType::Enum windows = WFIRFilter::WEWindowsType::HAMMING;
+        const WLWindowFunction::WLEWindow windows = WLWindowFunction::HAMMING;
         const size_t order = 200;
         const float fc1 = 50.0;
         const float fc2 = 100.0;
@@ -366,7 +366,7 @@ private:
         filter->setFilterType( type, false );
         filter->setOrder( order, false );
         filter->setSamplingFrequency( sampling_frequency, false );
-        filter->setWindowsType( windows, false );
+        filter->setWindowType( windows, false );
         filter->design();
 
          filterSineDoBandpassTest( filter, 200, 1000.0 );
@@ -460,7 +460,7 @@ private:
         wlog::info( "WFIRFilterTestHelper" ) << "filterSineDoBandstopTest() with designed coefficients.";
         // Setup lowpass filter
         const WFIRFilter::WEFilterType::Enum type = WFIRFilter::WEFilterType::BANDSTOP;
-        const WFIRFilter::WEWindowsType::Enum windows = WFIRFilter::WEWindowsType::HAMMING;
+        const WLWindowFunction::WLEWindow windows = WLWindowFunction::HAMMING;
         const size_t order = 200;
         const float fc1 = 50.0;
         const float fc2 = 100.0;
@@ -471,7 +471,7 @@ private:
         filter->setFilterType( type, false );
         filter->setOrder( order, false );
         filter->setSamplingFrequency( sampling_frequency, false );
-        filter->setWindowsType( windows, false );
+        filter->setWindowType( windows, false );
         filter->design();
 
          filterSineDoBandstopTest( filter, 200, 1000.0 );

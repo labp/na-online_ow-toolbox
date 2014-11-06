@@ -56,7 +56,7 @@ public:
         WFIRFilterCpu::SPtr filter( new WFIRFilterCpu( fileName.c_str() ) );
         WFIRFilterTestHelper::filterImpulseTest( filter );
 
-        filter.reset( new WFIRFilterCpu( WFIRFilter::WEFilterType::BANDPASS, WFIRFilter::WEWindowsType::HAMMING, ORDER, SFREQ,
+        filter.reset( new WFIRFilterCpu( WFIRFilter::WEFilterType::BANDPASS, WLWindowFunction::HAMMING, ORDER, SFREQ,
         C1FREQ, C2FREQ ) );
         WFIRFilterTestHelper::filterImpulseTest( filter );
     }
@@ -67,7 +67,7 @@ public:
         WFIRFilterCpu::SPtr filter( new WFIRFilterCpu( fileName.c_str() ) );
         WFIRFilterTestHelper::filterStepTest( filter );
 
-        filter.reset( new WFIRFilterCpu( WFIRFilter::WEFilterType::BANDPASS, WFIRFilter::WEWindowsType::HAMMING, ORDER, SFREQ,
+        filter.reset( new WFIRFilterCpu( WFIRFilter::WEFilterType::BANDPASS, WLWindowFunction::HAMMING, ORDER, SFREQ,
         C1FREQ, C2FREQ ) );
         WFIRFilterTestHelper::filterStepTest( filter );
     }
@@ -78,7 +78,7 @@ public:
         WFIRFilterCpu::SPtr filter( new WFIRFilterCpu( fileName.c_str() ) );
         WFIRFilterTestHelper::filterSineTest( filter );
 
-        filter.reset( new WFIRFilterCpu( WFIRFilter::WEFilterType::BANDPASS, WFIRFilter::WEWindowsType::HAMMING, ORDER, SFREQ,
+        filter.reset( new WFIRFilterCpu( WFIRFilter::WEFilterType::BANDPASS, WLWindowFunction::HAMMING, ORDER, SFREQ,
         C1FREQ, C2FREQ ) );
         WFIRFilterTestHelper::filterSineTest( filter );
     }

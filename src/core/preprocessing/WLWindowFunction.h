@@ -21,51 +21,62 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLPREPROCESSING_H_
-#define WLPREPROCESSING_H_
+#ifndef WLWINDOWFUNCTION_H_
+#define WLWINDOWFUNCTION_H_
+
+#include <set>
+#include <string>
 
 #include "core/data/WLDataTypes.h"
-#include "core/data/emd/WLEMData.h"
-#include "WLWindowFunction.h"
 
 /**
- * Basic preprocessing routines.
+ * Window functions, e.g. for FIR filter.
  *
  * \author pieloth
  */
-namespace WLPreprocessing
+namespace WLWindowFunction
 {
     typedef WLVector::VectorT VectorT;
 
-    /**
-     * Subtracts the baseline from the data.
-     *
-     * \param dataOut Contains the corrected data. In error case dataOut contains the input data.
-     * \param dataIn Data to correct.
-     * \param start Start index for mean calculation.
-     * \param offset Number of samples for mean calculation.
-     *
-     * \return True if successful.
-     */
-    bool baselineCorrection( WLEMData::DataT* const dataOut, const WLEMData::DataT& dataIn, WLSampleIdxT start,
-                    WLSampleNrT offset );
+    enum WLEWindow
+    {
+        HAMMING, RECTANGLE, BARLETT, BLACKMAN, HANNING, UNKNOWN
+    };
 
     /**
-     * Removes linear trend from a vector.
+     * Gets a set of all supported window functions.
      *
-     * \param yptr Corrected output data.
-     * \param x Input data.
+     * \return A set of all supported window functions.
      */
-    void detrend( VectorT* const yptr, const VectorT& x );
+    std::set< WLEWindow > values();
 
     /**
-     * Applies a window function on a vector.
+     * Gets the name of a window function.
      *
-     * \param yptr Output data.
-     * \param x Input data.
+     * \param value identifier
+     * \return Name for the identifier.
+     */
+    std::string name( WLEWindow value );
+
+    /**
+     *  Calculates the factors for a window function.
+     *
+     * \param samples Number of samples.
      * \param type Window function to use.
+     *
+     * \return A vector of factors.
      */
-    void windowing( VectorT* const yptr, const VectorT& x, WLWindowFunction::WLEWindow type );
-} /* namespace WLPreprocessing */
+    VectorT window( WLSampleNrT samples, WLEWindow type );
 
-#endif  // WLPREPROCESSING_H_
+    VectorT hamming( WLSampleNrT samples ); /**< Hamming window function. */
+
+    VectorT rectangle( WLSampleNrT samples ); /**< Rectangle window. */
+
+    VectorT barlett( WLSampleNrT samples ); /**< Barlett window function. */
+
+    VectorT blackman( WLSampleNrT samples ); /**< Blackman window function. */
+
+    VectorT hanning( WLSampleNrT samples ); /**< Hanning window function. */
+} /* namespace WLWindowFunction */
+
+#endif  // WLWINDOWFUNCTION_H_

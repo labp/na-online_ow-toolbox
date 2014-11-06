@@ -25,11 +25,42 @@
 
 #include <core/common/WAssert.h>
 
-#include "WLWindowsFunction.h"
+#include "WLWindowFunction.h"
 
-namespace WLWindowsFunction
+namespace WLWindowFunction
 {
-    VectorT windows( WLSampleNrT samples, WLEWindows type )
+    std::set< WLEWindow > values()
+    {
+        std::set< WLEWindow > values;
+        values.insert( HAMMING );
+        values.insert( RECTANGLE );
+        values.insert( BARLETT );
+        values.insert( BLACKMAN );
+        values.insert( HANNING );
+        return values;
+    }
+
+    std::string name( WLEWindow value )
+    {
+        switch( value )
+        {
+            case HAMMING:
+                return "Hamming";
+            case RECTANGLE:
+                return "Rectangle";
+            case BARLETT:
+                return "Barlett";
+            case BLACKMAN:
+                return "Blackman";
+            case HANNING:
+                return "Hanning";
+            default:
+                WAssert( false, "Unknown WLEWindow!" );
+                return "ERROR: Undefined!";
+        }
+    }
+
+    VectorT window( WLSampleNrT samples, WLEWindow type )
     {
         switch( type )
         {
@@ -44,7 +75,7 @@ namespace WLWindowsFunction
             case RECTANGLE:
                 return rectangle( samples );
             default:
-                WAssert( false, "Unknown WLEWindows!" );
+                WAssert( false, "Unknown WLEWindows" );
                 return rectangle( samples );
         }
     }
@@ -101,4 +132,4 @@ namespace WLWindowsFunction
         }
         return w;
     }
-} /* namespace WLWindowsFunction */
+} /* namespace WLWindowFunction */

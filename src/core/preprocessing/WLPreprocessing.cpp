@@ -21,7 +21,11 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include <Eigen/Dense>   // colPivHouseholderQr
+
+#include <core/common/WLogger.h>
 
 #include "core/data/WLDataTypes.h"
 
@@ -29,7 +33,34 @@
 
 namespace WLPreprocessing
 {
+    static const std::string NAMESPACE = "WLPreprocessing";
+
     typedef WLMatrix::MatrixT MatrixT;
+
+    bool baselineCorrection( WLEMData::DataT* const dataOut, const WLEMData::DataT& dataIn, WLSampleIdxT start,
+                    WLSampleNrT offset )
+    {
+        const WLChanNrT channels = dataIn.rows();
+        const WLSampleNrT samples = dataIn.cols();
+
+        if( ( start + offset ) > samples )
+        {
+            wlog::error( NAMESPACE ) << __func__ << ": Index out of bound!";
+            *dataOut = dataIn;
+            return false;
+        }
+        if( offset == 0 )
+        {
+            wlog::warn( NAMESPACE ) << __func__ << ": Offset is zero, no baseline was corrected!";
+            *dataOut = dataIn;
+            return true;
+        }
+
+        WLEMData::SampleT means = dataIn.block( 0, start, channels, offset ).rowwise().mean();
+        *dataOut = dataIn.colwise() - means;
+
+        return true;
+    }
 
     void detrend( VectorT* const yptr, const VectorT& x )
     {
@@ -45,9 +76,9 @@ namespace WLPreprocessing
         y = x - a * ( a.colPivHouseholderQr().solve( x ) );   // Remove best fit
     }
 
-    void windowing( VectorT* const yptr, const VectorT& x, WLWindowsFunction::WLEWindows type )
+    void windowing( VectorT* const yptr, const VectorT& x, WLWindowFunction::WLEWindow type )
     {
-        const VectorT win = WLWindowsFunction::windows( x.size(), type );
+        const VectorT win = WLWindowFunction::window( x.size(), type );
         *yptr = win.cwiseProduct( x );
     }
 } /* namespace WLPreProcessing */
