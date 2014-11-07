@@ -77,7 +77,7 @@ std::string WBeamforming::WEType::name( WBeamforming::WEType::Enum value )
         case WEType::LCMV:
             return "LCMV Beamformer";
         default:
-            WAssert( false, "Unknown type!" );
+            WAssert( false, "Unknown WEType!" );
             return "ERROR: Undefined!";
     }
 }
@@ -94,9 +94,9 @@ bool WBeamforming::calculateBeamforming( const WLMatrix::MatrixT& Leadfield, con
     wlog::debug( CLASS ) << "reg=" << reg;
     switch( m_type )
     {
-        case 1:
+        case WEType::LCMV:
         {
-            wlog::debug( CLASS ) << "LCMV called!";
+            wlog::debug( CLASS ) << "Calculate LCMV.";
 
             MatrixT Data;
             Data = CSD.real();
@@ -156,9 +156,9 @@ bool WBeamforming::calculateBeamforming( const WLMatrix::MatrixT& Leadfield, con
             wlog::debug( CLASS ) << "m_beam LCMV" << m_beam->rows() << " x " << m_beam->cols();
             return true;
         }
-        case 0:
+        case WEType::DICS:
         {
-            wlog::debug( CLASS ) << "DICS called!";
+            wlog::debug( CLASS ) << "Calculate DICS.";
             Eigen::MatrixXcd Data;
             Data = CSD;
 
@@ -219,6 +219,9 @@ bool WBeamforming::calculateBeamforming( const WLMatrix::MatrixT& Leadfield, con
 
             return true;
         }
+        default:
+            WAssert( false, "Unknown WEType!" );
+            return false;
     }
 }
 
