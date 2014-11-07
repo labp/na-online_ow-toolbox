@@ -387,27 +387,28 @@ bool WMBeamforming::handleCSDChanged( std::string fName, Eigen::MatrixXcd* const
         return false;
     }
 
-    if( reader->readMatrixComplex( csd ) == WLIOStatus::SUCCESS ) //Matlab
-
-    {
-        debugLog() << "read file ";
-        m_CSDStatus->set( MATRIX_LOADED, true );
-        progress->finish();
-        m_progress->removeSubProgress( progress );
-
-        return true;
-    }
-
-    else
-    {
-        errorLog() << "Could not read leadfield!";
-        m_CSDStatus->set( NO_MATRIX_LOADED, true );
-        progress->finish();
-
-        m_progress->removeSubProgress( progress );
-        return false;
-    }
-
+    // FIXME(ehrlich): Use new impl. from default branch.
+    return false;
+//    if( reader->readMatrixComplex( csd ) == WLIOStatus::SUCCESS ) //Matlab
+//
+//    {
+//        debugLog() << "read file ";
+//        m_CSDStatus->set( MATRIX_LOADED, true );
+//        progress->finish();
+//        m_progress->removeSubProgress( progress );
+//
+//        return true;
+//    }
+//
+//    else
+//    {
+//        errorLog() << "Could not read leadfield!";
+//        m_CSDStatus->set( NO_MATRIX_LOADED, true );
+//        progress->finish();
+//
+//        m_progress->removeSubProgress( progress );
+//        return false;
+//    }
 }
 
 bool WMBeamforming::processInit( WLEMMCommand::SPtr cmdIn )
