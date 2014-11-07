@@ -21,9 +21,7 @@
 //
 //---------------------------------------------------------------------------
 
-#include <algorithm> // transform
 #include <cmath>
-#include <functional> // minus
 #include <set>
 #include <string>
 
@@ -32,46 +30,41 @@
 
 #include <core/common/WAssert.h>
 #include <core/common/WLogger.h>
-#include "core/util/profiler/WLTimeProfiler.h"
+
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDSource.h"
 #include "core/util/profiler/WLTimeProfiler.h"
 
 #include "WBeamforming.h"
 
-using std::set;
 using WLMatrix::MatrixT;
-using WLSpMatrix::SpMatrixT;
 
 const std::string WBeamforming::CLASS = "WBeamforming";
 
 WBeamforming::WBeamforming()
 {
-
     m_type = 0;
 }
 
 WBeamforming::~WBeamforming()
 {
-    // TODO Auto-generated destructor stub
 }
 
 void WBeamforming::reset()
 {
     m_beam.reset();
-
 }
 
 void WBeamforming::setType( WBeamforming::WEType::Enum value )
 {
     m_type = value;
-
 }
-std::vector< WBeamforming::WEType::Enum > WBeamforming::WEType::values()
+
+std::set< WBeamforming::WEType::Enum > WBeamforming::WEType::values()
 {
-    std::vector< WBeamforming::WEType::Enum > values;
-    values.push_back( WEType::DICS );
-    values.push_back( WEType::LCMV );
+    std::set< WBeamforming::WEType::Enum > values;
+    values.insert( WEType::DICS );
+    values.insert( WEType::LCMV );
     return values;
 }
 
@@ -87,32 +80,30 @@ std::string WBeamforming::WEType::name( WBeamforming::WEType::Enum value )
             WAssert( false, "Unknown type!" );
             return "ERROR: Undefined!";
     }
-
 }
 
 bool WBeamforming::calculateBeamforming( const WLMatrix::MatrixT& Leadfield, const Eigen::MatrixXcd& CSD, double reg )
 {
-    wlog::debug( CLASS ) << "calculateBeamforming() called!";
+    wlog::debug( CLASS ) << __func__ << "() called!";
 
-    WLTimeProfiler prfTime( CLASS, "calculateBeamfoming" );
+    WLTimeProfiler prfTime( CLASS, __func__ );
 
-//        m_leadfield.reset( new MatrixT( Leadfield) );
-//                    m_data.reset( new MatrixT(data) );
+//    m_leadfield.reset( new MatrixT( Leadfield ) );
+//    m_data.reset( new MatrixT( data ) );
 
-    wlog::debug( CLASS ) << "reg= " << reg;
+    wlog::debug( CLASS ) << "reg=" << reg;
     switch( m_type )
     {
         case 1:
-
         {
             wlog::debug( CLASS ) << "LCMV called!";
 
             MatrixT Data;
             Data = CSD.real();
 
-            //Init
+            // Init
 
-            //Matrizen
+            // Matrizen
             MatrixT leadfield( Leadfield.rows(), Leadfield.cols() );
             MatrixT Cdinv;
             MatrixT E = MatrixT::Identity( Data.rows(), Data.cols() );
@@ -127,33 +118,32 @@ bool WBeamforming::calculateBeamforming( const WLMatrix::MatrixT& Leadfield, con
 
             leadfield = Leadfield;
 
-            //Pseudoinverse Datenkovarainz
+            // Pseudoinverse Datenkovarainz
             MatrixT Cdinv1;
 
             Cdinv1 = CD.transpose() * CD;
             Cdinv = Cdinv1.inverse() * CD.transpose();
 
-            //Leadfield transponiert
+            // Leadfield transponiert
             MatrixT LT;
             LT = leadfield.transpose();
 
-            //Beamformer
+            // Beamformer
             for( int j = 0; j < leadfield.cols(); j++ )
             {
-                //Zwischenmatrix
-
+                // Zwischenmatrix
                 double LCd;
                 LCd = LT.row( j ) * Cdinv * leadfield.col( j );
 
                 MatrixT LCdT( 1, Cdinv.rows() );
                 LCdT = LT.row( j ) * Cdinv;
 
-                //               //Gewichtungsmatrix
+                // Gewichtungsmatrix
                 MatrixT LCD;
 
                 W.row( j ) = LCdT.array() / LCd;
             }
-            ////Normierung
+            // Normierung
             MatrixT WNorm;
             MatrixT WRep;
             MatrixT WBeam;
@@ -161,14 +151,12 @@ bool WBeamforming::calculateBeamforming( const WLMatrix::MatrixT& Leadfield, con
             WRep = WNorm.replicate( 1, W.cols() );
             WBeam = W.array() / WRep.array();
 
-            //Ergebnis an m_beam übergeben
+            // Ergebnis an m_beam übergeben
             m_beam.reset( new MatrixT( WBeam ) );
             wlog::debug( CLASS ) << "m_beam LCMV" << m_beam->rows() << " x " << m_beam->cols();
             return true;
         }
-
         case 0:
-
         {
             wlog::debug( CLASS ) << "DICS called!";
             Eigen::MatrixXcd Data;
@@ -188,34 +176,33 @@ bool WBeamforming::calculateBeamforming( const WLMatrix::MatrixT& Leadfield, con
 
             leadfield.real() = Leadfield;
 
-            //Pseudoinverse Datenkovarainz
+            // Pseudoinverse Datenkovarainz
             Eigen::MatrixXcd Cdinv1;
 
             Cdinv1 = CD.transpose() * CD;
             Cdinv = Cdinv1.inverse() * CD.transpose();
 
-            //Leadfield transponiert
+            // Leadfield transponiert
             Eigen::MatrixXcd LT;
             LT = leadfield.transpose();
 
-            //Beamformer
+            // Beamformer
             for( int j = 0; j < leadfield.cols(); j++ )
             {
-                //Zwischenmatrix
-
+                // Zwischenmatrix
                 Eigen::MatrixXcd LCd;
                 LCd = LT.row( j ) * Cdinv * leadfield.col( j );
 
                 Eigen::MatrixXcd LCdT( 1, Cdinv.rows() );
                 LCdT = LT.row( j ) * Cdinv;
-                //Gewichtungsmatrix
+                // Gewichtungsmatrix
                 Eigen::MatrixXcd LCD;
                 Eigen::MatrixXcd LL;
                 LL = LCd.replicate( 1, LCdT.cols() );
                 W.row( j ) = LCdT.array() / LL.array();
             }
 
-            ////Normierung
+            // Normierung
             MatrixT WNorm;
             MatrixT WRep;
             MatrixT WBeam;
@@ -226,14 +213,12 @@ bool WBeamforming::calculateBeamforming( const WLMatrix::MatrixT& Leadfield, con
             WRep = WNorm.replicate( 1, Bea.cols() );
             WBeam = Bea.array() / WRep.array();
 
-            //Ergebnis an m_beam übergeben
-
+            // Ergebnis an m_beam übergeben
             m_beam.reset( new MatrixT( WBeam ) );
             wlog::debug( CLASS ) << "m_beam" << m_beam->rows() << " x " << m_beam->cols();
 
             return true;
         }
-
     }
 }
 
@@ -241,4 +226,3 @@ bool WBeamforming::hasBeam() const
 {
     return ( m_beam );
 }
-

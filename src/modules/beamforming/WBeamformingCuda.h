@@ -25,9 +25,11 @@
 #define WBEAMFORMINGCUDA_H_
 
 #include <string>
+
 #include <boost/shared_ptr.hpp>
 #include <cublas.h>
 #include <cuda.h>
+
 #include "core/data/WLDataTypes.h"
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDSource.h"
@@ -55,7 +57,7 @@ public:
     WBeamformingCuda();
     virtual ~WBeamformingCuda();
 
-    virtual bool calculateBeamforming( const WLMatrix::MatrixT& leadfield , const Eigen::MatrixXcd& CSD, double reg );
+    virtual bool calculateBeamforming( const WLMatrix::MatrixT& leadfield, const Eigen::MatrixXcd& CSD, double reg );
 
     virtual WLEMDSource::SPtr beam( WLEMData::ConstSPtr emd );
 
@@ -64,22 +66,22 @@ private:
     static inline void cublasTgemm( char transa, char transb, int m, int n, int k, T alpha, const T* A, int lda, const T* B,
                     int ldb, T beta, T* C, int ldc );
 
-    ScalarT* m_A_dev; // m_beam
-    ScalarT* m_B_dev;   //m_data
+    ScalarT* m_A_dev; /**< Beam operator */
+    ScalarT* m_B_dev; /**< Data */
 
     bool m_beamChanged;
 };
 
 template< >
-inline void WBeamformingCuda::cublasTgemm< float >( char transa, char transb, int m, int n, int k, float alpha,
-                const float* A, int lda, const float* B, int ldb, float beta, float* C, int ldc )
+inline void WBeamformingCuda::cublasTgemm< float >( char transa, char transb, int m, int n, int k, float alpha, const float* A,
+                int lda, const float* B, int ldb, float beta, float* C, int ldc )
 {
     cublasSgemm( transa, transb, m, n, k, alpha, A, lda, B, ldb, beta, C, ldc );
 }
 
 template< >
-inline void WBeamformingCuda::cublasTgemm< double >(  char transa, char transb, int m, int n, int k, double alpha,
-                const double* A, int lda, const double* B, int ldb, double beta, double* C, int ldc )
+inline void WBeamformingCuda::cublasTgemm< double >( char transa, char transb, int m, int n, int k, double alpha, const double* A,
+                int lda, const double* B, int ldb, double beta, double* C, int ldc )
 {
     cublasDgemm( transa, transb, m, n, k, alpha, A, lda, B, ldb, beta, C, ldc );
 }

@@ -1,5 +1,5 @@
 /* XPM */								
-static const char* XPM_Beam[] = {	
+static const char* module_xpm[] = {	
 "21 15 2 1",				
 "  c #9933FF",							
 "+ c #FF0000",

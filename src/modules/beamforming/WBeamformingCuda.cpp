@@ -25,12 +25,14 @@
 #include <cstdio>   // stderr stream
 #include <cstdlib>  // malloc
 #include <string>   // CLASS variable
+
 #include <cublas.h>
 #include <cuda.h>
 #include <cuda_runtime.h>   // time measurement
-#include <boost/shared_ptr.hpp>
+
 #include <core/common/WLogger.h>
 #include <core/common/exceptions/WPreconditionNotMet.h>
+
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDSource.h"
 #include "core/exception/WLBadAllocException.h"
@@ -42,8 +44,6 @@
 
 #define CublasSafeCall( err )     __cublasSafeCall( err, __FILE__, __LINE__ )
 
-
-
 inline void __cublasSafeCall( cublasStatus err, const char *file, const int line )
 {
     if( err != CUBLAS_STATUS_SUCCESS )
@@ -53,6 +53,7 @@ inline void __cublasSafeCall( cublasStatus err, const char *file, const int line
 }
 
 using WLMatrix::MatrixT;
+
 const std::string WBeamformingCuda::CLASS = "WBeamformingCuda";
 
 WBeamformingCuda::WBeamformingCuda()
@@ -68,45 +69,39 @@ WBeamformingCuda::~WBeamformingCuda()
 {
     if( m_A_dev != NULL )
     {
-
         CublasSafeCall( cublasFree( m_A_dev ) );
     }
     if( m_B_dev != NULL )
     {
-
         CublasSafeCall( cublasFree( m_B_dev ) );
     }
 
     cublasShutdown();
 }
 
-bool WBeamformingCuda::calculateBeamforming ( const WLMatrix::MatrixT& leadfield, const Eigen::MatrixXcd& CSD, double reg )
+bool WBeamformingCuda::calculateBeamforming( const WLMatrix::MatrixT& leadfield, const Eigen::MatrixXcd& CSD, double reg )
 {
-    m_beamChanged = WBeamforming::calculateBeamforming(leadfield,CSD, reg);
+    m_beamChanged = WBeamforming::calculateBeamforming( leadfield, CSD, reg );
     return m_beamChanged;
 }
 
-
 WLEMDSource::SPtr WBeamformingCuda::beam( WLEMData::ConstSPtr emd )
 {
-    wlog::debug( CLASS ) << "CUDA beam() called!";
-    WLTimeProfiler tp( CLASS, "beam" );
+    wlog::debug( CLASS ) << __func__ << "() called!";
+    WLTimeProfiler tp( CLASS, __func__ );
     if( !m_beam )
     {
         throw WPreconditionNotMet( "No weight matrix set!" );
     }
 
-
-
-// Prepare CUDA profiling
+    // Prepare CUDA profiling
     float elapsedTime;
     cudaEvent_t startCalc, stopCalc; // computation time
 
     cudaEventCreate( &startCalc );
     cudaEventCreate( &stopCalc );
 
-
-// Initialize matrix dimensions
+    // Initialize matrix dimensions
     const size_t ROWS_A = m_beam->rows();
     const size_t COLS_A = m_beam->cols();
 
@@ -116,21 +111,18 @@ WLEMDSource::SPtr WBeamformingCuda::beam( WLEMData::ConstSPtr emd )
     const size_t ROWS_E = m_beam->rows();
     const size_t COLS_E = emd->getSamplesPerChan();
 
+    // Prepare pointer for cuBLAS //
+//    const ScalarT* const A_host; Is needed only once
+//    const ScalarT* const B_host = emdData.data();
 
-
-// Prepare pointer for cuBLAS //
-// const ScalarT* const A_host; Is needed only once
-//const ScalarT* const B_host = emdData.data();
-
-// E_host is used for copy out in correct column order: MatrixSPtr == cuBLAS-Matrix
+    // E_host is used for copy out in correct column order: MatrixSPtr == cuBLAS-Matrix
     WLMatrix::SPtr S( new MatrixT( ROWS_E, COLS_E ) );
     ScalarT* E_host = S->data();
 
-//device result
+    // device result
     ScalarT* E_dev;
 
-
-// Copy in
+    // Copy in
     if( m_beam )
     {
         const ScalarT* const A_host = m_beam->data();
@@ -148,7 +140,6 @@ WLEMDSource::SPtr WBeamformingCuda::beam( WLEMData::ConstSPtr emd )
             cudaEventDestroy( stopCalc );
             throw WLBadAllocException( "Could not allocate memory for beam matrix!(m_data)" );
         }
-
 
         if( m_A_dev != NULL )
         {
@@ -169,16 +160,13 @@ WLEMDSource::SPtr WBeamformingCuda::beam( WLEMData::ConstSPtr emd )
 
     CublasSafeCall( cublasAlloc( ROWS_E * COLS_E, sizeof(ScalarT), ( void** )&E_dev ) );
 
-
-// Call cuBLAS kernel //
-// C_dev = 1.0 * A_dev * A_dev.transpose + 0.0 * C_dev
-// S = G * d
+    // Call cuBLAS kernel //
+    // C_dev = 1.0 * A_dev * A_dev.transpose + 0.0 * C_dev
+    // S = G * d
     cudaEventRecord( startCalc, 0 );
-//Multiplikation
-    cublasTgemm< ScalarT >( 'n','n', ROWS_A, COLS_B, COLS_A, 1.0, m_A_dev, ROWS_A, m_B_dev,ROWS_B, 0.0, E_dev, ROWS_E );
+    // Multiplikation
+    cublasTgemm< ScalarT >( 'n', 'n', ROWS_A, COLS_B, COLS_A, 1.0, m_A_dev, ROWS_A, m_B_dev, ROWS_B, 0.0, E_dev, ROWS_E );
     CublasSafeCall( cublasGetError() );
-
-
 
     cudaEventRecord( stopCalc, 0 );
     cudaEventSynchronize( stopCalc );
@@ -187,22 +175,20 @@ WLEMDSource::SPtr WBeamformingCuda::beam( WLEMData::ConstSPtr emd )
     prfMatMul.setMilliseconds( elapsedTime );
     wlprofiler::log() << prfMatMul;
 
-
-
-// Copy out
+    // Copy out
     WLTimeProfiler prfCopyOut( CLASS, "beam_copyOut", false );
     prfCopyOut.start();
     CublasSafeCall( cublasGetMatrix( ROWS_E, COLS_E, sizeof(ScalarT), E_dev, ROWS_E, E_host, ROWS_E ) );
     prfCopyOut.stop();
     wlprofiler::log() << prfCopyOut;
 
-// Clean memory
-// CublasSafeCall( cublasFree( m_A_dev ) ); Is done in destructor
+    // Clean memory
+    // CublasSafeCall( cublasFree( m_A_dev ) ); Is done in destructor
     CublasSafeCall( cublasFree( E_dev ) );
 
     cudaEventDestroy( startCalc );
     cudaEventDestroy( stopCalc );
-//
+
     const WLEMDSource::SPtr emdOut( new WLEMDSource( *emd ) );
     emdOut->setData( S );
 

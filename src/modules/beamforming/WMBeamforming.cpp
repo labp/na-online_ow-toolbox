@@ -24,12 +24,15 @@
 #include <exception>
 #include <string>
 #include <set>
+
 #include <boost/shared_ptr.hpp>
+
 #include <core/common/WItemSelection.h>
 #include <core/common/WItemSelectionItemTyped.h>
 #include <core/common/WPropertyHelper.h>
 #include <core/common/WPathHelper.h>
 #include <core/kernel/WModule.h>
+
 // Input & output data
 #include "core/data/WLDataTypes.h"
 #include "core/data/WLEMMeasurement.h"
@@ -39,39 +42,40 @@
 #include "core/io/WLReaderLeadfield.h"
 #include "core/io/WLReaderMAT.h"
 #include "core/module/WLConstantsModule.h"
-#ifdef FOUND_CUDA
-#include "WBeamformingCuda.h"
-#endif
+
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 #include "core/io/WLWriterMAT.h"
+
 //include Beamforming files
 #include "WBeamforming.h"
 #include "WBeamformingCPU.h"
+#ifdef FOUND_CUDA
+#include "WBeamformingCuda.h"
+#endif
 #include "WMBeamforming.xpm"
 #include "WMBeamforming.h"
-#include <string>
+
 using std::set;
 using WLMatrix::MatrixT;
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMBeamforming )
+
 // Leadfield file status
 static const std::string NO_MATRIX_LOADED = "No matrix loaded.";
 static const std::string LOADING_MATRIX = "Loading matrix ...";
 static const std::string MATRIX_LOADED = "Matrix successfully loaded.";
-/*
 
- //*************************TEST************************************
- static const std::string DATA_NOT_LOADED = "No data loaded.";
- static const std::string DATA_LOADING = "Loading data ...";
- static const std::string DATA_LOADED = "Data successfully loaded.";
- //**********************************************************************
- */
+//*************************TEST************************************
+// static const std::string DATA_NOT_LOADED = "No data loaded.";
+// static const std::string DATA_LOADING = "Loading data ...";
+// static const std::string DATA_LOADED = "Data successfully loaded.";
+//**********************************************************************
+
 WMBeamforming::WMBeamforming()
 {
     m_lastModality = WLEModality::UNKNOWN;
-
 }
 
 WMBeamforming::~WMBeamforming()
@@ -80,27 +84,26 @@ WMBeamforming::~WMBeamforming()
 
 WModule::SPtr WMBeamforming::factory() const
 {
-    return WModule::SPtr( new WMBeamforming() );            //new module
+    return WModule::SPtr( new WMBeamforming() );
 }
 
 const char** WMBeamforming::getXPMIcon() const
 {
-    return XPM_Beam;                                //Bezeichnung in xpm-Datei
+    return module_xpm;
 }
 
 const std::string WMBeamforming::getName() const
 {
-    return WLConstantsModule::NAME_PREFIX + " Beamforming"; //Box : Name NA-ONline: Beamforming
+    return WLConstantsModule::generateModuleName( "Beamforming" );
 }
 
 const std::string WMBeamforming::getDescription() const
 {
-
     return "A general signal processing technique used to control the directionality of the reception "
                     " or transmission of a signal on a transducer array.";
 }
 
-void WMBeamforming::connectors()        //anschlüsse der Modul-Box , ein- und ausgang
+void WMBeamforming::connectors()
 {
     WLModuleDrawable::connectors();
     m_input = WLModuleInputDataRingBuffer< WLEMMCommand >::instance( WLConstantsModule::BUFFER_SIZE, shared_from_this(),
@@ -128,14 +131,14 @@ void WMBeamforming::properties()
     WLModuleDrawable::hideLabelChanged( true );
     WLModuleDrawable::setComputeModalitySelection( WLEModality::valuesLocalizeable() );
     const size_t snr = 0;
-//wait- function
+    // wait- function
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );                      //muss
-//Structure properties with group
+    // Structure properties with group
     m_propGrpBeamforming = m_properties->addPropertyGroup( "Beamforming",                       //beschreibung
                     "Contains properties for Beamforming.", false );
     m_type = WItemSelection::SPtr( new WItemSelection() );
-    std::vector< WBeamforming::WEType::Enum > wEnums = WBeamforming::WEType::values();
-    for( std::vector< WBeamforming::WEType::Enum >::iterator it = wEnums.begin(); it != wEnums.end(); ++it )
+    std::set< WBeamforming::WEType::Enum > wEnums = WBeamforming::WEType::values();
+    for( std::set< WBeamforming::WEType::Enum >::iterator it = wEnums.begin(); it != wEnums.end(); ++it )
     {
         m_type->addItem(
                         WItemSelectionItemTyped< WBeamforming::WEType::Enum >::SPtr(
@@ -146,20 +149,20 @@ void WMBeamforming::properties()
     m_typeSelection = m_propGrpBeamforming->addProperty( "Type", "What kind of beamformer do you want to use",
                     m_type->getSelectorFirst(), m_propCondition );
 
-    /*//read Leadfield,change, properties in control panel
-     m_lfMEGFile = m_propGrpBeamforming->addProperty( "Leadfield MEG file:", "Read a FIFF file containing the leadfield for MEG.",
-     WPathHelper::getHomePath(), m_propCondition );                              //Button zum Leadfield einlesen
-     m_lfMEGFile->changed( true ); */                                                              //select Leadfield
-//read Leadfield,change, properties in control panel
+    // read Leadfield,change, properties in control panel
+//     m_lfMEGFile = m_propGrpBeamforming->addProperty( "Leadfield MEG file:", "Read a FIFF file containing the leadfield for MEG.",
+//     WPathHelper::getHomePath(), m_propCondition );                              //Button zum Leadfield einlesen
+//     m_lfMEGFile->changed( true );                                                           //select Leadfield
+    // read Leadfield,change, properties in control panel
     m_lfEEGFile = m_propGrpBeamforming->addProperty( "Leadfield EEG file:",
                     "Read a Matlab file containing the leadfield for EEG.", WPathHelper::getHomePath(), m_propCondition ); //Button zum Leadfield einlesen
     m_lfEEGFile->changed( true );
 
-// Leadfield properties,display, properties in control panel
+    // Leadfield properties,display, properties in control panel
     m_leadfieldStatus = m_propGrpBeamforming->addProperty( "Leadfield file status:", "Leadfield file status.", NO_MATRIX_LOADED );
     m_leadfieldStatus->setPurpose( PV_PURPOSE_INFORMATION );
 
-    //covariance/csd
+    // covariance/csd
     m_CSDFile = m_propGrpBeamforming->addProperty( "csd or cov file:",
                     "Read a MAT file containing the cross spectral density or covariance.", WPathHelper::getHomePath(),
                     m_propCondition );                              //Button zum Leadfield einlesen
@@ -170,20 +173,19 @@ void WMBeamforming::properties()
     m_reg = m_propGrpBeamforming->addProperty( "reg", "Value for regularization LCMV. For reg=0 -> without regularization.", 0.0,
                     m_propCondition );
 
-//CUDA properties
+    // CUDA properties
     m_useCuda = m_propGrpBeamforming->addProperty( "Use Cuda", "Activate CUDA support.", true, m_propCondition );
     m_useCuda->changed( true );
 #ifndef FOUND_CUDA
     m_useCuda->setHidden( true );
 #endif // FOUND_CUDA
-
 }
 
 void WMBeamforming::moduleInit()
 {
     infoLog() << "Initializing module ...";
 
-// init moduleState for using Events in mainLoop
+    // init moduleState for using Events in mainLoop
     m_moduleState.setResetable( true, true );                   // resetable, autoreset
     m_moduleState.add( m_input->getDataChangedCondition() );    // when inputdata changed
     m_moduleState.add( m_propCondition );                       // when properties changed
@@ -199,8 +201,6 @@ void WMBeamforming::moduleInit()
 
     infoLog() << "Restoring module ...";
 
-    infoLog() << "Restoring module finished!";
-
     if( m_lfEEGFile->changed( true ) )                                                              //Leadfield  File
     {
 
@@ -211,7 +211,7 @@ void WMBeamforming::moduleInit()
         }
     }
 
-//csd/covariance
+    // csd/covariance
     if( m_CSDFile->changed( true ) )                                                          //Leadfield File MATLAB
     {
         handleCSDChanged( m_CSDFile->get().string(), &m_CSD );
@@ -221,12 +221,10 @@ void WMBeamforming::moduleInit()
     handleImplementationChanged();
 
     infoLog() << "Restoring module finished!";
-
 }
 
 void WMBeamforming::moduleMain()
 {
-    debugLog() << "modul main ";
     moduleInit();
     WLEModality::Enum modality = this->getCalculateModality();
     WLEMMCommand::SPtr cmdIn;
@@ -234,7 +232,6 @@ void WMBeamforming::moduleMain()
     {
         if( m_input->isEmpty() )                                         // continue processing if data is available
         {
-            debugLog() << "Waiting for Events";
             m_moduleState.wait();                                       // wait for events like inputdata or properties changed
         }
 
@@ -243,6 +240,7 @@ void WMBeamforming::moduleMain()
         {
             break;                                                      // break mainLoop on shutdown
         }
+
         if( m_useCuda->changed( true ) )
         {
             handleImplementationChanged();
@@ -252,23 +250,20 @@ void WMBeamforming::moduleMain()
         if( !m_input->isEmpty() )
         {
             cmdIn = m_input->getData();
-
         }
 
-        if( m_lfEEGFile->changed( true ) )                                                          //Leadfield File MATLAB
+        if( m_lfEEGFile->changed( true ) )                                                          // Leadfield File MATLAB
         {
             if( handleLfFileChanged( m_lfEEGFile->get().string(), m_leadfieldEEG ) )
             {
                 m_subject->setLeadfield( modality, m_leadfieldEEG );
             }
-
         }
 
-//csd/covariance
-        if( m_CSDFile->changed( true ) )                                                          //Leadfield File MATLAB
+        // csd/covariance
+        if( m_CSDFile->changed( true ) )                                                          // Leadfield File MATLAB
         {
             handleCSDChanged( m_CSDFile->get().string(), &m_CSD );
-
         }
 
         if( m_lastModality != getCalculateModality() )
@@ -290,7 +285,7 @@ void WMBeamforming::moduleMain()
 
 void WMBeamforming::handleImplementationChanged( void )
 {
-    debugLog() << "callbackImplementationChanged() called!";
+    debugLog() << __func__ << "() called!";
 
     if( m_useCuda->get() )
     {
@@ -311,15 +306,15 @@ void WMBeamforming::handleImplementationChanged( void )
 
 void WMBeamforming::handleComputeModalityChanged( WLEMMCommand::ConstSPtr cmd )
 {
-    debugLog() << "handleComputeModalityChanged()";
+    debugLog() << __func__ << "() called!";
 
     m_lastModality = getCalculateModality();
     m_beamforming->reset();
 }
 
-bool WMBeamforming::handleLfFileChanged( std::string fName, WLMatrix::SPtr& lf )            //Read Leadfield FIFF File
+bool WMBeamforming::handleLfFileChanged( std::string fName, WLMatrix::SPtr& lf )            // Read Leadfield FIFF File
 {
-    debugLog() << "handleLfFileChanged()";
+    debugLog() << __func__ << "() called!";
 
     WProgress::SPtr progress( new WProgress( "Reading Leadfield" ) );
     m_progress->addSubProgress( progress );
@@ -351,7 +346,6 @@ bool WMBeamforming::handleLfFileChanged( std::string fName, WLMatrix::SPtr& lf )
 
         return true;
     }
-
     else
     {
         errorLog() << "Could not read leadfield!";
@@ -361,13 +355,12 @@ bool WMBeamforming::handleLfFileChanged( std::string fName, WLMatrix::SPtr& lf )
         m_progress->removeSubProgress( progress );
         return false;
     }
-
 }
 
 //csd/covariance
 bool WMBeamforming::handleCSDChanged( std::string fName, Eigen::MatrixXcd* const csd )            //Read Leadfield FIFF File
 {
-    debugLog() << "handleCSDChanged()";
+    debugLog() << __func__ << "() called!";
 
     WProgress::SPtr progress( new WProgress( "Reading MAT" ) );
     m_progress->addSubProgress( progress );
@@ -417,8 +410,6 @@ bool WMBeamforming::processInit( WLEMMCommand::SPtr cmdIn )
 }
 bool WMBeamforming::processCompute( WLEMMeasurement::SPtr emmIn )
 {
-
-    debugLog() << "received data";
     m_beamforming->setType(
                     m_typeSelection->get().at( 0 )->getAs< WItemSelectionItemTyped< WBeamforming::WEType::Enum > >()->getValue() );
 
@@ -455,7 +446,6 @@ bool WMBeamforming::processCompute( WLEMMeasurement::SPtr emmIn )
     m_output->updateData( cmdOut );
 
     return true;
-
 }
 
 bool WMBeamforming::processReset( WLEMMCommand::SPtr cmdIn )
@@ -464,8 +454,6 @@ bool WMBeamforming::processReset( WLEMMCommand::SPtr cmdIn )
     viewReset();
     m_beamforming->reset();
     m_output->updateData( cmdIn );
-
     return true;
-
 }
 

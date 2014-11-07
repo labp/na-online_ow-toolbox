@@ -37,12 +37,9 @@
 
 #include "core/module/WLEMMCommandProcessor.h"
 #include "core/module/WLModuleDrawable.h"
-
 #include "core/module/WLModuleInputDataRingBuffer.h"
-#include "core/container/WLArrayList.h"
-#include "core/container/WLList.h"
 
-//#include "core/data/WLEMMBemBoundary.h"
+#include "WBeamforming.h"
 
 /**
  * This module implements several onscreen status displays.
@@ -63,50 +60,21 @@ public:
      */
     virtual ~WMBeamforming();
 
-    /**
-     * \par Description
-     * Gives back the name of this module.
-     * \return the module's name.
-     */
     virtual const std::string getName() const;
 
-    /**
-     * \par Description
-     * Gives back a description of this module.
-     * \return description to module.
-     */
     virtual const std::string getDescription() const;
 
-    /**
-     * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
-     * should never be initialized or modified in some other way. A simple new instance is required.
-     *
-     * \return the prototype used to create every module in OpenWalnut.
-     */
     virtual WModule::SPtr factory() const;
 
-    /**
-     * Get the icon for this module in XPM format.
-     */
     virtual const char** getXPMIcon() const;
 
 protected:
     virtual void moduleInit();
 
-    /**
-     * \par Description
-     * Entry point after loading the module. Runs in separate thread.
-     */
     virtual void moduleMain();
 
-    /**
-     * Initialize the connectors this module is using.
-     */
     virtual void connectors();
 
-    /**
-     * Initialize the properties for this module.
-     */
     virtual void properties();
 
     // ----------------------------
@@ -117,11 +85,10 @@ protected:
     virtual bool processReset( WLEMMCommand::SPtr cmdIn );
 
 private:
-
     // Input/Output connector for a EMM dataset
 
     WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input;
-    //kein outputdefinieren, ist in draw definiert, nur den connector setzen
+
     /**
      * A condition used to notify about changes in several properties.
      */
@@ -130,42 +97,37 @@ private:
     WItemSelection::SPtr m_type;
     WPropFilename m_lfEEGFile;
     WPropString m_leadfieldStatus;
-//Leadfield
-    bool handleLfFileChanged( std::string fName, WLMatrix::SPtr& lf );      //Arbeit mit fif/mat File
-    WLEMMSubject::SPtr m_subject;                                           //Leadfield
-    //WLMatrix::SPtr m_leadfieldMEG;                                          //LF Matrix
+    // Leadfield
+    bool handleLfFileChanged( std::string fName, WLMatrix::SPtr& lf );      // Arbeit mit fif/mat File
+    WLEMMSubject::SPtr m_subject;                                           // Leadfield
+//    WLMatrix::SPtr m_leadfieldMEG;                                        // LF Matrix
     WLMatrix::SPtr m_leadfieldEEG;
     WPropSelection m_typeSelection;
 
-//Data covaiance
-//     WPropFilename m_DataFile;
-     WPropString m_DataStatus;
-//     WLMatrix::SPtr m_Data;
-//     bool handleDataChanged( std::string fName, WLMatrix::SPtr& data );
+    // Data covaiance
+//    WPropFilename m_DataFile;
+    WPropString m_DataStatus;
+//    WLMatrix::SPtr m_Data;
+//    bool handleDataChanged( std::string fName, WLMatrix::SPtr& data );
 
+    WPropFilename m_CSDFile;
+    WPropString m_CSDStatus;
+    Eigen::MatrixXcd m_CSD;
+    bool handleCSDChanged( std::string fName, Eigen::MatrixXcd* const csd );
 
-      WPropFilename m_CSDFile;
-      WPropString m_CSDStatus;
-      Eigen::MatrixXcd m_CSD;
-      bool handleCSDChanged( std::string fName, Eigen::MatrixXcd* const csd );
+//    WPropInt m_type;
 
-////Type
-//      WPropInt m_type;
-
-// algorithm properties
+    // algorithm properties
 //    WPropTrigger m_resetModule;
     WBeamforming::SPtr m_beamforming;
 //    void handleResetTrigger();
 
-//Modality
+    // Modality
     WLEModality::Enum m_lastModality;
     void handleComputeModalityChanged( WLEMMCommand::ConstSPtr cmd );
     WPropBool m_useCuda;
     void handleImplementationChanged( void );
     WPropDouble m_reg;
-
-
-
 };
 
-#endif /* WMBEAMFORMING_H_ */
+#endif  // WMBEAMFORMING_H_

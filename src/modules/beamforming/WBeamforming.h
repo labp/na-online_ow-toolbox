@@ -24,10 +24,12 @@
 #ifndef WBEAMFORMING_H_
 #define WBEAMFORMING_H_
 
-
-#include <string>
 #include <set>
+#include <string>
+
 #include <boost/shared_ptr.hpp>
+#include <Eigen/Core>
+
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDSource.h"
 #include "core/data/WLDataTypes.h"
@@ -50,47 +52,39 @@ public:
      */
     typedef boost::shared_ptr< const WBeamforming > ConstSPtr;
 
-   WBeamforming();
- //Beamformer type
     struct WEType
-          {
-              enum Enum
-              {
-                  DICS, LCMV
-              };
+    {
+        enum Enum
+        {
+            DICS, LCMV
+        };
 
-              static std::vector< Enum > values();
+        static std::set< Enum > values();
 
-              static std::string name( Enum value );
-          };
+        static std::string name( Enum value );
+    };
 
+    WBeamforming();
 
     virtual ~WBeamforming();
 
- //Beamformer
-    virtual bool calculateBeamforming(  const WLMatrix::MatrixT& leadfield, const Eigen::MatrixXcd& CSD, double reg);
+    virtual bool calculateBeamforming( const WLMatrix::MatrixT& leadfield, const Eigen::MatrixXcd& CSD, double reg );
 
     bool hasBeam() const;
 
     void setType( WBeamforming::WEType::Enum value );
 
-//reset beamformer
     virtual void reset();
 
-    virtual WLEMDSource::SPtr beam( WLEMData::ConstSPtr emd  )=0;
-
+    virtual WLEMDSource::SPtr beam( WLEMData::ConstSPtr emd ) = 0;
 
 protected:
-
-
-
     WLMatrix::SPtr m_beam;      //Gewichtung
     WLMatrix::SPtr m_leadfield; //Leadfield
     WLMatrix::SPtr m_data;		//Datenmatrix
     WLMatrix::SPtr m_result;    //Egebnis
 
     size_t m_type;
-
 };
 
-#endif /* WBEAMFORMING_H_ */
+#endif  // WBEAMFORMING_H_

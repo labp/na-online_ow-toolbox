@@ -21,15 +21,16 @@
 //
 //---------------------------------------------------------------------------
 
-
 #ifndef WBEAMFORMINGCPU_H_
 #define WBEAMFORMINGCPU_H_
 
-
 #include <string>
+
 #include <boost/shared_ptr.hpp>
+
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDSource.h"
+
 #include "WBeamforming.h"
 
 /**
@@ -53,8 +54,7 @@ public:
     WBeamformingCPU();
     virtual ~WBeamformingCPU();
 
-     WLEMDSource::SPtr beam( WLEMData::ConstSPtr emd   );
-
+    WLEMDSource::SPtr beam( WLEMData::ConstSPtr emd );
 };
 
-#endif /* WBEAMFORMINGCPU_H_ */
+#endif  // WBEAMFORMINGCPU_H_

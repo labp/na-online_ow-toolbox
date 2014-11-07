@@ -22,49 +22,50 @@
 //---------------------------------------------------------------------------
 
 #include <string>
+
 #include <boost/shared_ptr.hpp>
+
 #include <core/common/WLogger.h>
+
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDSource.h"
 #include "core/util/profiler/WLTimeProfiler.h"
-//#include <core/common/exceptions/WPreconditionNotMet.h>
-//#include "core/util/profiler/WLProfilerLogger.h"
-//#include "core/util/profiler/WLTimeProfiler.h"
+
 #include "WBeamformingCPU.h"
 
 using WLMatrix::MatrixT;
+
 const std::string WBeamformingCPU::CLASS = "WBeamformingCPU";
 
 WBeamformingCPU::WBeamformingCPU()
 {
-
 }
 
 WBeamformingCPU::~WBeamformingCPU()
 {
 }
 
-WLEMDSource::SPtr  WBeamformingCPU::beam( WLEMData::ConstSPtr emd  )
+WLEMDSource::SPtr WBeamformingCPU::beam( WLEMData::ConstSPtr emd )
 {
-    wlog::debug( CLASS ) << "CPU called!";
-    WLTimeProfiler prfTime( CLASS, "beam" );
-//m_beam hat Gewichtung Beamformer
-    MatrixT A = emd->getData();
-    MatrixT E=MatrixT::Zero(m_beam->rows(),A.cols());
-    MatrixT D=MatrixT::Zero(m_beam->rows(),A.cols());
-    MatrixT C=MatrixT::Zero(m_beam->rows(),A.cols());
+    wlog::debug( CLASS ) << __func__ << " () called!";
+    WLTimeProfiler prfTime( CLASS, __func__ );
 
-    E= *m_beam* A;        //Matrixmultiplikation Gewichtung und Daten
+    // m_beam hat Gewichtung Beamformer
+    MatrixT A = emd->getData();
+    MatrixT E = MatrixT::Zero( m_beam->rows(), A.cols() );
+    MatrixT D = MatrixT::Zero( m_beam->rows(), A.cols() );
+    MatrixT C = MatrixT::Zero( m_beam->rows(), A.cols() );
+
+    E = *m_beam * A; // Matrixmultiplikation Gewichtung und Daten
 //    E=E.array()*E.array();
 //    C=E.rowwise().sum();
 //    D=C.replicate(1,E.cols());
 
-
-//Ausgabe als Source
-    m_result.reset( new MatrixT(E) );
-    WLEMData::DataSPtr Beam(new WLEMData::DataT (*m_result));
+    // Ausgabe als Source
+    m_result.reset( new MatrixT( E ) );
+    WLEMData::DataSPtr Beam( new WLEMData::DataT( *m_result ) );
     const WLEMDSource::SPtr emdOut( new WLEMDSource( *emd ) );
-    emdOut->setData(Beam);
+    emdOut->setData( Beam );
 
     return emdOut;
 }
