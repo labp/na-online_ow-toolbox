@@ -39,7 +39,6 @@
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDSource.h"
 #include "core/data/enum/WLEModality.h"
-#include "core/io/WLReaderLeadfield.h"
 #include "core/io/WLReaderMAT.h"
 #include "core/module/WLConstantsModule.h"
 
@@ -130,7 +129,7 @@ void WMBeamforming::properties()
     WLModuleDrawable::hideViewModalitySelection( true );
     WLModuleDrawable::hideLabelChanged( true );
     WLModuleDrawable::setComputeModalitySelection( WLEModality::valuesLocalizeable() );
-    const size_t snr = 0;
+
     // wait- function
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );                      //muss
     // Structure properties with group
@@ -148,19 +147,6 @@ void WMBeamforming::properties()
 
     m_typeSelection = m_propGrpBeamforming->addProperty( "Type", "What kind of beamformer do you want to use",
                     m_type->getSelectorFirst(), m_propCondition );
-
-    // read Leadfield,change, properties in control panel
-//     m_lfMEGFile = m_propGrpBeamforming->addProperty( "Leadfield MEG file:", "Read a FIFF file containing the leadfield for MEG.",
-//     WPathHelper::getHomePath(), m_propCondition );                              //Button zum Leadfield einlesen
-//     m_lfMEGFile->changed( true );                                                           //select Leadfield
-    // read Leadfield,change, properties in control panel
-    m_lfEEGFile = m_propGrpBeamforming->addProperty( "Leadfield EEG file:",
-                    "Read a Matlab file containing the leadfield for EEG.", WPathHelper::getHomePath(), m_propCondition ); //Button zum Leadfield einlesen
-    m_lfEEGFile->changed( true );
-
-    // Leadfield properties,display, properties in control panel
-    m_leadfieldStatus = m_propGrpBeamforming->addProperty( "Leadfield file status:", "Leadfield file status.", NO_MATRIX_LOADED );
-    m_leadfieldStatus->setPurpose( PV_PURPOSE_INFORMATION );
 
     // covariance/csd
     m_CSDFile = m_propGrpBeamforming->addProperty( "csd or cov file:",
@@ -183,39 +169,22 @@ void WMBeamforming::properties()
 
 void WMBeamforming::moduleInit()
 {
-    infoLog() << "Initializing module ...";
-
     // init moduleState for using Events in mainLoop
     m_moduleState.setResetable( true, true );                   // resetable, autoreset
     m_moduleState.add( m_input->getDataChangedCondition() );    // when inputdata changed
     m_moduleState.add( m_propCondition );                       // when properties changed
-    m_subject.reset( new WLEMMSubject() );                      //Leadfield
-    m_leadfieldEEG.reset();
 
     ready();                                                        // signal ready state
     waitRestored();
-    WLEModality::Enum modality = this->getCalculateModality();
-    viewInit( WLEMDDrawable2D::WEGraphType::SINGLE );               //view 2D
 
-    infoLog() << "Initializing module finished!";
+    viewInit( WLEMDDrawable2D::WEGraphType::SINGLE );               //view 2D
 
     infoLog() << "Restoring module ...";
 
-    if( m_lfEEGFile->changed( true ) )                                                              //Leadfield  File
-    {
-
-        if( handleLfFileChanged( m_lfEEGFile->get().string(), m_leadfieldEEG ) )
-        {
-//            m_subject->setLeadfield( WLEModality::EEG, m_leadfieldEEG );getCalculateModality();
-            m_subject->setLeadfield( modality, m_leadfieldEEG );
-        }
-    }
-
     // csd/covariance
-    if( m_CSDFile->changed( true ) )                                                          //Leadfield File MATLAB
+    if( m_CSDFile->changed( true ) )
     {
         handleCSDChanged( m_CSDFile->get().string(), &m_CSD );
-
     }
 
     handleImplementationChanged();
@@ -226,7 +195,6 @@ void WMBeamforming::moduleInit()
 void WMBeamforming::moduleMain()
 {
     moduleInit();
-    WLEModality::Enum modality = this->getCalculateModality();
     WLEMMCommand::SPtr cmdIn;
     while( !m_shutdownFlag() )
     {
@@ -245,21 +213,6 @@ void WMBeamforming::moduleMain()
         {
             handleImplementationChanged();
         }
-
-        cmdIn.reset();
-        if( !m_input->isEmpty() )
-        {
-            cmdIn = m_input->getData();
-        }
-
-        if( m_lfEEGFile->changed( true ) )                                                          // Leadfield File MATLAB
-        {
-            if( handleLfFileChanged( m_lfEEGFile->get().string(), m_leadfieldEEG ) )
-            {
-                m_subject->setLeadfield( modality, m_leadfieldEEG );
-            }
-        }
-
         // csd/covariance
         if( m_CSDFile->changed( true ) )                                                          // Leadfield File MATLAB
         {
@@ -268,13 +221,16 @@ void WMBeamforming::moduleMain()
 
         if( m_lastModality != getCalculateModality() )
         {
-            handleComputeModalityChanged( cmdIn );
+            handleComputeModalityChanged();
         }
 
+        cmdIn.reset();
+        if( !m_input->isEmpty() )
+        {
+            cmdIn = m_input->getData();
+        }
         const bool dataValid = ( cmdIn );
-
-        // ---------- INPUTDATAUPDATEEVENT ----------
-        if( dataValid )                                                      // If there was an update on the inputconnector
+        if( dataValid )
         {
             process( cmdIn );
         }
@@ -304,57 +260,12 @@ void WMBeamforming::handleImplementationChanged( void )
     }
 }
 
-void WMBeamforming::handleComputeModalityChanged( WLEMMCommand::ConstSPtr cmd )
+void WMBeamforming::handleComputeModalityChanged()
 {
     debugLog() << __func__ << "() called!";
 
     m_lastModality = getCalculateModality();
     m_beamforming->reset();
-}
-
-bool WMBeamforming::handleLfFileChanged( std::string fName, WLMatrix::SPtr& lf )            // Read Leadfield FIFF File
-{
-    debugLog() << __func__ << "() called!";
-
-    WProgress::SPtr progress( new WProgress( "Reading Leadfield" ) );
-    m_progress->addSubProgress( progress );
-    m_leadfieldStatus->set( LOADING_MATRIX, true );
-
-    WLReaderLeadfield::SPtr reader;  //fif
-    //WLReaderMAT::SPtr reader; //Matlab
-    try
-    {
-        reader.reset( new WLReaderLeadfield( fName ) ); //fif
-        //reader.reset( new WLReaderMAT( fName ) );  //Matlab
-    }
-    catch( const WDHNoSuchFile& e )
-    {
-        errorLog() << "File does not exist: " << fName;
-        progress->finish();
-        m_progress->removeSubProgress( progress );
-        return false;
-    }
-
-    if( reader->read( &lf ) == WLIOStatus::SUCCESS )   //fif
-    //if( reader->readMatrix( lf ) == WLIOStatus::SUCCESS ) //Matlab
-
-    {
-        debugLog() << "read file ";
-        m_leadfieldStatus->set( MATRIX_LOADED, true );
-        progress->finish();
-        m_progress->removeSubProgress( progress );
-
-        return true;
-    }
-    else
-    {
-        errorLog() << "Could not read leadfield!";
-        m_leadfieldStatus->set( NO_MATRIX_LOADED, true );
-        progress->finish();
-
-        m_progress->removeSubProgress( progress );
-        return false;
-    }
 }
 
 bool WMBeamforming::handleCSDChanged( std::string fName, Eigen::MatrixXcd* const csd )
@@ -412,14 +323,22 @@ bool WMBeamforming::processCompute( WLEMMeasurement::SPtr emmIn )
     WLEMData::SPtr eeg = emmIn->getModality( modality );
     if( !m_beamforming->hasBeam() )
     {
-        m_beamforming->calculateBeamforming( *m_leadfieldEEG, m_CSD, m_reg->get() );
+        if( !emmIn->getSubject()->hasLeadfield( modality ) )
+        {
+            errorLog() << "No leadfield available!";
+            return false;
+        }
+        WLMatrix::ConstSPtr lf = emmIn->getSubject()->getLeadfield( modality );
+        if( !m_beamforming->calculateBeamforming( *lf, m_CSD, m_reg->get() ) )
+        {
+            errorLog() << "Could not prepare beamformer!";
+            return false;
+        }
     }
-    WLEMMeasurement::SPtr emmOut;
 
     WLEMDSource::SPtr sourceOut;
     try
     {
-
         sourceOut = m_beamforming->beam( emmIn->getModality( modality ) );
     }
     catch( const std::exception& e )
@@ -428,13 +347,12 @@ bool WMBeamforming::processCompute( WLEMMeasurement::SPtr emmIn )
         return false;
     }
 
-    emmOut = emmIn->clone();
-
+    WLEMMeasurement::SPtr emmOut = emmIn->clone();
     emmOut->addModality( emmIn->getModality( modality ) );
     emmOut->addModality( sourceOut );
-    infoLog() << "Matrix: " << sourceOut->getNrChans() << " x " << sourceOut->getSamplesPerChan();
+    debugLog() << "Matrix: " << sourceOut->getNrChans() << " x " << sourceOut->getSamplesPerChan();
 
-    viewUpdate( emmOut );                                                                                //IMMER -bis true
+    viewUpdate( emmOut );
 
     WLEMMCommand::SPtr cmdOut = WLEMMCommand::instance( WLEMMCommand::Command::COMPUTE );
     cmdOut->setEmm( emmOut );
@@ -451,4 +369,3 @@ bool WMBeamforming::processReset( WLEMMCommand::SPtr cmdIn )
     m_output->updateData( cmdIn );
     return true;
 }
-

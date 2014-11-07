@@ -95,13 +95,6 @@ private:
     WCondition::SPtr m_propCondition;
     WPropGroup m_propGrpBeamforming;
     WItemSelection::SPtr m_type;
-    WPropFilename m_lfEEGFile;
-    WPropString m_leadfieldStatus;
-    // Leadfield
-    bool handleLfFileChanged( std::string fName, WLMatrix::SPtr& lf );      // Arbeit mit fif/mat File
-    WLEMMSubject::SPtr m_subject;                                           // Leadfield
-//    WLMatrix::SPtr m_leadfieldMEG;                                        // LF Matrix
-    WLMatrix::SPtr m_leadfieldEEG;
     WPropSelection m_typeSelection;
 
     // Data covaiance
@@ -124,7 +117,7 @@ private:
 
     // Modality
     WLEModality::Enum m_lastModality;
-    void handleComputeModalityChanged( WLEMMCommand::ConstSPtr cmd );
+    void handleComputeModalityChanged();
     WPropBool m_useCuda;
     void handleImplementationChanged( void );
     WPropDouble m_reg;
