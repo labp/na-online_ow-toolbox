@@ -35,7 +35,6 @@
 #include "WMFiffDataAppender.h"
 #include "WMFiffDataAppender.xpm"
 
-
 W_LOADABLE_MODULE( WMFiffDataAppender )
 
 static const std::string DATA_NOT_LOADED = "No data loaded.";
@@ -123,6 +122,28 @@ void WMFiffDataAppender::moduleInit()
 
     ready(); // signal ready state
     waitRestored();
+
+    infoLog() << "Restoring module ...";
+
+    if( m_srcSpaceFile->changed( true ) )
+    {
+        hdlSurfaceFileChanged( m_srcSpaceFile->get().string() );
+    }
+    if( m_bemFile->changed( true ) )
+    {
+        hdlBemFileChanged( m_bemFile->get().string() );
+    }
+
+    if( m_lfEEGFile->changed( true ) )
+    {
+        hdlLeadfieldFileChanged( &m_leadfieldEEG, m_lfEEGFile->get().string() );
+    }
+    if( m_lfMEGFile->changed( true ) )
+    {
+        hdlLeadfieldFileChanged( &m_leadfieldMEG, m_lfMEGFile->get().string() );
+    }
+
+    infoLog() << "Restoring module finished!";
 }
 
 void WMFiffDataAppender::moduleMain()
@@ -291,15 +312,23 @@ void WMFiffDataAppender::cbReset()
     debugLog() << __func__ << "() called!";
 
     m_surface.reset();
+    m_srcSpaceFile->set( WPathHelper::getHomePath().string(), true );
+    m_srcSpaceFile->changed( true );
 
     if( m_bems )
     {
         m_bems->clear();
         m_bems.reset();
     }
+    m_bemFile->set( WPathHelper::getHomePath().string(), true );
+    m_bemFile->changed( true );
 
     m_leadfieldEEG.reset();
     m_leadfieldMEG.reset();
+    m_lfEEGFile->set( WPathHelper::getHomePath().string(), true );
+    m_lfEEGFile->changed( true );
+    m_lfMEGFile->set( WPathHelper::getHomePath().string(), true );
+    m_lfMEGFile->changed( true );
 
     m_propStatus->set( DATA_NOT_LOADED, true );
     m_trgReset->set( WPVBaseTypes::PV_TRIGGER_READY, true );
