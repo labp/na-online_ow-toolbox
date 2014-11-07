@@ -33,24 +33,8 @@ GET_FILENAME_COMPONENT( MODULE_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME )
 # --------------------------------------------------------------------------------------------------------------------------------
 
 # --------------------------------------------------------------------------------------------------------------------------------
-# Add static Qt5 for MNE Library
-# --------------------------------------------------------------------------------------------------------------------------------
-# NOTE: Need of static linking due to conflicts with Qt4 of OpenWalnut (runtime error).
-# NOTE: Order of Qt5 static libs is important. Wrong order can produce undefined references and symbols!
-
-FIND_PACKAGE( Qt5Static REQUIRED )
-INCLUDE_DIRECTORIES( ${QT5_INCLUDE_DIR} )
-INCLUDE_DIRECTORIES( ${QT5_QTCORE_INCLUDE_DIR} )
-INCLUDE_DIRECTORIES( ${QT5_QTNETWORK_INCLUDE_DIR} )
-LINK_DIRECTORIES( ${QT5_STATIC_LIBRARY_DIR} )
-LIST( APPEND ADDITIONAL_LIBS ${QT5_STATIC_QTNETWORK_LIBRARY} ${QT5_STATIC_QTCORE_LIBRARY} )
-# Libraries needed due to Qt5 static linking
-LIST( APPEND ADDITIONAL_LIBS pthread rt z icudata icui18n icuuc dl )
-
-
-# -----------------------------------------------------------------------------------------------------------------------------------------------
 # Add CUDA libraries
-# -----------------------------------------------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------------------------------------
 
 IF( CUDA_FOUND AND OW_USE_CUDA )
 	ADD_DEFINITIONS( -DFOUND_CUDA )
@@ -61,26 +45,86 @@ ENDIF()
 # Remove CUDA files in SETUP_MODULE
 
 
-# -----------------------------------------------------------------------------------------------------------------------------------------------
-# Add MNE Library for FIFF reader
-# -----------------------------------------------------------------------------------------------------------------------------------------------
-# NOTE: Order of static libs is important. Wrong order can produce undefined references and symbols!
-
-FIND_PACKAGE( MNE REQUIRED )
-INCLUDE_DIRECTORIES( ${MNE_INCLUDE_DIR} )
-LINK_DIRECTORIES( ${MNE_LIBRARY_DIR} )
-LIST( APPEND ADDITIONAL_LIBS ${MNE_FIFF_LIBRARY} ${MNE_LIBRARY} ${MNE_UTILS_LIBRARY} ${MNE_FS_LIBRARY} )
-
-
-
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------------------------------------
 # Setup for compilation
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------------------------------------
 
-# Let this function do the job. It sets up tests and copies shaders automatically. It additionally configures the stylecheck mechanism for this
-# module.
-SETUP_MODULE( ${MODULE_NAME}                # name of the module
-             "${CMAKE_CURRENT_SOURCE_DIR}"  # where to find the source ${CMAKE_CURRENT_SOURCE_DIR} is a good idea here mostly
-             "${ADDITIONAL_LIBS}"           # does your module need additional libs to compile?
-             ""                             # do you want to exclude files from stylechecking? (externals for example)
+# Copy of SETUP_MODULE due to delete CUDA files #
+# Set function arguments instead of calling function
+SET( _MODULE_NAME ${MODULE_NAME} )
+SET( _MODULE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR} )
+SET( _MODULE_DEPENDENCIES ${ADDITIONAL_LIBS} )
+SET( _MODULE_STYLE_EXCLUDES "")
+
+
+# --------------------------------------------------------------------------------------------------------------------------------
+# Some common setup
+# --------------------------------------------------------------------------------------------------------------------------------
+
+# setup the target directories and names
+SET( MODULE_NAME ${_MODULE_NAME} )
+SET( MODULE_TARGET_DIR_RELATIVE ${OW_MODULE_DIR_RELATIVE}/${MODULE_NAME} )
+SET( MODULE_TARGET_RESOURCE_DIR_RELATIVE ${OW_SHARE_DIR_RELATIVE}/modules/${MODULE_NAME} )
+SET( MODULE_TARGET_DIR ${PROJECT_BINARY_DIR}/${MODULE_TARGET_DIR_RELATIVE} )
+SET( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${MODULE_TARGET_DIR} )
+SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${MODULE_TARGET_DIR} )
+SET( MODULE_SOURCE_DIR ${_MODULE_SOURCE_DIR} )
+
+
+# --------------------------------------------------------------------------------------------------------------------------------
+# Add sources as target
+# --------------------------------------------------------------------------------------------------------------------------------
+
+# Collect the compile-files for this target
+COLLECT_COMPILE_FILES( "${MODULE_SOURCE_DIR}" TARGET_CPP_FILES TARGET_H_FILES TARGET_TEST_FILES )
+# Remove CUDA files
+IF( NOT CUDA_FOUND OR NOT OW_USE_CUDA )
+    # Remove files which contain CUDA stuff
+    LIST( REMOVE_ITEM TARGET_H_FILES ${CMAKE_CURRENT_SOURCE_DIR}/WBeamformingCuda.h )
+    LIST( REMOVE_ITEM TARGET_CPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/WBeamformingCuda.cpp )
+ENDIF()
+
+# Setup the target
+ADD_LIBRARY( ${MODULE_NAME} SHARED ${TARGET_CPP_FILES} ${TARGET_H_FILES} )
+TARGET_LINK_LIBRARIES( ${MODULE_NAME} ${CMAKE_STANDARD_LIBRARIES} ${OW_LIB_OPENWALNUT} ${Boost_LIBRARIES} ${OPENGL_gl_LIBRARY} ${OPENSCENEGRAPH_LIBRARIES} ${_MODULE_DEPENDENCIES} )
+
+# Set the version of the library.
+SET_TARGET_PROPERTIES( ${MODULE_NAME} PROPERTIES
+    VERSION ${OW_LIB_VERSION}
+    SOVERSION ${OW_SOVERSION}
 )
+
+# Do not forget the install targets
+SETUP_LIB_INSTALL( ${MODULE_NAME} ${MODULE_TARGET_DIR_RELATIVE} "MODULES" )
+
+
+# --------------------------------------------------------------------------------------------------------------------------------
+# Test Setup
+# --------------------------------------------------------------------------------------------------------------------------------
+
+# Setup tests of this target
+SETUP_TESTS( "${TARGET_TEST_FILES}" "${MODULE_NAME}" "${_MODULE_DEPENDENCIES}" )
+
+
+# --------------------------------------------------------------------------------------------------------------------------------
+# Copy Shaders
+# --------------------------------------------------------------------------------------------------------------------------------
+
+COLLECT_SHADER_FILES( ${MODULE_SOURCE_DIR} TARGET_GLSL_FILES )
+SETUP_SHADERS( "${TARGET_GLSL_FILES}" "${MODULE_TARGET_RESOURCE_DIR_RELATIVE}/shaders" "MODULES" )
+
+
+# --------------------------------------------------------------------------------------------------------------------------------
+# Copy Additional Resources
+# --------------------------------------------------------------------------------------------------------------------------------
+SETUP_RESOURCES_GENERIC( "${MODULE_SOURCE_DIR}/resources" ${MODULE_TARGET_RESOURCE_DIR_RELATIVE} "${_MODULE_NAME}" "MODULES" )
+
+
+# --------------------------------------------------------------------------------------------------------------------------------
+# Style Checker
+# --------------------------------------------------------------------------------------------------------------------------------
+
+# setup the stylechecker. Ignore the platform specific stuff.
+SETUP_STYLECHECKER( "${MODULE_NAME}"
+                    "${TARGET_CPP_FILES};${TARGET_H_FILES};${TARGET_TEST_FILES};${TARGET_GLSL_FILES}"  # add all these files to the stylechecker
+                    "${_MODULE_STYLE_EXCLUDES}" )                                                      # exlude some ugly files
