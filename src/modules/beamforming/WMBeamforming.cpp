@@ -357,8 +357,7 @@ bool WMBeamforming::handleLfFileChanged( std::string fName, WLMatrix::SPtr& lf )
     }
 }
 
-//csd/covariance
-bool WMBeamforming::handleCSDChanged( std::string fName, Eigen::MatrixXcd* const csd )            //Read Leadfield FIFF File
+bool WMBeamforming::handleCSDChanged( std::string fName, Eigen::MatrixXcd* const csd )
 {
     debugLog() << __func__ << "() called!";
 
@@ -366,10 +365,10 @@ bool WMBeamforming::handleCSDChanged( std::string fName, Eigen::MatrixXcd* const
     m_progress->addSubProgress( progress );
     m_CSDStatus->set( LOADING_MATRIX, true );
 
-    WLReaderMAT::SPtr reader; //Matlab
+    WLReaderMAT::SPtr reader; // Matlab
     try
     {
-        reader.reset( new WLReaderMAT( fName ) );  //Matlab
+        reader.reset( new WLReaderMAT( fName ) );
     }
     catch( const WDHNoSuchFile& e )
     {
@@ -379,28 +378,24 @@ bool WMBeamforming::handleCSDChanged( std::string fName, Eigen::MatrixXcd* const
         return false;
     }
 
-    // FIXME(ehrlich): Use new impl. from default branch.
-    return false;
-//    if( reader->readMatrixComplex( csd ) == WLIOStatus::SUCCESS ) //Matlab
-//
-//    {
-//        debugLog() << "read file ";
-//        m_CSDStatus->set( MATRIX_LOADED, true );
-//        progress->finish();
-//        m_progress->removeSubProgress( progress );
-//
-//        return true;
-//    }
-//
-//    else
-//    {
-//        errorLog() << "Could not read leadfield!";
-//        m_CSDStatus->set( NO_MATRIX_LOADED, true );
-//        progress->finish();
-//
-//        m_progress->removeSubProgress( progress );
-//        return false;
-//    }
+    if( reader->read( csd ) == WLIOStatus::SUCCESS )
+    {
+        debugLog() << "read file ";
+        m_CSDStatus->set( MATRIX_LOADED, true );
+        progress->finish();
+        m_progress->removeSubProgress( progress );
+
+        return true;
+    }
+    else
+    {
+        errorLog() << "Could not read leadfield!";
+        m_CSDStatus->set( NO_MATRIX_LOADED, true );
+        progress->finish();
+
+        m_progress->removeSubProgress( progress );
+        return false;
+    }
 }
 
 bool WMBeamforming::processInit( WLEMMCommand::SPtr cmdIn )
