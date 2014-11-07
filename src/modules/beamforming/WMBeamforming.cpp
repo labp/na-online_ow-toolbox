@@ -147,6 +147,9 @@ void WMBeamforming::properties()
 
     m_typeSelection = m_propGrpBeamforming->addProperty( "Type", "What kind of beamformer do you want to use",
                     m_type->getSelectorFirst(), m_propCondition );
+    // Be sure it is at least one selected, but not more than one
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_typeSelection );
+    WPropertyHelper::PC_NOTEMPTY::addTo( m_typeSelection );
 
     // covariance/csd
     m_CSDFile = m_propGrpBeamforming->addProperty( "csd or cov file:",
