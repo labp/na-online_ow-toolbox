@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -38,7 +37,6 @@
 class WFTData: public WFTRequestableObject
 {
 public:
-
     /**
      * A shared pointer on a WFTData.
      */
@@ -52,9 +50,9 @@ public:
     /**
      * Constructs a WFTData object with the given meat information.
      *
-     * @param numChannels The number of channels.
-     * @param numSamples The number of samples.
-     * @param dataType The used data type.
+     * \param numChannels The number of channels.
+     * \param numSamples The number of samples.
+     * \param dataType The used data type.
      */
     WFTData( UINT32_T numChannels, UINT32_T numSamples, UINT32_T dataType );
 
@@ -66,29 +64,29 @@ public:
     /**
      * Inherit from WFTRequestableObject.
      *
-     * @return Returns the object as Put-request.
+     * \return Returns the object as Put-request.
      */
     WFTRequest::SPtr asRequest();
 
     /**
      * Inherit from WFTRequestableObject.
      *
-     * @param The response object.
-     * @return Returns whether the parsing was successful.
+     * \param The response object.
+     * \return Returns whether the parsing was successful.
      */
     bool parseResponse( WFTResponse::SPtr );
 
     /**
      * Inherit from WFTObject.
      *
-     * @return Returns the whole object size including the meta information.
+     * \return Returns the whole object size including the meta information.
      */
     UINT32_T getSize() const;
 
     /**
      * Gets a reference on the fixed meta information part.
      *
-     * @return Returns a reference on a WFTDataDefT object.
+     * \return Returns a reference on a WFTDataDefT object.
      */
     WFTDataDefT& getDataDef();
 
@@ -100,7 +98,7 @@ public:
     /**
      * Gets whether the stored data has to convert manually into the wished data type.
      *
-     * @return Returns true if there is the data type T already, else false.
+     * \return Returns true if there is the data type T already, else false.
      */
     template< typename T >
     bool needDataToConvert();
@@ -108,17 +106,16 @@ public:
     /**
      * This method is used to convert the data of @src into the data type T pointing @dest to.
      *
-     * @param dest The destination storage.
-     * @param src The source storage.
-     * @param nsamp The number of samples in @src.
-     * @param nchans The number of channels in @src.
-     * @param dataType The FieldTrip data type @src uses.
+     * \param dest The destination storage.
+     * \param src The source storage.
+     * \param nsamp The number of samples in @src.
+     * \param nchans The number of channels in @src.
+     * \param dataType The FieldTrip data type @src uses.
      */
     template< typename T >
     void convertData( T *dest, const void *src, unsigned int nsamp, unsigned int nchans, UINT32_T dataType );
 
 protected:
-
     /**
      * The fixed meta information.
      */
@@ -130,19 +127,17 @@ protected:
     SimpleStorage m_buf;
 
 private:
-
     /**
      * Method for simple converting data from @src to @dest using a basic type cast to DestT.
      * The function will be called from convertData().
      *
-     * @param dest The destination storage.
-     * @param src The source storage.
-     * @param nsamp The number of samples in @src.
-     * @param nchans The number of channels in @src.
+     * \param dest The destination storage.
+     * \param src The source storage.
+     * \param nsamp The number of samples in @src.
+     * \param nchans The number of channels in @src.
      */
     template< typename DestT, typename SrcT >
     void convertToTargetType( DestT *dest, const void *src, unsigned int nsamp, unsigned int nchans );
-
 };
 
 template< typename T >
@@ -150,12 +145,12 @@ inline bool WFTData::needDataToConvert()
 {
     if( typeid(T) == typeid(float) )
     {
-        return getDataDef().data_type != DATATYPE_FLOAT32 ;
+        return getDataDef().data_type != DATATYPE_FLOAT32;
     }
     else
         if( typeid(T) == typeid(double) )
         {
-            return getDataDef().data_type != DATATYPE_FLOAT64 ;
+            return getDataDef().data_type != DATATYPE_FLOAT64;
         }
 
     return true;
@@ -214,4 +209,4 @@ inline void WFTData::convertToTargetType( DestT* dest, const void* src, unsigned
     }
 }
 
-#endif /* WFTDATA_H_ */
+#endif  // WFTDATA_H_

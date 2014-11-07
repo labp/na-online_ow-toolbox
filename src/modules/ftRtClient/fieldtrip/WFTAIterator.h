@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -37,14 +36,13 @@ template< typename T >
 class WFTAIterator
 {
 public:
-
     /**
      * Constructs a new WFTAIterator.
      *
-     * @param buf The memory area to iterate.
-     * @param size The size of the memory area.
+     * \param buf The memory area to iterate.
+     * \param size The size of the memory area.
      */
-    WFTAIterator( SimpleStorage& buf, int size );
+    WFTAIterator( SimpleStorage* const buf, int size );
 
     /**
      * Destroys the WFTAIterator.
@@ -54,7 +52,7 @@ public:
     /**
      * Indicates whether more data objects exist in the storage.
      *
-     * @return Returns true if there is another data object, else false.
+     * \return Returns true if there is another data object, else false.
      */
     virtual bool hasNext() const = 0;
 
@@ -66,16 +64,15 @@ public:
     /**
      * Returns the next data object in the storage as shared pointer.
      *
-     * @return The next data object.
+     * \return The next data object.
      */
     virtual boost::shared_ptr< T > getNext() = 0;
 
 protected:
-
     /**
-     * A reference on a memory area containing the data after initializing.
+     * A pointer on a memory area containing the data after initializing.
      */
-    SimpleStorage &m_store;
+    SimpleStorage* const m_store;
 
     /**
      * Defines the iterators position inside of the data storage.
@@ -86,11 +83,10 @@ protected:
      * Contains the memory size of the data storage.
      */
     int m_pos;
-
 };
 
 template< typename T >
-inline WFTAIterator< T >::WFTAIterator( SimpleStorage &buf, int size ) :
+inline WFTAIterator< T >::WFTAIterator( SimpleStorage* const buf, int size ) :
                 m_store( buf ), m_size( size ), m_pos( 0 )
 {
 }
@@ -106,4 +102,4 @@ inline void WFTAIterator< T >::reset()
     m_pos = 0;
 }
 
-#endif /* WFTAITERATOR_H_ */
+#endif  // WFTAITERATOR_H_

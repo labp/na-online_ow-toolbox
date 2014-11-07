@@ -1,28 +1,28 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
 #include <fstream>
+#include <list>
 #include <map>
 #include <string>
 #include <stdio.h>
@@ -49,7 +49,6 @@ WThresholdParser::WThresholdParser()
 
 WThresholdParser::~WThresholdParser()
 {
-
 }
 
 bool WThresholdParser::parse( std::string fname )
@@ -101,7 +100,6 @@ bool WThresholdParser::parse( std::string fname )
 
                     WThreshold threshold( m_patterns->at( label ), ::atof( value.c_str() ) );
                     m_list->push_back( threshold ); // add threshold to the list
-
                 }
             }
         }
@@ -112,7 +110,7 @@ bool WThresholdParser::parse( std::string fname )
 
         fstream.close();
     }
-    catch( std::exception& e )
+    catch( const std::exception& e )
     {
         fstream.close();
 
@@ -129,7 +127,7 @@ void WThresholdParser::init()
 
 bool WThresholdParser::isValidLine( std::string line )
 {
-    BOOST_FOREACH(ModiMap::value_type it , *m_patterns.get())
+    BOOST_FOREACH( ModiMap::value_type it , *m_patterns.get() )
     {
         if( line.find( it.first ) != std::string::npos )
         {

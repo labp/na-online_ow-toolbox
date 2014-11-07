@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -26,6 +25,7 @@
 #define WFTHEADER_H_
 
 #include <ostream>
+#include <string>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
@@ -41,9 +41,7 @@
  */
 class WFTHeader: public WFTRequestableObject
 {
-
 public:
-
     /**
      * A shared pointer on a WFTHeader.
      */
@@ -62,9 +60,9 @@ public:
     /**
      * Constructor to create a new header structure.
      *
-     * @param numChannels The number of channels.
-     * @param dataType The used data type in the data buffer. The parameters data type is defined by the FieldTrip buffer protocol.
-     * @param fsample The sample frequency.
+     * \param numChannels The number of channels.
+     * \param dataType The used data type in the data buffer. The parameters data type is defined by the FieldTrip buffer protocol.
+     * \param fsample The sample frequency.
      */
     WFTHeader( UINT32_T numChannels, UINT32_T dataType, float fsample );
 
@@ -76,31 +74,31 @@ public:
     /**
      * Method to initialize the WFTHeader during constructor call.
      *
-     * @param numChannels The number of channels.
-     * @param dataType The used data type in the data buffer. The parameters data type is defined by the FieldTrip buffer protocol.
-     * @param fsample The sample frequency.
+     * \param numChannels The number of channels.
+     * \param dataType The used data type in the data buffer. The parameters data type is defined by the FieldTrip buffer protocol.
+     * \param fsample The sample frequency.
      */
     void init( UINT32_T numChannels, UINT32_T dataType, float fsample );
 
     /**
      * Inherited form WFTRequestableObject.
      *
-     * @return The header as request object.
+     * \return The header as request object.
      */
     WFTRequest::SPtr asRequest();
 
     /**
      * Inherited form WFTRequestableObject.
      *
-     * @param response The FieldTrip response to parse.
-     * @return Returns true if the parsing was successful, else false.
+     * \param response The FieldTrip response to parse.
+     * \return Returns true if the parsing was successful, else false.
      */
     bool parseResponse( WFTResponse::SPtr response );
 
     /**
      * Inherited form WFTObject.
      *
-     * @return Returns the amount of memory allocated by the header including the size of the chunk list.
+     * \return Returns the amount of memory allocated by the header including the size of the chunk list.
      */
     UINT32_T getSize() const;
 
@@ -114,36 +112,36 @@ public:
     /**
      * Returns the header structure.
      *
-     * @return The header structure.
+     * \return The header structure.
      */
     WFTHeaderDefT getHeaderDef() const;
 
     /**
      * Returns whether or not the header has chunks in its buffer.
      *
-     * @return Returns true if there are chunks, else false.
+     * \return Returns true if there are chunks, else false.
      */
     bool hasChunks() const;
 
     /**
      * Returns whether or not the header has chunks of a specific chunk type in its buffer.
      *
-     * @param chunkType The chunk type to filter.
-     * @return Returns true if there are chunks kind of the @chunkType, else false.
+     * \param chunkType The chunk type to filter.
+     * \return Returns true if there are chunks kind of the @chunkType, else false.
      */
     bool hasChunk( WLEFTChunkType::Enum chunkType ) const;
 
     /**
      * Add a new chunk to the headers chunk list.
      *
-     * @param chunk The new chunk.
+     * \param chunk The new chunk.
      */
     void addChunk( WFTAChunk::SPtr chunk );
 
     /**
      * Returns the chunks collection as shared pointer.
      *
-     * @return A pointer on the chunk list.
+     * \return A pointer on the chunk list.
      */
     WFTChunkList::ConstSPtr getChunks() const;
 
@@ -151,13 +149,12 @@ public:
      * Returns the chunks collection filtered for a specific @chunkType as shared pointer.
      * The returned pointers target is just a copy of the original collection.
      *
-     * @param chunkType The chunk type.
-     * @return A pointer on the chunk list.
+     * \param chunkType The chunk type.
+     * \return A pointer on the chunk list.
      */
     WFTChunkList::SPtr getChunks( WLEFTChunkType::Enum chunkType );
 
 protected:
-
     /**
      * The definition part of the header.
      */
@@ -167,7 +164,6 @@ protected:
      * A list of chunk objects. It is used during request serializing.
      */
     boost::shared_ptr< WFTChunkList > m_chunks;
-
 };
 
 inline std::ostream& operator<<( std::ostream& str, const WFTHeader& header )
@@ -184,4 +180,4 @@ inline std::ostream& operator<<( std::ostream& str, const WFTHeader& header )
     return str;
 }
 
-#endif /* WFTHEADER_H_ */
+#endif  // WFTHEADER_H_

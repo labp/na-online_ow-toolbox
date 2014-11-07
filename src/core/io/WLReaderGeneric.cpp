@@ -21,33 +21,4 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef PACKETIZEREMM_H_
-#define PACKETIZEREMM_H_
-
-#include <string>
-
-#include "core/data/WLEMMeasurement.h"
-
-#include "WPacketizer.h"
-
-class WPacketizerEMM: public WPacketizer< WLEMMeasurement >
-{
-public:
-    static const std::string CLASS;
-
-    WPacketizerEMM( WLEMMeasurement::ConstSPtr data, size_t blockSize );
-    virtual ~WPacketizerEMM();
-
-    virtual bool hasNext() const;
-
-    virtual WLEMMeasurement::SPtr next();
-
-private:
-    std::vector< WLEMData::ConstSPtr > m_emds;
-    boost::shared_ptr< WLEMMeasurement::EDataT > m_events;
-
-    size_t m_blockCount;
-    bool m_hasData;
-};
-
-#endif  // PACKETIZEREMM_H_
+#include "WLReaderGeneric.h"

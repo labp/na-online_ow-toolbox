@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -64,17 +63,17 @@ public:
     /**
      * Creates an instance for the requested parameters.
      *
-     * @param widget widget to fill.
-     * @param modality modality to draw.
+     * \param widget widget to fill.
+     * \param modality modality to draw.
      *
-     * @return Instance of a WLEMDDrawable3D implementation.
+     * \return Instance of a WLEMDDrawable3D implementation.
      */
     static WLEMDDrawable3D::SPtr getInstance( WUIViewWidget::SPtr widget, WLEModality::Enum modality );
 
     /**
      * Constructor.
      *
-     * @param widget
+     * \param widget
      */
     explicit WLEMDDrawable3D( WUIViewWidget::SPtr m_widget );
 
@@ -90,7 +89,7 @@ public:
     /**
      * Gets selected sample/index.
      *
-     * @return sample index
+     * \return sample index
      */
     virtual ptrdiff_t getSelectedSample() const;
 
@@ -106,15 +105,15 @@ public:
     /**
      * Returns the color map for the surface.
      *
-     * @return Color map which is used.
+     * \return Color map which is used.
      */
-    virtual LaBP::WLColorMap::SPtr getColorMap() const;
+    virtual WLColorMap::SPtr getColorMap() const;
 
     /**
      * Sets the color map to use fpr the surface.
-     * @param colorMap
+     * \param colorMap
      */
-    virtual void setColorMap( LaBP::WLColorMap::SPtr colorMap );
+    virtual void setColorMap( WLColorMap::SPtr colorMap );
 
 protected:
     virtual bool mustDraw() const;
@@ -141,7 +140,7 @@ protected:
      */
     bool m_selectedSampleChanged;
 
-    LaBP::WLColorMap::SPtr m_colorMap;
+    WLColorMap::SPtr m_colorMap;
 
     bool m_surfaceChanged;
 

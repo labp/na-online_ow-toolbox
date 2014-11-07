@@ -1,28 +1,27 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
-#include "core/common/WLogger.h"
+#include <string>
 
 #include "dataTypes/WFTObject.h"
 #include "dataTypes/enum/WLEFTDataType.h"
@@ -31,14 +30,14 @@
 
 const std::string WFTEventIterator::CLASS = "WFTEventIterator";
 
-WFTEventIterator::WFTEventIterator( SimpleStorage& buf, int size ) :
+WFTEventIterator::WFTEventIterator( SimpleStorage* const buf, int size ) :
                 WFTAIterator< WFTEvent >::WFTAIterator( buf, size )
 {
 }
 
 bool WFTEventIterator::hasNext() const
 {
-    return m_pos + ( int )sizeof(WFTEventDefT) < m_size;
+    return m_pos + ( int )sizeof( WFTEventDefT ) < m_size;
 }
 
 WFTEvent::SPtr WFTEventIterator::getNext()
@@ -48,11 +47,11 @@ WFTEvent::SPtr WFTEventIterator::getNext()
         return WFTEvent::SPtr();
     }
 
-    WFTEventDefT *def = ( WFTEventDefT * )( ( char * )m_store.data() + m_pos );
+    WFTEventDefT *def = ( WFTEventDefT * )( ( char * )m_store->data() + m_pos );
     unsigned int wsType, wsValue;
 
     // test whether the events is included completely
-    if( m_pos + ( int )( sizeof(WFTEventDefT) + def->bufsize ) > m_size )
+    if( m_pos + ( int )( sizeof( WFTEventDefT ) + def->bufsize ) > m_size )
     {
         return WFTEvent::SPtr();
     }
@@ -64,13 +63,13 @@ WFTEvent::SPtr WFTEventIterator::getNext()
     uint lenType = wsType * def->type_numel;
     uint lenValue = wsValue * def->value_numel;
     // create pointers to types and values location.
-    const char *srcType = ( ( const char* )m_store.data() ) + m_pos + sizeof(WFTEventDefT);
+    const char *srcType = ( ( const char* )m_store->data() ) + m_pos + sizeof( WFTEventDefT );
     const char *srcValue = srcType + lenType;
 
     std::string type( srcType, lenType );
     std::string value( srcValue, lenValue );
 
-    m_pos += sizeof(WFTEventDefT) + def->bufsize; // increase the position to the next event.
+    m_pos += sizeof( WFTEventDefT ) + def->bufsize; // increase the position to the next event.
 
     return WFTEvent::SPtr( new WFTEvent( *def, type, value ) ); // create the event object and return.
 }

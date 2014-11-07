@@ -1,29 +1,29 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
 #include <cmath>
 #include <set>
+#include <string>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
@@ -58,17 +58,15 @@
 
 #include "WLReaderFIFF.h"
 
-using namespace LaBP;
-
 const std::string WLReaderFIFF::CLASS = "WLReaderFIFF";
 
 WLReaderFIFF::WLReaderFIFF( std::string fname ) :
-                WLReader( fname )
+                WLReaderGeneric< WLEMMeasurement::SPtr >( fname )
 {
     wlog::debug( CLASS ) << "file: " << fname;
 }
 
-WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
+WLIOStatus::IOStatusT WLReaderFIFF::read( WLEMMeasurement::SPtr* const out )
 {
     LFData data;
     returncode_t ret = LFInterface::fiffRead( data, m_fname.data() );
@@ -77,10 +75,10 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
 
     // Set subject information
     WLEMMSubject::SPtr subject_out( new WLEMMSubject() );
-    ReturnCode::Enum rc = Read( subject_out );
-    if( rc != ReturnCode::SUCCESS )
+    WLIOStatus::IOStatusT rc = read( &subject_out );
+    if( rc != WLIOStatus::SUCCESS )
         return rc;
-    out->setSubject( subject_out );
+    ( *out )->setSubject( subject_out );
 
     // Create temporary EMMEMD
     WLEMDRaw::SPtr emdRaw( new WLEMDRaw() );
@@ -106,7 +104,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
     }
 
     subject_out->setIsotrak( itPos );
-    out->setDigPoints( digPointsOut );
+    ( *out )->setDigPoints( digPointsOut );
     wlog::debug( CLASS ) << "Isotrak size: " << itPos->size();
 
     // Read raw data
@@ -144,7 +142,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
                                     j ) * scaleFactor;
                     break;
                 default:
-                    // LFDataBuffer::dt_unknown
+                    wlog::warn( CLASS ) << "Unknown data type: " << pBuf->GetDataType();
                     break;
             }
             current_channel++;
@@ -222,7 +220,6 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
             {
                 if( mod == WLFiffLib::ChType::MAGN )
                 {
-                    // TODO convert to millimeter?
                     eVec = measinfo_in.GetLFChannelInfo()[chan]->GetEx();
                     eX->push_back( WVector3f( eVec[0], eVec[1], eVec[2] ) );
 
@@ -304,7 +301,7 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
                 break;
         }
 
-        out->addModality( emd );
+        ( *out )->addModality( emd );
     }
 
     // Create event/stimulus channel
@@ -316,52 +313,51 @@ WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMeasurement::SPtr out )
     {
         wlog::debug( CLASS ) << "Event channel: " << *chan;
         eventData_out = WLEMMeasurement::EChannelT();
-        eventData_in = emdRaw->getData().row( *chan - 1 ); // TODO LFEvents counts from 1 ?
-        for( size_t i = 0; i < eventData_in.size(); ++i )
+        eventData_in = emdRaw->getData().row( *chan - 1 ); // TODO(pieloth): LFEvents counts from 1 ?
+        for( WLEMData::ChannelT::Index i = 0; i < eventData_in.size(); ++i )
+        {
             eventData_out.push_back( ( WLEMMeasurement::EventT )eventData_in( i ) );
-        out->addEventChannel( eventData_out );
+        }
+        ( *out )->addEventChannel( eventData_out );
     }
 
     // Some debug out
     wlog::debug( CLASS ) << "LaBP::EMM data:";
-    wlog::debug( CLASS ) << "\tLaBP::EMM::Event channels=" << out->getEventChannelCount();
-    for( size_t mod = 0; mod < out->getModalityList().size(); ++mod )
+    wlog::debug( CLASS ) << "\tLaBP::EMM::Event channels=" << ( *out )->getEventChannelCount();
+    for( size_t mod = 0; mod < ( *out )->getModalityList().size(); ++mod )
     {
-        wlog::debug( CLASS ) << "\tLaBP::EMM::EMD type=" << out->getModalityList()[mod]->getModalityType() << ", channels="
-                        << out->getModalityList()[mod]->getNrChans();
+        wlog::debug( CLASS ) << "\tLaBP::EMM::EMD type=" << ( *out )->getModalityList()[mod]->getModalityType() << ", channels="
+                        << ( *out )->getModalityList()[mod]->getNrChans();
     }
 
-//    if( ret == rc_normal )
-//        out->fireDataUpdateEvent();
     return getReturnCode( ret );
 }
 
-WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::Read( WLEMMSubject::SPtr out )
+WLIOStatus::IOStatusT WLReaderFIFF::read( WLEMMSubject::SPtr* const out )
 {
     LFSubject data;
     returncode_t ret = LFInterface::fiffRead( data, m_fname.data() );
     if( ret != rc_normal )
         return getReturnCode( ret );
-    out->setName( data.GetFirstName() + "" + data.GetMiddleName() + "" + data.GetLastName() );
-    out->setHisId( data.GetHIS_ID() );
-    out->setComment( data.GetComment() );
+    ( *out )->setName( data.GetFirstName() + "" + data.GetMiddleName() + "" + data.GetLastName() );
+    ( *out )->setHisId( data.GetHIS_ID() );
+    ( *out )->setComment( data.GetComment() );
     return getReturnCode( ret );
 }
 
-WLReaderFIFF::ReturnCode::Enum WLReaderFIFF::getReturnCode( returncode_t rc )
+WLIOStatus::IOStatusT WLReaderFIFF::getReturnCode( returncode_t rc )
 {
     switch( rc )
     {
         case rc_normal:
-            return ReturnCode::SUCCESS;
+            return WLIOStatus::SUCCESS;
         case rc_error_file_open:
-            return ReturnCode::ERROR_FOPEN;
+            return WLIOStatus::ERROR_FOPEN;
         case rc_error_file_read:
-            return ReturnCode::ERROR_FREAD;
+            return WLIOStatus::ERROR_FREAD;
         case rc_error_unknown:
-            return ReturnCode::ERROR_UNKNOWN;
+            return WLIOStatus::ERROR_UNKNOWN;
         default:
-            return ReturnCode::ERROR_UNKNOWN;
+            return WLIOStatus::ERROR_UNKNOWN;
     }
-
 }

@@ -78,10 +78,10 @@ public:
 
     bool setSimulationFile( std::string simFile );
 
-    void setBlockSize(int blockSize);
+    void setBlockSize( int blockSize );
     int getBlockSize() const;
 
-    bool readData( WLEMMeasurement::SPtr& emmIn );
+    bool readData( WLEMMeasurement::SPtr* const emmIn );
 
     bool isScalingApplied() const;
     void setScaling( bool applyScaling );
@@ -115,7 +115,7 @@ private:
     Eigen::RowVectorXi m_picksMeg;
     Eigen::RowVectorXi m_picksStim;
 
-    std::vector<float> m_scaleFactors;
+    std::vector< float > m_scaleFactors;
     bool m_applyScaling;
 
     bool prepareStreaming();
@@ -126,7 +126,7 @@ private:
 
     bool readChannelNames( WLEMData* const emd, const Eigen::RowVectorXi& picks );
     bool readChannelPositions( WLEMData* const emd, const Eigen::RowVectorXi& picks );
-    bool readChannelFaces( WLEMData* const emd, const Eigen::RowVectorXi& picks );
+    bool readChannelFaces( WLEMData* const emd );
 
     RTCLIENTLIB::RtCmdClient::SPtr m_rtCmdClient;
     RTCLIENTLIB::RtDataClient::SPtr m_rtDataClient;

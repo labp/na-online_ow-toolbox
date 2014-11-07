@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -39,7 +38,6 @@
 class WFTAChunk: public boost::enable_shared_from_this< WFTAChunk >
 {
 public:
-
     /**
      * A shared pointer on a WFTAChunk.
      */
@@ -53,8 +51,8 @@ public:
     /**
      * Constructs a new WFTAChunk and processes the memory into the generic chunk data structure.
      *
-     * @param data The memory storage, which contains the chunk data.
-     * @param size The size of the memory storage.
+     * \param data The memory storage, which contains the chunk data.
+     * \param size The size of the memory storage.
      */
     explicit WFTAChunk( WLEFTChunkType::Enum type, const size_t size );
 
@@ -66,35 +64,35 @@ public:
     /**
      * Determines whether the chunk was processed successfully.
      *
-     * @return Returns true if the process was successful, otherwise false.
+     * \return Returns true if the process was successful, otherwise false.
      */
     bool isValid() const;
 
     /**
      * Gets the chunks buffer size.
      *
-     * @return Returns the chunks buffer size.
+     * \return Returns the chunks buffer size.
      */
     size_t getSize() const;
 
     /**
      * Gets the chunk type.
      *
-     * @return Returns the chunk type.
+     * \return Returns the chunk type.
      */
     WLEFTChunkType::Enum getType() const;
 
     /**
      * Gets the data as a smart storage structure. This method is used to serialize a chunk into a request message body.
      *
-     * @return Returns a shared pointer on a constant smart storage.
+     * \return Returns a shared pointer on a constant smart storage.
      */
     virtual WLSmartStorage::ConstSPtr serialize() const = 0;
 
     /**
      * Gets the chunks as desired pointer.
      *
-     * @return Returns the chunk as shared pointer.
+     * \return Returns the chunk as shared pointer.
      */
     template< typename Chunk >
     boost::shared_ptr< Chunk > getAs()
@@ -105,7 +103,7 @@ public:
     /**
      * Gets the chunks as desired pointer.
      *
-     * @return Returns the chunk as shared pointer.
+     * \return Returns the chunk as shared pointer.
      */
     template< typename Chunk >
     boost::shared_ptr< const Chunk > getAs() const
@@ -114,27 +112,25 @@ public:
     }
 
 protected:
-
     /**
      * Based on the stored memory of @data, this method creates the chunks data structure.
      * It has to implement by a deriving class for a special chunk type.
      *
-     * @param data The memory storage, which contains the chunk data.
-     * @param size The size of the memory storage.
-     * @return Returns true if the processing was successful, otherwise false.
+     * \param data The memory storage, which contains the chunk data.
+     * \param size The size of the memory storage.
+     * \return Returns true if the processing was successful, otherwise false.
      */
     virtual bool process( const char* data, size_t size ) = 0;
 
     /**
      * Private method to call the pure virtual method "process()" not directly at the constructor.
      *
-     * @param data The memory storage, which contains the chunk data.
-     * @param size The size of the memory storage.
+     * \param data The memory storage, which contains the chunk data.
+     * \param size The size of the memory storage.
      */
     void processData( const char* data, const size_t size );
 
 private:
-
     /**
      * Determines the validation of the chunk.
      */
@@ -149,7 +145,6 @@ private:
      * The chunk type
      */
     WLEFTChunkType::Enum m_type;
-
 };
 
-#endif /* WFTACHUNK_H_ */
+#endif  // WFTACHUNK_H_

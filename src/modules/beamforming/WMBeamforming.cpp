@@ -341,7 +341,7 @@ bool WMBeamforming::handleLfFileChanged( std::string fName, WLMatrix::SPtr& lf )
         return false;
     }
 
-    if( reader->read( lf ) == WLIOStatus::SUCCESS )   //fif
+    if( reader->read( &lf ) == WLIOStatus::SUCCESS )   //fif
     //if( reader->readMatrix( lf ) == WLIOStatus::SUCCESS ) //Matlab
 
     {

@@ -21,31 +21,36 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef PACKETIZER_H_
-#define PACKETIZER_H_
+#ifndef WPACKETIZEREMM_H_
+#define WPACKETIZEREMM_H_
+
+#include <string>
+#include <vector>
 
 #include <boost/shared_ptr.hpp>
 
-template< typename T >
-class WPacketizer
+#include "../emmStreaming/WPacketizer.h"
+#include "core/data/WLEMMeasurement.h"
+
+
+class WPacketizerEMM: public WPacketizer< WLEMMeasurement >
 {
 public:
-    virtual ~WPacketizer()
-    {
-    }
+    static const std::string CLASS;
 
-    virtual bool hasNext() const = 0;
+    WPacketizerEMM( WLEMMeasurement::ConstSPtr data, size_t blockSize );
+    virtual ~WPacketizerEMM();
 
-    virtual typename boost::shared_ptr< T > next() = 0;
+    virtual bool hasNext() const;
 
-protected:
-    WPacketizer( boost::shared_ptr< const T > data, size_t blockSize ) :
-                    m_data( data ), m_blockSize( blockSize )
-    {
-    }
+    virtual WLEMMeasurement::SPtr next();
 
-    typename boost::shared_ptr< const T > m_data;
-    const size_t m_blockSize;
+private:
+    std::vector< WLEMData::ConstSPtr > m_emds;
+    boost::shared_ptr< WLEMMeasurement::EDataT > m_events;
+
+    size_t m_blockCount;
+    bool m_hasData;
 };
 
-#endif  // PACKETIZER_H_
+#endif  // WPACKETIZEREMM_H_

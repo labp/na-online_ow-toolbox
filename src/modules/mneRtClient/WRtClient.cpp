@@ -21,15 +21,17 @@
 //
 //---------------------------------------------------------------------------
 
+#include <list>
+#include <map>
 #include <string>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
 
-#include <QtGlobal>
-#include <QList>
-#include <QMap>
-#include <QString>
+#include <QtCore/QtGlobal>
+#include <QtCore/QList>
+#include <QtCore/QMap>
+#include <QtCore/QString>
 
 #include <fiff/fiff_ch_info.h>
 #include <fiff/fiff_dig_point.h>
@@ -345,7 +347,7 @@ bool WRtClient::setConnector( int conId )
         m_conSelected = conId;
         ( *m_rtCmdClient )["selcon"].pValues()[0] = QVariant( conId );
         ( *m_rtCmdClient )["selcon"].send();
-        // TODO check if connector is set
+        // TODO(pieloth): check if connector is set
         return true;
     }
     else
@@ -389,7 +391,7 @@ bool WRtClient::setSimulationFile( std::string fname )
     }
 }
 
-bool WRtClient::readData( WLEMMeasurement::SPtr& emmIn )
+bool WRtClient::readData( WLEMMeasurement::SPtr* const emmIn )
 {
     wlog::debug( CLASS ) << "readData() called!";
     if( !isConnected() )
@@ -398,7 +400,7 @@ bool WRtClient::readData( WLEMMeasurement::SPtr& emmIn )
         return false;
     }
 
-    emmIn = m_emmPrototype->clone();
+    *emmIn = m_emmPrototype->clone();
 
     FIFFLIB::fiff_int_t kind;
     Eigen::MatrixXf matRawBuffer;
@@ -412,17 +414,17 @@ bool WRtClient::readData( WLEMMeasurement::SPtr& emmIn )
         if( m_picksEeg.size() > 0 )
         {
             emd = readEEG( matRawBuffer );
-            emmIn->addModality( emd );
+            ( *emmIn )->addModality( emd );
         }
         if( m_picksMeg.size() > 0 )
         {
             emd = readMEG( matRawBuffer );
-            emmIn->addModality( emd );
+            ( *emmIn )->addModality( emd );
         }
         if( m_picksStim.size() > 0 )
         {
             boost::shared_ptr< WLEMMeasurement::EDataT > events = readEvents( matRawBuffer );
-            emmIn->setEventChannels( events );
+            ( *emmIn )->setEventChannels( events );
         }
         return true;
     }
@@ -609,14 +611,13 @@ bool WRtClient::preparePrototype( WLEMData* const emd, const Eigen::RowVectorXi&
     readChannelNames( emd, picks );
     if( readChannelPositions( emd, picks ) )
     {
-        readChannelFaces( emd, picks );
+        readChannelFaces( emd );
         return true;
     }
     else
     {
         return false;
     }
-
 }
 
 bool WRtClient::preparePrototype( WLEMDEEG* const emd, const Eigen::RowVectorXi& picks )
@@ -726,7 +727,7 @@ bool WRtClient::readChannelPositions( WLEMData* const emd, const Eigen::RowVecto
     return false;
 }
 
-bool WRtClient::readChannelFaces( WLEMData* const emd, const Eigen::RowVectorXi& picks )
+bool WRtClient::readChannelFaces( WLEMData* const emd )
 {
     wlog::debug( CLASS ) << "readChannelFaces() called!";
 

@@ -1,31 +1,32 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
 #ifndef WFTCHUNKCHANNAMES_H_
 #define WFTCHUNKCHANNAMES_H_
 
+#include <list>
 #include <map>
+#include <string>
 
 #include <boost/shared_ptr.hpp>
 
@@ -40,7 +41,6 @@
 class WFTChunkChanNames: public WFTAChunk
 {
 public:
-
     /**
      * A shared pointer on a WFTChunkChanNames.
      */
@@ -74,8 +74,8 @@ public:
     /**
      * Constructs a new WFTChunkChanNames.
      *
-     * @param data The memory storage, which contains the chunk data.
-     * @param size The size of the memory storage.
+     * \param data The memory storage, which contains the chunk data.
+     * \param size The size of the memory storage.
      */
     explicit WFTChunkChanNames( const char* data, const size_t size );
 
@@ -84,28 +84,28 @@ public:
      *
      * Inherited method from WFTAChunk.
      *
-     * @return Returns a shared pointer on a constant smart storage.
+     * \return Returns a shared pointer on a constant smart storage.
      */
     WLSmartStorage::ConstSPtr serialize() const;
 
     /**
      * Gets the channel names for the @modality type.
      *
-     * @return Returns a shared pointer on a constant channel names list.
+     * \return Returns a shared pointer on a constant channel names list.
      */
     WLArrayList< std::string >::ConstSPtr getData( const WLEModality::Enum modality ) const;
 
 protected:
-
     /**
      * Based on the stored memory of @data, this method creates the chunks data structure.
      * It has to implement by a deriving class for a special chunk type.
      *
      * Inherited method from WFTAChunk.
      *
-     * @param data The memory storage, which contains the chunk data.
-     * @param size The size of the memory storage.
-     * @return Returns true if the processing was successful, otherwise false.
+     * \param data The memory storage, which contains the chunk data.
+     * \param size The size of the memory storage.
+     *
+     * \return Returns true if the processing was successful, otherwise false.
      */
     bool process( const char* data, size_t size );
 
@@ -115,7 +115,6 @@ protected:
     ChanNamesMap_SPtr m_namesMap;
 
 private:
-
     /**
      * A string - modality type map.
      */
@@ -132,15 +131,13 @@ private:
     void insertLabels();
 
     /**
-     * Splits the @str at the @delim's positions into the result vector.
+     * Splits the @str at the @delim's positions into the result list.
      *
-     * @param str The string to split.
-     * @param result The result vector.
-     * @param delim The separator character.
-     * @return Returns a reference on the result vector.
+     * \param result The result list.
+     * \param str The string to split.
+     * \param delim The separator character.
      */
-    std::vector< std::string >& split( std::string str, std::vector< std::string >& result, const char delim );
-
+    void split( std::list< std::string >* const result, const std::string& str, const char delim );
 };
 
-#endif /* WFTCHUNKCHANNAMES_H_ */
+#endif  // WFTCHUNKCHANNAMES_H_
