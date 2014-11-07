@@ -26,17 +26,30 @@
 #define WBEAMFORMINGCUDA_H_
 
 #include <string>
-
 #include <boost/shared_ptr.hpp>
-
 #include <cublas.h>
-
+#include <cuda.h>
 #include "core/data/WLDataTypes.h"
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDSource.h"
 
 #include "WBeamforming.h"
 
+//  __global__ void squareElements(float *a, float *b, int N) {
+//        /* which element does this compute? */
+//        int tid = blockDim.x * blockIdx.x + threadIdx.x;
+//
+//        /* if valid, squre the array element */
+//        if (tid < N)
+//                b[tid] = (a[tid]*a[tid]);
+//    }
+//    __global__ void RowSum(float* B, float* Sum, int N, int M)
+//    {
+//        int i = blockDim.x * blockIdx.x + threadIdx.x;
+//        int j = blockDim.y * blockIdx.y + threadIdx.y;
+//        if (i < N && j < M)
+//            C[j] += B[i][j];
+//    }*/
 class WBeamformingCuda: public WBeamforming
 {
 public:
@@ -55,8 +68,8 @@ public:
     WBeamformingCuda();
     virtual ~WBeamformingCuda();
 
-    virtual bool calculateBeamforming(const WLMatrix::MatrixT&   data, const WLMatrix::MatrixT& leadfield , const WLMatrix::MatrixT& Noise, const WLMatrix::MatrixT& Data );
-    //virtual bool calculateBeamforming(const WLMatrix::MatrixT&   data, const WLMatrix::MatrixT& leadfield );
+    virtual bool calculateBeamforming( const WLMatrix::MatrixT& leadfield , const Eigen::MatrixXcd& CSD, double reg );
+
     virtual WLEMDSource::SPtr beam( WLEMData::ConstSPtr emd );
 
 private:
@@ -68,9 +81,6 @@ private:
                                 int lda,const T* B, int ldb,T* C, int ldc,const T* alpha,const T* beta);
     template< typename T >
            static inline void cublasTinverse(  int n,T* A[],int lda,T* C[],int ldc,int batchSize);
-
-
-
 
     ScalarT* m_A_dev; // m_beam
     ScalarT* m_B_dev;   //m_data
@@ -134,7 +144,9 @@ inline void WBeamformingCuda::cublasTinverse< double >(int n,double* A[],int lda
     cublasDgetrfBatched(handle, n, A, lda, &PivotArray, &infoArray, batchSize);
     cublasDgetriBatched(handle, n, A, lda, &PivotArray, C, ldc, &infoArray, batchSize);
     cublasDestroy_v2(handle);
+
 }
+
 
 
 #endif  // WBEAMFORMINGCUDA_H_

@@ -26,15 +26,12 @@
 #include <cstdio>   // stderr stream
 #include <cstdlib>  // malloc
 #include <string>   // CLASS variable
-
 #include <cublas.h>
+#include <cuda.h>
 #include <cuda_runtime.h>   // time measurement
-
 #include <boost/shared_ptr.hpp>
-
 #include <core/common/WLogger.h>
 #include <core/common/exceptions/WPreconditionNotMet.h>
-
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDSource.h"
 #include "core/exception/WLBadAllocException.h"
@@ -43,7 +40,10 @@
 
 #include "WBeamforming.h"
 #include "WBeamformingCuda.h"
+
 #define CublasSafeCall( err )     __cublasSafeCall( err, __FILE__, __LINE__ )
+
+
 
 inline void __cublasSafeCall( cublasStatus err, const char *file, const int line )
 {
@@ -54,7 +54,6 @@ inline void __cublasSafeCall( cublasStatus err, const char *file, const int line
 }
 
 using WLMatrix::MatrixT;
-
 const std::string WBeamformingCuda::CLASS = "WBeamformingCuda";
 
 WBeamformingCuda::WBeamformingCuda()
@@ -82,20 +81,16 @@ WBeamformingCuda::~WBeamformingCuda()
     cublasShutdown();
 }
 
-bool WBeamformingCuda::calculateBeamforming(const WLMatrix::MatrixT&   data, const WLMatrix::MatrixT& leadfield, const WLMatrix::MatrixT& Noise, const WLMatrix::MatrixT& Data  )
+bool WBeamformingCuda::calculateBeamforming ( const WLMatrix::MatrixT& leadfield, const Eigen::MatrixXcd& CSD, double reg )
 {
-    m_beamChanged = WBeamforming::calculateBeamforming(data, leadfield, Noise, Data  );
+    m_beamChanged = WBeamforming::calculateBeamforming(leadfield,CSD, reg);
     return m_beamChanged;
 }
-/*bool WBeamformingCuda::calculateBeamforming(const WLMatrix::MatrixT&   data, const WLMatrix::MatrixT& leadfield  )
-{
-    m_beamChanged = WBeamforming::calculateBeamforming(data, leadfield  );
-    return m_beamChanged;
-}*/
+
 
 WLEMDSource::SPtr WBeamformingCuda::beam( WLEMData::ConstSPtr emd )
 {
-    wlog::debug( CLASS ) << "beam() called!";
+    wlog::debug( CLASS ) << "CUDA beam() called!";
     WLTimeProfiler tp( CLASS, "beam" );
     if( !m_beam )
     {
@@ -104,7 +99,7 @@ WLEMDSource::SPtr WBeamformingCuda::beam( WLEMData::ConstSPtr emd )
 
 
 
-    // Prepare CUDA profiling //
+// Prepare CUDA profiling
     float elapsedTime;
     cudaEvent_t startCalc, stopCalc; // computation time
 
@@ -112,38 +107,35 @@ WLEMDSource::SPtr WBeamformingCuda::beam( WLEMData::ConstSPtr emd )
     cudaEventCreate( &stopCalc );
 
 
-    // Initialize matrix dimensions //
+// Initialize matrix dimensions
     const size_t ROWS_A = m_beam->rows();
     const size_t COLS_A = m_beam->cols();
-    // prepare copy later
 
-    const size_t ROWS_B = m_data->rows();
-    const size_t COLS_B = m_data->cols();
+    const size_t ROWS_B = emd->getNrChans();
+    const size_t COLS_B = emd->getSamplesPerChan();
 
-    const size_t ROWS_E = m_leadfield->cols();
-    const size_t COLS_E = m_data->cols();
-
+    const size_t ROWS_E = m_beam->rows();
+    const size_t COLS_E = emd->getSamplesPerChan();
 
 
-    // Prepare pointer for cuBLAS //
-    // const ScalarT* const A_host; Is needed only once
-    //const ScalarT* const B_host = emdData.data();
 
-    // C_host is used for copy out in correct column order: MatrixSPtr == cuBLAS-Matrix
+// Prepare pointer for cuBLAS //
+// const ScalarT* const A_host; Is needed only once
+//const ScalarT* const B_host = emdData.data();
+
+// E_host is used for copy out in correct column order: MatrixSPtr == cuBLAS-Matrix
     WLMatrix::SPtr S( new MatrixT( ROWS_E, COLS_E ) );
     ScalarT* E_host = S->data();
 
-    // Scalar* A_dev; Is needed only once
-//    ScalarT* B_dev;
-
+//device result
     ScalarT* E_dev;
 
 
-    // Copy in //
+// Copy in
     if( m_beam )
     {
         const ScalarT* const A_host = m_beam->data();
-        const ScalarT* const B_host = m_data->data();
+        const ScalarT* const B_host = emd->getData().data();
 
         if( A_host == NULL )
         {
@@ -152,11 +144,11 @@ WLEMDSource::SPtr WBeamformingCuda::beam( WLEMData::ConstSPtr emd )
             throw WLBadAllocException( "Could not allocate memory for beam matrix!(m_beam)" );
         }
         if( B_host == NULL )
-            {
-                cudaEventDestroy( startCalc );
-                cudaEventDestroy( stopCalc );
-                throw WLBadAllocException( "Could not allocate memory for beam matrix!(m_data)" );
-            }
+        {
+            cudaEventDestroy( startCalc );
+            cudaEventDestroy( stopCalc );
+            throw WLBadAllocException( "Could not allocate memory for beam matrix!(m_data)" );
+        }
 
 
         if( m_A_dev != NULL )
@@ -179,11 +171,11 @@ WLEMDSource::SPtr WBeamformingCuda::beam( WLEMData::ConstSPtr emd )
     CublasSafeCall( cublasAlloc( ROWS_E * COLS_E, sizeof(ScalarT), ( void** )&E_dev ) );
 
 
-    // Call cuBLAS kernel //
-    // C_dev = 1.0 * A_dev * A_dev.transpose + 0.0 * C_dev
-    // S = G * d
+// Call cuBLAS kernel //
+// C_dev = 1.0 * A_dev * A_dev.transpose + 0.0 * C_dev
+// S = G * d
     cudaEventRecord( startCalc, 0 );
-//multiplikation
+//Multiplikation
     cublasTgemm< ScalarT >( 'n','n', ROWS_A, COLS_B, COLS_A, 1.0, m_A_dev, ROWS_A, m_B_dev,ROWS_B, 0.0, E_dev, ROWS_E );
     CublasSafeCall( cublasGetError() );
 
@@ -198,24 +190,20 @@ WLEMDSource::SPtr WBeamformingCuda::beam( WLEMData::ConstSPtr emd )
 
 
 
-    // Copy out //
+// Copy out
     WLTimeProfiler prfCopyOut( CLASS, "beam_copyOut", false );
     prfCopyOut.start();
     CublasSafeCall( cublasGetMatrix( ROWS_E, COLS_E, sizeof(ScalarT), E_dev, ROWS_E, E_host, ROWS_E ) );
     prfCopyOut.stop();
     wlprofiler::log() << prfCopyOut;
 
-    // Clean memory //
-    // CublasSafeCall( cublasFree( m_A_dev ) ); Is done in destructor
+// Clean memory
+// CublasSafeCall( cublasFree( m_A_dev ) ); Is done in destructor
     CublasSafeCall( cublasFree( E_dev ) );
 
     cudaEventDestroy( startCalc );
     cudaEventDestroy( stopCalc );
-
-    // free( A_host ); Do not free, because points to shared pointer
-    // free( B_host ); Do not free, because points to shared pointer
-    // free( C_host ); Do not free, because points to shared pointer
-
+//
     const WLEMDSource::SPtr emdOut( new WLEMDSource( *emd ) );
     emdOut->setData( S );
 

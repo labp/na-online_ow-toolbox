@@ -28,11 +28,7 @@
 
 #include <string>
 #include <set>
-
-#include "boost/thread/mutex.hpp"
-#include <boost/thread/locks.hpp>
 #include <boost/shared_ptr.hpp>
-
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDSource.h"
 #include "core/data/WLDataTypes.h"
@@ -54,20 +50,34 @@ public:
      */
     typedef boost::shared_ptr< const WBeamforming > ConstSPtr;
 
-    WBeamforming();
+   WBeamforming();
+ //Beamformer type
+    struct WEType
+          {
+              enum Enum
+              {
+                  DICS, LCMV
+              };
+
+              static std::vector< Enum > values();
+
+              static std::string name( Enum value );
+          };
+
 
     virtual ~WBeamforming();
-virtual bool calculateBeamforming(const WLMatrix::MatrixT&   data, const WLMatrix::MatrixT& leadfield, const WLMatrix::MatrixT& Noise, const WLMatrix::MatrixT& Data);
-    //virtual bool calculateBeamforming(const WLMatrix::MatrixT&   data, const WLMatrix::MatrixT& leadfield);
-    void setSource( size_t source );
 
-    virtual void reset();
+ //Beamformer
+    virtual bool calculateBeamforming(  const WLMatrix::MatrixT& leadfield, const Eigen::MatrixXcd& CSD, double reg);
 
     bool hasBeam() const;
 
+    void setType( WBeamforming::WEType::Enum value );
 
+//reset beamformer
+    virtual void reset();
 
-    virtual WLEMDSource::SPtr beam( WLEMData::ConstSPtr emd  )=0;      //;
+    virtual WLEMDSource::SPtr beam( WLEMData::ConstSPtr emd  )=0;
 
 
 protected:
@@ -78,11 +88,9 @@ protected:
     WLMatrix::SPtr m_leadfield; //Leadfield
     WLMatrix::SPtr m_data;		//Datenmatrix
     WLMatrix::SPtr m_result;    //Egebnis
-    WLMatrix::SPtr m_regular;    //regularisierungsmatrix
-    //SPtr  m_value;            //Anzahl quellen, Spalten
 
+    size_t m_type;
 
-/////////////////////////////////////////////////////////////////////////////////////////
 };
 
 #endif /* WBEAMFORMING_H_ */

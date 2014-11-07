@@ -33,10 +33,10 @@
 
 #include <core/common/WAssert.h>
 #include <core/common/WLogger.h>
-
+#include "core/util/profiler/WLTimeProfiler.h"
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDSource.h"
-//#include "core/util/profiler/WLTimeProfiler.h"
+#include "core/util/profiler/WLTimeProfiler.h"
 
 #include "WBeamforming.h"
 
@@ -48,8 +48,8 @@ const std::string WBeamforming::CLASS = "WBeamforming";
 
 WBeamforming::WBeamforming()
 {
-    // TODO Auto-generated constructor stub
 
+    m_type = 0;
 }
 
 WBeamforming::~WBeamforming()
@@ -57,152 +57,189 @@ WBeamforming::~WBeamforming()
     // TODO Auto-generated destructor stub
 }
 
-//void WBeamforming::setLeadfieldMEG( WLMatrix::SPtr leadfield )
-//{
-//    m_leadfield = leadfield;
-//    m_beam.reset();
-//}
-
 void WBeamforming::reset()
 {
-
-
-
     m_beam.reset();
 
-
 }
 
-void WBeamforming::setSource( size_t source )
+void WBeamforming::setType( WBeamforming::WEType::Enum value )
 {
+    m_type = value;
 
-    //m_value = source;
+}
+std::vector< WBeamforming::WEType::Enum > WBeamforming::WEType::values()
+{
+    std::vector< WBeamforming::WEType::Enum > values;
+    values.push_back( WEType::DICS );
+    values.push_back( WEType::LCMV );
+    return values;
 }
 
+std::string WBeamforming::WEType::name( WBeamforming::WEType::Enum value )
+{
+    switch( value )
+    {
+        case WEType::DICS:
+            return "DICS Beamformer";
+        case WEType::LCMV:
+            return "LCMV Beamformer";
+        default:
+            WAssert( false, "Unknown type!" );
+            return "ERROR: Undefined!";
+    }
 
+}
+
+bool WBeamforming::calculateBeamforming( const WLMatrix::MatrixT& Leadfield, const Eigen::MatrixXcd& CSD, double reg )
+{
+    wlog::debug( CLASS ) << "calculateBeamforming() called!";
+
+    WLTimeProfiler prfTime( CLASS, "calculateBeamfoming" );
+
+//        m_leadfield.reset( new MatrixT( Leadfield) );
+//                    m_data.reset( new MatrixT(data) );
+
+    wlog::debug( CLASS ) << "reg= " << reg;
+    switch( m_type )
+    {
+        case 1:
+
+        {
+            wlog::debug( CLASS ) << "LCMV called!";
+
+            MatrixT Data;
+            Data = CSD.real();
+
+            //Init
+
+            //Matrizen
+            MatrixT leadfield( Leadfield.rows(), Leadfield.cols() );
+            MatrixT Cdinv;
+            MatrixT E = MatrixT::Identity( Data.rows(), Data.cols() );
+            MatrixT W( leadfield.cols(), leadfield.rows() );
+            MatrixT Cdr( leadfield.rows(), leadfield.rows() );
+            MatrixT CD;
+
+            MatrixT Cd;
+            Cd = Data;
+            Cdr = ( ( reg * Cd.trace() ) / Cd.rows() ) * E;
+            CD = Cd + Cdr;
+
+            leadfield = Leadfield;
+
+            //Pseudoinverse Datenkovarainz
+            MatrixT Cdinv1;
+
+            Cdinv1 = CD.transpose() * CD;
+            Cdinv = Cdinv1.inverse() * CD.transpose();
+
+            //Leadfield transponiert
+            MatrixT LT;
+            LT = leadfield.transpose();
+
+            //Beamformer
+            for( int j = 0; j < leadfield.cols(); j++ )
+            {
+                //Zwischenmatrix
+
+                double LCd;
+                LCd = LT.row( j ) * Cdinv * leadfield.col( j );
+
+                MatrixT LCdT( 1, Cdinv.rows() );
+                LCdT = LT.row( j ) * Cdinv;
+
+                //               //Gewichtungsmatrix
+                MatrixT LCD;
+
+                W.row( j ) = LCdT.array() / LCd;
+            }
+            ////Normierung
+            MatrixT WNorm;
+            MatrixT WRep;
+            MatrixT WBeam;
+            WNorm = W.rowwise().norm();
+            WRep = WNorm.replicate( 1, W.cols() );
+            WBeam = W.array() / WRep.array();
+
+            //Ergebnis an m_beam übergeben
+            m_beam.reset( new MatrixT( WBeam ) );
+            wlog::debug( CLASS ) << "m_beam LCMV" << m_beam->rows() << " x " << m_beam->cols();
+            return true;
+        }
+
+        case 0:
+
+        {
+            wlog::debug( CLASS ) << "DICS called!";
+            Eigen::MatrixXcd Data;
+            Data = CSD;
+
+            Eigen::MatrixXcd leadfield( Leadfield.rows(), Leadfield.cols() );
+            Eigen::MatrixXcd Cdinv;
+            Eigen::MatrixXcd E = Eigen::MatrixXcd::Identity( Data.rows(), Data.cols() );
+            Eigen::MatrixXcd W( leadfield.cols(), leadfield.rows() );
+            Eigen::MatrixXcd Cdr( leadfield.rows(), leadfield.rows() );
+            Eigen::MatrixXcd CD;
+            Eigen::MatrixXcd Cd;
+            Cd = Data;
+
+            Cdr = ( ( reg * Cd.real().trace() ) / Cd.rows() ) * E;
+            CD = Cd + Cdr;                       //TODO regularization
+
+            leadfield.real() = Leadfield;
+
+            //Pseudoinverse Datenkovarainz
+            Eigen::MatrixXcd Cdinv1;
+
+            Cdinv1 = CD.transpose() * CD;
+            Cdinv = Cdinv1.inverse() * CD.transpose();
+
+            //Leadfield transponiert
+            Eigen::MatrixXcd LT;
+            LT = leadfield.transpose();
+
+            //Beamformer
+            for( int j = 0; j < leadfield.cols(); j++ )
+            {
+                //Zwischenmatrix
+
+                Eigen::MatrixXcd LCd;
+                LCd = LT.row( j ) * Cdinv * leadfield.col( j );
+
+                Eigen::MatrixXcd LCdT( 1, Cdinv.rows() );
+                LCdT = LT.row( j ) * Cdinv;
+                //Gewichtungsmatrix
+                Eigen::MatrixXcd LCD;
+                Eigen::MatrixXcd LL;
+                LL = LCd.replicate( 1, LCdT.cols() );
+                W.row( j ) = LCdT.array() / LL.array();
+            }
+
+            ////Normierung
+            MatrixT WNorm;
+            MatrixT WRep;
+            MatrixT WBeam;
+            MatrixT Bea;
+            Bea = W.real();
+
+            WNorm = Bea.rowwise().norm();
+            WRep = WNorm.replicate( 1, Bea.cols() );
+            WBeam = Bea.array() / WRep.array();
+
+            //Ergebnis an m_beam übergeben
+
+            m_beam.reset( new MatrixT( WBeam ) );
+            wlog::debug( CLASS ) << "m_beam" << m_beam->rows() << " x " << m_beam->cols();
+
+            return true;
+        }
+
+    }
+}
 
 bool WBeamforming::hasBeam() const
 {
-    return m_beam.get() != NULL;
-}
-
-bool WBeamforming::calculateBeamforming(const WLMatrix::MatrixT&   data, const WLMatrix::MatrixT& Leadfield , const WLMatrix::MatrixT& Noise, const WLMatrix::MatrixT& Data  )
-{
-    //zur übergreifenden Nutzung in WBeamfomingCPU
-    //Übergabe der Daten an m_data
-
-            //Kovarianzmatrix des Rauschen als Einheitsmatrix
-
-    //zur übergreifenden Nutzung in WBeamfomingCPU
-    //Übergabe der Leadfield an m_leadfield
-            m_leadfield.reset( new MatrixT( Leadfield) );
-    //Init
-            wlog::debug( CLASS ) << "calculateBeamforming() called!";
-    //Leadfield Spalten zur Berechnung
-            MatrixT leadfield(Leadfield.rows(),Leadfield.cols()); ///TODO
-            MatrixT Cdinv; //Daten kovarianzmatrix invertiert
-            MatrixT Cd;//=MatrixT::Identity(data.rows(),data.rows()); //Daten Kovarianzmatrix
-            //Whitener
-             //RauschCov
-                MatrixT Cn;//=MatrixT::Identity(Noise.rows(),Noise.rows());
-                Cn=Noise;  //Diagonalmatrix
-
-                MatrixT E=MatrixT::Identity(data.rows(),data.rows());
-               //Covariance
-                Cd=Data;
-
-          //whitening daten
-          MatrixT Cm(data.rows(),data.rows());
-          MatrixT Cm1(data.rows(),data.rows());
-          MatrixT Cm2(data.rows(),data.rows());
-          MatrixT Cm3(data.rows(),data.rows());
-          MatrixT Proj=MatrixT::Identity(data.rows(),data.rows());
-/*          Cm1= Cd*Proj.transpose();
-          Cm2=Proj*Cm1;*/
-         Cm3=Cd*Cn.transpose();
-
-          Cm=Cn*Cm3;
-
-          //Absolutwerte Daten
-         /* MatrixT Dat;
-          Dat= data.cwiseAbs();*/
-          m_data.reset( new MatrixT( data) );
-
-          //Cm += reg * np.trace(Cm) / len(Cm) * np.eye(len(Cm)) //Datenkovarianz
-          //Regularisierung
-          MatrixT Cdr(data.rows(),data.rows());
-                          Cdr=((0.01*Cm.trace())/Cm.rows())*E;
-                                    MatrixT CD;
-                                    CD= Cm+Cdr;
-
-
-                  //Inverse DataCov
-                              MatrixT Cdinv1;
-
-                               // Cdinv=CD.inverse();//funktioniert nu ohne inverse
-                                 Cdinv1= CD.transpose()*CD;
-                                  Cdinv= Cdinv1.inverse()*CD.transpose();
-
-
-          //whitening leadfield
-          leadfield=Cn*Leadfield;            //TODO
-         // leadfield.array()=Leadfield.array();
-
-            // Leafield transpose matrix
-                    MatrixT LT = leadfield.transpose();
-
-
-
-
-
-
-    MatrixT LCd(leadfield.cols(),1);
-    MatrixT LCdinv(leadfield.cols(),1);
-                        MatrixT W(leadfield.cols(),leadfield.rows());
-
-                              MatrixT Help1(leadfield.cols(),1);
-            for( int j=0;j<leadfield.cols();j++)
-
-            {
-            //Zwischenmatrix=LF_tansponiert*Inverse Daten-Matrix*LF
-
-
-               // LCd(j,0)= LT.row(j) * Cdinv *leadfield.col(j) ;
-                LCd(j,0)= LT.row(j) * Cdinv *leadfield.col(j) ;
-                MatrixT LCdT(LCd.rows(),1);
-                LCdT.block(j,0,1,1)= LCd.block(j,0,1,1).transpose()*LCd.block(j,0,1,1);
-
-                LCdinv.block(j,0,1,1)= LCdT.block(j,0,1,1)*LCd.block(j,0,1,1).transpose();
-
-
-
-                //Gewichtungsmatrix -> ein Wert für jeden Sensor
-                //W= Inverse der Zwischenmatrix*LF_transponiert*Daten-Kovarianzmatrix invertiert
-
-                W.row(j)= LCdinv(j,0)*LT.row(j) * Cdinv;
-
-
-
-            }
-
-
-
-
-            /*W= W.cwiseAbs();*/
-           //            //Normierung
-                             MatrixT W5;
-                             W5= W.rowwise().norm();
-                             MatrixT W2;
-                             W2= W5.replicate(1,W.cols());
-                             MatrixT W3;
-                             W3= W.array()/W2.array();
-
-
-                                   wlog::debug( CLASS ) << "W " << W.rows() << " x " << W.cols();
-            //Ergebnis an m_beam übergeben
-                                  //m_beam.reset( new MatrixT( W) );
-                                   m_beam.reset( new MatrixT(W3) );
-                                   wlog::debug( CLASS ) << "m_beam" << m_beam->rows() << " x " << m_beam->cols();
-    return true;
+    return ( m_beam );
 }
 

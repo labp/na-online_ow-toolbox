@@ -125,42 +125,45 @@ private:
      * A condition used to notify about changes in several properties.
      */
     WCondition::SPtr m_propCondition;
-
     WPropGroup m_propGrpBeamforming;
-    //WPropFilename m_lfMEGFile;
+    WItemSelection::SPtr m_type;
     WPropFilename m_lfEEGFile;
-    //Für Button
     WPropString m_leadfieldStatus;
-    //*******************************TEST**********
-    WPropFilename m_NoiseFile;
-     //Für Button
-    WPropString m_NoiseStatus;
-     WLMatrix::SPtr m_Noise;
-     bool handleNoiseChanged( std::string fName, WLMatrix::SPtr& data );
-     //*******************************TEST**********
-     WPropFilename m_DataFile;
-      //Für Button
-     WPropString m_DataStatus;
-      WLMatrix::SPtr m_Data;
-      bool handleDataChanged( std::string fName, WLMatrix::SPtr& data );
-     //**********************************************
-     //bool writeMa( WLMatrix::MatrixT& matrix,std::string& name );
-    // algorithm properties //
-    WPropTrigger m_resetModule;
-    WBeamforming::SPtr m_beamforming;
-    void handleResetTrigger();
-
-    //LEADFIELD
-    bool handleLfFileChanged( std::string fName, WLMatrix::SPtr& lf );      //Arbeit mit fif File
+//Leadfield
+    bool handleLfFileChanged( std::string fName, WLMatrix::SPtr& lf );      //Arbeit mit fif/mat File
     WLEMMSubject::SPtr m_subject;                                           //Leadfield
-//    WLMatrix::SPtr m_leadfieldMEG;                                          //LF Matrix
+    //WLMatrix::SPtr m_leadfieldMEG;                                          //LF Matrix
     WLMatrix::SPtr m_leadfieldEEG;
+    WPropSelection m_typeSelection;
 
-    //Modality
+//Data covaiance
+//     WPropFilename m_DataFile;
+     WPropString m_DataStatus;
+//     WLMatrix::SPtr m_Data;
+//     bool handleDataChanged( std::string fName, WLMatrix::SPtr& data );
+
+
+      WPropFilename m_CSDFile;
+      WPropString m_CSDStatus;
+      Eigen::MatrixXcd m_CSD;
+      bool handleCSDChanged( std::string fName, Eigen::MatrixXcd* const csd );
+
+////Type
+//      WPropInt m_type;
+
+// algorithm properties
+//    WPropTrigger m_resetModule;
+    WBeamforming::SPtr m_beamforming;
+//    void handleResetTrigger();
+
+//Modality
     WLEModality::Enum m_lastModality;
     void handleComputeModalityChanged( WLEMMCommand::ConstSPtr cmd );
     WPropBool m_useCuda;
     void handleImplementationChanged( void );
+    WPropDouble m_reg;
+
+
 
 };
 

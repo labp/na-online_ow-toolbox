@@ -28,9 +28,7 @@
 
 
 #include <string>
-
 #include <boost/shared_ptr.hpp>
-
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDSource.h"
 #include "WBeamforming.h"
