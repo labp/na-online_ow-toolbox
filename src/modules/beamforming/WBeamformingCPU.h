@@ -32,7 +32,9 @@
 #include "core/data/emd/WLEMDSource.h"
 #include "WBeamforming.h"
 
-
+/**
+ * \author ehrlich
+ */
 class WBeamformingCPU: public WBeamforming
 {
 public:

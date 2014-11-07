@@ -32,8 +32,9 @@
 #include "core/data/emd/WLEMDSource.h"
 #include "core/data/WLDataTypes.h"
 
-
-
+/**
+ * \author ehrlich
+ */
 class WBeamforming
 {
 public:

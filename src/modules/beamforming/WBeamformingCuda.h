@@ -34,6 +34,9 @@
 
 #include "WBeamforming.h"
 
+/**
+ * \author ehrlich
+ */
 class WBeamformingCuda: public WBeamforming
 {
 public:

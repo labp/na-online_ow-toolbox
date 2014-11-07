@@ -45,8 +45,10 @@
 //#include "core/data/WLEMMBemBoundary.h"
 
 /**
- * This module implements several onscreen status displays
+ * This module implements several onscreen status displays.
+ *
  * \ingroup modules
+ * \author ehrlich
  */
 class WMBeamforming: public WLModuleDrawable
 {
