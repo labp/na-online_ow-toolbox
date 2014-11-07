@@ -53,6 +53,15 @@
 // needed by the module loader.
 W_LOADABLE_MODULE( WMFTRtClient )
 
+static const std::string DEFAULT_FT_HOST = "localhost";
+static const int DEFAULT_FT_PORT = 1972;
+
+static const std::string CONNECTION_CONNECT = "Connect";
+static const std::string CONNECTION_DISCONNECT = "Disconnect";
+
+static const std::string CLIENT_STREAMING = "Streaming";
+static const std::string CLIENT_NOT_STREAMING = "Not streaming";
+
 WMFTRtClient::WMFTRtClient()
 {
     m_stopStreaming = true;
@@ -62,9 +71,9 @@ WMFTRtClient::~WMFTRtClient()
 {
 }
 
-boost::shared_ptr< WModule > WMFTRtClient::factory() const
+WModule::SPtr WMFTRtClient::factory() const
 {
-    return boost::shared_ptr< WModule >( new WMFTRtClient() );
+    return WModule::SPtr( new WMFTRtClient() );
 }
 
 const char** WMFTRtClient::getXPMIcon() const
@@ -77,7 +86,7 @@ const char** WMFTRtClient::getXPMIcon() const
  */
 const std::string WMFTRtClient::getName() const
 {
-    return WLConstantsModule::NAME_PREFIX + " FieldTrip Real-time Client";
+    return WLConstantsModule::generateModuleName( "FieldTrip Real-time Client" );
 }
 
 /**
@@ -93,20 +102,12 @@ const std::string WMFTRtClient::getDescription() const
  */
 void WMFTRtClient::connectors()
 {
-    m_input = WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr(
-                    new WLModuleInputDataRingBuffer< WLEMMCommand >( 8, shared_from_this(), "in",
-                                    "Expects a EMM-DataSet for filtering." ) );
-    addConnector( m_input );
-
     m_output = WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr(
                     new WLModuleOutputDataCollectionable< WLEMMCommand >( shared_from_this(), "out",
                                     "Provides a filtered EMM-DataSet" ) );
     addConnector( m_output );
 }
 
-/**
- * Define the property panel.
- */
 void WMFTRtClient::properties()
 {
     WLModuleDrawable::properties();
@@ -209,7 +210,6 @@ void WMFTRtClient::moduleInit()
 
     // init moduleState for using Events in mainLoop
     m_moduleState.setResetable( true, true ); // resetable, autoreset
-    m_moduleState.add( m_input->getDataChangedCondition() ); // when inputdata changed
     m_moduleState.add( m_propCondition ); // when properties changed
 
     ready(); // signal ready state
@@ -229,10 +229,6 @@ void WMFTRtClient::moduleInit()
 void WMFTRtClient::moduleMain()
 {
     moduleInit();
-
-    WLEMMCommand::SPtr emmIn;
-
-    debugLog() << "Entering main loop";
 
     while( !m_shutdownFlag() )
     {
@@ -262,65 +258,29 @@ void WMFTRtClient::moduleMain()
 
             m_resetModule->set( WPVBaseTypes::PV_TRIGGER_READY, true );
         }
-
-        debugLog() << "Waiting for Events";
-        if( m_input->isEmpty() ) // continue processing if data is available
-        {
-            m_moduleState.wait(); // wait for events like input-data or properties changed
-        }
-
-        // receive data form the input-connector
-        emmIn.reset();
-        if( !m_input->isEmpty() )
-        {
-            emmIn = m_input->getData();
-        }
-        const bool dataValid = ( emmIn );
-
-        // ---------- INPUTDATAUPDATEEVENT ----------
-        if( dataValid ) // If there was an update on the input-connector
-        {
-            // The data is valid and we received an update. The data is not NULL but may be the same as in previous loops.
-            debugLog() << "received data";
-
-            process( emmIn );
-
-            debugLog() << "finished";
-        }
     }
 }
 
 bool WMFTRtClient::processCompute( WLEMMeasurement::SPtr emmIn )
 {
-    WLTimeProfiler tp( "WMFTRtClient", "processCompute" );
-
-    // show process visualization
-    boost::shared_ptr< WProgress > process = boost::shared_ptr< WProgress >(
-                    new WProgress( "Import data from FieldTrip Buffer." ) );
-    m_progress->addSubProgress( process );
-
-    // ---------- PROCESSING ----------
-    viewUpdate( emmIn ); // update the GUI component
-
-    updateOutput( emmIn );
-
-    process->finish(); // finish the process visualization
-
+    viewUpdate( emmIn );
+    WLEMMCommand::SPtr cmd( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
+    cmd->setEmm( emmIn );
+    m_output->updateData( cmd );
     return true;
 }
 
-bool WMFTRtClient::processInit( WLEMMCommand::SPtr labp )
+bool WMFTRtClient::processInit( WLEMMCommand::SPtr cmd )
 {
-    m_output->updateData( labp );
-    return false;
+    m_output->updateData( cmd );
+    return true;
 }
 
-bool WMFTRtClient::processReset( WLEMMCommand::SPtr labp )
+bool WMFTRtClient::processReset( WLEMMCommand::SPtr cmd )
 {
     viewReset();
 
-    m_input->clear();
-    m_output->updateData( labp );
+    m_output->updateData( cmd );
 
     m_channels->set( 0, true );
     m_samples->set( 0, true );
@@ -584,18 +544,3 @@ void WMFTRtClient::dispHeaderInfo()
     m_events->set( m_ftRtClient->getHeader()->getHeaderDef().nevents, true );
     m_headerBufSize->set( m_ftRtClient->getHeader()->getHeaderDef().bufsize, true );
 }
-
-const std::string WMFTRtClient::DEFAULT_FT_HOST = "localhost";
-const int WMFTRtClient::DEFAULT_FT_PORT = 1972;
-
-const std::string WMFTRtClient::CONNECTION_CONNECT = "Connect";
-const std::string WMFTRtClient::CONNECTION_DISCONNECT = "Disconnect";
-
-const std::string WMFTRtClient::CLIENT_STREAMING = "Streaming";
-const std::string WMFTRtClient::CLIENT_NOT_STREAMING = "Not streaming";
-
-const std::string WMFTRtClient::NO_FILE_LOADED = "No file loaded.";
-const std::string WMFTRtClient::LOADING_FILE = "Loading file ...";
-const std::string WMFTRtClient::FILE_LOADED = "File successfully loaded.";
-const std::string WMFTRtClient::FILE_ERROR = "Could not load file.";
-const std::string WMFTRtClient::STANDARD_FILE_PATH = WPathHelper::getHomePath().string();
