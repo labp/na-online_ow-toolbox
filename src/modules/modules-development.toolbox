@@ -1,7 +1,6 @@
 # NA-Online modules in development
 
 ADD_MODULE( codeSnippets )
-ADD_MODULE( fiffDataAppender )
 ADD_MODULE( headPositionEstimation )
 ADD_MODULE( matReader )
 ADD_MODULE( matWriter )
