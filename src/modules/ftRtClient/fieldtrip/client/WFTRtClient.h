@@ -30,10 +30,10 @@
 
 #include <message.h>
 
+#include "../WFTConnection.h"
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMDRaw.h"
 
-#include "modules/ftRtClient/fieldtrip/connection/WFTConnection.h"
 #include "modules/ftRtClient/fieldtrip/dataTypes/WFTData.h"
 #include "modules/ftRtClient/fieldtrip/dataTypes/WFTEventList.h"
 #include "modules/ftRtClient/fieldtrip/dataTypes/WFTHeader.h"

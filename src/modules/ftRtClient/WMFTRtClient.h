@@ -38,8 +38,8 @@
 #include "core/data/WLEMMSubject.h"
 #include "core/module/WLModuleDrawable.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
+#include "fieldtrip/WFTConnection.h"
 
-#include "fieldtrip/connection/WFTConnection.h"
 #include "WFTNeuromagClient.h"
 
 /**
@@ -135,6 +135,11 @@ protected:
     virtual bool processReset( WLEMMCommand::SPtr cmd );
 
 private:
+    enum CON_TYPE
+    {
+        CON_TCP, CON_UNIX
+    };
+
     /**
      * A condition used to notify about changes in several properties.
      */

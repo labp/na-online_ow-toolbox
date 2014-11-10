@@ -42,13 +42,12 @@
 #include "core/module/WLModuleOutputDataCollectionable.h"
 #include "core/util/profiler/WLTimeProfiler.h"
 
-#include "fieldtrip/connection/WFTConnectionTCP.h"
-#include "fieldtrip/connection/WFTConnectionUnix.h"
 #include "fieldtrip/dataTypes/enum/WLEFTDataType.h"
 #include "fieldtrip/dataTypes/WFTEventList.h"
 #include "WFTNeuromagClient.h"
 #include "WMFTRtClient.h"
 #include "WMFTRtClient.xpm"
+#include "fieldtrip/WFTConnection.h"
 
 // needed by the module loader.
 W_LOADABLE_MODULE( WMFTRtClient )
@@ -126,21 +125,17 @@ void WMFTRtClient::properties()
 
     // connection type
     m_connectionType = WItemSelection::SPtr( new WItemSelection() );
-    boost::shared_ptr< WItemSelectionItemTyped< WFTConnection::SPtr > > item;
-    WFTConnection::SPtr connection;
+    WItemSelectionItemTyped< CON_TYPE >::SPtr item;
 
     // TCP connection
-    connection.reset( new WFTConnectionTCP( DEFAULT_FT_HOST, DEFAULT_FT_PORT ) );
     item.reset(
-                    new WItemSelectionItemTyped< WFTConnection::SPtr >( connection, "TCP Connection",
+                    new WItemSelectionItemTyped< CON_TYPE >( CON_TCP, "TCP Connection",
                                     "Communicating with the FieldTrip buffer server using a TCP connection." ) );
     m_connectionType->addItem( item );
 
     // Unix connection
-    std::string unixPath = DEFAULT_FT_HOST + ":" + boost::lexical_cast< std::string >( DEFAULT_FT_PORT );
-    connection.reset( new WFTConnectionUnix( unixPath ) );
     item.reset(
-                    new WItemSelectionItemTyped< WFTConnection::SPtr >( connection, "Unix Connection",
+                    new WItemSelectionItemTyped< CON_TYPE >( CON_UNIX, "Unix Connection",
                                     "Communicating with the FieldTrip buffer server using a Unix Domain Socket based connection." ) );
     m_connectionType->addItem( item );
 
@@ -217,7 +212,7 @@ void WMFTRtClient::moduleInit()
 
     viewInit( WLEMDDrawable2D::WEGraphType::DYNAMIC );
 
-    m_connection.reset( new WFTConnectionTCP( DEFAULT_FT_HOST, DEFAULT_FT_PORT ) ); // create default connection
+    m_connection.reset( new WFTConnection ); // create default connection
 
     m_ftRtClient.reset( new WFTNeuromagClient ); // create streaming client.
 
@@ -309,30 +304,40 @@ void WMFTRtClient::updateOutput( WLEMMeasurement::SPtr emm )
 
 void WMFTRtClient::callbackConnectionTypeChanged()
 {
-    debugLog() << "callbackConnectionTypeChanged() called.";
+    debugLog() << __func__ << "() called.";
 
-    m_connection =
-                    m_connectionTypeSelection->get().at( 0 )->getAs< WItemSelectionItemTyped< WFTConnection::SPtr > >()->getValue();
-
-    if( typeid(WFTConnectionTCP) == typeid(*m_connection) )
+    const CON_TYPE con_type =
+                    m_connectionTypeSelection->get().at( 0 )->getAs< WItemSelectionItemTyped< CON_TYPE > >()->getValue();
+    switch( con_type )
     {
-        boost::static_pointer_cast< WFTConnectionTCP >( m_connection )->set( m_host->get(), m_port->get() );
-    }
-    else
-    {
-        const std::string pathname = m_host->get() + ":" + boost::lexical_cast< std::string >( m_port->get() );
-        boost::static_pointer_cast< WFTConnectionUnix >( m_connection )->set( pathname );
+        case CON_TCP:
+        {
+            infoLog() << "Using TCP connection.";
+            m_connection.reset( new WFTConnection );
+            m_connection->setHost( m_host->get() );
+            m_connection->setPort( m_port->get() );
+            break;
+        }
+        case CON_UNIX:
+        {
+            infoLog() << "Using Unix connection.";
+            m_connection.reset( new WFTConnection );
+            const std::string pathname = m_host->get() + ":" + boost::lexical_cast< std::string >( m_port->get() );
+            m_connection->setPath( pathname );
+            break;
+        }
+        default:
+            WAssert( false, "Unknown connection type!" );
     }
 }
 
 bool WMFTRtClient::callbackTrgConnect()
 {
-    debugLog() << "callbackTrgConnect() called.";
+    debugLog() << __func__ << "() called.";
 
     callbackConnectionTypeChanged(); // rebuild the connection
 
-    infoLog() << "Establishing connection to FieldTrip Buffer Server with: " << m_connection->getName() << " ["
-                    << m_connection->getConnectionString() << "].";
+    infoLog() << "Establishing connection to FieldTrip Buffer Server: " << *m_connection;
 
     m_ftRtClient->setConnection( m_connection );
 
@@ -394,7 +399,7 @@ void WMFTRtClient::callbackTrgStartStreaming()
         }
     }
 
-    // set some parameter on initializing the client
+// set some parameter on initializing the client
     m_ftRtClient->setTimeout( ( UINT32_T )m_waitTimeout->get() );
     callbackApplyScaling();
 

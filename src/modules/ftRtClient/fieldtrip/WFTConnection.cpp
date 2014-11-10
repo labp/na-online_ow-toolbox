@@ -21,14 +21,19 @@
 //
 //---------------------------------------------------------------------------
 
+#include "../WFTConnection.h"
+
 #include <string>
 
-#include "WFTConnection.h"
+#include <core/common/WLogger.h>
+
 
 const std::string WFTConnection::CLASS = "WFTConnection";
 
+static const int NO_PORT = -1;
+
 WFTConnection::WFTConnection( int retry ) :
-                FtConnection::FtConnection( retry )
+                FtConnection::FtConnection( retry ), m_port( NO_PORT )
 {
 }
 
@@ -36,7 +41,59 @@ WFTConnection::~WFTConnection()
 {
 }
 
-bool WFTConnection::connect( std::string address )
+bool WFTConnection::connect()
+{
+    if( !m_host.empty() && m_port != NO_PORT )
+    {
+        return connectTcp( m_host.c_str(), m_port );
+    }
+    if( !m_path.empty() )
+    {
+        return connectUnix( m_path.c_str() );
+    }
+
+    wlog::error( CLASS ) << "Could not connect! Host, port or path is missing.";
+    return false;
+
+}
+
+bool WFTConnection::connect( const std::string& address )
 {
     return FtConnection::connect( address.c_str() );
 }
+
+std::string WFTConnection::getHost() const
+{
+    return m_host;
+}
+
+void WFTConnection::setHost( const std::string& host )
+{
+    m_host = host;
+    m_path.clear();
+}
+
+int WFTConnection::getPort() const
+{
+    return m_port;
+}
+
+void WFTConnection::setPort( int port )
+{
+    m_path.clear();
+    m_port = port;
+}
+
+std::string WFTConnection::getPath() const
+{
+    return m_path;
+}
+
+void WFTConnection::setPath( const std::string& path )
+{
+
+    m_host.clear();
+    m_port = NO_PORT;
+    m_path = path;
+}
+

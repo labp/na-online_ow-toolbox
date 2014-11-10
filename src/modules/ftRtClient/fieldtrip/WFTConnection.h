@@ -31,8 +31,9 @@
 #include <FtBuffer.h>
 
 /**
- * This abstract class represents a connection to the FieldTrip Buffer in general and an adapter to the FieldTrip connection class.
- * Special connection types can be inherited from this class to implement a real connection.
+ * Represents a connection to the FieldTrip Buffer in general and an adapter to the FieldTrip connection class.
+ *
+ * \author maschke
  */
 class WFTConnection: protected FtConnection
 {
@@ -64,7 +65,7 @@ public:
      *
      * \return Returns true if connecting was successful, else false.
      */
-    virtual bool connect() = 0;
+    bool connect();
 
     /**
      * This method creates a connection based on the address string. The address has to match the following pattern:
@@ -74,21 +75,19 @@ public:
      * \param address The address string.
      * \return Returns true if connecting was successful, else false.
      */
-    virtual bool connect( std::string address );
+    bool connect( const std::string& address );
 
-    /**
-     * Gets the configured connection information as a string.
-     *
-     * \return The connection as string.
-     */
-    virtual std::string getConnectionString() const = 0;
+    std::string getHost() const;
 
-    /**
-     * Gets a defined name for the connection.
-     *
-     * \return The connections name.
-     */
-    virtual std::string getName() const = 0;
+    void setHost( const std::string& host );
+
+    int getPort() const;
+
+    void setPort( int port );
+
+    std::string getPath() const;
+
+    void setPath( const std::string& path );
 
     /**
      * Inherited method from FieldTrip, which indicates whether the connection is open.
@@ -104,13 +103,21 @@ public:
      * Inherited method from FieldTrip for getting the connections socket descriptor.
      */
     FtConnection::getSocket;
+
+private:
+    std::string m_host;
+
+    int m_port;
+
+    std::string m_path;
 };
 
 inline std::ostream& operator<<( std::ostream& str, const WFTConnection& connection )
 {
     str << WFTConnection::CLASS << ":";
-    str << " Connection String: " << connection.getConnectionString();
-
+    str << " host=" << connection.getHost();
+    str << ", port=" << connection.getPort();
+    str << ", path=" << connection.getPath();
     return str;
 }
 
