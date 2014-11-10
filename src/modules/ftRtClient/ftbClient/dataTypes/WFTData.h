@@ -29,11 +29,11 @@
 #include <SimpleStorage.h>
 #include <message.h>
 
+#include "../request/WFTRequest.h"
+#include "../response/WFTResponse.h"
 #include "modules/ftRtClient/ftb/WFtBuffer.h"
 #include "modules/ftRtClient/ftb/WFtbData.h"
 #include "modules/ftRtClient/ftbClient/dataTypes/WFTObject.h"
-#include "modules/ftRtClient/ftbClient/io/request/WFTRequest.h"
-#include "modules/ftRtClient/ftbClient/io/response/WFTResponse.h"
 #include "WFTRequestableObject.h"
 
 class WFTData: public WFTRequestableObject

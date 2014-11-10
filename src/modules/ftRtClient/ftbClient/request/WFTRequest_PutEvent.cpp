@@ -21,9 +21,10 @@
 //
 //---------------------------------------------------------------------------
 
+#include "WFTRequest_PutEvent.h"
+
 #include <string>
 
-#include "WFTRequest_PutEvent.h"
 
 WFTRequest_PutEvent::WFTRequest_PutEvent( INT32_T sample, INT32_T offset, INT32_T duration, const std::string& type,
                 const std::string& value )

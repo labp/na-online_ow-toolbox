@@ -28,10 +28,11 @@
 
 #include <core/common/WLogger.h>
 
-#include "modules/ftRtClient/ftbClient/WFTChunkIterator.h"
-#include "modules/ftRtClient/ftbClient/io/request/WFTRequest_PutHeader.h"
 #include "chunks/WFTAChunkFactory.h"
 #include "WFTHeader.h"
+
+#include "../container/WFTChunkIterator.h"
+#include "../request/WFTRequest_PutHeader.h"
 
 const std::string WFTHeader::CLASS = "WFTHeader";
 

@@ -39,10 +39,10 @@
 #include "dataTypes/WFTEventList.h"
 #include "dataTypes/WFTHeader.h"
 #include "dataTypes/WFTObject.h"
-#include "io/request/WFTRequest.h"
-#include "io/response/WFTResponse.h"
+#include "request/WFTRequest.h"
+#include "request/WFTRequestBuilder.h"
+#include "response/WFTResponse.h"
 #include "WFTConnection.h"
-#include "WFTRequestBuilder.h"
 
 /**
  * WFTRtClient is the basic client interface to FieldTrip. It provides the essential buffer operations (e.g. requests and connections).

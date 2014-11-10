@@ -23,16 +23,15 @@
 
 #include <string>
 
-#include <buffer.h>
-
-#include "io/request/WFTRequest_GetData.h"
-#include "io/request/WFTRequest_GetEvent.h"
-#include "io/request/WFTRequest_GetHeader.h"
-#include "io/request/WFTRequest_PutData.h"
-#include "io/request/WFTRequest_PutEvent.h"
-#include "io/request/WFTRequest_PutHeader.h"
-#include "io/request/WFTRequest_WaitData.h"
 #include "WFTRequestBuilder.h"
+
+#include "WFTRequest_GetData.h"
+#include "WFTRequest_GetEvent.h"
+#include "WFTRequest_GetHeader.h"
+#include "WFTRequest_PutData.h"
+#include "WFTRequest_PutEvent.h"
+#include "WFTRequest_PutHeader.h"
+#include "WFTRequest_WaitData.h"
 
 WFTRequestBuilder::WFTRequestBuilder()
 {

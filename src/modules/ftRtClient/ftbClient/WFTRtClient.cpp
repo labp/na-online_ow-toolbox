@@ -28,15 +28,16 @@
 
 #include "core/common/WLogger.h"
 
-#include "modules/ftRtClient/ftbClient/io/request/WFTRequest.h"
-#include "modules/ftRtClient/ftbClient/io/request/WFTRequest_GetData.h"
-#include "modules/ftRtClient/ftbClient/io/request/WFTRequest_GetEvent.h"
-#include "modules/ftRtClient/ftbClient/io/request/WFTRequest_GetHeader.h"
-#include "modules/ftRtClient/ftbClient/io/request/WFTRequest_WaitData.h"
-#include "modules/ftRtClient/ftbClient/io/response/WFTResponse.h"
 #include "modules/ftRtClient/ftbClient/dataTypes/WFTHeader.h"
-#include "modules/ftRtClient/ftbClient/WFTEventIterator.h"
 #include "WFTRtClient.h"
+
+#include "container/WFTEventIterator.h"
+#include "request/WFTRequest.h"
+#include "request/WFTRequest_GetData.h"
+#include "request/WFTRequest_GetEvent.h"
+#include "request/WFTRequest_GetHeader.h"
+#include "request/WFTRequest_WaitData.h"
+#include "response/WFTResponse.h"
 
 const std::string WFTRtClient::CLASS = "WFTRtClient";
 

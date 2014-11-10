@@ -23,9 +23,9 @@
 
 #include <string>
 
-#include "dataTypes/WFTObject.h"
-
+#include "modules/ftRtClient/ftbClient/dataTypes/WFTObject.h"
 #include "modules/ftRtClient/ftb/WFtbEvent.h"
+
 #include "WFTEventIterator.h"
 
 const std::string WFTEventIterator::CLASS = "WFTEventIterator";

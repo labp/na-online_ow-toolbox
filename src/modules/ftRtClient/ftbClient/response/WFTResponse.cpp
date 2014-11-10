@@ -21,9 +21,10 @@
 //
 //---------------------------------------------------------------------------
 
+#include "WFTResponse.h"
+
 #include <string>
 
-#include "WFTResponse.h"
 
 const std::string WFTResponse::CLASS = "WFTResponse";
 

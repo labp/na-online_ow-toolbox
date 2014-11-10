@@ -22,8 +22,9 @@
 //---------------------------------------------------------------------------
 
 #include "modules/ftRtClient/ftb/WFtbChunk.h"
-#include "dataTypes/chunks/WFTAChunkFactory.h"
-#include "dataTypes/WFTObject.h"
+#include "modules/ftRtClient/ftbClient/dataTypes/chunks/WFTAChunkFactory.h"
+#include "modules/ftRtClient/ftbClient/dataTypes/WFTObject.h"
+
 #include "WFTChunkIterator.h"
 
 WFTChunkIterator::WFTChunkIterator( SimpleStorage* const buf, int size ) :

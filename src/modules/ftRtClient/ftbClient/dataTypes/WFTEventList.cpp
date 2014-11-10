@@ -30,9 +30,10 @@
 
 #include "modules/ftRtClient/ftb/WFtBuffer.h"
 #include "modules/ftRtClient/ftbClient/dataTypes/WFTEventList.h"
-#include "modules/ftRtClient/ftbClient/io/request/WFTRequest.h"
-#include "modules/ftRtClient/ftbClient/io/response/WFTResponse.h"
-#include "modules/ftRtClient/ftbClient/WFTEventIterator.h"
+
+#include "../container/WFTEventIterator.h"
+#include "../request/WFTRequest.h"
+#include "../response/WFTResponse.h"
 
 const std::string WFTEventList::CLASS = "WFTEventList";
 

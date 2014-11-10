@@ -21,8 +21,29 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WFTAbstractRequestBuilder.h"
+#ifndef WFTREQUEST_PUTHEADER_H_
+#define WFTREQUEST_PUTHEADER_H_
 
-WFTAbstractRequestBuilder::~WFTAbstractRequestBuilder()
+#include <boost/shared_ptr.hpp>
+
+#include "WFTRequest.h"
+#include "modules/ftRtClient/ftbClient/dataTypes/chunks/WFTAChunk.h"
+
+class WFTRequest_PutHeader: public WFTRequest
 {
-}
+public:
+    /**
+     * A pointer on a WFTRequest_PutHeader.
+     */
+    typedef boost::shared_ptr< WFTRequest_PutHeader > SPtr;
+
+    WFTRequest_PutHeader( UINT32_T numChannels, UINT32_T dataType, float fsample );
+
+    virtual ~WFTRequest_PutHeader();
+
+    bool addChunk( UINT32_T chunkType, UINT32_T chunkSize, const void *data );
+
+    bool addChunk( WFTAChunk::SPtr chunk );
+};
+
+#endif  // WFTREQUEST_PUTHEADER_H_

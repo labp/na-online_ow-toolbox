@@ -31,14 +31,13 @@
 #include "modules/ftRtClient/ftb/WFtBuffer.h"
 #include "modules/ftRtClient/ftb/WFtbData.h"
 #include "modules/ftRtClient/ftb/WFtbEvent.h"
-#include "WFTAbstractRequestBuilder.h"
-#include "io/request/WFTRequest.h"
+#include "WFTRequest.h"
 
 /**
  * This class is used to create FieldTrip buffer requests and bases on the WFTAbstractRequestBuilder interface.
  * It provides partially core FieldTrip features but also additional requests.
  */
-class WFTRequestBuilder: public WFTAbstractRequestBuilder
+class WFTRequestBuilder
 {
 public:
     /**

@@ -24,8 +24,8 @@
 #ifndef WFTREQUESTABLEOBJECT_H_
 #define WFTREQUESTABLEOBJECT_H_
 
-#include "modules/ftRtClient/ftbClient/io/request/WFTRequest.h"
-#include "modules/ftRtClient/ftbClient/io/response/WFTResponse.h"
+#include "../request/WFTRequest.h"
+#include "../response/WFTResponse.h"
 #include "WFTObject.h"
 
 class WFTRequestableObject: public WFTObject
