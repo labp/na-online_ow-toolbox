@@ -23,7 +23,7 @@
 
 #include <string>
 
-#include "modules/ftRtClient/fieldtrip/dataTypes/WFTEvent.h"
+#include "modules/ftRtClient/ftbClient/dataTypes/WFTEvent.h"
 
 const std::string WFTEvent::CLASS = "WFTEvent";
 

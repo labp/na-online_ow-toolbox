@@ -38,9 +38,9 @@
 #include "core/data/emd/WLEMDECG.h"
 #include "core/data/enum/WLEModality.h"
 #include "core/data/WLDataTypes.h"
-#include "fieldtrip/dataTypes/chunks/WFTChunkNeuromagHdr.h"
-#include "fieldtrip/dataTypes/chunks/WFTChunkNeuromagIsotrak.h"
 #include "WFTNeuromagClient.h"
+#include "ftbClient/dataTypes/chunks/WFTChunkNeuromagHdr.h"
+#include "ftbClient/dataTypes/chunks/WFTChunkNeuromagIsotrak.h"
 
 const std::string WFTNeuromagClient::CLASS = "WFTNeuromagClient";
 

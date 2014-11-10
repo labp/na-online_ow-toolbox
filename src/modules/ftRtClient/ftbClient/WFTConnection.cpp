@@ -21,12 +21,11 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WFTConnection.h"
-
 #include <string>
 
 #include <core/common/WLogger.h>
 
+#include "WFTConnection.h"
 
 const std::string WFTConnection::CLASS = "WFTConnection";
 

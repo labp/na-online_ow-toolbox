@@ -38,7 +38,7 @@
 #include "core/data/WLEMMSubject.h"
 #include "core/module/WLModuleDrawable.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
-#include "fieldtrip/WFTConnection.h"
+#include "ftbClient/WFTConnection.h"
 
 #include "WFTNeuromagClient.h"
 

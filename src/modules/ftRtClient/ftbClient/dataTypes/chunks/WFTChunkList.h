@@ -28,7 +28,7 @@
 
 #include <core/container/WLArrayList.h>
 
-#include "modules/ftRtClient/fieldtrip/dataTypes/enum/WLEFTChunkType.h"
+#include "modules/ftRtClient/ftbClient/dataTypes/enum/WLEFTChunkType.h"
 #include "WFTAChunk.h"
 
 /**

@@ -21,13 +21,14 @@
 //
 //---------------------------------------------------------------------------
 
+#include "../../../ftbClient/dataTypes/chunks/WFTChunkNeuromagIsotrak.h"
+
 #include <string>
 
 #include <core/common/WLogger.h>
 
 #include "core/io/WLReaderIsotrak.h"
 #include "core/util/WLGeometry.h"
-#include "WFTChunkNeuromagIsotrak.h"
 
 const std::string WFTChunkNeuromagIsotrak::CLASS = "WFTChunkNeuromagIsotrak";
 

@@ -30,11 +30,11 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include "../../ftbClient/dataTypes/chunks/WFTAChunk.h"
+#include "../../ftbClient/dataTypes/chunks/WFTChunkList.h"
+#include "../../ftbClient/dataTypes/WFTRequestableObject.h"
 #include "core/container/WLArrayList.h"
 
-#include "chunks/WFTAChunk.h"
-#include "chunks/WFTChunkList.h"
-#include "WFTRequestableObject.h"
 
 /**
  * The WFTHeader class represents the FieldTrip header structure. It consists of a fix definition part and the chunk list collection.

@@ -28,8 +28,8 @@
 
 #include <core/common/WLogger.h>
 
-#include "modules/ftRtClient/fieldtrip/WFTChunkIterator.h"
-#include "modules/ftRtClient/fieldtrip/io/request/WFTRequest_PutHeader.h"
+#include "modules/ftRtClient/ftbClient/WFTChunkIterator.h"
+#include "modules/ftRtClient/ftbClient/io/request/WFTRequest_PutHeader.h"
 #include "chunks/WFTAChunkFactory.h"
 #include "enum/WLEFTChunkType.h"
 #include "WFTHeader.h"

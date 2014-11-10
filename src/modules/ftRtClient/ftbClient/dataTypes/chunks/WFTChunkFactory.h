@@ -28,7 +28,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "modules/ftRtClient/fieldtrip/dataTypes/enum/WLEFTChunkType.h"
+#include "modules/ftRtClient/ftbClient/dataTypes/enum/WLEFTChunkType.h"
 #include "WFTChunkChanNames.h"
 #include "WFTChunkNeuromagHdr.h"
 #include "WFTChunkNeuromagIsotrak.h"

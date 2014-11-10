@@ -21,5 +21,4 @@
 //
 //---------------------------------------------------------------------------
 
-#include <modules/ftRtClient/fieldtrip/WFTAIterator.h>
-
+#include "WFTAIterator.h"

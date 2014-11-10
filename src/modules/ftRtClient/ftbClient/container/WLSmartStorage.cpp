@@ -24,7 +24,7 @@
 #include <algorithm>
 #include <string>
 
-#include <modules/ftRtClient/fieldtrip/container/WLSmartStorage.h>
+#include <modules/ftRtClient/ftbClient/container/WLSmartStorage.h>
 
 WLSmartStorage::WLSmartStorage()
 {

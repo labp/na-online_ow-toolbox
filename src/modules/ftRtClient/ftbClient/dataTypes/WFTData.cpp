@@ -21,8 +21,8 @@
 //
 //---------------------------------------------------------------------------
 
-#include "modules/ftRtClient/fieldtrip/WFTRequestBuilder.h"
-#include "modules/ftRtClient/fieldtrip/io/request/WFTRequest_PutData.h"
+#include "modules/ftRtClient/ftbClient/WFTRequestBuilder.h"
+#include "modules/ftRtClient/ftbClient/io/request/WFTRequest_PutData.h"
 #include "WFTData.h"
 
 WFTData::WFTData()

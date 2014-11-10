@@ -27,8 +27,8 @@
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include "modules/ftRtClient/fieldtrip/container/WLSmartStorage.h"
-#include "modules/ftRtClient/fieldtrip/dataTypes/enum/WLEFTChunkType.h"
+#include "modules/ftRtClient/ftbClient/container/WLSmartStorage.h"
+#include "modules/ftRtClient/ftbClient/dataTypes/enum/WLEFTChunkType.h"
 
 /**
  * The abstract WFTAChunk class defines a generic interface class for all FieldTrip header chunk classes.

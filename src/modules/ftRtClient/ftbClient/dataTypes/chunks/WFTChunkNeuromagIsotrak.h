@@ -31,11 +31,11 @@
 #include <core/common/math/linearAlgebra/WMatrixFixed.h>
 #include <core/common/math/linearAlgebra/WPosition.h>
 
+#include "../../../ftbClient/dataTypes/chunks/WFTAChunk.h"
 #include "core/container/WLArrayList.h"
 #include "core/container/WLList.h"
 #include "core/data/enum/WLEPointType.h"
 #include "core/data/WLDigPoint.h"
-#include "WFTAChunk.h"
 
 /**
  * The WFTChunkNeuromagIsotrak represents the FieldTrip header chunk, which contains the Neuromag Isotrak file.

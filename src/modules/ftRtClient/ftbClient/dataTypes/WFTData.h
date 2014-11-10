@@ -29,9 +29,9 @@
 #include <SimpleStorage.h>
 #include <message.h>
 
-#include "modules/ftRtClient/fieldtrip/dataTypes/WFTObject.h"
-#include "modules/ftRtClient/fieldtrip/io/request/WFTRequest.h"
-#include "modules/ftRtClient/fieldtrip/io/response/WFTResponse.h"
+#include "modules/ftRtClient/ftbClient/dataTypes/WFTObject.h"
+#include "modules/ftRtClient/ftbClient/io/request/WFTRequest.h"
+#include "modules/ftRtClient/ftbClient/io/response/WFTResponse.h"
 #include "WFTRequestableObject.h"
 
 class WFTData: public WFTRequestableObject

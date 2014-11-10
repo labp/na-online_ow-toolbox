@@ -21,4 +21,5 @@
 //
 //---------------------------------------------------------------------------
 
-#include <modules/ftRtClient/fieldtrip/dataTypes/chunks/WFTChunkFactory.h>
+#include "modules/ftRtClient/ftbClient/dataTypes/chunks/WFTAChunkFactory.h"
+

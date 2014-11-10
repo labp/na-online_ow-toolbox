@@ -42,12 +42,12 @@
 #include "core/module/WLModuleOutputDataCollectionable.h"
 #include "core/util/profiler/WLTimeProfiler.h"
 
-#include "fieldtrip/dataTypes/enum/WLEFTDataType.h"
-#include "fieldtrip/dataTypes/WFTEventList.h"
+#include "ftbClient/dataTypes/enum/WLEFTDataType.h"
+#include "ftbClient/dataTypes/WFTEventList.h"
 #include "WFTNeuromagClient.h"
 #include "WMFTRtClient.h"
 #include "WMFTRtClient.xpm"
-#include "fieldtrip/WFTConnection.h"
+#include "ftbClient/WFTConnection.h"
 
 // needed by the module loader.
 W_LOADABLE_MODULE( WMFTRtClient )
