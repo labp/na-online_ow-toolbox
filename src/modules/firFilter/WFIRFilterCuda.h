@@ -49,7 +49,7 @@ public:
 
     WFIRFilterCuda();
 
-    WFIRFilterCuda( WFIRFilter::WEFilterType::Enum filtertype, WFIRFilter::WEWindowsType::Enum windowtype, int order,
+    WFIRFilterCuda( WFIRFilter::WEFilterType::Enum filtertype, WLWindowFunction::WLEWindow windowtype, int order,
                     ScalarT sFreq, ScalarT cFreq1, ScalarT cFreq2 );
 
     explicit WFIRFilterCuda( const std::string& pathToFcf );

@@ -34,14 +34,13 @@
 #include "core/container/WLList.h"
 #include "core/data/WLDataTypes.h"
 #include "core/data/WLEMMCommand.h"
-#include "core/data/WLEMMSurface.h"
-#include "core/data/WLEMMBemBoundary.h"
 #include "core/data/WLDigPoint.h"
 #include "core/module/WLModuleDrawable.h"
 #include "WRtClient.h"
 
 /**
- * TODO
+ * Connection to a MNE Real-time Server.
+ *
  * \ingroup modules
  */
 class WMMneRtClient: public WLModuleDrawable
@@ -148,23 +147,9 @@ private:
     // Additional data //
     WPropGroup m_propGrpAdditional;
 
-    WPropFilename m_srcSpaceFile;
-    WLEMMSurface::SPtr m_surface;
-    bool handleSurfaceFileChanged( std::string fName );
-
-    WPropFilename m_bemFile;
-    WLList< WLEMMBemBoundary::SPtr >::SPtr m_bems;
-    bool handleBemFileChanged( std::string fName );
-
     WPropFilename m_digPointsFile;
     WLList< WLDigPoint >::SPtr m_digPoints;
     bool handleDigPointsFileChanged( std::string fName );
-
-    WPropFilename m_lfEEGFile;
-    WPropFilename m_lfMEGFile;
-    WLMatrix::SPtr m_leadfieldEEG;
-    WLMatrix::SPtr m_leadfieldMEG;
-    bool handleLfFileChanged( WLMatrix::SPtr* const lf, std::string fName );
 
     WPropString m_additionalStatus;
 
@@ -173,8 +158,6 @@ private:
      */
     WPropTrigger m_trgAdditionalReset;
     void handleTrgAdditionalReset();
-
-    WLEMMSubject::SPtr m_subject;
 };
 
 #endif  // WMMNERTCLIENT_H

@@ -29,6 +29,7 @@
 #include "core/common/WLogger.h"
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMData.h"
+#include "core/preprocessing/WLPreprocessing.h"
 #include "core/util/profiler/WLTimeProfiler.h"
 
 #include "WEpochAveraging.h"
@@ -52,7 +53,7 @@ size_t WEpochAveraging::getCount() const
 
 void WEpochAveraging::reset()
 {
-    wlog::debug( CLASS ) << "reset() called!";
+    wlog::debug( CLASS ) << __func__ << "() called!";
     m_count = 0;
 }
 
@@ -72,7 +73,7 @@ void WEpochAveraging::setTBase( size_t tbase, bool reset )
 
 WLEMMeasurement::SPtr WEpochAveraging::baseline( WLEMMeasurement::ConstSPtr emm )
 {
-    WLTimeProfiler tp( CLASS, "baseline" );
+    WLTimeProfiler tp( CLASS, __func__ );
     WLEMData::ConstSPtr emd;
 
     WLEMMeasurement::SPtr emmOut = emm->clone();
@@ -81,27 +82,15 @@ WLEMMeasurement::SPtr WEpochAveraging::baseline( WLEMMeasurement::ConstSPtr emm 
     for( size_t mod = 0; mod < emm->getModalityCount(); ++mod )
     {
         emd = emm->getModality( mod );
-        WLEMData::DataT& data = emd->getData();
+        const WLEMData::DataT& data = emd->getData();
         emdOut = emd->clone();
         WLEMData::DataT& dataOut = emdOut->getData();
-        dataOut = data;
 
-        const WLChanNrT channels = emd->getNrChans();
         const WLSampleNrT tbase = std::min( m_tbase, emd->getSamplesPerChan() );
-
-        WLEMData::SampleT means( channels );
-        for( WLChanIdxT chan = 0; chan < channels; ++chan )
+        if( !WLPreprocessing::baselineCorrection( &dataOut, data, 0, tbase ) )
         {
-            WLEMData::ScalarT mean = 0;
-            for( WLSampleIdxT smp = 0; smp < tbase; ++smp )
-            {
-                mean += data( chan, smp );
-            }
-            mean = tbase > 0 ? ( mean / tbase ) : 0;
-            means( chan ) = mean;
+            wlog::error( CLASS ) << "Error in baseline correction!";
         }
-
-        dataOut.colwise() -= means;
 
         emmOut->addModality( emdOut );
     }

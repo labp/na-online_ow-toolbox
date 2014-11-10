@@ -21,7 +21,6 @@
 //
 //---------------------------------------------------------------------------
 
-
 #ifndef WLCONSTANTSMODULE_H_
 #define WLCONSTANTSMODULE_H_
 
@@ -31,12 +30,19 @@ namespace WLConstantsModule
 {
     const std::string NAME_PREFIX = "NA-Online:";
 
+    std::string generateModuleName( const std::string& name );
+
     const size_t BUFFER_SIZE = 8;
 
     const std::string CONNECTOR_NAME_IN = "in";
     const std::string CONNECTOR_DESCR_IN = "in";
     const std::string CONNECTOR_NAME_OUT = "out";
     const std::string CONNECTOR_DESCR_OUT = "out";
+}
+
+inline std::string WLConstantsModule::generateModuleName( const std::string& name )
+{
+    return WLConstantsModule::NAME_PREFIX + " " + name;
 }
 
 #endif  // WLCONSTANTSMODULE_H_

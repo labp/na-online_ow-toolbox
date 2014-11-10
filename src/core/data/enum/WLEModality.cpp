@@ -41,6 +41,7 @@ WLEModality::ContainerT WLEModality::values()
     modalities.insert( WLEModality::MEG_MAG );
     modalities.insert( WLEModality::MEG_GRAD );
     modalities.insert( WLEModality::MEG_GRAD_MERGED );
+    modalities.insert( WLEModality::HPI );
     return modalities;
 }
 
@@ -66,6 +67,8 @@ std::string WLEModality::name( WLEModality::Enum val )
             return "MEG (grad.)";
         case WLEModality::MEG_GRAD_MERGED:
             return "MEG (grad2)";
+        case WLEModality::HPI:
+            return "HPI";
         case WLEModality::UNKNOWN:
             return "UNKNOWN";
         default:
@@ -96,6 +99,8 @@ std::string WLEModality::description( WLEModality::Enum val )
             return "MEG measurement (gradiometer)";
         case WLEModality::MEG_GRAD_MERGED:
             return "MEG measurement (gradiometer merged)";
+        case WLEModality::HPI:
+            return "Head Position Indicator coils";
         case WLEModality::UNKNOWN:
             return "UNKNOWN modality type!";
         default:
@@ -138,6 +143,7 @@ WLEModality::ContainerT WLEModality::valuesComputed()
     ContainerT modalities;
     modalities.insert( WLEModality::PCA );
     modalities.insert( WLEModality::SOURCE );
+    modalities.insert( WLEModality::HPI );
     return modalities;
 }
 

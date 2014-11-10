@@ -35,11 +35,15 @@
 #include "core/kernel/WModule.h"
 
 #include "core/data/WLDataTypes.h"
-#include "core/data/WLEMMSurface.h"
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMCommand.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
+/**
+ * Reads a MATLAB MAT-file into EMM structure.
+ *
+ * \author pieloth
+ */
 class WMMatReader: public WModule
 {
 public:
@@ -92,14 +96,6 @@ private:
     WPropDouble m_propSamplFreq;
 
     bool handleGenerateEMM();
-
-    WPropFilename m_propLfFile;
-    WLMatrix::SPtr m_leadfield;
-    bool handleLfFileChanged();
-
-    WPropFilename m_propSrcSpaceFile;
-    WLEMMSurface::SPtr m_surface;
-    bool handleSurfaceFileChanged();
 };
 
 #endif  // WMMATREADER_H_

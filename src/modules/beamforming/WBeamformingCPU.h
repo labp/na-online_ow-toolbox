@@ -21,18 +21,40 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFIRDESIGNWINDOW_H
-#define WFIRDESIGNWINDOW_H
+#ifndef WBEAMFORMINGCPU_H_
+#define WBEAMFORMINGCPU_H_
 
-#include "WFIRFilter.h"
+#include <string>
 
-class WFIRDesignWindow
+#include <boost/shared_ptr.hpp>
+
+#include "core/data/emd/WLEMData.h"
+#include "core/data/emd/WLEMDSource.h"
+
+#include "WBeamforming.h"
+
+/**
+ * \author ehrlich
+ */
+class WBeamformingCPU: public WBeamforming
 {
 public:
-    WFIRDesignWindow();
-    virtual ~WFIRDesignWindow();
+    /**
+     * Abbreviation for a shared pointer.
+     */
+    typedef boost::shared_ptr< WBeamformingCPU > SPtr;
 
-    static WFIRFilter::ScalarT getFactor( WFIRFilter::WEWindowsType::Enum windowtype, int order, int n );
+    /**
+     * Abbreviation for const shared pointer.
+     */
+    typedef boost::shared_ptr< const WBeamformingCPU > ConstSPtr;
+
+    static const std::string CLASS;
+
+    WBeamformingCPU();
+    virtual ~WBeamformingCPU();
+
+    WLEMDSource::SPtr beam( WLEMData::ConstSPtr emd );
 };
 
-#endif  // WFIRDESIGNWINDOW_H
+#endif  // WBEAMFORMINGCPU_H_

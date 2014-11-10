@@ -2,10 +2,11 @@
 
 ADD_MODULE( alignment )
 ADD_MODULE( emmGenerator )
-ADD_MODULE( emmSimulator )
+ADD_MODULE( emmStreaming )
 ADD_MODULE( epochAveraging )
 ADD_MODULE( epochRejection )
 ADD_MODULE( epochSeparation )
+ADD_MODULE( fiffDataAppender )
 ADD_MODULE( fiffReader )
 ADD_MODULE( fiffWriter )
 ADD_MODULE( firFilter )

@@ -49,7 +49,7 @@ public:
 
     WFIRFilterCpu();
 
-    WFIRFilterCpu( WFIRFilter::WEFilterType::Enum filtertype, WFIRFilter::WEWindowsType::Enum windowtype, int order, ScalarT sFreq,
+    WFIRFilterCpu( WFIRFilter::WEFilterType::Enum filtertype, WLWindowFunction::WLEWindow windowtype, int order, ScalarT sFreq,
                     ScalarT cFreq1, ScalarT cFreq2 );
 
     explicit WFIRFilterCpu( const std::string& pathToFcf );

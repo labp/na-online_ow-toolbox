@@ -21,8 +21,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMEMMSIMULATOR_H_
-#define WMEMMSIMULATOR_H_
+#ifndef WMEMMSTREAMING_H_
+#define WMEMMSTREAMING_H_
 
 #include <string>
 
@@ -40,11 +40,11 @@
  *
  * \author pieloth
  */
-class WMEMMSimulator: public WLModuleDrawable
+class WMEMMStreaming: public WLModuleDrawable
 {
 public:
-    WMEMMSimulator();
-    virtual ~WMEMMSimulator();
+    WMEMMStreaming();
+    virtual ~WMEMMStreaming();
 
     virtual const std::string getName() const;
 
@@ -106,51 +106,12 @@ private:
 
     WPropTrigger m_trgReset; /**< Reset additional data. */
     void hdlTrgReset();
-
-    // Additional data
-    // ---------------
-    WPropGroup m_propGrpAdditional;
-
-    WPropFilename m_srcSpaceFile;
-    WLEMMSurface::SPtr m_surface;
-    bool hdlSurfaceFileChanged( std::string fName );
-
-    WPropFilename m_bemFile;
-    WLList< WLEMMBemBoundary::SPtr >::SPtr m_bems;
-    bool hdlBemFileChanged( std::string fName );
-
-    WPropFilename m_lfEEGFile;
-    WPropFilename m_lfMEGFile;
-    WLMatrix::SPtr m_leadfieldEEG;
-    WLMatrix::SPtr m_leadfieldMEG;
-    bool hdlLeadfieldFileChanged( WLMatrix::SPtr* const lf, std::string fName );
-
-    WPropString m_propStatusAdditional;
-
-    struct EData
-    {
-        enum Enum
-        {
-            DATA_NOT_LOADED, DATA_LOADING, DATA_LOADED, DATA_ERROR
-        };
-        static std::string name( EData::Enum val );
-    };
-
-    WLEMMSubject::SPtr m_subject; /**< Stores a copy the input subject. */
-
-    /**
-     * If additional data is available, clones the input and sets the data.
-     *
-     * \param subjectIn Subject to clone
-     * \return True if new subject were created and additional data was set.
-     */
-    bool initAdditionalData( WLEMMSubject::ConstSPtr subjectIn );
 };
 
-inline void WMEMMSimulator::updateStatus( EStreaming::Enum status )
+inline void WMEMMStreaming::updateStatus( EStreaming::Enum status )
 {
     m_statusStreaming = status;
     m_propStatusStreaming->set( EStreaming::name( status ), true );
 }
 
-#endif  // WMEMMSIMULATOR_H_
+#endif  // WMEMMSTREAMING_H_

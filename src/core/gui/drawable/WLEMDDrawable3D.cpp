@@ -52,6 +52,7 @@
 #include "WLEMDDrawable.h"
 #include "WLEMDDrawable3DEEG.h"
 #include "WLEMDDrawable3DMEG.h"
+#include "WLEMDDrawable3DHPI.h"
 #include "WLEMDDrawable3DSource.h"
 #include "WLEMDDrawable3DEmpty.h"
 #include "WLEMDDrawable3D.h"
@@ -102,6 +103,9 @@ WLEMDDrawable3D::SPtr WLEMDDrawable3D::getInstance( WUIViewWidget::SPtr widget, 
             break;
         case WLEModality::SOURCE:
             drawable3D = WLEMDDrawable3D::SPtr( new WLEMDDrawable3DSource( widget ) );
+            break;
+        case WLEModality::HPI:
+            drawable3D = WLEMDDrawable3D::SPtr( new WLEMDDrawable3DHPI( widget ) );
             break;
         default:
             drawable3D = WLEMDDrawable3D::SPtr( new WLEMDDrawable3DEmpty( widget ) );
