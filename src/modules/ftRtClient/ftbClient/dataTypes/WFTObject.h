@@ -24,6 +24,7 @@
 #ifndef WFTOBJECT_H_
 #define WFTOBJECT_H_
 
+#include "modules/ftRtClient/ftb/WFtBuffer.h"
 #include "WFTDataTypes.h"
 
 /**
@@ -47,7 +48,7 @@ public:
      *
      * \return The memory size.
      */
-    virtual UINT32_T getSize() const = 0;
+    virtual wftb::bufsize_t getSize() const = 0;
 };
 
 #endif  // WFTOBJECT_H_

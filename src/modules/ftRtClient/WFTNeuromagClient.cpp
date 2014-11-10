@@ -38,6 +38,7 @@
 #include "core/data/emd/WLEMDECG.h"
 #include "core/data/enum/WLEModality.h"
 #include "core/data/WLDataTypes.h"
+#include "modules/ftRtClient/ftb/WFtbChunk.h"
 #include "WFTNeuromagClient.h"
 #include "ftbClient/dataTypes/chunks/WFTChunkNeuromagHdr.h"
 #include "ftbClient/dataTypes/chunks/WFTChunkNeuromagIsotrak.h"
@@ -106,7 +107,7 @@ bool WFTNeuromagClient::createEMM( WLEMMeasurement::SPtr emm )
     }
 
     // if there is no Neuromag header, return raw data.
-    if( !m_header->hasChunk( WLEFTChunkType::FT_CHUNK_NEUROMAG_HEADER ) )
+    if( !m_header->hasChunk( wftb::ChunkType::NEUROMAG_HEADER ) )
     {
         emm->addModality( rawData );
 
@@ -187,14 +188,14 @@ bool WFTNeuromagClient::getRawData( WLEMDRaw::SPtr* const rawData )
 bool WFTNeuromagClient::createDetailedEMM( WLEMMeasurement::SPtr emm, WLEMDRaw::SPtr rawData )
 {
     // get Neuromag header
-    WFTChunkNeuromagHdr::SPtr neuromagHdr = m_header->getChunks( WLEFTChunkType::FT_CHUNK_NEUROMAG_HEADER )->at( 0 )->getAs<
+    WFTChunkNeuromagHdr::SPtr neuromagHdr = m_header->getChunks( wftb::ChunkType::NEUROMAG_HEADER )->at( 0 )->getAs<
                     WFTChunkNeuromagHdr >();
 
     // get Neuromag Isotrak
     WFTChunkNeuromagIsotrak::SPtr isotrak;
-    if( m_header->hasChunk( WLEFTChunkType::FT_CHUNK_NEUROMAG_ISOTRAK ) )
+    if( m_header->hasChunk( wftb::ChunkType::NEUROMAG_ISOTRAK ) )
     {
-        isotrak = m_header->getChunks( WLEFTChunkType::FT_CHUNK_NEUROMAG_ISOTRAK )->at( 0 )->getAs< WFTChunkNeuromagIsotrak >();
+        isotrak = m_header->getChunks( wftb::ChunkType::NEUROMAG_ISOTRAK )->at( 0 )->getAs< WFTChunkNeuromagIsotrak >();
     }
 
     //

@@ -27,8 +27,8 @@
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/shared_ptr.hpp>
 
+#include "modules/ftRtClient/ftb/WFtbChunk.h"
 #include "modules/ftRtClient/ftbClient/container/WLSmartStorage.h"
-#include "modules/ftRtClient/ftbClient/dataTypes/enum/WLEFTChunkType.h"
 
 /**
  * The abstract WFTAChunk class defines a generic interface class for all FieldTrip header chunk classes.
@@ -54,7 +54,7 @@ public:
      * \param data The memory storage, which contains the chunk data.
      * \param size The size of the memory storage.
      */
-    explicit WFTAChunk( WLEFTChunkType::Enum type, const size_t size );
+    explicit WFTAChunk( wftb::chunk_type_t type, const wftb::chunk_size_t size );
 
     /**
      * Destroys the WFTAChunk.
@@ -73,14 +73,14 @@ public:
      *
      * \return Returns the chunks buffer size.
      */
-    size_t getSize() const;
+    wftb::chunk_size_t getSize() const;
 
     /**
      * Gets the chunk type.
      *
      * \return Returns the chunk type.
      */
-    WLEFTChunkType::Enum getType() const;
+    wftb::chunk_type_t getType() const;
 
     /**
      * Gets the data as a smart storage structure. This method is used to serialize a chunk into a request message body.
@@ -139,12 +139,12 @@ private:
     /**
      * The chunks buffer size.
      */
-    size_t m_size;
+    wftb::chunk_size_t m_size;
 
     /**
      * The chunk type
      */
-    WLEFTChunkType::Enum m_type;
+    wftb::chunk_type_t m_type;
 };
 
 #endif  // WFTACHUNK_H_

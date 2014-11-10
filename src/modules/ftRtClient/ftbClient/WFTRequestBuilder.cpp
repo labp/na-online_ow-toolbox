@@ -43,35 +43,36 @@ WFTRequest::SPtr WFTRequestBuilder::buildRequest_GET_HDR()
     return WFTRequest::SPtr( new WFTRequest_GetHeader );
 }
 
-WFTRequest::SPtr WFTRequestBuilder::buildRequest_PUT_HDR( UINT32_T numChannels, UINT32_T dataType, float fsample )
+WFTRequest::SPtr WFTRequestBuilder::buildRequest_PUT_HDR( wftb::nchans_t numChannels, wftb::data_type_t dataType,
+                wftb::fsamp_t fsample )
 {
     return WFTRequest::SPtr( new WFTRequest_PutHeader( numChannels, dataType, fsample ) );
 }
 
-WFTRequest::SPtr WFTRequestBuilder::buildRequest_PUT_DAT( UINT32_T numChannels, UINT32_T numSamples, UINT32_T dataType,
-                const void *data )
+WFTRequest::SPtr WFTRequestBuilder::buildRequest_PUT_DAT( wftb::nchans_t numChannels, wftb::nsamples_t numSamples,
+                wftb::data_type_t dataType, const void *data )
 {
     return WFTRequest::SPtr( new WFTRequest_PutData( numChannels, numSamples, dataType, data ) );
 }
 
-WFTRequest::SPtr WFTRequestBuilder::buildRequest_GET_DAT( UINT32_T begsample, UINT32_T endsample )
+WFTRequest::SPtr WFTRequestBuilder::buildRequest_GET_DAT( wftb::isample_t begsample, wftb::isample_t endsample )
 {
     return WFTRequest::SPtr( new WFTRequest_GetData( begsample, endsample ) );
 }
 
-WFTRequest::SPtr WFTRequestBuilder::buildRequest_PUT_EVT( INT32_T sample, INT32_T offset, INT32_T duration,
-                const std::string& type, const std::string& value )
+WFTRequest::SPtr WFTRequestBuilder::buildRequest_PUT_EVT( wftb::Event::sample_t sample, wftb::Event::offset_t offset,
+                wftb::Event::duration_t duration, const std::string& type, const std::string& value )
 {
     return WFTRequest::SPtr( new WFTRequest_PutEvent( sample, offset, duration, type, value ) );
 }
 
-WFTRequest::SPtr WFTRequestBuilder::buildRequest_PUT_EVT( INT32_T sample, INT32_T offset, INT32_T duration,
-                const std::string& type, INT32_T value )
+WFTRequest::SPtr WFTRequestBuilder::buildRequest_PUT_EVT( wftb::Event::sample_t sample, wftb::Event::offset_t offset,
+                wftb::Event::duration_t duration, const std::string& type, INT32_T value )
 {
     return WFTRequest::SPtr( new WFTRequest_PutEvent( sample, offset, duration, type, value ) );
 }
 
-WFTRequest::SPtr WFTRequestBuilder::buildRequest_GET_EVT( UINT32_T begevent, UINT32_T endevent )
+WFTRequest::SPtr WFTRequestBuilder::buildRequest_GET_EVT( wftb::ievent_t begevent, wftb::ievent_t endevent )
 {
     return WFTRequest::SPtr( new WFTRequest_GetEvent( begevent, endevent ) );
 }
@@ -106,7 +107,8 @@ WFTRequest::SPtr WFTRequestBuilder::buildRequest_FLUSH_HDR()
     return WFTRequest::SPtr( request );
 }
 
-WFTRequest::SPtr WFTRequestBuilder::buildRequest_WAIT_DAT( UINT32_T nSamples, UINT32_T nEvents, UINT32_T milliseconds )
+WFTRequest::SPtr WFTRequestBuilder::buildRequest_WAIT_DAT( wftb::nsamples_t nSamples, wftb::nevents_t nEvents,
+                wftb::time_t milliseconds )
 {
     return WFTRequest::SPtr( new WFTRequest_WaitData( nSamples, nEvents, milliseconds ) );
 }

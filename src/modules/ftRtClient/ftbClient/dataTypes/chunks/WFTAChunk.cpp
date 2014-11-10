@@ -23,7 +23,7 @@
 
 #include "WFTAChunk.h"
 
-WFTAChunk::WFTAChunk( WLEFTChunkType::Enum type, const size_t size ) :
+WFTAChunk::WFTAChunk( wftb::chunk_type_t type, const wftb::chunk_size_t size ) :
                 m_valid( false ), m_size( size ), m_type( type )
 {
 }
@@ -37,12 +37,12 @@ bool WFTAChunk::isValid() const
     return m_valid;
 }
 
-size_t WFTAChunk::getSize() const
+wftb::chunk_size_t WFTAChunk::getSize() const
 {
     return m_size;
 }
 
-WLEFTChunkType::Enum WFTAChunk::getType() const
+wftb::chunk_type_t WFTAChunk::getType() const
 {
     return m_type;
 }

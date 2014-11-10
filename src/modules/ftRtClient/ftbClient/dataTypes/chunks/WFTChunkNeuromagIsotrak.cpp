@@ -30,12 +30,14 @@
 #include "core/io/WLReaderIsotrak.h"
 #include "core/util/WLGeometry.h"
 
+#include "modules/ftRtClient/ftb/WFtbChunk.h"
+
 const std::string WFTChunkNeuromagIsotrak::CLASS = "WFTChunkNeuromagIsotrak";
 
 const int WFTChunkNeuromagIsotrak::EEG_FACES_FACTOR = -5;
 
-WFTChunkNeuromagIsotrak::WFTChunkNeuromagIsotrak( const char* data, const size_t size ) :
-                WFTAChunk( WLEFTChunkType::FT_CHUNK_NEUROMAG_ISOTRAK, size )
+WFTChunkNeuromagIsotrak::WFTChunkNeuromagIsotrak( const char* data, const wftb::chunk_size_t size ) :
+                WFTAChunk( wftb::ChunkType::NEUROMAG_ISOTRAK, size )
 {
     m_digPoints.reset( new WLList< WLDigPoint > );
     m_eegChPos.reset( new WLArrayList< WPosition > );

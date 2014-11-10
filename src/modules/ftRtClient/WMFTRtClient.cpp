@@ -42,7 +42,7 @@
 #include "core/module/WLModuleOutputDataCollectionable.h"
 #include "core/util/profiler/WLTimeProfiler.h"
 
-#include "ftbClient/dataTypes/enum/WLEFTDataType.h"
+#include "ftb/WFtbData.h"
 #include "ftbClient/dataTypes/WFTEventList.h"
 #include "WFTNeuromagClient.h"
 #include "WMFTRtClient.h"
@@ -181,7 +181,7 @@ void WMFTRtClient::properties()
     m_frSample->setPurpose( PV_PURPOSE_INFORMATION );
     m_samples = m_propGrpHeader->addProperty( "Number of samples:", "Shows the number of samples read until now.", 0 );
     m_samples->setPurpose( PV_PURPOSE_INFORMATION );
-    m_dataType = m_propGrpHeader->addProperty( "Data type:", "Data type", WLEFTDataType::name( WLEFTDataType::UNKNOWN ) );
+    m_dataType = m_propGrpHeader->addProperty( "Data type:", "Data type", wftb::DataType::name( wftb::DataType::UNKNOWN ) );
     m_dataType->setPurpose( PV_PURPOSE_INFORMATION );
     m_events = m_propGrpHeader->addProperty( "Number of events:", "Shows the number of events read until now.", 0 );
     m_events->setPurpose( PV_PURPOSE_INFORMATION );
@@ -274,7 +274,7 @@ bool WMFTRtClient::processReset( WLEMMCommand::SPtr cmd )
     m_frSample->set( 0.0, true );
     m_headerBufSize->set( 0, true );
     m_waitTimeout->set( ( int )WFTRtClient::DEFAULT_WAIT_TIMEOUT, true );
-    m_dataType->set( WLEFTDataType::name( WLEFTDataType::UNKNOWN ), true );
+    m_dataType->set( wftb::DataType::name( wftb::DataType::UNKNOWN ), true );
 
     if( m_ftRtClient->isStreaming() )
     {
@@ -418,7 +418,7 @@ void WMFTRtClient::hdlTrgStartStreaming()
                     m_samples->set( m_ftRtClient->getSampleCount(), true );
                     m_channels->set( m_ftRtClient->getData()->getDataDef().nchans, true );
                     m_dataType->set(
-                                    WLEFTDataType::name( ( WLEFTDataType::Enum )m_ftRtClient->getData()->getDataDef().data_type ),
+                                    wftb::DataType::name( m_ftRtClient->getData()->getDataDef().data_type ),
                                     true );
 
                     WLEMMeasurement::SPtr emm( new WLEMMeasurement );
@@ -509,7 +509,7 @@ void WMFTRtClient::applyStatusStreaming()
     m_frSample->set( 0.0, true );
     m_events->set( 0, true );
     m_headerBufSize->set( 0, true );
-    m_dataType->set( WLEFTDataType::name( WLEFTDataType::UNKNOWN ), true );
+    m_dataType->set( wftb::DataType::name( wftb::DataType::UNKNOWN ), true );
 
     m_trgStartStream->set( WPVBaseTypes::PV_TRIGGER_READY, true );
     m_trgStopStream->set( WPVBaseTypes::PV_TRIGGER_READY, true );

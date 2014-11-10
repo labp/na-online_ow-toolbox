@@ -24,8 +24,8 @@
 #include <string>
 
 #include "dataTypes/WFTObject.h"
-#include "dataTypes/enum/WLEFTDataType.h"
 
+#include "modules/ftRtClient/ftb/WFtbEvent.h"
 #include "WFTEventIterator.h"
 
 const std::string WFTEventIterator::CLASS = "WFTEventIterator";
@@ -37,7 +37,7 @@ WFTEventIterator::WFTEventIterator( SimpleStorage* const buf, int size ) :
 
 bool WFTEventIterator::hasNext() const
 {
-    return m_pos + ( int )sizeof( WFTEventDefT ) < m_size;
+    return m_pos + ( int )sizeof( wftb::EventDefT ) < m_size;
 }
 
 WFTEvent::SPtr WFTEventIterator::getNext()
@@ -47,29 +47,29 @@ WFTEvent::SPtr WFTEventIterator::getNext()
         return WFTEvent::SPtr();
     }
 
-    WFTEventDefT *def = ( WFTEventDefT * )( ( char * )m_store->data() + m_pos );
+    wftb::EventDefT *def = ( wftb::EventDefT * )( ( char * )m_store->data() + m_pos );
     unsigned int wsType, wsValue;
 
     // test whether the events is included completely
-    if( m_pos + ( int )( sizeof( WFTEventDefT ) + def->bufsize ) > m_size )
+    if( m_pos + ( int )( sizeof( wftb::EventDefT ) + def->bufsize ) > m_size )
     {
         return WFTEvent::SPtr();
     }
 
     // get the word sizes for type and value. Important for pointing to the right memory location.
-    wsType = WLEFTDataType::wordSize( WLEFTDataType::typeByCode( def->type_type ) );
-    wsValue = WLEFTDataType::wordSize( WLEFTDataType::typeByCode( def->value_type ) );
+    wsType = sizeof( wftb::Event::type_type_t );
+    wsValue = sizeof( wftb::Event::value_type_t );
     // define the lengths of type and value
     uint lenType = wsType * def->type_numel;
     uint lenValue = wsValue * def->value_numel;
     // create pointers to types and values location.
-    const char *srcType = ( ( const char* )m_store->data() ) + m_pos + sizeof( WFTEventDefT );
+    const char *srcType = ( ( const char* )m_store->data() ) + m_pos + sizeof( wftb::EventDefT );
     const char *srcValue = srcType + lenType;
 
     std::string type( srcType, lenType );
     std::string value( srcValue, lenValue );
 
-    m_pos += sizeof( WFTEventDefT ) + def->bufsize; // increase the position to the next event.
+    m_pos += sizeof( wftb::EventDefT ) + def->bufsize; // increase the position to the next event.
 
     return WFTEvent::SPtr( new WFTEvent( *def, type, value ) ); // create the event object and return.
 }

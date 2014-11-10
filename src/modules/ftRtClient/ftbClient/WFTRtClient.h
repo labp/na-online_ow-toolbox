@@ -33,6 +33,8 @@
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMDRaw.h"
 
+#include "modules/ftRtClient/ftb/WFtBuffer.h"
+#include "modules/ftRtClient/ftb/WFtbCommand.h"
 #include "dataTypes/WFTData.h"
 #include "dataTypes/WFTEventList.h"
 #include "dataTypes/WFTHeader.h"
@@ -58,7 +60,7 @@ public:
     /**
      * Default timeout value for Wait-requests.
      */
-    static const UINT32_T DEFAULT_WAIT_TIMEOUT;
+    static const wftb::time_t DEFAULT_WAIT_TIMEOUT;
 
     /**
      * Shared pointer on WFTRtClient.
@@ -154,14 +156,14 @@ public:
      *
      * \return The number of read samples.
      */
-    UINT32_T getSampleCount() const;
+    wftb::nsamples_t getSampleCount() const;
 
     /**
      * Gets the number of read events by the client.
      *
      * \return The number of read events.
      */
-    UINT32_T getEventCount() const;
+    wftb::nevents_t getEventCount() const;
 
     /**
      * Using this method you can put a single request on the server using a TCP request. Every further complex request comes down
@@ -217,14 +219,14 @@ public:
      *
      * \return The timeout.
      */
-    UINT32_T getTimeout() const;
+    wftb::time_t getTimeout() const;
 
     /**
      * Sets the timeout for Wait-requests.
      *
      * \param timeout The timeout.
      */
-    void setTimeout( UINT32_T timeout );
+    void setTimeout( wftb::time_t timeout );
 
     /**
      * Does a Flush-Header-request on the server. This request removes header, samples and events.
@@ -255,7 +257,7 @@ protected:
      *
      * \return Returns true if the request was successful, else false.
      */
-    bool doFlush( UINT16_T command );
+    bool doFlush( wftb::command_type_t command );
 
     /**
      * Extracts the event/ stimulus channels from a data matrix. @ePicks contains the needed channel indices.
@@ -295,23 +297,23 @@ protected:
     /**
      * The timeout for Wait-requests.
      */
-    UINT32_T m_waitTimeout_ms;
+    wftb::time_t m_waitTimeout_ms;
 
 private:
     /**
      * Variable to determine the number of received samples.
      */
-    UINT32_T m_samples;
+    wftb::nsamples_t m_samples;
 
     /**
      * Variable to determine the number of received events.
      */
-    UINT32_T m_eventCount;
+    wftb::nevents_t m_eventCount;
 
     /**
      * Structure to store information about samples and events currently located on the server.
      */
-    WFTSamplesEventsT m_svr_samp_evt;
+    wftb::SamplesEventsT m_svr_samp_evt;
 
     /**
      * A shared mutex used for TCP requests.

@@ -56,7 +56,7 @@ public:
      *
      * \return Returns an unsigned 32 bit integer.
      */
-    virtual UINT32_T getSize() const = 0;
+    virtual wftb::bufsize_t getSize() const = 0;
 };
 
 #endif  // WFTREQUESTABLEOBJECT_H_

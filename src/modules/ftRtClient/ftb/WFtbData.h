@@ -21,51 +21,38 @@
 //
 //---------------------------------------------------------------------------
 
+#ifndef WFTBDATA_H_
+#define WFTBDATA_H_
+
+#include <stdint.h>
 #include <string>
 
-#include "modules/ftRtClient/ftbClient/dataTypes/WFTEvent.h"
+#include <message.h>
 
-const std::string WFTEvent::CLASS = "WFTEvent";
-
-WFTEvent::WFTEvent( wftb::EventDefT def, const std::string type, const std::string value ) :
-                m_def( def ), m_type( type ), m_value( value )
+namespace wftb
 {
-}
+    typedef uint32_t data_type_t;
 
-WFTEvent::WFTEvent( wftb::Event::sample_t sample, wftb::Event::offset_t offset, wftb::Event::duration_t duration,
-                const std::string type, const std::string value ) :
-                m_type( type ), m_value( value )
-{
-    m_def.sample = sample;
-    m_def.offset = offset;
-    m_def.duration = duration;
-}
+    typedef datadef_t DataDefT;
+    typedef data_t DataT;
 
-WFTEvent::~WFTEvent()
-{
-}
+    namespace DataType
+    {
+        const data_type_t CHAR = DATATYPE_CHAR;
+        const data_type_t UINT8 = DATATYPE_UINT8;
+        const data_type_t UINT16 = DATATYPE_UINT16;
+        const data_type_t UINT32 = DATATYPE_UINT32;
+        const data_type_t UINT64 = DATATYPE_UINT64;
+        const data_type_t INT8 = DATATYPE_INT8;
+        const data_type_t INT16 = DATATYPE_INT16;
+        const data_type_t INT32 = DATATYPE_INT32;
+        const data_type_t INT64 = DATATYPE_INT64;
+        const data_type_t FLOAT32 = DATATYPE_FLOAT32;
+        const data_type_t FLOAT64 = DATATYPE_FLOAT64;
+        const data_type_t UNKNOWN = DATATYPE_UNKNOWN;
 
-UINT32_T WFTEvent::getSize() const
-{
-    return ( UINT32_T )sizeof(eventdef_t) + m_def.bufsize;
-}
+        std::string name( data_type_t type );
+    } /* namespace DataType */
+} /* namespace wftb */
+#endif  // WFTBDATA_H_
 
-wftb::EventDefT& WFTEvent::getDef()
-{
-    return m_def;
-}
-
-wftb::EventDefT WFTEvent::getDef() const
-{
-    return m_def;
-}
-
-const std::string WFTEvent::getType() const
-{
-    return m_type;
-}
-
-const std::string WFTEvent::getValue() const
-{
-    return m_value;
-}

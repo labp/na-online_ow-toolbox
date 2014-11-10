@@ -31,8 +31,7 @@
 
 #include <FtBuffer.h>
 
-#include "modules/ftRtClient/ftbClient/dataTypes/WFTObject.h"
-#include "modules/ftRtClient/ftbClient/dataTypes/enum/WLEFTCommand.h"
+#include "modules/ftRtClient/ftb/WFtBuffer.h"
 
 /**
  * The WFTRequest class represents a basic FieldTrip request. It adapts the FieldTrip Buffer Request and can be used to
@@ -71,7 +70,7 @@ public:
      *
      * \param msg The message
      */
-    explicit WFTRequest( const WFTMessageT *msg );
+    explicit WFTRequest( const wftb::MessageT *msg );
 
     /**
      * Destroys the WFTRequest.
@@ -83,14 +82,14 @@ public:
      *
      * \return The message header.
      */
-    WFTMessageDefT &getMessageDef();
+    wftb::MessageDefT &getMessageDef();
 
     /**
      * Gets the message.
      *
      * @return The message.
      */
-    WFTMessageT &getMessage();
+    wftb::MessageT &getMessage();
 
     /**
      * Gets the messages content.
@@ -131,7 +130,7 @@ inline std::ostream& operator<<( std::ostream &strm, const WFTRequest &request )
 {
     strm << "WFTRequest: ";
     strm << "Version: " << request.m_def.version;
-    strm << ", Command: " << WLEFTCommand::name( ( WLEFTCommand::Enum )request.m_def.command );
+    strm << ", Command: " << request.m_def.command;
     strm << ", Buffer Size: " << request.m_def.bufsize;
 
     return strm;

@@ -29,7 +29,7 @@ WFTData::WFTData()
 {
 }
 
-WFTData::WFTData( UINT32_T numChannels, UINT32_T numSamples, UINT32_T dataType )
+WFTData::WFTData( wftb::nchans_t numChannels, wftb::nsamples_t numSamples, wftb::data_type_t dataType )
 {
     m_def.nchans = numChannels;
     m_def.nsamples = numSamples;
@@ -56,12 +56,12 @@ bool WFTData::parseResponse( WFTResponse::SPtr response )
     return response->checkGetData( m_def, &m_buf );
 }
 
-UINT32_T WFTData::getSize() const
+wftb::bufsize_t WFTData::getSize() const
 {
-    return m_def.bufsize + sizeof(WFTDataDefT);
+    return m_def.bufsize + sizeof(wftb::DataDefT);
 }
 
-WFTDataDefT& WFTData::getDataDef()
+wftb::DataDefT& WFTData::getDataDef()
 {
     return m_def;
 }

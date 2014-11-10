@@ -40,7 +40,7 @@
 
 const std::string WFTRtClient::CLASS = "WFTRtClient";
 
-const UINT32_T WFTRtClient::DEFAULT_WAIT_TIMEOUT = 40;
+const wftb::time_t WFTRtClient::DEFAULT_WAIT_TIMEOUT = 40;
 
 WFTRtClient::WFTRtClient() :
                 m_waitTimeout_ms( DEFAULT_WAIT_TIMEOUT ), m_samples( 0 ), m_eventCount( 0 )
@@ -221,7 +221,7 @@ bool WFTRtClient::getNewSamples()
     }
 
     // calculate the last samples index depending on the sampling frequency and the number of store sample on the server.
-    UINT32_T endSample =
+    wftb::nsamples_t endSample =
                     m_svr_samp_evt.nsamples - m_samples >= m_header->getHeaderDef().fsample ? m_samples
                                     + m_header->getHeaderDef().fsample - 1 :
                                     m_svr_samp_evt.nsamples - 1;
@@ -281,32 +281,32 @@ bool WFTRtClient::getNewEvents()
     return true;
 }
 
-UINT32_T WFTRtClient::getTimeout() const
+wftb::time_t WFTRtClient::getTimeout() const
 {
     return m_waitTimeout_ms;
 }
 
-void WFTRtClient::setTimeout( UINT32_T timeout )
+void WFTRtClient::setTimeout( wftb::time_t timeout )
 {
     m_waitTimeout_ms = timeout;
 }
 
 bool WFTRtClient::doFlushHeaderRequest()
 {
-    return doFlush( FLUSH_HDR );
+    return doFlush( wftb::CommandType::FLUSH_HDR_ );
 }
 
 bool WFTRtClient::doFlushDataRequest()
 {
-    return doFlush( FLUSH_DAT );
+    return doFlush( wftb::CommandType::FLUSH_DAT_ );
 }
 
 bool WFTRtClient::doFlushEventsRequest()
 {
-    return doFlush( FLUSH_EVT );
+    return doFlush( wftb::CommandType::FLUSH_EVT_ );
 }
 
-bool WFTRtClient::doFlush( UINT16_T command )
+bool WFTRtClient::doFlush( wftb::command_type_t command )
 {
     WFTRequest::SPtr request( new WFTRequest );
     request->getMessageDef().command = command;

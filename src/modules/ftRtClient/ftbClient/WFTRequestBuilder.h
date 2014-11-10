@@ -28,8 +28,9 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <message.h>
-
+#include "modules/ftRtClient/ftb/WFtBuffer.h"
+#include "modules/ftRtClient/ftb/WFtbData.h"
+#include "modules/ftRtClient/ftb/WFtbEvent.h"
 #include "WFTAbstractRequestBuilder.h"
 #include "io/request/WFTRequest.h"
 
@@ -66,7 +67,8 @@ public:
      *
      * \return Returns a shared pointer on a WFTRequest.
      */
-    WFTRequest::SPtr buildRequest_PUT_HDR( UINT32_T numChannels, UINT32_T dataType, float fsample );
+    WFTRequest::SPtr buildRequest_PUT_HDR( wftb::nchans_t numChannels, wftb::data_type_t dataType,
+                    wftb::fsamp_t fsample );
 
     /**
      * Builds a put data request.
@@ -78,7 +80,8 @@ public:
      *
      * \return Returns a shared pointer on a WFTRequest.
      */
-    WFTRequest::SPtr buildRequest_PUT_DAT( UINT32_T numChannels, UINT32_T numSamples, UINT32_T dataType, const void *data );
+    WFTRequest::SPtr buildRequest_PUT_DAT( wftb::nchans_t numChannels, wftb::nsamples_t numSamples,
+                    wftb::data_type_t dataType, const void *data );
 
     /**
      * Builds a get data request.
@@ -88,7 +91,7 @@ public:
      *
      * \return Returns a shared pointer on a WFTRequest.
      */
-    WFTRequest::SPtr buildRequest_GET_DAT( UINT32_T begsample, UINT32_T endsample );
+    WFTRequest::SPtr buildRequest_GET_DAT( wftb::isample_t begsample, wftb::isample_t endsample );
 
     /**
      * Builds a put event request.
@@ -101,8 +104,8 @@ public:
      *
      * \return Returns a shared pointer on a WFTRequest.
      */
-    WFTRequest::SPtr buildRequest_PUT_EVT( INT32_T sample, INT32_T offset, INT32_T duration, const std::string& type,
-                    const std::string& value );
+    WFTRequest::SPtr buildRequest_PUT_EVT( wftb::Event::sample_t sample, wftb::Event::offset_t offset,
+                    wftb::Event::duration_t duration, const std::string& type, const std::string& value );
 
     /**
      * Builds a put event request.
@@ -114,8 +117,8 @@ public:
      * \param value The event value.
      * \return Returns a shared pointer on a WFTRequest.
      */
-    WFTRequest::SPtr buildRequest_PUT_EVT( INT32_T sample, INT32_T offset, INT32_T duration, const std::string& type,
-                    INT32_T value = 0 );
+    WFTRequest::SPtr buildRequest_PUT_EVT( wftb::Event::sample_t sample, wftb::Event::offset_t offset,
+                    wftb::Event::duration_t duration, const std::string& type, INT32_T value = 0 );
 
     /**
      * Builds a get event request.
@@ -125,7 +128,7 @@ public:
      *
      * \return Returns a shared pointer on a WFTRequest.
      */
-    WFTRequest::SPtr buildRequest_GET_EVT( UINT32_T begevent, UINT32_T endevent );
+    WFTRequest::SPtr buildRequest_GET_EVT( wftb::ievent_t begevent, wftb::ievent_t endevent );
 
     /**
      * Builds a flush data request.
@@ -157,7 +160,8 @@ public:
      *
      * \return Returns a shared pointer on a WFTRequest.
      */
-    WFTRequest::SPtr buildRequest_WAIT_DAT( UINT32_T nSamples, UINT32_T nEvents, UINT32_T milliseconds );
+    WFTRequest::SPtr buildRequest_WAIT_DAT( wftb::nsamples_t nSamples, wftb::nevents_t nEvents,
+                    wftb::time_t milliseconds );
 };
 
 #endif  // WFTREQUESTBUILDER_H_

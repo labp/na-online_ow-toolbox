@@ -35,13 +35,14 @@
 #include "core/container/WLArrayList.h"
 #include "core/data/enum/WLEModality.h"
 #include "core/dataFormat/fiff/WLFiffChType.h"
+#include "modules/ftRtClient/ftb/WFtbChunk.h"
 #include "modules/ftRtClient/reader/WReaderNeuromagHeader.h"
 #include "WFTChunkNeuromagHdr.h"
 
 const std::string WFTChunkNeuromagHdr::CLASS = "WFTChunkNeuromagHdr";
 
-WFTChunkNeuromagHdr::WFTChunkNeuromagHdr( const char* data, const size_t size ) :
-                WFTAChunk( WLEFTChunkType::FT_CHUNK_NEUROMAG_HEADER, size )
+WFTChunkNeuromagHdr::WFTChunkNeuromagHdr( const char* data, const wftb::chunk_size_t size ) :
+                WFTAChunk( wftb::ChunkType::NEUROMAG_HEADER, size )
 {
     processData( data, size );
 }

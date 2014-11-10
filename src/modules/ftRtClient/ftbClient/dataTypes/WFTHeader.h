@@ -30,6 +30,9 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include "modules/ftRtClient/ftb/WFtBuffer.h"
+#include "modules/ftRtClient/ftb/WFtbChunk.h"
+#include "modules/ftRtClient/ftb/WFtbData.h"
 #include "../../ftbClient/dataTypes/chunks/WFTAChunk.h"
 #include "../../ftbClient/dataTypes/chunks/WFTChunkList.h"
 #include "../../ftbClient/dataTypes/WFTRequestableObject.h"
@@ -64,7 +67,7 @@ public:
      * \param dataType The used data type in the data buffer. The parameters data type is defined by the FieldTrip buffer protocol.
      * \param fsample The sample frequency.
      */
-    WFTHeader( UINT32_T numChannels, UINT32_T dataType, float fsample );
+    WFTHeader( wftb::nchans_t numChannels, wftb::data_type_t dataType, wftb::fsamp_t fsample );
 
     /**
      * Destroys the WFTHeader.
@@ -78,7 +81,7 @@ public:
      * \param dataType The used data type in the data buffer. The parameters data type is defined by the FieldTrip buffer protocol.
      * \param fsample The sample frequency.
      */
-    void init( UINT32_T numChannels, UINT32_T dataType, float fsample );
+    void init( wftb::nchans_t numChannels, wftb::data_type_t dataType, wftb::fsamp_t fsample );
 
     /**
      * Inherited form WFTRequestableObject.
@@ -100,21 +103,21 @@ public:
      *
      * \return Returns the amount of memory allocated by the header including the size of the chunk list.
      */
-    UINT32_T getSize() const;
+    wftb::bufsize_t getSize() const;
 
     /**
      * Returns a reference on the headers definition part.
      *
-     * @return The header definition.
+     * \return The header definition.
      */
-    WFTHeaderDefT& getHeaderDef();
+    wftb::HeaderDefT& getHeaderDef();
 
     /**
      * Returns the header structure.
      *
      * \return The header structure.
      */
-    WFTHeaderDefT getHeaderDef() const;
+    wftb::HeaderDefT getHeaderDef() const;
 
     /**
      * Returns whether or not the header has chunks in its buffer.
@@ -129,7 +132,7 @@ public:
      * \param chunkType The chunk type to filter.
      * \return Returns true if there are chunks kind of the @chunkType, else false.
      */
-    bool hasChunk( WLEFTChunkType::Enum chunkType ) const;
+    bool hasChunk( wftb::chunk_type_t chunkType ) const;
 
     /**
      * Add a new chunk to the headers chunk list.
@@ -152,13 +155,13 @@ public:
      * \param chunkType The chunk type.
      * \return A pointer on the chunk list.
      */
-    WFTChunkList::SPtr getChunks( WLEFTChunkType::Enum chunkType );
+    WFTChunkList::SPtr getChunks( wftb::chunk_type_t chunkType );
 
 protected:
     /**
      * The definition part of the header.
      */
-    WFTHeaderDefT m_def;
+    wftb::HeaderDefT m_def;
 
     /**
      * A list of chunk objects. It is used during request serializing.

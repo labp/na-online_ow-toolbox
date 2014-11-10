@@ -28,7 +28,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "modules/ftRtClient/ftbClient/dataTypes/enum/WLEFTChunkType.h"
+#include "modules/ftRtClient/ftb/WFtbChunk.h"
 #include "WFTChunkChanNames.h"
 #include "WFTChunkNeuromagHdr.h"
 #include "WFTChunkNeuromagIsotrak.h"
@@ -93,12 +93,12 @@ inline boost::shared_ptr< Base > WFTChunkFactory< Enum, Base, Derived >::create(
 
 namespace
 {
-    WFTChunkFactory< WLEFTChunkType::Enum, WFTAChunk, WFTChunkChanNames > const ChannelNamesFactory(
-                        WLEFTChunkType::FT_CHUNK_CHANNEL_NAMES );
-    WFTChunkFactory< WLEFTChunkType::Enum, WFTAChunk, WFTChunkNeuromagHdr > const NeuromagHeaderFactory(
-                    WLEFTChunkType::FT_CHUNK_NEUROMAG_HEADER );
-    WFTChunkFactory< WLEFTChunkType::Enum, WFTAChunk, WFTChunkNeuromagIsotrak > const NeuromagIsotrakFactory(
-                    WLEFTChunkType::FT_CHUNK_NEUROMAG_ISOTRAK );
+    WFTChunkFactory< wftb::chunk_type_t, WFTAChunk, WFTChunkChanNames > const ChannelNamesFactory(
+                    wftb::ChunkType::CHANNEL_NAMES );
+    WFTChunkFactory< wftb::chunk_type_t, WFTAChunk, WFTChunkNeuromagHdr > const NeuromagHeaderFactory(
+                    wftb::ChunkType::NEUROMAG_HEADER );
+    WFTChunkFactory< wftb::chunk_type_t, WFTAChunk, WFTChunkNeuromagIsotrak > const NeuromagIsotrakFactory(
+                    wftb::ChunkType::NEUROMAG_ISOTRAK );
 }
 
 #endif  // WFTCHUNKFACTORY_H_

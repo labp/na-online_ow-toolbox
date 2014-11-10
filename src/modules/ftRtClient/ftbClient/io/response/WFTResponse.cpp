@@ -49,7 +49,7 @@ bool WFTResponse::hasData() const
     return m_response->def->bufsize > 0;
 }
 
-const WFTMessageT WFTResponse::getMessage() const
+const wftb::MessageT WFTResponse::getMessage() const
 {
     return *m_response;
 }

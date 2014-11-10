@@ -32,12 +32,12 @@
 
 #include "WFTChunkList.h"
 
-bool WFTChunkList::isChunkType( const WFTAChunk::SPtr& chunk, WLEFTChunkType::Enum x )
+bool WFTChunkList::isChunkType( const WFTAChunk::SPtr& chunk, wftb::chunk_type_t x )
 {
     return chunk->getType() == x;
 }
 
-WFTChunkList::SPtr WFTChunkList::filter( WLEFTChunkType::Enum chunkType )
+WFTChunkList::SPtr WFTChunkList::filter( wftb::chunk_type_t chunkType )
 {
     WFTChunkList::SPtr q( new WFTChunkList() );
     WFTChunkList &ptr = *q;

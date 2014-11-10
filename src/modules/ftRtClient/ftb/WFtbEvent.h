@@ -21,51 +21,26 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
+#ifndef WFTBEVENT_H_
+#define WFTBEVENT_H_
 
-#include "modules/ftRtClient/ftbClient/dataTypes/WFTEvent.h"
+#include <message.h>
 
-const std::string WFTEvent::CLASS = "WFTEvent";
-
-WFTEvent::WFTEvent( wftb::EventDefT def, const std::string type, const std::string value ) :
-                m_def( def ), m_type( type ), m_value( value )
+namespace wftb
 {
-}
+    typedef eventdef_t EventDefT;
+    typedef event_t EventT;
 
-WFTEvent::WFTEvent( wftb::Event::sample_t sample, wftb::Event::offset_t offset, wftb::Event::duration_t duration,
-                const std::string type, const std::string value ) :
-                m_type( type ), m_value( value )
-{
-    m_def.sample = sample;
-    m_def.offset = offset;
-    m_def.duration = duration;
-}
+    typedef uint32_t ievent_t;
+    typedef uint32_t nevents_t;
 
-WFTEvent::~WFTEvent()
-{
-}
-
-UINT32_T WFTEvent::getSize() const
-{
-    return ( UINT32_T )sizeof(eventdef_t) + m_def.bufsize;
-}
-
-wftb::EventDefT& WFTEvent::getDef()
-{
-    return m_def;
-}
-
-wftb::EventDefT WFTEvent::getDef() const
-{
-    return m_def;
-}
-
-const std::string WFTEvent::getType() const
-{
-    return m_type;
-}
-
-const std::string WFTEvent::getValue() const
-{
-    return m_value;
-}
+    namespace Event
+    {
+        typedef int32_t sample_t;
+        typedef int32_t offset_t;
+        typedef int32_t duration_t;
+        typedef uint32_t type_type_t;
+        typedef uint32_t value_type_t;
+    } /* namespace Event */
+} /* namespace wftb */
+#endif  // WFTBEVENT_H_

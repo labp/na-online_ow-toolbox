@@ -28,7 +28,7 @@
 
 #include <core/container/WLArrayList.h>
 
-#include "modules/ftRtClient/ftbClient/dataTypes/enum/WLEFTChunkType.h"
+#include "modules/ftRtClient/ftb/WFtbChunk.h"
 #include "WFTAChunk.h"
 
 /**
@@ -55,7 +55,7 @@ public:
      *
      * \return Returns true if the @chunk has the given @type, else false.
      */
-    static bool isChunkType( const WFTAChunk::SPtr& chunk, WLEFTChunkType::Enum type );
+    static bool isChunkType( const WFTAChunk::SPtr& chunk, wftb::chunk_type_t type );
 
     /**
      * This method delivers a filtered chunk list in which all chunks has the given @chunkType.
@@ -64,7 +64,7 @@ public:
      * \param chunkType The type to filter
      * \return Returns a shared pointer on the filtered list.
      */
-    WFTChunkList::SPtr filter( WLEFTChunkType::Enum chunkType );
+    WFTChunkList::SPtr filter( wftb::chunk_type_t chunkType );
 };
 
 #endif  // WFTCHUNKLIST_H_

@@ -21,51 +21,37 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
+#include "WFtbData.h"
 
-#include "modules/ftRtClient/ftbClient/dataTypes/WFTEvent.h"
-
-const std::string WFTEvent::CLASS = "WFTEvent";
-
-WFTEvent::WFTEvent( wftb::EventDefT def, const std::string type, const std::string value ) :
-                m_def( def ), m_type( type ), m_value( value )
+std::string wftb::DataType::name( data_type_t type )
 {
-}
-
-WFTEvent::WFTEvent( wftb::Event::sample_t sample, wftb::Event::offset_t offset, wftb::Event::duration_t duration,
-                const std::string type, const std::string value ) :
-                m_type( type ), m_value( value )
-{
-    m_def.sample = sample;
-    m_def.offset = offset;
-    m_def.duration = duration;
-}
-
-WFTEvent::~WFTEvent()
-{
-}
-
-UINT32_T WFTEvent::getSize() const
-{
-    return ( UINT32_T )sizeof(eventdef_t) + m_def.bufsize;
-}
-
-wftb::EventDefT& WFTEvent::getDef()
-{
-    return m_def;
-}
-
-wftb::EventDefT WFTEvent::getDef() const
-{
-    return m_def;
-}
-
-const std::string WFTEvent::getType() const
-{
-    return m_type;
-}
-
-const std::string WFTEvent::getValue() const
-{
-    return m_value;
+    switch( type )
+    {
+        case CHAR:
+            return "CHAR";
+        case UINT8:
+            return "UINT8";
+        case UINT16:
+            return "UINT16";
+        case UINT32:
+            return "UINT32";
+        case UINT64:
+            return "UINT64";
+        case INT8:
+            return "INT8";
+        case INT16:
+            return "INT16";
+        case INT32:
+            return "INT32";
+        case INT64:
+            return "INT64";
+        case FLOAT32:
+            return "FLOAT32";
+        case FLOAT64:
+            return "FLOAT64";
+        case UNKNOWN:
+            return "UNKNOWN";
+        default:
+            return "Undefined!";
+    }
 }

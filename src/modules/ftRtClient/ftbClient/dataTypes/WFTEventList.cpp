@@ -28,7 +28,7 @@
 
 #include <message.h>
 
-#include "modules/ftRtClient/ftbClient/dataTypes/enum/WLEFTDataType.h"
+#include "modules/ftRtClient/ftb/WFtBuffer.h"
 #include "modules/ftRtClient/ftbClient/dataTypes/WFTEventList.h"
 #include "modules/ftRtClient/ftbClient/io/request/WFTRequest.h"
 #include "modules/ftRtClient/ftbClient/io/response/WFTResponse.h"
@@ -78,9 +78,9 @@ bool WFTEventList::parseResponse( WFTResponse::SPtr response )
     return true;
 }
 
-UINT32_T WFTEventList::getSize() const
+wftb::bufsize_t WFTEventList::getSize() const
 {
-    UINT32_T size = sizeof( WFTMessageDefT );
+    wftb::bufsize_t size = sizeof( wftb::MessageDefT );
 
     BOOST_FOREACH( WFTEvent::SPtr event, *this )
     {

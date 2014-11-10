@@ -31,8 +31,7 @@
 
 #include <FtBuffer.h>
 
-#include "modules/ftRtClient/ftbClient/dataTypes/WFTObject.h"
-#include "modules/ftRtClient/ftbClient/dataTypes/enum/WLEFTCommand.h"
+#include "modules/ftRtClient/ftb/WFtBuffer.h"
 
 /**
  * Wrapper class for a response created through a FieldTrip request.
@@ -47,8 +46,6 @@ public:
      */
     typedef boost::shared_ptr< WFTResponse > SPtr;
 
-    typedef boost::shared_ptr< const message_t > WFTMessageT_ConstSPtr;
-
     friend std::ostream& operator<<( std::ostream &strm, const WFTResponse &response );
 
     /**
@@ -60,7 +57,7 @@ public:
 
     bool hasData() const;
 
-    const WFTMessageT getMessage() const;
+    const wftb::MessageT getMessage() const;
 
 protected:
     /**
@@ -73,7 +70,7 @@ inline std::ostream& operator<<( std::ostream &strm, const WFTResponse &response
 {
     strm << WFTResponse::CLASS << ": ";
     strm << "Version: " << response.m_response->def->version;
-    strm << ", Command: " << WLEFTCommand::name( ( WLEFTCommand::Enum )response.m_response->def->command );
+    strm << ", Command: " << response.m_response->def->command;
     strm << ", Buffersize: " << response.m_response->def->bufsize;
 
     return strm;

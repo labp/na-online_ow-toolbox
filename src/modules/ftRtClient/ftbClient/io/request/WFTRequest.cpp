@@ -28,7 +28,7 @@ WFTRequest::WFTRequest() :
 {
 }
 
-WFTRequest::WFTRequest( const WFTMessageT *msg )
+WFTRequest::WFTRequest( const wftb::MessageT *msg )
 {
     WFTRequest(); // call base constructor
 
@@ -39,12 +39,12 @@ WFTRequest::~WFTRequest()
 {
 }
 
-WFTMessageDefT &WFTRequest::getMessageDef()
+wftb::MessageDefT &WFTRequest::getMessageDef()
 {
     return m_def;
 }
 
-WFTMessageT &WFTRequest::getMessage()
+wftb::MessageT &WFTRequest::getMessage()
 {
     return m_msg;
 }

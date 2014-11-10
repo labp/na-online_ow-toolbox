@@ -32,14 +32,16 @@
 
 #include <core/common/WLogger.h>
 
+#include "modules/ftRtClient/ftb/WFtbChunk.h"
+
 #include "WFTChunkChanNames.h"
 
 using namespace std;
 
 const std::string WFTChunkChanNames::CLASS = "WFTChunkChanNames";
 
-WFTChunkChanNames::WFTChunkChanNames( const char* data, const size_t size ) :
-                WFTAChunk( WLEFTChunkType::FT_CHUNK_CHANNEL_NAMES, size )
+WFTChunkChanNames::WFTChunkChanNames( const char* data, const wftb::chunk_size_t size ) :
+                WFTAChunk( wftb::ChunkType::CHANNEL_NAMES, size )
 {
     insertLabels();
 

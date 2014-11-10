@@ -31,7 +31,6 @@
 #include "modules/ftRtClient/ftbClient/WFTChunkIterator.h"
 #include "modules/ftRtClient/ftbClient/io/request/WFTRequest_PutHeader.h"
 #include "chunks/WFTAChunkFactory.h"
-#include "enum/WLEFTChunkType.h"
 #include "WFTHeader.h"
 
 const std::string WFTHeader::CLASS = "WFTHeader";
@@ -41,7 +40,7 @@ WFTHeader::WFTHeader()
     init( 0, 0, 0 );
 }
 
-WFTHeader::WFTHeader( UINT32_T numChannels, UINT32_T dataType, float fsample )
+WFTHeader::WFTHeader( wftb::nchans_t numChannels, wftb::data_type_t dataType, wftb::fsamp_t fsample )
 {
     init( numChannels, dataType, fsample );
 }
@@ -50,7 +49,7 @@ WFTHeader::~WFTHeader()
 {
 }
 
-void WFTHeader::init( UINT32_T numChannels, UINT32_T dataType, float fsample )
+void WFTHeader::init( wftb::nchans_t numChannels, wftb::data_type_t dataType, wftb::fsamp_t fsample )
 {
     m_def.nchans = numChannels;
     m_def.data_type = dataType;
@@ -71,17 +70,16 @@ WFTRequest::SPtr WFTHeader::asRequest()
     WFTRequest_PutHeader::SPtr request( new WFTRequest_PutHeader( m_def.nchans, m_def.data_type, m_def.fsample ) );
 
     // add chunks from the collection to the request object.
-    BOOST_FOREACH( WFTAChunk::SPtr chunk, *m_chunks )
-    {
-        request->addChunk( chunk );
-    }
+    BOOST_FOREACH( WFTAChunk::SPtr chunk, *m_chunks ){
+    request->addChunk( chunk );
+}
 
     return request;
 }
 
 bool WFTHeader::parseResponse( WFTResponse::SPtr response )
 {
-    wlog::debug( CLASS ) << "parseResponse() called.";
+    wlog::debug( CLASS ) << __func__ << "() called.";
 
     SimpleStorage chunkBuffer; // buffer containing only the chunk data after retrieving.
 
@@ -107,17 +105,17 @@ bool WFTHeader::parseResponse( WFTResponse::SPtr response )
     return true;
 }
 
-UINT32_T WFTHeader::getSize() const
+wftb::bufsize_t WFTHeader::getSize() const
 {
-    return sizeof( WFTHeaderDefT ) + m_def.bufsize;
+    return sizeof(wftb::HeaderDefT) + m_def.bufsize;
 }
 
-WFTHeaderDefT& WFTHeader::getHeaderDef()
+wftb::HeaderDefT& WFTHeader::getHeaderDef()
 {
     return m_def;
 }
 
-WFTHeaderDefT WFTHeader::getHeaderDef() const
+wftb::HeaderDefT WFTHeader::getHeaderDef() const
 {
     return m_def;
 }
@@ -127,18 +125,17 @@ bool WFTHeader::hasChunks() const
     return m_chunks != 0 && m_chunks->size() > 0;
 }
 
-bool WFTHeader::hasChunk( WLEFTChunkType::Enum chunkType ) const
+bool WFTHeader::hasChunk( wftb::chunk_type_t chunkType ) const
 {
     if( !hasChunks() )
     {
         return false;
     }
 
-    BOOST_FOREACH( WFTAChunk::SPtr chunk, *m_chunks )
-    {
-        if( chunk->getType() == chunkType )
-            return true;
-    }
+    BOOST_FOREACH( WFTAChunk::SPtr chunk, *m_chunks ){
+    if( chunk->getType() == chunkType )
+    return true;
+}
 
     return false;
 }
@@ -155,7 +152,7 @@ WFTChunkList::ConstSPtr WFTHeader::getChunks() const
     return m_chunks;
 }
 
-WFTChunkList::SPtr WFTHeader::getChunks( WLEFTChunkType::Enum chunkType )
+WFTChunkList::SPtr WFTHeader::getChunks( wftb::chunk_type_t chunkType )
 {
     return m_chunks->filter( chunkType );
 }

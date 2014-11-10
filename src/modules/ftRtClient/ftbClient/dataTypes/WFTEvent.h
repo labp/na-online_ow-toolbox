@@ -31,6 +31,7 @@
 
 #include <message.h>
 
+#include "modules/ftRtClient/ftb/WFtbEvent.h"
 #include "modules/ftRtClient/ftbClient/dataTypes/WFTObject.h"
 
 /**
@@ -56,7 +57,7 @@ public:
      * \param type The data type of event.
      * \param value The value of the event.
      */
-    WFTEvent( WFTEventDefT def, const std::string type, const std::string value );
+    WFTEvent( wftb::EventDefT def, const std::string type, const std::string value );
 
     /**
      * Constructs a new WFTEvent.
@@ -67,7 +68,8 @@ public:
      * \param type The data type of event.
      * \param value The value of the event.
      */
-    WFTEvent( INT32_T sample, INT32_T offset, INT32_T duration, const std::string type, const std::string value );
+    WFTEvent( wftb::Event::sample_t sample, wftb::Event::offset_t offset, wftb::Event::duration_t duration,
+                    const std::string type, const std::string value );
 
     /**
      * Destroys the WFTEvent.
@@ -79,21 +81,21 @@ public:
      *
      * \return Returns the size of the whole object including the event header.
      */
-    UINT32_T getSize() const;
+    wftb::bufsize_t getSize() const;
 
     /**
      * Gets a reference on the event header.
      *
      * \return A reference on the event header.
      */
-    WFTEventDefT& getDef();
+    wftb::EventDefT& getDef();
 
     /**
      * Gets the event header.
      *
      * \return The event header.
      */
-    WFTEventDefT getDef() const;
+    wftb::EventDefT getDef() const;
 
     /**
      * Gets the type.
@@ -113,7 +115,7 @@ private:
     /**
      * The event header.
      */
-    WFTEventDefT m_def;
+    wftb::EventDefT m_def;
 
     /**
      * The type.

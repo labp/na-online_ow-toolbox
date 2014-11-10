@@ -21,51 +21,34 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
+#ifndef WFTBUFFER_H_
+#define WFTBUFFER_H_
 
-#include "modules/ftRtClient/ftbClient/dataTypes/WFTEvent.h"
+#include <stdint.h>
 
-const std::string WFTEvent::CLASS = "WFTEvent";
+#include <message.h>
 
-WFTEvent::WFTEvent( wftb::EventDefT def, const std::string type, const std::string value ) :
-                m_def( def ), m_type( type ), m_value( value )
+namespace wftb
 {
-}
+    typedef uint16_t version_t;
+    typedef uint32_t bufsize_t;
 
-WFTEvent::WFTEvent( wftb::Event::sample_t sample, wftb::Event::offset_t offset, wftb::Event::duration_t duration,
-                const std::string type, const std::string value ) :
-                m_type( type ), m_value( value )
-{
-    m_def.sample = sample;
-    m_def.offset = offset;
-    m_def.duration = duration;
-}
+    typedef messagedef_t MessageDefT;
+    typedef message_t MessageT;
 
-WFTEvent::~WFTEvent()
-{
-}
+    typedef uint32_t nchans_t;
+    typedef uint32_t isample_t;
+    typedef uint32_t nsamples_t;
+    typedef uint32_t nelements_t;
 
-UINT32_T WFTEvent::getSize() const
-{
-    return ( UINT32_T )sizeof(eventdef_t) + m_def.bufsize;
-}
+    typedef float fsamp_t;
+    typedef uint32_t time_t;
 
-wftb::EventDefT& WFTEvent::getDef()
-{
-    return m_def;
-}
+    typedef datasel_t DataSelT;
+    typedef headerdef_t HeaderDefT;
+    typedef header_t HeaderT;
+    typedef samples_events_t SamplesEventsT;
+    typedef waitdef_t WaitDefT;
+} /* namespace wftb */
 
-wftb::EventDefT WFTEvent::getDef() const
-{
-    return m_def;
-}
-
-const std::string WFTEvent::getType() const
-{
-    return m_type;
-}
-
-const std::string WFTEvent::getValue() const
-{
-    return m_value;
-}
+#endif  // WFTBUFFER_H_

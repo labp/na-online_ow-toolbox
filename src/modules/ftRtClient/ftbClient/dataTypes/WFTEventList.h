@@ -73,7 +73,7 @@ public:
      *
      * \return The whole size of the object including definition and buffer.
      */
-    UINT32_T getSize() const;
+    wftb::bufsize_t getSize() const;
 };
 
 #endif  // WFTEVENTLIST_H_

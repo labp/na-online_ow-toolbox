@@ -29,6 +29,8 @@
 #include <SimpleStorage.h>
 #include <message.h>
 
+#include "modules/ftRtClient/ftb/WFtBuffer.h"
+#include "modules/ftRtClient/ftb/WFtbData.h"
 #include "modules/ftRtClient/ftbClient/dataTypes/WFTObject.h"
 #include "modules/ftRtClient/ftbClient/io/request/WFTRequest.h"
 #include "modules/ftRtClient/ftbClient/io/response/WFTResponse.h"
@@ -54,7 +56,7 @@ public:
      * \param numSamples The number of samples.
      * \param dataType The used data type.
      */
-    WFTData( UINT32_T numChannels, UINT32_T numSamples, UINT32_T dataType );
+    WFTData( wftb::nchans_t numChannels, wftb::nsamples_t numSamples, wftb::data_type_t dataType );
 
     /**
      * Destroys the WFTData.
@@ -81,14 +83,14 @@ public:
      *
      * \return Returns the whole object size including the meta information.
      */
-    UINT32_T getSize() const;
+    wftb::bufsize_t getSize() const;
 
     /**
      * Gets a reference on the fixed meta information part.
      *
      * \return Returns a reference on a WFTDataDefT object.
      */
-    WFTDataDefT& getDataDef();
+    wftb::DataDefT& getDataDef();
 
     /**
      * Gets a pointer to the data storage. The meta information tells the properties about the stored data.
@@ -119,7 +121,7 @@ protected:
     /**
      * The fixed meta information.
      */
-    WFTDataDefT m_def;
+    wftb::DataDefT m_def;
 
     /**
      * A structure to govern the data storage.

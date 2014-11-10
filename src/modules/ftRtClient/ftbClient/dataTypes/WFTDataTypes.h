@@ -26,101 +26,37 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <message.h>
-
-/**
- * A FieldTrip Buffer message.
- */
-typedef message_t WFTMessageT;
+#include "modules/ftRtClient/ftb/WFtBuffer.h"
+#include "modules/ftRtClient/ftb/WFtbChunk.h"
 
 /**
  * A shared pointer on a FieldTrip Buffer message.
  */
-typedef boost::shared_ptr< WFTMessageT > WFTMessageT_SPtr;
+typedef boost::shared_ptr< wftb::MessageT > WFTMessageT_SPtr;
 
 /**
  * A shared pointer on a constant FieldTrip Buffer message.
  */
-typedef boost::shared_ptr< const WFTMessageT > WFTMessageT_ConstSPtr;
-
-/**
- * A message header.
- */
-typedef messagedef_t WFTMessageDefT;
-
-/**
- * A FieldTrip header structure.
- */
-typedef header_t WFTHeaderT;
-
-/**
- * The fixed describing part of a FieldTrip header structure.
- */
-typedef headerdef_t WFTHeaderDefT;
-
-/**
- * A FieldTrip data object.
- */
-typedef data_t WFTDataT;
-
-/**
- * A header of a FieldTrip data object.
- */
-typedef datadef_t WFTDataDefT;
-
-/**
- * A FieldTrip event.
- */
-typedef event_t WFTEventT;
-
-/**
- * A header of a FieldTrip event.
- */
-typedef eventdef_t WFTEventDefT;
-
-/**
- * The structure for doing Wait-Requests.
- */
-typedef waitdef_t WFTWaitDefT;
-
-/**
- * A FieldTrip header chunk.
- */
-typedef ft_chunk_t WFTChunkT;
+typedef boost::shared_ptr< const wftb::MessageT > WFTMessageT_ConstSPtr;
 
 /**
  * A shared pointer on a FieldTrip header chunk.
  */
-typedef boost::shared_ptr< WFTChunkT > WFTChunkT_SPtr;
+typedef boost::shared_ptr< wftb::ChunkT > WFTChunkT_SPtr;
 
 /**
  * A shared pointer on a constant FieldTrip header chunk.
  */
-typedef boost::shared_ptr< const WFTChunkT > WFTChunkT_ConstSPtr;
-
-/**
- * A header of a FieldTrip chunk.
- */
-typedef ft_chunkdef_t WFTChunkDefT;
+typedef boost::shared_ptr< const wftb::ChunkT > WFTChunkT_ConstSPtr;
 
 /**
  * A shared pointer on a FieldTrip chunk header.
  */
-typedef boost::shared_ptr< WFTChunkDefT > WFTChunkDefT_SPtr;
+typedef boost::shared_ptr< wftb::ChunkDefT > WFTChunkDefT_SPtr;
 
 /**
  * A shared pointer on a constant FieldTrip chunk header.
  */
-typedef boost::shared_ptr< const WFTChunkDefT > WFTChunkDefT_ConstSPtr;
-
-/**
- * A structure to indicating a range of samples used by a data request.
- */
-typedef datasel_t WFTDataSelectionT;
-
-/**
- * A structure, which indicates during a Wait-request, how many samples and events already read by the client.
- */
-typedef samples_events_t WFTSamplesEventsT;
+typedef boost::shared_ptr< const wftb::ChunkDefT > WFTChunkDefT_ConstSPtr;
 
 #endif  // WFTDATATYPES_H_

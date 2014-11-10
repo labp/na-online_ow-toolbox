@@ -88,7 +88,7 @@ public:
      * \param data The memory storage, which contains the chunk data.
      * \param size The size of the memory storage.
      */
-    explicit WFTChunkNeuromagHdr( const char* data, const size_t size );
+    explicit WFTChunkNeuromagHdr( const char* data, const wftb::chunk_size_t size );
 
     /**
      * Gets the data as a smart storage structure. This method is used to serialize a chunk into a request message body.
