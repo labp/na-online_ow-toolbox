@@ -80,25 +80,16 @@ const char** WMFTRtClient::getXPMIcon() const
     return module_xpm;
 }
 
-/**
- * Returns the module name.
- */
 const std::string WMFTRtClient::getName() const
 {
     return WLConstantsModule::generateModuleName( "FieldTrip Real-time Client" );
 }
 
-/**
- * Returns the module description.
- */
 const std::string WMFTRtClient::getDescription() const
 {
     return "Reads data for a FieldTrip Buffer and import them into Openwalnut. Module supports LaBP data types only!";
 }
 
-/**
- * Create the module connectors.
- */
 void WMFTRtClient::connectors()
 {
     m_output = WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr(
@@ -141,7 +132,7 @@ void WMFTRtClient::properties()
 
     // getting the SelectorProperty from the list and add it to the properties
     m_connectionTypeSelection = m_propGrpFtClient->addProperty( "Connection Type:", "Choose a connection type.",
-                    m_connectionType->getSelectorFirst(), boost::bind( &WMFTRtClient::callbackConnectionTypeChanged, this ) );
+                    m_connectionType->getSelectorFirst(), boost::bind( &WMFTRtClient::cbConnectionTypeChanged, this ) );
     m_connectionTypeSelection->changed( true );
 
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_connectionTypeSelection );
@@ -166,11 +157,11 @@ void WMFTRtClient::properties()
                     CLIENT_NOT_STREAMING );
     m_streamStatus->setPurpose( PV_PURPOSE_INFORMATION );
     m_applyScaling = m_propGrpFtClient->addProperty( "Apply scaling:", "Enable scale factor (range * cal).", false,
-                    boost::bind( &WMFTRtClient::callbackApplyScaling, this ) );
+                    boost::bind( &WMFTRtClient::cbApplyScaling, this ) );
     m_trgStartStream = m_propGrpFtClient->addProperty( "Start streaming:", "Start", WPVBaseTypes::PV_TRIGGER_READY,
                     m_propCondition );
     m_trgStopStream = m_propGrpFtClient->addProperty( "Stop streaming:", "Stop", WPVBaseTypes::PV_TRIGGER_READY,
-                    boost::bind( &WMFTRtClient::callbackTrgStopStreaming, this ) );
+                    boost::bind( &WMFTRtClient::cbTrgStopStreaming, this ) );
     m_trgStopStream->setHidden( true );
 
     //
@@ -216,7 +207,7 @@ void WMFTRtClient::moduleInit()
 
     m_ftRtClient.reset( new WFTNeuromagClient ); // create streaming client.
 
-    callbackConnectionTypeChanged();
+    cbConnectionTypeChanged();
 
     infoLog() << "Initializing module finished!";
 }
@@ -235,21 +226,21 @@ void WMFTRtClient::moduleMain()
 
         if( m_trgConnect->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
-            callbackTrgConnect();
+            hdlTrgConnect();
         }
         if( m_trgDisconnect->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
-            callbackTrgDisconnect();
+            hdlTrgDisconnect();
         }
         if( m_trgStartStream->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
-            callbackTrgStartStreaming();
+            hdlTrgStartStreaming();
         }
 
         // button/trigger moduleReset clicked
         if( m_resetModule->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
-            callbackTrgReset();
+            hdlTrgReset();
 
             m_resetModule->set( WPVBaseTypes::PV_TRIGGER_READY, true );
         }
@@ -287,7 +278,7 @@ bool WMFTRtClient::processReset( WLEMMCommand::SPtr cmd )
 
     if( m_ftRtClient->isStreaming() )
     {
-        callbackTrgDisconnect();
+        hdlTrgDisconnect();
     }
     m_ftRtClient->resetClient();
 
@@ -302,7 +293,7 @@ void WMFTRtClient::updateOutput( WLEMMeasurement::SPtr emm )
     m_output->updateData( cmd ); // update the output-connector after processing
 }
 
-void WMFTRtClient::callbackConnectionTypeChanged()
+void WMFTRtClient::cbConnectionTypeChanged()
 {
     debugLog() << __func__ << "() called.";
 
@@ -331,11 +322,11 @@ void WMFTRtClient::callbackConnectionTypeChanged()
     }
 }
 
-bool WMFTRtClient::callbackTrgConnect()
+bool WMFTRtClient::hdlTrgConnect()
 {
     debugLog() << __func__ << "() called.";
 
-    callbackConnectionTypeChanged(); // rebuild the connection
+    cbConnectionTypeChanged(); // rebuild the connection
 
     infoLog() << "Establishing connection to FieldTrip Buffer Server: " << *m_connection;
 
@@ -359,15 +350,15 @@ bool WMFTRtClient::callbackTrgConnect()
     }
 }
 
-void WMFTRtClient::callbackTrgDisconnect()
+void WMFTRtClient::hdlTrgDisconnect()
 {
-    debugLog() << "callbackTrgDisconnect() called.";
+    debugLog() << __func__  << "() called.";
 
     if( m_ftRtClient->isConnected() )
     {
         if( m_ftRtClient->isStreaming() )
         {
-            callbackTrgStopStreaming(); // stop streaming
+            cbTrgStopStreaming(); // stop streaming
         }
 
         m_ftRtClient->disconnect(); // disconnect client
@@ -378,7 +369,7 @@ void WMFTRtClient::callbackTrgDisconnect()
     infoLog() << "Connection to FieldTrip Buffer Server closed.";
 }
 
-void WMFTRtClient::callbackApplyScaling()
+void WMFTRtClient::cbApplyScaling()
 {
     if( m_ftRtClient )
     {
@@ -386,13 +377,13 @@ void WMFTRtClient::callbackApplyScaling()
     }
 }
 
-void WMFTRtClient::callbackTrgStartStreaming()
+void WMFTRtClient::hdlTrgStartStreaming()
 {
-    debugLog() << "callbackTrgStartStreaming() called.";
+    debugLog() << __func__  << "() called.";
 
     if( !m_ftRtClient->isConnected() )
     {
-        if( !callbackTrgConnect() )
+        if( !hdlTrgConnect() )
         {
             applyStatusNotStreaming();
             return;
@@ -401,7 +392,7 @@ void WMFTRtClient::callbackTrgStartStreaming()
 
 // set some parameter on initializing the client
     m_ftRtClient->setTimeout( ( UINT32_T )m_waitTimeout->get() );
-    callbackApplyScaling();
+    cbApplyScaling();
 
     m_stopStreaming = false;
 
@@ -472,15 +463,15 @@ void WMFTRtClient::callbackTrgStartStreaming()
     applyStatusNotStreaming();
 }
 
-void WMFTRtClient::callbackTrgStopStreaming() // TODO(maschke): why called a second time on stopping?
+void WMFTRtClient::cbTrgStopStreaming() // TODO(maschke): why called a second time on stopping?
 {
-    debugLog() << "callbackTrgStopStreaming() called.";
+    debugLog() << __func__  << "() called.";
     m_stopStreaming = true;
 }
 
-void WMFTRtClient::callbackTrgReset()
+void WMFTRtClient::hdlTrgReset()
 {
-    debugLog() << "Module reset.";
+    debugLog() << __func__  << "() called.";
 
     WLEMMCommand::SPtr labp = WLEMMCommand::instance( WLEMMCommand::Command::RESET );
     processReset( labp );

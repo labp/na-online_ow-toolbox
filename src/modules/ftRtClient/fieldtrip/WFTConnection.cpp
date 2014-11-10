@@ -21,7 +21,7 @@
 //
 //---------------------------------------------------------------------------
 
-#include "../WFTConnection.h"
+#include "WFTConnection.h"
 
 #include <string>
 

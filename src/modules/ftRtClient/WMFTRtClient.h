@@ -275,39 +275,39 @@ private:
     /**
      * Callback when the connection type was changed.
      */
-    void callbackConnectionTypeChanged();
+    void cbConnectionTypeChanged();
 
     /**
-     * Callback when the connect button was clicked.
+     * Handles a click on the connect button.
      *
      * \return Returns true if the callback was successfully, otherwise false.
      */
-    bool callbackTrgConnect();
+    bool hdlTrgConnect();
 
     /**
-     * Callback when the disconnect button was clicked.
+     * Handles a click on the disconnect button.
      */
-    void callbackTrgDisconnect();
+    void hdlTrgDisconnect();
 
     /**
      * Callback, when the apply scaling checkboxes value was changed.
      */
-    void callbackApplyScaling();
+    void cbApplyScaling();
 
     /**
-     * Callback when the start streaming button was clicked.
+     * Handles a click on the start streaming button.
      */
-    void callbackTrgStartStreaming();
+    void hdlTrgStartStreaming();
 
     /**
      * Callback when the stop streaming button was clicked.
      */
-    void callbackTrgStopStreaming();
+    void cbTrgStopStreaming();
 
     /**
-     * Callback when the reset button was clicked.
+     * Handles a click on the reset button.
      */
-    void callbackTrgReset();
+    void hdlTrgReset();
 
     /**
      * Switch the modules state after the client was connected to a FieldTrip Buffer server.
