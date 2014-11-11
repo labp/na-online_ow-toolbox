@@ -25,6 +25,7 @@
 #define WFTBCHUNK_H_
 
 #include <stdint.h>
+#include <string>
 
 #include <message.h>
 
@@ -49,6 +50,8 @@ namespace wftb
         const chunk_type_t NEUROMAG_HEADER = FT_CHUNK_NEUROMAG_HEADER;
         const chunk_type_t NEUROMAG_ISOTRAK = FT_CHUNK_NEUROMAG_ISOTRAK;
         const chunk_type_t NEUROMAG_HPIRESULT = FT_CHUNK_NEUROMAG_HPIRESULT;
+
+        std::string name( chunk_type_t type );
     } /* namespace ChunkType */
 } /* namespace wftb */
 #endif  // WFTBCHUNK_H_

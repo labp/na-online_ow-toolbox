@@ -22,3 +22,34 @@
 //---------------------------------------------------------------------------
 
 #include "WFtbChunk.h"
+
+std::string wftb::ChunkType::name( chunk_type_t type )
+{
+    switch( type )
+    {
+        case UNSPECIFIED:
+            return "FT_CHUNK_UNSPECIFIED";
+        case CHANNEL_NAMES:
+            return "FT_CHUNK_CHANNEL_NAMES";
+        case CHANNEL_FLAGS:
+            return "FT_CHUNK_CHANNEL_FLAGS";
+        case RESOLUTIONS:
+            return "FT_CHUNK_RESOLUTIONS";
+        case ASCII_KEYVAL:
+            return "FT_CHUNK_ASCII_KEYVAL";
+        case NIFTI1:
+            return "FT_CHUNK_NIFTI1";
+        case SIEMENS_AP:
+            return "FT_CHUNK_SIEMENS_AP";
+        case CTF_RES4:
+            return "FT_CHUNK_CTF_RES4";
+        case NEUROMAG_HEADER:
+            return "FT_CHUNK_NEUROMAG_HEADER";
+        case NEUROMAG_ISOTRAK:
+            return "FT_CHUNK_NEUROMAG_ISOTRAK";
+        case NEUROMAG_HPIRESULT:
+            return "FT_CHUNK_NEUROMAG_HPIRESULT";
+        default:
+            return "Unknown!";
+    }
+}
