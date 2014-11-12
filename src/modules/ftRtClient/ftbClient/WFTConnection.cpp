@@ -90,7 +90,6 @@ std::string WFTConnection::getPath() const
 
 void WFTConnection::setPath( const std::string& path )
 {
-
     m_host.clear();
     m_port = NO_PORT;
     m_path = path;

@@ -25,17 +25,22 @@
 
 #include <string>
 
-
 const std::string WFTResponse::CLASS = "WFTResponse";
 
 bool WFTResponse::isValid() const
 {
     if( m_response == NULL )
+    {
         return false;
+    }
     if( m_response->def == NULL )
+    {
         return false;
+    }
     if( m_response->def->version != VERSION )
+    {
         return false;
+    }
 
     return true;
 }
@@ -46,11 +51,5 @@ bool WFTResponse::hasData() const
     {
         return false;
     }
-
     return m_response->def->bufsize > 0;
-}
-
-const wftb::MessageT WFTResponse::getMessage() const
-{
-    return *m_response;
 }

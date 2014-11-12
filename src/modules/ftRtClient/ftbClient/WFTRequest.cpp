@@ -22,30 +22,3 @@
 //---------------------------------------------------------------------------
 
 #include "WFTRequest.h"
-
-const std::string WFTRequest::CLASS = "WFTRequest";
-
-WFTRequest::WFTRequest() :
-                FtBufferRequest::FtBufferRequest()
-{
-}
-
-WFTRequest::WFTRequest( const wftb::MessageT *msg )
-{
-    WFTRequest(); // call base constructor
-    m_msg = *msg;
-}
-
-WFTRequest::~WFTRequest()
-{
-}
-
-wftb::MessageDefT &WFTRequest::getMessageDef()
-{
-    return m_def;
-}
-
-wftb::MessageT &WFTRequest::getMessage()
-{
-    return m_msg;
-}

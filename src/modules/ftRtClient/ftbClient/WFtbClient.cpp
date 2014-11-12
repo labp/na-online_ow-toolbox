@@ -445,7 +445,7 @@ bool WFtbClient::doGetEventsRequest()
         return false;
     }
 
-    WFTEventIterator it( &storage, response.getMessage().def->bufsize);
+    WFTEventIterator it( &storage, response.m_response->def->bufsize);
     while( it.hasNext() )
     {
         WFTEvent::SPtr evt = it.getNext();

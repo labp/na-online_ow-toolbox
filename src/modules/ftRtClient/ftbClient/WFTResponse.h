@@ -47,8 +47,6 @@ public:
      */
     typedef boost::shared_ptr< WFTResponse > SPtr;
 
-    friend std::ostream& operator<<( std::ostream &strm, const WFTResponse &response );
-
     /**
      * This method tests the arrived data for mistakes. It should be called before getting any data for the response.
      *
@@ -57,14 +55,6 @@ public:
     bool isValid() const;
 
     bool hasData() const;
-
-    const wftb::MessageT getMessage() const;
-
-protected:
-    /**
-     * Forbid direct access to the buffer space. Use getMessage() instead.
-     */
-    FtBufferResponse::m_response;
 };
 
 inline std::ostream& operator<<( std::ostream &strm, const WFTResponse &response )
