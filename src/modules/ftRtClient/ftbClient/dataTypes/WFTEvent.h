@@ -32,7 +32,7 @@
 #include <message.h>
 
 #include "modules/ftRtClient/ftb/WFtbEvent.h"
-#include "modules/ftRtClient/ftbClient/dataTypes/WFTObject.h"
+#include "WFTObject.h"
 
 /**
  * The WFTEvent represents a single FieldTrip event. Is is defined by a header contains the fixed structure and the data.

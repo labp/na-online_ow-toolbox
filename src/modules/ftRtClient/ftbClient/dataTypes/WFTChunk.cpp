@@ -70,10 +70,3 @@ wftb::chunk_size_t WFTChunk::getDataSize() const
 {
     return m_dataSize;
 }
-
-WLSmartStorage::ConstSPtr WFTChunk::serialize() const
-{
-    WLSmartStorage::SPtr store( new WLSmartStorage );
-
-    return store;
-}

@@ -29,11 +29,9 @@
 #include <SimpleStorage.h>
 #include <message.h>
 
-#include "../request/WFTRequest.h"
-#include "../response/WFTResponse.h"
 #include "modules/ftRtClient/ftb/WFtBuffer.h"
 #include "modules/ftRtClient/ftb/WFtbData.h"
-#include "modules/ftRtClient/ftbClient/dataTypes/WFTObject.h"
+#include "../WFTResponse.h"
 #include "WFTRequestableObject.h"
 
 class WFTData: public WFTRequestableObject
@@ -66,17 +64,10 @@ public:
     /**
      * Inherit from WFTRequestableObject.
      *
-     * \return Returns the object as Put-request.
-     */
-    WFTRequest::SPtr asRequest();
-
-    /**
-     * Inherit from WFTRequestableObject.
-     *
      * \param The response object.
      * \return Returns whether the parsing was successful.
      */
-    bool parseResponse( WFTResponse::SPtr );
+    bool parseResponse( const WFTResponse& );
 
     /**
      * Inherit from WFTObject.

@@ -24,8 +24,9 @@
 #ifndef WFTOBJECT_H_
 #define WFTOBJECT_H_
 
+#include <boost/shared_ptr.hpp>
+
 #include "modules/ftRtClient/ftb/WFtBuffer.h"
-#include "WFTDataTypes.h"
 
 /**
  * The WFTObject interface provides basic types covered from the FieldTrip library and general methods for a processing object.

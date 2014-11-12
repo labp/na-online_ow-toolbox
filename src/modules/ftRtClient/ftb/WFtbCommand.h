@@ -25,6 +25,7 @@
 #define WFTBCOMMAND_H_
 
 #include <stdint.h>
+#include <string>
 
 #include <message.h>
 
@@ -58,6 +59,8 @@ namespace wftb
         const command_type_t WAIT_DAT_ = WAIT_DAT;
         const command_type_t WAIT_OK_ = WAIT_OK;
         const command_type_t WAIT_ERR_ = WAIT_ERR;
+
+        std::string name( command_type_t type );
     } /* namespace Command */
 } /* namespace wftb */
 #endif  // WFTBCOMMAND_H_

@@ -58,12 +58,12 @@ WLRtClient::~WLRtClient()
 
 bool WLRtClient::isConnected() const
 {
-    return m_status == STATUS_CONNECTED;
+    return m_status == STATUS_CONNECTED || m_status == STATUS_STREAMING ||  m_status == STATUS_STOPPED;
 }
 
 bool WLRtClient::isStreaming() const
 {
-    return m_status == STATUS_DISCONNECTED;
+    return m_status == STATUS_STREAMING;
 }
 
 WLRtClient::StatusT WLRtClient::getStatus() const

@@ -26,13 +26,22 @@
 
 #include <string>
 
+#include <boost/thread/locks.hpp>
 #include <boost/shared_ptr.hpp>
 
+#include "core/container/WLList.h"
+#include "core/data/WLEMMeasurement.h"
+#include "core/data/emd/WLEMDRaw.h"
 #include "core/io/WLRtClient.h"
 
 #include "modules/ftRtClient/ftb/WFtBuffer.h"
+#include "chunkReader/WFTChunkReader.h"
+#include "dataTypes/WFTData.h"
+#include "dataTypes/WFTEvent.h"
+#include "dataTypes/WFTHeader.h"
+#include "WFTResponse.h"
+#include "WFTRequest.h"
 #include "WFTConnection.h"
-#include "WFTNeuromagClient.h"
 
 /**
  * Processing client for FieldTrip Buffer.
@@ -72,7 +81,76 @@ private:
     WFTConnection::SPtr m_connection;
     wftb::time_t m_timeout;
 
-    WFTNeuromagClient::SPtr m_client;
+    WFTChunkReader::MapT m_chunkReader;
+
+    WFTHeader::SPtr m_header;
+
+    WFTData::SPtr m_data;
+
+    /**
+     * The FieldTrip event list structure.
+     */
+    WLList< WFTEvent::SPtr > m_events;
+
+    /**
+     * Variable to determine the number of received samples.
+     */
+    wftb::nsamples_t m_samples;
+
+    /**
+     * Variable to determine the number of received events.
+     */
+    wftb::nevents_t m_eventCount;
+
+    /**
+     * Structure to store information about samples and events currently located on the server.
+     */
+    wftb::SamplesEventsT m_svr_samp_evt;
+
+    /**
+     * A shared mutex used for TCP requests.
+     */
+    boost::shared_mutex m_requestLock;
+
+    bool getRawData( WLEMDRaw::SPtr* const rawData );
+
+    /**
+     * Using this method you can put a single request on the server using a TCP request. Every further complex request comes down
+     * to this method.
+     * After requesting the servers answer structure will be filled into the @response parameter.
+     *
+     * \param response The response object.
+     * \param request The request object.
+     *
+     * \return Returns true if the request was successful and the response could be read, else false.
+     */
+    bool doRequest( WFTResponse* const response, const WFTRequest& request );
+
+    /**
+     * This method does a header request and stores the resulting data in the local member, which can be accessed by getHeader().
+     *
+     * \return Returns true if the request was successful, else false.
+     */
+    bool doHeaderRequest();
+
+    /**
+     * Method to execute a Wait-Data_request on the buffer server. The first parameter will be filled with the current numbers of
+     * samples and events from the server. The parameters two and three should contain the current numbers of your process.
+     * By default the parameter for samples and events contains the highest possible number,
+     * which reaches new elements could not be found and so they will be ignored completely.
+     * Leaving both at the default the request comes back after the timeout was reached.
+     *
+     * \param samp_events The number of samples and events form the server.
+     * \param samples Your current number of samples.
+     * \param events Your current number of events.
+     *
+     * \return Returns true whether the request was successful else false.
+     */
+    bool doWaitRequest( wftb::nsamples_t samples = 0xFFFFFFFF, wftb::nevents_t events = 0xFFFFFFFF );
+
+    bool doGetDataRequest();
+
+    bool doGetEventsRequest();
 };
 
 #endif  // WFTBCLIENT_H_

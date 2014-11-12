@@ -21,17 +21,31 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFTREQUEST_WAITDATA_H_
-#define WFTREQUEST_WAITDATA_H_
-
 #include "WFTRequest.h"
 
-class WFTRequest_WaitData: public WFTRequest
+const std::string WFTRequest::CLASS = "WFTRequest";
+
+WFTRequest::WFTRequest() :
+                FtBufferRequest::FtBufferRequest()
 {
-public:
-    WFTRequest_WaitData( UINT32_T nSamples, UINT32_T nEvents, UINT32_T milliseconds );
+}
 
-    virtual ~WFTRequest_WaitData();
-};
+WFTRequest::WFTRequest( const wftb::MessageT *msg )
+{
+    WFTRequest(); // call base constructor
+    m_msg = *msg;
+}
 
-#endif  // WFTREQUEST_WAITDATA_H_
+WFTRequest::~WFTRequest()
+{
+}
+
+wftb::MessageDefT &WFTRequest::getMessageDef()
+{
+    return m_def;
+}
+
+wftb::MessageT &WFTRequest::getMessage()
+{
+    return m_msg;
+}

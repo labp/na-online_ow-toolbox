@@ -22,8 +22,6 @@
 //---------------------------------------------------------------------------
 
 #include "WFTData.h"
-#include "../request/WFTRequest_PutData.h"
-#include "../request/WFTRequestBuilder.h"
 
 WFTData::WFTData()
 {
@@ -40,20 +38,11 @@ WFTData::~WFTData()
 {
 }
 
-WFTRequest::SPtr WFTData::asRequest()
-{
-    WFTRequestBuilder::SPtr builder;
-    WFTRequest_PutData::SPtr request = builder->buildRequest_PUT_DAT( m_def.nchans, m_def.nsamples, m_def.data_type,
-                    m_buf.data() );
-
-    return WFTRequest_PutData::SPtr( request );
-}
-
-bool WFTData::parseResponse( WFTResponse::SPtr response )
+bool WFTData::parseResponse( const WFTResponse& response )
 {
     m_buf.clear();
 
-    return response->checkGetData( m_def, &m_buf );
+    return response.checkGetData( m_def, &m_buf );
 }
 
 wftb::bufsize_t WFTData::getSize() const

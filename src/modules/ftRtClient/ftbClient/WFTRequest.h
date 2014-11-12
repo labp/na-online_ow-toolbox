@@ -25,19 +25,20 @@
 #define WFTREQUEST_H_
 
 #include <ostream>
+#include <string>
 
-#include <boost/enable_shared_from_this.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include <FtBuffer.h>
 
 #include "modules/ftRtClient/ftb/WFtBuffer.h"
+#include "modules/ftRtClient/ftb/WFtbCommand.h"
 
 /**
  * The WFTRequest class represents a basic FieldTrip request. It adapts the FieldTrip Buffer Request and can be used to
  * create new requests.
  */
-class WFTRequest: public boost::enable_shared_from_this< WFTRequest >, protected FtBufferRequest
+class WFTRequest: public FtBufferRequest
 {
 public:
     /**
@@ -49,6 +50,8 @@ public:
      * A shared pointer on a constant WFTRequest.
      */
     typedef boost::shared_ptr< const WFTRequest > ConstSPtr;
+
+    static const std::string CLASS;
 
     /**
      * Declare the << operator as friend.
@@ -82,56 +85,27 @@ public:
      *
      * \return The message header.
      */
-    wftb::MessageDefT &getMessageDef();
+    wftb::MessageDefT& getMessageDef();
 
     /**
      * Gets the message.
      *
-     * @return The message.
+     * \return The message.
      */
-    wftb::MessageT &getMessage();
-
-    /**
-     * Gets the messages content.
-     *
-     * \return The messages content.
-     */
-    SimpleStorage &getBuffer();
+    wftb::MessageT& getMessage();
 
     /**
      * Inherited method from FtBufferRequest.
      */
     FtBufferRequest::out;
-
-    /**
-     * Gets the abstract request as a concrete request.
-     *
-     * \return Returns a shared pointer on a concrete request.
-     */
-    template< typename Request >
-    boost::shared_ptr< Request > getAs()
-    {
-        return boost::dynamic_pointer_cast< Request >( shared_from_this() );
-    }
-
-    /**
-     * Gets the abstract request as a concrete request.
-     *
-     * \return Returns a shared pointer on a constant concrete request.
-     */
-    template< typename Request >
-    boost::shared_ptr< const Request > getAs() const
-    {
-        return boost::dynamic_pointer_cast< Request >( shared_from_this() );
-    }
 };
 
 inline std::ostream& operator<<( std::ostream &strm, const WFTRequest &request )
 {
-    strm << "WFTRequest: ";
-    strm << "Version: " << request.m_def.version;
-    strm << ", Command: " << request.m_def.command;
-    strm << ", Buffer Size: " << request.m_def.bufsize;
+    strm << WFTRequest::CLASS << ": ";
+    strm << "version=" << request.m_def.version;
+    strm << ", command=" << wftb::CommandType::name( request.m_def.command );
+    strm << ", bufsize=" << request.m_def.bufsize;
 
     return strm;
 }

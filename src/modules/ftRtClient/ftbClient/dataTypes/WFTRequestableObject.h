@@ -24,8 +24,8 @@
 #ifndef WFTREQUESTABLEOBJECT_H_
 #define WFTREQUESTABLEOBJECT_H_
 
-#include "../request/WFTRequest.h"
-#include "../response/WFTResponse.h"
+#include "../WFTRequest.h"
+#include "../WFTResponse.h"
 #include "WFTObject.h"
 
 class WFTRequestableObject: public WFTObject
@@ -37,19 +37,12 @@ public:
     virtual ~WFTRequestableObject();
 
     /**
-     * Gets the object as FieldTrip put request.
-     *
-     * \return Returns a shared pointer on a WFTRequest.
-     */
-    virtual WFTRequest::SPtr asRequest() = 0;
-
-    /**
      * Parses a WFTResponse into a concrete object.
      *
      * \param The response to parse.
      * \return Returns true if the parsing was successful, otherwise false.
      */
-    virtual bool parseResponse( WFTResponse::SPtr ) = 0;
+    virtual bool parseResponse( const WFTResponse& ) = 0;
 
     /**
      * Gets the amount of bytes, which are reserved by the object. Each Fieldrip object has to determine its size itself.

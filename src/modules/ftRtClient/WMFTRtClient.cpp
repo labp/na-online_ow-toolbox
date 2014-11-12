@@ -43,7 +43,6 @@
 #include "core/util/profiler/WLTimeProfiler.h"
 
 #include "ftb/WFtbData.h"
-#include "ftbClient/dataTypes/WFTEventList.h"
 #include "WMFTRtClient.h"
 #include "WMFTRtClient.xpm"
 #include "ftbClient/WFTConnection.h"
@@ -149,7 +148,7 @@ void WMFTRtClient::properties()
                     m_propCondition );
     m_trgDisconnect->setHidden( true );
     m_waitTimeout = m_propGrpFtClient->addProperty( "Max. data request Timeout (ms):",
-                    "Timeout at waiting for new data or events.", ( int )WFTRtClient::DEFAULT_WAIT_TIMEOUT );
+                    "Timeout at waiting for new data or events.", ( int )WFtbClient::DEFAULT_WAIT_TIMEOUT );
     m_waitTimeout->setMin( 1 );
     m_waitTimeout->setMax( 100 );
     m_streamStatus = m_propGrpFtClient->addProperty( "Streaming status:", "Shows the status of the streaming client.",
@@ -273,7 +272,7 @@ bool WMFTRtClient::processReset( WLEMMCommand::SPtr cmd )
     m_events->set( 0, true );
     m_frSample->set( 0.0, true );
     m_headerBufSize->set( 0, true );
-    m_waitTimeout->set( ( int )WFTRtClient::DEFAULT_WAIT_TIMEOUT, true );
+    m_waitTimeout->set( ( int )WFtbClient::DEFAULT_WAIT_TIMEOUT, true );
     m_dataType->set( wftb::DataType::name( wftb::DataType::UNKNOWN ), true );
 
     if( m_ftRtClient->isStreaming() )

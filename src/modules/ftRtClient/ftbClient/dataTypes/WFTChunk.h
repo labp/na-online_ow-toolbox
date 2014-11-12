@@ -27,7 +27,6 @@
 #include <string>
 
 #include "modules/ftRtClient/ftb/WFtbChunk.h"
-#include "modules/ftRtClient/ftbClient/container/WLSmartStorage.h"
 
 /**
  * TODO(pieloth): documentation
@@ -58,14 +57,6 @@ public:
     const void* getData() const;
 
     wftb::chunk_size_t getDataSize() const;
-
-    /**
-     * Gets the data as a smart storage structure. This method is used to serialize a chunk into a request message body.
-     * TODO(pieloth): Why do we need this?
-     *
-     * \return Returns a shared pointer on a constant smart storage.
-     */
-    virtual WLSmartStorage::ConstSPtr serialize() const;
 
 private:
     const wftb::chunk_type_t m_chunk_type;

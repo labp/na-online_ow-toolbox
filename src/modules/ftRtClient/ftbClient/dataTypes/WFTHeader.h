@@ -35,9 +35,9 @@
 #include "modules/ftRtClient/ftb/WFtBuffer.h"
 #include "modules/ftRtClient/ftb/WFtbChunk.h"
 #include "modules/ftRtClient/ftb/WFtbData.h"
-#include "modules/ftRtClient/ftbClient/dataTypes/WFTRequestableObject.h"
-#include "modules/ftRtClient/ftbClient/response/WFTResponse.h"
-#include "modules/ftRtClient/ftbClient/request/WFTRequest.h"
+#include "WFTRequestableObject.h"
+#include "../WFTResponse.h"
+#include "../WFTRequest.h"
 #include "WFTChunk.h"
 
 /**
@@ -87,17 +87,10 @@ public:
     /**
      * Inherited form WFTRequestableObject.
      *
-     * \return The header as request object.
-     */
-    WFTRequest::SPtr asRequest();
-
-    /**
-     * Inherited form WFTRequestableObject.
-     *
      * \param response The FieldTrip response to parse.
      * \return Returns true if the parsing was successful, else false.
      */
-    bool parseResponse( WFTResponse::SPtr response );
+    bool parseResponse( const WFTResponse& response );
 
     /**
      * Inherited form WFTObject.

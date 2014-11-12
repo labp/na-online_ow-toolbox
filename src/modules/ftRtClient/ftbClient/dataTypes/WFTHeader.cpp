@@ -29,7 +29,6 @@
 #include <core/common/WLogger.h>
 
 #include "../container/WFTChunkIterator.h"
-#include "../request/WFTRequest_PutHeader.h"
 
 #include "WFTHeader.h"
 
@@ -60,30 +59,13 @@ void WFTHeader::init( wftb::nchans_t numChannels, wftb::data_type_t dataType, wf
     m_chunks = WLList< WFTChunk::SPtr >::instance();
 }
 
-WFTRequest::SPtr WFTHeader::asRequest()
-{
-    if( m_def.nchans == 0 || m_def.fsample == 0 )
-    {
-        return WFTRequest::SPtr();
-    }
-
-    WFTRequest_PutHeader::SPtr request( new WFTRequest_PutHeader( m_def.nchans, m_def.data_type, m_def.fsample ) );
-
-    // add chunks from the collection to the request object.
-    BOOST_FOREACH( WFTChunk::SPtr chunk, *m_chunks ){
-    request->addChunk( chunk );
-}
-
-    return request;
-}
-
-bool WFTHeader::parseResponse( WFTResponse::SPtr response )
+bool WFTHeader::parseResponse( const WFTResponse& response )
 {
     wlog::debug( CLASS ) << __func__ << "() called.";
 
     SimpleStorage chunkBuffer; // buffer containing only the chunk data after retrieving.
 
-    if( !response->checkGetHeader( m_def, &chunkBuffer ) )
+    if( !response.checkGetHeader( m_def, &chunkBuffer ) )
     {
         return false;
     }

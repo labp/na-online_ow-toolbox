@@ -32,6 +32,7 @@
 #include <FtBuffer.h>
 
 #include "modules/ftRtClient/ftb/WFtBuffer.h"
+#include "modules/ftRtClient/ftb/WFtbCommand.h"
 
 /**
  * Wrapper class for a response created through a FieldTrip request.
@@ -69,9 +70,9 @@ protected:
 inline std::ostream& operator<<( std::ostream &strm, const WFTResponse &response )
 {
     strm << WFTResponse::CLASS << ": ";
-    strm << "Version: " << response.m_response->def->version;
-    strm << ", Command: " << response.m_response->def->command;
-    strm << ", Buffersize: " << response.m_response->def->bufsize;
+    strm << "version=" << response.m_response->def->version;
+    strm << ", command=" << wftb::CommandType::name( response.m_response->def->command );
+    strm << ", bufsize=" << response.m_response->def->bufsize;
 
     return strm;
 }
