@@ -42,6 +42,7 @@
 #include "modules/ftRtClient/ftb/WFtbChunk.h"
 #include "modules/ftRtClient/ftbClient/chunkReader/WFTChunkReaderNeuromagHdr.h"
 #include "modules/ftRtClient/ftbClient/chunkReader/WFTChunkReaderNeuromagIsotrak.h"
+
 #include "WFTNeuromagClient.h"
 
 const std::string WFTNeuromagClient::CLASS = "WFTNeuromagClient";

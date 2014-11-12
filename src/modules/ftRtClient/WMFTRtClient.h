@@ -38,9 +38,9 @@
 #include "core/data/WLEMMSubject.h"
 #include "core/module/WLModuleDrawable.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
+#include "ftbClient/WFtbClient.h"
 #include "ftbClient/WFTConnection.h"
 
-#include "WFTNeuromagClient.h"
 
 /**
  * The FieldTrip Real-time Client implements a streaming client from a FieldTrip Buffer server used by several EEG/ MEG acquisition systems.
@@ -258,7 +258,7 @@ private:
     /**
      * The FieldTrip streaming client
      */
-    WFTNeuromagClient::SPtr m_ftRtClient;
+    WFtbClient::SPtr m_ftRtClient;
 
     /**
      * Flag for stopping the streaming.

@@ -44,7 +44,6 @@
 
 #include "ftb/WFtbData.h"
 #include "ftbClient/dataTypes/WFTEventList.h"
-#include "WFTNeuromagClient.h"
 #include "WMFTRtClient.h"
 #include "WMFTRtClient.xpm"
 #include "ftbClient/WFTConnection.h"
@@ -205,7 +204,7 @@ void WMFTRtClient::moduleInit()
 
     m_connection.reset( new WFTConnection ); // create default connection
 
-    m_ftRtClient.reset( new WFTNeuromagClient ); // create streaming client.
+    m_ftRtClient.reset( new WFtbClient ); // create streaming client.
 
     cbConnectionTypeChanged();
 
@@ -281,7 +280,7 @@ bool WMFTRtClient::processReset( WLEMMCommand::SPtr cmd )
     {
         hdlTrgDisconnect();
     }
-    m_ftRtClient->resetClient();
+    m_ftRtClient.reset( new WFtbClient );
 
     return true;
 }
@@ -353,7 +352,7 @@ bool WMFTRtClient::hdlTrgConnect()
 
 void WMFTRtClient::hdlTrgDisconnect()
 {
-    debugLog() << __func__  << "() called.";
+    debugLog() << __func__ << "() called.";
 
     if( m_ftRtClient->isConnected() )
     {
@@ -372,15 +371,16 @@ void WMFTRtClient::hdlTrgDisconnect()
 
 void WMFTRtClient::cbApplyScaling()
 {
-    if( m_ftRtClient )
-    {
-        m_ftRtClient->setScaling( m_applyScaling->get( false ) );
-    }
+    // TODO(pieloth): Apply scaling
+//    if( m_ftRtClient )
+//    {
+//        m_ftRtClient->setScaling( m_applyScaling->get( false ) );
+//    }
 }
 
 void WMFTRtClient::hdlTrgStartStreaming()
 {
-    debugLog() << __func__  << "() called.";
+    debugLog() << __func__ << "() called.";
 
     if( !m_ftRtClient->isConnected() )
     {
@@ -392,7 +392,7 @@ void WMFTRtClient::hdlTrgStartStreaming()
     }
 
 // set some parameter on initializing the client
-    m_ftRtClient->setTimeout( ( UINT32_T )m_waitTimeout->get() );
+    m_ftRtClient->setTimeout( m_waitTimeout->get() );
     cbApplyScaling();
 
     m_stopStreaming = false;
@@ -411,49 +411,34 @@ void WMFTRtClient::hdlTrgStartStreaming()
 
         while( !m_stopStreaming && !m_shutdownFlag() )
         {
-            if( m_ftRtClient->doWaitRequest( m_ftRtClient->getSampleCount(), m_ftRtClient->getEventCount() ) )
+            if( m_ftRtClient->fetchData() )
             {
                 // get new samples
-                if( m_ftRtClient->getNewSamples() )
+                WLEMMeasurement::SPtr emm( new WLEMMeasurement );
+                if( m_ftRtClient->readEmm( emm ) )
                 {
-                    m_samples->set( m_ftRtClient->getSampleCount(), true );
-                    m_channels->set( m_ftRtClient->getData()->getDataDef().nchans, true );
-                    m_dataType->set(
-                                    wftb::DataType::name( m_ftRtClient->getData()->getDataDef().data_type ),
-                                    true );
+                    // TODO
+//                    m_samples->set( m_ftRtClient->getSampleCount(), true );
+//                    m_channels->set( m_ftRtClient->getData()->getDataDef().nchans, true );
+//                    m_dataType->set(
+//                                    wftb::DataType::name( m_ftRtClient->getData()->getDataDef().data_type ),
+//                                    true );
+                    viewUpdate( emm ); // display on screen.
+                    updateOutput( emm ); // transmit to the next module.
 
-                    WLEMMeasurement::SPtr emm( new WLEMMeasurement );
-
-                    if( m_ftRtClient->createEMM( emm ) )
-                    {
-                        viewUpdate( emm ); // display on screen.
-
-                        updateOutput( emm ); // transmit to the next module.
-                    }
-                    else
-                    {
-                        errorLog() << "Error while extracting values from response. The streaming will be stopped.";
-                        m_stopStreaming = true;
-                    }
                 }
-
-                // get new events
-                if( m_ftRtClient->getNewEvents() )
+                else
                 {
-                    m_events->set( m_ftRtClient->getEventCount(), true );
-
-                    BOOST_FOREACH( WFTEvent::SPtr event, *m_ftRtClient->getEventList() ){
-                    debugLog() << "Fire Event: " << *event;
+                    errorLog() << "Error while reading data. The streaming will be stopped.";
+                    m_stopStreaming = true;
                 }
             }
+            else
+            {
+                m_stopStreaming = true; // stop streaming on error during request.
+                errorLog() << "Error while requesting buffer server for new data. Check your connection and the server, please.";
+            }
         }
-        else
-        {
-            m_stopStreaming = true; // stop streaming on error during request.
-
-            errorLog() << "Error while requesting buffer server for new data. Check your connection and the server, please.";
-        }
-    }
         m_ftRtClient->stop(); // stop streaming
     }
     else
@@ -466,13 +451,13 @@ void WMFTRtClient::hdlTrgStartStreaming()
 
 void WMFTRtClient::cbTrgStopStreaming() // TODO(maschke): why called a second time on stopping?
 {
-    debugLog() << __func__  << "() called.";
+    debugLog() << __func__ << "() called.";
     m_stopStreaming = true;
 }
 
 void WMFTRtClient::hdlTrgReset()
 {
-    debugLog() << __func__  << "() called.";
+    debugLog() << __func__ << "() called.";
 
     WLEMMCommand::SPtr labp = WLEMMCommand::instance( WLEMMCommand::Command::RESET );
     processReset( labp );
@@ -535,9 +520,10 @@ void WMFTRtClient::applyStatusNotStreaming()
 
 void WMFTRtClient::dispHeaderInfo()
 {
-    m_channels->set( m_ftRtClient->getHeader()->getHeaderDef().nchans, true );
-    m_samples->set( m_ftRtClient->getHeader()->getHeaderDef().nsamples, true );
-    m_frSample->set( m_ftRtClient->getHeader()->getHeaderDef().fsample, true );
-    m_events->set( m_ftRtClient->getHeader()->getHeaderDef().nevents, true );
-    m_headerBufSize->set( m_ftRtClient->getHeader()->getHeaderDef().bufsize, true );
+    // TODO
+//    m_channels->set( m_ftRtClient->getHeader()->getHeaderDef().nchans, true );
+//    m_samples->set( m_ftRtClient->getHeader()->getHeaderDef().nsamples, true );
+//    m_frSample->set( m_ftRtClient->getHeader()->getHeaderDef().fsample, true );
+//    m_events->set( m_ftRtClient->getHeader()->getHeaderDef().nevents, true );
+//    m_headerBufSize->set( m_ftRtClient->getHeader()->getHeaderDef().bufsize, true );
 }
