@@ -218,7 +218,7 @@ void WMFTRtClient::moduleMain()
 
     while( !m_shutdownFlag() )
     {
-        // ---------- SHUTDOWNEVENT ----------
+        m_moduleState.wait();
         if( m_shutdownFlag() )
         {
             break; // break mainLoop on shutdown
@@ -241,10 +241,11 @@ void WMFTRtClient::moduleMain()
         if( m_resetModule->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
             hdlTrgReset();
-
             m_resetModule->set( WPVBaseTypes::PV_TRIGGER_READY, true );
         }
     }
+
+    viewCleanup();
 }
 
 bool WMFTRtClient::processCompute( WLEMMeasurement::SPtr emmIn )
