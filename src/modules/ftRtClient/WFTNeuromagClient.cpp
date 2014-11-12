@@ -38,16 +38,22 @@
 #include "core/data/emd/WLEMDECG.h"
 #include "core/data/enum/WLEModality.h"
 #include "core/data/WLDataTypes.h"
+
 #include "modules/ftRtClient/ftb/WFtbChunk.h"
+#include "modules/ftRtClient/ftbClient/chunkReader/WFTChunkReaderNeuromagHdr.h"
+#include "modules/ftRtClient/ftbClient/chunkReader/WFTChunkReaderNeuromagIsotrak.h"
 #include "WFTNeuromagClient.h"
-#include "ftbClient/dataTypes/chunks/WFTChunkNeuromagHdr.h"
-#include "ftbClient/dataTypes/chunks/WFTChunkNeuromagIsotrak.h"
 
 const std::string WFTNeuromagClient::CLASS = "WFTNeuromagClient";
 
 WFTNeuromagClient::WFTNeuromagClient() :
                 m_streaming( false ), m_applyScaling( false )
 {
+    WFTChunkReader::SPtr chunkReader;
+    chunkReader.reset( new WFTChunkReaderNeuromagHdr );
+    m_chunkReader.insert( WFTChunkReader::MapT::value_type( chunkReader->supportedChunkType(), chunkReader ) );
+    chunkReader.reset( new WFTChunkReaderNeuromagIsotrak );
+    m_chunkReader.insert( WFTChunkReader::MapT::value_type( chunkReader->supportedChunkType(), chunkReader ) );
 }
 
 bool WFTNeuromagClient::isStreaming() const
@@ -106,17 +112,22 @@ bool WFTNeuromagClient::createEMM( WLEMMeasurement::SPtr emm )
         return false;
     }
 
-    // if there is no Neuromag header, return raw data.
-    if( !m_header->hasChunk( wftb::ChunkType::NEUROMAG_HEADER ) )
+    bool rc = false;
+    for( WFTChunkReader::MapT::iterator it = m_chunkReader.begin(); it != m_chunkReader.end(); ++it )
     {
-        emm->addModality( rawData );
-
-        wlog::debug( CLASS ) << "create raw EMM";
-
-        return true;
+        if( it->second->apply( emm, rawData ) )
+        {
+            rc |= true;
+        }
     }
 
-    return createDetailedEMM( emm, rawData );
+    if( !rc )
+    {
+        emm->addModality( rawData );
+        wlog::debug( CLASS ) << "create raw EMM";
+    }
+
+    return rc;
 }
 
 bool WFTNeuromagClient::getRawData( WLEMDRaw::SPtr* const rawData )
@@ -136,7 +147,7 @@ bool WFTNeuromagClient::getRawData( WLEMDRaw::SPtr* const rawData )
     // convert data to the used floating point number format
     if( m_data->needDataToConvert< ScalarT >() )
     {
-        floatStore.resize( sizeof( ScalarT ) * samps * chans );
+        floatStore.resize( sizeof(ScalarT) * samps * chans );
         dataSrc = ( ScalarT * )floatStore.data();
 
         m_data->convertData< ScalarT >( dataSrc, m_data->getData(), samps, chans, m_data->getDataDef().data_type );
@@ -181,133 +192,6 @@ bool WFTNeuromagClient::getRawData( WLEMDRaw::SPtr* const rawData )
     }
 
     ( *rawData )->setData( dataPtr );
-
-    return true;
-}
-
-bool WFTNeuromagClient::createDetailedEMM( WLEMMeasurement::SPtr emm, WLEMDRaw::SPtr rawData )
-{
-    // get Neuromag header
-    WFTChunkNeuromagHdr::SPtr neuromagHdr = m_header->getChunks( wftb::ChunkType::NEUROMAG_HEADER )->at( 0 )->getAs<
-                    WFTChunkNeuromagHdr >();
-
-    // get Neuromag Isotrak
-    WFTChunkNeuromagIsotrak::SPtr isotrak;
-    if( m_header->hasChunk( wftb::ChunkType::NEUROMAG_ISOTRAK ) )
-    {
-        isotrak = m_header->getChunks( wftb::ChunkType::NEUROMAG_ISOTRAK )->at( 0 )->getAs< WFTChunkNeuromagIsotrak >();
-    }
-
-    //
-    //  Add digitalization points.
-    //
-    if( isotrak )
-    {
-        emm->setDigPoints( isotrak->getDigPoints() );
-    }
-
-    //
-    //  transfer data for all modalities and add channel names if exist.
-    //
-    std::map< WLEModality::Enum, WLEMDRaw::ChanPicksT >::const_iterator it;
-    for( it = neuromagHdr->getModalityPicks()->begin(); it != neuromagHdr->getModalityPicks()->end(); ++it )
-    {
-        // skip unknown modalities: in case of Neuromag - the "Misc" channel.
-        if( it->first == WLEModality::UNKNOWN )
-        {
-            continue;
-        }
-
-        //
-        // Create the data container.
-        //
-        WLEMData::SPtr emd;
-        switch( it->first )
-        {
-            case WLEModality::EEG:
-                emd.reset( new WLEMDEEG() );
-                break;
-            case WLEModality::MEG:
-                emd.reset( new WLEMDMEG() );
-                break;
-            case WLEModality::EOG:
-                emd.reset( new WLEMDEOG() );
-                break;
-            case WLEModality::ECG:
-                emd.reset( new WLEMDECG() );
-                break;
-            case WLEModality::UNKNOWN:
-                emd.reset( new WLEMDRaw() );
-                break;
-            default:
-                continue;
-        }
-
-        emd->setData( rawData->getData( it->second, true ) );
-        emd->setSampFreq( rawData->getSampFreq() );
-
-        //
-        // apply scaling
-        //
-        if( m_applyScaling )
-        {
-            for( Eigen::RowVectorXi::Index row = 0; row < it->second.size(); ++row )
-            {
-                emd->getData().row( row ) *= neuromagHdr->getScaleFactors()->at( ( int )it->second[row] );
-            }
-        }
-
-        //
-        // Channel names.
-        //
-        WLArrayList< std::string >::SPtr channelNames = neuromagHdr->getChannelNames( it->first );
-        if( channelNames )
-        {
-            if( channelNames->size() > 0 )
-            {
-                emd->setChanNames( channelNames );
-            }
-        }
-
-        //
-        // Channel positions.
-        //
-        if( emd->getModalityType() == WLEModality::EEG && isotrak ) // EEG
-        {
-            WLEMDEEG::SPtr eeg = emd->getAs< WLEMDEEG >();
-            if( !isotrak->getEEGChanPos()->empty() )
-            {
-                eeg->setChannelPositions3d( isotrak->getEEGChanPos() );
-
-                if( !isotrak->getEEGFaces()->empty() )
-                {
-                    eeg->setFaces( isotrak->getEEGFaces() );
-                }
-            }
-        }
-
-        if( emd->getModalityType() == WLEModality::MEG ) // MEG
-        {
-            WLEMDMEG::SPtr meg = emd->getAs< WLEMDMEG >();
-            if( neuromagHdr->hasChannelPositionsMEG() )
-            {
-                meg->setChannelPositions3d( neuromagHdr->getChannelPositionsMEG() );
-            }
-            meg->setEx( neuromagHdr->getChannelExMEG() );
-            meg->setEy( neuromagHdr->getChannelEyMEG() );
-            meg->setEz( neuromagHdr->getChannelEzMEG() );
-        }
-
-        emm->addModality( emd ); // add modality to measurement.
-    }
-
-    //
-    //  Add event / stimulus channels to the EMM
-    //
-    if( neuromagHdr->getStimulusPicks()->cols() > 0 )
-    {
-        emm->setEventChannels( readEventChannels( ( Eigen::MatrixXf& )rawData->getData(), *neuromagHdr->getStimulusPicks() ) );
-    }
 
     return true;
 }

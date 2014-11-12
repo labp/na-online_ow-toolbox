@@ -28,11 +28,10 @@
 
 #include <core/common/WLogger.h>
 
-#include "chunks/WFTAChunkFactory.h"
-#include "WFTHeader.h"
-
 #include "../container/WFTChunkIterator.h"
 #include "../request/WFTRequest_PutHeader.h"
+
+#include "WFTHeader.h"
 
 const std::string WFTHeader::CLASS = "WFTHeader";
 
@@ -58,7 +57,7 @@ void WFTHeader::init( wftb::nchans_t numChannels, wftb::data_type_t dataType, wf
     m_def.nsamples = 0;
     m_def.bufsize = 0;
 
-    m_chunks.reset( new WFTChunkList );
+    m_chunks = WLList< WFTChunk::SPtr >::instance();
 }
 
 WFTRequest::SPtr WFTHeader::asRequest()
@@ -71,7 +70,7 @@ WFTRequest::SPtr WFTHeader::asRequest()
     WFTRequest_PutHeader::SPtr request( new WFTRequest_PutHeader( m_def.nchans, m_def.data_type, m_def.fsample ) );
 
     // add chunks from the collection to the request object.
-    BOOST_FOREACH( WFTAChunk::SPtr chunk, *m_chunks ){
+    BOOST_FOREACH( WFTChunk::SPtr chunk, *m_chunks ){
     request->addChunk( chunk );
 }
 
@@ -133,27 +132,22 @@ bool WFTHeader::hasChunk( wftb::chunk_type_t chunkType ) const
         return false;
     }
 
-    BOOST_FOREACH( WFTAChunk::SPtr chunk, *m_chunks ){
-    if( chunk->getType() == chunkType )
+    BOOST_FOREACH( WFTChunk::SPtr chunk, *m_chunks ){
+    if( chunk->getChunkType() == chunkType )
     return true;
 }
 
     return false;
 }
 
-void WFTHeader::addChunk( WFTAChunk::SPtr chunk )
+void WFTHeader::addChunk( WFTChunk::SPtr chunk )
 {
     m_chunks->push_back( chunk );
 
-    m_def.bufsize += chunk->getSize();
+    m_def.bufsize += chunk->getDataSize();
 }
 
-WFTChunkList::ConstSPtr WFTHeader::getChunks() const
+WLList< WFTChunk::SPtr >::ConstSPtr WFTHeader::getChunks() const
 {
     return m_chunks;
-}
-
-WFTChunkList::SPtr WFTHeader::getChunks( wftb::chunk_type_t chunkType )
-{
-    return m_chunks->filter( chunkType );
 }

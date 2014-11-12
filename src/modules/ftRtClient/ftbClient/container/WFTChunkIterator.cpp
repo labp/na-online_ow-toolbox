@@ -22,13 +22,12 @@
 //---------------------------------------------------------------------------
 
 #include "modules/ftRtClient/ftb/WFtbChunk.h"
-#include "modules/ftRtClient/ftbClient/dataTypes/chunks/WFTAChunkFactory.h"
 #include "modules/ftRtClient/ftbClient/dataTypes/WFTObject.h"
 
 #include "WFTChunkIterator.h"
 
 WFTChunkIterator::WFTChunkIterator( SimpleStorage* const buf, int size ) :
-                WFTAIterator< WFTAChunk >( buf, size )
+                WFTAIterator< WFTChunk >( buf, size )
 {
 }
 
@@ -37,25 +36,26 @@ bool WFTChunkIterator::hasNext() const
     return m_pos + ( int )sizeof(wftb::ChunkDefT) < m_size;
 }
 
-WFTAChunk::SPtr WFTChunkIterator::getNext()
+#include <core/common/WLogger.h>
+WFTChunk::SPtr WFTChunkIterator::getNext()
 {
+    wlog::debug( "WFTChunkIterator" ) << __func__ << "() called!";
     if( !hasNext() ) // when end arrived at the end, return an empty pointer.
     {
-        return WFTAChunk::SPtr();
+        return WFTChunk::SPtr();
     }
 
     wftb::ChunkDefT* chunkdef = ( wftb::ChunkDefT* )( ( char * )m_store->data() + m_pos );
-
+    wlog::debug( "WFTChunkIterator" ) << __func__ << "() type: " << wftb::ChunkType::name( chunkdef->type );
     // when the chunk has no data, set position to next chunk and return. (should just happens in case of an error)
     if( chunkdef->size == 0 )
     {
         m_pos += sizeof(wftb::ChunkDefT);
-        return WFTAChunk::SPtr();
+        return WFTChunk::SPtr();
     }
 
     char *src = ( ( char * )m_store->data() ) + m_pos + sizeof(wftb::ChunkDefT); // pointer to the chunks data.
     m_pos += sizeof(wftb::ChunkDefT) + chunkdef->size; // start position for the next chunk (next definition).
 
-    return WFTAChunkFactory< wftb::chunk_type_t, WFTAChunk >::create( ( wftb::chunk_type_t )chunkdef->type, src,
-                    chunkdef->size );
+    return WFTChunk::SPtr( new WFTChunk( *chunkdef, src ) );
 }

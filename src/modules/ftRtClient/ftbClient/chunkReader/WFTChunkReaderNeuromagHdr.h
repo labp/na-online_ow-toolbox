@@ -21,13 +21,14 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFTCHUNKNEUROMAGHDR_H_
-#define WFTCHUNKNEUROMAGHDR_H_
+#ifndef WFTCHUNKREADERNEUROMAGHDR_H_
+#define WFTCHUNKREADERNEUROMAGHDR_H_
 
 #include <map>
 #include <string>
 #include <vector>
 
+#include <boost/shared_ptr.hpp>
 #include <fiff/fiff_info.h>
 
 #include <core/common/math/linearAlgebra/WPosition.h>
@@ -36,26 +37,26 @@
 #include "core/container/WLArrayList.h"
 #include "core/data/emd/WLEMDRaw.h"
 #include "core/data/enum/WLEModality.h"
-#include "WFTAChunk.h"
+#include "WFTChunkReader.h"
 
 /**
- * The WFTChunkNeuromagHdr represents the FieldTrip header chunk, which contains the Neuromag header file.
+ * Reads the Neuromag header "FT_CHUNK_NEUROMAG_HEADER", which contains a fif file.
  * It creates the measurement information object for online data processing.
  *
- * \author maschke
+ * \authors maschke, pieloth
  */
-class WFTChunkNeuromagHdr: public WFTAChunk
+class WFTChunkReaderNeuromagHdr: public WFTChunkReader
 {
 public:
     /**
-     * A shared pointer on a WFTChunkNeuromagHdr.
+     * A shared pointer on a WFTChunkReaderNeuromagHdr.
      */
-    typedef boost::shared_ptr< WFTChunkNeuromagHdr > SPtr;
+    typedef boost::shared_ptr< WFTChunkReaderNeuromagHdr > SPtr;
 
     /**
-     * A shared pointer on a constant WFTChunkNeuromagHdr.
+     * A shared pointer on a constant WFTChunkReaderNeuromagHdr.
      */
-    typedef boost::shared_ptr< const WFTChunkNeuromagHdr > ConstSPtr;
+    typedef boost::shared_ptr< const WFTChunkReaderNeuromagHdr > ConstSPtr;
 
     /**
      * A shared pointer on a measurement information.
@@ -82,29 +83,22 @@ public:
      */
     static const std::string CLASS;
 
-    /**
-     * Constructs a new WFTChunkNeuromagHdr and processes the memory into the measurement information structure.
-     *
-     * \param data The memory storage, which contains the chunk data.
-     * \param size The size of the memory storage.
-     */
-    explicit WFTChunkNeuromagHdr( const char* data, const wftb::chunk_size_t size );
+    WFTChunkReaderNeuromagHdr();
 
-    /**
-     * Gets the data as a smart storage structure. This method is used to serialize a chunk into a request message body.
-     *
-     * Inherited method from WFTAChunk.
-     *
-     * \return Returns a shared pointer on a constant smart storage.
-     */
-    WLSmartStorage::ConstSPtr serialize() const;
+    virtual ~WFTChunkReaderNeuromagHdr();
+
+    virtual wftb::chunk_type_t supportedChunkType() const;
+
+    virtual bool read( const WFTChunk::ConstSPtr chunk );
+
+    virtual bool apply( WLEMMeasurement::SPtr emm, WLEMDRaw::SPtr raw );
 
     /**
      * Gets the measurement information.
      *
      * \return Returns a pointer to a constant measurement information.
      */
-    MeasInfo_ConstSPtr getData() const;
+    MeasInfo_ConstSPtr getMeasInfo() const;
 
     /**
      * Gets the channel names for the @modality if they exist.
@@ -184,25 +178,23 @@ public:
      */
     bool hasChannelPositionsMEG() const;
 
-protected:
     /**
-     * Based on the stored memory of @data, this method creates the chunks data structure.
-     * It has to implement by a deriving class for a special chunk type.
+     * Extracts the event/ stimulus channels from a data matrix. @ePicks contains the needed channel indices.
      *
-     * Inherited method from WFTAChunk.
+     * \param rawData The data matrix.
+     * \param ePicks A vector contains the event channel indices.
      *
-     * \param data The memory storage, which contains the chunk data.
-     * \param size The size of the memory storage.
-     * \return Returns true if the processing was successful, otherwise false.
+     * \return Returns a pointer on the event channel matrix.
      */
-    bool process( const char* data, size_t size );
+    boost::shared_ptr< WLEMMeasurement::EDataT > readEventChannels( const Eigen::MatrixXf& rawData,
+                    WLEMDRaw::ChanPicksT ePicks ) const;
 
+private:
     /**
      * The measurement information.
      */
     MeasInfo_SPtr m_measInfo;
 
-private:
     /**
      * A row vector, which contains the channel indices of the event/ stimulus channels.
      */
@@ -221,4 +213,4 @@ private:
     boost::shared_ptr< std::vector< float > > m_scaleFactors; /**< Vector for scaling factors. */
 };
 
-#endif  // WFTCHUNKNEUROMAGHDR_H_
+#endif  // WFTCHUNKREADERNEUROMAGHDR_H_

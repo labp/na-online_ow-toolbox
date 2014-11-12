@@ -24,6 +24,7 @@
 #ifndef WFTNEUROMAGCLIENT_H
 #define WFTNEUROMAGCLIENT_H
 
+#include <map>
 #include <string>
 
 #include <boost/shared_ptr.hpp>
@@ -31,6 +32,7 @@
 #include "core/data/emd/WLEMDRaw.h"
 #include "core/data/WLEMMeasurement.h"
 
+#include "ftb/WFtbChunk.h"
 #include "ftbClient/WFTRtClient.h"
 
 /**
@@ -108,15 +110,6 @@ protected:
      * \return Returns false in case of problems occur during EMM creation, otherwise true.
      */
     bool getRawData( WLEMDRaw::SPtr* const rawData );
-
-    /**
-     * Creates a EMM object with a more detailed appearance. The modalities are splitted in several modalities and the EMM
-     * contains some measurement information.
-     *
-     * \param emm The EMM object.
-     * \return Returns false in case of problems occur during EMM creation, otherwise true.
-     */
-    bool createDetailedEMM( WLEMMeasurement::SPtr emm, WLEMDRaw::SPtr rawData );
 
 private:
     /**

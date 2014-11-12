@@ -30,14 +30,15 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include "core/container/WLList.h"
+
 #include "modules/ftRtClient/ftb/WFtBuffer.h"
 #include "modules/ftRtClient/ftb/WFtbChunk.h"
 #include "modules/ftRtClient/ftb/WFtbData.h"
-#include "../../ftbClient/dataTypes/chunks/WFTAChunk.h"
-#include "../../ftbClient/dataTypes/chunks/WFTChunkList.h"
-#include "../../ftbClient/dataTypes/WFTRequestableObject.h"
-#include "core/container/WLArrayList.h"
-
+#include "modules/ftRtClient/ftbClient/dataTypes/WFTRequestableObject.h"
+#include "modules/ftRtClient/ftbClient/response/WFTResponse.h"
+#include "modules/ftRtClient/ftbClient/request/WFTRequest.h"
+#include "WFTChunk.h"
 
 /**
  * The WFTHeader class represents the FieldTrip header structure. It consists of a fix definition part and the chunk list collection.
@@ -139,23 +140,14 @@ public:
      *
      * \param chunk The new chunk.
      */
-    void addChunk( WFTAChunk::SPtr chunk );
+    void addChunk( WFTChunk::SPtr chunk );
 
     /**
      * Returns the chunks collection as shared pointer.
      *
      * \return A pointer on the chunk list.
      */
-    WFTChunkList::ConstSPtr getChunks() const;
-
-    /**
-     * Returns the chunks collection filtered for a specific @chunkType as shared pointer.
-     * The returned pointers target is just a copy of the original collection.
-     *
-     * \param chunkType The chunk type.
-     * \return A pointer on the chunk list.
-     */
-    WFTChunkList::SPtr getChunks( wftb::chunk_type_t chunkType );
+    WLList< WFTChunk::SPtr >::ConstSPtr getChunks() const;
 
 protected:
     /**
@@ -166,7 +158,7 @@ protected:
     /**
      * A list of chunk objects. It is used during request serializing.
      */
-    boost::shared_ptr< WFTChunkList > m_chunks;
+    WLList< WFTChunk::SPtr >::SPtr m_chunks;
 };
 
 inline std::ostream& operator<<( std::ostream& str, const WFTHeader& header )

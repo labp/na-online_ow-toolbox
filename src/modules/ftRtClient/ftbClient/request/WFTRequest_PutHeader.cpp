@@ -38,9 +38,9 @@ bool WFTRequest_PutHeader::addChunk( UINT32_T chunkType, UINT32_T chunkSize, con
     return prepPutHeaderAddChunk( chunkType, chunkSize, data );
 }
 
-bool WFTRequest_PutHeader::addChunk( WFTAChunk::SPtr chunk )
+bool WFTRequest_PutHeader::addChunk( WFTChunk::SPtr chunk )
 {
     WLSmartStorage::ConstSPtr store = chunk->serialize();
 
-    return addChunk( chunk->getType(), store->getSize(), store->getData() );
+    return addChunk( chunk->getChunkType(), store->getSize(), store->getData() );
 }

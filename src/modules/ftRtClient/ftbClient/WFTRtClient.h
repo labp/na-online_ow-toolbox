@@ -35,6 +35,7 @@
 
 #include "modules/ftRtClient/ftb/WFtBuffer.h"
 #include "modules/ftRtClient/ftb/WFtbCommand.h"
+#include "modules/ftRtClient/ftbClient/chunkReader/WFTChunkReader.h"
 #include "dataTypes/WFTData.h"
 #include "dataTypes/WFTEventList.h"
 #include "dataTypes/WFTHeader.h"
@@ -260,16 +261,6 @@ protected:
     bool doFlush( wftb::command_type_t command );
 
     /**
-     * Extracts the event/ stimulus channels from a data matrix. @ePicks contains the needed channel indices.
-     *
-     * \param rawData The data matrix.
-     * \param ePicks A vector contains the event channel indices.
-     *
-     * \return Returns a pointer on the event channel matrix.
-     */
-    virtual boost::shared_ptr< WLEMMeasurement::EDataT > readEventChannels( const Eigen::MatrixXf& rawData, WLEMDRaw::ChanPicksT ePicks );
-
-    /**
      * The clients connection to the FieldTrip buffer server.
      */
     WFTConnection::SPtr m_connection;
@@ -298,6 +289,8 @@ protected:
      * The timeout for Wait-requests.
      */
     wftb::time_t m_waitTimeout_ms;
+
+    WFTChunkReader::MapT m_chunkReader;
 
 private:
     /**

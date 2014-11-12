@@ -21,5 +21,10 @@
 //
 //---------------------------------------------------------------------------
 
-#include "modules/ftRtClient/ftbClient/dataTypes/chunks/WFTAChunkFactory.h"
+#include "WFTChunkReader.h"
+
+WFTChunkReader::~WFTChunkReader()
+{
+    // TODO Auto-generated destructor stub
+}
 

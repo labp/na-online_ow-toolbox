@@ -26,11 +26,11 @@
 #include <buffer.h>
 #include <FtBuffer.h>
 
-#include "core/common/WLogger.h"
+#include <core/common/WLogger.h>
 
+#include "modules/ftRtClient/ftb/WFtbChunk.h"
+#include "modules/ftRtClient/ftbClient/chunkReader/WFTChunkReaderChanNames.h"
 #include "modules/ftRtClient/ftbClient/dataTypes/WFTHeader.h"
-#include "WFTRtClient.h"
-
 #include "container/WFTEventIterator.h"
 #include "request/WFTRequest.h"
 #include "request/WFTRequest_GetData.h"
@@ -38,6 +38,7 @@
 #include "request/WFTRequest_GetHeader.h"
 #include "request/WFTRequest_WaitData.h"
 #include "response/WFTResponse.h"
+#include "WFTRtClient.h"
 
 const std::string WFTRtClient::CLASS = "WFTRtClient";
 
@@ -49,6 +50,9 @@ WFTRtClient::WFTRtClient() :
     m_reqBuilder.reset( new WFTRequestBuilder );
     m_header.reset( new WFTHeader( 0, 0, 0 ) );
     m_events.reset( new WFTEventList );
+
+    WFTChunkReader::SPtr chunkReader(new WFTChunkReaderChanNames);
+    m_chunkReader.insert( WFTChunkReader::MapT::value_type( chunkReader->supportedChunkType(), chunkReader ) );
 }
 
 WFTRtClient::~WFTRtClient()
@@ -171,6 +175,16 @@ bool WFTRtClient::doHeaderRequest()
     // check for new samples & events
     m_svr_samp_evt.nsamples = m_header->getHeaderDef().nsamples;
     m_svr_samp_evt.nevents = m_header->getHeaderDef().nevents;
+
+    WLList< WFTChunk::SPtr >::ConstSPtr chunks = m_header->getChunks();
+    for( WLList< WFTChunk::SPtr >::const_iterator it = chunks->begin(); it != chunks->end(); ++it )
+    {
+        const wftb::chunk_type_t chunk_type = ( *it )->getChunkType();
+        if( m_chunkReader.count( chunk_type ) > 0 )
+        {
+            m_chunkReader[chunk_type]->read( *it );
+        }
+    }
 
     return true;
 }
@@ -322,37 +336,4 @@ bool WFTRtClient::doFlush( wftb::command_type_t command )
     }
 
     return response->checkFlush();
-}
-
-boost::shared_ptr< WLEMMeasurement::EDataT > WFTRtClient::readEventChannels( const Eigen::MatrixXf& rawData,
-                WLEMDRaw::ChanPicksT ePicks )
-{
-    //wlog::debug( CLASS ) << "readEventChannels() called.";
-
-    boost::shared_ptr< WLEMMeasurement::EDataT > events( new WLEMMeasurement::EDataT );
-
-    if( ePicks.size() == 0 )
-    {
-        wlog::error( CLASS ) << "No channels to pick.";
-        return events;
-    }
-
-    const Eigen::RowVectorXi::Index rows = ePicks.size();
-    const Eigen::MatrixXf::Index cols = rawData.cols();
-
-    events->clear();
-    events->reserve( rows );
-
-    for( Eigen::RowVectorXi::Index row = 0; row < rows; ++row )
-    {
-        WLEMMeasurement::EChannelT eChannel;
-        eChannel.reserve( cols );
-        for( Eigen::RowVectorXi::Index col = 0; col < cols; ++col )
-        {
-            eChannel.push_back( ( WLEMMeasurement::EventT )rawData( ePicks[row], col ) );
-        }
-        events->push_back( eChannel );
-    }
-
-    return events;
 }

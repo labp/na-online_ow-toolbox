@@ -21,8 +21,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFTCHUNKNEUROMAGISOTRAK_H_
-#define WFTCHUNKNEUROMAGISOTRAK_H_
+#ifndef WFTCHUNKREADERNEUROMAGISOTRAK_H_
+#define WFTCHUNKREADERNEUROMAGISOTRAK_H_
 
 #include <string>
 
@@ -31,28 +31,30 @@
 #include <core/common/math/linearAlgebra/WMatrixFixed.h>
 #include <core/common/math/linearAlgebra/WPosition.h>
 
-#include "../../../ftbClient/dataTypes/chunks/WFTAChunk.h"
 #include "core/container/WLArrayList.h"
 #include "core/container/WLList.h"
 #include "core/data/enum/WLEPointType.h"
 #include "core/data/WLDigPoint.h"
+#include "WFTChunkReader.h"
 
 /**
- * The WFTChunkNeuromagIsotrak represents the FieldTrip header chunk, which contains the Neuromag Isotrak file.
+ * Reads the Neuromag header "FT_CHUNK_NEUROMAG_ISOTRAK", which contains a fif file.
  * It creates the digitalization points for online data processing.
+ *
+ * \authors maschke, pieloth
  */
-class WFTChunkNeuromagIsotrak: public WFTAChunk
+class WFTChunkReaderNeuromagIsotrak: public WFTChunkReader
 {
 public:
     /**
-     * A shared pointer on a WFTChunkNeuromagIsotrak.
+     * A shared pointer on a WFTChunkReaderNeuromagIsotrak.
      */
-    typedef boost::shared_ptr< WFTChunkNeuromagIsotrak > SPtr;
+    typedef boost::shared_ptr< WFTChunkReaderNeuromagIsotrak > SPtr;
 
     /**
-     * A shared pointer on a constant WFTChunkNeuromagIsotrak.
+     * A shared pointer on a constant WFTChunkReaderNeuromagIsotrak.
      */
-    typedef boost::shared_ptr< const WFTChunkNeuromagIsotrak > Const_SPtr;
+    typedef boost::shared_ptr< const WFTChunkReaderNeuromagIsotrak > ConstSPtr;
 
     /**
      * A vector describing faces for the 3D view.
@@ -69,22 +71,15 @@ public:
      */
     static const int EEG_FACES_FACTOR;
 
-    /**
-     * Constructs a new WFTChunkNeuromagIsotrak.
-     *
-     * \param data The memory storage, which contains the chunk data.
-     * \param size The size of the memory storage.
-     */
-    explicit WFTChunkNeuromagIsotrak( const char* data, const wftb::chunk_size_t size );
+    WFTChunkReaderNeuromagIsotrak();
 
-    /**
-     * Gets the data as a smart storage structure. This method is used to serialize a chunk into a request message body.
-     *
-     * Inherited method from WFTAChunk.
-     *
-     * \return Returns a shared pointer on a constant smart storage.
-     */
-    WLSmartStorage::ConstSPtr serialize() const;
+    virtual ~WFTChunkReaderNeuromagIsotrak();
+
+    virtual bool read( WFTChunk::ConstSPtr chunk );
+
+    virtual bool apply( WLEMMeasurement::SPtr emm, WLEMDRaw::SPtr raw );
+
+    virtual wftb::chunk_type_t supportedChunkType() const;
 
     /**
      * Gets the digitalization points list.
@@ -115,20 +110,7 @@ public:
      */
     WLArrayList< WVector3i >::SPtr getEEGFaces() const;
 
-protected:
-    /**
-     * Based on the stored memory of @data, this method creates the chunks data structure.
-     * It has to implement by a deriving class for a special chunk type.
-     *
-     * Inherited method from WFTAChunk.
-     *
-     * \param data The memory storage, which contains the chunk data.
-     * \param size The size of the memory storage.
-     *
-     * \return Returns true if the processing was successful, otherwise false.
-     */
-    bool process( const char* data, size_t size );
-
+private:
     /**
      * Creates the EEG channel positions from the isotak digitalization points.
      *
@@ -153,4 +135,4 @@ protected:
     WLArrayList< WVector3i >::SPtr m_eegFaces;
 };
 
-#endif  // WFTCHUNKNEUROMAGISOTRAK_H_
+#endif  // WFTCHUNKREADERNEUROMAGISOTRAK_H_

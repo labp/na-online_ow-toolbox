@@ -21,47 +21,55 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFTCHUNKITERATOR_H_
-#define WFTCHUNKITERATOR_H_
+#ifndef WFTCHUNKREADER_H_
+#define WFTCHUNKREADER_H_
+
+#include <map>
 
 #include <boost/shared_ptr.hpp>
 
 #include "../dataTypes/WFTChunk.h"
-#include "WFTAIterator.h"
+#include "core/data/WLEMMeasurement.h"
+#include "core/data/emd/WLEMDRaw.h"
 
 /**
- * The WFTChunkIterator can be used to run through a bulk of memory containing FieldTrip chunks.
- * This class has the standard iterator appearance with its characteristic operations.
+ * The interface provides access to extended header information a.k.a. chunks.
+ *
+ * \author pieloth
  */
-class WFTChunkIterator: public WFTAIterator< WFTChunk >
+class WFTChunkReader
 {
 public:
-    /**
-     * A shared pointer on the iterator.
-     */
-    typedef boost::shared_ptr< WFTChunkIterator > SPtr;
+    typedef boost::shared_ptr< WFTChunkReader > SPtr;
+    typedef boost::shared_ptr< const WFTChunkReader > ConstSPtr;
+
+    typedef std::map< wftb::chunk_type_t, WFTChunkReader::SPtr > MapT;
+
+    virtual ~WFTChunkReader();
 
     /**
-     * The constructor defines the chunk storage for followed iterations.
+     * Returns the supported chunk type.
      *
-     * \param buf A pointer to the chunk storage memory.
-     * \param size The memory size allocated by all chunks together.
+     * \return supported chunk type
      */
-    WFTChunkIterator( SimpleStorage* const buf, int size );
+    virtual wftb::chunk_type_t supportedChunkType() const = 0;
 
     /**
-     * Inherited method from WFTAIterator.
+     * Reads/processes/parses a chunk and stores the data.
      *
-     * \return Returns true if there are more chunks, else false.
+     * \param chunk Chunk to read.
+     * \return False, if no data was read.
      */
-    bool hasNext() const;
+    virtual bool read( WFTChunk::ConstSPtr chunk ) = 0;
 
     /**
-     * Inherited method from WFTAIterator.
+     * Applies/sets the read data to an EMMeasurement object.
      *
-     * \return Returns the next chunk element.
+     * \param emm Instance which should hold the data.
+     * \param raw Raw data e.g. EEG, MEG.
+     * \return False, if no data was applied/set.
      */
-    WFTChunk::SPtr getNext();
+    virtual bool apply( WLEMMeasurement::SPtr emm, WLEMDRaw::SPtr raw ) = 0;
 };
 
-#endif  // WFTCHUNKITERATOR_H_
+#endif  // WFTCHUNKREADER_H_

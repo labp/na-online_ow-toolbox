@@ -26,8 +26,8 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include "../dataTypes/WFTChunk.h"
 #include "WFTRequest.h"
-#include "modules/ftRtClient/ftbClient/dataTypes/chunks/WFTAChunk.h"
 
 class WFTRequest_PutHeader: public WFTRequest
 {
@@ -43,7 +43,7 @@ public:
 
     bool addChunk( UINT32_T chunkType, UINT32_T chunkSize, const void *data );
 
-    bool addChunk( WFTAChunk::SPtr chunk );
+    bool addChunk( WFTChunk::SPtr chunk );
 };
 
 #endif  // WFTREQUEST_PUTHEADER_H_
