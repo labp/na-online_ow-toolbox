@@ -30,7 +30,7 @@
 #include "chunkReader/WFTChunkReaderChanNames.h"
 #include "chunkReader/WFTChunkReaderNeuromagHdr.h"
 #include "chunkReader/WFTChunkReaderNeuromagIsotrak.h"
-#include "container/WFTEventIterator.h"
+#include "util/WFTEventIterator.h"
 #include "WFtbClient.h"
 
 const std::string WFtbClient::CLASS = "WFtbClient";
@@ -222,7 +222,7 @@ bool WFtbClient::getRawData( WLEMDRaw::SPtr* const rawData )
 {
     rawData->reset( new WLEMDRaw );
 
-    if( m_data->getDataDef().bufsize == 0 )
+    if( m_data->getDataSize() == 0 )
     {
         return false;
     }
@@ -319,7 +319,7 @@ bool WFtbClient::doHeaderRequest()
         return false;
     }
 
-    if( !m_header->parseResponse( response ) )
+    if( !m_header->deserialize( response ) )
     {
         wlog::error( CLASS ) << "Error while parsing server response.";
         return false;
@@ -406,7 +406,7 @@ bool WFtbClient::doGetDataRequest()
 
     m_data.reset( new WFTData );
 
-    if( !m_data->parseResponse( response ) )
+    if( !m_data->deserialize( response ) )
     {
         return false;
     }

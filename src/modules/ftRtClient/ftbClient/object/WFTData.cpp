@@ -21,9 +21,42 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WFTChunkReader.h"
+#include "WFTData.h"
 
-WFTChunkReader::~WFTChunkReader()
+WFTData::WFTData()
+{
+    m_def.nchans = 0;
+    m_def.nsamples = 0;
+    m_def.data_type = wftb::DataType::UNKNOWN;
+}
+
+WFTData::~WFTData()
 {
 }
 
+bool WFTData::deserialize( const WFTResponse& response )
+{
+    m_buf.clear();
+
+    return response.checkGetData( m_def, &m_buf );
+}
+
+wftb::bufsize_t WFTData::getSize() const
+{
+    return m_def.bufsize + sizeof(wftb::DataDefT);
+}
+
+wftb::bufsize_t WFTData::getDataSize() const
+{
+    return m_def.bufsize;
+}
+
+const wftb::DataDefT& WFTData::getDataDef() const
+{
+    return m_def;
+}
+
+void* WFTData::getData()
+{
+    return m_buf.data();
+}

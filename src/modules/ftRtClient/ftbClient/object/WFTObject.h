@@ -24,21 +24,16 @@
 #ifndef WFTOBJECT_H_
 #define WFTOBJECT_H_
 
-#include <boost/shared_ptr.hpp>
-
 #include "modules/ftRtClient/ftb/WFtBuffer.h"
 
 /**
- * The WFTObject interface provides basic types covered from the FieldTrip library and general methods for a processing object.
+ * Interface for FieldTrip Buffer request/response objects.
+ *
+ * \author maschke
  */
 class WFTObject
 {
 public:
-    /**
-     * A shared pointer on a WFTObject.
-     */
-    typedef boost::shared_ptr< WFTObject > SPtr;
-
     /**
      * Destroys the WFTObject.
      */
@@ -50,6 +45,13 @@ public:
      * \return The memory size.
      */
     virtual wftb::bufsize_t getSize() const = 0;
+
+    /**
+     * Gets the data size without header data.
+     *
+     * \return The memory size.
+     */
+    virtual wftb::bufsize_t getDataSize() const = 0;
 };
 
 #endif  // WFTOBJECT_H_

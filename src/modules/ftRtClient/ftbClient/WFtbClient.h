@@ -36,12 +36,14 @@
 
 #include "modules/ftRtClient/ftb/WFtBuffer.h"
 #include "chunkReader/WFTChunkReader.h"
-#include "dataTypes/WFTData.h"
-#include "dataTypes/WFTEvent.h"
-#include "dataTypes/WFTHeader.h"
-#include "WFTResponse.h"
-#include "WFTRequest.h"
-#include "WFTConnection.h"
+#include "network/WFTConnection.h"
+#include "network/WFTResponse.h"
+#include "network/WFTRequest.h"
+#include "object/WFTData.h"
+#include "object/WFTEvent.h"
+#include "object/WFTHeader.h"
+
+
 
 /**
  * Processing client for FieldTrip Buffer.

@@ -24,11 +24,10 @@
 #include <string>
 
 #include <boost/foreach.hpp>
-#include <boost/pointer_cast.hpp>
 
 #include <core/common/WLogger.h>
 
-#include "../container/WFTChunkIterator.h"
+#include "../util/WFTChunkIterator.h"
 
 #include "WFTHeader.h"
 
@@ -36,30 +35,20 @@ const std::string WFTHeader::CLASS = "WFTHeader";
 
 WFTHeader::WFTHeader()
 {
-    init( 0, 0, 0 );
-}
-
-WFTHeader::WFTHeader( wftb::nchans_t numChannels, wftb::data_type_t dataType, wftb::fsamp_t fsample )
-{
-    init( numChannels, dataType, fsample );
-}
-
-WFTHeader::~WFTHeader()
-{
-}
-
-void WFTHeader::init( wftb::nchans_t numChannels, wftb::data_type_t dataType, wftb::fsamp_t fsample )
-{
-    m_def.nchans = numChannels;
-    m_def.data_type = dataType;
-    m_def.fsample = fsample;
+    m_def.nchans = 0;
+    m_def.data_type = wftb::DataType::UNKNOWN;
+    m_def.fsample = 0.0;
     m_def.nsamples = 0;
     m_def.bufsize = 0;
 
     m_chunks = WLList< WFTChunk::SPtr >::instance();
 }
 
-bool WFTHeader::parseResponse( const WFTResponse& response )
+WFTHeader::~WFTHeader()
+{
+}
+
+bool WFTHeader::deserialize( const WFTResponse& response )
 {
     wlog::debug( CLASS ) << __func__ << "() called.";
 
@@ -71,7 +60,6 @@ bool WFTHeader::parseResponse( const WFTResponse& response )
     }
 
     m_chunks->clear();
-
     if( m_def.bufsize > 0 )
     {
         // extracts the chunks from the response using an iterator and stores them in the local chunk collection.
@@ -92,41 +80,14 @@ wftb::bufsize_t WFTHeader::getSize() const
     return sizeof(wftb::HeaderDefT) + m_def.bufsize;
 }
 
-wftb::HeaderDefT& WFTHeader::getHeaderDef()
+wftb::bufsize_t WFTHeader::getDataSize() const
+{
+    return m_def.bufsize;
+}
+
+const wftb::HeaderDefT& WFTHeader::getHeaderDef() const
 {
     return m_def;
-}
-
-wftb::HeaderDefT WFTHeader::getHeaderDef() const
-{
-    return m_def;
-}
-
-bool WFTHeader::hasChunks() const
-{
-    return m_chunks != 0 && m_chunks->size() > 0;
-}
-
-bool WFTHeader::hasChunk( wftb::chunk_type_t chunkType ) const
-{
-    if( !hasChunks() )
-    {
-        return false;
-    }
-
-    BOOST_FOREACH( WFTChunk::SPtr chunk, *m_chunks ){
-    if( chunk->getChunkType() == chunkType )
-    return true;
-}
-
-    return false;
-}
-
-void WFTHeader::addChunk( WFTChunk::SPtr chunk )
-{
-    m_chunks->push_back( chunk );
-
-    m_def.bufsize += chunk->getDataSize();
 }
 
 WLList< WFTChunk::SPtr >::ConstSPtr WFTHeader::getChunks() const

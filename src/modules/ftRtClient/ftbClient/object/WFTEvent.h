@@ -29,8 +29,6 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <message.h>
-
 #include "modules/ftRtClient/ftb/WFtbEvent.h"
 #include "WFTObject.h"
 
@@ -60,42 +58,20 @@ public:
     WFTEvent( wftb::EventDefT def, const std::string type, const std::string value );
 
     /**
-     * Constructs a new WFTEvent.
-     *
-     * \param sample The index of sample this event relates to.
-     * \param offset The offset of event w.r.t. sample (time).
-     * \param duration The duration of the event.
-     * \param type The data type of event.
-     * \param value The value of the event.
-     */
-    WFTEvent( wftb::Event::sample_t sample, wftb::Event::offset_t offset, wftb::Event::duration_t duration,
-                    const std::string type, const std::string value );
-
-    /**
      * Destroys the WFTEvent.
      */
     virtual ~WFTEvent();
 
-    /**
-     * Inherited method from WFTObject.
-     *
-     * \return Returns the size of the whole object including the event header.
-     */
-    wftb::bufsize_t getSize() const;
+    virtual wftb::bufsize_t getSize() const;
 
-    /**
-     * Gets a reference on the event header.
-     *
-     * \return A reference on the event header.
-     */
-    wftb::EventDefT& getDef();
+    virtual wftb::bufsize_t getDataSize() const;
 
     /**
      * Gets the event header.
      *
      * \return The event header.
      */
-    wftb::EventDefT getDef() const;
+    const wftb::EventDefT& getDef() const;
 
     /**
      * Gets the type.
@@ -128,22 +104,14 @@ private:
     const std::string m_value;
 };
 
-/**
- * Overloads the << operator to print the events data.
- *
- * \param strm The ostream.
- * \param event The event object.
- *
- * \return Returns an ostream, which contains the events information.
- */
 inline std::ostream& operator<<( std::ostream &strm, const WFTEvent& event )
 {
-    strm << WFTEvent::CLASS << ":";
-    strm << " Sample = " << event.getDef().sample;
-    strm << ", Duration = " << event.getDef().duration;
-    strm << ", Offset = " << event.getDef().offset;
-    strm << ", Type = " << event.getType();
-    strm << ", Value = " << event.getValue();
+    strm << WFTEvent::CLASS << ": ";
+    strm << " sample=" << event.getDef().sample;
+    strm << ", duration=" << event.getDef().duration;
+    strm << ", offset=" << event.getDef().offset;
+    strm << ", type=" << event.getType();
+    strm << ", value=" << event.getValue();
 
     return strm;
 }

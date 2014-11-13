@@ -28,9 +28,10 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../dataTypes/WFTChunk.h"
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMDRaw.h"
+
+#include "../object/WFTChunk.h"
 
 /**
  * The interface provides access to extended header information a.k.a. chunks.

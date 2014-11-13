@@ -21,35 +21,47 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFTREQUESTABLEOBJECT_H_
-#define WFTREQUESTABLEOBJECT_H_
+#ifndef WFTCHUNKITERATOR_H_
+#define WFTCHUNKITERATOR_H_
 
-#include "../WFTRequest.h"
-#include "../WFTResponse.h"
-#include "WFTObject.h"
+#include <boost/shared_ptr.hpp>
 
-class WFTRequestableObject: public WFTObject
+#include "../object/WFTChunk.h"
+#include "WFTAIterator.h"
+
+/**
+ * The WFTChunkIterator can be used to run through a bulk of memory containing FieldTrip chunks.
+ * This class has the standard iterator appearance with its characteristic operations.
+ */
+class WFTChunkIterator: public WFTAIterator< WFTChunk >
 {
 public:
     /**
-     * Destroys the WFTRequestableObject.
+     * A shared pointer on the iterator.
      */
-    virtual ~WFTRequestableObject();
+    typedef boost::shared_ptr< WFTChunkIterator > SPtr;
 
     /**
-     * Parses a WFTResponse into a concrete object.
+     * The constructor defines the chunk storage for followed iterations.
      *
-     * \param The response to parse.
-     * \return Returns true if the parsing was successful, otherwise false.
+     * \param buf A pointer to the chunk storage memory.
+     * \param size The memory size allocated by all chunks together.
      */
-    virtual bool parseResponse( const WFTResponse& ) = 0;
+    WFTChunkIterator( SimpleStorage* const buf, int size );
 
     /**
-     * Gets the amount of bytes, which are reserved by the object. Each Fieldrip object has to determine its size itself.
+     * Inherited method from WFTAIterator.
      *
-     * \return Returns an unsigned 32 bit integer.
+     * \return Returns true if there are more chunks, else false.
      */
-    virtual wftb::bufsize_t getSize() const = 0;
+    bool hasNext() const;
+
+    /**
+     * Inherited method from WFTAIterator.
+     *
+     * \return Returns the next chunk element.
+     */
+    WFTChunk::SPtr getNext();
 };
 
-#endif  // WFTREQUESTABLEOBJECT_H_
+#endif  // WFTCHUNKITERATOR_H_

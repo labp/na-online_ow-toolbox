@@ -22,7 +22,6 @@
 //---------------------------------------------------------------------------
 
 #include "modules/ftRtClient/ftb/WFtbChunk.h"
-#include "modules/ftRtClient/ftbClient/dataTypes/WFTObject.h"
 
 #include "WFTChunkIterator.h"
 
@@ -36,17 +35,14 @@ bool WFTChunkIterator::hasNext() const
     return m_pos + ( int )sizeof(wftb::ChunkDefT) < m_size;
 }
 
-#include <core/common/WLogger.h>
 WFTChunk::SPtr WFTChunkIterator::getNext()
 {
-    wlog::debug( "WFTChunkIterator" ) << __func__ << "() called!";
     if( !hasNext() ) // when end arrived at the end, return an empty pointer.
     {
         return WFTChunk::SPtr();
     }
 
     wftb::ChunkDefT* chunkdef = ( wftb::ChunkDefT* )( ( char * )m_store->data() + m_pos );
-    wlog::debug( "WFTChunkIterator" ) << __func__ << "() type: " << wftb::ChunkType::name( chunkdef->type );
     // when the chunk has no data, set position to next chunk and return. (should just happens in case of an error)
     if( chunkdef->size == 0 )
     {

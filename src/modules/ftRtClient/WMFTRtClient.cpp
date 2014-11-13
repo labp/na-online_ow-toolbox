@@ -42,10 +42,8 @@
 #include "core/module/WLModuleOutputDataCollectionable.h"
 #include "core/util/profiler/WLTimeProfiler.h"
 
-#include "ftb/WFtbData.h"
 #include "WMFTRtClient.h"
 #include "WMFTRtClient.xpm"
-#include "ftbClient/WFTConnection.h"
 
 // needed by the module loader.
 W_LOADABLE_MODULE( WMFTRtClient )

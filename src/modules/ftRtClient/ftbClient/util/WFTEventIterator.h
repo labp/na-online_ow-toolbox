@@ -21,47 +21,54 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFTCHUNKITERATOR_H_
-#define WFTCHUNKITERATOR_H_
+#ifndef WFTEVENTITERATOR_H_
+#define WFTEVENTITERATOR_H_
+
+#include <string>
 
 #include <boost/shared_ptr.hpp>
 
-#include "../dataTypes/WFTChunk.h"
+#include "../object/WFTEvent.h"
 #include "WFTAIterator.h"
 
 /**
- * The WFTChunkIterator can be used to run through a bulk of memory containing FieldTrip chunks.
+ * The WFTChunkIterator can be used to run through a bulk of memory containing FieldTrip events.
  * This class has the standard iterator appearance with its characteristic operations.
  */
-class WFTChunkIterator: public WFTAIterator< WFTChunk >
+class WFTEventIterator: public WFTAIterator< WFTEvent >
 {
 public:
     /**
-     * A shared pointer on the iterator.
+     * Represents the name of the class.
      */
-    typedef boost::shared_ptr< WFTChunkIterator > SPtr;
+    static const std::string CLASS;
 
     /**
-     * The constructor defines the chunk storage for followed iterations.
-     *
-     * \param buf A pointer to the chunk storage memory.
-     * \param size The memory size allocated by all chunks together.
+     * A shared pointer on the iterator.
      */
-    WFTChunkIterator( SimpleStorage* const buf, int size );
+    typedef boost::shared_ptr< WFTEventIterator > SPtr;
+
+    /**
+     * Constructs a new WFTEventIterator.
+     *
+     * \param buf A reference to the event storage memory.
+     * \param size The size of the memory area.
+     */
+    WFTEventIterator( SimpleStorage* const buf, int size );
 
     /**
      * Inherited method from WFTAIterator.
      *
-     * \return Returns true if there are more chunks, else false.
+     * \return Returns true if there are more events, else false.
      */
     bool hasNext() const;
 
     /**
      * Inherited method from WFTAIterator.
      *
-     * \return Returns the next chunk element.
+     * \return Returns the next event.
      */
-    WFTChunk::SPtr getNext();
+    WFTEvent::SPtr getNext();
 };
 
-#endif  // WFTCHUNKITERATOR_H_
+#endif  // WFTEVENTITERATOR_H_

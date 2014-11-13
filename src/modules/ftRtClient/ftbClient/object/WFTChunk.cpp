@@ -66,6 +66,11 @@ const void* WFTChunk::getData() const
     return m_data;
 }
 
+wftb::chunk_size_t WFTChunk::getSize() const
+{
+    return m_dataSize + sizeof(wftb::ChunkDefT);
+}
+
 wftb::chunk_size_t WFTChunk::getDataSize() const
 {
     return m_dataSize;

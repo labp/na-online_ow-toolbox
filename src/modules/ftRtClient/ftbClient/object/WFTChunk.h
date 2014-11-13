@@ -21,8 +21,50 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WFTRequestableObject.h"
+#ifndef WFTCHUNK_H_
+#define WFTCHUNK_H_
 
-WFTRequestableObject::~WFTRequestableObject()
+#include <string>
+
+#include "modules/ftRtClient/ftb/WFtbChunk.h"
+#include "WFTObject.h"
+
+/**
+ * TODO(pieloth): documentation
+ *
+ * \author pieloth
+ */
+class WFTChunk : public WFTObject
 {
-}
+public:
+    /**
+     * A shared pointer on a WFTChunk.
+     */
+    typedef boost::shared_ptr< WFTChunk > SPtr;
+
+    /**
+     * A shared pointer on a constant WFTChunk.
+     */
+    typedef boost::shared_ptr< const WFTChunk > ConstSPtr;
+
+    static const std::string CLASS;
+
+    WFTChunk( const wftb::ChunkDefT& chunkDef, const void* data );
+
+    virtual ~WFTChunk();
+
+    wftb::chunk_type_t getChunkType() const;
+
+    const void* getData() const;
+
+    virtual wftb::chunk_size_t getSize() const;
+
+    virtual wftb::chunk_size_t getDataSize() const;
+
+private:
+    const wftb::chunk_type_t m_chunk_type;
+    wftb::chunk_size_t m_dataSize;
+    void* m_data;
+};
+
+#endif  // WFTCHUNK_H_

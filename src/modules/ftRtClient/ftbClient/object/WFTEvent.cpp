@@ -21,41 +21,45 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WFTData.h"
+#include <string>
 
-WFTData::WFTData()
+#include "WFTEvent.h"
+
+const std::string WFTEvent::CLASS = "WFTEvent";
+
+WFTEvent::WFTEvent( wftb::EventDefT def, const std::string type, const std::string value ) :
+                m_def( def ), m_type( type ), m_value( value )
+{
+    m_def.sample = 0;
+    m_def.offset = 0;
+    m_def.duration = 0;
+}
+
+WFTEvent::~WFTEvent()
 {
 }
 
-WFTData::WFTData( wftb::nchans_t numChannels, wftb::nsamples_t numSamples, wftb::data_type_t dataType )
+wftb::bufsize_t WFTEvent::getSize() const
 {
-    m_def.nchans = numChannels;
-    m_def.nsamples = numSamples;
-    m_def.data_type = dataType;
+    return ( wftb::bufsize_t )sizeof(eventdef_t) + m_def.bufsize;
 }
 
-WFTData::~WFTData()
+wftb::bufsize_t WFTEvent::getDataSize() const
 {
+    return m_def.bufsize;
 }
 
-bool WFTData::parseResponse( const WFTResponse& response )
-{
-    m_buf.clear();
-
-    return response.checkGetData( m_def, &m_buf );
-}
-
-wftb::bufsize_t WFTData::getSize() const
-{
-    return m_def.bufsize + sizeof(wftb::DataDefT);
-}
-
-wftb::DataDefT& WFTData::getDataDef()
+const wftb::EventDefT& WFTEvent::getDef() const
 {
     return m_def;
 }
 
-void *WFTData::getData()
+const std::string WFTEvent::getType() const
 {
-    return m_buf.data();
+    return m_type;
+}
+
+const std::string WFTEvent::getValue() const
+{
+    return m_value;
 }

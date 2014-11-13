@@ -27,14 +27,15 @@
 #include <boost/shared_ptr.hpp>
 
 #include <SimpleStorage.h>
-#include <message.h>
 
 #include "modules/ftRtClient/ftb/WFtBuffer.h"
 #include "modules/ftRtClient/ftb/WFtbData.h"
-#include "../WFTResponse.h"
-#include "WFTRequestableObject.h"
 
-class WFTData: public WFTRequestableObject
+#include "../network/WFTResponse.h"
+#include "WFTDeserializable.h"
+#include "WFTObject.h"
+
+class WFTData: public WFTDeserializable< WFTResponse >, public WFTObject
 {
 public:
     /**
@@ -48,45 +49,27 @@ public:
     WFTData();
 
     /**
-     * Constructs a WFTData object with the given meat information.
-     *
-     * \param numChannels The number of channels.
-     * \param numSamples The number of samples.
-     * \param dataType The used data type.
-     */
-    WFTData( wftb::nchans_t numChannels, wftb::nsamples_t numSamples, wftb::data_type_t dataType );
-
-    /**
      * Destroys the WFTData.
      */
     virtual ~WFTData();
 
-    /**
-     * Inherit from WFTRequestableObject.
-     *
-     * \param The response object.
-     * \return Returns whether the parsing was successful.
-     */
-    bool parseResponse( const WFTResponse& );
+    virtual bool deserialize( const WFTResponse& );
 
-    /**
-     * Inherit from WFTObject.
-     *
-     * \return Returns the whole object size including the meta information.
-     */
-    wftb::bufsize_t getSize() const;
+    virtual wftb::bufsize_t getSize() const;
+
+    virtual wftb::bufsize_t getDataSize() const;
 
     /**
      * Gets a reference on the fixed meta information part.
      *
      * \return Returns a reference on a WFTDataDefT object.
      */
-    wftb::DataDefT& getDataDef();
+    const wftb::DataDefT& getDataDef() const;
 
     /**
      * Gets a pointer to the data storage. The meta information tells the properties about the stored data.
      */
-    void *getData();
+    void* getData();
 
     /**
      * Gets whether the stored data has to convert manually into the wished data type.
@@ -108,7 +91,7 @@ public:
     template< typename T >
     void convertData( T *dest, const void *src, unsigned int nsamp, unsigned int nchans, UINT32_T dataType );
 
-protected:
+private:
     /**
      * The fixed meta information.
      */
@@ -119,7 +102,6 @@ protected:
      */
     SimpleStorage m_buf;
 
-private:
     /**
      * Method for simple converting data from @src to @dest using a basic type cast to DestT.
      * The function will be called from convertData().
@@ -138,12 +120,12 @@ inline bool WFTData::needDataToConvert()
 {
     if( typeid(T) == typeid(float) )
     {
-        return getDataDef().data_type != DATATYPE_FLOAT32;
+        return getDataDef().data_type != DATATYPE_FLOAT32 ;
     }
     else
         if( typeid(T) == typeid(double) )
         {
-            return getDataDef().data_type != DATATYPE_FLOAT64;
+            return getDataDef().data_type != DATATYPE_FLOAT64 ;
         }
 
     return true;

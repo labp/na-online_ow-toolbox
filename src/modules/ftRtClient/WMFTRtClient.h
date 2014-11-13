@@ -39,7 +39,7 @@
 #include "core/module/WLModuleDrawable.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 #include "ftbClient/WFtbClient.h"
-#include "ftbClient/WFTConnection.h"
+#include "ftbClient/network/WFTConnection.h"
 
 
 /**

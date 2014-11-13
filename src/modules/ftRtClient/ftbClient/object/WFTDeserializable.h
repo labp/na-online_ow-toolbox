@@ -21,47 +21,29 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFTCHUNK_H_
-#define WFTCHUNK_H_
-
-#include <string>
-
-#include "modules/ftRtClient/ftb/WFtbChunk.h"
+#ifndef WFTDESERIALIZABLE_H_
+#define WFTDESERIALIZABLE_H_
 
 /**
- * TODO(pieloth): documentation
+ * An interface for deserialization.
  *
  * \author pieloth
  */
-class WFTChunk
+template< typename T >
+class WFTDeserializable
 {
 public:
-    /**
-     * A shared pointer on a WFTChunk.
-     */
-    typedef boost::shared_ptr< WFTChunk > SPtr;
+    virtual ~WFTDeserializable()
+    {
+    }
 
     /**
-     * A shared pointer on a constant WFTChunk.
+     * Parses/deserializes the argument and applies the data.
+     *
+     * \param Data to deserialize.
+     * \return True if any data was deserialized.
      */
-    typedef boost::shared_ptr< const WFTChunk > ConstSPtr;
-
-    static const std::string CLASS;
-
-    WFTChunk( const wftb::ChunkDefT& chunkDef, const void* data );
-
-    virtual ~WFTChunk();
-
-    wftb::chunk_type_t getChunkType() const;
-
-    const void* getData() const;
-
-    wftb::chunk_size_t getDataSize() const;
-
-private:
-    const wftb::chunk_type_t m_chunk_type;
-    wftb::chunk_size_t m_dataSize;
-    void* m_data;
+    virtual bool deserialize( const T& ) = 0;
 };
 
-#endif  // WFTCHUNK_H_
+#endif  // WFTDESERIALIZABLE_H_
