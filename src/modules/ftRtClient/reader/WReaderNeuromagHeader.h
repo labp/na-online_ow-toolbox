@@ -24,8 +24,6 @@
 #ifndef WREADERNEUROMAGHEADER_H_
 #define WREADERNEUROMAGHEADER_H_
 
-#include <string>
-
 #include <boost/shared_ptr.hpp>
 
 #include <QtCore/qbytearray.h>
@@ -45,6 +43,7 @@
 class WReaderNeuromagHeader
 {
 public:
+
     /**
      * A shared pointer on a WReaderNeuromagHeader.
      */
@@ -91,21 +90,24 @@ public:
     bool read( FIFFLIB::FiffInfo* const out );
 
 protected:
+
     /**
      * Create the directory tree structure
      *
-     * \param[out] p_Tree the created dir tree
+     * \param[in] p_pStream the opened fiff file
      * \param[in] p_Dir the dir entries of which the tree should be constructed
+     * \param[out] p_Tree the created dir tree
      * \param[in] start dir entry to start (optional, by default 0)
      *
      * \return index of the last read dir entry
      */
-    qint32 make_dir_tree( FIFFLIB::FiffDirTree* const p_Tree, const QList< FIFFLIB::FiffDirEntry >& p_Dir, qint32 start = 0 );
+    qint32 make_dir_tree( QList< FIFFLIB::FiffDirEntry >& p_Dir, FIFFLIB::FiffDirTree& p_Tree, qint32 start = 0 );
 
     /**
      * The WFiffStream to read from the Neuromag Header Fiff-file. Depending on the constructor call the stream can be placed on a QFile of a QBuffer.
      */
     WFiffStream::SPtr m_stream;
+
 };
 
-#endif  // WREADERNEUROMAGHEADER_H_
+#endif /* WREADERNEUROMAGHEADER_H_ */
