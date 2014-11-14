@@ -165,24 +165,6 @@ void WMFTRtClient::properties()
     m_resetModule = m_propGrpFtClient->addProperty( "Reset the module", "Reset", WPVBaseTypes::PV_TRIGGER_READY,
                     m_propCondition );
     m_resetModule->changed( true );
-
-    //
-    // property group FieldTrip header
-    //
-    m_propGrpHeader = m_properties->addPropertyGroup( "FieldTrip Header information", "FieldTrip Header information", false );
-    m_channels = m_propGrpHeader->addProperty( "Number of channels:", "Shows the number of channels.", 0 );
-    m_channels->setPurpose( PV_PURPOSE_INFORMATION );
-    m_frSample = m_propGrpHeader->addProperty( "Sampling frequency:", "Shows the sampling frequency.", 0.0 );
-    m_frSample->setPurpose( PV_PURPOSE_INFORMATION );
-    m_samples = m_propGrpHeader->addProperty( "Number of samples:", "Shows the number of samples read until now.", 0 );
-    m_samples->setPurpose( PV_PURPOSE_INFORMATION );
-    m_dataType = m_propGrpHeader->addProperty( "Data type:", "Data type", wftb::DataType::name( wftb::DataType::UNKNOWN ) );
-    m_dataType->setPurpose( PV_PURPOSE_INFORMATION );
-    m_events = m_propGrpHeader->addProperty( "Number of events:", "Shows the number of events read until now.", 0 );
-    m_events->setPurpose( PV_PURPOSE_INFORMATION );
-    m_headerBufSize = m_propGrpHeader->addProperty( "Additional header information (bytes):",
-                    "Shows the number of bytes allocated by additional header information.", 0 );
-    m_headerBufSize->setPurpose( PV_PURPOSE_INFORMATION );
 }
 
 void WMFTRtClient::moduleInit()
@@ -263,13 +245,6 @@ bool WMFTRtClient::processReset( WLEMMCommand::SPtr cmd )
     viewReset();
 
     m_output->updateData( cmd );
-
-    m_channels->set( 0, true );
-    m_samples->set( 0, true );
-    m_events->set( 0, true );
-    m_frSample->set( 0.0, true );
-    m_headerBufSize->set( 0, true );
-    m_dataType->set( wftb::DataType::name( wftb::DataType::UNKNOWN ), true );
 
     if( m_ftRtClient->isStreaming() )
     {
@@ -401,7 +376,6 @@ void WMFTRtClient::hdlTrgStartStreaming()
 
         m_progress->removeSubProgress( progress );
 
-        dispHeaderInfo(); // display header information
         debugLog() << "Header request on startup done. Beginning data streaming";
 
         while( !m_stopStreaming && !m_shutdownFlag() )
@@ -412,12 +386,6 @@ void WMFTRtClient::hdlTrgStartStreaming()
                 WLEMMeasurement::SPtr emm( new WLEMMeasurement );
                 if( m_ftRtClient->readEmm( emm ) )
                 {
-                    // TODO
-//                    m_samples->set( m_ftRtClient->getSampleCount(), true );
-//                    m_channels->set( m_ftRtClient->getData()->getDataDef().nchans, true );
-//                    m_dataType->set(
-//                                    wftb::DataType::name( m_ftRtClient->getData()->getDataDef().data_type ),
-//                                    true );
                     viewUpdate( emm ); // display on screen.
                     updateOutput( emm ); // transmit to the next module.
                     debugLog() << "Samples: " << emm->getModality(0)->getSamplesPerChan();
@@ -486,13 +454,6 @@ void WMFTRtClient::applyStatusStreaming()
     m_trgStartStream->setHidden( true );
     m_trgStopStream->setHidden( false );
 
-    m_channels->set( 0, true );
-    m_samples->set( 0, true );
-    m_frSample->set( 0.0, true );
-    m_events->set( 0, true );
-    m_headerBufSize->set( 0, true );
-    m_dataType->set( wftb::DataType::name( wftb::DataType::UNKNOWN ), true );
-
     m_trgStartStream->set( WPVBaseTypes::PV_TRIGGER_READY, true );
     m_trgStopStream->set( WPVBaseTypes::PV_TRIGGER_READY, true );
 
@@ -512,14 +473,4 @@ void WMFTRtClient::applyStatusNotStreaming()
     m_trgStopStream->set( WPVBaseTypes::PV_TRIGGER_READY, true );
 
     m_resetModule->set( WPVBaseTypes::PV_TRIGGER_READY, true );
-}
-
-void WMFTRtClient::dispHeaderInfo()
-{
-    // TODO
-//    m_channels->set( m_ftRtClient->getHeader()->getHeaderDef().nchans, true );
-//    m_samples->set( m_ftRtClient->getHeader()->getHeaderDef().nsamples, true );
-//    m_frSample->set( m_ftRtClient->getHeader()->getHeaderDef().fsample, true );
-//    m_events->set( m_ftRtClient->getHeader()->getHeaderDef().nevents, true );
-//    m_headerBufSize->set( m_ftRtClient->getHeader()->getHeaderDef().bufsize, true );
 }

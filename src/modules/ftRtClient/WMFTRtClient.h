@@ -213,41 +213,6 @@ private:
     WPropTrigger m_resetModule;
 
     /**
-     * Property group for header data
-     */
-    WPropGroup m_propGrpHeader;
-
-    /**
-     * The number of channels.
-     */
-    WPropInt m_channels;
-
-    /**
-     * The number of read samples.
-     */
-    WPropInt m_samples;
-
-    /**
-     * The used data type.
-     */
-    WPropString m_dataType;
-
-    /**
-     * The sampling frequency.
-     */
-    WPropDouble m_frSample;
-
-    /**
-     * The number of read events.
-     */
-    WPropInt m_events;
-
-    /**
-     * The size of the header structure.
-     */
-    WPropInt m_headerBufSize;
-
-    /**
      * The connection to the buffer.
      */
     WFTConnection::SPtr m_connection;
@@ -325,11 +290,6 @@ private:
      * Switch the modules state after the client stopped the real-time streaming.
      */
     void applyStatusNotStreaming();
-
-    /**
-     * Shows the FieldTrip header structure in the GUI.
-     */
-    void dispHeaderInfo();
 };
 
 #endif  // WMFTRTCLIENT_H_
