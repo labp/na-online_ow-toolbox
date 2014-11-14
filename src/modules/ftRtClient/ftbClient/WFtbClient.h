@@ -43,8 +43,6 @@
 #include "object/WFTEvent.h"
 #include "object/WFTHeader.h"
 
-
-
 /**
  * Processing client for FieldTrip Buffer.
  *
@@ -57,15 +55,11 @@ public:
 
     static const std::string CLASS;
 
-    static const float DEFAULT_WAIT_TIMEOUT;
-
     WFtbClient();
 
     virtual ~WFtbClient();
 
     void setConnection( WFTConnection::SPtr con );
-
-    void setTimeout( float timeout );
 
     virtual bool connect();
 
@@ -78,6 +72,8 @@ public:
     virtual bool fetchData();
 
     virtual bool readEmm( WLEMMeasurement::SPtr emm );
+
+    void reset();
 
 private:
     WFTConnection::SPtr m_connection;
@@ -97,12 +93,12 @@ private:
     /**
      * Variable to determine the number of received samples.
      */
-    wftb::nsamples_t m_samples;
+    wftb::isample_t m_idxSamples;
 
     /**
      * Variable to determine the number of received events.
      */
-    wftb::nevents_t m_eventCount;
+    wftb::ievent_t m_idxEvents;
 
     /**
      * Structure to store information about samples and events currently located on the server.
@@ -148,11 +144,11 @@ private:
      *
      * \return Returns true whether the request was successful else false.
      */
-    bool doWaitRequest( wftb::nsamples_t samples = 0xFFFFFFFF, wftb::nevents_t events = 0xFFFFFFFF );
+    bool doWaitRequest( wftb::nsamples_t samples, wftb::nevents_t events, wftb::time_t timeout );
 
-    bool doGetDataRequest();
+    bool doGetDataRequest( wftb::isample_t begin, wftb::isample_t end );
 
-    bool doGetEventsRequest();
+    bool doGetEventsRequest( wftb::ievent_t begin, wftb::ievent_t end );
 };
 
 #endif  // WFTBCLIENT_H_

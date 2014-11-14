@@ -35,24 +35,10 @@
 
 const std::string WFtbClient::CLASS = "WFtbClient";
 
-const float WFtbClient::DEFAULT_WAIT_TIMEOUT = 40;
-
 WFtbClient::WFtbClient() :
                 WLRtClient()
 {
-    m_samples = 0;
-    m_eventCount = 0;
-    m_svr_samp_evt.nsamples = 0;
-    m_svr_samp_evt.nevents = 0;
-    m_timeout = DEFAULT_WAIT_TIMEOUT;
-
-    WFTChunkReader::SPtr chunkReader;
-    chunkReader.reset( new WFTChunkReaderChanNames );
-    m_chunkReader.insert( WFTChunkReader::MapT::value_type( chunkReader->supportedChunkType(), chunkReader ) );
-    chunkReader.reset( new WFTChunkReaderNeuromagHdr );
-    m_chunkReader.insert( WFTChunkReader::MapT::value_type( chunkReader->supportedChunkType(), chunkReader ) );
-    chunkReader.reset( new WFTChunkReaderNeuromagIsotrak );
-    m_chunkReader.insert( WFTChunkReader::MapT::value_type( chunkReader->supportedChunkType(), chunkReader ) );
+    reset();
 }
 
 WFtbClient::~WFtbClient()
@@ -77,11 +63,6 @@ void WFtbClient::setConnection( WFTConnection::SPtr con )
     {
         wlog::error( CLASS ) << __func__ << ": Could not set connection!";
     }
-}
-
-void WFtbClient::setTimeout( float timeout )
-{
-    m_timeout = timeout;
 }
 
 bool WFtbClient::connect()
@@ -130,6 +111,7 @@ void WFtbClient::disconnect()
     }
     m_connection->disconnect();
     m_status = STATUS_DISCONNECTED;
+    reset();
     wlog::info( CLASS ) << "Disconnected!";
 }
 
@@ -156,7 +138,19 @@ bool WFtbClient::start()
     wlog::info( CLASS ) << "Prepare streaming.";
     if( doHeaderRequest() )
     {
+        WLList< WFTChunk::SPtr >::ConstSPtr chunks = m_header->getChunks();
+        for( WLList< WFTChunk::SPtr >::const_iterator it = chunks->begin(); it != chunks->end(); ++it )
+        {
+            const wftb::chunk_type_t chunk_type = ( *it )->getChunkType();
+            if( m_chunkReader.count( chunk_type ) > 0 )
+            {
+                m_chunkReader[chunk_type]->read( *it );
+            }
+        }
+
         m_status = STATUS_STREAMING;
+        m_timeout = 1000.0 * ( 2.0 * ( m_blockSize / m_header->getHeaderDef().fsample ) ); // wait for max 2 blocks in ms.
+
         wlog::info( CLASS ) << "Preparation for streaming finished. Header information are ready to retrieval.";
         return true;
     }
@@ -175,10 +169,10 @@ bool WFtbClient::stop()
 
 bool WFtbClient::fetchData()
 {
-    if( doWaitRequest( m_samples, m_eventCount ) )
+    if( doWaitRequest( m_idxSamples + getBlockSize() - 1, m_idxEvents, m_timeout ) )
     {
-        doGetEventsRequest();
-        return doGetDataRequest();
+        doGetEventsRequest( m_idxEvents, m_svr_samp_evt.nevents - 1 );
+        return doGetDataRequest( m_idxSamples, m_idxSamples + m_blockSize - 1 );
     }
     else
     {
@@ -209,7 +203,7 @@ bool WFtbClient::readEmm( WLEMMeasurement::SPtr emm )
         wlog::debug( CLASS ) << "create raw EMM";
     }
 
-    if( m_svr_samp_evt.nevents > m_eventCount ) // hasNewEvents
+    if( m_svr_samp_evt.nevents > m_idxEvents ) // hasNewEvents
     {
         BOOST_FOREACH( WFTEvent::SPtr event, m_events ){
         wlog::debug( CLASS ) << "Fire Event: " << *event;
@@ -314,7 +308,7 @@ bool WFtbClient::doHeaderRequest()
     request.prepGetHeader();
     m_header.reset( new WFTHeader );
 
-    if( !doRequest( &response, request) )
+    if( !doRequest( &response, request ) )
     {
         return false;
     }
@@ -329,24 +323,14 @@ bool WFtbClient::doHeaderRequest()
     m_svr_samp_evt.nsamples = m_header->getHeaderDef().nsamples;
     m_svr_samp_evt.nevents = m_header->getHeaderDef().nevents;
 
-    WLList< WFTChunk::SPtr >::ConstSPtr chunks = m_header->getChunks();
-    for( WLList< WFTChunk::SPtr >::const_iterator it = chunks->begin(); it != chunks->end(); ++it )
-    {
-        const wftb::chunk_type_t chunk_type = ( *it )->getChunkType();
-        if( m_chunkReader.count( chunk_type ) > 0 )
-        {
-            m_chunkReader[chunk_type]->read( *it );
-        }
-    }
-
     return true;
 }
 
-bool WFtbClient::doWaitRequest( wftb::nsamples_t samples, wftb::nevents_t events )
+bool WFtbClient::doWaitRequest( wftb::nsamples_t samples, wftb::nevents_t events, wftb::time_t timeout )
 {
     WFTResponse response;
     WFTRequest request;
-    request.prepWaitData( samples, events, m_timeout );
+    request.prepWaitData( samples, events, timeout );
 
     if( !doRequest( &response, request ) )
     {
@@ -358,7 +342,6 @@ bool WFtbClient::doWaitRequest( wftb::nsamples_t samples, wftb::nevents_t events
     if( !response.checkWait( m_svr_samp_evt.nsamples, m_svr_samp_evt.nevents ) )
     {
         wlog::error( CLASS ) << "Error while checking Wait-Request response.";
-
         wlog::error( CLASS ) << response;
         return false;
     }
@@ -366,37 +349,27 @@ bool WFtbClient::doWaitRequest( wftb::nsamples_t samples, wftb::nevents_t events
     // do header request after flush/restart on server (server.samples < client.samples)
     if( m_svr_samp_evt.nsamples < samples || m_svr_samp_evt.nevents < events )
     {
-        if( !doHeaderRequest() )
-        {
-            return false;
-        }
-        m_samples = 0;
-        m_eventCount = 0;
+        wlog::debug( CLASS ) << "No new data available!";
+        return false;
     }
 
     return true;
 }
 
-bool WFtbClient::doGetDataRequest()
+bool WFtbClient::doGetDataRequest( wftb::isample_t begin, wftb::isample_t end )
 {
     if( m_header == 0 )
     {
         return false;
     }
 
-    if( !( m_svr_samp_evt.nsamples > m_samples ) ) // !(hasNewSamples)
+    if( !( end < m_svr_samp_evt.nsamples ) ) // has new samples?
     {
         return false;
     }
 
-    // calculate the last samples index depending on the sampling frequency and the number of store sample on the server.
-    wftb::nsamples_t endSample =
-                    m_svr_samp_evt.nsamples - m_samples >= m_header->getHeaderDef().fsample ? m_samples
-                                    + m_header->getHeaderDef().fsample - 1 :
-                                    m_svr_samp_evt.nsamples - 1;
-    //UINT32_T endSample = m_svr_samp_evt.nsamples - 1;
     WFTRequest request;
-    request.prepGetData( m_samples, endSample );
+    request.prepGetData( begin, end );
     WFTResponse response;
 
     if( !doRequest( &response, request ) )
@@ -411,26 +384,25 @@ bool WFtbClient::doGetDataRequest()
         return false;
     }
 
-    //m_samples = m_svr_samp_evt.nsamples; // update number of read samples.
-    m_samples = endSample + 1; // update number of read samples.
+    m_idxSamples = end + 1; // update number of read samples.
 
     return true;
 }
 
-bool WFtbClient::doGetEventsRequest()
+bool WFtbClient::doGetEventsRequest( wftb::ievent_t begin, wftb::ievent_t end )
 {
     if( m_header == 0 )
     {
         return false;
     }
 
-    if( !( m_svr_samp_evt.nevents > m_eventCount ) ) // !(hasNewEvents)
+    if( !( m_svr_samp_evt.nevents > begin ) ) // !(hasNewEvents)
     {
         return false;
     }
 
     WFTRequest request;
-    request.prepGetEvents( m_eventCount, m_svr_samp_evt.nevents - 1 );
+    request.prepGetEvents( begin, end );
     WFTResponse response;
 
     if( !doRequest( &response, request ) )
@@ -445,7 +417,7 @@ bool WFtbClient::doGetEventsRequest()
         return false;
     }
 
-    WFTEventIterator it( &storage, response.m_response->def->bufsize);
+    WFTEventIterator it( &storage, response.m_response->def->bufsize );
     while( it.hasNext() )
     {
         WFTEvent::SPtr evt = it.getNext();
@@ -454,7 +426,26 @@ bool WFtbClient::doGetEventsRequest()
             m_events.push_back( evt );
         }
     }
-    m_eventCount = m_svr_samp_evt.nevents;
+    m_idxEvents = end + 1;
 
     return true;
+}
+
+void WFtbClient::reset()
+{
+    wlog::debug( CLASS ) << __func__ << "() called!";
+    m_idxSamples = 0;
+    m_idxEvents = 0;
+    m_svr_samp_evt.nsamples = 0;
+    m_svr_samp_evt.nevents = 0;
+    m_timeout = 500.0;
+
+    m_chunkReader.clear();
+    WFTChunkReader::SPtr chunkReader;
+    chunkReader.reset( new WFTChunkReaderChanNames );
+    m_chunkReader.insert( WFTChunkReader::MapT::value_type( chunkReader->supportedChunkType(), chunkReader ) );
+    chunkReader.reset( new WFTChunkReaderNeuromagHdr );
+    m_chunkReader.insert( WFTChunkReader::MapT::value_type( chunkReader->supportedChunkType(), chunkReader ) );
+    chunkReader.reset( new WFTChunkReaderNeuromagIsotrak );
+    m_chunkReader.insert( WFTChunkReader::MapT::value_type( chunkReader->supportedChunkType(), chunkReader ) );
 }

@@ -145,10 +145,9 @@ void WMFTRtClient::properties()
     m_trgDisconnect = m_propGrpFtClient->addProperty( "Disconnect:", "Disconnect", WPVBaseTypes::PV_TRIGGER_READY,
                     m_propCondition );
     m_trgDisconnect->setHidden( true );
-    m_waitTimeout = m_propGrpFtClient->addProperty( "Max. data request Timeout (ms):",
-                    "Timeout at waiting for new data or events.", ( int )WFtbClient::DEFAULT_WAIT_TIMEOUT );
-    m_waitTimeout->setMin( 1 );
-    m_waitTimeout->setMax( 100 );
+
+    m_blockSize = m_propGrpFtClient->addProperty( "Block size:", "Samples per packet.", 500 );
+
     m_streamStatus = m_propGrpFtClient->addProperty( "Streaming status:", "Shows the status of the streaming client.",
                     CLIENT_NOT_STREAMING );
     m_streamStatus->setPurpose( PV_PURPOSE_INFORMATION );
@@ -270,7 +269,6 @@ bool WMFTRtClient::processReset( WLEMMCommand::SPtr cmd )
     m_events->set( 0, true );
     m_frSample->set( 0.0, true );
     m_headerBufSize->set( 0, true );
-    m_waitTimeout->set( ( int )WFtbClient::DEFAULT_WAIT_TIMEOUT, true );
     m_dataType->set( wftb::DataType::name( wftb::DataType::UNKNOWN ), true );
 
     if( m_ftRtClient->isStreaming() )
@@ -388,8 +386,8 @@ void WMFTRtClient::hdlTrgStartStreaming()
         }
     }
 
-// set some parameter on initializing the client
-    m_ftRtClient->setTimeout( m_waitTimeout->get() );
+    // set some parameter on initializing the client
+    m_ftRtClient->setBlockSize( m_blockSize->get() );
     cbApplyScaling();
 
     m_stopStreaming = false;
@@ -422,6 +420,7 @@ void WMFTRtClient::hdlTrgStartStreaming()
 //                                    true );
                     viewUpdate( emm ); // display on screen.
                     updateOutput( emm ); // transmit to the next module.
+                    debugLog() << "Samples: " << emm->getModality(0)->getSamplesPerChan();
 
                 }
                 else

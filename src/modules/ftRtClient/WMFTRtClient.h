@@ -170,10 +170,7 @@ private:
      */
     WPropInt m_port;
 
-    /**
-     * The request timeout.
-     */
-    WPropInt m_waitTimeout;
+    WPropInt m_blockSize;
 
     /**
      * The connection status.
