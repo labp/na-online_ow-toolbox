@@ -73,9 +73,13 @@ public:
 
     virtual bool readEmm( WLEMMeasurement::SPtr emm );
 
+    void setApplyScaling( bool apply );
+
     void reset();
 
 private:
+    bool m_applyScaling;
+
     WFTConnection::SPtr m_connection;
     wftb::time_t m_timeout;
 

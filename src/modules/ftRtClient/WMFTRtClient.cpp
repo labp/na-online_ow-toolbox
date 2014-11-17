@@ -341,11 +341,10 @@ void WMFTRtClient::hdlTrgDisconnect()
 
 void WMFTRtClient::cbApplyScaling()
 {
-    // TODO(pieloth): Apply scaling
-//    if( m_ftRtClient )
-//    {
-//        m_ftRtClient->setScaling( m_applyScaling->get( false ) );
-//    }
+    if( m_ftRtClient )
+    {
+        m_ftRtClient->setApplyScaling( m_applyScaling->get( false ) );
+    }
 }
 
 void WMFTRtClient::hdlTrgStartStreaming()

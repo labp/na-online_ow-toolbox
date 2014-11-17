@@ -189,6 +189,8 @@ public:
     boost::shared_ptr< WLEMMeasurement::EDataT > readEventChannels( const Eigen::MatrixXf& rawData,
                     WLEMDRaw::ChanPicksT ePicks ) const;
 
+    void setApplyScaling( bool apply );
+
 private:
     /**
      * The measurement information.
@@ -211,6 +213,12 @@ private:
     WLArrayList< WVector3f >::SPtr m_chEzMEG; /**< Coil coordinate system z-axis unit vector. */
 
     boost::shared_ptr< std::vector< float > > m_scaleFactors; /**< Vector for scaling factors. */
+
+    bool m_applyScaling;
+
+    bool extractEmdsByPicks( WLEMMeasurement::SPtr emm, WLEMDRaw::ConstSPtr raw );
+
+    bool extractEmdsByPicks( WLEMMeasurement::SPtr emm, WLEMData::SPtr emd, WLEMDRaw::ConstSPtr raw );
 };
 
 #endif  // WFTCHUNKREADERNEUROMAGHDR_H_

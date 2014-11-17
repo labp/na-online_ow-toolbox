@@ -56,6 +56,7 @@ WFTChunkReaderNeuromagHdr::WFTChunkReaderNeuromagHdr()
     m_chEyMEG.reset( new WLArrayList< WVector3f > );
     m_chEzMEG.reset( new WLArrayList< WVector3f > );
     m_scaleFactors.reset( new std::vector< float > );
+    m_applyScaling = false;
 }
 
 WFTChunkReaderNeuromagHdr::~WFTChunkReaderNeuromagHdr()
@@ -155,7 +156,7 @@ bool WFTChunkReaderNeuromagHdr::read( WFTChunk::ConstSPtr chunk )
         //
         // Scale factors.
         //
-        if( info.range != 0 && info.cal != 0 )
+        if( info.range != 0.0 && info.cal != 0.0 )
         {
             m_scaleFactors->push_back( info.range * info.cal );
         }
@@ -177,81 +178,72 @@ bool WFTChunkReaderNeuromagHdr::apply( WLEMMeasurement::SPtr emm, WLEMDRaw::SPtr
 {
     bool rc = false;
 
-    std::map< WLEModality::Enum, WLEMDRaw::ChanPicksT >::const_iterator it;
-    for( it = getModalityPicks()->begin(); it != getModalityPicks()->end(); ++it )
+    if( emm->getModalityCount() == 0 )
     {
-        // skip unknown modalities: in case of Neuromag - the "Misc" channel.
-        if( it->first == WLEModality::UNKNOWN )
+        if( !extractEmdsByPicks( emm, rawData ) )
         {
+            wlog::error( CLASS ) << "Could not extract any modality!";
+            return false;
+        }
+    }
+
+    std::vector< WLEMData::SPtr > mods = emm->getModalityList();
+    std::vector< WLEMData::SPtr >::iterator modIt;
+    for( modIt = mods.begin(); modIt != mods.end(); ++modIt )
+    {
+        const WLEModality::Enum mod = ( *modIt )->getModalityType();
+        const WLEMData::SPtr emd = *modIt;
+
+        // Set Channels names
+        WLArrayList< std::string >::SPtr chNames = getChannelNames( mod );
+        if( !chNames->empty() )
+        {
+            emd->setChanNames( chNames );
+        }
+
+        // Apply scaling
+        if( m_applyScaling )
+        {
+            if( m_modalityPicks->count( mod ) > 0 )
+            {
+                const WLEMDRaw::ChanPicksT& picks = ( *m_modalityPicks )[mod];
+                if( picks.size() == emd->getNrChans() )
+                {
+                    for( WLEMDRaw::ChanPicksT::Index row = 0; row < picks.size(); ++row )
+                    {
+                        emd->getData().row( row ) *= getScaleFactors()->at( picks[row] );
+                    }
+                }
+                else
+                {
+                    wlog::error( CLASS ) << "Channel count and picks does not match!";
+                }
+            }
+        }
+
+        // Set EEG information
+        if( mod == WLEModality::EEG && !m_chPosEEG->empty() )
+        {
+            WLEMDEEG::SPtr eeg = boost::dynamic_pointer_cast< WLEMDEEG >( emd );
+            eeg->setChannelPositions3d( m_chPosEEG );
             continue;
         }
-
-        //
-        // Create the data container.
-        //
-        WLEMData::SPtr emd;
-        switch( it->first )
+        // Set MEG information
+        if( mod == WLEModality::MEG )
         {
-            case WLEModality::EEG:
-                emd.reset( new WLEMDEEG() );
-                break;
-            case WLEModality::MEG:
-                emd.reset( new WLEMDMEG() );
-                break;
-            case WLEModality::EOG:
-                emd.reset( new WLEMDEOG() );
-                break;
-            case WLEModality::ECG:
-                emd.reset( new WLEMDECG() );
-                break;
-            case WLEModality::UNKNOWN:
-                emd.reset( new WLEMDRaw() );
-                break;
-            default:
-                continue;
-        }
-
-        emd->setData( rawData->getData( it->second, true ) );
-        emd->setSampFreq( rawData->getSampFreq() );
-
-        //
-        // apply scaling
-        //
-        // TODO(pieloth): apply scaling
-//            if( m_applyScaling )
-//            {
-//                for( Eigen::RowVectorXi::Index row = 0; row < it->second.size(); ++row )
-//                {
-//                    emd->getData().row( row ) *= neuromagHdr->getScaleFactors()->at( ( int )it->second[row] );
-//                }
-//            }
-
-        //
-        // Channel names.
-        //
-        WLArrayList< std::string >::SPtr channelNames = getChannelNames( it->first );
-        if( channelNames )
-        {
-            if( channelNames->size() > 0 )
+            WLEMDMEG::SPtr meg = boost::dynamic_pointer_cast< WLEMDMEG >( emd );
+            if( !m_chPosMEG->empty() )
             {
-                emd->setChanNames( channelNames );
+                meg->setChannelPositions3d( m_chPosMEG );
             }
-        }
-
-        if( emd->getModalityType() == WLEModality::MEG ) // MEG
-        {
-            WLEMDMEG::SPtr meg = emd->getAs< WLEMDMEG >();
-            if( hasChannelPositionsMEG() )
+            if( !m_chExMEG->empty() && !m_chEyMEG->empty() && !m_chEzMEG->empty() )
             {
-                meg->setChannelPositions3d( getChannelPositionsMEG() );
+                meg->setEx( m_chExMEG );
+                meg->setEy( m_chEyMEG );
+                meg->setEz( m_chEzMEG );
             }
-            meg->setEx( getChannelExMEG() );
-            meg->setEy( getChannelEyMEG() );
-            meg->setEz( getChannelEzMEG() );
+            continue;
         }
-
-        emm->addModality( emd ); // add modality to measurement.
-        rc |= true;
     }
 
     //
@@ -404,4 +396,67 @@ boost::shared_ptr< WLEMMeasurement::EDataT > WFTChunkReaderNeuromagHdr::readEven
     }
 
     return events;
+}
+
+void WFTChunkReaderNeuromagHdr::setApplyScaling( bool apply )
+{
+    m_applyScaling = apply;
+}
+
+bool WFTChunkReaderNeuromagHdr::extractEmdsByPicks( WLEMMeasurement::SPtr emm, WLEMDRaw::ConstSPtr raw )
+{
+    if( m_modalityPicks->empty() )
+    {
+        wlog::error( CLASS ) << __func__ << ": No modality picks available!";
+        return false;
+    }
+
+    bool rc = false;
+    WLEMData::SPtr emd;
+    WLEMData::DataSPtr data;
+
+    if( m_modalityPicks->count( WLEModality::EEG ) > 0 )
+    {
+        emd.reset( new WLEMDEEG() );
+        rc |= extractEmdsByPicks( emm, emd, raw );
+    }
+
+    if( m_modalityPicks->count( WLEModality::MEG ) > 0 )
+    {
+        emd.reset( new WLEMDMEG() );
+        rc |= extractEmdsByPicks( emm, emd, raw );
+    }
+
+    if( m_modalityPicks->count( WLEModality::EOG ) > 0 )
+    {
+        emd.reset( new WLEMDEOG() );
+        rc |= extractEmdsByPicks( emm, emd, raw );
+    }
+
+    if( m_modalityPicks->count( WLEModality::ECG ) > 0 )
+    {
+        emd.reset( new WLEMDECG() );
+        rc |= extractEmdsByPicks( emm, emd, raw );
+    }
+
+    return rc;
+}
+
+bool WFTChunkReaderNeuromagHdr::extractEmdsByPicks( WLEMMeasurement::SPtr emm, WLEMData::SPtr emd, WLEMDRaw::ConstSPtr raw )
+{
+    const WLEMDRaw::ChanPicksT& picks = ( *m_modalityPicks )[emd->getModalityType()];
+    WLEMData::DataSPtr data;
+    try
+    {
+        data = raw->getData( picks );
+    }
+    catch( const WOutOfBounds& e )
+    {
+        wlog::error( CLASS ) << __func__ << ": " << e.what();
+        return false;
+    }
+    emd->setData( data );
+    emd->setSampFreq( raw->getSampFreq() );
+    emm->addModality( emd );
+    return true;
 }

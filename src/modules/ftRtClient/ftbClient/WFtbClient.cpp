@@ -434,6 +434,7 @@ bool WFtbClient::doGetEventsRequest( wftb::ievent_t begin, wftb::ievent_t end )
 void WFtbClient::reset()
 {
     wlog::debug( CLASS ) << __func__ << "() called!";
+    m_applyScaling = false;
     m_idxSamples = 0;
     m_idxEvents = 0;
     m_svr_samp_evt.nsamples = 0;
@@ -444,8 +445,23 @@ void WFtbClient::reset()
     WFTChunkReader::SPtr chunkReader;
     chunkReader.reset( new WFTChunkReaderChanNames );
     m_chunkReader.insert( WFTChunkReader::MapT::value_type( chunkReader->supportedChunkType(), chunkReader ) );
-    chunkReader.reset( new WFTChunkReaderNeuromagHdr );
-    m_chunkReader.insert( WFTChunkReader::MapT::value_type( chunkReader->supportedChunkType(), chunkReader ) );
+    WFTChunkReaderNeuromagHdr::SPtr chunkNeuromag( new WFTChunkReaderNeuromagHdr );
+    chunkNeuromag->setApplyScaling( m_applyScaling );
+    m_chunkReader.insert( WFTChunkReader::MapT::value_type( chunkNeuromag->supportedChunkType(), chunkNeuromag ) );
     chunkReader.reset( new WFTChunkReaderNeuromagIsotrak );
     m_chunkReader.insert( WFTChunkReader::MapT::value_type( chunkReader->supportedChunkType(), chunkReader ) );
+}
+
+void WFtbClient::setApplyScaling( bool apply )
+{
+    if( m_applyScaling == apply )
+    {
+        return;
+    }
+    m_applyScaling = apply;
+    if( m_chunkReader.count( wftb::ChunkType::NEUROMAG_HEADER ) > 0 )
+    {
+        boost::dynamic_pointer_cast< WFTChunkReaderNeuromagHdr >( m_chunkReader[wftb::ChunkType::NEUROMAG_HEADER] )->setApplyScaling(
+                        apply );
+    }
 }
