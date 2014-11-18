@@ -59,16 +59,6 @@ public:
     typedef boost::shared_ptr< const WFTChunkReaderNeuromagHdr > ConstSPtr;
 
     /**
-     * A shared pointer on a measurement information.
-     */
-    typedef boost::shared_ptr< FIFFLIB::FiffInfo > MeasInfo_SPtr;
-
-    /**
-     * A shared pointer on a constant measurement information.
-     */
-    typedef boost::shared_ptr< const FIFFLIB::FiffInfo > MeasInfo_ConstSPtr;
-
-    /**
      * A map with a modality type as key and a row vector as mapped type.
      */
     typedef std::map< WLEModality::Enum, WLEMDRaw::ChanPicksT > ModalityPicksT;
@@ -98,7 +88,7 @@ public:
      *
      * \return Returns a pointer to a constant measurement information.
      */
-    MeasInfo_ConstSPtr getMeasInfo() const;
+    FIFFLIB::FiffInfo::ConstSPtr getMeasInfo() const;
 
     /**
      * Gets the channel names for the @modality if they exist.
@@ -195,7 +185,7 @@ private:
     /**
      * The measurement information.
      */
-    MeasInfo_SPtr m_measInfo;
+    FIFFLIB::FiffInfo::SPtr m_measInfo;
 
     /**
      * A row vector, which contains the channel indices of the event/ stimulus channels.

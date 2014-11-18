@@ -90,7 +90,7 @@ bool WFTChunkReaderNeuromagHdr::read( WFTChunk::ConstSPtr chunk )
 
     WReaderNeuromagHeader::SPtr reader( new WReaderNeuromagHeader( ( const char* )chunk->getData(), chunk->getDataSize() ) );
 
-    if( !reader->read( m_measInfo.get() ) )
+    if( !reader->read( m_measInfo.data() ) )
     {
         wlog::error( CLASS ) << "Neuromag header file could not read.";
         return false;
@@ -258,7 +258,7 @@ bool WFTChunkReaderNeuromagHdr::apply( WLEMMeasurement::SPtr emm, WLEMDRaw::SPtr
     return rc;
 }
 
-boost::shared_ptr< const FIFFLIB::FiffInfo > WFTChunkReaderNeuromagHdr::getMeasInfo() const
+FIFFLIB::FiffInfo::ConstSPtr WFTChunkReaderNeuromagHdr::getMeasInfo() const
 {
     return m_measInfo;
 }
