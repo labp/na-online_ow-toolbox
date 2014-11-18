@@ -125,11 +125,6 @@ class Installer(AInstaller):
     def install(self):
         destdir_arg = "-d " + self.DESTDIR
         rc = 0
-
-        if AInstaller.ask_for_execute("Install Qt5 Framework"):
-            rc += call("python install_qt5.py " + destdir_arg, shell=True)
-            
-        print
     
         if AInstaller.ask_for_execute("Install MNE-CPP"):
             rc += call("python install_mne.py " + destdir_arg, shell=True)

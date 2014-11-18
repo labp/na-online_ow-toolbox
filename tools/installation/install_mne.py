@@ -27,11 +27,10 @@ class Installer(AInstaller):
         success = success and Utils.check_program("git", "--version")
         success = success and Utils.check_program("make", "--version")
         qmake5 = os.path.join(self.QT5_ROOT, "bin", "qmake")
-        if Utils.check_program(qmake5, "--version"):
-            success = success and True
-        else:
-            print('Try to use: qmake5')
-            success = success and Utils.check_program("qmake5", "--version")
+        if not Utils.check_program(qmake5, "--version"):
+            if not Utils.check_program("qmake5", "--version"):
+                print('Please set the alias qmake5, which points to your Qt5 qmake!')
+                success = False
         if not Utils.check_program("g++", "--version") and not Utils.check_program("c++", "--version"):
             success = False
         return success
