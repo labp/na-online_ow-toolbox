@@ -64,11 +64,6 @@ public:
     typedef std::map< WLEModality::Enum, WLEMDRaw::ChanPicksT > ModalityPicksT;
 
     /**
-     * A shared pointer on a ModalityPicksT.
-     */
-    typedef boost::shared_ptr< ModalityPicksT > ModalityPicks_SPtr;
-
-    /**
      * The class name.
      */
     static const std::string CLASS;
@@ -103,7 +98,7 @@ public:
      *
      * \return Returns a shared pointer on a std::map.
      */
-    ModalityPicks_SPtr getModalityPicks() const;
+    const ModalityPicksT& getModalityPicks() const;
 
     /**
      * Gets the stimulus picks vector.
@@ -192,7 +187,7 @@ private:
      */
     boost::shared_ptr< WLEMDRaw::ChanPicksT > m_stimulusPicks;
 
-    ModalityPicks_SPtr m_modalityPicks; /**< A map, which contains the channel indices for each modality type. */
+    ModalityPicksT m_modalityPicks; /**< A map, which contains the channel indices for each modality type. */
 
     WLArrayList< WPosition >::SPtr m_chPosEEG; /**< The channel positions for EEG. */
 

@@ -48,7 +48,6 @@ const std::string WFTChunkReaderNeuromagHdr::CLASS = "WFTChunkReaderNeuromagHdr"
 WFTChunkReaderNeuromagHdr::WFTChunkReaderNeuromagHdr()
 {
     m_measInfo.reset( new FIFFLIB::FiffInfo );
-    m_modalityPicks.reset( new ModalityPicksT );
     m_stimulusPicks.reset( new WLEMDRaw::ChanPicksT );
     m_chPosEEG.reset( new WLArrayList< WPosition > );
     m_chPosMEG.reset( new WLArrayList< WPosition > );
@@ -79,7 +78,7 @@ bool WFTChunkReaderNeuromagHdr::read( WFTChunk::ConstSPtr chunk )
     }
 
     m_measInfo.reset( new FIFFLIB::FiffInfo );
-    m_modalityPicks.reset( new ModalityPicksT );
+    m_modalityPicks.clear();
     m_stimulusPicks.reset( new WLEMDRaw::ChanPicksT );
     m_chPosEEG.reset( new WLArrayList< WPosition > );
     m_chPosMEG.reset( new WLArrayList< WPosition > );
@@ -117,14 +116,12 @@ bool WFTChunkReaderNeuromagHdr::read( WFTChunk::ConstSPtr chunk )
         }
         else // EEG / MEG data channels
         {
-            if( m_modalityPicks->count( modalityType ) == 0 )
+            if( m_modalityPicks.count( modalityType ) == 0 )
             {
-                m_modalityPicks->insert(
-                                std::map< WLEModality::Enum, WLEMDRaw::ChanPicksT >::value_type( modalityType,
-                                                WLEMDRaw::ChanPicksT() ) );
+                m_modalityPicks.insert( ModalityPicksT::value_type( modalityType, WLEMDRaw::ChanPicksT() ) );
             }
 
-            vector = &m_modalityPicks->at( modalityType );
+            vector = &m_modalityPicks.at( modalityType );
         }
 
         vector->conservativeResize( vector->cols() + 1 );
@@ -204,9 +201,9 @@ bool WFTChunkReaderNeuromagHdr::apply( WLEMMeasurement::SPtr emm, WLEMDRaw::SPtr
         // Apply scaling
         if( m_applyScaling )
         {
-            if( m_modalityPicks->count( mod ) > 0 )
+            if( m_modalityPicks.count( mod ) > 0 )
             {
-                const WLEMDRaw::ChanPicksT& picks = ( *m_modalityPicks )[mod];
+                const WLEMDRaw::ChanPicksT& picks = m_modalityPicks[mod];
                 if( picks.size() == emd->getNrChans() )
                 {
                     for( WLEMDRaw::ChanPicksT::Index row = 0; row < picks.size(); ++row )
@@ -283,7 +280,7 @@ WLArrayList< std::string >::SPtr WFTChunkReaderNeuromagHdr::getChannelNames( WLE
     return names;
 }
 
-WFTChunkReaderNeuromagHdr::ModalityPicks_SPtr WFTChunkReaderNeuromagHdr::getModalityPicks() const
+const WFTChunkReaderNeuromagHdr::ModalityPicksT&  WFTChunkReaderNeuromagHdr::getModalityPicks() const
 {
     return m_modalityPicks;
 }
@@ -405,7 +402,7 @@ void WFTChunkReaderNeuromagHdr::setApplyScaling( bool apply )
 
 bool WFTChunkReaderNeuromagHdr::extractEmdsByPicks( WLEMMeasurement::SPtr emm, WLEMDRaw::ConstSPtr raw )
 {
-    if( m_modalityPicks->empty() )
+    if( m_modalityPicks.empty() )
     {
         wlog::error( CLASS ) << __func__ << ": No modality picks available!";
         return false;
@@ -415,25 +412,25 @@ bool WFTChunkReaderNeuromagHdr::extractEmdsByPicks( WLEMMeasurement::SPtr emm, W
     WLEMData::SPtr emd;
     WLEMData::DataSPtr data;
 
-    if( m_modalityPicks->count( WLEModality::EEG ) > 0 )
+    if( m_modalityPicks.count( WLEModality::EEG ) > 0 )
     {
         emd.reset( new WLEMDEEG() );
         rc |= extractEmdsByPicks( emm, emd, raw );
     }
 
-    if( m_modalityPicks->count( WLEModality::MEG ) > 0 )
+    if( m_modalityPicks.count( WLEModality::MEG ) > 0 )
     {
         emd.reset( new WLEMDMEG() );
         rc |= extractEmdsByPicks( emm, emd, raw );
     }
 
-    if( m_modalityPicks->count( WLEModality::EOG ) > 0 )
+    if( m_modalityPicks.count( WLEModality::EOG ) > 0 )
     {
         emd.reset( new WLEMDEOG() );
         rc |= extractEmdsByPicks( emm, emd, raw );
     }
 
-    if( m_modalityPicks->count( WLEModality::ECG ) > 0 )
+    if( m_modalityPicks.count( WLEModality::ECG ) > 0 )
     {
         emd.reset( new WLEMDECG() );
         rc |= extractEmdsByPicks( emm, emd, raw );
@@ -444,7 +441,7 @@ bool WFTChunkReaderNeuromagHdr::extractEmdsByPicks( WLEMMeasurement::SPtr emm, W
 
 bool WFTChunkReaderNeuromagHdr::extractEmdsByPicks( WLEMMeasurement::SPtr emm, WLEMData::SPtr emd, WLEMDRaw::ConstSPtr raw )
 {
-    const WLEMDRaw::ChanPicksT& picks = ( *m_modalityPicks )[emd->getModalityType()];
+    const WLEMDRaw::ChanPicksT& picks = m_modalityPicks[emd->getModalityType()];
     WLEMData::DataSPtr data;
     try
     {
