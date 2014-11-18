@@ -198,6 +198,7 @@ bool WFTChunkReaderNeuromagHdr::apply( WLEMMeasurement::SPtr emm, WLEMDRaw::SPtr
         if( m_modalityChNames.count( mod ) > 0 && !m_modalityChNames[mod]->empty() )
         {
             emd->setChanNames( m_modalityChNames[mod] );
+            rc |= true;
         }
 
         // Apply scaling
@@ -212,6 +213,7 @@ bool WFTChunkReaderNeuromagHdr::apply( WLEMMeasurement::SPtr emm, WLEMDRaw::SPtr
                     {
                         emd->getData().row( row ) *= m_scaleFactors.at( picks[row] );
                     }
+                    rc |= true;
                 }
                 else
                 {
@@ -225,6 +227,7 @@ bool WFTChunkReaderNeuromagHdr::apply( WLEMMeasurement::SPtr emm, WLEMDRaw::SPtr
         {
             WLEMDEEG::SPtr eeg = boost::dynamic_pointer_cast< WLEMDEEG >( emd );
             eeg->setChannelPositions3d( m_chPosEEG );
+            rc |= true;
             continue;
         }
         // Set MEG information
@@ -234,61 +237,59 @@ bool WFTChunkReaderNeuromagHdr::apply( WLEMMeasurement::SPtr emm, WLEMDRaw::SPtr
             if( !m_chPosMEG->empty() )
             {
                 meg->setChannelPositions3d( m_chPosMEG );
+                rc |= true;
             }
             if( !m_chExMEG->empty() && !m_chEyMEG->empty() && !m_chEzMEG->empty() )
             {
                 meg->setEx( m_chExMEG );
                 meg->setEy( m_chEyMEG );
                 meg->setEz( m_chEzMEG );
+                rc |= true;
             }
             continue;
         }
     }
 
     //  Add event / stimulus channels to the EMM
-    if( m_stimulusPicks.size() > 0 )
-    {
-        emm->setEventChannels( readEventChannels( ( Eigen::MatrixXf& )rawData->getData(), m_stimulusPicks ) );
-        rc |= true;
-    }
+    rc |= extractEventsByPicks( emm, rawData );
 
     return rc;
 }
 
-boost::shared_ptr< WLEMMeasurement::EDataT > WFTChunkReaderNeuromagHdr::readEventChannels( const Eigen::MatrixXf& rawData,
-                WLEMDRaw::ChanPicksT ePicks ) const
+void WFTChunkReaderNeuromagHdr::setApplyScaling( bool apply )
 {
-    boost::shared_ptr< WLEMMeasurement::EDataT > events( new WLEMMeasurement::EDataT );
-
-    if( ePicks.size() == 0 )
+    m_applyScaling = apply;
+}
+bool WFTChunkReaderNeuromagHdr::extractEventsByPicks( WLEMMeasurement::SPtr emm, WLEMDRaw::ConstSPtr raw )
+{
+    if( m_stimulusPicks.size() == 0 )
     {
-        wlog::error( CLASS ) << "No channels to pick.";
-        return events;
+        return false;
     }
 
-    const Eigen::RowVectorXi::Index rows = ePicks.size();
-    const Eigen::MatrixXf::Index cols = rawData.cols();
+    const WLEMDRaw::ChanPicksT& ePicks = m_stimulusPicks;
+    const WLEMDRaw::DataT& rawData = raw->getData();
 
+    const WLEMDRaw::DataT::Index rows = ePicks.size();
+    const WLEMDRaw::DataT::Index cols = rawData.cols();
+
+    boost::shared_ptr< WLEMMeasurement::EDataT > events( new WLEMMeasurement::EDataT );
     events->clear();
     events->reserve( rows );
 
-    for( Eigen::RowVectorXi::Index row = 0; row < rows; ++row )
+    for( WLEMDRaw::DataT::Index row = 0; row < rows; ++row )
     {
         WLEMMeasurement::EChannelT eChannel;
         eChannel.reserve( cols );
-        for( Eigen::RowVectorXi::Index col = 0; col < cols; ++col )
+        for( WLEMDRaw::DataT::Index col = 0; col < cols; ++col )
         {
             eChannel.push_back( ( WLEMMeasurement::EventT )rawData( ePicks[row], col ) );
         }
         events->push_back( eChannel );
     }
 
-    return events;
-}
-
-void WFTChunkReaderNeuromagHdr::setApplyScaling( bool apply )
-{
-    m_applyScaling = apply;
+    emm->setEventChannels( events );
+    return true;
 }
 
 bool WFTChunkReaderNeuromagHdr::extractEmdsByPicks( WLEMMeasurement::SPtr emm, WLEMDRaw::ConstSPtr raw )

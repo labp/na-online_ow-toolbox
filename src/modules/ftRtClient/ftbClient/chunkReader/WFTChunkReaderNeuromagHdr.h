@@ -104,15 +104,14 @@ private:
     bool m_applyScaling;
 
     /**
-     * Extracts the event/ stimulus channels from a data matrix. @ePicks contains the needed channel indices.
+     * Extracts and creates event/stimuli data from raw data.
      *
-     * \param rawData The data matrix.
-     * \param ePicks A vector contains the event channel indices.
+     * \param emm EMM to add the modalities.
+     * \param raw Raw data.
      *
-     * \return Returns a pointer on the event channel matrix.
+     * \return True if events were extracted.
      */
-    boost::shared_ptr< WLEMMeasurement::EDataT > readEventChannels( const Eigen::MatrixXf& rawData,
-                    WLEMDRaw::ChanPicksT ePicks ) const;
+    bool extractEventsByPicks( WLEMMeasurement::SPtr emm, WLEMDRaw::ConstSPtr raw );
 
     /**
      * Extracts and creates modality data from raw data.
