@@ -18,18 +18,20 @@ from install import AInstaller as Utils
 class Installer(AInstaller):
     REPO_FOLDER = "mne-cpp"
 
-    def __init__(self, destdir, qt5_root):
+    def __init__(self, destdir, qmake5):
         AInstaller.__init__(self, "MNE-CPP", destdir, )
-        self.QT5_ROOT = qt5_root
+        self.QMAKE5 = qmake5
 
     def pre_install(self):
         success = True
         success = success and Utils.check_program("git", "--version")
         success = success and Utils.check_program("make", "--version")
-        qmake5 = os.path.join(self.QT5_ROOT, "bin", "qmake")
-        if not Utils.check_program(qmake5, "--version"):
-            if not Utils.check_program("qmake5", "--version"):
-                print('Please set the alias qmake5, which points to your Qt5 qmake!')
+        if not Utils.check_program(self.QMAKE5, "--version"):
+            if Utils.check_program("qmake5", "--version"):
+                print('Using qmake5 instead of: ' + self.QMAKE5)
+                self.QMAKE5 = 'qmake5'
+            else:
+                print('Please set a alias or symlink qmake5, which points to your Qt5 qmake!')
                 success = False
         if not Utils.check_program("g++", "--version") and not Utils.check_program("c++", "--version"):
             success = False
@@ -87,10 +89,7 @@ class Installer(AInstaller):
         Utils.print_step_begin("Configuring")
         mne_dir = os.path.join(self.DESTDIR, self.REPO_FOLDER, "MNE")
         os.chdir(mne_dir)
-        qmake5 = os.path.join(self.QT5_ROOT, "bin", "qmake")
-        if not Utils.check_program(qmake5, "--version"):
-            qmake5 = "qmake5"
-        mne_configure = qmake5 + " -recursive"
+        mne_configure = self.QMAKE5 + " -recursive"
         call(mne_configure, shell=True)
         Utils.print_step_end("Configuring")
 
@@ -106,17 +105,17 @@ class Installer(AInstaller):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Installs MNE-CPP library.")
     parser.add_argument("-d", "--destdir", help="Destination path.")
-    parser.add_argument("-q", "--qt5root", help="Path to Qt5 installation.")
+    parser.add_argument("-q", "--qmake5", help="Path to Qt5 qmake.")
     args = parser.parse_args()
 
     destdir = AInstaller.get_default_destdir()
     if args.destdir:
         destdir = args.destdir
 
-    qt5_root = os.path.join(destdir, "qt5")
-    if args.qt5root:
-        qt5_root = args.qt5root
-    installer = Installer(destdir, qt5_root)
+    qmake5 = os.path.join(destdir, "qmake5")
+    if args.qmake5:
+        qmake5 = args.qmake5
+    installer = Installer(destdir, qmake5)
     if installer.do_install():
         sys.exit(AInstaller.EXIT_SUCCESS)
     else:
