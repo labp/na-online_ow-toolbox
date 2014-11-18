@@ -79,89 +79,12 @@ public:
     virtual bool apply( WLEMMeasurement::SPtr emm, WLEMDRaw::SPtr raw );
 
     /**
-     * Gets the measurement information.
-     *
-     * \return Returns a pointer to a constant measurement information.
-     */
-    FIFFLIB::FiffInfo::ConstSPtr getMeasInfo() const;
-
-    /**
      * Gets the channel names for the @modality if they exist.
      *
      * \param modality The modality type.
      * \return Returns a shared pointer on a constant string list.
      */
     WLArrayList< std::string >::SPtr getChannelNames( WLEModality::Enum modality ) const;
-
-    /**
-     * Gets the modality picks.
-     *
-     * \return Returns a shared pointer on a std::map.
-     */
-    const ModalityPicksT& getModalityPicks() const;
-
-    /**
-     * Gets the stimulus picks vector.
-     *
-     * \return Returns a shared pointer on a row vector.
-     */
-    const WLEMDRaw::ChanPicksT& getStimulusPicks() const;
-
-    /**
-     * Gets the channel positions for EEG.
-     *
-     * \return Returns a shared pointer on a channel position vector.
-     */
-    WLArrayList< WPosition >::SPtr getChannelPositionsEEG() const;
-
-    /**
-     * Gets the channel points for MEG.
-     *
-     * \return Returns a shared pointer on a channel position vector.
-     */
-    WLArrayList< WPosition >::SPtr getChannelPositionsMEG() const;
-
-    /**
-     * Gets the x-axis unit vector for coil coordinate system.
-     *
-     * \return Returns a shared pointer on a vector.
-     */
-    WLArrayList< WVector3f >::SPtr getChannelExMEG() const;
-
-    /**
-     * Gets the y-axis unit vector for coil coordinate system.
-     *
-     * \return Returns a shared pointer on a vector.
-     */
-    WLArrayList< WVector3f >::SPtr getChannelEyMEG() const;
-
-    /**
-     * Gets the z-axis unit vector for coil coordinate system.
-     *
-     * \return Returns a shared pointer on a vector.
-     */
-    WLArrayList< WVector3f >::SPtr getChannelEzMEG() const;
-
-    /**
-     * Gets the scaling factors.
-     *
-     * \return Returns a shared pointer on a float vector.
-     */
-    const std::vector< float >& getScaleFactors() const;
-
-    /**
-     * Gets whether or not there exists channel position information for the EEG system.
-     *
-     * \return Returns true if there are channel positions, otherwise false.
-     */
-    bool hasChannelPositionsEEG() const;
-
-    /**
-     * Gets whether or not there exists channel position information for the MEG system.
-     *
-     * \return Returns true if there are channel positions, otherwise false.
-     */
-    bool hasChannelPositionsMEG() const;
 
     /**
      * Extracts the event/ stimulus channels from a data matrix. @ePicks contains the needed channel indices.

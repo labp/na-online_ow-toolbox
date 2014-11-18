@@ -206,7 +206,7 @@ bool WFTChunkReaderNeuromagHdr::apply( WLEMMeasurement::SPtr emm, WLEMDRaw::SPtr
                 {
                     for( WLEMDRaw::ChanPicksT::Index row = 0; row < picks.size(); ++row )
                     {
-                        emd->getData().row( row ) *= getScaleFactors().at( picks[row] );
+                        emd->getData().row( row ) *= m_scaleFactors.at( picks[row] );
                     }
                 }
                 else
@@ -244,18 +244,13 @@ bool WFTChunkReaderNeuromagHdr::apply( WLEMMeasurement::SPtr emm, WLEMDRaw::SPtr
     //
     //  Add event / stimulus channels to the EMM
     //
-    if( getStimulusPicks().size() > 0 )
+    if( m_stimulusPicks.size() > 0 )
     {
-        emm->setEventChannels( readEventChannels( ( Eigen::MatrixXf& )rawData->getData(), getStimulusPicks() ) );
+        emm->setEventChannels( readEventChannels( ( Eigen::MatrixXf& )rawData->getData(), m_stimulusPicks ) );
         rc |= true;
     }
 
     return rc;
-}
-
-FIFFLIB::FiffInfo::ConstSPtr WFTChunkReaderNeuromagHdr::getMeasInfo() const
-{
-    return m_measInfo;
 }
 
 WLArrayList< std::string >::SPtr WFTChunkReaderNeuromagHdr::getChannelNames( WLEModality::Enum modality ) const
@@ -276,88 +271,6 @@ WLArrayList< std::string >::SPtr WFTChunkReaderNeuromagHdr::getChannelNames( WLE
     }
 
     return names;
-}
-
-const WFTChunkReaderNeuromagHdr::ModalityPicksT& WFTChunkReaderNeuromagHdr::getModalityPicks() const
-{
-    return m_modalityPicks;
-}
-
-const WLEMDRaw::ChanPicksT& WFTChunkReaderNeuromagHdr::getStimulusPicks() const
-{
-    return m_stimulusPicks;
-}
-
-WLArrayList< WPosition >::SPtr WFTChunkReaderNeuromagHdr::getChannelPositionsEEG() const
-{
-    if( hasChannelPositionsEEG() )
-    {
-        return m_chPosEEG;
-    }
-
-    return WLArrayList< WPosition >::instance();
-}
-
-WLArrayList< WPosition >::SPtr WFTChunkReaderNeuromagHdr::getChannelPositionsMEG() const
-{
-    if( hasChannelPositionsMEG() )
-    {
-        return m_chPosMEG;
-    }
-
-    return WLArrayList< WPosition >::instance();
-}
-
-WLArrayList< WVector3f >::SPtr WFTChunkReaderNeuromagHdr::getChannelExMEG() const
-{
-    if( !m_chExMEG || m_chExMEG->empty() )
-    {
-        return WLArrayList< WVector3f >::instance();
-    }
-    return m_chExMEG;
-}
-
-WLArrayList< WVector3f >::SPtr WFTChunkReaderNeuromagHdr::getChannelEyMEG() const
-{
-    if( !m_chEyMEG || m_chEyMEG->empty() )
-    {
-        return WLArrayList< WVector3f >::instance();
-    }
-    return m_chEyMEG;
-}
-
-WLArrayList< WVector3f >::SPtr WFTChunkReaderNeuromagHdr::getChannelEzMEG() const
-{
-    if( !m_chEzMEG || m_chEzMEG->empty() )
-    {
-        return WLArrayList< WVector3f >::instance();
-    }
-    return m_chEzMEG;
-}
-
-const std::vector< float >& WFTChunkReaderNeuromagHdr::getScaleFactors() const
-{
-    return m_scaleFactors;
-}
-
-bool WFTChunkReaderNeuromagHdr::hasChannelPositionsEEG() const
-{
-    if( !m_chPosEEG )
-    {
-        return false;
-    }
-
-    return m_chPosEEG->size() > 0 && m_chPosEEG->empty() == false;
-}
-
-bool WFTChunkReaderNeuromagHdr::hasChannelPositionsMEG() const
-{
-    if( !m_chPosMEG )
-    {
-        return false;
-    }
-
-    return m_chPosMEG->size() > 0 && m_chPosMEG->empty() == false;
 }
 
 boost::shared_ptr< WLEMMeasurement::EDataT > WFTChunkReaderNeuromagHdr::readEventChannels( const Eigen::MatrixXf& rawData,
