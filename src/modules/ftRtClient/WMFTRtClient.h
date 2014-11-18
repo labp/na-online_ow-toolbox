@@ -1,29 +1,30 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
 #ifndef WMFTRTCLIENT_H_
 #define WMFTRTCLIENT_H_
+
+#include <string>
 
 #include <boost/shared_ptr.hpp>
 
@@ -32,27 +33,25 @@
 #include "core/container/WLList.h"
 #include "core/data/WLDataTypes.h"
 #include "core/data/WLDigPoint.h"
-#include "core/data/WLEMMBemBoundary.h"
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMCommand.h"
 #include "core/data/WLEMMSubject.h"
-#include "core/data/WLEMMSurface.h"
 #include "core/module/WLModuleDrawable.h"
-#include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
+#include "ftbClient/WFtbClient.h"
+#include "ftbClient/network/WFTConnection.h"
 
-#include "fieldtrip/connection/WFTConnection.h"
-#include "WFTNeuromagClient.h"
 
 /**
  * The FieldTrip Real-time Client implements a streaming client from a FieldTrip Buffer server used by several EEG/ MEG acquisition systems.
  * The client receives data from the buffer server and computes them into the internal data strctures. After that the data will be send into
  * the processing chain of the OpenWalnutToolbox.
+ *
+ * \author maschke
  */
 class WMFTRtClient: public WLModuleDrawable
 {
 public:
-
     /**
      * Constructs a new WMFTRtClient.
      */
@@ -76,7 +75,6 @@ public:
     virtual const std::string getDescription() const;
 
 protected:
-
     /**
      * Method for initialize the module.
      *
@@ -115,33 +113,32 @@ protected:
     /**
      * Inherited method from WLEMMCommandProcessor.
      *
-     * @param emm The measurement object.
-     * @return Returns true if the computaion was successfully, otherwise false.
+     * \param emmIn The measurement object.
+     * \return Returns true if the computaion was successfully, otherwise false.
      */
-    virtual bool processCompute( WLEMMeasurement::SPtr emm );
+    virtual bool processCompute( WLEMMeasurement::SPtr emmIn );
 
     /**
      * Inherited method from WLEMMCommandProcessor.
      *
-     * @param labp The command object.
-     * @return Returns true if the module was initialized successfully, otherwise false.
+     * \param cmd The command object.
+     * \return Returns true if the module was initialized successfully, otherwise false.
      */
-    virtual bool processInit( WLEMMCommand::SPtr labp );
+    virtual bool processInit( WLEMMCommand::SPtr cmd );
 
     /**
      * Inherited method from WLEMMCommandProcessor.
      *
-     * @param labp The command object.
-     * @return Returns true if the module was reseted successfully, otherwise false.
+     * \param cmd The command object.
+     * \return Returns true if the module was reseted successfully, otherwise false.
      */
-    virtual bool processReset( WLEMMCommand::SPtr labp );
+    virtual bool processReset( WLEMMCommand::SPtr cmd );
 
 private:
-
-    /**
-     * Input connector for a EMM data set.
-     */
-    WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input;
+    enum CON_TYPE
+    {
+        CON_TCP, CON_UNIX
+    };
 
     /**
      * A condition used to notify about changes in several properties.
@@ -173,10 +170,7 @@ private:
      */
     WPropInt m_port;
 
-    /**
-     * The request timeout.
-     */
-    WPropInt m_waitTimeout;
+    WPropInt m_blockSize;
 
     /**
      * The connection status.
@@ -219,76 +213,6 @@ private:
     WPropTrigger m_resetModule;
 
     /**
-     * Property group for header data
-     */
-    WPropGroup m_propGrpHeader;
-
-    /**
-     * The number of channels.
-     */
-    WPropInt m_channels;
-
-    /**
-     * The number of read samples.
-     */
-    WPropInt m_samples;
-
-    /**
-     * The used data type.
-     */
-    WPropString m_dataType;
-
-    /**
-     * The sampling frequency.
-     */
-    WPropDouble m_frSample;
-
-    /**
-     * The number of read events.
-     */
-    WPropInt m_events;
-
-    /**
-     * The size of the header structure.
-     */
-    WPropInt m_headerBufSize;
-
-    /**
-     * Property Group for additional information.
-     */
-    WPropGroup m_propGrpAdditionalInfo;
-
-    /**
-     * The load Source Space file button.
-     */
-    WPropFilename m_sourceSpaceFile;
-
-    /**
-     * The load BEM Layer button.
-     */
-    WPropFilename m_bemLayerFile;
-
-    /**
-     * The load Leadfield EEG button.
-     */
-    WPropFilename m_leadfieldEEGFile;
-
-    /**
-     * The load Leadfield MEG button.
-     */
-    WPropFilename m_leadfieldMEGFile;
-
-    /**
-     * The reset additional information button.
-     */
-    WPropTrigger m_trgAdditionalReset;
-
-    /**
-     * File status string.
-     */
-    WPropString m_additionalFileStatus;
-
-    /**
      * The connection to the buffer.
      */
     WFTConnection::SPtr m_connection;
@@ -296,32 +220,7 @@ private:
     /**
      * The FieldTrip streaming client
      */
-    WFTNeuromagClient::SPtr m_ftRtClient;
-
-    /**
-     * The subject.
-     */
-    WLEMMSubject::SPtr m_subject;
-
-    /**
-     * The head surface information.
-     */
-    WLEMMSurface::SPtr m_surface;
-
-    /**
-     * The list of BEM boundaries.
-     */
-    WLList< WLEMMBemBoundary::SPtr >::SPtr m_bems;
-
-    /**
-     * The Leadfield EEG matrix.
-     */
-    WLMatrix::SPtr m_leadfieldEEG;
-
-    /**
-     * The Leadfield MEG matrix.
-     */
-    WLMatrix::SPtr m_leadfieldMEG;
+    WFtbClient::SPtr m_ftRtClient;
 
     /**
      * Flag for stopping the streaming.
@@ -331,72 +230,46 @@ private:
     /**
      * Method for updating the modules output connector and some GUI fields.
      *
-     * @param emm The EMM object for delivering to the output connector.
+     * \param emm The EMM object for delivering to the output connector.
      */
     void updateOutput( WLEMMeasurement::SPtr emm );
 
     /**
      * Callback when the connection type was changed.
      */
-    void callbackConnectionTypeChanged();
+    void cbConnectionTypeChanged();
 
     /**
-     * Callback when the connect button was clicked.
+     * Handles a click on the connect button.
      *
-     * @return Returns true if the callback was successfully, otherwise false.
+     * \return Returns true if the callback was successfully, otherwise false.
      */
-    bool callbackTrgConnect();
+    bool hdlTrgConnect();
 
     /**
-     * Callback when the disconnect button was clicked.
+     * Handles a click on the disconnect button.
      */
-    void callbackTrgDisconnect();
+    void hdlTrgDisconnect();
 
     /**
      * Callback, when the apply scaling checkboxes value was changed.
      */
-    void callbackApplyScaling();
+    void cbApplyScaling();
 
     /**
-     * Callback when the start streaming button was clicked.
+     * Handles a click on the start streaming button.
      */
-    void callbackTrgStartStreaming();
+    void hdlTrgStartStreaming();
 
     /**
      * Callback when the stop streaming button was clicked.
      */
-    void callbackTrgStopStreaming();
+    void cbTrgStopStreaming();
 
     /**
-     * Callback when the reset button was clicked.
+     * Handles a click on the reset button.
      */
-    void callbackTrgReset();
-
-    /**
-     * Callback when a Source Space file was selected.
-     *
-     * @return Retruns true if the file was loaded, otherwise false.
-     */
-    bool callbackSourceSpace( std::string fName );
-
-    /**
-     * Callback when a BEM Layer file was selected.
-     *
-     * @return Retruns true if the file was loaded, otherwise false.
-     */
-    bool callbackBEMLayer( std::string fName );
-
-    /**
-     * Callback when a Leadfield EEG file was selected.
-     *
-     * @return Retruns true if the file was loaded, otherwise false.
-     */
-    bool callbackLeadfieldFile( std::string, WLMatrix::SPtr& leadfield );
-
-    /**
-     * Callback when the reset additional infomation button was clicked.
-     */
-    void callbackTrgAdditionalReset();
+    void hdlTrgReset();
 
     /**
      * Switch the modules state after the client was connected to a FieldTrip Buffer server.
@@ -417,66 +290,6 @@ private:
      * Switch the modules state after the client stopped the real-time streaming.
      */
     void applyStatusNotStreaming();
-
-    /**
-     * Shows the FieldTrip header structure in the GUI.
-     */
-    void dispHeaderInfo();
-
-    /**
-     * The default FieldTrip host name.
-     */
-    static const std::string DEFAULT_FT_HOST;
-
-    /**
-     * The default FieldTrip host port number.
-     */
-    static const int DEFAULT_FT_PORT;
-
-    /**
-     * The status string when connected.
-     */
-    static const std::string CONNECTION_CONNECT;
-
-    /**
-     * The status string when disconnected.
-     */
-    static const std::string CONNECTION_DISCONNECT;
-
-    /**
-     * The status string when streaming.
-     */
-    static const std::string CLIENT_STREAMING;
-
-    /**
-     * The status string when not streaming.
-     */
-    static const std::string CLIENT_NOT_STREAMING;
-
-    /**
-     * The status string when no file was loaded.
-     */
-    static const std::string NO_FILE_LOADED;
-
-    /**
-     * The status string during a file is loading.
-     */
-    static const std::string LOADING_FILE;
-
-    /**
-     * The status string when a file was loaded successfully.
-     */
-    static const std::string FILE_LOADED;
-
-    /**
-     * The status string when an error occured at the loading of a file.
-     */
-    static const std::string FILE_ERROR;
-
-    /**
-     * The standard path for file dialogs.
-     */
-    static const std::string STANDARD_FILE_PATH;
 };
 
-#endif /* WMFTRTCLIENT_H_ */
+#endif  // WMFTRTCLIENT_H_

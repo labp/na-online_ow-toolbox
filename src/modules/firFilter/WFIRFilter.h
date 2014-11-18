@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -27,11 +26,13 @@
 
 #include <cstddef>
 #include <map>
+#include <set>
 #include <string>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
 
+#include "core/preprocessing/WLWindowFunction.h"
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMData.h"
 #include "core/data/enum/WLEModality.h"
@@ -61,19 +62,7 @@ public:
             LOWPASS, HIGHPASS, BANDPASS, BANDSTOP, UNKNOWN
         };
 
-        static std::vector< Enum > values();
-
-        static std::string name( Enum value );
-    };
-
-    struct WEWindowsType
-    {
-        enum Enum
-        {
-            HAMMING, RECTANGLE, BARLETT, BLACKMAN, HANNING, UNKNOWN
-        };
-
-        static std::vector< Enum > values();
+        static std::set< Enum > values();
 
         static std::string name( Enum value );
     };
@@ -82,7 +71,7 @@ public:
 
     explicit WFIRFilter( const std::string& pathToFcf );
 
-    WFIRFilter( WEFilterType::Enum filtertype, WEWindowsType::Enum windowtype, int order, ScalarT sFreq, ScalarT cFreq1,
+    WFIRFilter( WEFilterType::Enum filtertype, WLWindowFunction::WLEWindow windowtype, int order, ScalarT sFreq, ScalarT cFreq1,
                     ScalarT cFreq2 );
 
     virtual ~WFIRFilter();
@@ -90,16 +79,16 @@ public:
     /**
      * Filters the data.
      *
-     * @param emdIn
-     * @return Filtered data
-     * @throws WException
+     * \param emdIn
+     * \return Filtered data
+     * \throws WException
      */
     WLEMData::SPtr filter( const WLEMData::ConstSPtr emdIn );
 
     void doPostProcessing( WLEMMeasurement::SPtr emmOut, WLEMMeasurement::ConstSPtr emmIn );
 
     void setFilterType( WEFilterType::Enum value, bool redesign = false );
-    void setWindowsType( WEWindowsType::Enum value, bool redesign = false );
+    void setWindowType( WLWindowFunction::WLEWindow value, bool redesign = false );
     void setOrder( size_t value, bool redesign = false );
     void setSamplingFrequency( ScalarT value, bool redesign = false );
     void setCutOffFrequency1( ScalarT value, bool redesign = false );
@@ -110,8 +99,8 @@ public:
     std::vector< ScalarT > getCoefficients();
 
     void design();
-    void design( WEFilterType::Enum filtertype, WEWindowsType::Enum windowtype, size_t order, ScalarT sFreq, ScalarT cFreq1,
-                    ScalarT cFreq2 );
+    void design( WEFilterType::Enum filtertype, WLWindowFunction::WLEWindow windowtype, size_t order, ScalarT sFreq,
+                    ScalarT cFreq1, ScalarT cFreq2 );
 
     void reset();
 
@@ -119,7 +108,7 @@ protected:
     virtual bool filter( WLEMData::DataT& out, const WLEMData::DataT& in, const WLEMData::DataT& prev ) = 0;
 
     std::vector< ScalarT > m_coeffitients;
-    WEWindowsType::Enum m_window;
+    WLWindowFunction::WLEWindow m_window;
     WEFilterType::Enum m_type;
     ScalarT m_sFreq;
     ScalarT m_cFreq1;
@@ -132,7 +121,7 @@ protected:
 
 private:
     void designLowpass( std::vector< ScalarT >* pCoeff, size_t order, ScalarT cFreq1, ScalarT sFreq,
-                    WEWindowsType::Enum windowtype );
+                    WLWindowFunction::WLEWindow windowtype );
     void designHighpass();
     void designBandpass();
     void designBandstop();

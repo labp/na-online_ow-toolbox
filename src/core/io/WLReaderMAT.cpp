@@ -35,14 +35,18 @@ using std::ifstream;
 
 const std::string WLReaderMAT::CLASS = "WLReaderMat";
 
+const WLIOStatus::IOStatusT WLReaderMAT::ERROR_NO_MATRIXD = 0 + WLIOStatus::_USER_OFFSET;
+const WLIOStatus::IOStatusT WLReaderMAT::ERROR_NO_MATRIXC = 1 + WLIOStatus::_USER_OFFSET;
+
 WLReaderMAT::WLReaderMAT( std::string fname ) throw( WDHNoSuchFile ) :
-                WLReaderGeneric< WLMatrix::SPtr >( fname )
+                WReader( fname ), WLIOStatus::WLIOStatusInterpreter()
 {
     m_isInitialized = false;
 }
 
 WLReaderMAT::~WLReaderMAT()
 {
+    close();
 }
 
 WLIOStatus::IOStatusT WLReaderMAT::init()
@@ -99,14 +103,16 @@ WLIOStatus::IOStatusT WLReaderMAT::read( WLMatrix::SPtr* const matrix )
         }
     }
 
-    WLIOStatus::IOStatusT rc = WLIOStatus::ERROR_UNKNOWN;
+    WLIOStatus::IOStatusT rc = ERROR_NO_MATRIXD;
     std::list< WLMatLib::ElementInfo_t >::const_iterator it;
     for( it = m_elements.begin(); it != m_elements.end(); ++it )
     {
         if( it->dataType == WLMatLib::DataTypes::miMATRIX )
         {
             wlog::debug( CLASS ) << "Found matrix element.";
-            if( WLMatLib::ArrayFlags::getArrayType( it->arrayFlags ) == WLMatLib::ArrayTypes::mxDOUBLE_CLASS )
+            const bool isComplex = WLMatLib::ArrayFlags::isComplex( it->arrayFlags );
+            const bool isDouble = WLMatLib::ArrayFlags::getArrayType( it->arrayFlags ) == WLMatLib::ArrayTypes::mxDOUBLE_CLASS;
+            if( isDouble && !isComplex )
             {
                 wlog::debug( CLASS ) << "Found matrix element with double class.";
                 if( !( *matrix ) )
@@ -123,7 +129,7 @@ WLIOStatus::IOStatusT WLReaderMAT::read( WLMatrix::SPtr* const matrix )
                 Eigen::MatrixXd matrixDbl;
                 if( WLMatLib::MATReader::readMatrixDouble( &matrixDbl, *it, m_ifs, m_fileInfo ) )
                 {
-                    ( *matrix ) = matrixDbl.cast<WLMatrix::ScalarT>();
+                    ( *matrix ) = matrixDbl.cast< WLMatrix::ScalarT >();
                     rc = WLIOStatus::SUCCESS;
                     break;
                 }
@@ -133,4 +139,58 @@ WLIOStatus::IOStatusT WLReaderMAT::read( WLMatrix::SPtr* const matrix )
     }
 
     return rc;
+}
+
+WLIOStatus::IOStatusT WLReaderMAT::read( Eigen::MatrixXcd* const matrix )
+{
+    if( !m_isInitialized )
+    {
+        WLIOStatus::IOStatusT state = init();
+        if( state != WLIOStatus::SUCCESS )
+        {
+            return state;
+        }
+    }
+
+    WLIOStatus::IOStatusT rc = ERROR_NO_MATRIXC;
+    std::list< WLMatLib::ElementInfo_t >::const_iterator it;
+    for( it = m_elements.begin(); it != m_elements.end(); ++it )
+    {
+        if( it->dataType == WLMatLib::DataTypes::miMATRIX )
+        {
+            wlog::debug( CLASS ) << "Found matrix element.";
+            const bool isComplex = WLMatLib::ArrayFlags::isComplex( it->arrayFlags );
+            const bool isDouble = WLMatLib::ArrayFlags::getArrayType( it->arrayFlags ) == WLMatLib::ArrayTypes::mxDOUBLE_CLASS;
+            if( isDouble && isComplex )
+            {
+                wlog::debug( CLASS ) << "Found complex matrix element.";
+                if( matrix == NULL )
+                {
+                    rc = WLIOStatus::ERROR_UNKNOWN;
+                    break;
+                }
+
+                if( WLMatLib::MATReader::readMatrixComplex( matrix, *it, m_ifs, m_fileInfo ) )
+                {
+                    rc = WLIOStatus::SUCCESS;
+                    break;
+                }
+            }
+        }
+    }
+
+    return rc;
+}
+
+std::string WLReaderMAT::getIOStatusDescription( WLIOStatus::IOStatusT status ) const
+{
+    switch( status )
+    {
+        case ERROR_NO_MATRIXD:
+            return "File does not contain a double matrix!";
+        case ERROR_NO_MATRIXC:
+            return "File does not contain a complex matrix!";
+        default:
+            return WLIOStatus::description( status );
+    }
 }

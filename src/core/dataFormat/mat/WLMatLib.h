@@ -118,9 +118,9 @@ namespace WLMatLib
      */
     namespace ArrayFlags
     {
-        const miUINT32_t MASK_COMPLEX = 0x00000080;
-        const miUINT32_t MASK_GLOBAL = 0x00000040;
-        const miUINT32_t MASK_LOGICAL = 0x00000020;
+        const miUINT32_t MASK_COMPLEX = 0x00000800;
+        const miUINT32_t MASK_GLOBAL = 0x00000400;
+        const miUINT32_t MASK_LOGICAL = 0x00000200;
         const miUINT32_t MASK_GET_CLASS = 0x0000000F;
 
         bool isComplex( const mArrayFlags_t& data );
@@ -202,6 +202,19 @@ namespace WLMatLib
          * \return true, if successful, false otherwise.
          */
         static bool readMatrixDouble( Eigen::MatrixXd* const matrix, const ElementInfo_t& element, std::ifstream& ifs,
+                        const FileInfo_t& info );
+
+        /**
+         * Reads the matrix which is contained by the element.
+         *
+         * \param matrix Matrix to fill.
+         * \param element Element which contains the matrix to read.
+         * \param ifs Open input stream to read from.
+         * \param info File information e.g. to handle endian format.
+         *
+         * \return true, if successful, false otherwise.
+         */
+        static bool readMatrixComplex( Eigen::MatrixXcd* const matrix, const ElementInfo_t& element, std::ifstream& ifs,
                         const FileInfo_t& info );
 
     private:

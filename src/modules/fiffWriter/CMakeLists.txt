@@ -52,8 +52,8 @@ LIST( APPEND ADDITIONAL_LIBS ${QT5_QTCORE_LIBRARY} )
 # Setup for compilation
 # --------------------------------------------------------------------------------------------------------------------------------
 
-# Let this function do the job. It sets up tests and copies shaders automatically. It additionally configures the 
-# stylecheck mechanism for this module.
+# Let this function do the job. It sets up tests and copies shaders automatically.
+# It additionally configures the stylecheck mechanism for this module.
 SETUP_MODULE( ${MODULE_NAME}                # name of the module
              "${CMAKE_CURRENT_SOURCE_DIR}"  # where to find the source ${CMAKE_CURRENT_SOURCE_DIR} is a good idea here mostly
              "${ADDITIONAL_LIBS}"           # does your module need additional libs to compile?

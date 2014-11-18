@@ -219,6 +219,33 @@ void WLModuleDrawable::setViewModality( WLEModality::Enum mod )
     }
 }
 
+void WLModuleDrawable::setViewModalitySelection( std::list< WLEModality::Enum > mods )
+{
+    if( mods.empty() )
+    {
+        return;
+    }
+
+    // TODO(pieloth): dirty hack. Find a way just to select a item in the current selection.
+    m_propView->removeProperty( m_selectionView );
+
+    WItemSelection::SPtr viewSelection( new WItemSelection() );
+    std::list< WLEModality::Enum >::iterator it;
+    for( it = mods.begin(); it != mods.end(); ++it )
+    {
+        viewSelection->addItem(
+                        WItemSelectionItemTyped< WLEModality::Enum >::SPtr(
+                                        new WItemSelectionItemTyped< WLEModality::Enum >( *it, WLEModality::name( *it ),
+                                                        WLEModality::description( *it ) ) ) );
+    }
+
+    m_selectionView = m_propView->addProperty( "View modality", "Select a to visualize", viewSelection->getSelector( 0 ),
+                    boost::bind( &WLModuleDrawable::callbackViewModalityChanged, this ) );
+
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_selectionView );
+    WPropertyHelper::PC_NOTEMPTY::addTo( m_selectionView );
+}
+
 void WLModuleDrawable::hideViewModalitySelection( bool enable )
 {
     m_selectionView->setHidden( enable );

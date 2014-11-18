@@ -29,23 +29,27 @@
 #include <string>
 
 #include <boost/shared_ptr.hpp>
+#include <Eigen/Dense>
 
 #include <core/dataHandler/exceptions/WDHNoSuchFile.h>
+#include <core/dataHandler/io/WReader.h>
 
 #include "core/data/WLDataTypes.h"
 #include "core/dataFormat/mat/WLMatLib.h"
 #include "WLIOStatus.h"
-#include "WLReaderGeneric.h"
 
 /**
  * Reads a matrix from a MATLAB MAT-file.
  *
  * \author pieloth
  */
-class WLReaderMAT: public WLReaderGeneric< WLMatrix::SPtr >
+class WLReaderMAT: public WReader, public WLIOStatus::WLIOStatusInterpreter
 {
 public:
     const static std::string CLASS;
+
+    const static WLIOStatus::IOStatusT ERROR_NO_MATRIXD; /**< File does not contain a double matrix. */
+    const static WLIOStatus::IOStatusT ERROR_NO_MATRIXC; /**< File does not contain a complex matrix. */
 
     /**
      * Shared pointer abbreviation to a instance of this class.
@@ -68,15 +72,26 @@ public:
     WLIOStatus::IOStatusT init();
 
     /**
-     * Reads the first matrix from the file which matchs the data type.
+     * Reads the first matrix from the file which matches the data type.
      *
      * \param matrix Matrix to fill.
      *
      * \return SUCCESS, if successful.
      */
-    virtual WLIOStatus::IOStatusT read( WLMatrix::SPtr* const matrix );
+    WLIOStatus::IOStatusT read( WLMatrix::SPtr* const matrix );
+
+    /**
+     * Reads the first complex matrix from the file which matches the data type.
+     *
+     * \param matrix Matrix to fill.
+     *
+     * \return SUCCESS, if successful.
+     */
+    WLIOStatus::IOStatusT read( Eigen::MatrixXcd* const matrix );
 
     virtual void close();
+
+    virtual std::string getIOStatusDescription( WLIOStatus::IOStatusT status ) const;
 
 private:
     std::ifstream m_ifs;

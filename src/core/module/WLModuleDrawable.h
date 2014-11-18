@@ -24,6 +24,7 @@
 #ifndef WLMODULEDRAWABLE_H
 #define WLMODULEDRAWABLE_H
 
+#include <list>
 #include <set>
 
 #include <boost/shared_ptr.hpp>
@@ -110,6 +111,13 @@ protected:
     WLEModality::Enum getViewModality();
 
     void setViewModality( WLEModality::Enum mod );
+
+    /**
+     * Clears and sets the view modality selection.
+     *
+     * \param mods List of modalities to select.
+     */
+    void setViewModalitySelection( std::list< WLEModality::Enum > mods );
 
     void hideViewModalitySelection( bool enable );
 

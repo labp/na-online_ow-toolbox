@@ -160,7 +160,7 @@ bool WLMatLib::MATReader::retrieveDataElements( std::list< ElementInfo_t >* cons
 
 bool WLMatLib::MATReader::readTagField( mDataType_t* const dataType, mNumBytes_t* const numBytes, std::ifstream& ifs )
 {
-    std::streampos pos = ifs.tellg();
+    const std::streampos pos = ifs.tellg();
     ifs.read( ( char* )dataType, sizeof( WLMatLib::mDataType_t ) );
     ifs.read( ( char* )numBytes, sizeof( WLMatLib::mNumBytes_t ) );
     if( *dataType > WLMatLib::DataTypes::miUTF32 )
@@ -224,7 +224,6 @@ bool WLMatLib::MATReader::readArraySubelements( ElementInfo_t* const element, st
     ifs.read( ( char* )&arrayFlags, 8 );
     const mArrayFlags_t arrayFlag = arrayFlags[0];
     wlog::debug( LIBNAME ) << "Array Flag: " << arrayFlag;
-    // FIXME(pieloth): ArrayFlag/Complex/Global/Logical is not recognized correctly!
     if( ArrayFlags::isComplex( arrayFlag ) )
     {
         wlog::debug( LIBNAME ) << "Is complex.";
@@ -269,8 +268,8 @@ bool WLMatLib::MATReader::readArraySubelements( ElementInfo_t* const element, st
 
     // TODO(pieloth): Check for dimensions n > 2
     WAssert( bytes == 8, "Dimension n != 2 is not yet supported!" );
-    ifs.read( ( char* )&element->rows, sizeof( miINT32_t ) );
-    ifs.read( ( char* )&element->cols, sizeof( miINT32_t ) );
+    ifs.read( ( char* )&element->rows, sizeof(miINT32_t) );
+    ifs.read( ( char* )&element->cols, sizeof(miINT32_t) );
 
     if( element->rows < 1 || element->cols < 1 )
     {
@@ -340,7 +339,7 @@ bool WLMatLib::MATReader::readMatrixDouble( Eigen::MatrixXd* const matrix, const
         return false;
     }
 
-    std::streampos pos = ifs.tellg();
+    const std::streampos pos = ifs.tellg();
 
     // Read data //
     // --------- //
@@ -362,6 +361,84 @@ bool WLMatLib::MATReader::readMatrixDouble( Eigen::MatrixXd* const matrix, const
 
     matrix->resize( element.rows, element.cols );
     ifs.read( ( char* )matrix->data(), bytes );
+
+    nextElement( ifs, element.posData, bytes );
+    return true;
+}
+
+bool WLMatLib::MATReader::readMatrixComplex( Eigen::MatrixXcd* const matrix, const ElementInfo_t& element, std::ifstream& ifs,
+                const FileInfo_t& info )
+{
+    // Check some errors //
+    // ----------------- //
+    if( matrix == NULL )
+    {
+        wlog::error( LIBNAME ) << "Matrix object is null!";
+        return false;
+    }
+
+    if( info.fileSize <= static_cast< size_t >( element.posData ) )
+    {
+        wlog::error( LIBNAME ) << "Data position is beyond file end!";
+        return false;
+    }
+
+    if( element.dataType != DataTypes::miMATRIX )
+    {
+        wlog::error( LIBNAME ) << "Data type is not a matrix: " << element.dataType;
+        return false;
+    }
+
+    const bool isDouble = ArrayFlags::getArrayType( element.arrayFlags ) == ArrayTypes::mxDOUBLE_CLASS;
+    const bool isComplex = ArrayFlags::isComplex( element.arrayFlags );
+    if( !isDouble || !isComplex )
+    {
+        wlog::error( LIBNAME ) << "Numeric Types does not match!";
+        return false;
+    }
+
+    const std::streampos pos = ifs.tellg();
+
+    // Read data //
+    // --------- //
+    ifs.seekg( element.posData );
+    mDataType_t type;
+    mNumBytes_t bytes;
+    if( !readTagField( &type, &bytes, ifs ) )
+    {
+        wlog::error( LIBNAME ) << "Could not read real data tag!";
+        ifs.seekg( pos );
+        return false;
+    }
+    if( type != DataTypes::miDOUBLE )
+    {
+        wlog::error( LIBNAME ) << "Numeric Type does not match or compressed data, which is not supported: " << type;
+        ifs.seekg( pos );
+        return false;
+    }
+
+    Eigen::MatrixXd real( element.rows, element.cols );
+    ifs.read( ( char* )real.data(), bytes );
+
+    if( !readTagField( &type, &bytes, ifs ) )
+    {
+        wlog::error( LIBNAME ) << "Could not read imag data tag!";
+        ifs.seekg( pos );
+        return false;
+    }
+    if( type != DataTypes::miDOUBLE )
+    {
+        wlog::error( LIBNAME ) << "Numeric Type does not match or compressed data, which is not supported: " << type;
+        ifs.seekg( pos );
+        return false;
+    }
+
+    Eigen::MatrixXd imag( element.rows, element.cols );
+    ifs.read( ( char* )imag.data(), bytes );
+
+    matrix->resize( element.rows, element.cols );
+    matrix->real() = real;
+    matrix->imag() = imag;
 
     nextElement( ifs, element.posData, bytes );
     return true;

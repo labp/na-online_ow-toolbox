@@ -85,12 +85,12 @@ const char** WMMneRtClient::getXPMIcon() const
 
 const std::string WMMneRtClient::getName() const
 {
-    return WLConstantsModule::NAME_PREFIX + " MNE Realtime Client";
+    return WLConstantsModule::generateModuleName( "MNE Realtime Client" );
 }
 
 const std::string WMMneRtClient::getDescription() const
 {
-    return "TODO";
+    return "Connection to a MNE Real-time Server.";
 }
 
 void WMMneRtClient::connectors()
@@ -152,25 +152,10 @@ void WMMneRtClient::properties()
 
     // Setup additional data //
     m_propGrpAdditional = m_properties->addPropertyGroup( "Additional data", "Additional data needed by other modules.", false );
-    m_srcSpaceFile = m_propGrpAdditional->addProperty( "Source space file:", "Read a FIFF file containing the source space.",
-                    WPathHelper::getHomePath(), m_propCondition );
-    m_srcSpaceFile->changed( true );
-
-    m_bemFile = m_propGrpAdditional->addProperty( "BEM file:", "Read a FIFF file containing BEM layers.",
-                    WPathHelper::getHomePath(), m_propCondition );
-    m_bemFile->changed( true );
 
     m_digPointsFile = m_propGrpAdditional->addProperty( "DigPoints file:", "Read a FIFF file containing digitization points.",
                     WPathHelper::getHomePath(), m_propCondition );
     m_digPointsFile->changed( true );
-
-    m_lfEEGFile = m_propGrpAdditional->addProperty( "Leadfield EEG file:", "Read a FIFF file containing the leadfield for EEG.",
-                    WPathHelper::getHomePath(), m_propCondition );
-    m_lfEEGFile->changed( true );
-
-    m_lfMEGFile = m_propGrpAdditional->addProperty( "Leadfield MEG file:", "Read a FIFF file containing the leadfield for MEG.",
-                    WPathHelper::getHomePath(), m_propCondition );
-    m_lfMEGFile->changed( true );
 
     m_additionalStatus = m_propGrpAdditional->addProperty( "Additional data status:", "Additional data status.",
                     DATA_NOT_LOADED );
@@ -192,7 +177,6 @@ void WMMneRtClient::moduleInit()
     const string ip = "127.0.0.1";
     const string alias = "OW-LaBP";
     m_rtClient.reset( new WRtClient( ip, alias ) );
-    m_subject.reset( new WLEMMSubject() );
 
     viewInit( WLEMDDrawable2D::WEGraphType::DYNAMIC );
 
@@ -200,40 +184,12 @@ void WMMneRtClient::moduleInit()
 
     infoLog() << "Restoring module ...";
 
-    if( m_srcSpaceFile->changed( true ) )
-    {
-        if( handleSurfaceFileChanged( m_srcSpaceFile->get().string() ) )
-        {
-            m_subject->setSurface( m_surface );
-        }
-    }
-    if( m_bemFile->changed( true ) )
-    {
-        if( handleBemFileChanged( m_bemFile->get().string() ) )
-        {
-            m_subject->setBemBoundaries( m_bems );
-        }
-    }
     if( m_digPointsFile->changed( true ) )
     {
         if( handleDigPointsFileChanged( m_digPointsFile->get().string() ) )
         {
             // TODO(pieloth): set dig points
             m_rtClient->setDigPointsAndEEG( *m_digPoints.get() );
-        }
-    }
-    if( m_lfEEGFile->changed( true ) )
-    {
-        if( handleLfFileChanged( m_lfEEGFile->get().string(), m_leadfieldEEG ) )
-        {
-            m_subject->setLeadfield( WLEModality::EEG, m_leadfieldEEG );
-        }
-    }
-    if( m_lfMEGFile->changed( true ) )
-    {
-        if( handleLfFileChanged( m_lfMEGFile->get().string(), m_leadfieldMEG ) )
-        {
-            m_subject->setLeadfield( WLEModality::MEG, m_leadfieldMEG );
         }
     }
 
@@ -269,39 +225,11 @@ void WMMneRtClient::moduleMain()
             handleTrgConnectorChanged();
         }
 
-        if( m_srcSpaceFile->changed( true ) )
-        {
-            if( handleSurfaceFileChanged( m_srcSpaceFile->get().string() ) )
-            {
-                m_subject->setSurface( m_surface );
-            }
-        }
-        if( m_bemFile->changed( true ) )
-        {
-            if( handleBemFileChanged( m_bemFile->get().string() ) )
-            {
-                m_subject->setBemBoundaries( m_bems );
-            }
-        }
         if( m_digPointsFile->changed( true ) )
         {
             if( handleDigPointsFileChanged( m_digPointsFile->get().string() ) )
             {
                 m_rtClient->setDigPointsAndEEG( *m_digPoints.get() );
-            }
-        }
-        if( m_lfEEGFile->changed( true ) )
-        {
-            if( handleLfFileChanged( m_lfEEGFile->get().string(), m_leadfieldEEG ) )
-            {
-                m_subject->setLeadfield( WLEModality::EEG, m_leadfieldEEG );
-            }
-        }
-        if( m_lfMEGFile->changed( true ) )
-        {
-            if( handleLfFileChanged( m_lfMEGFile->get().string(), m_leadfieldMEG ) )
-            {
-                m_subject->setLeadfield( WLEModality::MEG, m_leadfieldMEG );
             }
         }
         if( m_trgAdditionalReset->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
@@ -329,7 +257,6 @@ void WMMneRtClient::handleTrgConConnect()
     m_rtClient->connect();
     if( m_rtClient->isConnected() )
     {
-
         map< int, string > cMap;
         const int selCon = m_rtClient->getConnectors( &cMap );
         map< int, string >::const_iterator itMap = cMap.begin();
@@ -401,13 +328,8 @@ void WMMneRtClient::handleTrgDataStart()
         while( !m_stopStreaming && !m_shutdownFlag() )
         {
             WLEMMeasurement::SPtr emm;
-            if( m_rtClient->readData( emm ) )
+            if( m_rtClient->readData( &emm ) )
             {
-                if( m_subject && ( m_surface || m_bems || m_leadfieldEEG || m_leadfieldMEG ) )
-                {
-                    emm->setSubject( m_subject );
-                }
-
                 if( isFirst )
                 {
                     WLEMMCommand::SPtr cmd( new WLEMMCommand( WLEMMCommand::Command::INIT ) );
@@ -460,123 +382,6 @@ void WMMneRtClient::handleTrgConnectorChanged()
     }
 }
 
-bool WMMneRtClient::handleLfFileChanged( std::string fName, WLMatrix::SPtr& lf )
-{
-    debugLog() << "handleLfFileChanged()";
-
-    WProgress::SPtr progress( new WProgress( "Reading Leadfield" ) );
-    m_progress->addSubProgress( progress );
-    m_additionalStatus->set( DATA_LOADING, true );
-
-    WLReaderLeadfield::SPtr reader;
-    try
-    {
-        reader.reset( new WLReaderLeadfield( fName ) );
-    }
-    catch( const WDHNoSuchFile& e )
-    {
-        errorLog() << "File does not exist: " << fName;
-        progress->finish();
-        m_progress->removeSubProgress( progress );
-        return false;
-    }
-
-    if( reader->read( &lf ) == WLIOStatus::SUCCESS )
-    {
-        m_additionalStatus->set( DATA_LOADED, true );
-        progress->finish();
-        m_progress->removeSubProgress( progress );
-        return true;
-    }
-    else
-    {
-        errorLog() << "Could not read leadfield!";
-        m_additionalStatus->set( DATA_ERROR, true );
-        progress->finish();
-        m_progress->removeSubProgress( progress );
-        return false;
-    }
-}
-
-bool WMMneRtClient::handleSurfaceFileChanged( std::string fName )
-{
-    debugLog() << "handleSurfaceFileChanged()";
-
-    WProgress::SPtr progress( new WProgress( "Reading Surface" ) );
-    m_progress->addSubProgress( progress );
-    m_additionalStatus->set( DATA_LOADING, true );
-
-    WLReaderSourceSpace::SPtr reader;
-    try
-    {
-        reader.reset( new WLReaderSourceSpace( fName ) );
-    }
-    catch( const WDHNoSuchFile& e )
-    {
-        errorLog() << "File does not exist: " << fName;
-        progress->finish();
-        m_progress->removeSubProgress( progress );
-        return false;
-    }
-
-    m_surface.reset( new WLEMMSurface() );
-    if( reader->read( &m_surface ) == WLIOStatus::SUCCESS )
-    {
-        m_additionalStatus->set( DATA_LOADED, true );
-        progress->finish();
-        m_progress->removeSubProgress( progress );
-        return true;
-    }
-    else
-    {
-        errorLog() << "Could not read source space!";
-        m_additionalStatus->set( DATA_ERROR, true );
-        progress->finish();
-        m_progress->removeSubProgress( progress );
-        return false;
-    }
-}
-
-bool WMMneRtClient::handleBemFileChanged( std::string fName )
-{
-    debugLog() << "handleBemFileChanged()";
-
-    WProgress::SPtr progress( new WProgress( "Reading BEM Layer" ) );
-    m_progress->addSubProgress( progress );
-    m_additionalStatus->set( DATA_LOADING, true );
-
-    WLReaderBem::SPtr reader;
-    try
-    {
-        reader.reset( new WLReaderBem( fName ) );
-    }
-    catch( const WDHNoSuchFile& e )
-    {
-        errorLog() << "File does not exist: " << fName;
-        progress->finish();
-        m_progress->removeSubProgress( progress );
-        return false;
-    }
-
-    m_bems = WLList< WLEMMBemBoundary::SPtr >::instance();
-    if( reader->read( m_bems.get() ) )
-    {
-        infoLog() << "Loaded BEM layer: " << m_bems->size();
-        m_additionalStatus->set( DATA_LOADED, true );
-        progress->finish();
-        m_progress->removeSubProgress( progress );
-        return true;
-    }
-    else
-    {
-        errorLog() << "Could not read BEM layers!";
-        m_additionalStatus->set( DATA_ERROR, true );
-        progress->finish();
-        m_progress->removeSubProgress( progress );
-        return false;
-    }
-}
-
 bool WMMneRtClient::handleDigPointsFileChanged( std::string fName )
 {
     debugLog() << "handleDigPointsFileChanged()";
@@ -623,24 +428,11 @@ void WMMneRtClient::handleTrgAdditionalReset()
 
     m_additionalStatus->set( DATA_NOT_LOADED, true );
 
-    m_srcSpaceFile->set( STANDARD_FILE_PATH, true );
-    m_srcSpaceFile->changed( true );
-    m_bemFile->set( STANDARD_FILE_PATH, true );
-    m_bemFile->changed( true );
     m_digPointsFile->set( STANDARD_FILE_PATH, true );
     m_digPointsFile->changed( true );
-    m_lfEEGFile->set( STANDARD_FILE_PATH, true );
-    m_lfEEGFile->changed( true );
-    m_lfMEGFile->set( STANDARD_FILE_PATH, true );
-    m_lfMEGFile->changed( true );
 
-    m_subject.reset( new WLEMMSubject() );
-    m_surface.reset();
-    m_bems.reset();
+    m_digPoints->clear();
     m_digPoints.reset();
-    m_leadfieldEEG.reset();
-    m_leadfieldMEG.reset();
-
 }
 
 inline bool WMMneRtClient::processCompute( WLEMMeasurement::SPtr emm )

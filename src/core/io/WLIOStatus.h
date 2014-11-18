@@ -68,7 +68,7 @@ namespace WLIOStatus
          *
          * \return Description for status code.
          */
-        virtual std::string getIOStatusDescription( WLIOStatus::IOStatusT status );
+        virtual std::string getIOStatusDescription( WLIOStatus::IOStatusT status ) const;
 
     protected:
         WLIOStatusInterpreter();

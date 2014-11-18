@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -39,7 +38,6 @@
 #include "core/util/profiler/WLTimeProfiler.h"
 
 #include "WFIRFilter.h"
-#include "WFIRDesignWindow.h"
 
 const std::string WFIRFilter::CLASS = "WFIRFilter";
 
@@ -50,7 +48,7 @@ WFIRFilter::WFIRFilter()
     m_cFreq2 = 0;
     m_order = 0;
     m_type = WEFilterType::UNKNOWN;
-    m_window = WEWindowsType::UNKNOWN;
+    m_window = WLWindowFunction::RECTANGLE;
 }
 
 WFIRFilter::WFIRFilter( const std::string& pathToFcf )
@@ -60,11 +58,11 @@ WFIRFilter::WFIRFilter( const std::string& pathToFcf )
     m_cFreq2 = 0;
     m_order = 0;
     m_type = WEFilterType::UNKNOWN;
-    m_window = WEWindowsType::UNKNOWN;
+    m_window = WLWindowFunction::RECTANGLE;
     setCoefficients( pathToFcf );
 }
 
-WFIRFilter::WFIRFilter( WFIRFilter::WEFilterType::Enum filtertype, WFIRFilter::WEWindowsType::Enum windowtype, int order,
+WFIRFilter::WFIRFilter( WFIRFilter::WEFilterType::Enum filtertype, WLWindowFunction::WLEWindow windowtype, int order,
                 ScalarT sFreq, ScalarT cFreq1, ScalarT cFreq2 )
 {
     design( filtertype, windowtype, order, sFreq, cFreq1, cFreq2 );
@@ -153,7 +151,7 @@ void WFIRFilter::setFilterType( WFIRFilter::WEFilterType::Enum value, bool redes
     }
 }
 
-void WFIRFilter::setWindowsType( WFIRFilter::WEWindowsType::Enum value, bool redesign )
+void WFIRFilter::setWindowType( WLWindowFunction::WLEWindow value, bool redesign )
 {
     m_window = value;
     if( redesign )
@@ -207,7 +205,7 @@ void WFIRFilter::setCoefficients( std::vector< ScalarT > values )
     m_cFreq1 = 0;
     m_cFreq2 = 0;
     m_type = WEFilterType::UNKNOWN;
-    m_window = WEWindowsType::UNKNOWN;
+    m_window = WLWindowFunction::RECTANGLE;
 
     wlog::debug( CLASS ) << "setCoefficients() m_coeffitients: " << m_coeffitients.size();
 #ifdef DEBUG
@@ -224,7 +222,7 @@ bool WFIRFilter::setCoefficients( const std::string& pathToFcf )
     m_cFreq1 = 0;
     m_cFreq2 = 0;
     m_type = WEFilterType::UNKNOWN;
-    m_window = WEWindowsType::UNKNOWN;
+    m_window = WLWindowFunction::RECTANGLE;
 
     std::ifstream f( pathToFcf.c_str() );
     std::string s;
@@ -340,7 +338,7 @@ void WFIRFilter::design()
 #endif // DEBUG
 }
 
-void WFIRFilter::design( WFIRFilter::WEFilterType::Enum filtertype, WFIRFilter::WEWindowsType::Enum windowtype, size_t order,
+void WFIRFilter::design( WFIRFilter::WEFilterType::Enum filtertype, WLWindowFunction::WLEWindow windowtype, size_t order,
                 ScalarT sFreq, ScalarT cFreq1, ScalarT cFreq2 )
 {
     wlog::debug( CLASS ) << "design(...) called!";
@@ -356,7 +354,7 @@ void WFIRFilter::design( WFIRFilter::WEFilterType::Enum filtertype, WFIRFilter::
 }
 
 void WFIRFilter::designLowpass( std::vector< ScalarT >* pCoeff, size_t order, ScalarT cFreq, ScalarT sFreq,
-                WFIRFilter::WEWindowsType::Enum windowtype )
+                WLWindowFunction::WLEWindow windowtype )
 {
     wlog::debug( CLASS ) << "designLowpass() called!";
 
@@ -369,10 +367,11 @@ void WFIRFilter::designLowpass( std::vector< ScalarT >* pCoeff, size_t order, Sc
     ScalarT a = 0.0;
     ScalarT b = 0.0;
 
+    WLWindowFunction::VectorT win = WLWindowFunction::window( order + 1, windowtype );
     for( size_t i = 0; i < order + 1; ++i )
     {
         a = ( ( 2 * i - order ) * M_PI ) * ( cFreq / sFreq );
-        b = WFIRDesignWindow::getFactor( windowtype, order, i );
+        b = win( i );
 
         coeff[i] = ( ( sin( a ) / a ) * b );
     }
@@ -454,13 +453,13 @@ void WFIRFilter::normalizeCoeff( std::vector< ScalarT >* pCoeff )
     }
 }
 
-std::vector< WFIRFilter::WEFilterType::Enum > WFIRFilter::WEFilterType::values()
+std::set< WFIRFilter::WEFilterType::Enum > WFIRFilter::WEFilterType::values()
 {
-    std::vector< WFIRFilter::WEFilterType::Enum > values;
-    values.push_back( WEFilterType::BANDPASS );
-    values.push_back( WEFilterType::BANDSTOP );
-    values.push_back( WEFilterType::HIGHPASS );
-    values.push_back( WEFilterType::LOWPASS );
+    std::set< WFIRFilter::WEFilterType::Enum > values;
+    values.insert( WEFilterType::BANDPASS );
+    values.insert( WEFilterType::BANDSTOP );
+    values.insert( WEFilterType::HIGHPASS );
+    values.insert( WEFilterType::LOWPASS );
     // skip: values.push_back( WEFilterType::UNKNOWN );
     return values;
 }
@@ -479,38 +478,6 @@ std::string WFIRFilter::WEFilterType::name( WFIRFilter::WEFilterType::Enum value
             return "Lowpass";
         default:
             WAssert( false, "Unknown WEFilterType!" );
-            return "ERROR: Undefined!";
-    }
-}
-
-std::vector< WFIRFilter::WEWindowsType::Enum > WFIRFilter::WEWindowsType::values()
-{
-    std::vector< WFIRFilter::WEWindowsType::Enum > values;
-    values.push_back( WEWindowsType::HAMMING );
-    values.push_back( WEWindowsType::RECTANGLE );
-    values.push_back( WEWindowsType::BARLETT );
-    values.push_back( WEWindowsType::BLACKMAN );
-    values.push_back( WEWindowsType::HANNING );
-    // skip: values.push_back( WEWindowsType::UNKNOWN );
-    return values;
-}
-
-std::string WFIRFilter::WEWindowsType::name( WFIRFilter::WEWindowsType::Enum value )
-{
-    switch( value )
-    {
-        case WEWindowsType::HAMMING:
-            return "Hamming";
-        case WEWindowsType::RECTANGLE:
-            return "Rectangle";
-        case WEWindowsType::BARLETT:
-            return "Barlett";
-        case WEWindowsType::BLACKMAN:
-            return "Blackman";
-        case WEWindowsType::HANNING:
-            return "Hanning";
-        default:
-            WAssert( false, "Unknown WEWindowsType!" );
             return "ERROR: Undefined!";
     }
 }
