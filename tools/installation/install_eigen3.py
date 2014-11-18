@@ -16,7 +16,7 @@ from install import AInstaller as Utils
 
 
 class Installer(AInstaller):
-    REPO_FOLDER = "eigen321"
+    REPO_FOLDER = "eigen322"
 
     def __init__(self, destdir):
         AInstaller.__init__(self, "Eigen", destdir)
@@ -58,7 +58,7 @@ class Installer(AInstaller):
         Utils.print_step_begin("Initializing")
         repo_dir = os.path.join(self.DESTDIR, self.REPO_FOLDER)
         os.chdir(repo_dir)
-        version = "3.2.1"
+        version = "3.2.2"  # 2014-08-04
         call("hg update " + version, shell=True)
         Utils.print_step_end("Initializing")
 

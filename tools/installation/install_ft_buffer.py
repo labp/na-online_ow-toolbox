@@ -80,7 +80,7 @@ class Installer(AInstaller):
         Utils.print_step_begin("Initializing")
         repo_dir = os.path.join(self.DESTDIR, self.REPO_FOLDER)
         os.chdir(repo_dir)
-        version = "de8b915fd8376549aad3c27f1086090dfa0d0071"  # 2014-05-02
+        version = "f6481250764e442831ea2c5438abae23f2ce44e7"  # 2014-11-14
         call("git checkout " + version, shell=True)
         Utils.print_step_end("Initializing")
 

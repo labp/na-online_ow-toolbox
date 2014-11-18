@@ -175,7 +175,7 @@ bool WWriterFiff::beginFiff( const WLEMMeasurement* const emm )
 
     // Writing FIFF information
     // ------------------------
-    MatrixXd cals = MatrixXd( 1, info.nchan );
+    RowVectorXd cals = RowVectorXd( info.nchan );
     cals.setZero();
     m_fiffStream = FiffStream::start_writing_raw( *m_file, info, cals );
     if( m_fiffStream )

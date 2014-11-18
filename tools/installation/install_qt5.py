@@ -26,6 +26,8 @@ class Installer(AInstaller):
         self.INSTALLDIR = installdir
 
     def pre_install(self):
+        print("NOTE: Before installing Qt5 from source, please try to install prebuilt binaries:")
+        print("      http://qt-project.org/downloads/")
         success = True
         success = success and Utils.check_program("git", "--version")
         success = success and Utils.check_program("make", "--version")
@@ -79,10 +81,11 @@ class Installer(AInstaller):
         Utils.print_step_begin("Initializing")
         repo_dir = os.path.join(self.DESTDIR, self.REPO_FOLDER)
         os.chdir(repo_dir)
-        version = "v5.1.1"
+        version = "v5.3.2"
         call("git checkout " + version, shell=True)
-        qt_module_selection = "--module-subset=qtbase"
-        call("./init-repository " + qt_module_selection, shell=True)
+        # qt_module_selection = "--module-subset=qtbase"
+        # call("./init-repository " + qt_module_selection, shell=True)
+        call("./init-repository", shell=True)
         Utils.print_step_end("Initializing")
 
     def _configure(self):
@@ -102,16 +105,9 @@ class Installer(AInstaller):
         options.append("-confirm-license")
         options.append("-opensource")
         options.append("-release")
+        options.append("-shared")
         options.append("-nomake tests")
         options.append("-nomake examples")
-        options.append("-qt-zlib")
-        options.append("-qt-xcb")
-        options.append("-qt-xkbcommon")
-        options.append("-qt-pcre")
-        options.append("-no-icu")
-        options.append("-no-glib")
-        options.append("-no-libjpeg")
-        options.append("-no-libpng")
         qt5_configure = "./configure " + ' '.join(options)
         call(qt5_configure, shell=True)
         Utils.print_step_end("Configuring")

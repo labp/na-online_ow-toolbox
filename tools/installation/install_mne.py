@@ -27,7 +27,11 @@ class Installer(AInstaller):
         success = success and Utils.check_program("git", "--version")
         success = success and Utils.check_program("make", "--version")
         qmake5 = os.path.join(self.QT5_ROOT, "bin", "qmake")
-        success = success and Utils.check_program(qmake5, "--version")
+        if Utils.check_program(qmake5, "--version"):
+            success = success and True
+        else:
+            print('Try to use: qmake5')
+            success = success and Utils.check_program("qmake5", "--version")
         if not Utils.check_program("g++", "--version") and not Utils.check_program("c++", "--version"):
             success = False
         return success
@@ -76,7 +80,7 @@ class Installer(AInstaller):
         Utils.print_step_begin("Initializing")
         repo_dir = os.path.join(self.DESTDIR, self.REPO_FOLDER)
         os.chdir(repo_dir)
-        version = "1a80d1b6587b39f8ed2bd0eb75128f7f4bfca106"  # 2014-05-13
+        version = "b8f6166ca34c01effe5bdc1eedf26dc9aea44899"  # 2014-11-17
         call("git checkout " + version, shell=True)
         Utils.print_step_end("Initializing")
 
@@ -85,6 +89,8 @@ class Installer(AInstaller):
         mne_dir = os.path.join(self.DESTDIR, self.REPO_FOLDER, "MNE")
         os.chdir(mne_dir)
         qmake5 = os.path.join(self.QT5_ROOT, "bin", "qmake")
+        if not Utils.check_program(qmake5, "--version"):
+            qmake5 = "qmake5"
         mne_configure = qmake5 + " -recursive"
         call(mne_configure, shell=True)
         Utils.print_step_end("Configuring")
