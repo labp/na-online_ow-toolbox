@@ -48,13 +48,11 @@ const std::string WFTChunkReaderNeuromagHdr::CLASS = "WFTChunkReaderNeuromagHdr"
 WFTChunkReaderNeuromagHdr::WFTChunkReaderNeuromagHdr()
 {
     m_measInfo.reset( new FIFFLIB::FiffInfo );
-    m_stimulusPicks.reset( new WLEMDRaw::ChanPicksT );
     m_chPosEEG.reset( new WLArrayList< WPosition > );
     m_chPosMEG.reset( new WLArrayList< WPosition > );
     m_chExMEG.reset( new WLArrayList< WVector3f > );
     m_chEyMEG.reset( new WLArrayList< WVector3f > );
     m_chEzMEG.reset( new WLArrayList< WVector3f > );
-    m_scaleFactors.reset( new std::vector< float > );
     m_applyScaling = false;
 }
 
@@ -79,13 +77,13 @@ bool WFTChunkReaderNeuromagHdr::read( WFTChunk::ConstSPtr chunk )
 
     m_measInfo.reset( new FIFFLIB::FiffInfo );
     m_modalityPicks.clear();
-    m_stimulusPicks.reset( new WLEMDRaw::ChanPicksT );
+    m_stimulusPicks.resize( 0 );
+
     m_chPosEEG.reset( new WLArrayList< WPosition > );
     m_chPosMEG.reset( new WLArrayList< WPosition > );
     m_chExMEG.reset( new WLArrayList< WVector3f > );
     m_chEyMEG.reset( new WLArrayList< WVector3f > );
     m_chEzMEG.reset( new WLArrayList< WVector3f > );
-    m_scaleFactors.reset( new std::vector< float > );
 
     WReaderNeuromagHeader::SPtr reader( new WReaderNeuromagHeader( ( const char* )chunk->getData(), chunk->getDataSize() ) );
 
@@ -95,8 +93,8 @@ bool WFTChunkReaderNeuromagHdr::read( WFTChunk::ConstSPtr chunk )
         return false;
     }
 
-    m_scaleFactors->clear();
-    m_scaleFactors->reserve( m_measInfo->nchan );
+    m_scaleFactors.clear();
+    m_scaleFactors.reserve( m_measInfo->nchan );
 
     //
     //  Process channel information.
@@ -112,7 +110,7 @@ bool WFTChunkReaderNeuromagHdr::read( WFTChunk::ConstSPtr chunk )
         WLEMDRaw::ChanPicksT *vector;
         if( info.kind == WLFiffLib::ChType::STIM ) // use stimulus channels
         {
-            vector = m_stimulusPicks.get();
+            vector = &m_stimulusPicks;
         }
         else // EEG / MEG data channels
         {
@@ -155,7 +153,7 @@ bool WFTChunkReaderNeuromagHdr::read( WFTChunk::ConstSPtr chunk )
         //
         if( info.range != 0.0 && info.cal != 0.0 )
         {
-            m_scaleFactors->push_back( info.range * info.cal );
+            m_scaleFactors.push_back( info.range * info.cal );
         }
     }
 
@@ -208,7 +206,7 @@ bool WFTChunkReaderNeuromagHdr::apply( WLEMMeasurement::SPtr emm, WLEMDRaw::SPtr
                 {
                     for( WLEMDRaw::ChanPicksT::Index row = 0; row < picks.size(); ++row )
                     {
-                        emd->getData().row( row ) *= getScaleFactors()->at( picks[row] );
+                        emd->getData().row( row ) *= getScaleFactors().at( picks[row] );
                     }
                 }
                 else
@@ -246,9 +244,9 @@ bool WFTChunkReaderNeuromagHdr::apply( WLEMMeasurement::SPtr emm, WLEMDRaw::SPtr
     //
     //  Add event / stimulus channels to the EMM
     //
-    if( getStimulusPicks()->cols() > 0 )
+    if( getStimulusPicks().size() > 0 )
     {
-        emm->setEventChannels( readEventChannels( ( Eigen::MatrixXf& )rawData->getData(), *getStimulusPicks() ) );
+        emm->setEventChannels( readEventChannels( ( Eigen::MatrixXf& )rawData->getData(), getStimulusPicks() ) );
         rc |= true;
     }
 
@@ -280,12 +278,12 @@ WLArrayList< std::string >::SPtr WFTChunkReaderNeuromagHdr::getChannelNames( WLE
     return names;
 }
 
-const WFTChunkReaderNeuromagHdr::ModalityPicksT&  WFTChunkReaderNeuromagHdr::getModalityPicks() const
+const WFTChunkReaderNeuromagHdr::ModalityPicksT& WFTChunkReaderNeuromagHdr::getModalityPicks() const
 {
     return m_modalityPicks;
 }
 
-boost::shared_ptr< WLEMDRaw::ChanPicksT > WFTChunkReaderNeuromagHdr::getStimulusPicks() const
+const WLEMDRaw::ChanPicksT& WFTChunkReaderNeuromagHdr::getStimulusPicks() const
 {
     return m_stimulusPicks;
 }
@@ -337,7 +335,7 @@ WLArrayList< WVector3f >::SPtr WFTChunkReaderNeuromagHdr::getChannelEzMEG() cons
     return m_chEzMEG;
 }
 
-boost::shared_ptr< std::vector< float > > WFTChunkReaderNeuromagHdr::getScaleFactors() const
+const std::vector< float >& WFTChunkReaderNeuromagHdr::getScaleFactors() const
 {
     return m_scaleFactors;
 }

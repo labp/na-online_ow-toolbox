@@ -105,7 +105,7 @@ public:
      *
      * \return Returns a shared pointer on a row vector.
      */
-    boost::shared_ptr< WLEMDRaw::ChanPicksT > getStimulusPicks() const;
+    const WLEMDRaw::ChanPicksT& getStimulusPicks() const;
 
     /**
      * Gets the channel positions for EEG.
@@ -147,7 +147,7 @@ public:
      *
      * \return Returns a shared pointer on a float vector.
      */
-    boost::shared_ptr< std::vector< float > > getScaleFactors() const;
+    const std::vector< float >& getScaleFactors() const;
 
     /**
      * Gets whether or not there exists channel position information for the EEG system.
@@ -185,7 +185,7 @@ private:
     /**
      * A row vector, which contains the channel indices of the event/ stimulus channels.
      */
-    boost::shared_ptr< WLEMDRaw::ChanPicksT > m_stimulusPicks;
+    WLEMDRaw::ChanPicksT m_stimulusPicks;
 
     ModalityPicksT m_modalityPicks; /**< A map, which contains the channel indices for each modality type. */
 
@@ -197,7 +197,7 @@ private:
     WLArrayList< WVector3f >::SPtr m_chEyMEG; /**< Coil coordinate system y-axis unit vector. */
     WLArrayList< WVector3f >::SPtr m_chEzMEG; /**< Coil coordinate system z-axis unit vector. */
 
-    boost::shared_ptr< std::vector< float > > m_scaleFactors; /**< Vector for scaling factors. */
+    std::vector< float > m_scaleFactors; /**< Vector for scaling factors. */
 
     bool m_applyScaling;
 
