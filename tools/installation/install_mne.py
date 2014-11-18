@@ -31,7 +31,7 @@ class Installer(AInstaller):
                 print('Using qmake5 instead of: ' + self.QMAKE5)
                 self.QMAKE5 = 'qmake5'
             else:
-                print('Please set a alias or symlink qmake5, which points to your Qt5 qmake!')
+                print('Please set an alias or symlink qmake5, which points to your Qt5 qmake!')
                 success = False
         if not Utils.check_program("g++", "--version") and not Utils.check_program("c++", "--version"):
             success = False
