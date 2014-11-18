@@ -21,22 +21,35 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WFiffDirTree.h"
+#include "WFTResponse.h"
 
-using namespace FIFFLIB;
+#include <string>
 
-bool WFiffDirTree::find_tag( FiffStream* p_pStream, fiff_int_t findkind, FiffTag::SPtr& p_pTag ) const
+const std::string WFTResponse::CLASS = "WFTResponse";
+
+bool WFTResponse::isValid() const
 {
-    for( qint32 p = 0; p < this->nent; ++p )
+    if( m_response == NULL )
     {
-        if( this->dir[p].kind == findkind )
-        {
-            WFiffTag::read_tag( p_pStream, p_pTag, this->dir[p].pos );
-            return true;
-        }
+        return false;
     }
-    if( p_pTag )
-        p_pTag.clear();
+    if( m_response->def == NULL )
+    {
+        return false;
+    }
+    if( m_response->def->version != VERSION )
+    {
+        return false;
+    }
 
-    return false;
+    return true;
+}
+
+bool WFTResponse::hasData() const
+{
+    if( !isValid() )
+    {
+        return false;
+    }
+    return m_response->def->bufsize > 0;
 }

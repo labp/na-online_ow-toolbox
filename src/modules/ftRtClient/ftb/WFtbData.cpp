@@ -21,22 +21,37 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WFiffDirTree.h"
+#include "WFtbData.h"
 
-using namespace FIFFLIB;
-
-bool WFiffDirTree::find_tag( FiffStream* p_pStream, fiff_int_t findkind, FiffTag::SPtr& p_pTag ) const
+std::string wftb::DataType::name( data_type_t type )
 {
-    for( qint32 p = 0; p < this->nent; ++p )
+    switch( type )
     {
-        if( this->dir[p].kind == findkind )
-        {
-            WFiffTag::read_tag( p_pStream, p_pTag, this->dir[p].pos );
-            return true;
-        }
+        case CHAR:
+            return "CHAR";
+        case UINT8:
+            return "UINT8";
+        case UINT16:
+            return "UINT16";
+        case UINT32:
+            return "UINT32";
+        case UINT64:
+            return "UINT64";
+        case INT8:
+            return "INT8";
+        case INT16:
+            return "INT16";
+        case INT32:
+            return "INT32";
+        case INT64:
+            return "INT64";
+        case FLOAT32:
+            return "FLOAT32";
+        case FLOAT64:
+            return "FLOAT64";
+        case UNKNOWN:
+            return "UNKNOWN";
+        default:
+            return "Undefined!";
     }
-    if( p_pTag )
-        p_pTag.clear();
-
-    return false;
 }

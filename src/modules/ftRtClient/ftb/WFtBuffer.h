@@ -21,22 +21,34 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WFiffDirTree.h"
+#ifndef WFTBUFFER_H_
+#define WFTBUFFER_H_
 
-using namespace FIFFLIB;
+#include <stdint.h>
 
-bool WFiffDirTree::find_tag( FiffStream* p_pStream, fiff_int_t findkind, FiffTag::SPtr& p_pTag ) const
+#include <message.h>
+
+namespace wftb
 {
-    for( qint32 p = 0; p < this->nent; ++p )
-    {
-        if( this->dir[p].kind == findkind )
-        {
-            WFiffTag::read_tag( p_pStream, p_pTag, this->dir[p].pos );
-            return true;
-        }
-    }
-    if( p_pTag )
-        p_pTag.clear();
+    typedef uint16_t version_t;
+    typedef uint32_t bufsize_t;
 
-    return false;
-}
+    typedef messagedef_t MessageDefT;
+    typedef message_t MessageT;
+
+    typedef uint32_t nchans_t;
+    typedef uint32_t isample_t;
+    typedef uint32_t nsamples_t;
+    typedef uint32_t nelements_t;
+
+    typedef float fsamp_t;
+    typedef uint32_t time_t;
+
+    typedef datasel_t DataSelT;
+    typedef headerdef_t HeaderDefT;
+    typedef header_t HeaderT;
+    typedef samples_events_t SamplesEventsT;
+    typedef waitdef_t WaitDefT;
+} /* namespace wftb */
+
+#endif  // WFTBUFFER_H_

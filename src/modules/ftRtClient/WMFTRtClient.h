@@ -38,9 +38,9 @@
 #include "core/data/WLEMMSubject.h"
 #include "core/module/WLModuleDrawable.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
+#include "ftbClient/WFtbClient.h"
+#include "ftbClient/network/WFTConnection.h"
 
-#include "fieldtrip/connection/WFTConnection.h"
-#include "WFTNeuromagClient.h"
 
 /**
  * The FieldTrip Real-time Client implements a streaming client from a FieldTrip Buffer server used by several EEG/ MEG acquisition systems.
@@ -135,6 +135,11 @@ protected:
     virtual bool processReset( WLEMMCommand::SPtr cmd );
 
 private:
+    enum CON_TYPE
+    {
+        CON_TCP, CON_UNIX
+    };
+
     /**
      * A condition used to notify about changes in several properties.
      */
@@ -165,10 +170,7 @@ private:
      */
     WPropInt m_port;
 
-    /**
-     * The request timeout.
-     */
-    WPropInt m_waitTimeout;
+    WPropInt m_blockSize;
 
     /**
      * The connection status.
@@ -211,41 +213,6 @@ private:
     WPropTrigger m_resetModule;
 
     /**
-     * Property group for header data
-     */
-    WPropGroup m_propGrpHeader;
-
-    /**
-     * The number of channels.
-     */
-    WPropInt m_channels;
-
-    /**
-     * The number of read samples.
-     */
-    WPropInt m_samples;
-
-    /**
-     * The used data type.
-     */
-    WPropString m_dataType;
-
-    /**
-     * The sampling frequency.
-     */
-    WPropDouble m_frSample;
-
-    /**
-     * The number of read events.
-     */
-    WPropInt m_events;
-
-    /**
-     * The size of the header structure.
-     */
-    WPropInt m_headerBufSize;
-
-    /**
      * The connection to the buffer.
      */
     WFTConnection::SPtr m_connection;
@@ -253,7 +220,7 @@ private:
     /**
      * The FieldTrip streaming client
      */
-    WFTNeuromagClient::SPtr m_ftRtClient;
+    WFtbClient::SPtr m_ftRtClient;
 
     /**
      * Flag for stopping the streaming.
@@ -270,39 +237,39 @@ private:
     /**
      * Callback when the connection type was changed.
      */
-    void callbackConnectionTypeChanged();
+    void cbConnectionTypeChanged();
 
     /**
-     * Callback when the connect button was clicked.
+     * Handles a click on the connect button.
      *
      * \return Returns true if the callback was successfully, otherwise false.
      */
-    bool callbackTrgConnect();
+    bool hdlTrgConnect();
 
     /**
-     * Callback when the disconnect button was clicked.
+     * Handles a click on the disconnect button.
      */
-    void callbackTrgDisconnect();
+    void hdlTrgDisconnect();
 
     /**
      * Callback, when the apply scaling checkboxes value was changed.
      */
-    void callbackApplyScaling();
+    void cbApplyScaling();
 
     /**
-     * Callback when the start streaming button was clicked.
+     * Handles a click on the start streaming button.
      */
-    void callbackTrgStartStreaming();
+    void hdlTrgStartStreaming();
 
     /**
      * Callback when the stop streaming button was clicked.
      */
-    void callbackTrgStopStreaming();
+    void cbTrgStopStreaming();
 
     /**
-     * Callback when the reset button was clicked.
+     * Handles a click on the reset button.
      */
-    void callbackTrgReset();
+    void hdlTrgReset();
 
     /**
      * Switch the modules state after the client was connected to a FieldTrip Buffer server.
@@ -323,11 +290,6 @@ private:
      * Switch the modules state after the client stopped the real-time streaming.
      */
     void applyStatusNotStreaming();
-
-    /**
-     * Shows the FieldTrip header structure in the GUI.
-     */
-    void dispHeaderInfo();
 };
 
 #endif  // WMFTRTCLIENT_H_

@@ -21,22 +21,38 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WFiffDirTree.h"
+#ifndef WFTBDATA_H_
+#define WFTBDATA_H_
 
-using namespace FIFFLIB;
+#include <stdint.h>
+#include <string>
 
-bool WFiffDirTree::find_tag( FiffStream* p_pStream, fiff_int_t findkind, FiffTag::SPtr& p_pTag ) const
+#include <message.h>
+
+namespace wftb
 {
-    for( qint32 p = 0; p < this->nent; ++p )
-    {
-        if( this->dir[p].kind == findkind )
-        {
-            WFiffTag::read_tag( p_pStream, p_pTag, this->dir[p].pos );
-            return true;
-        }
-    }
-    if( p_pTag )
-        p_pTag.clear();
+    typedef uint32_t data_type_t;
 
-    return false;
-}
+    typedef datadef_t DataDefT;
+    typedef data_t DataT;
+
+    namespace DataType
+    {
+        const data_type_t CHAR = DATATYPE_CHAR;
+        const data_type_t UINT8 = DATATYPE_UINT8;
+        const data_type_t UINT16 = DATATYPE_UINT16;
+        const data_type_t UINT32 = DATATYPE_UINT32;
+        const data_type_t UINT64 = DATATYPE_UINT64;
+        const data_type_t INT8 = DATATYPE_INT8;
+        const data_type_t INT16 = DATATYPE_INT16;
+        const data_type_t INT32 = DATATYPE_INT32;
+        const data_type_t INT64 = DATATYPE_INT64;
+        const data_type_t FLOAT32 = DATATYPE_FLOAT32;
+        const data_type_t FLOAT64 = DATATYPE_FLOAT64;
+        const data_type_t UNKNOWN = DATATYPE_UNKNOWN;
+
+        std::string name( data_type_t type );
+    } /* namespace DataType */
+} /* namespace wftb */
+#endif  // WFTBDATA_H_
+

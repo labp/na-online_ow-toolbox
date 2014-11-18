@@ -21,22 +21,27 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WFiffDirTree.h"
+#ifndef WFTREQUEST_H_
+#define WFTREQUEST_H_
 
-using namespace FIFFLIB;
+#include <ostream>
+#include <string>
 
-bool WFiffDirTree::find_tag( FiffStream* p_pStream, fiff_int_t findkind, FiffTag::SPtr& p_pTag ) const
+#include <boost/shared_ptr.hpp>
+
+#include <FtBuffer.h>
+
+#include "modules/ftRtClient/ftb/WFtbCommand.h"
+
+typedef FtBufferRequest WFTRequest;
+
+inline std::ostream& operator<<( std::ostream &strm, const WFTRequest &request )
 {
-    for( qint32 p = 0; p < this->nent; ++p )
-    {
-        if( this->dir[p].kind == findkind )
-        {
-            WFiffTag::read_tag( p_pStream, p_pTag, this->dir[p].pos );
-            return true;
-        }
-    }
-    if( p_pTag )
-        p_pTag.clear();
-
-    return false;
+    strm << "WFTRequest: ";
+    strm << "version=" << request.out()->def->version;
+    strm << ", command=" << wftb::CommandType::name( request.out()->def->command );
+    strm << ", bufsize=" << request.out()->def->bufsize;
+    return strm;
 }
+
+#endif  // WFTREQUEST_H_

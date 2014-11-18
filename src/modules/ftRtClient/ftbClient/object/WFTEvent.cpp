@@ -21,22 +21,45 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WFiffDirTree.h"
+#include <string>
 
-using namespace FIFFLIB;
+#include "WFTEvent.h"
 
-bool WFiffDirTree::find_tag( FiffStream* p_pStream, fiff_int_t findkind, FiffTag::SPtr& p_pTag ) const
+const std::string WFTEvent::CLASS = "WFTEvent";
+
+WFTEvent::WFTEvent( wftb::EventDefT def, const std::string type, const std::string value ) :
+                m_def( def ), m_type( type ), m_value( value )
 {
-    for( qint32 p = 0; p < this->nent; ++p )
-    {
-        if( this->dir[p].kind == findkind )
-        {
-            WFiffTag::read_tag( p_pStream, p_pTag, this->dir[p].pos );
-            return true;
-        }
-    }
-    if( p_pTag )
-        p_pTag.clear();
+    m_def.sample = 0;
+    m_def.offset = 0;
+    m_def.duration = 0;
+}
 
-    return false;
+WFTEvent::~WFTEvent()
+{
+}
+
+wftb::bufsize_t WFTEvent::getSize() const
+{
+    return ( wftb::bufsize_t )sizeof(eventdef_t) + m_def.bufsize;
+}
+
+wftb::bufsize_t WFTEvent::getDataSize() const
+{
+    return m_def.bufsize;
+}
+
+const wftb::EventDefT& WFTEvent::getDef() const
+{
+    return m_def;
+}
+
+const std::string WFTEvent::getType() const
+{
+    return m_type;
+}
+
+const std::string WFTEvent::getValue() const
+{
+    return m_value;
 }

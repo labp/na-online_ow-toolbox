@@ -21,22 +21,26 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WFiffDirTree.h"
+#ifndef WFTBEVENT_H_
+#define WFTBEVENT_H_
 
-using namespace FIFFLIB;
+#include <message.h>
 
-bool WFiffDirTree::find_tag( FiffStream* p_pStream, fiff_int_t findkind, FiffTag::SPtr& p_pTag ) const
+namespace wftb
 {
-    for( qint32 p = 0; p < this->nent; ++p )
-    {
-        if( this->dir[p].kind == findkind )
-        {
-            WFiffTag::read_tag( p_pStream, p_pTag, this->dir[p].pos );
-            return true;
-        }
-    }
-    if( p_pTag )
-        p_pTag.clear();
+    typedef eventdef_t EventDefT;
+    typedef event_t EventT;
 
-    return false;
-}
+    typedef uint32_t ievent_t;
+    typedef uint32_t nevents_t;
+
+    namespace Event
+    {
+        typedef int32_t sample_t;
+        typedef int32_t offset_t;
+        typedef int32_t duration_t;
+        typedef uint32_t type_type_t;
+        typedef uint32_t value_type_t;
+    } /* namespace Event */
+} /* namespace wftb */
+#endif  // WFTBEVENT_H_

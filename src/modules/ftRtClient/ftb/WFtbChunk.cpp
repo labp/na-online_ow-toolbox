@@ -21,22 +21,35 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WFiffDirTree.h"
+#include "WFtbChunk.h"
 
-using namespace FIFFLIB;
-
-bool WFiffDirTree::find_tag( FiffStream* p_pStream, fiff_int_t findkind, FiffTag::SPtr& p_pTag ) const
+std::string wftb::ChunkType::name( chunk_type_t type )
 {
-    for( qint32 p = 0; p < this->nent; ++p )
+    switch( type )
     {
-        if( this->dir[p].kind == findkind )
-        {
-            WFiffTag::read_tag( p_pStream, p_pTag, this->dir[p].pos );
-            return true;
-        }
+        case UNSPECIFIED:
+            return "FT_CHUNK_UNSPECIFIED";
+        case CHANNEL_NAMES:
+            return "FT_CHUNK_CHANNEL_NAMES";
+        case CHANNEL_FLAGS:
+            return "FT_CHUNK_CHANNEL_FLAGS";
+        case RESOLUTIONS:
+            return "FT_CHUNK_RESOLUTIONS";
+        case ASCII_KEYVAL:
+            return "FT_CHUNK_ASCII_KEYVAL";
+        case NIFTI1:
+            return "FT_CHUNK_NIFTI1";
+        case SIEMENS_AP:
+            return "FT_CHUNK_SIEMENS_AP";
+        case CTF_RES4:
+            return "FT_CHUNK_CTF_RES4";
+        case NEUROMAG_HEADER:
+            return "FT_CHUNK_NEUROMAG_HEADER";
+        case NEUROMAG_ISOTRAK:
+            return "FT_CHUNK_NEUROMAG_ISOTRAK";
+        case NEUROMAG_HPIRESULT:
+            return "FT_CHUNK_NEUROMAG_HPIRESULT";
+        default:
+            return "Unknown!";
     }
-    if( p_pTag )
-        p_pTag.clear();
-
-    return false;
 }

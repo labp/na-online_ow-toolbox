@@ -21,22 +21,4 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WFiffDirTree.h"
-
-using namespace FIFFLIB;
-
-bool WFiffDirTree::find_tag( FiffStream* p_pStream, fiff_int_t findkind, FiffTag::SPtr& p_pTag ) const
-{
-    for( qint32 p = 0; p < this->nent; ++p )
-    {
-        if( this->dir[p].kind == findkind )
-        {
-            WFiffTag::read_tag( p_pStream, p_pTag, this->dir[p].pos );
-            return true;
-        }
-    }
-    if( p_pTag )
-        p_pTag.clear();
-
-    return false;
-}
+#include "WFTRequest.h"

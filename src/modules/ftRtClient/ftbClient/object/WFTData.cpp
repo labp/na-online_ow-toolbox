@@ -21,22 +21,42 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WFiffDirTree.h"
+#include "WFTData.h"
 
-using namespace FIFFLIB;
-
-bool WFiffDirTree::find_tag( FiffStream* p_pStream, fiff_int_t findkind, FiffTag::SPtr& p_pTag ) const
+WFTData::WFTData()
 {
-    for( qint32 p = 0; p < this->nent; ++p )
-    {
-        if( this->dir[p].kind == findkind )
-        {
-            WFiffTag::read_tag( p_pStream, p_pTag, this->dir[p].pos );
-            return true;
-        }
-    }
-    if( p_pTag )
-        p_pTag.clear();
+    m_def.nchans = 0;
+    m_def.nsamples = 0;
+    m_def.data_type = wftb::DataType::UNKNOWN;
+}
 
-    return false;
+WFTData::~WFTData()
+{
+}
+
+bool WFTData::deserialize( const WFTResponse& response )
+{
+    m_buf.clear();
+
+    return response.checkGetData( m_def, &m_buf );
+}
+
+wftb::bufsize_t WFTData::getSize() const
+{
+    return m_def.bufsize + sizeof(wftb::DataDefT);
+}
+
+wftb::bufsize_t WFTData::getDataSize() const
+{
+    return m_def.bufsize;
+}
+
+const wftb::DataDefT& WFTData::getDataDef() const
+{
+    return m_def;
+}
+
+void* WFTData::getData()
+{
+    return m_buf.data();
 }

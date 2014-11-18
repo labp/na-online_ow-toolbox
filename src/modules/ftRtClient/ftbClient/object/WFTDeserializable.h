@@ -21,22 +21,29 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WFiffDirTree.h"
+#ifndef WFTDESERIALIZABLE_H_
+#define WFTDESERIALIZABLE_H_
 
-using namespace FIFFLIB;
-
-bool WFiffDirTree::find_tag( FiffStream* p_pStream, fiff_int_t findkind, FiffTag::SPtr& p_pTag ) const
+/**
+ * An interface for deserialization.
+ *
+ * \author pieloth
+ */
+template< typename T >
+class WFTDeserializable
 {
-    for( qint32 p = 0; p < this->nent; ++p )
+public:
+    virtual ~WFTDeserializable()
     {
-        if( this->dir[p].kind == findkind )
-        {
-            WFiffTag::read_tag( p_pStream, p_pTag, this->dir[p].pos );
-            return true;
-        }
     }
-    if( p_pTag )
-        p_pTag.clear();
 
-    return false;
-}
+    /**
+     * Parses/deserializes the argument and applies the data.
+     *
+     * \param Data to deserialize.
+     * \return True if any data was deserialized.
+     */
+    virtual bool deserialize( const T& ) = 0;
+};
+
+#endif  // WFTDESERIALIZABLE_H_

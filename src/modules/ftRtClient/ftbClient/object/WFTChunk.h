@@ -21,22 +21,50 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WFiffDirTree.h"
+#ifndef WFTCHUNK_H_
+#define WFTCHUNK_H_
 
-using namespace FIFFLIB;
+#include <string>
 
-bool WFiffDirTree::find_tag( FiffStream* p_pStream, fiff_int_t findkind, FiffTag::SPtr& p_pTag ) const
+#include "modules/ftRtClient/ftb/WFtbChunk.h"
+#include "WFTObject.h"
+
+/**
+ * TODO(pieloth): documentation
+ *
+ * \author pieloth
+ */
+class WFTChunk : public WFTObject
 {
-    for( qint32 p = 0; p < this->nent; ++p )
-    {
-        if( this->dir[p].kind == findkind )
-        {
-            WFiffTag::read_tag( p_pStream, p_pTag, this->dir[p].pos );
-            return true;
-        }
-    }
-    if( p_pTag )
-        p_pTag.clear();
+public:
+    /**
+     * A shared pointer on a WFTChunk.
+     */
+    typedef boost::shared_ptr< WFTChunk > SPtr;
 
-    return false;
-}
+    /**
+     * A shared pointer on a constant WFTChunk.
+     */
+    typedef boost::shared_ptr< const WFTChunk > ConstSPtr;
+
+    static const std::string CLASS;
+
+    WFTChunk( const wftb::ChunkDefT& chunkDef, const void* data );
+
+    virtual ~WFTChunk();
+
+    wftb::chunk_type_t getChunkType() const;
+
+    const void* getData() const;
+
+    virtual wftb::chunk_size_t getSize() const;
+
+    virtual wftb::chunk_size_t getDataSize() const;
+
+private:
+    const wftb::chunk_type_t m_chunk_type;
+    wftb::chunk_size_t m_dataSize;
+    void* m_data;
+};
+
+#endif  // WFTCHUNK_H_
