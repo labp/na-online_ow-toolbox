@@ -74,7 +74,7 @@ class Installer(AInstaller):
         Utils.print_step_begin("Initializing")
         repo_dir = os.path.join(self.DESTDIR, self.REPO_FOLDER)
         os.chdir(repo_dir)
-        version = "pcl-1.7.2"  # 2014-09-10
+        version = "pcl-1.7.1"
         call("git checkout " + version, shell=True)
         Utils.print_step_end("Initializing")
 
