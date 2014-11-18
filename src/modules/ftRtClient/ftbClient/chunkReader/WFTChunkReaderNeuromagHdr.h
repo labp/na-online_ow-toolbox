@@ -58,14 +58,6 @@ public:
      */
     typedef boost::shared_ptr< const WFTChunkReaderNeuromagHdr > ConstSPtr;
 
-    /**
-     * A map with a modality type as key and a row vector as mapped type.
-     */
-    typedef std::map< WLEModality::Enum, WLEMDRaw::ChanPicksT > ModalityPicksT;
-
-    /**
-     * The class name.
-     */
     static const std::string CLASS;
 
     WFTChunkReaderNeuromagHdr();
@@ -78,13 +70,38 @@ public:
 
     virtual bool apply( WLEMMeasurement::SPtr emm, WLEMDRaw::SPtr raw );
 
+    void setApplyScaling( bool apply );
+
+private:
     /**
-     * Gets the channel names for the @modality if they exist.
-     *
-     * \param modality The modality type.
-     * \return Returns a shared pointer on a constant string list.
+     * A map with a modality type as key and a row vector as mapped type.
      */
-    WLArrayList< std::string >::SPtr getChannelNames( WLEModality::Enum modality ) const;
+    typedef std::map< WLEModality::Enum, WLEMDRaw::ChanPicksT > ModalityPicksT;
+
+    /**
+     * A map with a modality type as key and a string list as mapped type.
+     */
+    typedef std::map< WLEModality::Enum, WLArrayList< std::string >::SPtr > ModalityChNamesT;
+
+    FIFFLIB::FiffInfo::SPtr m_measInfo; /**< The fiff measurement information.*/
+
+    /**
+     * A row vector, which contains the channel indices of the event/ stimulus channels.
+     */
+    WLEMDRaw::ChanPicksT m_stimulusPicks; /**< Contains channel indices for event/stimuli channels. */
+    ModalityPicksT m_modalityPicks; /**< Contains channel indices for each modality. */
+    ModalityChNamesT m_modalityChNames; /**< Contains channel names for each modality. */
+
+    WLArrayList< WPosition >::SPtr m_chPosEEG; /**< The channel positions for EEG. */
+    WLArrayList< WPosition >::SPtr m_chPosMEG; /**< The channel position for MEG. */
+
+    WLArrayList< WVector3f >::SPtr m_chExMEG; /**< Coil coordinate system x-axis unit vector. */
+    WLArrayList< WVector3f >::SPtr m_chEyMEG; /**< Coil coordinate system y-axis unit vector. */
+    WLArrayList< WVector3f >::SPtr m_chEzMEG; /**< Coil coordinate system z-axis unit vector. */
+
+    std::vector< float > m_scaleFactors; /**< Vector for scaling factors. */
+
+    bool m_applyScaling;
 
     /**
      * Extracts the event/ stimulus channels from a data matrix. @ePicks contains the needed channel indices.
@@ -97,36 +114,15 @@ public:
     boost::shared_ptr< WLEMMeasurement::EDataT > readEventChannels( const Eigen::MatrixXf& rawData,
                     WLEMDRaw::ChanPicksT ePicks ) const;
 
-    void setApplyScaling( bool apply );
-
-private:
     /**
-     * The measurement information.
+     * Extracts and creates modality data from raw data.
+     *
+     * \param emm EMM to add the modalities.
+     * \param raw Raw data.
+     *
+     * \return True if any modality was extracted.
      */
-    FIFFLIB::FiffInfo::SPtr m_measInfo;
-
-    /**
-     * A row vector, which contains the channel indices of the event/ stimulus channels.
-     */
-    WLEMDRaw::ChanPicksT m_stimulusPicks;
-
-    ModalityPicksT m_modalityPicks; /**< A map, which contains the channel indices for each modality type. */
-
-    WLArrayList< WPosition >::SPtr m_chPosEEG; /**< The channel positions for EEG. */
-
-    WLArrayList< WPosition >::SPtr m_chPosMEG; /**< The channel position for MEG. */
-
-    WLArrayList< WVector3f >::SPtr m_chExMEG; /**< Coil coordinate system x-axis unit vector. */
-    WLArrayList< WVector3f >::SPtr m_chEyMEG; /**< Coil coordinate system y-axis unit vector. */
-    WLArrayList< WVector3f >::SPtr m_chEzMEG; /**< Coil coordinate system z-axis unit vector. */
-
-    std::vector< float > m_scaleFactors; /**< Vector for scaling factors. */
-
-    bool m_applyScaling;
-
     bool extractEmdsByPicks( WLEMMeasurement::SPtr emm, WLEMDRaw::ConstSPtr raw );
-
-    bool extractEmdsByPicks( WLEMMeasurement::SPtr emm, WLEMData::SPtr emd, WLEMDRaw::ConstSPtr raw );
 };
 
 #endif  // WFTCHUNKREADERNEUROMAGHDR_H_
