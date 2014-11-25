@@ -21,7 +21,6 @@
 #
 #---------------------------------------------------------------------------
 
-
 # --------------------------------------------------------------------------------------------------------------------------------
 # Some common setup
 # --------------------------------------------------------------------------------------------------------------------------------
@@ -55,15 +54,12 @@ LIST( APPEND ADDITIONAL_LIBS ${FTB_BUFFER_LIBRARY} ${FTB_CLIENT_LIBRARY} )
 FIND_PACKAGE( MNE REQUIRED )
 INCLUDE_DIRECTORIES( ${MNE_INCLUDE_DIR} )
 
-
-# --------------------------------------------------------------------------------------------------------------------------------
-# Add static Qt5 for MNE Library
-# --------------------------------------------------------------------------------------------------------------------------------
-# NOTE: Order of Qt5 static libs is important. Wrong order can produce undefined references and symbols!
-
-FIND_PACKAGE( Qt5Static REQUIRED )
+FIND_PACKAGE( Qt5 REQUIRED )
 INCLUDE_DIRECTORIES( ${QT5_INCLUDE_DIR} )
 INCLUDE_DIRECTORIES( ${QT5_QTCORE_INCLUDE_DIR} )
+LIST( APPEND ADDITIONAL_LIBS ${QT5_QTCORE_LIBRARY} )
+INCLUDE_DIRECTORIES( ${QT5_QTNETWORK_INCLUDE_DIR} )
+LIST( APPEND ADDITIONAL_LIBS ${QT5_QTNETWORK_LIBRARY} )
 
 
 # --------------------------------------------------------------------------------------------------------------------------------
