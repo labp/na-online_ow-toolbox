@@ -41,6 +41,7 @@
  * Reads a FIFF file and retrieves additional data, e.g. BEMs, surfaces or leadfields.
  *
  * \author pieloth
+ * \ingroup io
  */
 class WMFiffReader: public WDataModule
 {

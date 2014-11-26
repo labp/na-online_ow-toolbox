@@ -40,6 +40,12 @@
 #include "core/data/WLEMMCommand.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
+/**
+ * TODO
+ *
+ * \author pieloth
+ * \ingroup io
+ */
 class WMMatReader: public WDataModule
 {
 public:

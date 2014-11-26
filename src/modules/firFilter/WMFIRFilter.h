@@ -38,7 +38,9 @@
 
 /**
  * Module to parameterize and process a FIR filter.
- * \ingroup modules
+ *
+ * \authors kaehler, pieloth
+ * \ingroup preproc
  */
 class WMFIRFilter: public WLModuleDrawable
 {

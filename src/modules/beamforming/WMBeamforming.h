@@ -44,8 +44,8 @@
 /**
  * This module implements several onscreen status displays.
  *
- * \ingroup modules
  * \author ehrlich
+ * \ingroup analysis
  */
 class WMBeamforming: public WLModuleDrawable
 {

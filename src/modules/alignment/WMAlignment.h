@@ -40,6 +40,12 @@
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
+/**
+ * TODO
+ *
+ * \author pieloth
+ * \ingroup forward
+ */
 class WMAlignment: public WModule, public WLEMMCommandProcessor
 {
 public:

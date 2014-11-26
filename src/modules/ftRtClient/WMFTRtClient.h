@@ -48,6 +48,7 @@
  * the processing chain of the OpenWalnutToolbox.
  *
  * \author maschke
+ * \ingroup io
  */
 class WMFTRtClient: public WLModuleDrawable
 {

@@ -37,6 +37,12 @@
 #include "core/module/WLModuleOutputDataCollectionable.h"
 #include "core/module/WLEMMCommandProcessor.h"
 
+/**
+ * TODO
+ *
+ * \author pieloth
+ * \ingroup forward
+ */
 class WMLeadfieldInterpolation: public WModule, public WLEMMCommandProcessor
 {
 public:

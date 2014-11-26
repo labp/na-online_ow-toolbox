@@ -39,6 +39,7 @@
  * Simulates a streaming of EMM data. Splits an EMM object into blocks.
  *
  * \author pieloth
+ * \ingroup io
  */
 class WMEMMStreaming: public WLModuleDrawable
 {

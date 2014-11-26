@@ -45,8 +45,8 @@
 /**
  * Estimation of the head position using the continuous signals of HPI coils.
  *
- * \ingroup modules
  * \author pieloth
+ * \ingroup forward
  */
 class WMHeadPositionEstimation: public WModule, public WLEMMCommandProcessor
 {

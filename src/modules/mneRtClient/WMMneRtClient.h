@@ -41,7 +41,8 @@
 /**
  * Connection to a MNE Real-time Server.
  *
- * \ingroup modules
+ * \author pieloth
+ * \ingroup io
  */
 class WMMneRtClient: public WLModuleDrawable
 {

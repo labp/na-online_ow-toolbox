@@ -37,7 +37,9 @@
 
 /**
  * Module for epoch separation.
- * \ingroup modules
+ *
+ * \author pieloth
+ * \ingroup preproc
  */
 class WMEpochSeparation: public WLModuleDrawable
 {

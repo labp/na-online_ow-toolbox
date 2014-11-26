@@ -42,8 +42,10 @@
 #include "WSourceReconstruction.h"
 
 /**
- * This module implements several onscreen status displays
- * \ingroup modules
+ * TODO
+ *
+ * \author pieloth
+ * \ingroup analysis
  */
 class WMSourceReconstruction: public WLModuleDrawable
 {

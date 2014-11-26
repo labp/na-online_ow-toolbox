@@ -34,6 +34,12 @@
 
 #include "writer/WWriterFiff.h"
 
+/**
+ * TODO
+ *
+ * \author pieloth
+ * \ingroup io
+ */
 class WMFiffWriter: public WModule, public WLEMMCommandProcessor
 {
 public:

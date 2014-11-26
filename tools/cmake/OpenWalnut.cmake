@@ -133,7 +133,9 @@ SET( OW_SHARE_DIR_RELATIVE "share/openwalnut" )
 SET( OW_SHARE_DIR ${PROJECT_BINARY_DIR}/${OW_SHARE_DIR_RELATIVE} )
 
 # where to find the doxygen config
-SET( OW_DOXYGEN_DIR ${PROJECT_SOURCE_DIR}/../doc/developer )
+# SET( OW_DOXYGEN_DIR ${PROJECT_SOURCE_DIR}/../doc/developer )
+SET( NAO_CORE_DOXYGEN_DIR ${PROJECT_SOURCE_DIR}/../doc/core )
+SET( NAO_MODULES_DOXYGEN_DIR ${PROJECT_SOURCE_DIR}/../doc/modules )
 
 # set our paths for install targets
 SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OW_RUNTIME_DIR} )
@@ -369,10 +371,11 @@ ENDIF()
 #
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
-IF( EXISTS ${OW_DOXYGEN_DIR}/doxygenConfig )
+IF( EXISTS ${NAO_CORE_DOXYGEN_DIR}/doxygenConfig AND EXISTS ${NAO_MODULES_DOXYGEN_DIR}/doxygenConfig )
     #let doxygen do the work
     ADD_CUSTOM_TARGET( doc
-                       COMMAND doxygen ${OW_DOXYGEN_DIR}/doxygenConfig
+                       COMMAND doxygen ${NAO_CORE_DOXYGEN_DIR}/doxygenConfig
+                       COMMAND doxygen ${NAO_MODULES_DOXYGEN_DIR}/doxygenConfig
                        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/..
                        COMMENT "Build doxygen documentation"
                        VERBATIM

@@ -41,7 +41,9 @@
 
 /**
  * Module for epoch averaging.
- * \ingroup modules
+ *
+ * \author pieloth
+ * \ingroup preproc
  */
 class WMEpochAveraging: public WLModuleDrawable
 {

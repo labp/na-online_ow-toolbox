@@ -43,6 +43,7 @@
  * Appends an EMM block by additional data, e.g. source space.
  *
  * \author pieloth
+ * \ingroup io
  */
 class WMFiffDataAppender: public WModule
 {

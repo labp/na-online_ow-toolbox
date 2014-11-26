@@ -35,6 +35,12 @@
 #include "core/io/WLWriterMAT.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 
+/**
+ * TODO
+ *
+ * \author pieloth
+ * \ingroup io
+ */
 class WMMatWriter: public WModule
 {
 public:

@@ -34,6 +34,12 @@
 #include "core/data/WLEMMeasurement.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
+/**
+ * TODO
+ *
+ * \author pieloth
+ * \ingroup io
+ */
 class WMEMMGenerator: public WModule
 {
 public:

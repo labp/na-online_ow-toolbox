@@ -46,6 +46,9 @@
 
 /**
  * Module for epoch rejection.
+ *
+ * \author maschke
+ * \ingroup preproc
  */
 class WMEpochRejection: public WLModuleDrawable
 {

@@ -48,7 +48,9 @@
 /**
  * This module implements several onscreen status displays. At the moment the main purpose
  * is the display of information from picking, i.e. what is picked.
- * \ingroup modules
+ *
+ * \authors kaehler, pieloth
+ * \ingroup io
  */
 class WMEmMeasurement: public WLModuleDrawable
 {
