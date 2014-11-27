@@ -26,6 +26,13 @@
 
 #include <string>
 
+/**
+ * \brief Constants for a module.
+ * Constants for a module, e.g. for a consistent naming.
+ *
+ * \author pieloth
+ * \ingroup module
+ */
 namespace WLConstantsModule
 {
     // NOTE(pieloth): "NA-Online: " causes an error on loading a saved WDataModule

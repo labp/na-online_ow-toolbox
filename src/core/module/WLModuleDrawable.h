@@ -47,7 +47,10 @@
 #include "core/util/bounds/WLABoundCalculator.h"
 
 /**
- * Virtual Implementation of WModule to let our modules use a VIEW including just 4 lines! of code
+ * Virtual implementation of WModule to let NA-Online modules use a VIEW including just a few lines of code.
+ *
+ * \author pieloth
+ * \ingroup module
  */
 class WLModuleDrawable: public WModule, public WLEMMCommandProcessor
 {

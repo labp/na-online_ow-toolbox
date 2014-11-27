@@ -34,9 +34,12 @@
 #include <core/kernel/WModuleInputConnector.h>
 
 /**
- * Class offering an instantiate-able data connection between modules.
+ * Class offering an instantiateable data connection between modules.
  * This abstract class can implement various collections e.g. to provide an input buffer for a module.
  * All implementations must be used together with WLModuleOutputDataCollectionable.
+ *
+ * \author pieloth
+ * \ingroup module
  */
 template< typename T >
 class WLModuleInputDataCollection: public WModuleInputConnector

@@ -31,6 +31,12 @@
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMCommand.h"
 
+/**
+ * Template for a module to process a received command.
+ *
+ * \author pieloth
+ * \ingroup module
+ */
 class WLEMMCommandProcessor
 {
 public:
@@ -38,6 +44,14 @@ public:
 
     virtual ~WLEMMCommandProcessor();
 
+    /**
+     * \brief Processes a command.
+     * Processes the command by calling the specific method for WLEMMCommand::Command::Enum,
+     * e.g. WLEMMCommandProcessor::processCompute.
+     *
+     * \param cmdIn Command to process.
+     * \return True if processing was successful.
+     */
     bool process( WLEMMCommand::SPtr cmdIn );
 
 protected:

@@ -37,9 +37,12 @@
 #include "WLModuleInputDataCollection.h"
 
 /**
- * Class offering an instantiate-able data connection between modules.
- * This class checks whether the input connector is an instance of WModuleInputDataCollection, if true addData() is called.
+ * Class offering an instantiateable data connection between modules.
+ * This class checks whether the input connector is an instance of WModuleInputDataCollection, if true addData() is called.\n
  * ATTENTION: Do not use the static methods create() and createAndAdd()!
+ *
+ * \author pieloth
+ * \ingroup module
  */
 template< typename T >
 class WLModuleOutputDataCollectionable: public WModuleOutputData< T >

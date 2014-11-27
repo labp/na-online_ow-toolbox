@@ -39,6 +39,9 @@
 /**
  * A ring buffer implementation of WModuleInputDataCollection. It can be used as a producer-consumer-FIFO.
  * Thread safe for 1 producer thread (addData()) and 1 consumer thread (getData()).
+ *
+ * \author pieloth
+ * \ingroup module
  */
 template< typename T >
 class WLModuleInputDataRingBuffer: public WLModuleInputDataCollection< T >

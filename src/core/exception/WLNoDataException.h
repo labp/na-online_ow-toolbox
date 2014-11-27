@@ -32,6 +32,7 @@
  * Indicates an exception caused by no data or empty containers.
  *
  * \author pieloth
+ * \ingroup exception
  */
 class WLNoDataException: public WException
 {
