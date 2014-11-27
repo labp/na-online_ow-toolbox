@@ -25,7 +25,11 @@
 #define WLDEFINES_H_
 
 /**
- * Define to switch warning about unused variable.
+ * \def WL_UNUSED( var )
+ * Define to switch off warning about unused variable.
+ *
+ * \author pieloth
+ * \ingroup util
  */
 #define WL_UNUSED( var ) ( void )var;
 

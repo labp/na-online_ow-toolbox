@@ -33,6 +33,7 @@
  * Base class for profiler measurements.
  *
  * \author pieloth
+ * \ingroup util
  */
 class WLProfiler
 {

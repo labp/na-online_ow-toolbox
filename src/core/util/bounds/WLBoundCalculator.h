@@ -33,6 +33,7 @@
  * WLBoundCalculator implements the WLABoundCalculator interface to realize a bound calculation algorithm.
  *
  * \author maschke
+ * \ingroup util
  */
 class WLBoundCalculator: public WLABoundCalculator
 {

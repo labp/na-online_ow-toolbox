@@ -37,6 +37,7 @@
  * The calculation uses the absolute values of the matrix to determine the minimum.
  *
  * \author maschke
+ * \ingroup util
  */
 class WLBoundCalculatorHistogram: public WLABoundCalculator
 {

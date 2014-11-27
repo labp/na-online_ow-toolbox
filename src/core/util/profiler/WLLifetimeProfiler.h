@@ -37,6 +37,7 @@
  * A profiler for EMM objects. It counts the clones in the copy constructor and age in ms from the first creation.
  *
  * \author pieloth
+ * \ingroup util
  */
 class WLLifetimeProfiler: public WLProfiler
 {

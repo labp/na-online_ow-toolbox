@@ -39,6 +39,7 @@
  * parameterized strategy pattern.
  *
  * \author maschke
+ * \ingroup util
  */
 class WLABoundCalculator: public boost::enable_shared_from_this< WLABoundCalculator >
 {

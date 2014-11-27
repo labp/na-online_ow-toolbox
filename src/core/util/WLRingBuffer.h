@@ -37,8 +37,11 @@
 #include <core/common/WLogger.h>
 
 /**
- * A ring buffer or circular implementation. Template parameter is wrapped in a boost::shared_ptr< T >. It can be used as a producer-consumer-FIFO.
- * Thread safe for 1 producer thread (addData()) and 1 consumer thread (getData()).
+ * A ring buffer or circular implementation. Template parameter is wrapped in a boost::shared_ptr< T >.
+ * It can be used as a producer-consumer-FIFO. Thread safe for 1 producer thread (addData()) and 1 consumer thread (getData()).
+ *
+ * \author pieloth
+ * \ingroup util
  */
 template< typename T >
 class WLRingBuffer
