@@ -29,9 +29,10 @@
 #include "WLWindowFunction.h"
 
 /**
- * Basic preprocessing routines.
+ * Basic pre-processing routines.
  *
  * \author pieloth
+ * \ingroup preproc
  */
 namespace WLPreprocessing
 {
