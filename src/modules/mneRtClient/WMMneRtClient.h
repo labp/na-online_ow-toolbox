@@ -39,7 +39,7 @@
 #include "WRtClient.h"
 
 /**
- * Connection to a MNE Real-time Server.
+ * Streaming client for a MNE Real-time Server.
  *
  * \author pieloth
  * \ingroup io

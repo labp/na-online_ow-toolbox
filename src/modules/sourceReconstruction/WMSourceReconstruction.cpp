@@ -91,7 +91,7 @@ const std::string WMSourceReconstruction::getName() const
 
 const std::string WMSourceReconstruction::getDescription() const
 {
-    return "Estimates a source distribution according to a linear source reconstruction algorithm.";
+    return "Reconstruction of distributed sources using (weighted) minimum norm.";
 }
 
 void WMSourceReconstruction::connectors()

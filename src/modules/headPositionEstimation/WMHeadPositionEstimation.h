@@ -43,7 +43,7 @@
 #include "WHPISignalExtraction.h"
 
 /**
- * Estimation of the head position using the continuous signals of HPI coils.
+ * Estimates the head position using the continuous signals of HPI coils, MEG only (in progress).
  *
  * \author pieloth
  * \ingroup forward

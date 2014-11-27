@@ -35,7 +35,7 @@
 #include "writer/WWriterFiff.h"
 
 /**
- * TODO
+ * Writes an EEG/MEG data stream into a FIFF file (in progress).
  *
  * \author pieloth
  * \ingroup io

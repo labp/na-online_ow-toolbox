@@ -35,7 +35,7 @@
 #include "WPCA.h"
 
 /**
- * TODO
+ * Principal component analysis (in progress).
  *
  * \author jones
  * \ingroup analysis

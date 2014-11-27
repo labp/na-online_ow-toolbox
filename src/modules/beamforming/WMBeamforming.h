@@ -42,7 +42,7 @@
 #include "WBeamforming.h"
 
 /**
- * This module implements several onscreen status displays.
+ * Source imaging using beamforming (in progress).
  *
  * \author ehrlich
  * \ingroup analysis

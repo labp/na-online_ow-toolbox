@@ -36,7 +36,7 @@
 #include "WEpochSeparation.h"
 
 /**
- * Module for epoch separation.
+ * Extracts an epoch/trial for an specified event/stimuli.
  *
  * \author pieloth
  * \ingroup preproc

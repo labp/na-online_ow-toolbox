@@ -38,7 +38,7 @@
 #include "core/module/WLEMMCommandProcessor.h"
 
 /**
- * TODO
+ * Interpolates a "low resolution" leadfield from a "high resolution" leadfield using nearest neighbor, EEG only.
  *
  * \author pieloth
  * \ingroup forward

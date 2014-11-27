@@ -37,7 +37,7 @@
 #include "WFIRFilter.h"
 
 /**
- * Module to parameterize and process a FIR filter.
+ * FIR Filter for lowpass, highpass, bandpass and bandstop filtering of EEG/MEG data.
  *
  * \authors kaehler, pieloth
  * \ingroup preproc

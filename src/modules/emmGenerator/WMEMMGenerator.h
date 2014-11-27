@@ -35,7 +35,7 @@
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
 /**
- * TODO
+ * Generates a EEG measurement with random data.
  *
  * \author pieloth
  * \ingroup io

@@ -36,7 +36,7 @@
 #include "core/module/WLModuleInputDataRingBuffer.h"
 
 /**
- * TODO
+ * Writes EMD object into a MATLAB MAT-file.
  *
  * \author pieloth
  * \ingroup io

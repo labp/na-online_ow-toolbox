@@ -2,7 +2,6 @@
 
 ADD_MODULE( beamforming )
 ADD_MODULE( codeSnippets )
+ADD_MODULE( fiffWriter )
 ADD_MODULE( headPositionEstimation )
-ADD_MODULE( matReader )
-ADD_MODULE( matWriter )
 ADD_MODULE( pca )

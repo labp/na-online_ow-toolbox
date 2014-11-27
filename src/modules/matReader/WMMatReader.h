@@ -41,7 +41,8 @@
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
 /**
- * TODO
+ * Reads a MATLAB MAT-file as EEG raw data into EMM structure.
+ * Supports MAT file format version 5.
  *
  * \author pieloth
  * \ingroup io

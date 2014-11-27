@@ -72,7 +72,7 @@ const std::string WMMatReader::getName() const
 
 const std::string WMMatReader::getDescription() const
 {
-    return "Reads a MATLAB MAT-file as EEG raw data into EMM structure.";
+    return "Reads a MATLAB MAT-file as EEG raw data into EMM structure. Supports MAT file format version 5.";
 }
 
 WModule::SPtr WMMatReader::factory() const

@@ -40,7 +40,9 @@
 #include "WEpochAveraging.h"
 
 /**
- * Module for epoch averaging.
+ * Computes an average of all incoming EMDs.
+ * Incoming EMDs must be stimuli-locked, i.e. so called epochs/trials.
+ * This is not checked and reported by this module!
  *
  * \author pieloth
  * \ingroup preproc

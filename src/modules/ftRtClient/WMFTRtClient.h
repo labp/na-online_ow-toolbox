@@ -43,9 +43,12 @@
 
 
 /**
- * The FieldTrip Real-time Client implements a streaming client from a FieldTrip Buffer server used by several EEG/ MEG acquisition systems.
- * The client receives data from the buffer server and computes them into the internal data strctures. After that the data will be send into
- * the processing chain of the OpenWalnutToolbox.
+ * \brief Streaming client for FieldTrip Buffer.
+ *
+ * The FieldTrip Real-time Client implements a streaming client for a FieldTrip Buffer server
+ * used by several EEG/MEG acquisition systems.
+ * The client receives data from the buffer server and computes them into the internal data structures.
+ * After that the data is sent into the processing chain of the NA-Online Toolbox.
  *
  * \author maschke
  * \ingroup io
