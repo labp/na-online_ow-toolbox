@@ -13,9 +13,11 @@ syntax: regexp
 ^doc/core/html
 ^doc/core/man
 ^doc/core/doxyerror.log
+^doc/core/core.tag
 ^doc/modules/html
 ^doc/modules/man
 ^doc/modules/doxyerror.log
+^doc/modules/modules.tag
 ^build
 ^openwalnut.log
 
