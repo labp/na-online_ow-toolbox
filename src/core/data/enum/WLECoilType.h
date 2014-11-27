@@ -34,6 +34,7 @@
  * Enumeration for coil types, compatible with FIFF enum(coil).
  *
  * \author pieloth
+ * \ingroup data
  */
 namespace WLECoilType
 {

@@ -28,6 +28,12 @@
 
 #include "WLEMData.h"
 
+/**
+ * Data of an eletrocardiogram.
+ *
+ * \author kaehler
+ * \ingroup data
+ */
 class WLEMDECG: public WLEMData
 {
 public:

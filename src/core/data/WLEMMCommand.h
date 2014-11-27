@@ -36,6 +36,9 @@
 
 /**
  * A container class to transfer data and commands between modules.
+ *
+ * \author pieloth
+ * \ingroup data
  */
 class WLEMMCommand: public WTransferable
 {

@@ -34,6 +34,7 @@
  * Enumeration for BEM surfaces, compatible with FIFF enum(bem_surf_id).
  *
  * \author pieloth
+ * \ingroup data
  */
 namespace WLEBemType
 {

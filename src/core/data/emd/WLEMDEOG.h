@@ -30,6 +30,9 @@
 
 /**
  * Electrooculography data and related information. Not yet used neither developed.
+ *
+ * \author kaehler
+ * \ingroup data
  */
 class WLEMDEOG: public WLEMData
 {

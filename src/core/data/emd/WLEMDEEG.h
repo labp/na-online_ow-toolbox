@@ -37,6 +37,12 @@
 
 #include "WLEMData.h"
 
+/**
+ * Data and meta information of an electroecephalogram.
+ *
+ * \author kaehler
+ * \ingroup data
+ */
 class WLEMDEEG: public WLEMData
 {
 public:

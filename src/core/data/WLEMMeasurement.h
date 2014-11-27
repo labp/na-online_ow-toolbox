@@ -47,6 +47,9 @@
 /**
  * Electro-magnetic measurement contains all data and information about a measurement,
  * e.g. EEG/MEG data, subject information, surfaces and more.
+ *
+ * \authors kaehler, pieloth
+ * \ingroup data
  */
 class WLEMMeasurement
 {

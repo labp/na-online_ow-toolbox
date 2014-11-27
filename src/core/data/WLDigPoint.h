@@ -38,6 +38,9 @@
 
 /**
  * Digitized point, i.e. EEG sensor, HPI coil and more.
+ *
+ * \author pieloth
+ * \ingroup data
  */
 class WLDigPoint
 {

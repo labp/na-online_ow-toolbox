@@ -30,6 +30,12 @@
 
 #include "core/data/emd/WLEMData.h"
 
+/**
+ * Reconstructed source activity.
+ *
+ * \author pieloth
+ * \ingroup data
+ */
 class WLEMDSource: public WLEMData
 {
 public:

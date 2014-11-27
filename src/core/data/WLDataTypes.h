@@ -44,6 +44,11 @@ typedef double ScalarT;
 // See: http://eigen.tuxfamily.org/dox/QuickRefPage.html
 // NOTE: Class specialization for SPtr/ConstSPtr binding is not possible, because: MatrixT.row(i) != RowVectorT, MatrixT.row(i) == Eigen::RowVector
 
+/**
+ * Helper definitions for a generic (float/double) vector.
+ *
+ * \ingroup data
+ */
 namespace WLVector
 {
     typedef Eigen::Matrix< ScalarT, Eigen::Dynamic, 1 > VectorT;
@@ -52,6 +57,11 @@ namespace WLVector
     typedef boost::shared_ptr< const VectorT > ConstSPtr;
 }
 
+/**
+ * Helper definitions for a generic (float/double) row-vector.
+ *
+ * \ingroup data
+ */
 namespace WLRowVector
 {
     typedef Eigen::Matrix< ScalarT, 1, Eigen::Dynamic > RowVectorT;
@@ -60,6 +70,11 @@ namespace WLRowVector
     typedef boost::shared_ptr< const RowVectorT > ConstSPtr;
 }
 
+/**
+ * Helper definitions for a generic (float/double) matrix.
+ *
+ * \ingroup data
+ */
 namespace WLMatrix
 {
     typedef Eigen::Matrix< ScalarT, Eigen::Dynamic, Eigen::Dynamic > MatrixT;
@@ -69,7 +84,9 @@ namespace WLMatrix
 }
 
 /**
- * 4x4 matrix e.g. transformation matrix.
+ * Helper definitions for a generic (float/double) fixed 4x4 matrix.
+ *
+ * \ingroup data
  */
 namespace WLMatrix4
 {
@@ -79,8 +96,11 @@ namespace WLMatrix4
     typedef boost::shared_ptr< const Matrix4T > ConstSPtr;
 }
 
+
 /**
- * Replacement for sparse matrix type. E.g. SparseMatrix< double >
+ * Helper definitions for a generic (float/double) sparse matrix.
+ *
+ * \ingroup data
  */
 namespace WLSpMatrix
 {

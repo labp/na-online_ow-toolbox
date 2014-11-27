@@ -38,6 +38,9 @@
 
 /**
  * Brain surface/model.
+ *
+ * \author pieloth
+ * \ingroup data
  */
 class WLEMMSurface
 {

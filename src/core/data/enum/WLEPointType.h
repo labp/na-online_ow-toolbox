@@ -34,6 +34,7 @@
  * Enumeration for point types, compatible with FIFF enum(point).
  *
  * \author pieloth
+ * \ingroup data
  */
 namespace WLEPointType
 {

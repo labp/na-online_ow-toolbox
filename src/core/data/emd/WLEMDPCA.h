@@ -31,6 +31,12 @@
 
 #include "WLEMData.h"
 
+/**
+ * Data of a principle component analysis.
+ *
+ * \author jones
+ * \ingroup data
+ */
 class WLEMDPCA: public WLEMData
 {
 public:

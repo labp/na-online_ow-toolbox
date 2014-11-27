@@ -41,6 +41,9 @@
 
 /**
  * MEG data and related measurement information.
+ *
+ * \author kaehler
+ * \ingroup data
  */
 class WLEMDMEG: public WLEMData
 {

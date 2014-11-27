@@ -34,6 +34,7 @@
  * Enumeration for units, compatible with FIFF enum(units).
  *
  * \author pieloth
+ * \ingroup data
  */
 namespace WLEUnit
 {

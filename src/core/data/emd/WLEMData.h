@@ -46,6 +46,7 @@
  * Class for general modality. Saves information which are present for all modalities.
  *
  * \authors kaehler, pieloth, maschke
+ * \ingroup data
  */
 class WLEMData: public boost::enable_shared_from_this< WLEMData >
 {

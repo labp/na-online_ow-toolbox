@@ -22,12 +22,6 @@
 //
 //---------------------------------------------------------------------------
 
-/**
- * Data class for reconstructed HPI amplitudes.
- *
- * \author pieloth
- */
-
 #ifndef WLEMDHPI_H_
 #define WLEMDHPI_H_
 
@@ -45,6 +39,12 @@
 #include "core/container/WLList.h"
 #include "WLEMData.h"
 
+/**
+ * Data class for reconstructed HPI amplitudes.
+ *
+ * \author pieloth
+ * \ingroup data
+ */
 class WLEMDHPI: public WLEMData
 {
 public:
