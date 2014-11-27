@@ -30,19 +30,24 @@
 #include <boost/shared_ptr.hpp>
 
 /**
- * Helper class for std::vector. Main purpose is to provide an easy-to-use Smart Pointer access.
- * ATTENTION: Due to a non-virtual destructor of std::vector and memory leak prevention, member variables are not allowed!
- *
+ * Helper class for std::vector. Main purpose is to provide an easy-to-use Smart Pointer access.\n
+ * ATTENTION: Due to a non-virtual destructor of std::vector and memory leak prevention, member variables are not allowed!\n
+ * \n
  * Correct:
+ * \code
  * WLArrayList::SPtr v1 = WLArrayList::instance();
  * WLArrayList::SPtr v2( new WLArrayList() );
  * WLArrayList v3();
+ * \endcode
  *
  * Wrong:
+ * \code
  * std::vector* v = new WLArrayList();
  * delete v; // Does not call destructor for WLArrayList!
+ * \endcode
  *
  * \author pieloth
+ * \ingroup container
  */
 template< typename T >
 class WLArrayList: public std::vector< T >
