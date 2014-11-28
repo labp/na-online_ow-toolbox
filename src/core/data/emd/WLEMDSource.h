@@ -49,7 +49,7 @@ public:
      */
     typedef boost::shared_ptr< const WLEMDSource > ConstSPtr;
 
-    static const std::string CLASS;
+    static const std::string CLASS; //!< Class name for logging purpose.
 
     WLEMDSource();
 
@@ -63,12 +63,22 @@ public:
 
     virtual WLEModality::Enum getModalityType() const;
 
+    /**
+     * Gets the modality type from which the source activity was estimated.
+     *
+     * \return Modality type.
+     */
     WLEModality::Enum getOriginModalityType() const;
 
+    /**
+     * Sets the modality type from which the source activity was estimated.
+     *
+     * \param modality Modality type.
+     */
     void setOriginModalityType( WLEModality::Enum modality );
 
 private:
-    WLEModality::Enum m_originModalityType;
+    WLEModality::Enum m_originModalityType; //!< Modality type from which the source activity was estimated.
 };
 
 #endif  // WLEMDSOURCE_H_

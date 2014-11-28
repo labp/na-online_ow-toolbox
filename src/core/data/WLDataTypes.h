@@ -26,13 +26,14 @@
 
 #include <boost/shared_ptr.hpp>
 
-// NOTE: Needs Eigen v3.1 or higher for sparse matrices, see README
+// NOTE: Needs Eigen v3.1 or higher for sparse matrices, see README.
 #include <Eigen/Core>
 #include <Eigen/SparseCore>
 
 #include "core/dataFormat/fiff/WLFiffLib.h"
 
 /**
+ * \typedef ScalarT
  * Replacement for a scalar type used for computations.
  */
 #ifdef LABP_FLOAT_COMPUTATION
@@ -41,8 +42,9 @@ typedef float ScalarT;
 typedef double ScalarT;
 #endif  // LABP_FLOAT_COMPUTATION
 
-// See: http://eigen.tuxfamily.org/dox/QuickRefPage.html
-// NOTE: Class specialization for SPtr/ConstSPtr binding is not possible, because: MatrixT.row(i) != RowVectorT, MatrixT.row(i) == Eigen::RowVector
+// NOTE: Class specialization of Eigen types for SPtr/ConstSPtr binding is not possible, because:
+//       MatrixT.row(i) != RowVectorT, MatrixT.row(i) == Eigen::RowVector
+//       So we group the typedefs in a namespace.
 
 /**
  * Helper definitions for a generic (float/double) vector.

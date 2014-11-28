@@ -43,27 +43,15 @@
 class WLEMMCommand: public WTransferable
 {
 public:
-    /**
-     * Abbreviation for a shared pointer.
-     */
-    typedef boost::shared_ptr< WLEMMCommand > SPtr;
+    typedef boost::shared_ptr< WLEMMCommand > SPtr; //!< Abbreviation for a shared pointer.
 
-    /**
-     * Abbreviation for const shared pointer.
-     */
-    typedef boost::shared_ptr< const WLEMMCommand > ConstSPtr;
+    typedef boost::shared_ptr< const WLEMMCommand > ConstSPtr; //!< Abbreviation for const shared pointer.
 
-    static const std::string CLASS;
+    typedef std::string MiscCommandT; //!< Definition for the Command.MISC identifier.
 
-    /**
-     * Definition for the Command.MISC identifier.
-     */
-    typedef std::string MiscCommandT;
+    typedef boost::any ParamT; //!< Definition for an optional Parameter.
 
-    /**
-     * Definition for an optional Parameter.
-     */
-    typedef boost::any ParamT;
+    static const std::string CLASS; //!< Class name for logging purpose.
 
     struct Command
     {
@@ -80,38 +68,46 @@ public:
         };
     };
 
+    /**
+     * Constructor.
+     *
+     * \param command Action of this command (default: MISC).
+     */
     explicit WLEMMCommand( Command::Enum command = Command::MISC );
 
+    /**
+     * Copy Constructor only uses m_command.
+     *
+     * \param o Command to copy.
+     */
     explicit WLEMMCommand( const WLEMMCommand& o );
 
+    /**
+     * Destructor.
+     */
     virtual ~WLEMMCommand();
 
+    /**
+     * Creates an instance hold by a shared pointer.
+     *
+     * \param command Action of this command (default: MISC).
+     * \return A new instance.
+     */
     static WLEMMCommand::SPtr instance( Command::Enum command = Command::MISC );
 
     // -----------------------
     // Methods from WPrototype
     // -----------------------
 
-    /**
-     * Gets the name of this prototype.
-     *
-     * \return the name.
-     */
     virtual const std::string getName() const;
 
-    /**
-     * Gets the description for this prototype.
-     *
-     * \return the description
-     */
     virtual const std::string getDescription() const;
 
     /**
      * Returns a prototype instantiated with the true type of the deriving class.
      *
-     * \return the prototype.
-     *
      * \note Method is needed by WModuleOutputData
+     * \return An instance.
      */
     static boost::shared_ptr< WPrototyped > getPrototype();
 
@@ -191,17 +187,14 @@ public:
     }
 
 private:
-    /**
-     * The prototype as singleton.
-     */
-    static WLEMMCommand::SPtr m_prototype;
+    static WLEMMCommand::SPtr m_prototype; //!< The prototype as singleton.
 
-    Command::Enum m_command;
-    MiscCommandT m_miscCommand;
+    Command::Enum m_command; //!< The command/action.
+    MiscCommandT m_miscCommand; //!< Optional user defined command for MISC.
 
-    ParamT m_param;
+    ParamT m_param; //!< Optional parameter.
 
-    WLEMMeasurement::SPtr m_emm;
+    WLEMMeasurement::SPtr m_emm; //!< Electromagnetic measurement.
 };
 
 template< typename T >
