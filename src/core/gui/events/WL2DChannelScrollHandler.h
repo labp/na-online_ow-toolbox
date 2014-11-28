@@ -36,6 +36,7 @@
  * Scrolls over the channels in the 2D view.
  *
  * \author pieloth
+ * \ingroup gui
  */
 class WL2DChannelScrollHandler: public WUIViewEventHandler
 {

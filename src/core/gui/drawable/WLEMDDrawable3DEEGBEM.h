@@ -36,9 +36,12 @@
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/ui/WUIViewWidget.h>
 
-
 #include "WLEMDDrawable3D.h"
 
+/**
+ * \author pieloth
+ * \ingroup gui
+ */
 class WLEMDDrawable3DEEGBEM: public WLEMDDrawable3D
 {
 public:

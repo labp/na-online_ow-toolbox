@@ -42,6 +42,13 @@
 
 #include "WLEMDDrawable.h"
 
+/**
+ * \brief Abstract class to visualize EMD in 3D.
+ * Abstract class to visualize EMD in 3D, e.g. mapping on MEG helmet or surface.
+ *
+ * \author pieloth
+ * \ingroup gui
+ */
 class WLEMDDrawable3D: public WLEMDDrawable
 {
 public:

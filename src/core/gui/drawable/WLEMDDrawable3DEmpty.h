@@ -34,6 +34,10 @@
 
 #include "WLEMDDrawable3D.h"
 
+/**
+ * \author pieloth
+ * \ingroup gui
+ */
 class WLEMDDrawable3DEmpty: public WLEMDDrawable3D
 {
 public:

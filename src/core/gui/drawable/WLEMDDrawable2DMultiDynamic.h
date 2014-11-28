@@ -35,6 +35,10 @@
 
 class WLEMDAnimationFetchCallback;
 
+/**
+ * \author pieloth
+ * \ingroup gui
+ */
 class WLEMDDrawable2DMultiDynamic: public WLEMDDrawable2DMultiChannel
 {
 public:

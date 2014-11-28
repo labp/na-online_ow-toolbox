@@ -38,6 +38,8 @@ class WLColorMap;
 
 /**
  * Describes whether the absolute value or the value as it is should be used.
+ *
+ * \ingroup gui
  */
 namespace WEColorMapMode
 {
@@ -52,6 +54,8 @@ namespace WEColorMapMode
 
 /**
  * List of implemented predefined color mappings.
+ *
+ * \ingroup gui
  */
 namespace WEColorMap
 {
@@ -70,8 +74,12 @@ namespace WEColorMap
  * This class implements all necessary methods.
  * Derived classes must set their specific color map in the constructor only.
  * Note: This class also generates a texture for a correct color mapping, which can be done on the GPU.
- * The "color map texture" has a domain of [0;1]. A scalar must be mapped on this domain to get a correct mapping with GPU support.
+ * The "color map texture" has a domain of [0;1].
+ * A scalar must be mapped on this domain to get a correct mapping with GPU support.\n
  * See page 44 of thesis "Kombinierte Visualisierung von EEG- und Diffusions-MRT-Nervenfaser-Daten" by Cornelius Müller.
+ *
+ * \author pieloth
+ * \ingroup gui
  */
 class WLColorMap
 {

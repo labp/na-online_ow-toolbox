@@ -34,6 +34,10 @@
 
 #include "WLEMDDrawable2DMultiStatic.h"
 
+/**
+ * \author pieloth
+ * \ingroup gui
+ */
 class WLEMDDrawable2DMultiStaticSource: public WLEMDDrawable2DMultiStatic
 {
 public:

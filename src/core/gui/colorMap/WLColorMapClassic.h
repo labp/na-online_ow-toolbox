@@ -28,6 +28,12 @@
 
 #include "WLColorMap.h"
 
+/**
+ * Color map: blue-white-red.
+ *
+ * \author pieloth
+ * \ingroup gui
+ */
 class WLColorMapClassic: public WLColorMap
 {
 public:

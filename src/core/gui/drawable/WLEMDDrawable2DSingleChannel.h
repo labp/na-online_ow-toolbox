@@ -39,6 +39,10 @@
 
 #include "WLEMDDrawable2D.h"
 
+/**
+ * \author pieloth
+ * \ingroup gui
+ */
 class WLEMDDrawable2DSingleChannel: public WLEMDDrawable2D
 {
 public:

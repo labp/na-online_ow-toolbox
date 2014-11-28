@@ -32,6 +32,10 @@
 
 #include "WLEMDDrawable2DMultiChannel.h"
 
+/**
+ * \author pieloth
+ * \ingroup gui
+ */
 class WLEMDDrawable2DMultiStatic: public WLEMDDrawable2DMultiChannel
 {
 public:

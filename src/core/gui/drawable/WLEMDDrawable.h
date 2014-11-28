@@ -43,11 +43,14 @@
 
 /**
  * An abstract class to draw EMD data into a widget.
- * It uses an internal callback function to modify the OSG tree in a single-threaded manner.
- *
+ * It uses an internal callback function to modify the OSG tree in a single-threaded manner.\n
+ * \n
  * Note:
  * All functions which access and modify the OSG tree must have the prefix osg and must be called from osgNodeCallback()!
  * Otherwise OSG could produce a segmentation fault.
+ *
+ * \author pieloth
+ * \ingroup gui
  */
 class WLEMDDrawable: public boost::enable_shared_from_this< WLEMDDrawable >
 {
