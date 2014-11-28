@@ -30,6 +30,12 @@ namespace WLFiffLib
 {
     typedef enum_t cardinal_point_type_t;
 
+    /**
+     * Cardinal Points for the brain.
+     *
+     * \author pieloth
+     * \ingroup fiff
+     */
     namespace CardinalPointType
     {
         const cardinal_point_type_t LPA = 1;
@@ -37,4 +43,5 @@ namespace WLFiffLib
         const cardinal_point_type_t RPA = 3;
     }
 } /* namespace WLFiffLib */
+
 #endif  // WLFIFFCARDINALPOINTTYPE_H_

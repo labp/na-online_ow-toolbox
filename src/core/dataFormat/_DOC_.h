@@ -30,5 +30,16 @@
  * Code for data and file formats.
  */
 
+/**
+ * \defgroup fiff FIFF
+ * \ingroup dataFormat
+ *  Functional Image File Format.
+ */
+
+/**
+ * \defgroup mat Matlab MAT
+ * \ingroup dataFormat
+ *  Matlab MAT-file Format.
+ */
 
 #endif  // CORE_DATAFORMAT__DOC__H_

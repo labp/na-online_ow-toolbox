@@ -30,6 +30,12 @@ namespace WLFiffLib
 {
     typedef enum_t unit_t;
 
+    /**
+     * Value units.
+     *
+     * \author pieloth
+     * \ingroup fiff
+     */
     namespace Unit
     {
         const unit_t NONE = -1; /**< No unit */

@@ -26,6 +26,12 @@
 
 #include <boost/cstdint.hpp>
 
+/**
+ * A low-level C++ collection of constants for the Elekta Neuromag Functional Image File Format (FIFF).
+ *
+ * \author pieloth
+ * \ingroup fiff
+ */
 namespace WLFiffLib
 {
     typedef int16_t int16;
@@ -48,4 +54,5 @@ namespace WLFiffLib
     typedef int32 ident_t;
     typedef int32 kind_t;
 } /* namespace WLFiffLib */
+
 #endif  // WLFIFFLIB_H_

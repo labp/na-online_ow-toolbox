@@ -30,6 +30,12 @@ namespace WLFiffLib
 {
     typedef enum_t point_type_t;
 
+    /**
+     * Point definitions.
+     *
+     * \author pieloth
+     * \ingroup fiff
+     */
     namespace PointType
     {
         const point_type_t CARDINAL = 1;

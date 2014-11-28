@@ -30,6 +30,12 @@ namespace WLFiffLib
 {
     typedef enum_t coil_type_t;
 
+    /**
+     * Coil types.
+     *
+     * \author pieloth
+     * \ingroup fiff
+     */
     namespace CoilType
     {
         const coil_type_t NONE = 0;
