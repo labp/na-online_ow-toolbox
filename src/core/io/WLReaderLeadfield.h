@@ -31,6 +31,12 @@
 #include "core/data/WLDataTypes.h"
 #include "core/io/WLReaderGeneric.h"
 
+/**
+ * Reads a leadfield/forward solution from FIF.
+ *
+ * \author pieloth
+ * \ingroup io
+ */
 class WLReaderLeadfield: public WLReaderGeneric< WLMatrix::SPtr >
 {
 public:

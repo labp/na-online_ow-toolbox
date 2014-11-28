@@ -38,9 +38,12 @@
 
 /**
  * Reads a Neuromag Isotrak file in the big endian byte order and extracts the digitalization points.
- * Due to raw byte support this class is not a WLReaderGeneric, otherwise a WDHNoSuchFile exception would be thrown.
- *
+ * Due to raw byte support this class is not a WLReaderGeneric, otherwise a WDHNoSuchFile exception would be thrown.\n
+ * \n
  * Note: Supports big endian files only.
+ *
+ * \author pieloth
+ * \ingroup io
  */
 class WLReaderIsotrak
 {

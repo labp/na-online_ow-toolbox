@@ -35,6 +35,7 @@
  * Default interface for a real-time client.
  *
  * \author pieloth
+ * \ingroup io
  */
 class WLRtClient
 {

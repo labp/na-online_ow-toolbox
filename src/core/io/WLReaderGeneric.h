@@ -34,6 +34,7 @@
  * Generic interface/abstract class for a uniform file reader.
  *
  * \author pieloth
+ * \ingroup io
  */
 template< typename T >
 class WLReaderGeneric: public WReader

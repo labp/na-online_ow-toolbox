@@ -32,6 +32,12 @@
 #include "core/data/WLEMMBemBoundary.h"
 #include "core/io/WLReaderGeneric.h"
 
+/**
+ * Reads BEM surfaces from FIF.
+ *
+ * \author pieloth
+ * \ingroup io
+ */
 class WLReaderBem: public WLReaderGeneric< std::list< WLEMMBemBoundary::SPtr > >
 {
 public:

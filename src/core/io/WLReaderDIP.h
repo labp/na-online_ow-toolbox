@@ -31,6 +31,12 @@
 
 #include "core/io/WLReaderGeneric.h"
 
+/**
+ * Reads a surface from a DIP file.
+ *
+ * \author pieloth
+ * \ingroup io
+ */
 class WLReaderDIP: public WLReaderGeneric< WLEMMSurface::SPtr >
 {
 public:

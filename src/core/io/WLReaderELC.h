@@ -37,6 +37,12 @@
 #include "core/data/enum/WLEExponent.h"
 #include "core/io/WLIOStatus.h"
 
+/**
+ * Reads sensor positions, labels and triangulation from a ELC file.
+ *
+ * \author pieloth
+ * \ingroup io
+ */
 class WLReaderELC: public WReader
 {
 public:

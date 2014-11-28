@@ -31,6 +31,12 @@
 #include "core/data/WLEMMSurface.h"
 #include "core/io/WLReaderGeneric.h"
 
+/**
+ * Reads a surface from FIF.
+ *
+ * \author pieloth
+ * \ingroup io
+ */
 class WLReaderSourceSpace: public WLReaderGeneric< WLEMMSurface::SPtr >
 {
 public:

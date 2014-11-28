@@ -42,6 +42,7 @@
  * Reads a matrix from a MATLAB MAT-file.
  *
  * \author pieloth
+ * \ingroup io
  */
 class WLReaderMAT: public WReader, public WLIOStatus::WLIOStatusInterpreter
 {

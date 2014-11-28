@@ -39,6 +39,12 @@
 
 #include "core/io/WLReaderGeneric.h"
 
+/**
+ * Reads EEG/MEG experiment from FIF.
+ *
+ * \author pieloth
+ * \ingroup io
+ */
 class WLReaderFIFF: public WLReaderGeneric< WLEMMeasurement::SPtr >
 {
 public:
