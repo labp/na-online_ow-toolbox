@@ -28,6 +28,9 @@ The documentation is intended for NA-Online users and developers.\n
 Website: http://www.labp.htwk-leipzig.de\n
 License: GPL Lesser Version 3\n
 Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
+
+\see http://www.openwalnut.org
+\see Eichelbaum2010a
  */
 
 /**

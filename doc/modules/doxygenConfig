@@ -499,6 +499,8 @@ FILE_VERSION_FILTER    =
 
 # LAYOUT_FILE            = doc/doxygenLayout.xml
 
+CITE_BIB_FILES           = doc/Bibliography_NA-Online.bib
+
 #---------------------------------------------------------------------------
 # configuration options related to warning and progress messages
 #---------------------------------------------------------------------------
