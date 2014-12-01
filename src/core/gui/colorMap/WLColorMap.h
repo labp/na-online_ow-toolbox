@@ -73,10 +73,10 @@ namespace WEColorMap
  * A base class for predefined color mappings from scalar values to colors.
  * This class implements all necessary methods.
  * Derived classes must set their specific color map in the constructor only.
- * Note: This class also generates a texture for a correct color mapping, which can be done on the GPU.
+ * \note This class also generates a texture for a correct color mapping, which can be done on the GPU.
  * The "color map texture" has a domain of [0;1].
  * A scalar must be mapped on this domain to get a correct mapping with GPU support.\n
- * See page 44 of thesis "Kombinierte Visualisierung von EEG- und Diffusions-MRT-Nervenfaser-Daten" by Cornelius Müller.
+ * \see \cite Mueller2010, p. 44
  *
  * \author pieloth
  * \ingroup gui
@@ -90,17 +90,11 @@ public:
     typedef osg::ref_ptr< osg::Texture1D > TextureRefT;
     typedef float TextCoordT;
 
-    /**
-     * Abbreviation for a shared pointer.
-     */
-    typedef boost::shared_ptr< WLColorMap > SPtr;
+    typedef boost::shared_ptr< WLColorMap > SPtr; //!< Abbreviation for a shared pointer.
 
-    /**
-     * Abbreviation for const shared pointer.
-     */
-    typedef boost::shared_ptr< const WLColorMap > ConstSPtr;
+    typedef boost::shared_ptr< const WLColorMap > ConstSPtr; //!< Abbreviation for const shared pointer.
 
-    static const std::string CLASS;
+    static const std::string CLASS; //!< Class name for logging purpose.
 
     /**
      * Constructor sets necessary variables for base class.
@@ -112,8 +106,18 @@ public:
     WLColorMap( ValueT min = -1.0, ValueT max = 1.0, WEColorMapMode::Enum mode = WEColorMapMode::NORMAL );
     virtual ~WLColorMap();
 
+    /**
+     * Gets the minimum scalar value.
+     *
+     * \return The minimum scalar value.
+     */
     ValueT getMin() const;
 
+    /**
+     * Gets the maximum scalar value.
+     *
+     * \return The maximum scalar value.
+     */
     ValueT getMax() const;
 
     /**
@@ -142,8 +146,10 @@ public:
     virtual TextureRefT getAsTexture( size_t resolution = 256 ) const;
 
     /**
-     * Calculates the texture coordinate in the domain [0;1] for a scalar value between min/max. This is the color mapping on a one dimensional texture.
-     * The texture coordinate can be used to set the "color", respectively the coordinate with the associated color, for the surface interpolation.
+     * Calculates the texture coordinate in the domain [0;1] for a scalar value between min/max.
+     * This is the color mapping on a one dimensional texture.
+     * The texture coordinate can be used to set the "color", respectively the coordinate with the associated color,
+     * for the surface interpolation.
      *
      * \param scalar Value to get the texture coordinate of
      * \return texture coordinate for the scalar
