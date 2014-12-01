@@ -30,6 +30,7 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <core/common/WAssert.h>
 #include <core/common/WDefines.h> // OW_API_DEPRECATED
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
