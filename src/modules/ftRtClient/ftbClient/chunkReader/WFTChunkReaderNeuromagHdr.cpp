@@ -165,10 +165,10 @@ bool WFTChunkReaderNeuromagHdr::read( WFTChunk::ConstSPtr chunk )
     //
     // Validate the read measurement information
     //
-    WAssertDebug( m_chPosEEG->size() == m_modalityPicks->at( WLEModality::EEG ).cols(),
+    WAssertDebug( m_chPosEEG->size() == m_modalityPicks.at( WLEModality::EEG ).cols(),
                     "Wrong number of EEG sensor positions or channel picks" );
-    WAssertDebug( m_modalityPicks->at( WLEModality::MEG ).cols() % 3 == 0, "Wrong number of MEG channel picks" );
-    WAssertDebug( m_chPosMEG->size() == m_modalityPicks->at( WLEModality::MEG ).cols(),
+    WAssertDebug( m_modalityPicks.at( WLEModality::MEG ).cols() % 3 == 0, "Wrong number of MEG channel picks" );
+    WAssertDebug( m_chPosMEG->size() == m_modalityPicks.at( WLEModality::MEG ).cols(),
                     "Wrong number of MEG sensor positions or channel picks" );
 
     return true;
