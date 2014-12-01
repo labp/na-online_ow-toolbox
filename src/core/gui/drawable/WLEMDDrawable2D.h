@@ -49,10 +49,7 @@
 class WLEMDDrawable2D: public WLEMDDrawable
 {
 public:
-    /**
-     * Abbreviation for a shared pointer on a instance of this class.
-     */
-    typedef boost::shared_ptr< WLEMDDrawable2D > SPtr;
+    typedef boost::shared_ptr< WLEMDDrawable2D > SPtr; //!< Abbreviation for a shared pointer on a instance of this class.
 
     /**
      * Abbreviation for a const shared pointer on a instance of this class.
@@ -61,10 +58,7 @@ public:
 
     typedef osg::Vec4Array WLColorArray;
 
-    /**
-     * Class name for logs.
-     */
-    static const std::string CLASS;
+    static const std::string CLASS; //!< Class name for logging purpose.
 
     /**
      * Enumeration to select a single/overlay or multi channel graph.
@@ -101,29 +95,67 @@ public:
      */
     virtual ~WLEMDDrawable2D();
 
-    /**
-     * Invokes a draw with the new data.
-     *
-     * \param emm data to draw.
-     */
     virtual void draw( WLEMMeasurement::SPtr emm ) = 0;
 
-    /**
-     * Checks whether data is available.
-     */
     bool hasData() const = 0;
 
+    /**
+     * Gets the time range to visualize. TODO(pieloth): seconds or millimeter?
+     *
+     * \return Time range in ???.
+     */
     virtual ValueT getTimeRange() const;
+
+    /**
+     * Sets the time range to visualize. TODO(pieloth): seconds or millimeter?
+     *
+     * \param timeRange Time range in ???
+     * \return True if time range has changed.
+     */
     virtual bool setTimeRange( ValueT timeRange );
 
+    /**
+     * Gets the amplitude scale (max. value).
+     *
+     * \return The amplitude scale.
+     */
     virtual ValueT getAmplitudeScale() const;
+
+    /**
+     * Sets the amplitude scale.
+     * \param value Maximum value.
+     * \return True if scale has changed.
+     */
     virtual bool setAmplitudeScale( ValueT value );
 
+    /**
+     * Gets the selected pixel in the drawing area.
+     *
+     * \return  The selected pixel in the drawing area.
+     */
     virtual ValueT getSelectedPixel() const;
+
+    /**
+     * Sets the selected pixel relative to the drawing area.
+     *
+     * \param value Selected pixel.
+     * \return True if selected pixel has changed.
+     */
     virtual bool setSelectedPixel( ValueT value );
 
+    /**
+     * Gets the selected point in time. TODO(pieloth): seconds or milliseconds?
+     *
+     * \return The selected point in time in ???.
+     */
     virtual float getSelectedTime() const;
 
+    /**
+     * Sets the selected point in time relative to the widget width. TODO(pieloth): seconds or milliseconds?
+     *
+     * \param relative Point in time in ???.
+     * \return Selected point in time.
+     */
     virtual bool setSelectedTime( float relative );
 
     /**
@@ -143,31 +175,45 @@ protected:
 
     virtual bool mustDraw() const;
 
+    /**
+     * Draws the graph of channel data.
+     *
+     * \param channel Channel to draw.
+     * \return OSG Geode containing graphical representation.
+     */
     osg::ref_ptr< osg::Geode > drawChannel( const WLEMData::ChannelT& channel );
 
+    /**
+     * Draws and adds the mark line for the time selection.
+     */
     void osgAddMarkLine();
+
+    /**
+     * Draws and adds the time grid.
+     */
     void osgAddTimeGrid();
 
+    /**
+     * Calculates the number of channels which can be drawn on screen.
+     * It depends on the graph type, channel count, view height and so on.
+     *
+     * \param emd Data to draw.
+     * \return Maximum number channels to draw.
+     */
     virtual size_t maxChannels( const WLEMData& emd ) const = 0;
 
-    osg::ref_ptr< WGEGroupNode > m_channelGroup;
-    osg::ref_ptr< osg::Geode > m_markerGeode;
-    osg::ref_ptr< WGEGroupNode > m_timeGridGroup;
+    osg::ref_ptr< WGEGroupNode > m_channelGroup; //!< Contains a graphical object for each channel.
+    osg::ref_ptr< osg::Geode > m_markerGeode; //!< Contains the marker line.
+    osg::ref_ptr< WGEGroupNode > m_timeGridGroup; //!< Contains the time grid.
     ValueT m_timeGridWidth;
     ValueT m_timeGridHight;
 
     ValueT m_timeRange;
     bool m_timeRangeChanged;
 
-    /**
-     * Time-axis offset for raw data visualization, e.g. for labels
-     */
-    ValueT m_xOffset;
+    ValueT m_xOffset; //!< Time-axis offset for raw data visualization, e.g. for labels.
 
-    /**
-     * Channel or value offset for raw data visualization, e.g. for time scale
-     */
-    ValueT m_yOffset;
+    ValueT m_yOffset; //!< Channel or value offset for raw data visualization, e.g. for time scale.
 
     ValueT m_amplitudeScale;
     bool m_amplitudeScaleChanged;

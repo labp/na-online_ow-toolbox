@@ -40,6 +40,8 @@
 #include "WLEMDDrawable3D.h"
 
 /**
+ * Visualization of a MEG helmet and the mapped the data.
+ *
  * \author pieloth
  * \ingroup gui
  */

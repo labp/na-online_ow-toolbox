@@ -33,6 +33,8 @@
 #include "WLEMDDrawable3D.h"
 
 /**
+ * Visualization of the brain surface and the reconstructed activity.
+ *
  * \author pieloth
  * \ingroup gui
  */

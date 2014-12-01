@@ -38,6 +38,8 @@
 #include "WLEMDDrawable3D.h"
 
 /**
+ * Visualization of a EEG sensor cap and the mapped the data.
+ *
  * \author pieloth
  * \ingroup gui
  */

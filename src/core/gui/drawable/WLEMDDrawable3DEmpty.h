@@ -35,6 +35,8 @@
 #include "WLEMDDrawable3D.h"
 
 /**
+ * An empty widget.
+ *
  * \author pieloth
  * \ingroup gui
  */

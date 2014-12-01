@@ -40,6 +40,8 @@
 #include "WLEMDDrawable2D.h"
 
 /**
+ * A butterfly plot 2D view.
+ *
  * \author pieloth
  * \ingroup gui
  */
@@ -80,20 +82,35 @@ protected:
 
     virtual void osgNodeCallback( osg::NodeVisitor* nv );
 
+    /**
+     * Draws and adds a value grid.
+     *
+     * \param emd Data for scaling.
+     */
     void osgAddValueGrid( const WLEMData& emd );
 
     virtual size_t maxChannels( const WLEMData& emd ) const;
 
     ValueT m_valueGridHeight;
     ValueT m_valueGridWidth;
-    osg::ref_ptr< WGEGroupNode > m_valueGridGroup;
+    osg::ref_ptr< WGEGroupNode > m_valueGridGroup; //!< Contains the value grid.
 
 private:
+    /**
+     * Draws and adds the channel data.
+     *
+     *  \param emd Data to draw.
+     */
     void osgAddChannels( const WLEMData& emd );
 
+    /**
+     * Draws and adds a marker for events/stimuli.
+     *
+     * \param events Event data.
+     */
     void osgSetTrigger( const WLEMMeasurement::EDataT& events );
 
-    osg::ref_ptr< osg::Geode > m_triggerGeode;
+    osg::ref_ptr< osg::Geode > m_triggerGeode; //!< Contains the event marker.
 
     osg::ref_ptr< WLColorArray > m_triggerColors;
 };

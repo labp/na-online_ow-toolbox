@@ -39,6 +39,8 @@
 #include "WLEMDDrawable3D.h"
 
 /**
+ * Visualization of the BEM skin layer and the (fitted) EEG sensor cap.
+ *
  * \author pieloth
  * \ingroup gui
  */
