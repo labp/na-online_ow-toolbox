@@ -268,6 +268,7 @@ void WMTemplateRoi::startUp( WLEMMeasurement::SPtr emm )
     dataSrc->setZero();
     emdSrc->setData( dataSrc );
     emm->addModality( emdSrc );
+    emdSrc->setOriginModalityType( WLEModality::EEG );
 
     WLEMDEEG::DataSPtr dataEEG( new WLEMDEEG::DataT( 60, 100 ) );
     dataEEG->setOnes();
