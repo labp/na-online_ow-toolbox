@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -27,13 +26,14 @@
 
 #include <boost/shared_ptr.hpp>
 
-// NOTE: Needs Eigen v3.1 or higher for sparse matrices, see README
+// NOTE: Needs Eigen v3.1 or higher for sparse matrices, see README.
 #include <Eigen/Core>
 #include <Eigen/SparseCore>
 
 #include "core/dataFormat/fiff/WLFiffLib.h"
 
 /**
+ * \typedef ScalarT
  * Replacement for a scalar type used for computations.
  */
 #ifdef LABP_FLOAT_COMPUTATION
@@ -42,9 +42,15 @@ typedef float ScalarT;
 typedef double ScalarT;
 #endif  // LABP_FLOAT_COMPUTATION
 
-// See: http://eigen.tuxfamily.org/dox/QuickRefPage.html
-// NOTE: Class specialization for SPtr/ConstSPtr binding is not possible, because: MatrixT.row(i) != RowVectorT, MatrixT.row(i) == Eigen::RowVector
+// NOTE: Class specialization of Eigen types for SPtr/ConstSPtr binding is not possible, because:
+//       MatrixT.row(i) != RowVectorT, MatrixT.row(i) == Eigen::RowVector
+//       So we group the typedefs in a namespace.
 
+/**
+ * Helper definitions for a generic (float/double) vector.
+ *
+ * \ingroup data
+ */
 namespace WLVector
 {
     typedef Eigen::Matrix< ScalarT, Eigen::Dynamic, 1 > VectorT;
@@ -53,6 +59,11 @@ namespace WLVector
     typedef boost::shared_ptr< const VectorT > ConstSPtr;
 }
 
+/**
+ * Helper definitions for a generic (float/double) row-vector.
+ *
+ * \ingroup data
+ */
 namespace WLRowVector
 {
     typedef Eigen::Matrix< ScalarT, 1, Eigen::Dynamic > RowVectorT;
@@ -61,6 +72,11 @@ namespace WLRowVector
     typedef boost::shared_ptr< const RowVectorT > ConstSPtr;
 }
 
+/**
+ * Helper definitions for a generic (float/double) matrix.
+ *
+ * \ingroup data
+ */
 namespace WLMatrix
 {
     typedef Eigen::Matrix< ScalarT, Eigen::Dynamic, Eigen::Dynamic > MatrixT;
@@ -70,7 +86,9 @@ namespace WLMatrix
 }
 
 /**
- * 4x4 matrix e.g. transformation matrix.
+ * Helper definitions for a generic (float/double) fixed 4x4 matrix.
+ *
+ * \ingroup data
  */
 namespace WLMatrix4
 {
@@ -80,8 +98,11 @@ namespace WLMatrix4
     typedef boost::shared_ptr< const Matrix4T > ConstSPtr;
 }
 
+
 /**
- * Replacement for sparse matrix type. E.g. SparseMatrix< double >
+ * Helper definitions for a generic (float/double) sparse matrix.
+ *
+ * \ingroup data
  */
 namespace WLSpMatrix
 {

@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -28,34 +27,36 @@
 #include <fstream>
 #include <string>
 
-
 #include "core/data/WLEMMSurface.h"
 
-#include "core/io/WLReader.h"
+#include "core/io/WLReaderGeneric.h"
 
-namespace LaBP
+/**
+ * Reads a surface from a DIP file.
+ *
+ * \author pieloth
+ * \ingroup io
+ */
+class WLReaderDIP: public WLReaderGeneric< WLEMMSurface::SPtr >
 {
+public:
+    static const std::string CLASS;
 
-    class WLReaderDIP: public WLReader
-    {
-    public:
-        static const std::string CLASS;
+    /**
+     * Constructs a reader object.
+     *
+     * \param fname path to file which should be loaded
+     */
+    explicit WLReaderDIP( std::string fname );
 
-        /**
-         * Constructs a reader object.
-         *
-         * \param fname path to file which should be loaded
-         */
-        explicit WLReaderDIP( std::string fname );
+    virtual WLIOStatus::IOStatusT read( WLEMMSurface::SPtr* const surface );
 
-        ReturnCode::Enum read( WLEMMSurface::SPtr surface );
+private:
+    WLIOStatus::IOStatusT readUnit( WLEMMSurface::SPtr surface, const std::string& line );
+    WLIOStatus::IOStatusT readNumPos( size_t* const count, const std::string& line );
+    WLIOStatus::IOStatusT readNumPoly( size_t* const count, const std::string& line );
+    WLIOStatus::IOStatusT readPositions( std::ifstream& ifs, size_t count, WLEMMSurface::SPtr surface );
+    WLIOStatus::IOStatusT readPolygons( std::ifstream& ifs, size_t count, WLEMMSurface::SPtr surface );
+};
 
-    private:
-        ReturnCode::Enum readUnit( std::string& line, WLEMMSurface::SPtr surface );
-        ReturnCode::Enum readNumPos( std::string& line, size_t& count );
-        ReturnCode::Enum readNumPoly( std::string& line, size_t& count );
-        ReturnCode::Enum readPositions( std::ifstream& ifs, size_t count, WLEMMSurface::SPtr surface );
-        ReturnCode::Enum readPolygons( std::ifstream& ifs, size_t count, WLEMMSurface::SPtr surface );
-    };
-}
-#endif /* WLREADERDIP_H_ */
+#endif  // WLREADERDIP_H_

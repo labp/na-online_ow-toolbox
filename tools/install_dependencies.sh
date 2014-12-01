@@ -1,0 +1,17 @@
+#!/bin/sh
+echo "NA-Online requires:"
+echo "- MNE-CPP for FIFF and MNE Real-Time Client"
+echo "- FieldTrip Buffer for FieldTrip Buffer Client"
+echo ""
+echo "The destination folder is:"
+echo $HOME"/na-online_dependencies/"
+echo ""
+echo "To change it, you can modify:"
+echo `pwd`"/PackBacker/jobs/na-online_dependencies.pb"
+echo ""
+echo "If your distribution does not contain the following packages,"
+echo "you have to install them:"
+echo "- Eigen v3.1.1 or later"
+echo "- Point Cloud Library"
+echo ""
+python3 ./PackBacker/packbacker.py -j ./PackBacker/jobs/na-online_dependencies.pb

@@ -1,32 +1,32 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
 #include <string>
+#include <vector>
 
 #include <mne/mne_forwardsolution.h>
 
-#include <QFile>
+#include <QtCore/QFile>
 
 #include <core/common/WPathHelper.h>
 
@@ -44,7 +44,6 @@
 #include "WMLeadfieldInterpolation.xpm"
 #include "WMLeadfieldInterpolation.h"
 
-using namespace LaBP;
 using WLMatrix::MatrixT;
 
 // This line is needed by the module loader to actually find your module.
@@ -119,7 +118,6 @@ void WMLeadfieldInterpolation::properties()
 
     m_status = m_properties->addProperty( "Status:", "Status", NONE );
     m_status->setPurpose( PV_PURPOSE_INFORMATION );
-
 }
 
 void WMLeadfieldInterpolation::moduleInit()
@@ -265,12 +263,11 @@ bool WMLeadfieldInterpolation::readFiff( const std::string& fname )
     {
         WLReaderFIFF fiffReader( fname );
         m_fiffEmm.reset( new WLEMMeasurement() );
-        if( fiffReader.Read( m_fiffEmm ) == WLReaderFIFF::ReturnCode::SUCCESS )
+        if( fiffReader.read( &m_fiffEmm ) == WLIOStatus::SUCCESS )
         {
             if( !m_fiffEmm->hasModality( WLEModality::EEG ) )
             {
                 errorLog() << "No EEG found!";
-                // TODO(pieloth): Support for other modalities.
                 return false;
             }
             infoLog() << "Reading FIFF file finished!";
@@ -311,7 +308,6 @@ bool WMLeadfieldInterpolation::readHDLeadfield( const std::string& fname )
 
 bool WMLeadfieldInterpolation::interpolate()
 {
-// TODO(pieloth): Support for other modalities.
     debugLog() << "interpolate() called!";
     WLTimeProfiler tp( "WMLeadfieldInterpolation", "interpolate" );
 
@@ -360,7 +356,6 @@ bool WMLeadfieldInterpolation::processCompute( WLEMMeasurement::SPtr emm )
     bool rc = true;
     if( m_leadfieldInterpolated )
     {
-        // TODO NOTE: Manipulation of a incoming packet!!!
         emm->getSubject()->setLeadfield( WLEModality::EEG, m_leadfieldInterpolated );
     }
     else

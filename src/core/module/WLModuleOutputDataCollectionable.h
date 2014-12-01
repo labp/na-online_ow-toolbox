@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -38,23 +37,20 @@
 #include "WLModuleInputDataCollection.h"
 
 /**
- * Class offering an instantiate-able data connection between modules.
- * This class checks whether the input connector is an instance of WModuleInputDataCollection, if true addData() is called.
- * ATTENTION: Do not use the static methods create() and createAndAdd()!
+ * Extends an output connector by a correct use of WModuleInputDataCollection.
+ * It checks whether the input connector is an instance of WModuleInputDataCollection, if true addData() is called.
+ * \attention Do not use the static methods WModuleOutputData::create() and WModuleOutputData::createAndAdd()!
+ *
+ * \author pieloth
+ * \ingroup module
  */
 template< typename T >
 class WLModuleOutputDataCollectionable: public WModuleOutputData< T >
 {
 public:
-    /**
-     * Pointer to this. For convenience.
-     */
-    typedef boost::shared_ptr< WLModuleOutputDataCollectionable< T > > SPtr;
+    typedef boost::shared_ptr< WLModuleOutputDataCollectionable< T > > SPtr; //!< Abbreviation for a shared pointer.
 
-    /**
-     * Pointer to this. For convenience.
-     */
-    typedef boost::shared_ptr< const WLModuleOutputDataCollectionable< T > > ConstSPtr;
+    typedef boost::shared_ptr< const WLModuleOutputDataCollectionable< T > > ConstSPtr; //!< Abbreviation for const shared pointer.
 
     /**
      * Returns a new instance.
@@ -80,9 +76,9 @@ public:
     }
 
     /**
-     * Updates the data associated. addData() will be called for instances of WLModuleInputDataCollection.
+     * Updates the data associated. For instances of WLModuleInputDataCollection addData() is called.
      *
-     * \param data the data do send
+     * \param data The data to send.
      */
     void updateData( boost::shared_ptr< T > data );
 

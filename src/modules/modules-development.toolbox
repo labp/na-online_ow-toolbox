@@ -1,8 +1,9 @@
 # NA-Online modules in development
 
+ADD_MODULE( beamforming )
 ADD_MODULE( codeSnippets )
-ADD_MODULE( matReader )
-ADD_MODULE( matWriter )
+ADD_MODULE( fiffWriter )
+ADD_MODULE( headPositionEstimation )
 ADD_MODULE( pca )
 ADD_MODULE( templateRoi )
 ADD_MODULE( templateRoiSelection )

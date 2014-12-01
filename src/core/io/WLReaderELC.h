@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -33,40 +32,44 @@
 
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
+#include "core/dataHandler/io/WReader.h"
 
 #include "core/data/enum/WLEExponent.h"
-#include "core/io/WLReader.h"
+#include "core/io/WLIOStatus.h"
 
-namespace LaBP
+/**
+ * Reads sensor positions, labels and triangulation from a ELC file.
+ *
+ * \author pieloth
+ * \ingroup io
+ */
+class WLReaderELC: public WReader
 {
+public:
+    static const std::string CLASS;
 
-    class WLReaderELC: public WLReader
-    {
-    public:
-        /**
-         * Constructs a reader object.
-         *
-         * \param fname path to file which should be loaded
-         */
-        explicit WLReaderELC( std::string fname );
+    /**
+     * Constructs a reader object.
+     *
+     * \param fname path to file which should be loaded
+     */
+    explicit WLReaderELC( std::string fname );
 
-        /**
-         * Reads out a elc file. Positions are converted to millimeter, if necessary.
-         */
-        ReturnCode::Enum read( boost::shared_ptr< std::vector< WPosition > > posOut,
-                        boost::shared_ptr< std::vector< std::string > > labelsOut,
-                        boost::shared_ptr< std::vector< WVector3i > > facesOut );
+    /**
+     * Reads out a elc file. Positions are converted to millimeter, if necessary.
+     */
+    WLIOStatus::IOStatusT read( std::vector< WPosition >* const posOut, std::vector< std::string >* const labelsOut,
+                    std::vector< WVector3i >* const facesOut );
 
-    private:
-        ReturnCode::Enum readUnit( std::string& line, WLEExponent::Enum& exp );
-        ReturnCode::Enum readNumPos( std::string& line, size_t& count );
-        ReturnCode::Enum readNumPoly( std::string& line, size_t& count );
-        ReturnCode::Enum readPositions( std::ifstream& ifs, size_t count, boost::shared_ptr< std::vector< WPosition > > posOut );
-        ReturnCode::Enum readLabels( std::ifstream& ifs, size_t count,
-                        boost::shared_ptr< std::vector< std::string > > labelsOut );
-        ReturnCode::Enum readPolygons( std::ifstream& ifs, size_t count, boost::shared_ptr< std::vector< WVector3i > > facesOut );
+private:
+    WLIOStatus::IOStatusT readUnit( WLEExponent::Enum* const exp, const std::string& line );
+    WLIOStatus::IOStatusT readNumPos( size_t* const count, const std::string& line );
+    WLIOStatus::IOStatusT readNumPoly( size_t* const count, const std::string& line );
+    WLIOStatus::IOStatusT readPositions( std::ifstream& ifs, size_t count, std::vector< WPosition >* const posOut );
+    WLIOStatus::IOStatusT readLabels( std::ifstream& ifs, size_t count, std::vector< std::string >* const labelsOut );
+    WLIOStatus::IOStatusT readPolygons( std::ifstream& ifs, size_t count, std::vector< WVector3i >* const facesOut );
 
-        void convertToMilli( boost::shared_ptr< std::vector< WPosition > > pos, WLEExponent::Enum& exp );
-    };
-}
-#endif /* WLREADERELC_H_ */
+    void convertToMilli( std::vector< WPosition >* const pos, WLEExponent::Enum exp );
+};
+
+#endif  // WLREADERELC_H_

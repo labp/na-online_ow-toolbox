@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -44,7 +43,7 @@ WEpochSeparation::WEpochSeparation()
     reset();
 }
 
-WEpochSeparation::WEpochSeparation( size_t channel, std::set< WLEMMeasurement::EventT > triggerMask, size_t preSamples,
+WEpochSeparation::WEpochSeparation( WLChanIdxT channel, std::set< WLEMMeasurement::EventT > triggerMask, size_t preSamples,
                 size_t postSamples ) :
                 m_channel( channel ), m_triggerMask( triggerMask ), m_preSamples( preSamples ), m_postSamples( postSamples ), m_blockSize(
                                 0 )
@@ -55,12 +54,12 @@ WEpochSeparation::~WEpochSeparation()
 {
 }
 
-size_t WEpochSeparation::getChannel() const
+WLChanIdxT WEpochSeparation::getChannel() const
 {
     return m_channel;
 }
 
-void WEpochSeparation::setChannel( size_t channel )
+void WEpochSeparation::setChannel( WLChanIdxT channel )
 {
     m_channel = channel;
 }
@@ -218,7 +217,7 @@ void WEpochSeparation::setupBuffer( WLEMData::ConstSPtr emd )
         // ... 5x EMM for preSamples and 1x EMM for current sample in current EMM
         m_blockSize = emd->getSamplesPerChan();
         size_t elements = ceil( ( float )( m_preSamples + m_blockSize ) / m_blockSize );
-        m_buffer.reset( new LaBP::WLRingBuffer< WLEMMeasurement >( elements ) );
+        m_buffer.reset( new WLRingBuffer< WLEMMeasurement >( elements ) );
         wlog::debug( CLASS ) << "BlockSize: " << m_blockSize;
         wlog::debug( CLASS ) << "Samples: " << m_preSamples + 1;
         wlog::debug( CLASS ) << "Space for EMM: " << elements;
@@ -250,7 +249,6 @@ WEpochSeparation::LeftEpoch::SPtr WEpochSeparation::processPreSamples( size_t eI
     }
 
     // Prepare event channels //
-    const size_t eChannels = emm->getEventChannelCount();
     emmEpoch->getEventChannels()->resize( 1 );
     emmEpoch->getEventChannel( 0 ).reserve( m_preSamples + 1 + m_postSamples );
     WAssertDebug( emmEpoch->getEventChannel( 0 ).size() == 0, "emmEpoch->getEventChannel( chan ).size() == 0" );

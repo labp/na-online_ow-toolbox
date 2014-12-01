@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -27,12 +26,13 @@
 #include <fiff/fiff_dir_entry.h>
 #include <fiff/fiff_dir_tree.h>
 #include <fiff/fiff_stream.h>
+#include <fiff/fiff_types.h>
 #include <mne/mne_sourcespace.h>
 #include <mne/mne_hemisphere.h>
 
-#include <QFile>
-#include <QList>
-#include <QString>
+#include <QtCore/QFile>
+#include <QtCore/QList>
+#include <QtCore/QString>
 
 #include <core/common/WLogger.h>
 
@@ -45,10 +45,10 @@ using std::vector;
 using namespace FIFFLIB;
 using namespace MNELIB;
 
-const string WLReaderSourceSpace::CLASS = "WLReaderSourceSpace";
+const std::string WLReaderSourceSpace::CLASS = "WLReaderSourceSpace";
 
 WLReaderSourceSpace::WLReaderSourceSpace( std::string fname ) throw( WDHNoSuchFile ) :
-                WReader( fname )
+                WLReaderGeneric< WLEMMSurface::SPtr >( fname )
 {
 }
 
@@ -56,7 +56,7 @@ WLReaderSourceSpace::~WLReaderSourceSpace()
 {
 }
 
-WLIOStatus::ioStatus_t WLReaderSourceSpace::read( WLEMMSurface::SPtr& surface )
+WLIOStatus::IOStatusT WLReaderSourceSpace::read( WLEMMSurface::SPtr* const surface )
 {
     // Reading MNE type
     QFile file( m_fname.c_str() );
@@ -100,37 +100,38 @@ WLIOStatus::ioStatus_t WLReaderSourceSpace::read( WLEMMSurface::SPtr& surface )
         return WLIOStatus::ERROR_UNKNOWN;
     }
 
-    if( !surface )
+    if( !( *surface ) )
     {
         wlog::debug( CLASS ) << "No surface instance! Creating a new one.";
-        surface.reset( new WLEMMSurface() );
+        surface->reset( new WLEMMSurface() );
     }
+    WLEMMSurface* const pSurface = surface->get();
 
     // Convert to LaBP type
-    surface->setVertexExponent( WLEExponent::MILLI );
-    surface->setHemisphere( WLEMMSurface::Hemisphere::BOTH );
+    pSurface->setVertexExponent( WLEExponent::MILLI );
+    pSurface->setHemisphere( WLEMMSurface::Hemisphere::BOTH );
     const QString LH = "lh";
     const QString RH = "rh";
 
     // Append left and right hemispheres: BOTH = LH|RH
     WLArrayList< WPosition >::SPtr pos( new WLArrayList< WPosition >() );
     pos->reserve( sourceSpace[LH].np + sourceSpace[RH].np );
-    for( size_t i = 0; i < sourceSpace[LH].np; ++i )
+    for( fiff_int_t i = 0; i < sourceSpace[LH].np; ++i )
     {
         WPosition dip( sourceSpace[LH].rr.row( i ).cast< WPosition::ValueType >() * 1000 );
         pos->push_back( dip );
     }
-    for( size_t i = 0; i < sourceSpace[RH].np; ++i )
+    for( fiff_int_t i = 0; i < sourceSpace[RH].np; ++i )
     {
         WPosition dip( sourceSpace[RH].rr.row( i ).cast< WPosition::ValueType >() * 1000 );
         pos->push_back( dip );
     }
-    surface->setVertex( pos );
+    pSurface->setVertex( pos );
     wlog::info( CLASS ) << "Vertices: " << pos->size();
 
     WLArrayList< WVector3i >::SPtr faces( new WLArrayList< WVector3i >() );
     faces->reserve( sourceSpace[LH].ntri + sourceSpace[RH].ntri );
-    for( size_t i = 0; i < sourceSpace[LH].ntri; ++i )
+    for( fiff_int_t i = 0; i < sourceSpace[LH].ntri; ++i )
     {
         const int x = sourceSpace[LH].tris( i, 0 );
         const int y = sourceSpace[LH].tris( i, 1 );
@@ -138,7 +139,7 @@ WLIOStatus::ioStatus_t WLReaderSourceSpace::read( WLEMMSurface::SPtr& surface )
         faces->push_back( WVector3i( x, y, z ) );
     }
     const int triOffset = sourceSpace[LH].np;
-    for( size_t i = 0; i < sourceSpace[RH].ntri; ++i )
+    for( fiff_int_t i = 0; i < sourceSpace[RH].ntri; ++i )
     {
         const int x = sourceSpace[RH].tris( i, 0 ) + triOffset;
         const int y = sourceSpace[RH].tris( i, 1 ) + triOffset;
@@ -146,7 +147,7 @@ WLIOStatus::ioStatus_t WLReaderSourceSpace::read( WLEMMSurface::SPtr& surface )
         faces->push_back( WVector3i( x, y, z ) );
     }
 
-    surface->setFaces( faces );
+    pSurface->setFaces( faces );
     wlog::info( CLASS ) << "Faces: " << faces->size();
     return WLIOStatus::SUCCESS;
 }

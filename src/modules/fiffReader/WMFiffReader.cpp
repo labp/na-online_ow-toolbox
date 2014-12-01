@@ -1,32 +1,36 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
+
+#include <set>
+#include <string>
 
 #include <boost/filesystem.hpp>
 
 #include <core/common/WException.h>
 #include <core/common/WItemSelectionItemTyped.h>
 #include <core/common/WPathHelper.h>
+#include <core/kernel/WDataModuleInputFile.h>
+#include <core/kernel/WDataModuleInputFilterFile.h>
 
 #include "core/data/emd/WLEMDEEG.h"
 #include "core/data/enum/WLEModality.h"
@@ -38,7 +42,6 @@
 #include "WMFiffReader.xpm"
 
 using std::string;
-using namespace LaBP;
 
 W_LOADABLE_MODULE( WMFiffReader )
 
@@ -78,10 +81,12 @@ std::string WMFiffReader::EDataStatus::name( EDataStatus::Enum val )
     }
 }
 
-WMFiffReader::WMFiffReader()
+WMFiffReader::WMFiffReader() :
+                WDataModule()
 {
     m_fileStatus = EFileStatus::NO_FILE;
     m_dataStatus = EDataStatus::NO_DATA;
+    m_reloadFiff = false;
 }
 
 WMFiffReader::~WMFiffReader()
@@ -108,6 +113,33 @@ const char** WMFiffReader::getXPMIcon() const
     return module_xpm;
 }
 
+std::vector< WDataModuleInputFilter::ConstSPtr > WMFiffReader::getInputFilter() const
+{
+    std::vector< WDataModuleInputFilter::ConstSPtr > filters;
+    filters.push_back( WDataModuleInputFilter::ConstSPtr( new WDataModuleInputFilterFile( "fif", "FIFF files" ) ) );
+    return filters;
+}
+
+void WMFiffReader::handleInputChange()
+{
+    WDataModuleInputFile::SPtr inputFile = getInputAs< WDataModuleInputFile >();
+    if( inputFile )
+    {
+        m_moduleState.notify();
+        m_reloadFiff = true;
+        return;
+    }
+    else
+    {
+        m_output->reset();
+        m_emm.reset();
+        m_subject.reset();
+        updateFileStatus( EFileStatus::NO_FILE );
+        updateDataStatus( EDataStatus::NO_DATA );
+        return;
+    }
+}
+
 void WMFiffReader::connectors()
 {
     WModule::connectors();
@@ -126,9 +158,6 @@ void WMFiffReader::properties()
     m_trgSendEMM = m_properties->addProperty( "Send EMM:", "Send", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
 
     // FIFF file //
-    m_propFiffFile = m_properties->addProperty( "FIFF file:", "FIFF file to load.", WPathHelper::getHomePath(), m_propCondition );
-    m_propFiffFile->changed( true );
-
     m_propFileStatus = m_properties->addProperty( "File status:", "FIFF file status.",
                     EFileStatus::name( EFileStatus::NO_FILE ) );
     m_propFileStatus->setPurpose( PV_PURPOSE_INFORMATION );
@@ -154,7 +183,6 @@ void WMFiffReader::properties()
     m_itmBemFiles = WItemSelection::SPtr( new WItemSelection() );
 
     m_itmSurfaces = WItemSelection::SPtr( new WItemSelection() );
-
 }
 
 void WMFiffReader::moduleInit()
@@ -166,6 +194,7 @@ void WMFiffReader::moduleInit()
 
     ready(); // signal ready state
     waitRestored();
+
 }
 
 void WMFiffReader::moduleMain()
@@ -180,9 +209,10 @@ void WMFiffReader::moduleMain()
             break;
         }
 
-        if( m_propFiffFile->changed( true ) )
+        if( m_reloadFiff )
         {
             handleFiffFileChanged();
+            m_reloadFiff = false;
         }
 
         if( m_trgLoadData->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
@@ -220,11 +250,18 @@ void WMFiffReader::handleTrgSendEMM()
 
 void WMFiffReader::handleFiffFileChanged()
 {
+    WDataModuleInputFile::SPtr inputFile = getInputAs< WDataModuleInputFile >();
+    if( !inputFile )
+    {
+        updateDataStatus( EDataStatus::NO_DATA );
+        return;
+    }
+    const std::string fName = inputFile->getFilename().string();
+
     WProgress::SPtr progress( new WProgress( "Reading FIFF file" ) );
     m_progress->addSubProgress( progress );
 
     updateFileStatus( EFileStatus::LOADING_FILE );
-    const std::string fName = m_propFiffFile->get().string();
     if( readFiffFile( fName ) )
     {
         updateFileStatus( EFileStatus::SUCCESS );
@@ -255,7 +292,7 @@ bool WMFiffReader::readFiffFile( const std::string& fName )
     {
         fiffReader.reset( new WLReaderFIFF( fName ) );
         m_emm.reset( new WLEMMeasurement() );
-        if( fiffReader->Read( m_emm ) == WLReaderFIFF::ReturnCode::SUCCESS )
+        if( fiffReader->read( &m_emm ) == WLIOStatus::SUCCESS )
         {
             if( m_emm->hasModality( WLEModality::EEG ) )
             {

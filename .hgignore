@@ -11,18 +11,13 @@ syntax: regexp
 ^CMakeFiles
 ^CMakeCache.txt
 ^doc/core/html
-^doc/developer/html
-^doc/developer/man
-^doc/developer/doxyerror.log
-^doc/developer/designDocuments/openWalnutDesign.aux
-^doc/developer/designDocuments/openWalnutDesign.bbl
-^doc/developer/designDocuments/openWalnutDesign.blg
-^doc/developer/designDocuments/openWalnutDesign.log
-^doc/developer/designDocuments/openWalnutDesign.out
-^doc/developer/designDocuments/openWalnutDesign.pdf
-^doc/developer/designDocuments/openWalnutDesign.toc
-^doc/developer/designDocuments/openWalnutDesignDocument.pdf
-^doc/labp/html
+^doc/core/man
+^doc/core/doxyerror.log
+^doc/core/core.tag
+^doc/modules/html
+^doc/modules/man
+^doc/modules/doxyerror.log
+^doc/modules/modules.tag
 ^build
 ^openwalnut.log
 

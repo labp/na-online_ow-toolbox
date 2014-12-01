@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -38,18 +37,18 @@
 
 #include "WLEMData.h"
 
+/**
+ * Data and meta information of an electroecephalogram.
+ *
+ * \author kaehler
+ * \ingroup data
+ */
 class WLEMDEEG: public WLEMData
 {
 public:
-    /**
-     * Abbreviation for a shared pointer.
-     */
-    typedef boost::shared_ptr< WLEMDEEG > SPtr;
+    typedef boost::shared_ptr< WLEMDEEG > SPtr; //!< Abbreviation for a shared pointer.
 
-    /**
-     * Abbreviation for const shared pointer.
-     */
-    typedef boost::shared_ptr< const WLEMDEEG > ConstSPtr;
+    typedef boost::shared_ptr< const WLEMDEEG > ConstSPtr; //!< Abbreviation for const shared pointer.
 
     WLEMDEEG();
 
@@ -62,39 +61,71 @@ public:
     virtual WLEModality::Enum getModalityType() const;
 
     /**
-     * Returns the positions in millimeter.
+     * Returns the positions in millimeter. TODO(pieloth): Which unit, meter or millimeter?
+     *
+     * \return Positions in millimeter.
      */
     WLArrayList< WPosition >::SPtr getChannelPositions3d();
 
     /**
-     * Returns the positions in millimeter.
+     * Returns the positions in millimeter. TODO(pieloth): Which unit, meter or millimeter?
+     *
+     * \return Positions in millimeter.
      */
     WLArrayList< WPosition >::ConstSPtr getChannelPositions3d() const;
 
     /**
-     * Sets the positions. Positions must be in millimeter.
+     * Sets the positions.
+     *
+     * \note Positions must be in millimeter. TODO(pieloth): Which unit, meter or millimeter?
+     * \param chanPos3d Positions to set.
      */
     void setChannelPositions3d( WLArrayList< WPosition >::SPtr chanPos3d );
 
+    /**
+     * Sets the positions.
+     *
+     * \deprecated Please use setChannelPositions3d( WLArrayList< WPosition >::SPtr chanPos3d )
+     * \note Positions must be in millimeter. TODO(pieloth): Which unit, meter or millimeter?
+     * \param chanPos3d Positions to set.
+     */
     OW_API_DEPRECATED
     void setChannelPositions3d( boost::shared_ptr< std::vector< WPosition > > chanPos3d );
 
     /**
      * Returns the faces.
+     *
+     * \return List of faces.
+     */
+    WLArrayList< WVector3i >::SPtr getFaces();
+
+    /**
+     * Returns the faces.
+     *
+     * \return List of faces.
      */
     WLArrayList< WVector3i >::ConstSPtr getFaces() const;
 
-    WLArrayList< WVector3i >::SPtr getFaces();
-
+    /**
+     * Sets the faces.
+     *
+     * \param faces Faces to set.
+     */
     void setFaces( WLArrayList< WVector3i >::SPtr faces );
 
+    /**
+     * Sets the faces.
+     *
+     * \deprecated Please use setFaces( WLArrayList< WVector3i >::SPtr faces )
+     * \param faces Faces to set.
+     */
     OW_API_DEPRECATED
     void setFaces( boost::shared_ptr< std::vector< WVector3i > > faces );
 
 private:
-    WLArrayList< WPosition >::SPtr m_chanPos3d;
+    WLArrayList< WPosition >::SPtr m_chanPos3d; //!< Channel positions.
 
-    WLArrayList< WVector3i >::SPtr m_faces;
+    WLArrayList< WVector3i >::SPtr m_faces; //!< Channel faces/triangulation.
 };
 
 inline std::ostream& operator<<( std::ostream &strm, const WLEMDEEG& obj )

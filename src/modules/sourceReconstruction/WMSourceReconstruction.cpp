@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -92,7 +91,7 @@ const std::string WMSourceReconstruction::getName() const
 
 const std::string WMSourceReconstruction::getDescription() const
 {
-    return "Estimates a source distribution according to a linear source reconstruction algorithm.";
+    return "Reconstruction of distributed sources using (weighted) minimum norm.";
 }
 
 void WMSourceReconstruction::connectors()
@@ -114,7 +113,7 @@ void WMSourceReconstruction::properties()
     WLModuleDrawable::setTimerangeInformationOnly( true );
     WLModuleDrawable::setViewModality( WLEModality::SOURCE );
     WLModuleDrawable::hideViewModalitySelection( true );
-    WLModuleDrawable::hideLabelChanged( true );
+    WLModuleDrawable::hideLabelsOn( true );
     WLModuleDrawable::setComputeModalitySelection( WLEModality::valuesLocalizeable() );
 
     m_percent = getViewProperties()->addProperty( "Percent of strength", "The pecental value of strength to display the sources.",
@@ -267,9 +266,9 @@ void WMSourceReconstruction::moduleMain()
             cmd = m_input->getData();
         }
 
-        if( m_lastModality != getCalculateModality() )
+        if( m_lastModality != getComputeModality() )
         {
-            handleComputeModalityChanged( cmd );
+            handleComputeModalityChanged();
         }
 
         const bool dataValid = ( cmd );
@@ -379,10 +378,10 @@ void WMSourceReconstruction::handleSnrChanged()
     m_progress->removeSubProgress( progress );
 }
 
-void WMSourceReconstruction::handleComputeModalityChanged( WLEMMCommand::ConstSPtr cmd )
+void WMSourceReconstruction::handleComputeModalityChanged()
 {
     debugLog() << "handleComputeModalityChanged()";
-    m_lastModality = getCalculateModality();
+    m_lastModality = getComputeModality();
     m_sourceReconstruction->reset();
 }
 
@@ -446,7 +445,7 @@ bool WMSourceReconstruction::processCompute( WLEMMeasurement::SPtr emmIn )
     // The data is valid and we received an update. The data is not NULL but may be the same as in previous loops.
     debugLog() << "received data";
 
-    WLEModality::Enum modality = this->getCalculateModality();
+    WLEModality::Enum modality = this->getComputeModality();
 
     if( !m_sourceReconstruction->hasInverse() )
     {
@@ -491,7 +490,7 @@ bool WMSourceReconstruction::processCompute( WLEMMeasurement::SPtr emmIn )
 bool WMSourceReconstruction::processInit( WLEMMCommand::SPtr cmdIn )
 {
     WLTimeProfiler tp( "WMSourceReconstruction", "processInit" );
-    WLEModality::Enum modality = this->getCalculateModality();
+    WLEModality::Enum modality = this->getComputeModality();
     bool rc = true;
     if( cmdIn->hasEmm() )
     {

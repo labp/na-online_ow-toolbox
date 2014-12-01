@@ -1,30 +1,30 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
 #ifndef WLEMDDRAWABLE3DMEG_H_
 #define WLEMDDRAWABLE3DMEG_H_
 
+#include <string>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
@@ -39,6 +39,12 @@
 #include "core/data/enum/WLEModality.h"
 #include "WLEMDDrawable3D.h"
 
+/**
+ * Visualization of a MEG helmet and the mapped the data.
+ *
+ * \author pieloth
+ * \ingroup gui
+ */
 class WLEMDDrawable3DMEG: public WLEMDDrawable3D
 {
 public:
@@ -65,6 +71,8 @@ protected:
     virtual void osgNodeCallback( osg::NodeVisitor* nv );
 
 private:
+    const WLEModality::Enum m_coilType;
+
     void osgAddLabels( const std::vector< WPosition >& positions, const std::vector< std::string >& labels );
 
     void osgAddNodes( const std::vector< WPosition >& positions );
@@ -74,8 +82,6 @@ private:
     void osgUpdateNodesColor( const WLEMData::DataT& data );
 
     bool m_electrodesChanged;
-
-    const WLEModality::Enum m_coilType;
 
     osg::ref_ptr< osg::Geode > m_electrodesGeode;
 

@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -46,50 +45,58 @@
 #include "core/util/profiler/WLLifetimeProfiler.h"
 
 /**
- * TODO(kaehler): Comments
+ * \brief Electromagnetic measurement contains all data and information about a measurement.
+ * Electromagnetic measurement contains all data and information about a measurement,
+ * e.g. EEG/MEG data, subject information, surfaces and more.
+ *
+ * \authors kaehler, pieloth
+ * \ingroup data
  */
 class WLEMMeasurement
 {
 public:
-    /**
-     * Abbreviation for a shared pointer.
-     */
-    typedef boost::shared_ptr< WLEMMeasurement > SPtr;
+    typedef boost::shared_ptr< WLEMMeasurement > SPtr; //!< Abbreviation for a shared pointer.
+
+    typedef boost::shared_ptr< const WLEMMeasurement > ConstSPtr; //!< Abbreviation for const shared pointer.
+
+    typedef int EventT; //!< Data type for events.
+
+    typedef std::vector< EventT > EChannelT; //!< An event channel.
+
+    typedef std::vector< EChannelT > EDataT; //!< Event data.
+
+    static const std::string CLASS; //!< Class name for logging purpose.
 
     /**
-     * Abbreviation for const shared pointer.
-     */
-    typedef boost::shared_ptr< const WLEMMeasurement > ConstSPtr;
-
-    typedef int EventT;
-
-    typedef std::vector< EventT > EChannelT;
-
-    typedef std::vector< EChannelT > EDataT;
-
-    static const std::string CLASS;
-
-    /**
-     * TODO(kaehler): Comments
+     * Constructor.
      */
     WLEMMeasurement();
 
     /**
-     * TODO(kaehler): Comments
+     * Constructor.
+     *
+     * \param subject Subject to use.
      */
     explicit WLEMMeasurement( WLEMMSubject::SPtr subject );
 
     /**
-     * copy constructor, makes a shallow copy from object except the data vector
+     * Copy constructor, creates a shallow copy from object.
      *
-     * \param m_WDataSetEMMObject the object to copy from
+     * \note Modalities are not copied.
+     * \param emm The object to copy from.
      */
     explicit WLEMMeasurement( const WLEMMeasurement& emm );
 
+    /**
+     * Creates a shallow copy from the instance.
+     *
+     * \note Modalities are not copied.
+     * \return A new instance without the modalities.
+     */
     WLEMMeasurement::SPtr clone() const;
 
     /**
-     * TODO(kaehler): Comments
+     * Destructor.
      */
     virtual ~WLEMMeasurement();
 
@@ -133,17 +140,23 @@ public:
     WLEMData::ConstSPtr getModality( size_t i ) const;
 
     /**
-     * Returns the first occurrence of EMMEMD  with the given type or an empty shared pointer. Throws WNotFound if requested type is not available.
+     * Returns the first occurrence of EMMEMD  with the given type or an empty shared pointer.
+     *
+     * \throws WNotFound if requested type is not available.
      */
     WLEMData::SPtr getModality( WLEModality::Enum type );
 
     /**
-     * Returns the first occurrence of EMMEMD  with the given type or an empty shared pointer. Throws WNotFound if requested type is not available.
+     * Returns the first occurrence of EMMEMD  with the given type or an empty shared pointer.
+     *
+     * \throws WNotFound if requested type is not available.
      */
     WLEMData::ConstSPtr getModality( WLEModality::Enum type ) const;
 
     /**
-     * Returns the first occurrence of EMMEMD  with the given type or an empty shared pointer. Throws WNotFound if requested type is not available.
+     * Returns the first occurrence of EMMEMD  with the given type or an empty shared pointer.
+     *
+     * \throws WNotFound if requested type is not available.
      */
     template< typename EMD >
     boost::shared_ptr< EMD > getModality( WLEModality::Enum type )
@@ -157,7 +170,9 @@ public:
     }
 
     /**
-     * Returns the first occurrence of EMMEMD  with the given type or an empty shared pointer. Throws WNotFound if requested type is not available.
+     * Returns the first occurrence of EMMEMD  with the given type or an empty shared pointer.
+     *
+     * \throws WNotFound if requested type is not available.
      */
     template< typename EMD >
     boost::shared_ptr< const EMD > getModality( WLEModality::Enum type ) const
@@ -181,16 +196,6 @@ public:
      * \return true if modality type is available, false if not.
      */
     bool hasModality( WLEModality::Enum type ) const;
-
-    /**
-     * swaps given modality with modality of the same modality type in list, there is only one list per modality at the time
-     * TODO (pieloth): why returning WDataSetEMM
-     *
-     * \param modality modality to swap with
-     */
-    WLEMMeasurement::SPtr newModalityData( WLEMData::SPtr modality );
-
-    // -----------getter and setter-----------------------------------------------------------------------------
 
     /**
      * getter for experimenter
@@ -244,7 +249,7 @@ public:
     /**
      * Returns the event/stimuli channels.
      */
-    boost::shared_ptr< std::vector< EChannelT > > getEventChannels() const;
+    boost::shared_ptr< EDataT > getEventChannels() const;
 
     /**
      * Sets the event/stimuli channel/data.
@@ -266,59 +271,101 @@ public:
      */
     WLChanNrT getEventChannelCount() const;
 
+    /**
+     * Gets profiler for lifetime and clone counter.
+     *
+     * \return profiler
+     */
     WLLifetimeProfiler::SPtr getProfiler();
+
+    /**
+     * Gets profiler for lifetime and clone counter.
+     *
+     * \return profiler
+     */
     WLLifetimeProfiler::ConstSPtr getProfiler() const;
+
+    /**
+     * Sets profiler for lifetime and clone counter.
+     *
+     * \param profiler
+     */
     void setProfiler( WLLifetimeProfiler::SPtr profiler );
 
+    /**
+     * Gets the digitized points, i.e. EEG and HPI.
+     *
+     * \return digitized points
+     */
     WLList< WLDigPoint >::SPtr getDigPoints();
 
+    /**
+     * Gets the digitized points, i.e. EEG and HPI.
+     *
+     * \return digitized points
+     */
     WLList< WLDigPoint >::ConstSPtr getDigPoints() const;
 
+    /**
+     * Gets the digitized points of a specified kind, e.g. EEG or HPI.
+     *
+     * \return A new list containing all points of the requested kind, maybe empty.
+     */
     WLList< WLDigPoint >::SPtr getDigPoints( WLEPointType::Enum kind ) const;
 
+    /**
+     * Sets the digitized points, i.e. EEG and HPI.
+     *
+     * \param digPoints
+     */
     void setDigPoints( WLList< WLDigPoint >::SPtr digPoints );
 
+    /**
+     * Gets the transformation matrix: device to fiducial.
+     *
+     * \return %transformation matrix
+     */
     const WLMatrix4::Matrix4T& getDevToFidTransformation() const;
 
+    /**
+     * Sets the transformation matrix: device to fiducial.
+     *
+     * \param mat %Transformation matrix.
+     */
     void setDevToFidTransformation( const WLMatrix4::Matrix4T& mat );
 
+    /**
+     * Gets the transformation matrix: fiducial to ACPC.
+     *
+     * \return %transformation matrix
+     */
     const WLMatrix4::Matrix4T& getFidToACPCTransformation() const;
 
+    /**
+     * Sets the transformation matrix: fiducial to ACPC.
+     *
+     * \param mat %Transformation matrix.
+     */
     void setFidToACPCTransformation( const WLMatrix4::Matrix4T& mat );
 
 private:
     WLLifetimeProfiler::SPtr m_profiler;
 
-    /**
-     * experiment supervisor
-     */
-    std::string m_experimenter;
+    std::string m_experimenter; //!< experiment supervisor.
 
-    /**
-     * optional description of experiment
-     */
-    std::string m_expDescription;
+    std::string m_expDescription; //!< description of experiment.
 
-    /**
-     * list with modality specific measurements WLEMData
-     */
-    std::vector< WLEMData::SPtr > m_modalityList;
+    std::vector< WLEMData::SPtr > m_modalityList; //!< Container for EMDs.
 
-    /**
-     * subject information
-     */
-    WLEMMSubject::SPtr m_subject;
+    WLEMMSubject::SPtr m_subject; //!< Subject information.
 
-    /**
-     * Event/Stimuli channels
-     */
-    boost::shared_ptr< std::vector< EChannelT > > m_eventChannels;
+    boost::shared_ptr< std::vector< EChannelT > > m_eventChannels; //!< Event/Stimuli channels
 
-    WLList< WLDigPoint >::SPtr m_digPoints;
+    WLList< WLDigPoint >::SPtr m_digPoints; //!< Digitized points.
 
-    WLMatrix4::Matrix4T m_transDevToFid;
+    WLMatrix4::Matrix4T m_transDevToFid; //!< %Transformation matrix: device to fiducial.
 
-    WLMatrix4::Matrix4T m_transFidToACPC;
+    WLMatrix4::Matrix4T m_transFidToACPC; //!< %Transformation matrix: fiducial to ACPC.
 };
 
 inline std::ostream& operator<<( std::ostream &strm, const WLEMMeasurement& obj )

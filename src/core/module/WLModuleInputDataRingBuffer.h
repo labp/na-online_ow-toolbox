@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -39,21 +38,18 @@
 
 /**
  * A ring buffer implementation of WModuleInputDataCollection. It can be used as a producer-consumer-FIFO.
- * Thread safe for 1 producer thread (addData()) and 1 consumer thread (getData()).
+ * \attention Thread safe for 1 producer thread (addData()) and 1 consumer thread (getData()).
+ *
+ * \author pieloth
+ * \ingroup module
  */
 template< typename T >
 class WLModuleInputDataRingBuffer: public WLModuleInputDataCollection< T >
 {
 public:
-    /**
-     * Shared pointer to this class.
-     */
-    typedef boost::shared_ptr< WLModuleInputDataRingBuffer > SPtr;
+    typedef boost::shared_ptr< WLModuleInputDataRingBuffer > SPtr; //!< Abbreviation for a shared pointer.
 
-    /**
-     * Const shared pointer to this class.
-     */
-    typedef boost::shared_ptr< const WLModuleInputDataRingBuffer > ConstSPtr;
+    typedef boost::shared_ptr< const WLModuleInputDataRingBuffer > ConstSPtr; //!< Abbreviation for a const shared pointer.
 
     static const std::string CLASS;
 
@@ -90,43 +86,30 @@ public:
     /**
      * Returns the oldest element of the buffer and removes this element.
      *
-     * \param reset reset the flag of updated() if true (default).
-     * \return the oldest element.
+     * \param reset Reset the flag of updated() if true (default).
+     * \return The oldest element.
      */
     const boost::shared_ptr< T > getData( bool reset = true ) throw( WException );
 
     /**
      * Adds an elements to the buffer.
      *
-     * \param value element whose presence in this collection is to be ensured.
-     * \return true if the buffer holds the element. false if the element could not be added e.g. buffer is full.
+     * \param value Element whose presence in this collection is to be ensured.
+     * \return True if the buffer holds the element. false if the element could not be added e.g. buffer is full.
      */
     bool addData( boost::shared_ptr< T > value );
 
     /**
      * Buffer size.
      *
-     * \return the maximum count of elements which can be stored.
+     * \return The maximum count of elements which can be stored.
      */
     size_t capacity();
 
-    /**
-     * Removes all elements in the buffer.
-     */
     void clear();
 
-    /**
-     * Checks whether the collection is empty or not.
-     *
-     * \return true if this collection contains no elements.
-     */
     bool isEmpty();
 
-    /**
-     * Returns the current number of elements in this collection.
-     *
-     * \return current number of elements in this collection.
-     */
     size_t size();
 
 protected:
@@ -178,7 +161,7 @@ WLModuleInputDataRingBuffer< T >::WLModuleInputDataRingBuffer( size_t capacity, 
     m_capacity = capacity + 1 < MIN_BUFFER_SIZE ? MIN_BUFFER_SIZE : capacity + 1;
     m_read = 0;
     m_write = 0;
-    m_data = ( boost::shared_ptr< T >* )calloc( m_capacity, sizeof(boost::shared_ptr< T >) );
+    m_data = ( boost::shared_ptr< T >* )calloc( m_capacity, sizeof( boost::shared_ptr< T > ) );
     assert( m_data );
 }
 
@@ -289,7 +272,7 @@ void WLModuleInputDataRingBuffer< T >::clear()
     }
 
     free( m_data );
-    m_data = ( boost::shared_ptr< T >* )calloc( m_capacity, sizeof(boost::shared_ptr< T >) );
+    m_data = ( boost::shared_ptr< T >* )calloc( m_capacity, sizeof( boost::shared_ptr< T > ) );
     assert( m_data );
 
     m_read = 0;

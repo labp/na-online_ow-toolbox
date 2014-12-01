@@ -1,29 +1,29 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
 #include <cstddef>
 #include <fstream>
+#include <list>
 #include <string>
 #include <vector>
 
@@ -40,38 +40,40 @@
 #include "WLReaderBND.h"
 #include "WLReaderVOL.h"
 
-using namespace LaBP;
-using namespace std;
+using std::ifstream;
+using std::list;
+using std::string;
+using std::vector;
 
-const string CLASS = "WLReaderVOL";
+const std::string WLReaderVOL::CLASS = "WLReaderVOL";
 
 WLReaderVOL::WLReaderVOL( std::string fname ) :
-                WLReader( fname )
+                WLReaderGeneric< std::list< WLEMMBemBoundary::SPtr > >( fname )
 {
     wlog::debug( CLASS ) << "file: " << fname;
 }
 
-WLReaderVOL::ReturnCode::Enum WLReaderVOL::read( std::list< WLEMMBemBoundary::SPtr >* const boundaries )
+WLIOStatus::IOStatusT WLReaderVOL::read( std::list< WLEMMBemBoundary::SPtr >* const boundaries )
 {
     ifstream ifs;
     ifs.open( m_fname.c_str(), ifstream::in );
 
     if( !ifs || ifs.bad() )
     {
-        return ReturnCode::ERROR_FOPEN;
+        return WLIOStatus::ERROR_FOPEN;
     }
 
     string line;
     size_t countBnd = 0;
     bool hasNumBnd = false, hasUnit = false, hasConduct = false;
-    ReturnCode::Enum rc = ReturnCode::ERROR_UNKNOWN;
+    WLIOStatus::IOStatusT rc = WLIOStatus::ERROR_UNKNOWN;
     try
     {
         while( getline( ifs, line ) && ( !hasNumBnd || !hasUnit || !hasConduct ) )
         {
             if( line.find( "NumberBoundaries=" ) == 0 )
             {
-                rc = readNumBoundaries( line, countBnd );
+                rc = readNumBoundaries( &countBnd, line );
                 for( size_t i = 0; i < countBnd; ++i )
                 {
                     boundaries->push_back( boost::shared_ptr< WLEMMBemBoundary >( new WLEMMBemBoundary() ) );
@@ -82,7 +84,7 @@ WLReaderVOL::ReturnCode::Enum WLReaderVOL::read( std::list< WLEMMBemBoundary::SP
                 if( line.find( "UnitConduct=" ) == 0 )
                 {
                     WLEUnit::Enum unit = WLEUnit::NONE;
-                    rc = readConductUnit( line, unit );
+                    rc = readConductUnit( &unit, line );
                     hasUnit = true;
                 }
                 else
@@ -94,60 +96,59 @@ WLReaderVOL::ReturnCode::Enum WLReaderVOL::read( std::list< WLEMMBemBoundary::SP
                     else
                         if( line.find( "Boundary" ) == 0 )
                         {
-                            rc = readBndFiles( ifs, line, boundaries );
+                            rc = readBndFiles( ifs, &line, boundaries );
                         }
         }
     }
-    catch( WTypeMismatch& e )
+    catch( const WTypeMismatch& e )
     {
         wlog::error( CLASS ) << e.what();
-        rc = ReturnCode::ERROR_UNKNOWN;
+        rc = WLIOStatus::ERROR_UNKNOWN;
     }
 
     ifs.close();
     return rc;
 }
 
-WLReaderVOL::ReturnCode::Enum WLReaderVOL::readNumBoundaries( std::string& line, size_t& count )
+WLIOStatus::IOStatusT WLReaderVOL::readNumBoundaries( size_t* const count, const std::string& line )
 {
     vector< string > tokens = string_utils::tokenize( line );
-    count = string_utils::fromString< size_t >( tokens.at( 1 ) );
+    *count = string_utils::fromString< size_t >( tokens.at( 1 ) );
     wlog::debug( CLASS ) << "Number of boundaries: " << count;
-    return ReturnCode::SUCCESS;
+    return WLIOStatus::SUCCESS;
 }
 
-WLReaderVOL::ReturnCode::Enum WLReaderVOL::readConductUnit( std::string& line, WLEUnit::Enum& unit )
+WLIOStatus::IOStatusT WLReaderVOL::readConductUnit( WLEUnit::Enum* const unit, const std::string& line )
 {
     vector< string > tokens = string_utils::tokenize( line );
     string sunit = tokens.at( 1 );
     wlog::debug( CLASS ) << "Unit: " << sunit;
     if( sunit.find( "S/m" ) != string::npos )
     {
-        unit = WLEUnit::SIEMENS_PER_METER;
-        return ReturnCode::SUCCESS;
+        *unit = WLEUnit::SIEMENS_PER_METER;
+        return WLIOStatus::SUCCESS;
     }
     else
     {
-        unit = WLEUnit::NONE;
+        *unit = WLEUnit::NONE;
         wlog::warn( CLASS ) << "Unknown unit.";
-        return ReturnCode::ERROR_UNKNOWN;
+        return WLIOStatus::ERROR_UNKNOWN;
     }
 }
 
-WLReaderVOL::ReturnCode::Enum WLReaderVOL::readConductivities( std::ifstream& ifs,
-                std::list< WLEMMBemBoundary::SPtr >* const boundaries )
+WLIOStatus::IOStatusT WLReaderVOL::readConductivities( std::ifstream& ifs, std::list< WLEMMBemBoundary::SPtr >* const boundaries )
 {
     if( boundaries->size() == 0 )
     {
         wlog::error( CLASS ) << "Empty boundary vector!";
-        return ReturnCode::ERROR_UNKNOWN;
+        return WLIOStatus::ERROR_UNKNOWN;
     }
 
     string line;
     getline( ifs, line );
     if( !ifs.good() )
     {
-        return ReturnCode::ERROR_FREAD;
+        return WLIOStatus::ERROR_FREAD;
     }
 
     vector< string > lineTokens = string_utils::tokenize( line, " " );
@@ -159,16 +160,16 @@ WLReaderVOL::ReturnCode::Enum WLReaderVOL::readConductivities( std::ifstream& if
         ( *bit )->setConductivity( conduct );
     }
 
-    return ReturnCode::SUCCESS;
+    return WLIOStatus::SUCCESS;
 }
 
-WLReaderVOL::ReturnCode::Enum WLReaderVOL::readBndFiles( std::ifstream& ifs, string& line,
+WLIOStatus::IOStatusT WLReaderVOL::readBndFiles( std::ifstream& ifs, string* const line,
                 std::list< WLEMMBemBoundary::SPtr >* const boundaries )
 {
     if( boundaries->size() == 0 )
     {
         wlog::error( CLASS ) << "Empty boundary vector!";
-        return ReturnCode::ERROR_UNKNOWN;
+        return WLIOStatus::ERROR_UNKNOWN;
     }
 
     string path = m_fname.substr( 0, m_fname.find_last_of( '/' ) + 1 );
@@ -176,20 +177,20 @@ WLReaderVOL::ReturnCode::Enum WLReaderVOL::readBndFiles( std::ifstream& ifs, str
     list< WLEMMBemBoundary::SPtr >::iterator bit;
     for( bit = boundaries->begin(); bit != boundaries->end(); ++bit )
     {
-        vector< string > tokens = string_utils::tokenize( line );
+        vector< string > tokens = string_utils::tokenize( *line );
         string fname = tokens.at( 1 );
         WLReaderBND reader( path + fname );
-        if( reader.read( *bit ) != WLReaderBND::ReturnCode::SUCCESS )
+        if( reader.read( &( *bit ) ) != WLIOStatus::SUCCESS )
         {
             wlog::error( CLASS ) << "Error while reading " << fname;
         }
-        getline( ifs, line );
+        getline( ifs, *line );
         if( !ifs.good() && !ifs.eof() )
         {
             wlog::error( CLASS ) << "Unexpected file end!";
-            return ReturnCode::ERROR_FREAD;
+            return WLIOStatus::ERROR_FREAD;
         }
     }
 
-    return ReturnCode::SUCCESS;
+    return WLIOStatus::SUCCESS;
 }

@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -31,19 +30,24 @@
 #include <boost/shared_ptr.hpp>
 
 /**
- * Helper class for std::list. Main purpose is to provide an easy-to-use Smart Pointer access.
- * ATTENTION: Due to a non-virtual destructor of std::list and memory leak prevention, member variables are not allowed!
- *
+ * Helper class for std::list. Main purpose is to provide an easy-to-use Smart Pointer access.\n
+ * ATTENTION: Due to a non-virtual destructor of std::list and memory leak prevention, member variables are not allowed!\n
+ * \n
  * Correct:
+ * \code
  * WLList::SPtr l1 = WLList::instance();
  * WLList::SPtr l2( new WLList() );
  * WLList l3();
+ * \endcode
  *
  * Wrong:
+ * \code
  * std::list* l = new WLList();
  * delete l; // Does not call destructor for WLArrayList!
+ * \endcode
  *
  * \author pieloth
+ * \ingroup container
  */
 template< typename T >
 class WLList: public std::list< T >

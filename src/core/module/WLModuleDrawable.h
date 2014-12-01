@@ -1,30 +1,30 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
 #ifndef WLMODULEDRAWABLE_H
 #define WLMODULEDRAWABLE_H
 
+#include <list>
 #include <set>
 
 #include <boost/shared_ptr.hpp>
@@ -47,28 +47,28 @@
 #include "core/util/bounds/WLABoundCalculator.h"
 
 /**
- * Virtual Implementation of WModule to let our modules use a VIEW including just 4 lines! of code
+ * Extends WModule for NA-Online modules by a separated view, view properties and
+ * an output connector for buffered input connectors. To provide a buffered input connector in each signal processing step,
+ * NA-Online modules should use instances of WLModuleInputDataCollection and
+ * WLModuleOutputDataCollectionable as connectors.
+ *
+ * \author pieloth
+ * \ingroup module
  */
 class WLModuleDrawable: public WModule, public WLEMMCommandProcessor
 {
 public:
-    /**
-     * Abbreviation for a shared pointer.
-     */
-    typedef boost::shared_ptr< WLModuleDrawable > SPtr;
+    typedef boost::shared_ptr< WLModuleDrawable > SPtr; //!< Abbreviation for a shared pointer.
+
+    typedef boost::shared_ptr< const WLModuleDrawable > ConstSPtr; //!< Abbreviation for const shared pointer.
 
     /**
-     * Abbreviation for const shared pointer.
-     */
-    typedef boost::shared_ptr< const WLModuleDrawable > ConstSPtr;
-
-    /**
-     * standard constructor
+     * Constructor.
      */
     WLModuleDrawable();
 
     /**
-     * destructor
+     * Destructor.
      */
     virtual ~WLModuleDrawable();
 
@@ -79,100 +79,166 @@ protected:
     virtual bool processTime( WLEMMCommand::SPtr cmdIn );
     virtual bool processMisc( WLEMMCommand::SPtr cmdIn );
 
-    WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output; /**< Output connector for buffered input connectors. */
+    WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output; //!< Output connector for buffered input connectors.
 
-    /**
-     * Initialize the properties for this module and load the widget
-     */
     virtual void properties();
-
-    /**
-     * Sets the new data to draw.
-     */
-    void viewUpdate( WLEMMeasurement::SPtr emm );
-
-    /**
-     * Set which elements of the view we want to see: info panels, channels and/or head. Called it after ready()!
-     */
-    void viewInit( WLEMDDrawable2D::WEGraphType::Enum graphType );
-
-    void viewReset();
-
-    /**
-     * Must be called from derived classes in moduleMain after receiving a shutdown.
-     */
-    void viewCleanup();
-
-    /**
-     * Initializes the underlying algorithm with the values of WProperties. Called it after ready()!
-     */
-    virtual void moduleInit() = 0;
-
-    WLEModality::Enum getViewModality();
-
-    void setViewModality( WLEModality::Enum mod );
-
-    void hideViewModalitySelection( bool enable );
-
-    WLEModality::Enum getCalculateModality();
-
-    double getTimerange();
-
-    void setTimerange( double value );
-
-    void setTimerangeInformationOnly( bool enable );
-
-    void hideComputeModalitySelection( bool enable );
-
-    void setComputeModalitySelection( const std::set< WLEModality::Enum >& modalities );
-
-    void hideLabelChanged( bool enable );
-
-    /**
-     * Gets the current bound calculator.
-     *
-     * @return Returns a shared pinter on the bound calculator.
-     */
-    WLABoundCalculator::SPtr getBoundCalculator();
-
-    /**
-     * Sets the current bound calculator.
-     *
-     * @param calculator The bound calculator.
-     */
-    void setBoundCalculator( WLABoundCalculator::SPtr calculator );
 
     /**
      * Gets the view properties group.
      * This properties can be used to add some properties to the group from concrete modules.
      * The bound calculator uses this behaviour for example.
      *
-     * @return Returns a shared pointer on the constant property group.
+     * \return Returns a shared pointer on the constant property group.
      */
-    boost::shared_ptr< WPVGroup > getViewProperties();
+    WPVGroup::SPtr getViewProperties();
+
+    /**
+     * Updates all view components with the new data. No action if widget is closed or not visible.
+     *
+     * \param emm New data.
+     */
+    void viewUpdate( WLEMMeasurement::SPtr emm );
+
+    /**
+     * Initializes the view for the requested graph type. 2D, 3D view and all necessary event handlers are created.
+     * \note Must be called after WModule::ready()!
+     *
+     * \param graphType Graph type for this module.
+     */
+    void viewInit( WLEMDDrawable2D::WEGraphType::Enum graphType );
+
+    /**
+     * Resets all view components.
+     */
+    void viewReset();
+
+    /**
+     * Unloads all view components, especially the event handlers.
+     * \note Must be called from in WModule::moduleMain() after receiving a shutdown.
+     */
+    void viewCleanup();
+
+    /**
+     * \brief Initializes the module/algorithm with the all necessary values.
+     * Use it to initialized the module, to initialize the view, to initialize the algorithm, to load a stored module and
+     * to set/create all initial values.
+     *
+     * \note Should be the first call in WModule::moduleMain().
+     */
+    virtual void moduleInit() = 0;
+
+    /**
+     * Returns the modality which is visualized.
+     *
+     * \return Modality type to visualize.
+     */
+    WLEModality::Enum getViewModality();
+
+    /**
+     * Sets the modality, which schoul be visualize.
+     * \param mod Modality type to visualize.
+     */
+    void setViewModality( WLEModality::Enum mod );
+
+    /**
+     * Clears and sets the view modality selection.
+     *
+     * \param mods List of modalities to select.
+     */
+    void setViewModalitySelection( std::list< WLEModality::Enum > mods );
+
+    /**
+     * Hides the selection for view modality, e.g. the module belongs to one modality only.
+     *
+     * \param enable True to hide the selection.
+     */
+    void hideViewModalitySelection( bool enable );
+
+    /**
+     * Returns the modality which should be processed.
+     *
+     * \return Modality type to process.
+     */
+    WLEModality::Enum getComputeModality();
+
+    /**
+     * Clears and sets the compute modality selection.
+     *
+     * \param mods List of modalities to process.
+     */
+    void setComputeModalitySelection( const std::set< WLEModality::Enum >& modalities );
+
+    /**
+     * Hides the selection for compute modality, e.g. the module belongs to one modality only.
+     *
+     * \param enable True to hide the selection.
+     */
+    void hideComputeModalitySelection( bool enable );
+
+    /**
+     * Gets the time range to visualize. TODO(pieloth): seconds or milliseconds?
+     *
+     * \return Time range in ???.
+     */
+    double getTimerange();
+
+    /**
+     * Sets the time range in ??? to visualize. TODO(pieloth): seconds or milliseconds?
+     *
+     * \return Time range in ???.
+     */
+    void setTimerange( double value );
+
+    /**
+     * Deactivate user changes for time range in the GUI.
+     *
+     * \param enable True to deactivate user changes.
+     */
+    void setTimerangeInformationOnly( bool enable );
+
+    /**
+     * Hides the sensor labels/ channels names in 3D view.
+     *
+     * \param enable True to hide.
+     */
+    void hideLabelsOn( bool enable );
+
+    /**
+     * Gets the current bound calculator.
+     *
+     * \return Returns a shared pinter on the bound calculator.
+     */
+    WLABoundCalculator::SPtr getBoundCalculator();
+
+    /**
+     * Sets the current bound calculator.
+     *
+     * \param calculator The bound calculator.
+     */
+    void setBoundCalculator( WLABoundCalculator::SPtr calculator );
+
+    /**
+     * Uses the current bound calculator to determine the bounds/scale for 3D and 2D views.
+     */
+    void calcBounds();
 
     /**
      * Gets the last processed EMM object.
      *
-     * @return Returns a shared pointer on a WLEMMeasurement.
+     * \return Returns a shared pointer on a WLEMMeasurement.
      */
     WLEMMeasurement::SPtr getLastEMM();
 
     /**
      * Sets the last processed EMM object.
      *
-     * @param emm The EMM obejct.
+     * \param emm The EMM obejct.
      */
     void setLastEMM( WLEMMeasurement::SPtr emm );
 
-    /**
-     * Uses the current bound calcluator to determine the bounds for 3D and 2D views.
-     */
-    void calcBounds();
+    WLEMDDrawable2D::SPtr m_drawable2D; //!< 2D view.
 
-    WLEMDDrawable2D::SPtr m_drawable2D;
-
-    WLEMDDrawable3D::SPtr m_drawable3D;
+    WLEMDDrawable3D::SPtr m_drawable3D; //!< 3D view.
 
 private:
     void createColorMap();
@@ -205,15 +271,9 @@ private:
 
     WPropBool m_labelsOn;
 
-    /**
-     * the width of the graph in seconds as property
-     */
-    WPropDouble m_timeRange;
+    WPropDouble m_timeRange; //!< The width of the graph in seconds as property.
 
-    /**
-     * the distance between two curves of the graph in pixel as property
-     */
-    WPropDouble m_channelHeight;
+    WPropDouble m_channelHeight; //!< The distance between two curves of the graph in pixel as property.
 
     WPropSelection m_selectionColor;
 
@@ -243,19 +303,13 @@ private:
 
     int m_autoScaleCounter;
 
-    LaBP::WLColorMap::SPtr m_colorMap;
+    WLColorMap::SPtr m_colorMap;
 
     double m_range;
 
-    /**
-     * Calculates the boundaries for 2D and 3D views based on the signal data.
-     */
-    WLABoundCalculator::SPtr m_boundCalculator;
+    WLABoundCalculator::SPtr m_boundCalculator; //!< Calculates the boundaries for 2D and 3D views based on the signal data.
 
-    /**
-     * The last processed EMM object.
-     */
-    WLEMMeasurement::SPtr m_lastEmm;
+    WLEMMeasurement::SPtr m_lastEmm; //!< The last processed EMM object.
 };
 
 #endif  // WLMODULEDRAWABLE_H

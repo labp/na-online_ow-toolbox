@@ -1,26 +1,28 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
+
+#include <string>
+#include <vector>
 
 #include <boost/foreach.hpp>
 #include <boost/shared_ptr.hpp>
@@ -112,7 +114,6 @@ WLArrayList< WPosition >::ConstSPtr WLEMDMEG::getChannelPositions3d( WLEMEGGener
     WLArrayList< WPosition >& positions = *posPtr;
     positions.reserve( picks.size() );
 
-    size_t row = 0;
     std::vector< size_t >::const_iterator it;
     for( it = picks.begin(); it != picks.end(); ++it )
     {
@@ -154,7 +155,6 @@ WLArrayList< WVector3i >::ConstSPtr WLEMDMEG::getFaces( WLEMEGGeneralCoilType::E
     WLArrayList< WVector3i >& faces = *facesPtr;
     faces.reserve( picks.size() );
 
-    size_t row = 0;
     std::vector< size_t >::const_iterator it;
     for( it = picks.begin(); it != picks.end(); ++it )
     {
@@ -253,17 +253,16 @@ WLEMDMEG::DataSPtr WLEMDMEG::getDataBadChannels( WLEMEGGeneralCoilType::Enum typ
 
     size_t row = 0;
 
-    BOOST_FOREACH(size_t it, picks)
+    BOOST_FOREACH( size_t it, picks ){
+    if( isBadChannel( it ) )
     {
-        if( isBadChannel( it ) )
-        {
-            continue;
-        }
-
-        data.row( row ) = m_data->row( it );
-
-        ++row;
+        continue;
     }
+
+    data.row( row ) = m_data->row( it );
+
+    ++row;
+}
 
     return dataPtr;
 }
@@ -286,24 +285,23 @@ WLEMDMEG::DataSPtr WLEMDMEG::getDataBadChannels( WLEMEGGeneralCoilType::Enum typ
 
     size_t row = 0;
 
-    BOOST_FOREACH(size_t it, picks)
+    BOOST_FOREACH( size_t it, picks ){
+    if( isBadChannel( it ) || std::find( badChans->begin(), badChans->end(), it ) != badChans->end() )
     {
-        if( isBadChannel( it ) || std::find( badChans->begin(), badChans->end(), it ) != badChans->end() )
-        {
-            continue;
-        }
-
-        data.row( row ) = m_data->row( it );
-
-        ++row;
+        continue;
     }
+
+    data.row( row ) = m_data->row( it );
+
+    ++row;
+}
 
     return dataPtr;
 }
 
 std::vector< size_t > WLEMDMEG::getPicks( WLEMEGGeneralCoilType::Enum type ) const
 {
-    if( m_picksMag.size() + m_picksGrad.size() != getNrChans() )
+    if( m_picksMag.size() + m_picksGrad.size() != static_cast< size_t >( getNrChans() ) )
     {
         m_picksGrad.clear();
         m_picksMag.clear();
@@ -450,7 +448,7 @@ bool WLEMDMEG::extractCoilModality( WLEMDMEG::SPtr& megOut, WLEMDMEG::ConstSPtr 
     }
 
     megOut->setData( dataPtr );
-    megOut->setSampFreq(megIn->getSampFreq());
+    megOut->setSampFreq( megIn->getSampFreq() );
     if( dataOnly )
     {
         return true;

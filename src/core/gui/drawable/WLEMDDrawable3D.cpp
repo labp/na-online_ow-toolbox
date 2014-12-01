@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -48,15 +47,15 @@
 
 #include "core/data/emd/WLEMDMEG.h"
 #include "core/gui/colorMap/WLColorMap.h"
+#include "core/util/WLDefines.h"
 
 #include "WLEMDDrawable.h"
 #include "WLEMDDrawable3DEEG.h"
 #include "WLEMDDrawable3DMEG.h"
+#include "WLEMDDrawable3DHPI.h"
 #include "WLEMDDrawable3DSource.h"
 #include "WLEMDDrawable3DEmpty.h"
 #include "WLEMDDrawable3D.h"
-
-using namespace LaBP;
 
 const std::string WLEMDDrawable3D::CLASS = "WLEMDDrawable3D";
 
@@ -105,6 +104,9 @@ WLEMDDrawable3D::SPtr WLEMDDrawable3D::getInstance( WUIViewWidget::SPtr widget, 
         case WLEModality::SOURCE:
             drawable3D = WLEMDDrawable3D::SPtr( new WLEMDDrawable3DSource( widget ) );
             break;
+        case WLEModality::HPI:
+            drawable3D = WLEMDDrawable3D::SPtr( new WLEMDDrawable3DHPI( widget ) );
+            break;
         default:
             drawable3D = WLEMDDrawable3D::SPtr( new WLEMDDrawable3DEmpty( widget ) );
             wlog::warn( CLASS ) << "No 3D drawable available for modality: " << WLEModality::name( modality );
@@ -132,6 +134,7 @@ void WLEMDDrawable3D::draw( WLEMMeasurement::SPtr emm )
 
 void WLEMDDrawable3D::osgNodeCallback( osg::NodeVisitor* nv )
 {
+    WL_UNUSED( nv );
     osgAddColorMap();
 
     m_colorMapChanged = false;
@@ -193,12 +196,12 @@ bool WLEMDDrawable3D::setSelectedTime( float relative )
     }
 }
 
-LaBP::WLColorMap::SPtr WLEMDDrawable3D::getColorMap() const
+WLColorMap::SPtr WLEMDDrawable3D::getColorMap() const
 {
     return m_colorMap;
 }
 
-void WLEMDDrawable3D::setColorMap( LaBP::WLColorMap::SPtr colorMap )
+void WLEMDDrawable3D::setColorMap( WLColorMap::SPtr colorMap )
 {
     m_colorMap = colorMap;
     m_colorMapChanged = true;
@@ -241,7 +244,7 @@ void WLEMDDrawable3D::osgAddSurface( const std::vector< WPosition >& positions, 
             {
                 tri = wge::triangulate( scaledPos, -0.005 );
             }
-            catch( WException& e )
+            catch( const WException& e )
             {
                 wlog::error( CLASS ) << "wge::triangulate() " << e.what();
                 return;
