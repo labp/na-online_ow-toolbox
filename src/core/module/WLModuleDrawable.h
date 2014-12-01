@@ -159,7 +159,7 @@ protected:
      *
      * \return Modality type to process.
      */
-    WLEModality::Enum getCalculateModality();
+    WLEModality::Enum getComputeModality();
 
     /**
      * Clears and sets the compute modality selection.
@@ -201,7 +201,7 @@ protected:
      *
      * \param enable True to hide.
      */
-    void hideLabelChanged( bool enable );
+    void hideLabelsOn( bool enable );
 
     /**
      * Gets the current bound calculator.

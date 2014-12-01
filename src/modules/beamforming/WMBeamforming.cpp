@@ -127,7 +127,7 @@ void WMBeamforming::properties()
     WLModuleDrawable::setTimerangeInformationOnly( true );
     WLModuleDrawable::setViewModality( WLEModality::SOURCE );
     WLModuleDrawable::hideViewModalitySelection( true );
-    WLModuleDrawable::hideLabelChanged( true );
+    WLModuleDrawable::hideLabelsOn( true );
     WLModuleDrawable::setComputeModalitySelection( WLEModality::valuesLocalizeable() );
 
     // wait- function
@@ -222,7 +222,7 @@ void WMBeamforming::moduleMain()
             handleCSDChanged( m_CSDFile->get().string(), &m_CSD );
         }
 
-        if( m_lastModality != getCalculateModality() )
+        if( m_lastModality != getComputeModality() )
         {
             handleComputeModalityChanged();
         }
@@ -267,7 +267,7 @@ void WMBeamforming::handleComputeModalityChanged()
 {
     debugLog() << __func__ << "() called!";
 
-    m_lastModality = getCalculateModality();
+    m_lastModality = getComputeModality();
     m_beamforming->reset();
 }
 
@@ -322,7 +322,7 @@ bool WMBeamforming::processCompute( WLEMMeasurement::SPtr emmIn )
     m_beamforming->setType(
                     m_typeSelection->get().at( 0 )->getAs< WItemSelectionItemTyped< WBeamforming::WEType::Enum > >()->getValue() );
 
-    WLEModality::Enum modality = this->getCalculateModality();
+    WLEModality::Enum modality = this->getComputeModality();
     WLEMData::SPtr eeg = emmIn->getModality( modality );
     if( !m_beamforming->hasBeam() )
     {
