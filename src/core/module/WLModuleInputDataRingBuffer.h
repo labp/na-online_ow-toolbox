@@ -38,7 +38,7 @@
 
 /**
  * A ring buffer implementation of WModuleInputDataCollection. It can be used as a producer-consumer-FIFO.
- * Thread safe for 1 producer thread (addData()) and 1 consumer thread (getData()).
+ * \attention Thread safe for 1 producer thread (addData()) and 1 consumer thread (getData()).
  *
  * \author pieloth
  * \ingroup module
@@ -47,15 +47,9 @@ template< typename T >
 class WLModuleInputDataRingBuffer: public WLModuleInputDataCollection< T >
 {
 public:
-    /**
-     * Shared pointer to this class.
-     */
-    typedef boost::shared_ptr< WLModuleInputDataRingBuffer > SPtr;
+    typedef boost::shared_ptr< WLModuleInputDataRingBuffer > SPtr; //!< Abbreviation for a shared pointer.
 
-    /**
-     * Const shared pointer to this class.
-     */
-    typedef boost::shared_ptr< const WLModuleInputDataRingBuffer > ConstSPtr;
+    typedef boost::shared_ptr< const WLModuleInputDataRingBuffer > ConstSPtr; //!< Abbreviation for a const shared pointer.
 
     static const std::string CLASS;
 
@@ -92,43 +86,30 @@ public:
     /**
      * Returns the oldest element of the buffer and removes this element.
      *
-     * \param reset reset the flag of updated() if true (default).
-     * \return the oldest element.
+     * \param reset Reset the flag of updated() if true (default).
+     * \return The oldest element.
      */
     const boost::shared_ptr< T > getData( bool reset = true ) throw( WException );
 
     /**
      * Adds an elements to the buffer.
      *
-     * \param value element whose presence in this collection is to be ensured.
-     * \return true if the buffer holds the element. false if the element could not be added e.g. buffer is full.
+     * \param value Element whose presence in this collection is to be ensured.
+     * \return True if the buffer holds the element. false if the element could not be added e.g. buffer is full.
      */
     bool addData( boost::shared_ptr< T > value );
 
     /**
      * Buffer size.
      *
-     * \return the maximum count of elements which can be stored.
+     * \return The maximum count of elements which can be stored.
      */
     size_t capacity();
 
-    /**
-     * Removes all elements in the buffer.
-     */
     void clear();
 
-    /**
-     * Checks whether the collection is empty or not.
-     *
-     * \return true if this collection contains no elements.
-     */
     bool isEmpty();
 
-    /**
-     * Returns the current number of elements in this collection.
-     *
-     * \return current number of elements in this collection.
-     */
     size_t size();
 
 protected:

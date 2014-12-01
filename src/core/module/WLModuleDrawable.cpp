@@ -309,7 +309,7 @@ void WLModuleDrawable::setLastEMM( WLEMMeasurement::SPtr emm )
     m_lastEmm = emm;
 }
 
-boost::shared_ptr< WPVGroup > WLModuleDrawable::getViewProperties()
+WPVGroup::SPtr WLModuleDrawable::getViewProperties()
 {
     return m_propView;
 }
