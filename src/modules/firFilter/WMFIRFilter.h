@@ -38,6 +38,7 @@
 
 /**
  * FIR Filter for lowpass, highpass, bandpass and bandstop filtering of EEG/MEG data.
+ * \see \cite Kaehler2011
  *
  * \authors kaehler, pieloth
  * \ingroup preproc

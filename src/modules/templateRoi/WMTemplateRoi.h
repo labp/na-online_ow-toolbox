@@ -38,10 +38,15 @@
 #include "core/module/WLModuleOutputDataCollectionable.h"
 #include "core/util/roi/WLROISelectorSource.h"
 
+/**
+ * ROI example module, marks the region in source space.
+ * \see \cite Maschke2014
+ *
+ * \author maschke
+ */
 class WMTemplateRoi: public WLModuleDrawable
 {
 public:
-
     /**
      * Construct a new WMTemplateRoi.
      */

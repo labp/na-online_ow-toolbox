@@ -43,6 +43,7 @@
 
 /**
  * Source imaging using beamforming (in progress).
+ * \see \cite Ehrlich2014
  *
  * \author ehrlich
  * \ingroup analysis

@@ -36,7 +36,10 @@
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
 /**
+ * ROI example module, visualizes the selected region.
+ * \see \cite Maschke2014
  *
+ * \author maschke
  */
 class WMTemplateRoiSelection: public WLModuleDrawable
 {
@@ -57,7 +60,6 @@ public:
     virtual const std::string getDescription() const;
 
 protected:
-
     /**
      *
      */

@@ -40,10 +40,8 @@
 /**
  * Estimates the positions of the HPI coils in MEG coordinates by using a rigid transformation,
  * Nedler-Mead method for optimization and magnetic dipoles with fixed strengths for forward problem.
- *
- * Using approaches from:
- * "Detecting and Correcting for Head Movements in Neuromagnetic Measurements"; Uutela et al., 2001
- * FieldTrip Project, ft_realtime_headlocalizer
+ * \see \cite Stolk2013
+ * \see FieldTrip Project, ft_realtime_headlocalizer
  *
  * \author pieloth
  */
