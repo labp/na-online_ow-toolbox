@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -29,13 +28,15 @@
 #include <string>
 
 /**
+ * \see \cite Maschke2014
  *
+ * \author maschke
+ * \ingroup util
  */
 template< typename Creator >
 class WLROICtrlFactoryBase
 {
 protected:
-
     /**
      * Abbreviation for the creator directory.
      */
@@ -54,45 +55,45 @@ protected:
     /**
      * Hides the copy constructor.
      *
-     * @param The reference to copy.
+     * \param The reference to copy.
      */
     WLROICtrlFactoryBase( const WLROICtrlFactoryBase& );
 
     /**
      * Hides the assign operator.
      *
-     * @param The reference to assign.
-     * @return Returns a reference on a WLROICtrlFactoryBase
+     * \param The reference to assign.
+     * \return Returns a reference on a WLROICtrlFactoryBase
      */
     WLROICtrlFactoryBase& operator=( const WLROICtrlFactoryBase& );
 
     /**
      * Method to register a controller creator at the factory.
      *
-     * @param name The unique name of the creator.
-     * @param creator The creator instance.
+     * \param name The unique name of the creator.
+     * \param creator The creator instance.
      */
     void registerCreator( const std::string& name, Creator creator );
 
     /**
      * Gets the begin iterator for the creators.
      *
-     * @return Returns a constant iterator.
+     * \return Returns a constant iterator.
      */
     citerTc begin() const;
 
     /**
      * Gets the end iterator for the creators.
      *
-     * @return Returns a constant iterator.
+     * \return Returns a constant iterator.
      */
     citerTc end() const;
 
     /**
      * Method to find a creator for the @name.
      *
-     * @param name The name to look for.
-     * @return Returns a constant iterator.
+     * \param name The name to look for.
+     * \return Returns a constant iterator.
      */
     citerTc find( const std::string& name ) const;
 
@@ -142,4 +143,4 @@ inline typename WLROICtrlFactoryBase< Creator >::citerTc WLROICtrlFactoryBase< C
     return m_creators.find( name );
 }
 
-#endif /* WLROICTRLFACTORYBASE_H_ */
+#endif  // WLROICTRLFACTORYBASE_H_

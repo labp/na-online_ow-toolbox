@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -33,16 +32,19 @@
 
 /**
  * The abstract generic class WLROIController defines an interface between the graphical
- * ROI-Geode and the algorithm for filtering the data depending on the ROI configuration.
- *
+ * ROI-Geode and the algorithm for filtering the data depending on the ROI configuration.\n
+ * \n
  * Any derived class form WLROIController has to implement the recalculate() method and to
  * initialize the m_filter structure.
+ * \see \cite Maschke2014
+ *
+ * \author maschke
+ * \ingroup util
  */
 template< typename DataType, typename FilterType >
 class WLROIController
 {
 public:
-
     /**
      * A shared pointer on a WLROIController.
      */
@@ -56,8 +58,8 @@ public:
     /**
      * Constructs a new WLROIController.
      *
-     * @param roi The ROI object.
-     * @param data The data to calculate.
+     * \param roi The ROI object.
+     * \param data The data to calculate.
      */
     WLROIController( osg::ref_ptr< WROI > roi, boost::shared_ptr< DataType > data );
 
@@ -74,14 +76,14 @@ public:
     /**
      * Gets the filter structure.
      *
-     * @return Returns a shared pointer on the filter structure.
+     * \return Returns a shared pointer on the filter structure.
      */
     boost::shared_ptr< FilterType > getFilter();
 
     /**
      * Gets the graphical ROI.
      *
-     * @return Gets a reference pointer on a WROI.
+     * \return Gets a reference pointer on a WROI.
      */
     osg::ref_ptr< WROI > getRoi();
 
@@ -94,36 +96,20 @@ public:
     /**
      * Sets the data.
      *
-     * @param data A shared pointer on a DataType object.
+     * \param data A shared pointer on a DataType object.
      */
     void setData( boost::shared_ptr< DataType > data );
 
 protected:
+    osg::ref_ptr< WROI > m_roi; //!< The ROI object.
 
-    /**
-     * The roi object.
-     */
-    osg::ref_ptr< WROI > m_roi;
+    boost::shared_ptr< DataType > m_data; //!< The data container.
 
-    /**
-     * The data container.
-     */
-    boost::shared_ptr< DataType > m_data;
+    boost::shared_ptr< FilterType > m_filter; //!< The filter data structure.
 
-    /**
-     * The filter data structure.
-     */
-    boost::shared_ptr< FilterType > m_filter;
+    bool m_dirty; //!< Flag, to determine the filter as dated.
 
-    /**
-     * Flag, to determine the filter as dated.
-     */
-    bool m_dirty;
-
-    /**
-     * Signal for updating the controller.
-     */
-    boost::shared_ptr< boost::function< void() > > m_changeRoiSignal;
+    boost::shared_ptr< boost::function< void() > > m_changeRoiSignal; //!< Signal for updating the controller.
 };
 
 template< typename DataType, typename FilterType >
@@ -172,4 +158,4 @@ inline void WLROIController< DataType, FilterType >::setData( boost::shared_ptr<
     setDirty();
 }
 
-#endif /* WLROICONTROLLER_H_ */
+#endif  // WLROICONTROLLER_H_

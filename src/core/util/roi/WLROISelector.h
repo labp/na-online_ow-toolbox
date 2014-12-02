@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -45,15 +44,17 @@
 #include "WLROICtrlBranch.h"
 
 /**
- * The abstract class WLROISelector describes the interface between ROI configuration, ROI manager
- * and the used algorithm.
+ * The abstract class WLROISelector describes the interface between ROI configuration, ROI manager and the used algorithm.
  * Derived classes have to initialize the @m_factory member with a concrete controller factory.
+ * \see \cite Maschke2014
+ *
+ * \author maschke
+ * \ingroup util
  */
 template< typename DataType, typename FilterType >
 class WLROISelector
 {
 public:
-
     /**
      * A shared pointer on a WLROISelector.
      */
@@ -69,15 +70,12 @@ public:
      */
     typedef boost::shared_ptr< WLROICtrlFactory< WLROIController< DataType, FilterType >, DataType > > ControllerFactorySPtr;
 
-    /**
-     * The class name.
-     */
-    static const std::string CLASS;
+    static const std::string CLASS; //!< Class name for logging purpose.
 
     /**
      * Constructs a new WLROISelector.
      *
-     * @param data The data structure on which the ROIs have to applied.
+     * \param data The data structure on which the ROIs have to applied.
      */
     explicit WLROISelector( boost::shared_ptr< DataType > data, ControllerFactorySPtr factory,
                     boost::shared_ptr< WLROIFilterCombiner< FilterType > > combiner );
@@ -95,40 +93,39 @@ public:
     /**
      * Sets the data.
      *
-     * @param data A shared pointer on a DataType object.
+     * \param data A shared pointer on a DataType object.
      */
     void setData( boost::shared_ptr< DataType > data );
 
     /**
      * Sets the factory to create new ROI controllers.
      *
-     * @param factory A shared pointer on a ROI controller factory object.
+     * \param factory A shared pointer on a ROI controller factory object.
      */
     void setFactory( boost::shared_ptr< ControllerFactorySPtr > factory );
 
     /**
      * Gets whether the WLROISelector is dated.
      *
-     * @return Returns true if the WLROISelector is dated, otherwise false.
+     * \return Returns true if the WLROISelector is dated, otherwise false.
      */
     bool isDirty() const;
 
     /**
      * Gets the dirty condition.
      *
-     * @return Returns a shared pointer on as WCondition.
+     * \return Returns a shared pointer on as WCondition.
      */
     WCondition::SPtr getDirtyCondition();
 
     /**
      * Gets the current filter structure.
      *
-     * @return Returns a shared pointer on a constant filter type.
+     * \return Returns a shared pointer on a constant filter type.
      */
     boost::shared_ptr< const FilterType > getFilter() const;
 
 protected:
-
     /**
      * Method, for recalculating the @m_filter structure for the whole ROI configuration.
      */
@@ -137,21 +134,21 @@ protected:
     /**
      * Listener function for inserting ROIs.
      *
-     * @param roi New ROI inserted into the ROI structure.
+     * \param roi New ROI inserted into the ROI structure.
      */
     virtual void slotAddRoi( osg::ref_ptr< WROI > );
 
     /**
      * Listener function for removing ROIs.
      *
-     * @param roi ROI that is being removed.
+     * \param roi ROI that is being removed.
      */
     virtual void slotRemoveRoi( osg::ref_ptr< WROI > roi );
 
     /**
      * Listener function for removing ROIs.
      *
-     * @param branch Branch that is being removed.
+     * \param branch Branch that is being removed.
      */
     virtual void slotRemoveBranch( boost::shared_ptr< WRMBranch > branch );
 
@@ -160,38 +157,22 @@ protected:
      */
     void generateRois();
 
-    /**
-     * The data to calculate.
-     */
-    boost::shared_ptr< DataType > m_data;
+    boost::shared_ptr< DataType > m_data; //!< The data to calculate.
 
-    /**
-     * The ROI controller factory.
-     */
-    ControllerFactorySPtr m_factory;
+    ControllerFactorySPtr m_factory; //!< The ROI controller factory.
 
-    /**
-     * The filter combiner.
-     */
-    boost::shared_ptr< WLROIFilterCombiner< FilterType > > m_combiner;
+    boost::shared_ptr< WLROIFilterCombiner< FilterType > > m_combiner; //!< The filter combiner.
 
-    /**
-     * The overall filter for the data.
-     */
-    boost::shared_ptr< FilterType > m_filter;
+    boost::shared_ptr< FilterType > m_filter; //!< The overall filter for the data.
 
     /**
      * The list of ROI controller branches.
      */
     std::list< boost::shared_ptr< WLROICtrlBranch< DataType, FilterType > > > m_branches;
 
-    /**
-     * The dirty flag.
-     */
-    bool m_dirty;
+    bool m_dirty; //!< The dirty flag.
 
 private:
-
     /**
      * Signal that can be used to update the selector.
      */
@@ -437,4 +418,4 @@ inline void WLROISelector< DataType, FilterType >::generateRois()
     }
 }
 
-#endif /* WLROISELECTOR_H_ */
+#endif  // WLROISELECTOR_H_

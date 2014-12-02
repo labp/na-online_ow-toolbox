@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -39,16 +38,19 @@
 
 /**
  * The generic class WLROICtrlBranch provides an interface for collection and grouping
- * WLROIController instances for the defined DataType and FilterType template parameter.
- *
+ * WLROIController instances for the defined DataType and FilterType template parameter.\n
+ * \n
  * This class can be used in this appearance, but it also can be inherited if the derived
  * class wants to override the recalculate() method by a own implementation.
+ * \see \cite Maschke2014
+ *
+ * \author maschke
+ * \ingroup util
  */
 template< typename DataType, typename FilterType >
 class WLROICtrlBranch
 {
 public:
-
     /**
      * A shared pointer on a WLROICtrlBranch.
      */
@@ -62,8 +64,8 @@ public:
     /**
      * Constructs a new WLROICtrlBranch.
      *
-     * @param data The data container.
-     * @param branch The WRMBranch the controller branch belongs to.
+     * \param data The data container.
+     * \param branch The WRMBranch the controller branch belongs to.
      */
     WLROICtrlBranch( boost::shared_ptr< DataType > data, boost::shared_ptr< WRMBranch > branch,
                     boost::shared_ptr< WLROIFilterCombiner< FilterType > > combiner );
@@ -76,49 +78,49 @@ public:
     /**
      * Gets the overall filter structure of the whole branch depending on all ROI controllers of the branch.
      *
-     * @return Returns a shared pointer on the filter structure.
+     * \return Returns a shared pointer on the filter structure.
      */
     boost::shared_ptr< FilterType > getFilter();
 
     /**
      * Gets the WRMBranch.
      *
-     * @return Returns a shared pointer on the branch.
+     * \return Returns a shared pointer on the branch.
      */
     boost::shared_ptr< WRMBranch > getBranch();
 
     /**
      * Determines whether or not the branches filter has to recalculate.
      *
-     * @return Returns true if the branch is dated, otherwise false.
+     * \return Returns true if the branch is dated, otherwise false.
      */
     bool isDirty() const;
 
     /**
      * Add a new ROI controller to the branch.
      *
-     * @param roi A shared pointer on the new ROI controller.
+     * \param roi A shared pointer on the new ROI controller.
      */
     void addRoi( boost::shared_ptr< WLROIController< DataType, FilterType > > roi );
 
     /**
      * Gets the ROI list.
      *
-     * @return Returns a list of shared pointers on ROI controllers.
+     * \return Returns a list of shared pointers on ROI controllers.
      */
     std::list< boost::shared_ptr< WLROIController< DataType, FilterType > > > getROIs();
 
     /**
      * Removes a roi from the branch.
      *
-     * @param roi The ROI to remove.
+     * \param roi The ROI to remove.
      */
     void removeRoi( osg::ref_ptr< WROI > roi );
 
     /**
      * Checks if empty.
      *
-     * @return Returns true when this branch contains no ROI.
+     * \return Returns true when this branch contains no ROI.
      */
     bool isEmpty();
 
@@ -130,7 +132,7 @@ public:
     /**
      * Sets the data.
      *
-     * @param data A shared pointer on a DataType object.
+     * \param data A shared pointer on a DataType object.
      */
     void setData( boost::shared_ptr< DataType > data );
 
@@ -149,33 +151,16 @@ public:
     void setCombiner( boost::shared_ptr< WLROIFilterCombiner< FilterType > > combiner );
 
 protected:
+    boost::shared_ptr< DataType > m_data; //!< The data container.
 
-    /**
-     * The data container.
-     */
-    boost::shared_ptr< DataType > m_data;
+    boost::shared_ptr< FilterType > m_filter; //!< The filter structure.
 
-    /**
-     * The filter structure.
-     */
-    boost::shared_ptr< FilterType > m_filter;
-
-    /**
-     * Recalculates the filter structure.
-     */
-    virtual void recalculate();
+    virtual void recalculate(); //!< Recalculates the filter structure.
 
 private:
+    boost::shared_ptr< WRMBranch > m_branch; //!< The WRMBranch the controller branch belongs to.
 
-    /**
-     * The WRMBranch the controller branch belongs to.
-     */
-    boost::shared_ptr< WRMBranch > m_branch;
-
-    /**
-     * Flag to determine the branch as dated.
-     */
-    bool m_dirty;
+    bool m_dirty; //!< Flag to determine the branch as dated.
 
     /**
      * A list of the branches ROIs (the controller of the ROIs).
@@ -192,10 +177,7 @@ private:
      */
     boost::shared_ptr< boost::function< void() > > m_changeRoiSignal;
 
-    /**
-     * The filter combiner.
-     */
-    boost::shared_ptr< WLROIFilterCombiner< FilterType > > m_combiner;
+    boost::shared_ptr< WLROIFilterCombiner< FilterType > > m_combiner; //!< The filter combiner.
 };
 
 template< typename DataType, typename FilterType >
@@ -336,4 +318,4 @@ inline void WLROICtrlBranch< DataType, FilterType >::recalculate()
     }
 }
 
-#endif /* WLROICTRLBRANCH_H_ */
+#endif  // WLROICTRLBRANCH_H_

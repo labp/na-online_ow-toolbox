@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -38,40 +37,38 @@
 
 /**
  * The representation of a Region of Interest as a box volume.
+ *
+ * \author maschke
+ * \ingroup gui
  */
 class WLROIBox: public WLROI
 {
 public:
-
-    /**
-     * The class name.
-     */
-    static const std::string CLASS;
+    static const std::string CLASS; //!< Class name for logging purpose.
 
     /**
      * Constructs a new WLROIBox.
      *
-     * @param minPos The min position.
-     * @param maxPos The max position.
+     * \param minPos The min position.
+     * \param maxPos The max position.
      */
     WLROIBox( WPosition minPos, WPosition maxPos, WUIViewWidget::SPtr widget );
 
     /**
      * Get the corner of the box that has minimal x, y and z values.
      *
-     * @return Returns the corner position.
+     * \return Returns the corner position.
      */
     WPosition getMinPos() const;
 
     /**
      * Get the corner of the box that has maximal x, y and z values.
      *
-     * @return Returns the corner position.
+     * \return Returns the corner position.
      */
     WPosition getMaxPos() const;
 
 protected:
-
     /**
      * Destroys the WLROIBox.
      */
@@ -83,96 +80,41 @@ protected:
     virtual void initProperties();
 
 private:
+    static size_t maxBoxId; //!< Current maximum boxId over all boxes.
 
-    /**
-     * Current maximum boxId over all boxes.
-     */
-    static size_t maxBoxId;
+    size_t m_boxId; //!< Id of the current box.
 
-    /**
-     * Id of the current box.
-     */
-    size_t m_boxId;
+    WPropGroup m_propGrp; //!< Group for box specific properties.
 
-    /**
-     * Group for box specific properties.
-     */
-    WPropGroup m_propGrp;
+    WPropPosition m_minPos; //!< The minimum position of the box.
 
-    /**
-     * The minimum position of the box.
-     */
-    WPropPosition m_minPos;
+    WPosition m_minPosInit; //!< The initial minimal position.
 
-    /**
-     * The initial minimal position.
-     */
-    WPosition m_minPosInit;
+    WPropPosition m_maxPos; //!< The maximum position of the box.
 
-    /**
-     * The maximum position of the box.
-     */
-    WPropPosition m_maxPos;
+    WPosition m_maxPosInit; //!< The initial maximal position.
 
-    /**
-     * The initial maximal position.
-     */
-    WPosition m_maxPosInit;
+    WPropDouble m_width; //!< The box width property.
 
-    /**
-     * The box width property.
-     */
-    WPropDouble m_width;
+    WPropDouble m_height; //!< The box height property.
 
-    /**
-     * The box height property.
-     */
-    WPropDouble m_height;
+    WPropDouble m_depth; //!< The box depth property.
 
-    /**
-     * The box depth property.
-     */
-    WPropDouble m_depth;
+    WVector3d m_dimensions; //!< The box dimensions.
 
-    /**
-     * The box dimensions.
-     */
-    WVector3d m_dimensions;
+    WGEShader::RefPtr m_lightShader; //!< Shader for proper lighting.
 
-    /**
-     * Shader for proper lighting.
-     */
-    WGEShader::RefPtr m_lightShader;
+    bool m_needVertexUpdate; //!< If true, the box' vertex data is updated.
 
-    /**
-     * If true, the box' vertex data is updated.
-     */
-    bool m_needVertexUpdate;
+    bool m_isPicked; //!< Indicates whether the box is currently picked or not.
 
-    /**
-     * Indicates whether the box is currently picked or not.
-     */
-    bool m_isPicked;
+    WPosition m_pickedPosition; //!< Caches the old picked position to a allow for comparison.
 
-    /**
-     * Caches the old picked position to a allow for comparison.
-     */
-    WPosition m_pickedPosition;
+    WVector3d m_pickNormal; //!< Store the normal that occured when the pick action was started.
 
-    /**
-     * Store the normal that occured when the pick action was started.
-     */
-    WVector3d m_pickNormal;
+    WVector2d m_oldPixelPosition; //!< Caches the old picked position to a allow for comparison.
 
-    /**
-     * Caches the old picked position to a allow for comparison.
-     */
-    WVector2d m_oldPixelPosition;
-
-    /**
-     * caches scroll wheel value.
-     */
-    int16_t m_oldScrollWheel;
+    int16_t m_oldScrollWheel; //!< Caches scroll wheel value.
 
     /**
      *  Updates the graphics.
@@ -189,8 +131,8 @@ private:
         /**
          * operator ()
          *
-         * @param node the osg node
-         * @param nv the node visitor
+         * \param node the osg node
+         * \param nv the node visitor
          */
         virtual void operator()( osg::Node* node, osg::NodeVisitor* nv )
         {
@@ -206,16 +148,16 @@ private:
     /**
      * Called when the specified property has changed. Used to update the ROI when modifying box properties.
      *
-     * @param property The property.
+     * \param property The property.
      */
     void boxPropertiesChanged( boost::shared_ptr< WPropertyBase > property );
 
     /**
      * Called when width, height or depth was changed.
      *
-     * @param property The changed property.
+     * \param property The changed property.
      */
     void boxDimensionsChanged( boost::shared_ptr< WPropertyBase > property );
 };
 
-#endif /* WLROIBOX_H_ */
+#endif  // WLROIBOX_H_

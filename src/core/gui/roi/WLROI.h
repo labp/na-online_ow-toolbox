@@ -1,24 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut ( http://www.openwalnut.org )
+// Project: NA-Online ( http://www.labp.htwk-leipzig.de )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
-// For more information see http://www.openwalnut.org/copying
+// Copyright 2010 Laboratory for Biosignal Processing, HTWK Leipzig, Germany
 //
-// This file is part of OpenWalnut.
+// This file is part of NA-Online.
 //
-// OpenWalnut is free software: you can redistribute it and/or modify
+// NA-Online is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// OpenWalnut is distributed in the hope that it will be useful,
+// NA-Online is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+// along with NA-Online. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -35,15 +34,15 @@
 
 /**
  * Wrapper class of WROI to do undone calculations.
+ * \see \cite Maschke2014
+ *
+ * \author maschke
+ * \ingroup gui
  */
 class WLROI: public WROI
 {
 public:
-
-    /**
-     * The class name.
-     */
-    static const std::string CLASS;
+    static const std::string CLASS; //!< Class name for logging purpose.
 
     /**
      * Constructs a new WLROI.
@@ -58,75 +57,51 @@ public:
     /**
      * Setter for the standard color.
      *
-     * @param color The new color.
+     * \param color The new color.
      */
     void setColor( osg::Vec4 color );
 
     /**
      * Setter for the color in negated state.
      *
-     * @param color The new color.
+     * \param color The new color.
      */
     void setNotColor( osg::Vec4 notColor );
 
 protected:
+    WPickInfo m_pickInfo; //!< Stores the pick information for potential redraw.
 
-    /**
-     * Stores the pick information for potential redraw.
-     */
-    WPickInfo m_pickInfo;
+    osg::Vec4 m_color; //!< The color of the box.
 
-    /**
-     * The color of the box.
-     */
-    osg::Vec4 m_color;
+    osg::Vec4 m_notColor; //!< The color of the box when negated.
 
-    /**
-     * The color of the box when negated.
-     */
-    osg::Vec4 m_notColor;
+    osg::ref_ptr< osg::Geometry > m_surfaceGeometry; //!< Store this pointer for use in updates.
 
-    /**
-     * store this pointer for use in updates.
-     */
-    osg::ref_ptr< osg::Geometry > m_surfaceGeometry;
+    WUIViewWidget::SPtr m_widget; //!< The widget.
 
-    /**
-     * The widget.
-     */
-    WUIViewWidget::SPtr m_widget;
+    boost::shared_mutex m_updateLock; //!< Lock to prevent concurrent threads trying to update the osg node.
 
-    /**
-     * Lock to prevent concurrent threads trying to update the osg node.
-     */
-    boost::shared_mutex m_updateLock;
-
-    /**
-     * The pick handler for picking the ROI in a WLEMDDrawable view.
-     */
-    WLPickHandler::RefPtr m_mouseHandler;
+    WLPickHandler::RefPtr m_mouseHandler; //!< The pick handler for picking the ROI in a WLEMDDrawable view.
 
     /**
      * Note that there was a pick.
      *
-     * @param pickInfo Info from pick.
+     * \param pickInfo Info from pick.
      */
     void registerRedrawRequest( WPickInfo pickInfo );
 
     /**
      * Set new color of the box in the geometry
      *
-     * @param color the new color.
+     * \param color the new color.
      */
     void updateColor( osg::Vec4 color );
 
 private:
-
     /**
      *  Updates the graphics.
      */
     virtual void updateGFX() = 0;
-
 };
 
-#endif /* WLROI_H_ */
+#endif  // WLROI_H_
