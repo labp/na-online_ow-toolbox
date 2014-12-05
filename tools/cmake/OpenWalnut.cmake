@@ -316,10 +316,10 @@ MARK_AS_ADVANCED( FORCE OPENTHREADS_LIBRARY )
 MARK_AS_ADVANCED( FORCE OPENTHREADS_LIBRARY_DEBUG )
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------
-# Eigen3, at least 3.0.0
+# Eigen3, at least 3.1.1 with sparse matrix support.
 # See http://eigen.tuxfamily.org
 
-FIND_PACKAGE( eigen3 REQUIRED )
+FIND_PACKAGE( Eigen3 3.1.1 REQUIRED )
 IF( EIGEN3_FOUND )
     INCLUDE_DIRECTORIES( ${EIGEN3_INCLUDE_DIR} )
 

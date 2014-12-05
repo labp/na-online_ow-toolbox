@@ -15,7 +15,7 @@ from packbacker.installers.installer import Installer
 
 
 class Eigen3(Installer):
-    REPO_FOLDER = "eigen322"
+    REPO_FOLDER = "eigen3"
 
     def __init__(self):
         Installer.__init__(self, 'eigen3', 'Eigen version 3')
