@@ -36,30 +36,6 @@ SET( ADDITIONAL_LIBS "" )
 
 
 # --------------------------------------------------------------------------------------------------------------------------------
-# Compiler flags
-# --------------------------------------------------------------------------------------------------------------------------------
-
-IF( CMAKE_BUILD_TYPE MATCHES Release AND CMAKE_COMPILER_IS_GNUCXX )
-	ADD_DEFINITIONS( -O2 )
-ENDIF()
-IF( CMAKE_BUILD_TYPE MATCHES Debug AND CMAKE_COMPILER_IS_GNUCXX )
-	ADD_DEFINITIONS( -O0 )
-ENDIF()
-
-
-# --------------------------------------------------------------------------------------------------------------------------------
-# Add SuperLU Library for LU decomposition with sparse matrices
-# --------------------------------------------------------------------------------------------------------------------------------
-
-FIND_PACKAGE( SuperLU REQUIRED )
-
-ADD_DEFINITIONS( ${SUPERLU_DEFINITIONS} )
-INCLUDE_DIRECTORIES( ${SUPERLU_INCLUDE_DIRS} )
-LINK_DIRECTORIES( ${SUPERLU_LIBRARY_DIRS} )
-LIST( APPEND ADDITIONAL_LIBS ${SUPERLU_LIBRARIES} )
-
-
-# --------------------------------------------------------------------------------------------------------------------------------
 # Add CUDA libraries
 # --------------------------------------------------------------------------------------------------------------------------------
 

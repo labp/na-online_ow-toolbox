@@ -29,7 +29,7 @@
 
 #include <boost/shared_ptr.hpp>
 #include <Eigen/Dense>
-#include <Eigen/SuperLUSupport>
+#include <Eigen/SparseLU>
 
 #include <core/common/WAssert.h>
 #include <core/common/WLogger.h>
@@ -40,7 +40,7 @@
 
 #include "WSourceReconstruction.h"
 
-using Eigen::SuperLU;
+using Eigen::SparseLU;
 using Eigen::Triplet;
 using std::minus;
 using std::set;
@@ -112,7 +112,7 @@ bool WSourceReconstruction::calculateWeightningMatrix( WSourceReconstruction::WE
             {
                 m_weighting->insert( i, i ) = 1;
             }
-
+            m_weighting->makeCompressed();
             m_inverse.reset();
             return true;
         }
@@ -135,7 +135,7 @@ bool WSourceReconstruction::calculateWeightningMatrix( WSourceReconstruction::WE
             }
             // TODO(pieloth): Check weighted minimum norm.
             wlog::warn( CLASS ) << "WEIGHTED_MINIMUM_NORM still needs to be checked!";
-
+            m_weighting->makeCompressed();
             m_inverse.reset();
             return true;
         }
@@ -201,7 +201,7 @@ bool WSourceReconstruction::calculateInverseSolution( const MatrixT& noiseCov, c
     wlog::debug( CLASS ) << "LT " << LT.rows() << " x " << LT.cols();
 
     // WinvLT = W^-1 * LT
-    SuperLU< SpMatrixT > spSolver;
+    SparseLU< SpMatrixT > spSolver;
     spSolver.compute( *m_weighting );
     if( spSolver.info() != Eigen::Success )
     {

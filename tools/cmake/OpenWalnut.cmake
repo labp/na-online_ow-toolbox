@@ -418,10 +418,10 @@ MARK_AS_ADVANCED( FORCE OPENTHREADS_LIBRARY )
 MARK_AS_ADVANCED( FORCE OPENTHREADS_LIBRARY_DEBUG )
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------
-# Eigen3, at least 3.1.0 with sparse matrix support.
+# Eigen3, at least 3.2.0 with sparse matrix and sparse LU support.
 # See http://eigen.tuxfamily.org
 
-FIND_PACKAGE( Eigen3 3.1.0 REQUIRED )
+FIND_PACKAGE( Eigen3 3.2.0 REQUIRED )
 IF( EIGEN3_FOUND )
     INCLUDE_DIRECTORIES( SYSTEM ${EIGEN3_INCLUDE_DIR} )
     # FIXED(pieloth): Override EIGEN_INCLUDE_DIRS to prevent wrong includes.
