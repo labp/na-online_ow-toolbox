@@ -369,20 +369,31 @@ FUNCTION( SETUP_COMMON_DOC _target _component )
     ENDIF()
 ENDFUNCTION( SETUP_COMMON_DOC )
 
-# This function configures the soecified file in the given resource. This is especially useful for scripts where to replace certain
+# This function configures the specified file in the given resource. This is especially useful for scripts where to replace certain
 # CMake variables (like pkg-config files).
 # _resource the name of the resource in the resources directory
 # _file the file in the the resource to configure
 # _component the install component to which the file belongs
 FUNCTION( SETUP_CONFIGURED_FILE _resource _file _component )
-    SET( ResourcesPath "${PROJECT_SOURCE_DIR}/../resources/${_resource}/" )
-    CONFIGURE_FILE( "${ResourcesPath}/${_file}" "${PROJECT_BINARY_DIR}/${_file}" @ONLY )
-    # Install the file
     GET_FILENAME_COMPONENT( filepath ${_file} PATH )
-    INSTALL( FILES "${PROJECT_BINARY_DIR}/${_file}" DESTINATION "${filepath}"
-                                                      COMPONENT ${_component}
-           )
+    SETUP_CONFIGURED_FILE_TO( ${_resource} ${_file} ${_component} ${filepath} )
 ENDFUNCTION( SETUP_CONFIGURED_FILE )
+
+# This function configures the specified file in the given resource. This is especially useful for scripts where to replace certain
+# CMake variables (like pkg-config files).
+# _resource the name of the resource in the resources directory
+# _file the file in the resource to configure
+# _component the install component to which the file belongs
+# _destinationPath where to place the file as relative path (do not include filename, relative to project binary root)
+FUNCTION( SETUP_CONFIGURED_FILE_TO _resource _file _component _destinationPath )
+    SET( ResourcesPath "${PROJECT_SOURCE_DIR}/../resources/${_resource}/" )
+    GET_FILENAME_COMPONENT( filename ${_file} NAME )
+    CONFIGURE_FILE( "${ResourcesPath}/${_file}" "${PROJECT_BINARY_DIR}/${_destinationPath}/${filename}" @ONLY )
+    # Install the file
+    INSTALL( FILES "${PROJECT_BINARY_DIR}/${_destinationPath}/${filename}" DESTINATION "${_destinationPath}"
+                                                                           COMPONENT ${_component}
+           )
+ENDFUNCTION( SETUP_CONFIGURED_FILE_TO )
 
 # This function eases the process of copying and installing additional files which not reside in the resource path.
 # It creates a target (ALL is depending on it) AND the INSTALL operation.
@@ -392,10 +403,9 @@ ENDFUNCTION( SETUP_CONFIGURED_FILE )
 FUNCTION( SETUP_ADDITIONAL_FILES _destination _component )
     FOREACH( _file ${ARGN} )
         # only do if it exists
-        IF( EXISTS ${OW_VERSION_FILENAME} )
+        IF( EXISTS ${_file} )
             # create useful target name
             FILE_TO_TARGETSTRING( ${_file} fileTarget )
-
             # add a copy target
             ADD_CUSTOM_TARGET( CopyAdditionalFile_${fileTarget}_${_component}
                 ALL
@@ -535,7 +545,7 @@ FUNCTION( GET_VERSION_STRING _version _api_version )
         # Read the version file
         FILE( READ ${OW_VERSION_FILENAME} OW_VERSION_FILE_CONTENT )
         # The first regex will mathc 
-        STRING( REGEX REPLACE ".*[^#]VERSION=([0-9]+\\.[0-9]+\\.[0-9]+(\\+hgX?[0-9]*)?).*" "\\1"  OW_VERSION_FILE  ${OW_VERSION_FILE_CONTENT} ) 
+        STRING( REGEX REPLACE ".*[^#]VERSION=([0-9]+\\.[0-9]+\\.[0-9]+[_~a-z,A-Z,0-9]*(\\+hgX?[0-9]*)?).*" "\\1"  OW_VERSION_FILE  ${OW_VERSION_FILE_CONTENT} ) 
         STRING( COMPARE EQUAL ${OW_VERSION_FILE} ${OW_VERSION_FILE_CONTENT}  OW_VERSION_FILE_INVALID )
         IF( OW_VERSION_FILE_INVALID )
             UNSET( OW_VERSION_FILE )
@@ -555,7 +565,7 @@ FUNCTION( GET_VERSION_STRING _version _api_version )
     # Use hg to query version information.
     # -> the nice thing is: if hg is not available, no compilation errors anymore
     # NOTE: it is run insde the project source directory
-    EXECUTE_PROCESS( COMMAND hg parents --template "{rev}" OUTPUT_VARIABLE OW_VERSION_HG RESULT_VARIABLE hgParentsRetVar 
+    EXECUTE_PROCESS( COMMAND hg parents --template "{node|short}" OUTPUT_VARIABLE OW_VERSION_HG RESULT_VARIABLE hgParentsRetVar 
                      WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
                     )
     IF( NOT ${hgParentsRetVar} STREQUAL 0 )
@@ -585,7 +595,8 @@ ENDFUNCTION( GET_VERSION_STRING )
 # as the target is. If not, an additional target needs to be defined and CMake needs information about generated files.
 #
 # _OW_VERSION_HEADER the filename where to store the header. Should be absolute.
-FUNCTION( SETUP_VERSION_HEADER _OW_VERSION_HEADER )
+# _PREFIX the string used as prefix in the header. Useful if you have multiple version headers.
+FUNCTION( SETUP_VERSION_HEADER _OW_VERSION_HEADER _PREFIX )
     # This ensures that an nonexisting .hg/dirstate file won't cause a compile error (do not know how to make target)
     SET( HG_DEP "" )
     IF( EXISTS ${PROJECT_SOURCE_DIR}/../.hg/dirstate )
@@ -595,7 +606,7 @@ FUNCTION( SETUP_VERSION_HEADER _OW_VERSION_HEADER )
     # The file WVersion.* needs the version definition.
     ADD_CUSTOM_COMMAND( OUTPUT ${_OW_VERSION_HEADER}
                         DEPENDS ${PROJECT_SOURCE_DIR}/../VERSION ${HG_DEP}
-                        COMMAND ${CMAKE_COMMAND} -D PROJECT_SOURCE_DIR:STRING=${PROJECT_SOURCE_DIR} -D HEADER_FILENAME:STRING=${_OW_VERSION_HEADER} -P OpenWalnutVersion.cmake
+                        COMMAND ${CMAKE_COMMAND} -D PROJECT_SOURCE_DIR:STRING=${PROJECT_SOURCE_DIR} -D HEADER_FILENAME:STRING=${_OW_VERSION_HEADER} -D PREFIX:STRING=${_PREFIX} -P OpenWalnutVersion.cmake
                         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/../tools/cmake/
                         COMMENT "Creating Version Header ${_OW_VERSION_HEADER}."
     )
@@ -674,7 +685,20 @@ FUNCTION( SETUP_MODULE _MODULE_NAME _MODULE_SOURCE_DIR _MODULE_DEPENDENCIES _MOD
 
     # Setup the target
     ADD_LIBRARY( ${MODULE_NAME} SHARED ${TARGET_CPP_FILES} ${TARGET_H_FILES} )
-    TARGET_LINK_LIBRARIES( ${MODULE_NAME} ${CMAKE_STANDARD_LIBRARIES} ${OW_LIB_OPENWALNUT} ${Boost_LIBRARIES} ${OPENGL_gl_LIBRARY} ${OPENSCENEGRAPH_LIBRARIES} ${_MODULE_DEPENDENCIES} )
+
+    # Some Linux distributions need to explicitly link against X11. We add this lib here.
+    IF( CMAKE_HOST_SYSTEM MATCHES "Linux" )
+        SET( ADDITIONAL_TARGET_LINK_LIBRARIES "X11" )
+    ENDIF()
+
+    TARGET_LINK_LIBRARIES( ${MODULE_NAME} ${CMAKE_STANDARD_LIBRARIES}
+                                          ${OW_LIB_OPENWALNUT} 
+                                          ${Boost_LIBRARIES}
+                                          ${OPENGL_gl_LIBRARY}
+                                          ${OPENSCENEGRAPH_LIBRARIES} 
+                                          ${ADDITIONAL_TARGET_LINK_LIBRARIES} 
+                                          ${_MODULE_DEPENDENCIES}
+                         )
 
     # Set the version of the library.
     SET_TARGET_PROPERTIES( ${MODULE_NAME} PROPERTIES
