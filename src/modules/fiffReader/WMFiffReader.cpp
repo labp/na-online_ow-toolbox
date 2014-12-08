@@ -87,6 +87,9 @@ WMFiffReader::WMFiffReader() :
     m_fileStatus = EFileStatus::NO_FILE;
     m_dataStatus = EDataStatus::NO_DATA;
     m_reloadFiff = false;
+    // FIXME #443: Workaround - crash on saving an empty WDataModule
+    WDataModuleInputFile::SPtr phantom( new WDataModuleInputFile( WLConstantsModule::NO_FILE_FILENAME ) );
+    setInput( phantom );
 }
 
 WMFiffReader::~WMFiffReader()

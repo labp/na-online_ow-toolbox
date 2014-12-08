@@ -59,6 +59,9 @@ WMMatReader::WMMatReader() :
                 WDataModule()
 {
     m_reloadMatFile = false;
+    // FIXME #443: Workaround - crash on saving an empty WDataModule
+    WDataModuleInputFile::SPtr phantom( new WDataModuleInputFile( WLConstantsModule::NO_FILE_FILENAME ) );
+    setInput( phantom );
 }
 
 WMMatReader::~WMMatReader()

@@ -37,6 +37,7 @@ namespace WLConstantsModule
 {
     // NOTE(pieloth): "NA-Online: " causes an error on loading a saved WDataModule
     const std::string NAME_PREFIX = "[NA-Online]";
+    const std::string NO_FILE_FILENAME = "nao_no_file"; //!< Used for a workaround: crash on saving an empty WDataModule.
 
     std::string generateModuleName( const std::string& name );
 
