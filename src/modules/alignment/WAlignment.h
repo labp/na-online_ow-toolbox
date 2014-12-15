@@ -41,6 +41,9 @@
  * A transformation estimation, initial transformation, will be computed if correspondences are available.
  * With or without this initial transformation the alignment is done with an ICP algorithm.
  *
+ * \see \cite Rusinkiewicz2001
+ * \see \cite Rusu2011
+ *
  * \author pieloth
  */
 class WAlignment

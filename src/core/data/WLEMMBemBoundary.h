@@ -37,6 +37,12 @@
 #include "core/data/enum/WLEBemType.h"
 #include "core/data/enum/WLEUnit.h"
 
+/**
+ * Boundary Element Model of a subject.
+ *
+ * \author pieloth
+ * \ingroup data
+ */
 class WLEMMBemBoundary
 {
 public:

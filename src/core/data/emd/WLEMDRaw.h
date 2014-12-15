@@ -30,9 +30,11 @@
 #include "WLEMData.h"
 
 /**
- * Type for raw or generic EMData. This can be used for temporary variables or for low-level I/O, e.g. acquisition clients.
+ * Type for raw or generic EMData.
+ * This can be used for temporary variables or for low-level I/O, e.g. acquisition clients.
  *
  * \author pieloth
+ * \ingroup data
  */
 class WLEMDRaw: public WLEMData
 {

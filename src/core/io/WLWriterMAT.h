@@ -38,6 +38,7 @@
  * Stores a Matrix in MATLAB MAT-file format.
  *
  * \author pieloth
+ * \ingroup io
  */
 class WLWriterMAT: public WWriter, public WLIOStatus::WLIOStatusInterpreter
 {

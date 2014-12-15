@@ -30,6 +30,12 @@
 #include "core/data/WLEMMBemBoundary.h"
 #include "core/io/WLReaderGeneric.h"
 
+/**
+ * Reads BEM surface from BND file.
+ *
+ * \author pieloth
+ * \ingroup io
+ */
 class WLReaderBND: public WLReaderGeneric< WLEMMBemBoundary::SPtr >
 {
 public:

@@ -39,6 +39,9 @@
 /**
  * A side scroll animation from right to left. The osg::nodes are moved horizontal by a 2D translation.
  * First node is positioned to the defined start position. New nodes are appended to the right end of the previous node.
+ *
+ * \author pieloth
+ * \ingroup gui
  */
 class WLAnimationSideScroll
 {

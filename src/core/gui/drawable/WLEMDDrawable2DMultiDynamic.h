@@ -35,6 +35,12 @@
 
 class WLEMDAnimationFetchCallback;
 
+/**
+ * A 2D multi-channel view with a animated side-scroll effect for incoming data.
+ *
+ * \author pieloth
+ * \ingroup gui
+ */
 class WLEMDDrawable2DMultiDynamic: public WLEMDDrawable2DMultiChannel
 {
 public:
@@ -64,7 +70,13 @@ public:
 protected:
     virtual void osgNodeCallback( osg::NodeVisitor* nv );
 
-    virtual osg::ref_ptr< WLAnimationSideScroll::EMMNode > createEmdNode( WLEMMeasurement::SPtr emd );
+    /**
+     * Creates a node for the side-scroll animation.
+     *
+     * \param emm Data.
+     * \return New instance of WLAnimationSideScroll::EMMNode.
+     */
+    virtual osg::ref_ptr< WLAnimationSideScroll::EMMNode > createEmdNode( WLEMMeasurement::SPtr emm );
 
 private:
     /**
@@ -74,13 +86,11 @@ private:
 
     WLAnimationSideScroll* m_animation;
 
-    /**
-     * Block length in seconds.
-     */
-    ValueT m_blockLength;
+    ValueT m_blockLength; //!< Block length in seconds.
 
     /**
-     * How many blocks must be shwon on view.
+     * How many blocks must be shown on view.
+     *
      * \param blockLength Length of 1 block in seconds
      * \return count
      */

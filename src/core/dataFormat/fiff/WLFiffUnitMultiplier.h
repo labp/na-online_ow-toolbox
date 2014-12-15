@@ -30,6 +30,12 @@ namespace WLFiffLib
 {
     typedef enum_t unitm_t;
 
+    /**
+     * Value multipliers.
+     *
+     * \author pieloth
+     * \ingroup fiff
+     */
     namespace UnitMultiplier
     {
         const unitm_t ET = 18; /**< 10^18 */

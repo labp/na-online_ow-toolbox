@@ -35,9 +35,10 @@
 #include "WPCA.h"
 
 /**
- * This module implements several onscreen status displays
- * \ingroup modules
+ * Principal component analysis (in progress).
+ *
  * \author jones
+ * \ingroup analysis
  */
 class WMPCA: public WLModuleDrawable
 {

@@ -32,6 +32,7 @@
  * Logs profiler results.
  *
  * \author pieloth
+ * \ingroup util
  */
 class WLProfilerLogger
 {

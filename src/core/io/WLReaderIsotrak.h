@@ -34,16 +34,18 @@
 #include <fiff/fiff_stream.h>
 
 #include "core/data/WLDigPoint.h"
-#include "core/io/WLReaderGeneric.h"
-
-using namespace FIFFLIB;
+#include "core/io/WLIOStatus.h"
 
 /**
- * The WReaderNeuromagIsotrak read a Neuromag Isotrak file in the big endian byte order and extracts the digitalization points.
+ * Reads a Neuromag Isotrak file in the big endian byte order and extracts the digitalization points.
+ * Due to raw byte support this class is not a WLReaderGeneric, otherwise a WDHNoSuchFile exception would be thrown.\n
+ * \n
+ * Note: Supports big endian files only.
  *
- * WReaderNeuromagIsotrak supports big endian files only.
+ * \author pieloth
+ * \ingroup io
  */
-class WLReaderIsotrak : public WLReaderGeneric< std::list< WLDigPoint > >
+class WLReaderIsotrak
 {
 public:
     static const std::string CLASS; /**< The class name. */
@@ -95,7 +97,7 @@ protected:
      *
      * \return Returns true if the points were found, otherwise false.
      */
-    bool readDigPoints( std::list< WLDigPoint >* const out, const FiffDirTree& p_Node );
+    bool readDigPoints( std::list< WLDigPoint >* const out, const FIFFLIB::FiffDirTree& p_Node );
 
     /**
      * Method to create a concrete DigPoint object.
@@ -103,13 +105,13 @@ protected:
      * \param fiffDigPoint The MNE Dig Point.
      * \return Returns a concrete WLDigPoint.
      */
-    WLDigPoint createDigPoint( const FiffDigPoint& fiffDigPoint );
+    WLDigPoint createDigPoint( const FIFFLIB::FiffDigPoint& fiffDigPoint );
 
 private:
     /**
      * The FiffStream to read from the Isotrak Fiff-file. Depending on the constructor call the stream can be placed on a QFile of a QBuffer.
      */
-    boost::shared_ptr< FiffStream > m_stream;
+    boost::shared_ptr< FIFFLIB::FiffStream > m_stream;
 };
 
 #endif  // WLREADERISOTRAK_H_

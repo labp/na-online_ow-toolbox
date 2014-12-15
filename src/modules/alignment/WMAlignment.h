@@ -40,6 +40,12 @@
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
+/**
+ * A semi-automatic coordinate transformation between the EEG sensor positions and the head model.
+ *
+ * \author pieloth
+ * \ingroup forward
+ */
 class WMAlignment: public WModule, public WLEMMCommandProcessor
 {
 public:

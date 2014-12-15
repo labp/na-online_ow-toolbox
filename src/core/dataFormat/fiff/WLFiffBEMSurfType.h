@@ -30,6 +30,12 @@ namespace WLFiffLib
 {
     typedef enum_t bem_surf_type_t;
 
+    /**
+     * Surface identifiers.
+     *
+     * \author pieloth
+     * \ingroup fiff
+     */
     namespace BEMSurfType
     {
         const bem_surf_type_t UNKNOWN2 = -1;
@@ -47,4 +53,5 @@ namespace WLFiffLib
         const bem_surf_type_t VV = 23;
     }
 } /* namespace WLFiffLib */
+
 #endif  // WLFIFFBEMSURFTYPE_H_

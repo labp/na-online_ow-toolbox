@@ -32,6 +32,12 @@
 
 #include "WLEMDDrawable2DMultiChannel.h"
 
+/**
+ * A static/block-wise 2D multi-channel view.
+ *
+ * \author pieloth
+ * \ingroup gui
+ */
 class WLEMDDrawable2DMultiStatic: public WLEMDDrawable2DMultiChannel
 {
 public:

@@ -40,6 +40,7 @@
  * Marks the 2D view at the position, informs the 3D view and connected modules about the new time position.
  *
  * \author pieloth
+ * \ingroup gui
  */
 class WLMarkTimePositionHandler: public WUIViewEventHandler
 {

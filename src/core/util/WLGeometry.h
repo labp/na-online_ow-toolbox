@@ -35,6 +35,12 @@
 #include "core/data/WLDataTypes.h"
 #include "core/data/enum/WLEExponent.h"
 
+/**
+ * Helper functions for geometric computations.
+ *
+ * \author pieloth
+ * \ingroup util
+ */
 namespace WLGeometry
 {
     typedef WVector3d Vector;

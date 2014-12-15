@@ -36,6 +36,7 @@
  * A low-level C++ API to read/write MAT-file format v5 from MATLAB.
  *
  * \author pieloth
+ * \ingroup mat
  */
 namespace WLMatLib
 {
@@ -86,10 +87,8 @@ namespace WLMatLib
     }
 
     /**
-     * MATLAB Array Types (Classes) for Array Flags Subelement.
-     *
-     * \param type
-     * \return
+     * MATLAB Array Types (Classes) for Array Flags Subelement.\n
+     * NOTE: incomplete
      */
     namespace ArrayTypes
     {
@@ -97,11 +96,10 @@ namespace WLMatLib
          * Checks if Class/Type belongs to a numeric array.
          *
          * \param type
-         * \return
+         * \return True if type is numeric array.
          */
         bool isNumericArray( const mArrayType_t& type );
 
-        // NOTE: incomplete
         const mArrayType_t mxCHAR_CLASS = 4;
         const mArrayType_t mxDOUBLE_CLASS = 6;
         const mArrayType_t mxSINGLE_CLASS = 7;
@@ -161,7 +159,7 @@ namespace WLMatLib
     typedef struct ElementInfo ElementInfo_t;
 
     /**
-     * Low-level reader for MAT-file format.
+     * Low-level reader for MAT-file format.\n
      * NOTE: Does only supports: little endian, 2-dim double matrices, no compression.
      */
     class MATReader
@@ -226,7 +224,7 @@ namespace WLMatLib
     };
 
     /**
-     * Low-level writer for MAT-file format.
+     * Low-level writer for MAT-file format.\n
      * NOTE: Does only supports: little endian, 2-dim double matrices, no compression.
      */
     class MATWriter

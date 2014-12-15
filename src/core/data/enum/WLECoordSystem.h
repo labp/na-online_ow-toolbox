@@ -34,6 +34,7 @@
  * Enumeration for coordinate systems, compatible with FIFF enum(coord).
  *
  * \author pieloth
+ * \ingroup data
  */
 namespace WLECoordSystem
 {

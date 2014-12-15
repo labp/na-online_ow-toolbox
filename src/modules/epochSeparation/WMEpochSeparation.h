@@ -36,8 +36,10 @@
 #include "WEpochSeparation.h"
 
 /**
- * Module for epoch separation.
- * \ingroup modules
+ * Extracts an epoch/trial for an specified event/stimuli.
+ *
+ * \author pieloth
+ * \ingroup preproc
  */
 class WMEpochSeparation: public WLModuleDrawable
 {

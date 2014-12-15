@@ -30,6 +30,12 @@ namespace WLFiffLib
 {
     typedef enum_t coord_system_t;
 
+    /**
+     * Coordinate system definition.
+     *
+     * \author pieloth
+     * \ingroup fiff
+     */
     namespace CoordSystem
     {
         const coord_system_t UNKNOWN = 0;

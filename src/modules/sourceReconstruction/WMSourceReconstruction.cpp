@@ -91,7 +91,7 @@ const std::string WMSourceReconstruction::getName() const
 
 const std::string WMSourceReconstruction::getDescription() const
 {
-    return "Estimates a source distribution according to a linear source reconstruction algorithm.";
+    return "Reconstruction of distributed sources using (weighted) minimum norm.";
 }
 
 void WMSourceReconstruction::connectors()
@@ -113,7 +113,7 @@ void WMSourceReconstruction::properties()
     WLModuleDrawable::setTimerangeInformationOnly( true );
     WLModuleDrawable::setViewModality( WLEModality::SOURCE );
     WLModuleDrawable::hideViewModalitySelection( true );
-    WLModuleDrawable::hideLabelChanged( true );
+    WLModuleDrawable::hideLabelsOn( true );
     WLModuleDrawable::setComputeModalitySelection( WLEModality::valuesLocalizeable() );
 
     m_percent = getViewProperties()->addProperty( "Percent of strength", "The pecental value of strength to display the sources.",
@@ -266,7 +266,7 @@ void WMSourceReconstruction::moduleMain()
             cmd = m_input->getData();
         }
 
-        if( m_lastModality != getCalculateModality() )
+        if( m_lastModality != getComputeModality() )
         {
             handleComputeModalityChanged();
         }
@@ -381,7 +381,7 @@ void WMSourceReconstruction::handleSnrChanged()
 void WMSourceReconstruction::handleComputeModalityChanged()
 {
     debugLog() << "handleComputeModalityChanged()";
-    m_lastModality = getCalculateModality();
+    m_lastModality = getComputeModality();
     m_sourceReconstruction->reset();
 }
 
@@ -445,7 +445,7 @@ bool WMSourceReconstruction::processCompute( WLEMMeasurement::SPtr emmIn )
     // The data is valid and we received an update. The data is not NULL but may be the same as in previous loops.
     debugLog() << "received data";
 
-    WLEModality::Enum modality = this->getCalculateModality();
+    WLEModality::Enum modality = this->getComputeModality();
 
     if( !m_sourceReconstruction->hasInverse() )
     {
@@ -490,7 +490,7 @@ bool WMSourceReconstruction::processCompute( WLEMMeasurement::SPtr emmIn )
 bool WMSourceReconstruction::processInit( WLEMMCommand::SPtr cmdIn )
 {
     WLTimeProfiler tp( "WMSourceReconstruction", "processInit" );
-    WLEModality::Enum modality = this->getCalculateModality();
+    WLEModality::Enum modality = this->getComputeModality();
     bool rc = true;
     if( cmdIn->hasEmm() )
     {

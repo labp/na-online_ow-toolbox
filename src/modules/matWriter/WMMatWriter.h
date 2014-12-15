@@ -35,6 +35,12 @@
 #include "core/io/WLWriterMAT.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 
+/**
+ * Writes EMD object into a MATLAB MAT-file.
+ *
+ * \author pieloth
+ * \ingroup io
+ */
 class WMMatWriter: public WModule
 {
 public:

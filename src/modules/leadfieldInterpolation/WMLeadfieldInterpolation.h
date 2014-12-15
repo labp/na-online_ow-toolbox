@@ -37,6 +37,12 @@
 #include "core/module/WLModuleOutputDataCollectionable.h"
 #include "core/module/WLEMMCommandProcessor.h"
 
+/**
+ * Interpolates a "low resolution" leadfield from a "high resolution" leadfield using nearest neighbor, EEG only.
+ *
+ * \author pieloth
+ * \ingroup forward
+ */
 class WMLeadfieldInterpolation: public WModule, public WLEMMCommandProcessor
 {
 public:

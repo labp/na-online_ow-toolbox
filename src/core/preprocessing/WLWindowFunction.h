@@ -30,9 +30,12 @@
 #include "core/data/WLDataTypes.h"
 
 /**
+ * \brief Window functions.
+ *
  * Window functions, e.g. for FIR filter.
  *
  * \author pieloth
+ * \ingroup preproc
  */
 namespace WLWindowFunction
 {

@@ -34,6 +34,12 @@
 
 #include "writer/WWriterFiff.h"
 
+/**
+ * Writes an EEG/MEG data stream into a FIFF file (in progress).
+ *
+ * \author pieloth
+ * \ingroup io
+ */
 class WMFiffWriter: public WModule, public WLEMMCommandProcessor
 {
 public:

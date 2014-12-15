@@ -34,6 +34,7 @@
  * Enumeration for exponents, compatible with FIFF enum(unitm).
  *
  * \author pieloth
+ * \ingroup data
  */
 namespace WLEExponent
 {

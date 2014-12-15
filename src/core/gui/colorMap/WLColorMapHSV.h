@@ -28,6 +28,10 @@
 
 #include "WLColorMap.h"
 
+/**
+ * Color map: magenta-blue-green-yellow-red.
+ * \ingroup gui
+ */
 class WLColorMapHSV: public WLColorMap
 {
 public:

@@ -30,6 +30,9 @@
 
 /**
  * An exception that gets thrown on failure allocating memory, e.g. memory on a CUDA device.
+ *
+ * \author pieloth
+ * \ingroup exception
  */
 class WLBadAllocException: public WException
 {

@@ -37,23 +37,20 @@
 #include "WLModuleInputDataCollection.h"
 
 /**
- * Class offering an instantiate-able data connection between modules.
- * This class checks whether the input connector is an instance of WModuleInputDataCollection, if true addData() is called.
- * ATTENTION: Do not use the static methods create() and createAndAdd()!
+ * Extends an output connector by a correct use of WModuleInputDataCollection.
+ * It checks whether the input connector is an instance of WModuleInputDataCollection, if true addData() is called.
+ * \attention Do not use the static methods WModuleOutputData::create() and WModuleOutputData::createAndAdd()!
+ *
+ * \author pieloth
+ * \ingroup module
  */
 template< typename T >
 class WLModuleOutputDataCollectionable: public WModuleOutputData< T >
 {
 public:
-    /**
-     * Pointer to this. For convenience.
-     */
-    typedef boost::shared_ptr< WLModuleOutputDataCollectionable< T > > SPtr;
+    typedef boost::shared_ptr< WLModuleOutputDataCollectionable< T > > SPtr; //!< Abbreviation for a shared pointer.
 
-    /**
-     * Pointer to this. For convenience.
-     */
-    typedef boost::shared_ptr< const WLModuleOutputDataCollectionable< T > > ConstSPtr;
+    typedef boost::shared_ptr< const WLModuleOutputDataCollectionable< T > > ConstSPtr; //!< Abbreviation for const shared pointer.
 
     /**
      * Returns a new instance.
@@ -79,9 +76,9 @@ public:
     }
 
     /**
-     * Updates the data associated. addData() will be called for instances of WLModuleInputDataCollection.
+     * Updates the data associated. For instances of WLModuleInputDataCollection addData() is called.
      *
-     * \param data the data do send
+     * \param data The data to send.
      */
     void updateData( boost::shared_ptr< T > data );
 

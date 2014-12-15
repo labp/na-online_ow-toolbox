@@ -28,6 +28,12 @@
 #include <set>
 #include <string>
 
+/**
+ * Enumeration for MEG coil types.
+ *
+ * \author pieloth
+ * \ingroup data
+ */
 namespace WLEMEGGeneralCoilType
 {
     enum Enum

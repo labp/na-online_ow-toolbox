@@ -39,6 +39,7 @@
  * Visualize the HPI coils in the MEG helmet.
  *
  * \author pieloth
+ * \ingroup gui
  */
 class WLEMDDrawable3DHPI: public WLEMDDrawable3D
 {

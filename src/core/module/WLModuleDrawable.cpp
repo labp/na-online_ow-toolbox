@@ -251,7 +251,7 @@ void WLModuleDrawable::hideViewModalitySelection( bool enable )
     m_selectionView->setHidden( enable );
 }
 
-WLEModality::Enum WLModuleDrawable::getCalculateModality()
+WLEModality::Enum WLModuleDrawable::getComputeModality()
 {
     WLEModality::Enum modality;
     modality = m_selectionCalculate->get().at( 0 )->getAs< WItemSelectionItemTyped< WLEModality::Enum > >()->getValue();
@@ -284,7 +284,7 @@ void WLModuleDrawable::setComputeModalitySelection( const set< WLEModality::Enum
     WPropertyHelper::PC_NOTEMPTY::addTo( m_selectionCalculate );
 }
 
-void WLModuleDrawable::hideLabelChanged( bool enable )
+void WLModuleDrawable::hideLabelsOn( bool enable )
 {
     m_labelsOn->setHidden( enable );
 }
@@ -309,7 +309,7 @@ void WLModuleDrawable::setLastEMM( WLEMMeasurement::SPtr emm )
     m_lastEmm = emm;
 }
 
-boost::shared_ptr< WPVGroup > WLModuleDrawable::getViewProperties()
+WPVGroup::SPtr WLModuleDrawable::getViewProperties()
 {
     return m_propView;
 }

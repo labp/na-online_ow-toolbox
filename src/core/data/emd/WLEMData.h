@@ -43,32 +43,24 @@
 #include "core/data/enum/WLEUnit.h"
 
 /**
- * Class for general modality. Saves information which are present for all modalities.
+ * Class for a general modality. Saves information which are present for all modalities.
  *
  * \authors kaehler, pieloth, maschke
+ * \ingroup data
  */
 class WLEMData: public boost::enable_shared_from_this< WLEMData >
 {
 public:
-    static const std::string CLASS;
+    typedef boost::shared_ptr< WLEMData > SPtr; //!< Abbreviation for a shared pointer.
 
-    static const WLFreqT UNDEFINED_FREQ;
+    typedef boost::shared_ptr< const WLEMData > ConstSPtr; //!< Abbreviation for const shared pointer.
 
-    /**
-     * Abbreviation for a shared pointer.
-     */
-    typedef boost::shared_ptr< WLEMData > SPtr;
+    typedef std::list< size_t > ChannelList; //!< List of channel indices.
 
-    /**
-     * Abbreviation for const shared pointer.
-     */
-    typedef boost::shared_ptr< const WLEMData > ConstSPtr;
-
-    typedef std::list< size_t > ChannelList;
-
-    typedef boost::shared_ptr< ChannelList > ChannelListSPtr;
+    typedef boost::shared_ptr< ChannelList > ChannelListSPtr; //!< Shared point for a list of channel indices.
 
     /**
+     * \typedef ScalarT
      * Data type of single value aka "Channel c1 at time t1".
      */
 #ifdef LABP_FLOAT_COMPUTATION
@@ -76,24 +68,26 @@ public:
 #else
     typedef double ScalarT;
 #endif  // LABP_FLOAT_COMPUTATION
+
     /**
      * Data type of a multi channel sample for a defined time point aka "All channels at time t1".
      */
     typedef Eigen::Matrix< ScalarT, Eigen::Dynamic, 1 > SampleT;
 
-    /**
-     * Data type of a measured single channel over time.
-     */
-    typedef Eigen::Matrix< ScalarT, 1, Eigen::Dynamic > ChannelT;
+    typedef Eigen::Matrix< ScalarT, 1, Eigen::Dynamic > ChannelT; //!< Data type of a measured single channel over time.
 
     /**
-     * Date type of a multi channel measurement: Channel x Time
+     * Date type of a multi channel measurement: Channel x Time.
      */
     typedef Eigen::Matrix< ScalarT, Eigen::Dynamic, Eigen::Dynamic > DataT;
 
-    typedef boost::shared_ptr< DataT > DataSPtr;
+    typedef boost::shared_ptr< DataT > DataSPtr; //!< Shared pointer for data.
 
-    typedef boost::shared_ptr< const DataT > DataConstSPtr;
+    typedef boost::shared_ptr< const DataT > DataConstSPtr; //!< Const shared pointer for data.
+
+    static const std::string CLASS; //!< Class name for logging purpose.
+
+    static const WLFreqT UNDEFINED_FREQ; //!< Constant to indicate an unknown sampling rate.
 
     /**
      * Constructor
@@ -101,9 +95,10 @@ public:
     WLEMData();
 
     /**
-     * Constructor, sets data from input instance.
+     * Constructor, sets attributes from input instance.
      *
-     * \param emd Adopts the attributes from this instance, but not the "raw" data.
+     * \note Raw data is not copied!
+     * \param emd Adopts the attributes from this instance.
      */
     explicit WLEMData( const WLEMData& emd );
 
@@ -137,18 +132,19 @@ public:
     /**
      * Clones this instance without copying the "raw" data.
      *
+     * \note Raw data is not copied!
      * \return A copy of this instance, except the "raw" data.
      */
     virtual WLEMData::SPtr clone() const = 0;
 
     /**
-     * Returns the data. NOTE: The method does not modify any object data, but data may modified indirectly!
+     * Returns the data.
+     * \note The method does not modify any object data, but data may modified indirectly!
      */
     virtual DataT& getData() const;
 
     /**
      * Returns the data without the bad channels.
-     * NOTE: The method does not modify any object data, but data may modified indirectly!
      *
      * \return The data.
      */
@@ -156,7 +152,6 @@ public:
 
     /**
      * Returns the data without the bad channels.
-     * NOTE: The method does not modify any object data, but data may modified indirectly!
      *
      * \return The data.
      */
@@ -337,10 +332,30 @@ public:
      */
     WLTimeT getLength() const;
 
+    /**
+     * Sets a list of bad channels.
+     *
+     * \param badChannels Bad Channels to set.
+     */
     void setBadChannels( ChannelListSPtr badChannels );
 
+    /**
+     * Creates a string of all samples of a channel.
+     *
+     * \param data Channel
+     * \param maxSamples Maximum number of samples, starting at 0.
+     * \return Samples in one string.
+     */
     static std::string channelToString( const ChannelT& data, size_t maxSamples );
 
+    /**
+     * Creates a string representation of the data.
+     *
+     * \param data Data.
+     * \param maxChannels Maximum number of channels, starting at 0.
+     * \param maxSamples Maximum number of samples, starting at 0.
+     * \return
+     */
     static std::string dataToString( const DataT& data, size_t maxChannels, size_t maxSamples );
 
     /**
@@ -352,27 +367,27 @@ public:
     bool isBadChannel( size_t channelNo ) const;
 
 protected:
-    std::string m_measurementDeviceName; /**< name of the measurement device */
+    std::string m_measurementDeviceName; //!< Name of the measurement device.
 
-    WLFreqT m_lineFreq; /**< power line frequency */
+    WLFreqT m_lineFreq; //!< Power line frequency.
 
-    WLArrayList< std::string >::SPtr m_chanNames;
+    WLArrayList< std::string >::SPtr m_chanNames; //!< Channel names.
 
-    WLFreqT m_sampFreq; /**<sampling frequency (unique within modality) */
+    WLFreqT m_sampFreq; //!< Sampling frequency (unique within modality).
 
-    WLEUnit::Enum m_chanUnit;
+    WLEUnit::Enum m_chanUnit; //!< Unit of the data.
 
-    WLEExponent::Enum m_chanUnitExp; /**< data is in unit m_chanUnit * 10^m_chanUnitExp */
+    WLEExponent::Enum m_chanUnitExp; //!< Data is in unit m_chanUnit * 10^m_chanUnitExp.
 
-    WLFreqT m_analogHighPass; /**< cutoff frequency of highpass filter in analog processing chain */
+    WLFreqT m_analogHighPass; //!< Cutoff frequency of highpass filter in analog processing chain.
 
-    WLFreqT m_analogLowPass; /**< cutoff frequency of lowpass filter in analog processing chain */
+    WLFreqT m_analogLowPass; //!< Cutoff frequency of lowpass filter in analog processing chain.
 
-    WLECoordSystem::Enum m_CoordSystem; /**< type of coordinate system used for m_chanPositions */
+    WLECoordSystem::Enum m_CoordSystem; //!< Type of coordinate system used for m_chanPositions.
 
-    DataSPtr m_data; /**< Raw data of the measurement. */
+    DataSPtr m_data; //!< Raw data of the measurement.
 
-    ChannelListSPtr m_badChannels; /**< List of the bad channels. */
+    ChannelListSPtr m_badChannels; //!< List of the bad channels.
 };
 
 inline std::ostream& operator<<( std::ostream &strm, const WLEMData& obj )

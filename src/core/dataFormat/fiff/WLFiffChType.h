@@ -30,6 +30,12 @@ namespace WLFiffLib
 {
     typedef enum_t ch_type_t;
 
+    /**
+     * Channel types.
+     *
+     * \author pieloth
+     * \ingroup fiff
+     */
     namespace ChType
     {
         const ch_type_t MAGN = 1;

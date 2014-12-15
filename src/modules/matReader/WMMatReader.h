@@ -32,7 +32,7 @@
 #include <core/common/WCondition.h>
 #include <core/common/WPropertyTypes.h>
 #include <core/common/math/linearAlgebra/WPosition.h>
-#include "core/kernel/WModule.h"
+#include "core/kernel/WDataModule.h"
 
 #include "core/data/WLDataTypes.h"
 #include "core/data/WLEMMSurface.h"
@@ -40,7 +40,14 @@
 #include "core/data/WLEMMCommand.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
-class WMMatReader: public WModule
+/**
+ * Reads a MATLAB MAT-file as EEG raw data into EMM structure.
+ * Supports MAT file format version 5.
+ *
+ * \author pieloth
+ * \ingroup io
+ */
+class WMMatReader: public WDataModule
 {
 public:
     WMMatReader();
@@ -54,10 +61,14 @@ public:
 
     virtual const char** getXPMIcon() const;
 
+    virtual std::vector< WDataModuleInputFilter::ConstSPtr > getInputFilter() const;
+
 protected:
     virtual void connectors();
 
     virtual void properties();
+
+    virtual void handleInputChange();
 
     virtual void moduleInit();
 
@@ -75,8 +86,7 @@ private:
 
     WPropString m_status;
 
-    WPropFilename m_propMatFile;
-
+    bool m_reloadMatFile;
     bool handleMatFileChanged();
 
     WLMatrix::SPtr m_matrix;

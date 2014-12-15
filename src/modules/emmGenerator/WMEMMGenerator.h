@@ -34,6 +34,12 @@
 #include "core/data/WLEMMeasurement.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
+/**
+ * Generates a EEG measurement with random data.
+ *
+ * \author pieloth
+ * \ingroup io
+ */
 class WMEMMGenerator: public WModule
 {
 public:

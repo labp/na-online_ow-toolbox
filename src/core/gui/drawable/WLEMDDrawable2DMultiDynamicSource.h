@@ -34,6 +34,10 @@
 
 #include "WLEMDDrawable2DMultiDynamic.h"
 
+/**
+ * \author pieloth
+ * \ingroup gui
+ */
 class WLEMDDrawable2DMultiDynamicSource: public WLEMDDrawable2DMultiDynamic
 {
 public:

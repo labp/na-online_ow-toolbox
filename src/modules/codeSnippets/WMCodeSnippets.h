@@ -38,6 +38,7 @@
  * Module for small test and helper code e.g. imports, exports and more.
  *
  * \author pieloth
+ * \ingroup misc
  */
 class WMCodeSnippets: public WModule, public WLEMMCommandProcessor
 {

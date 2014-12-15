@@ -45,7 +45,10 @@
 #include "WThresholdParser.h"
 
 /**
- * Module for epoch rejection.
+ * Module for epoch rejection (in progress).
+ *
+ * \author maschke
+ * \ingroup preproc
  */
 class WMEpochRejection: public WLModuleDrawable
 {

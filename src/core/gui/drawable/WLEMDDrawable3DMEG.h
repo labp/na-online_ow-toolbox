@@ -39,6 +39,12 @@
 #include "core/data/enum/WLEModality.h"
 #include "WLEMDDrawable3D.h"
 
+/**
+ * Visualization of a MEG helmet and the mapped the data.
+ *
+ * \author pieloth
+ * \ingroup gui
+ */
 class WLEMDDrawable3DMEG: public WLEMDDrawable3D
 {
 public:

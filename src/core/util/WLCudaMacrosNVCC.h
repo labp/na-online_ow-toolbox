@@ -24,6 +24,10 @@
 #ifndef WLCUDAMACROSNVCC_H_
 #define WLCUDAMACROSNVCC_H_
 
+/**
+ * \ingroup util
+ */
+
 #ifdef LABP_FLOAT_COMPUTATION
 typedef float CuScalarT;
 #else

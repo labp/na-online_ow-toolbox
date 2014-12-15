@@ -704,17 +704,34 @@ bool WRtClient::readChannelPositions( WLEMData* const emd, const Eigen::RowVecto
     WLEMDMEG* meg = dynamic_cast< WLEMDMEG* >( emd );
     if( meg != NULL )
     {
+        WLArrayList< WVector3f >::SPtr chExMEG = WLArrayList< WVector3f >::instance();
+        WLArrayList< WVector3f >::SPtr chEyMEG = WLArrayList< WVector3f >::instance();
+        WLArrayList< WVector3f >::SPtr chEzMEG = WLArrayList< WVector3f >::instance();
+        chExMEG->reserve( picks.size() );
+        chEyMEG->reserve( picks.size() );
+        chEzMEG->reserve( picks.size() );
+
         for( Eigen::RowVectorXi::Index row = 0; row < picks.size(); ++row )
         {
             WAssertDebug( picks[row] < chInfos.size(), "Selected channel index out of chInfos boundary!" );
             const Eigen::Matrix< double, 12, 1, Eigen::DontAlign >& chPos = chInfos.at( ( int )picks[row] ).loc;
             const WPosition pos( chPos( 0, 0 ), chPos( 1, 0 ), chPos( 2, 0 ) );
             positions->push_back( pos );
+
+            const WVector3f ex( chPos( 3, 0 ), chPos( 4, 0 ), chPos( 5, 0 ) );
+            chExMEG->push_back( ex );
+            const WVector3f ey( chPos( 6, 0 ), chPos( 7, 0 ), chPos( 8, 0 ) );
+            chEyMEG->push_back( ey );
+            const WVector3f ez( chPos( 9, 0 ), chPos( 10, 0 ), chPos( 11, 0 ) );
+            chEzMEG->push_back( ez );
         }
 
         if( !positions->empty() )
         {
             meg->setChannelPositions3d( positions );
+            meg->setEx( chExMEG );
+            meg->setEy( chEyMEG );
+            meg->setEz( chEzMEG );
             return true;
         }
         else

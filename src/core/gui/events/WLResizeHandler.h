@@ -36,6 +36,7 @@
  * Catches a resize and force a redraw.
  *
  * \author pieloth
+ * \ingroup gui
  */
 class WLResizeHandler: public WUIViewEventHandler
 {

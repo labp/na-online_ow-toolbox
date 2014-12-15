@@ -48,14 +48,16 @@ using namespace FIFFLIB;
 
 const std::string WLReaderIsotrak::CLASS = "WReaderNeuromagIsotrak";
 
-WLReaderIsotrak::WLReaderIsotrak( std::string fname ) :
-                WLReaderGeneric< std::list< WLDigPoint > >( fname )
+WLReaderIsotrak::WLReaderIsotrak( std::string fname )
 {
+    if( !fileExists( fname ) )
+    {
+        throw WDHNoSuchFile( fname );
+    }
     m_stream.reset( new FiffStream( new QFile( QString::fromStdString( fname ) ) ) );
 }
 
-WLReaderIsotrak::WLReaderIsotrak( const char* data, size_t size ) :
-                WLReaderGeneric< std::list< WLDigPoint > >( std::string( data ) )
+WLReaderIsotrak::WLReaderIsotrak( const char* data, size_t size )
 {
     m_stream.reset( new FiffStream( new QBuffer( new QByteArray( data, size ) ) ) );
 }

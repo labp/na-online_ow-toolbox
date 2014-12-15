@@ -24,6 +24,10 @@
 #ifndef WLCUDAMACROS_H_
 #define WLCUDAMACROS_H_
 
+/**
+ * \ingroup util
+ */
+
 #ifdef FOUND_CUDA
 
 #include <sstream>

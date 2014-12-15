@@ -30,19 +30,24 @@
 #include <boost/shared_ptr.hpp>
 
 /**
- * Helper class for std::list. Main purpose is to provide an easy-to-use Smart Pointer access.
- * ATTENTION: Due to a non-virtual destructor of std::list and memory leak prevention, member variables are not allowed!
- *
+ * Helper class for std::list. Main purpose is to provide an easy-to-use Smart Pointer access.\n
+ * ATTENTION: Due to a non-virtual destructor of std::list and memory leak prevention, member variables are not allowed!\n
+ * \n
  * Correct:
+ * \code
  * WLList::SPtr l1 = WLList::instance();
  * WLList::SPtr l2( new WLList() );
  * WLList l3();
+ * \endcode
  *
  * Wrong:
+ * \code
  * std::list* l = new WLList();
  * delete l; // Does not call destructor for WLArrayList!
+ * \endcode
  *
  * \author pieloth
+ * \ingroup container
  */
 template< typename T >
 class WLList: public std::list< T >

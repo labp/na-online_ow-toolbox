@@ -37,6 +37,8 @@
 
 /**
  * Interpolates a high resolution leadfield (HD leadfield) with K nearest neighbors of each sensors.
+ *
+ * \see \cite Yvert2001
  */
 class WLeadfieldInterpolation
 {

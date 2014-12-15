@@ -27,9 +27,11 @@
 #include <string>
 
 /**
+ * \brief Return Codes and type for I/O objects.
  * Return Codes and type for I/O objects, e.g. reader and writer.
  *
  * \author pieloth
+ * \ingroup io
  */
 namespace WLIOStatus
 {

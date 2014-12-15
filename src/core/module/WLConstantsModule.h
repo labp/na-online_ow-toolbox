@@ -21,15 +21,25 @@
 //
 //---------------------------------------------------------------------------
 
-
 #ifndef WLCONSTANTSMODULE_H_
 #define WLCONSTANTSMODULE_H_
 
 #include <string>
 
+/**
+ * \brief Constants for a module.
+ * Constants for a module, e.g. for a consistent naming.
+ *
+ * \author pieloth
+ * \ingroup module
+ */
 namespace WLConstantsModule
 {
-    const std::string NAME_PREFIX = "NA-Online:";
+    // NOTE(pieloth): "NA-Online: " causes an error on loading a saved WDataModule
+    const std::string NAME_PREFIX = "[NA-Online]";
+    const std::string NO_FILE_FILENAME = "nao_no_file"; //!< Used for a workaround: crash on saving an empty WDataModule.
+
+    std::string generateModuleName( const std::string& name );
 
     const size_t BUFFER_SIZE = 8;
 
@@ -37,6 +47,11 @@ namespace WLConstantsModule
     const std::string CONNECTOR_DESCR_IN = "in";
     const std::string CONNECTOR_NAME_OUT = "out";
     const std::string CONNECTOR_DESCR_OUT = "out";
+}
+
+inline std::string WLConstantsModule::generateModuleName( const std::string& name )
+{
+    return WLConstantsModule::NAME_PREFIX + " " + name;
 }
 
 #endif  // WLCONSTANTSMODULE_H_

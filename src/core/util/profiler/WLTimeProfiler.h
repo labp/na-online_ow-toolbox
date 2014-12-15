@@ -37,6 +37,7 @@
  * Explicit time measurement with start and stop method. An instance relates to a class and an action.
  *
  * \author pieloth
+ * \ingroup util
  */
 class WLTimeProfiler: public WLProfiler
 {

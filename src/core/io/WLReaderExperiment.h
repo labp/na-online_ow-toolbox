@@ -35,6 +35,12 @@
 #include "core/data/WLDataTypes.h"
 #include "core/data/WLEMMSubject.h"
 
+/**
+ * Search and reads additional data for an experiment in a "MPG CBS Leipzig" like file structure.
+ *
+ * \author pieloth
+ * \ingroup io
+ */
 class WLReaderExperiment
 {
 public:

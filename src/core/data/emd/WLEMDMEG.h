@@ -30,6 +30,7 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <core/common/WAssert.h>
 #include <core/common/WDefines.h> // OW_API_DEPRECATED
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
@@ -41,23 +42,20 @@
 
 /**
  * MEG data and related measurement information.
+ *
+ * \author kaehler
+ * \ingroup data
  */
 class WLEMDMEG: public WLEMData
 {
 public:
-    static const std::string CLASS;
+    typedef boost::shared_ptr< WLEMDMEG > SPtr; //!< Abbreviation for a shared pointer.
 
-    /**
-     * Abbreviation for a shared pointer.
-     */
-    typedef boost::shared_ptr< WLEMDMEG > SPtr;
+    typedef boost::shared_ptr< const WLEMDMEG > ConstSPtr; //!< Abbreviation for const shared pointer.
 
-    /**
-     * Abbreviation for const shared pointer.
-     */
-    typedef boost::shared_ptr< const WLEMDMEG > ConstSPtr;
+    typedef std::vector< size_t > CoilPicksT; //!< Collection of indices for coil picks.
 
-    typedef std::vector< size_t > CoilPicksT;
+    static const std::string CLASS; //!< Class name for logging purpose.
 
     WLEMDMEG();
 
@@ -72,53 +70,151 @@ public:
     virtual WLEModality::Enum getModalityType() const;
 
     /**
-     * Returns the positions in millimeter.
+     * Returns the positions in millimeter. TODO(pieloth): Which unit, meter or millimeter?
+     *
+     * \return Positions in millimeter.
      */
     WLArrayList< WPosition >::SPtr getChannelPositions3d();
 
     /**
-     * Returns the positions in millimeter.
+     * Returns the positions in millimeter. TODO(pieloth): Which unit, meter or millimeter?
+     *
+     * \return Positions in millimeter.
      */
     WLArrayList< WPosition >::ConstSPtr getChannelPositions3d() const;
 
+    /**
+     * \deprecated Please use extractCoilModality()
+     * \param type Coil type.
+     * \return List containing requested coils.
+     */
     OW_API_DEPRECATED
     WLArrayList< WPosition >::ConstSPtr getChannelPositions3d( WLEMEGGeneralCoilType::Enum type ) const;
 
     /**
-     * Sets the positions. Positions must be in millimeter.
+     * Sets the positions.
+     *
+     * \note Positions must be in millimeter. TODO(pieloth): Which unit, meter or millimeter?
+     * \param chanPos3d Positions to set.
      */
     void setChannelPositions3d( WLArrayList< WPosition >::SPtr chanPos3d );
 
+    /**
+     * Sets the positions.
+     *
+     * \deprecated Please use setChannelPositions3d( WLArrayList< WPosition >::SPtr chanPos3d )
+     * \note Positions must be in millimeter. TODO(pieloth): Which unit, meter or millimeter?
+     * \param chanPos3d Positions to set.
+     */
     OW_API_DEPRECATED
     void setChannelPositions3d( boost::shared_ptr< std::vector< WPosition > > chanPos3d );
 
     /**
      * Returns the faces.
+     *
+     * \return List of faces.
      */
     WLArrayList< WVector3i >::SPtr getFaces();
 
+    /**
+     * Returns the faces.
+     *
+     * \return List of faces.
+     */
     WLArrayList< WVector3i >::ConstSPtr getFaces() const;
 
+    /**
+     * \deprecated Please use extractCoilModality()
+     * \param type Coil types.
+     * \return List containing requested coils
+     */
     OW_API_DEPRECATED
     WLArrayList< WVector3i >::ConstSPtr getFaces( WLEMEGGeneralCoilType::Enum type ) const;
 
+    /**
+     * Sets the faces.
+     *
+     * \param faces Faces to set.
+     */
     void setFaces( WLArrayList< WVector3i >::SPtr faces );
 
+    /**
+     * Sets the faces.
+     *
+     * \deprecated Please use setFaces( WLArrayList< WVector3i >::SPtr faces )
+     * \param faces Faces to set.
+     */
     OW_API_DEPRECATED
     void setFaces( boost::shared_ptr< std::vector< WVector3i > > faces );
 
+    /**
+     * Gets the coil coordinate system x-axis unit vector.
+     *
+     * \return A unit vector.
+     */
     WLArrayList< WVector3f >::SPtr getEx();
+
+    /**
+     * Gets the coil coordinate system x-axis unit vector.
+     *
+     * \return A unit vector.
+     */
     WLArrayList< WVector3f >::ConstSPtr getEx() const;
+
+    /**
+     * Sets the coil coordinate system x-axis unit vector.
+     *
+     * \param vec Unit vector.
+     */
     void setEx( WLArrayList< WVector3f >::SPtr vec );
 
+    /**
+     * Gets the coil coordinate system y-axis unit vector.
+     *
+     * \return A unit vector.
+     */
     WLArrayList< WVector3f >::SPtr getEy();
+
+    /**
+     * Gets the coil coordinate system y-axis unit vector.
+     *
+     * \return A unit vector.
+     */
     WLArrayList< WVector3f >::ConstSPtr getEy() const;
+
+    /**
+     * Sets the coil coordinate system y-axis unit vector.
+     *
+     * \param vec Unit vector.
+     */
     void setEy( WLArrayList< WVector3f >::SPtr vec );
 
+    /**
+     * Gets the coil coordinate system z-axis unit vector.
+     *
+     * \return A unit vector.
+     */
     WLArrayList< WVector3f >::SPtr getEz();
+
+    /**
+     * Gets the coil coordinate system z-axis unit vector.
+     *
+     * \return A unit vector.
+     */
     WLArrayList< WVector3f >::ConstSPtr getEz() const;
+
+    /**
+     * Sets the coil coordinate system z-axis unit vector.
+     *
+     * \param vec Unit vector.
+     */
     void setEz( WLArrayList< WVector3f >::SPtr vec );
 
+    /**
+     * \deprecated Please use coilPicks().
+     * \param channelId
+     * \return
+     */
     OW_API_DEPRECATED
     WLEMEGGeneralCoilType::Enum getChannelType( WLChanIdxT channelId ) const;
 
@@ -182,20 +278,29 @@ public:
     using WLEMData::getData;
 
 private:
-    WLEModality::Enum m_modality;
+    WLEModality::Enum m_modality; //!< MEG, MEG_MAG, MEG_GRAD or MEG_GRAD_MERGE.
 
-    WLArrayList< WPosition >::SPtr m_chanPos3d;
+    WLArrayList< WPosition >::SPtr m_chanPos3d; //!< Channel positions.
 
-    WLArrayList< WVector3i >::SPtr m_faces;
+    WLArrayList< WVector3i >::SPtr m_faces; //!< Channel faces/triangulation.
 
-    WLArrayList< WVector3f >::SPtr m_eX;
-    WLArrayList< WVector3f >::SPtr m_eY;
-    WLArrayList< WVector3f >::SPtr m_eZ;
+    WLArrayList< WVector3f >::SPtr m_eX; //!< Coil coordinate system x-axis unit vector.
+    WLArrayList< WVector3f >::SPtr m_eY; //!< Coil coordinate system y-axis unit vector.
+    WLArrayList< WVector3f >::SPtr m_eZ; //!< Coil coordinate system z-axis unit vector.
 
+    /**
+     * Mutable to reset the picks after a data change and lazy load.
+     * \deprecated
+     */
     OW_API_DEPRECATED
-    mutable std::vector< size_t > m_picksMag; // mutable to reset the picks after a data change and lazy load.
+    mutable std::vector< size_t > m_picksMag;
+
+    /**
+     * Mutable to reset the picks after a data change and lazy load.
+     * \deprecated
+     */
     OW_API_DEPRECATED
-    mutable std::vector< size_t > m_picksGrad; // mutable to reset the picks after a data change and lazy load.
+    mutable std::vector< size_t > m_picksGrad;
 };
 
 inline WLEMEGGeneralCoilType::Enum WLEMDMEG::getChannelType( WLChanIdxT channelId ) const

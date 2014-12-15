@@ -34,7 +34,9 @@
 
 /**
  * This module just prints the LifetimeProfiler of an EMM.
- * \ingroup modules
+ *
+ * \author pieloth
+ * \ingroup misc
  */
 class WMProfilerLog: public WModule
 {

@@ -32,6 +32,7 @@
  * Enumeration for modalities.
  *
  * \author pieloth
+ * \ingroup data
  */
 namespace WLEModality
 {

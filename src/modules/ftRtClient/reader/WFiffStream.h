@@ -24,8 +24,6 @@
 #ifndef WFIFFSTREAM_H_
 #define WFIFFSTREAM_H_
 
-#include <string>
-
 #include <boost/shared_ptr.hpp>
 
 #include <QtCore/qiodevice.h>
@@ -39,6 +37,7 @@
 class WFiffStream: public FIFFLIB::FiffStream
 {
 public:
+
     /**
      * A shared pointer on a WFiffStream.
      */
@@ -54,7 +53,7 @@ public:
      *
      * \param[in] p_pIODevice    A fiff IO device like a fiff QFile or QTCPSocket
      */
-    explicit WFiffStream( QIODevice *p_pIODevice );
+    WFiffStream( QIODevice *p_pIODevice );
 
     /**
      * Read the measurement info
@@ -80,6 +79,7 @@ public:
      * \return a list of SSP projectors
      */
     QList< FIFFLIB::FiffProj > read_proj( const FIFFLIB::FiffDirTree& p_Node );
+
 };
 
 #endif  // WFIFFSTREAM_H_

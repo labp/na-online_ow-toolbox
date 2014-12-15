@@ -38,6 +38,12 @@
 
 #include "WLEMDDrawable2D.h"
 
+/**
+ * Template for a multi-channel 2D view.
+ *
+ * \author pieloth
+ * \ingroup gui
+ */
 class WLEMDDrawable2DMultiChannel: public WLEMDDrawable2D
 {
 public:
@@ -51,7 +57,7 @@ public:
      */
     typedef boost::shared_ptr< const WLEMDDrawable2DMultiChannel > ConstSPtr;
 
-    static const std::string CLASS;
+    static const std::string CLASS; //!< Class name for logging purpose.
 
     explicit WLEMDDrawable2DMultiChannel( WUIViewWidget::SPtr widget );
     virtual ~WLEMDDrawable2DMultiChannel();
@@ -60,12 +66,41 @@ public:
 
     virtual bool hasData() const = 0;
 
+    /**
+     * Gets the height or spacing for one channel.
+     *
+     * \return The height for one channel.
+     */
     virtual ValueT getChannelHeight() const;
+
+    /**
+     * Sets the height or spacing for one channel.
+     *
+     * \param spacing The height or spacing for one channel.
+     */
     virtual void setChannelHeight( ValueT spacing );
 
+    /**
+     * Creates a pair of the selected point and the corresponding data sample.
+     *
+     * \param pixel Selected pixel.
+     * \return A pair of a data sample and a selected pixel.
+     */
     virtual std::pair< WLEMMeasurement::SPtr, size_t > getSelectedData( ValueT pixel ) const = 0;
 
+    /**
+     * Gets the first channel which is visualized.
+     *
+     * \return First channel to visualize.
+     */
     virtual size_t getChannelBegin() const;
+
+    /**
+     * Sets the first channel to visualized. This is used for scrolling over the channels.
+     *
+     * \param channelNr Channel number.
+     * \return The channel number is used.
+     */
     virtual size_t setChannelBegin( size_t channelNr );
 
 protected:
@@ -73,9 +108,20 @@ protected:
 
     virtual void osgNodeCallback( osg::NodeVisitor* nv );
 
+    /**
+     * Draws and adds the labels for each channel.
+     *
+     * \param emd EM data containing the channel names.
+     */
     void virtual osgAddLabels( const WLEMData& emd );
 
     virtual size_t maxChannels( const WLEMData& emd ) const;
+
+    /**
+     * Calculates the first channel to draw considering the available data.
+     * \param emd Data t draw.
+     * \return Channel index.
+     */
     virtual size_t getChannelBegin( const WLEMData& emd );
 
     const ValueT m_labelWidth;
@@ -86,8 +132,8 @@ protected:
     size_t m_channelBegin;
     bool m_channelBeginChanged;
 
-    osg::ref_ptr< osg::PositionAttitudeTransform > m_labelsText;
-    osg::ref_ptr< osg::Geode > m_labelsBackground;
+    osg::ref_ptr< osg::PositionAttitudeTransform > m_labelsText; //!< Contains the channel labels.
+    osg::ref_ptr< osg::Geode > m_labelsBackground; //!< Contains the intransparent labels background.
 };
 
 #endif  // WLEMDDRAWABLE2DMULTICHANNEL_H_

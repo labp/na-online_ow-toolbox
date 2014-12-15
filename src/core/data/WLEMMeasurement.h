@@ -45,43 +45,59 @@
 #include "core/util/profiler/WLLifetimeProfiler.h"
 
 /**
- * Electro-magnetic measurement contains all data and information about a measurement,
+ * \brief Electromagnetic measurement contains all data and information about a measurement.
+ * Electromagnetic measurement contains all data and information about a measurement,
  * e.g. EEG/MEG data, subject information, surfaces and more.
+ *
+ * \authors kaehler, pieloth
+ * \ingroup data
  */
 class WLEMMeasurement
 {
 public:
-    /**
-     * Abbreviation for a shared pointer.
-     */
-    typedef boost::shared_ptr< WLEMMeasurement > SPtr;
+    typedef boost::shared_ptr< WLEMMeasurement > SPtr; //!< Abbreviation for a shared pointer.
+
+    typedef boost::shared_ptr< const WLEMMeasurement > ConstSPtr; //!< Abbreviation for const shared pointer.
+
+    typedef int EventT; //!< Data type for events.
+
+    typedef std::vector< EventT > EChannelT; //!< An event channel.
+
+    typedef std::vector< EChannelT > EDataT; //!< Event data.
+
+    static const std::string CLASS; //!< Class name for logging purpose.
 
     /**
-     * Abbreviation for const shared pointer.
+     * Constructor.
      */
-    typedef boost::shared_ptr< const WLEMMeasurement > ConstSPtr;
-
-    typedef int EventT;
-
-    typedef std::vector< EventT > EChannelT;
-
-    typedef std::vector< EChannelT > EDataT;
-
-    static const std::string CLASS;
-
     WLEMMeasurement();
 
+    /**
+     * Constructor.
+     *
+     * \param subject Subject to use.
+     */
     explicit WLEMMeasurement( WLEMMSubject::SPtr subject );
 
     /**
-     * copy constructor, makes a shallow copy from object except the data vector
+     * Copy constructor, creates a shallow copy from object.
      *
-     * \param m_WDataSetEMMObject the object to copy from
+     * \note Modalities are not copied.
+     * \param emm The object to copy from.
      */
     explicit WLEMMeasurement( const WLEMMeasurement& emm );
 
+    /**
+     * Creates a shallow copy from the instance.
+     *
+     * \note Modalities are not copied.
+     * \return A new instance without the modalities.
+     */
     WLEMMeasurement::SPtr clone() const;
 
+    /**
+     * Destructor.
+     */
     virtual ~WLEMMeasurement();
 
     /**
@@ -233,7 +249,7 @@ public:
     /**
      * Returns the event/stimuli channels.
      */
-    boost::shared_ptr< std::vector< EChannelT > > getEventChannels() const;
+    boost::shared_ptr< EDataT > getEventChannels() const;
 
     /**
      * Sets the event/stimuli channel/data.
@@ -255,21 +271,38 @@ public:
      */
     WLChanNrT getEventChannelCount() const;
 
+    /**
+     * Gets profiler for lifetime and clone counter.
+     *
+     * \return profiler
+     */
     WLLifetimeProfiler::SPtr getProfiler();
+
+    /**
+     * Gets profiler for lifetime and clone counter.
+     *
+     * \return profiler
+     */
     WLLifetimeProfiler::ConstSPtr getProfiler() const;
+
+    /**
+     * Sets profiler for lifetime and clone counter.
+     *
+     * \param profiler
+     */
     void setProfiler( WLLifetimeProfiler::SPtr profiler );
 
     /**
      * Gets the digitized points, i.e. EEG and HPI.
      *
-     * \return points
+     * \return digitized points
      */
     WLList< WLDigPoint >::SPtr getDigPoints();
 
     /**
      * Gets the digitized points, i.e. EEG and HPI.
      *
-     * \return points
+     * \return digitized points
      */
     WLList< WLDigPoint >::ConstSPtr getDigPoints() const;
 
@@ -287,32 +320,52 @@ public:
      */
     void setDigPoints( WLList< WLDigPoint >::SPtr digPoints );
 
+    /**
+     * Gets the transformation matrix: device to fiducial.
+     *
+     * \return %transformation matrix
+     */
     const WLMatrix4::Matrix4T& getDevToFidTransformation() const;
 
+    /**
+     * Sets the transformation matrix: device to fiducial.
+     *
+     * \param mat %Transformation matrix.
+     */
     void setDevToFidTransformation( const WLMatrix4::Matrix4T& mat );
 
+    /**
+     * Gets the transformation matrix: fiducial to ACPC.
+     *
+     * \return %transformation matrix
+     */
     const WLMatrix4::Matrix4T& getFidToACPCTransformation() const;
 
+    /**
+     * Sets the transformation matrix: fiducial to ACPC.
+     *
+     * \param mat %Transformation matrix.
+     */
     void setFidToACPCTransformation( const WLMatrix4::Matrix4T& mat );
 
 private:
     WLLifetimeProfiler::SPtr m_profiler;
 
-    std::string m_experimenter; /**< experiment supervisor */
+    std::string m_experimenter; //!< experiment supervisor.
 
-    std::string m_expDescription; /**< description of experiment */
+    std::string m_expDescription; //!< description of experiment.
 
-    std::vector< WLEMData::SPtr > m_modalityList; /**< Container for EMDs */
+    std::vector< WLEMData::SPtr > m_modalityList; //!< Container for EMDs.
 
-    WLEMMSubject::SPtr m_subject; /**< subject information */
+    WLEMMSubject::SPtr m_subject; //!< Subject information.
 
-    boost::shared_ptr< std::vector< EChannelT > > m_eventChannels; /**< Event/Stimuli channels */
+    boost::shared_ptr< std::vector< EChannelT > > m_eventChannels; //!< Event/Stimuli channels
 
-    WLList< WLDigPoint >::SPtr m_digPoints;
+    WLList< WLDigPoint >::SPtr m_digPoints; //!< Digitized points.
 
-    WLMatrix4::Matrix4T m_transDevToFid;
+    WLMatrix4::Matrix4T m_transDevToFid; //!< %Transformation matrix: device to fiducial.
 
-    WLMatrix4::Matrix4T m_transFidToACPC;
+    WLMatrix4::Matrix4T m_transFidToACPC; //!< %Transformation matrix: fiducial to ACPC.
 };
 
 inline std::ostream& operator<<( std::ostream &strm, const WLEMMeasurement& obj )

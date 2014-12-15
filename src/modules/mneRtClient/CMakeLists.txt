@@ -36,18 +36,6 @@ SET( ADDITIONAL_LIBS "" )
 
 
 # --------------------------------------------------------------------------------------------------------------------------------
-# TODO(pieloth) #178: Runtime error on debug build with -O0 
-# --------------------------------------------------------------------------------------------------------------------------------
-
-IF( CMAKE_BUILD_TYPE MATCHES Debug )
-	IF( CMAKE_COMPILER_IS_GNUCXX )
-		MESSAGE( "[mneRtClient] TODO(pieloth) #178: Runtime error on debug build with -O0, using -O1 instead!" )
-		ADD_DEFINITIONS( -O1 )
-	ENDIF()
-ENDIF()
-
-
-# --------------------------------------------------------------------------------------------------------------------------------
 # Add MNE Library for Real Time Streaming
 # --------------------------------------------------------------------------------------------------------------------------------
 # NOTE: Order of static libs is important. Wrong order can produce undefined references and symbols!
@@ -58,20 +46,20 @@ LINK_DIRECTORIES( ${MNE_LIBRARY_DIR} )
 LIST( APPEND ADDITIONAL_LIBS ${MNE_FS_LIBRARY} ${MNE_RTCLIENT_LIBRARY} ${MNE_FIFF_LIBRARY} ${MNE_RTCOMMAND_LIBRARY} ${MNE_LIBRARY} )
 LIST( APPEND ADDITIONAL_LIBS ${MNE_UTILS_LIBRARY} ${MNE_GENERICS_LIBRARY} )
 
+#FIND_PACKAGE( Qt5 REQUIRED )
+#INCLUDE_DIRECTORIES( ${QT5_INCLUDE_DIR} )
+#INCLUDE_DIRECTORIES( ${QT5_QTCORE_INCLUDE_DIR} )
+#LIST( APPEND ADDITIONAL_LIBS ${QT5_QTCORE_LIBRARY} )
+#INCLUDE_DIRECTORIES( ${QT5_QTNETWORK_INCLUDE_DIR} )
+#LIST( APPEND ADDITIONAL_LIBS ${QT5_QTNETWORK_LIBRARY} )
 
-# --------------------------------------------------------------------------------------------------------------------------------
-# Add static Qt5 for MNE Library
-# --------------------------------------------------------------------------------------------------------------------------------
-# NOTE: Need of static linking due to conflicts with Qt4 of OpenWalnut (runtime error).
-# NOTE: Order of Qt5 static libs is important. Wrong order can produce undefined references and symbols!
-
-FIND_PACKAGE( Qt5Static REQUIRED )
-INCLUDE_DIRECTORIES( ${QT5_INCLUDE_DIR} )
-INCLUDE_DIRECTORIES( ${QT5_QTCORE_INCLUDE_DIR} )
-INCLUDE_DIRECTORIES( ${QT5_QTNETWORK_INCLUDE_DIR} )
-LINK_DIRECTORIES( ${QT5_STATIC_LIBRARY_DIR} )
-LIST( APPEND ADDITIONAL_LIBS ${QT5_STATIC_QTNETWORK_LIBRARY} ${QT5_STATIC_QTCORE_LIBRARY} )
-LIST( APPEND ADDITIONAL_LIBS ${QT5_STATIC_DEPENDENCIES} )
+FIND_PACKAGE( Qt5Core REQUIRED )
+FIND_PACKAGE( Qt5Network REQUIRED )
+INCLUDE_DIRECTORIES( ${Qt5_INCLUDE_DIRS} )
+INCLUDE_DIRECTORIES( ${Qt5Core_INCLUDE_DIRS} )
+INCLUDE_DIRECTORIES( ${Qt5Network_INCLUDE_DIRS} )
+LIST( APPEND ADDITIONAL_LIBS ${Qt5Core_LIBRARIES} )
+LIST( APPEND ADDITIONAL_LIBS ${Qt5Network_LIBRARIES} )
 
 
 # --------------------------------------------------------------------------------------------------------------------------------

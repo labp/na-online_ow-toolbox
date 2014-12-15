@@ -40,6 +40,12 @@
 #include "WLEMMSurface.h"
 #include "WLEMMBemBoundary.h"
 
+/**
+ * Information about a subject/patient. Usually these are independent of a measurement.
+ *
+ * \author kaehler, pieloth
+ * \ingroup data
+ */
 class WLEMMSubject
 {
 public:

@@ -30,19 +30,24 @@
 #include <boost/shared_ptr.hpp>
 
 /**
- * Helper class for std::set. Main purpose is to provide an easy-to-use Smart Pointer access.
- * ATTENTION: Due to a non-virtual destructor of std::set and memory leak prevention, member variables are not allowed!
- *
+ * Helper class for std::set. Main purpose is to provide an easy-to-use Smart Pointer access.\n
+ * ATTENTION: Due to a non-virtual destructor of std::set and memory leak prevention, member variables are not allowed!\n
+ * \n
  * Correct:
+ * \code
  * WLSet::SPtr s1 = WLSet::instance();
  * WLSet::SPtr s2( new WLSet() );
- * WLSet l3();
+ * WLSet s3();
+ * \endcode
  *
  * Wrong:
+ * \code
  * std::set* s = new WLSet();
  * delete s; // Does not call destructor for WLArrayList!
+ * \endcode
  *
  * \author pieloth
+ * \ingroup container
  */
 template< typename T >
 class WLSet: public std::set< T >

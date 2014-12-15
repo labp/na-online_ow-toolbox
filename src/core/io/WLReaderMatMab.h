@@ -32,6 +32,12 @@
 #include "core/data/WLDataTypes.h"
 #include "core/io/WLReaderGeneric.h"
 
+/**
+ * Reads a matrix from a Matlab MAB file.
+ *
+ * \author pieloth
+ * \ingroup io
+ */
 class WLReaderMatMab: public WLReaderGeneric< WLMatrix::SPtr >
 {
 public:

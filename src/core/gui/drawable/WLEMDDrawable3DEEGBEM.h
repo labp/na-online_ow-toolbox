@@ -36,9 +36,14 @@
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/ui/WUIViewWidget.h>
 
-
 #include "WLEMDDrawable3D.h"
 
+/**
+ * Visualization of the BEM skin layer and the (fitted) EEG sensor cap.
+ *
+ * \author pieloth
+ * \ingroup gui
+ */
 class WLEMDDrawable3DEEGBEM: public WLEMDDrawable3D
 {
 public:

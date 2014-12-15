@@ -34,6 +34,7 @@
  * Enumeration for cardinal points (brain), compatible with FIFF enum(cardinal_point).
  *
  * \author pieloth
+ * \ingroup data
  */
 namespace WLECardinalPoint
 {
