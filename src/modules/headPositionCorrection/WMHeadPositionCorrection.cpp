@@ -21,9 +21,12 @@
 //
 //---------------------------------------------------------------------------
 
+#include "core/data/emd/WLEMDHPI.h"
+#include "core/data/emd/WLEMDMEG.h"
 #include "core/module/WLConstantsModule.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
+#include "core/util/profiler/WLTimeProfiler.h"
 
 #include "WMHeadPositionCorrection.h"
 #include "WMHeadPositionCorrection.xpm"
@@ -78,6 +81,14 @@ void WMHeadPositionCorrection::properties()
     WLModuleDrawable::hideComputeModalitySelection( true );
 
     m_propCondition = WCondition::SPtr( new WCondition() );
+
+    m_propGroup = m_properties->addPropertyGroup( "Head Position Correction", "Head Position Correction" );
+
+    m_propMvThreshold = m_propGroup->addProperty( "Movement Threshold [m]:", "Movement Threshold for translation in meter.",
+                    0.001 );
+    m_propRadius = m_propGroup->addProperty( "Sphere Radius [m]:", "Sphere radius for dipole model in meter.", 0.07 );
+    const WPosition ref_pos( 0, 0, 0 );
+    m_propPosition = m_propGroup->addProperty( "Reference Position [m]:", "Reference Position to correct data to.", ref_pos );
 }
 
 void WMHeadPositionCorrection::moduleInit()
@@ -131,15 +142,78 @@ void WMHeadPositionCorrection::moduleMain()
 
 bool WMHeadPositionCorrection::processCompute( WLEMMeasurement::SPtr emm )
 {
-    return false;
+    if( !emm->hasModality( WLEModality::MEG ) )
+    {
+        errorLog() << "No MEG data available!";
+        return false;
+    }
+    if( !emm->hasModality( WLEModality::HPI ) )
+    {
+        errorLog() << "No HPI data available!";
+        return false;
+    }
+
+    WLTimeProfiler profiler( getName(), __func__, true );
+
+    WLEMDMEG::SPtr meg = emm->getModality< WLEMDMEG >( WLEModality::MEG );
+    WLEMDHPI::SPtr hpi = emm->getModality< WLEMDHPI >( WLEModality::HPI );
+    WLEMDMEG::SPtr megOut( new WLEMDMEG( *meg ) );
+
+    if( !m_correction.isInitialzied() )
+    {
+        m_correction.setMovementThreshold( m_propMvThreshold->get( false ) );
+        m_correction.setSphereRadius( m_propRadius->get( false ) );
+        m_correction.setRefPosition( m_propPosition->get( false ) );
+        m_correction.setMegPosAndOri( *meg );
+        m_correction.init();
+    }
+
+    if( !m_correction.process( megOut.get(), *meg, *hpi ) )
+    {
+        errorLog() << "Error in correcting head position!";
+        return false;
+    }
+
+    WLEMMeasurement::SPtr emmOut = emm->clone();
+    std::vector< WLEMData::SPtr > mods = emm->getModalityList();
+    for( size_t i = 0; i < mods.size(); ++i )
+    {
+        if( mods[i]->getModalityType() == WLEModality::MEG )
+        {
+            mods[i] = megOut;
+            break;
+        }
+    }
+    emmOut->setModalityList( mods );
+    viewUpdate( emmOut );
+
+    WLEMMCommand::SPtr cmdOut( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
+    cmdOut->setEmm( emmOut );
+    m_output->updateData( cmdOut );
+
+    return true;
 }
 
 bool WMHeadPositionCorrection::processInit( WLEMMCommand::SPtr cmdIn )
 {
-    return false;
+    m_correction.setMovementThreshold( m_propMvThreshold->get( false ) );
+    m_correction.setSphereRadius( m_propRadius->get( false ) );
+    m_correction.setRefPosition( m_propPosition->get( false ) );
+    if( cmdIn->hasEmm() )
+    {
+        WLEMMeasurement::SPtr emm = cmdIn->getEmm();
+        if( emm->hasModality( WLEModality::MEG ) )
+        {
+            WLEMDMEG::SPtr meg = emm->getModality< WLEMDMEG >( WLEModality::MEG );
+            m_correction.setMegPosAndOri( *meg );
+        }
+    }
+
+    return m_correction.init();
 }
 
 bool WMHeadPositionCorrection::processReset( WLEMMCommand::SPtr cmdIn )
 {
-    return false;
+    m_correction.reset();
+    return true;
 }

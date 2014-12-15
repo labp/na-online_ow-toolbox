@@ -29,11 +29,14 @@
 #include <boost/shared_ptr.hpp>
 
 #include <core/common/WCondition.h>
+#include <core/common/WPropertyTypes.h>
 #include <core/kernel/WModule.h>
 
 #include "core/data/WLEMMCommand.h"
 #include "core/module/WLModuleDrawable.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
+
+#include "WHeadPositionCorrection.h"
 
 /**
  * Corrects the head position, MEG only (in progress).
@@ -73,9 +76,16 @@ protected:
     virtual bool processReset( WLEMMCommand::SPtr cmdIn ); // WLEMMCommandProcessor
 
 private:
+    WPropGroup m_propGroup;
+    WPropDouble m_propMvThreshold;
+    WPropDouble m_propRadius;
+    WPropPosition m_propPosition;
+
     WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input; //!< Buffered input connector.
 
     WCondition::SPtr m_propCondition; //!< A condition used to notify about changes in several properties.
+
+    WHeadPositionCorrection m_correction;
 };
 
 #endif  // WMHEADPOSITIONCORRECTION_H_
