@@ -79,13 +79,20 @@ private:
     WPropGroup m_propGroup;
     WPropDouble m_propMvThreshold;
     WPropDouble m_propRadius;
-    WPropPosition m_propPosition;
+    WPropFilename m_propPosFile;
 
     WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input; //!< Buffered input connector.
 
     WCondition::SPtr m_propCondition; //!< A condition used to notify about changes in several properties.
 
     WHeadPositionCorrection m_correction;
+
+    /**
+     * Reads the transformation matrix for the reference head position.
+     *
+     * \param fName Path to FIF file.
+     */
+    void hdlPosFileChanged( std::string fName );
 };
 
 #endif  // WMHEADPOSITIONCORRECTION_H_

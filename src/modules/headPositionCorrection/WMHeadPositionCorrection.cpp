@@ -21,8 +21,12 @@
 //
 //---------------------------------------------------------------------------
 
+#include <core/common/WPathHelper.h>
+
+#include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMDHPI.h"
 #include "core/data/emd/WLEMDMEG.h"
+#include "core/io/WLReaderFIFF.h"
 #include "core/module/WLConstantsModule.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
@@ -87,8 +91,8 @@ void WMHeadPositionCorrection::properties()
     m_propMvThreshold = m_propGroup->addProperty( "Movement Threshold [m]:", "Movement Threshold for translation in meter.",
                     0.001 );
     m_propRadius = m_propGroup->addProperty( "Sphere Radius [m]:", "Sphere radius for dipole model in meter.", 0.07 );
-    const WPosition ref_pos( 0, 0, 0 );
-    m_propPosition = m_propGroup->addProperty( "Reference Position [m]:", "Reference Position to correct data to.", ref_pos );
+    m_propPosFile = m_propGroup->addProperty( "Ref. Position:", "FIF file containing the reference position.",
+                    WPathHelper::getHomePath(), m_propCondition );
 }
 
 void WMHeadPositionCorrection::moduleInit()
@@ -102,6 +106,7 @@ void WMHeadPositionCorrection::moduleInit()
     ready(); // signal ready state
     waitRestored();
 
+    hdlPosFileChanged( m_propPosFile->get().string() );
     viewInit( WLEMDDrawable2D::WEGraphType::DYNAMIC );
 
     infoLog() << "Initializing module finished!";
@@ -123,6 +128,11 @@ void WMHeadPositionCorrection::moduleMain()
         if( m_shutdownFlag() )
         {
             break; // break mainLoop on shutdown
+        }
+
+        if( m_propPosFile->changed( true ) )
+        {
+            hdlPosFileChanged( m_propPosFile->get().string() );
         }
 
         cmdIn.reset();
@@ -163,8 +173,6 @@ bool WMHeadPositionCorrection::processCompute( WLEMMeasurement::SPtr emm )
     {
         m_correction.setMovementThreshold( m_propMvThreshold->get( false ) );
         m_correction.setSphereRadius( m_propRadius->get( false ) );
-        // TODO(pieloth): set ref tans.
-//        m_correction.setRefTransformation( m_propPosition->get( false ) );
         m_correction.setMegPosAndOri( *meg );
         m_correction.init();
     }
@@ -197,10 +205,10 @@ bool WMHeadPositionCorrection::processCompute( WLEMMeasurement::SPtr emm )
 
 bool WMHeadPositionCorrection::processInit( WLEMMCommand::SPtr cmdIn )
 {
+    infoLog() << "Initializing module.";
     m_correction.setMovementThreshold( m_propMvThreshold->get( false ) );
     m_correction.setSphereRadius( m_propRadius->get( false ) );
-    // TODO(pieloth): set ref tans.
-//    m_correction.setRefTransformation( m_propPosition->get( false ) );
+
     if( cmdIn->hasEmm() )
     {
         WLEMMeasurement::SPtr emm = cmdIn->getEmm();
@@ -216,6 +224,43 @@ bool WMHeadPositionCorrection::processInit( WLEMMCommand::SPtr cmdIn )
 
 bool WMHeadPositionCorrection::processReset( WLEMMCommand::SPtr cmdIn )
 {
+    infoLog() << "Reseting module.";
     m_correction.reset();
+    hdlPosFileChanged( m_propPosFile->get().string() );
     return true;
+}
+
+void WMHeadPositionCorrection::hdlPosFileChanged( std::string fName )
+{
+    debugLog() << __func__ << "() called!";
+
+    WProgress::SPtr progress( new WProgress( "Reading ref. head position." ) );
+    m_progress->addSubProgress( progress );
+
+    WLEMMeasurement::SPtr emm( new WLEMMeasurement() );
+    WLReaderFIFF::SPtr reader;
+    bool rc = true;
+    try
+    {
+        reader.reset( new WLReaderFIFF( fName ) );
+        if( reader->read( &emm ) != WLIOStatus::SUCCESS )
+        {
+            errorLog() << "Could not read reference head position!";
+            rc = false;
+        }
+    }
+    catch( const WException& e )
+    {
+        errorLog() << "Could not read reference head position!";
+        rc = false;
+    }
+
+    if( rc )
+    {
+        const WLMatrix4::Matrix4T refPos = emm->getDevToFidTransformation().inverse();
+        m_correction.setRefTransformation( refPos );
+        infoLog() << "Set reference position:\n" << refPos;
+    }
+    progress->finish();
+    m_progress->removeSubProgress( progress );
 }
