@@ -109,8 +109,12 @@ public:
     void setMovementThreshold( float t );
 
 private:
+    friend class WHeadPositionCorrectionTest;
+
+    typedef Eigen::ArrayXd ArrayT;
     typedef Eigen::Vector3d PositionT;
     typedef Eigen::Matrix3Xd PositionsT; //!< Rows: x, y, z; Columns: channels
+    typedef Eigen::Vector3d OrientationT; //!< Rows: x, y, z; Columns: channels
     typedef Eigen::Matrix3Xd OrientationsT; //!< Rows: x, y, z; Columns: channels
     typedef Eigen::MatrixXd MatrixT;
 
@@ -124,8 +128,7 @@ private:
      * \param r Radius of the sphere in meter (default 0.07m = 7cm).
      * \return True if pos and ori contains the data of generated sphere.
      */
-    bool generateSphere( PositionsT* const pos, OrientationsT* const ori, size_t nDipoles, const PositionT& c,
-                    float r = 0.07 ) const;
+    bool generateDipoleSphere( PositionsT* const pos, OrientationsT* const ori, size_t nDipoles, float r = 0.07 ) const;
 
     /**
      * Computes the forward model of an electrical dipole for MEG.

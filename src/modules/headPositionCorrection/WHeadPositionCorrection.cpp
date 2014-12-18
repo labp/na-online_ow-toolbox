@@ -21,15 +21,17 @@
 //
 //---------------------------------------------------------------------------
 
-#include <cmath>  // sqrt
+#include <cmath>  // sqrt, ceil
 #include <limits> // max_double
 
 #include <Eigen/Dense>
+#include <Eigen/Geometry>
 #include <Eigen/SparseLU>
 
 #include <core/common/WAssert.h>
 #include <core/common/WLogger.h>
 
+#include "core/util/WLGeometry.h"
 #include "core/util/profiler/WLTimeProfiler.h"
 
 #include "WHeadPositionCorrection.h"
@@ -78,8 +80,7 @@ bool WHeadPositionCorrection::init()
     // ----------
     // 1. generate simples dipole sphere: positions, orientations
     const size_t nDip = m_megPos.cols() * 2;
-    const PositionT c( 0, 0, 0 ); // TODO may use center of fiducials as sphere center
-    if( !generateSphere( &m_dipPos, &m_dipOri, nDip, c, m_radius ) )
+    if( !generateDipoleSphere( &m_dipPos, &m_dipOri, nDip, m_radius ) )
     {
         wlog::error( CLASS ) << "Error on creating sphere.";
         return false;
@@ -123,14 +124,19 @@ bool WHeadPositionCorrection::process( WLEMDMEG* const megOut, const WLEMDMEG& m
 
     WLArrayList< WLEMDHPI::TransformationT >::ConstSPtr trans = hpi.getTransformations();
     WLArrayList< WLEMDHPI::TransformationT >::const_iterator itTrans;
+    PositionsT dipPos;
+    OrientationsT dipOri;
+    Eigen::Affine3d t;
     for( itTrans = trans->begin(); itTrans != trans->end(); ++itTrans )
     {
         if( checkMovementThreshold( *itTrans ) )
         {
             // 4. transform dipole sphere to head position, MEG coord, in case head position has changed
-            ;// TODO transform
-             // 5. compute forward model+inverse operator, in case head position has changed
-            if( !computeForward( &m_lfNow, m_megPos, m_megOri, m_dipPos, m_dipOri ) )
+            t = Eigen::Affine3d( *itTrans );
+            dipPos = t * m_dipPos;
+            dipOri = t.linear() * m_dipOri;  // attention: Eigen::Affine3d.rotation() returns a identity matrix!?
+            // 5. compute forward model+inverse operator, in case head position has changed
+            if( !computeForward( &m_lfNow, m_megPos, m_megOri, dipPos, dipOri ) )
             {
                 wlog::error( CLASS ) << "Error on computing forward solution for current head position.";
                 return false;
@@ -200,13 +206,38 @@ void WHeadPositionCorrection::setMovementThreshold( float t )
     m_movementThreshold = t;
 }
 
-bool WHeadPositionCorrection::generateSphere( PositionsT* const pos, OrientationsT* const ori, size_t nDipoles,
-                const PositionT& c, float r ) const
+bool WHeadPositionCorrection::generateDipoleSphere( PositionsT* const pos, OrientationsT* const ori, size_t nDipoles,
+                float r ) const
 {
-    WLTimeProfiler profiler ( CLASS, __func__, true );
-    // TODO(pieloth): generate sphere
-    *pos = PositionsT::Random( 3, nDipoles );
-    *ori = OrientationsT::Random( 3, nDipoles );
+    WLTimeProfiler profiler( CLASS, __func__, true );
+
+    // generate dipolse
+    PositionsT pTmp;
+    const size_t points = WLGeometry::createUpperHalfSphere( &pTmp, std::ceil( nDipoles / 2.0 ), r );
+    if( points == 0 )
+    {
+        wlog::error( CLASS ) << "Error on creating sphere!";
+        return false;
+    }
+    wlog::debug( CLASS ) << "Number of dipoles: " << 2 * points;
+
+    pos->resize( Eigen::NoChange, 2 * points );
+    pos->block( 0, 0, 3, points ) = pTmp;
+    pos->block( 0, points, 3, points ) = pTmp;
+
+    // generate orientations
+    ori->resize( Eigen::NoChange, 2 * points );
+    OrientationT o1, o2;
+    for( OrientationsT::Index i = 0; i < points; ++i )
+    {
+        if( !WLGeometry::findTagentPlane( &o1, &o2, pos->col( i ) ) )
+        {
+            wlog::error( CLASS ) << "Error on creating orientations!";
+            return false;
+        }
+        ori->col( i ) = o1;
+        ori->col( i + points ) = o2;
+    }
 
     WAssertDebug( pos->cols() >= nDipoles, "Dipole count does not match." );
     WAssertDebug( pos->rows() == ori->rows() && pos->cols() == ori->cols(), "Dimension of pos and ori does not match." );
