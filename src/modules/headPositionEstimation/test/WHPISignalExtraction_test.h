@@ -126,14 +126,13 @@ public:
         hpe.setSamplingFrequency( 1000.0 );
         TS_ASSERT( hpe.prepare() );
 
+        // TODO (pieloth): Implement test case.
         WLEMDMEG::SPtr meg( new WLEMDMEG );
         WLEMDMEG::DataSPtr data( new WLEMDMEG::DataT( WLEMDMEG::DataT::Random( 306, 1000 ) ) );
         meg->setData( data );
         WLEMDHPI::SPtr hpiOut( new WLEMDHPI );
-        TS_ASSERT( !hpe.reconstructAmplitudes( hpiOut, meg ) );
-
-        // TODO (pieloth): Implement test case.
-        TS_ASSERT( hpe.reconstructAmplitudes( hpiOut, meg ) );
+        TS_FAIL( "Test not implemented!" );
+//        TS_ASSERT( hpe.reconstructAmplitudes( hpiOut, meg ) );
     }
 
 };
