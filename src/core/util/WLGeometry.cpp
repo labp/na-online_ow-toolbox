@@ -29,7 +29,7 @@
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
-#include <Eigen/Core>
+#include <Eigen/Dense>
 
 #include <osg/Array>
 #include <osgUtil/DelaunayTriangulator>
@@ -244,4 +244,115 @@ void WLGeometry::toBaseExponent( std::vector< Point >* const out, const std::vec
         const Point p = *it * factor;
         out->push_back( p );
     }
+}
+
+bool WLGeometry::findOrthogonalVector( Vector3T* const o, const Vector3T& v )
+{
+    // 0 = Vx Ox + Vy Oy + Vz Oz
+    if( v.isZero( 1e3 * std::numeric_limits< double >::min() ) )
+    {
+        return false;
+    }
+
+    // avoid division by zero, pick max(abs) as divisor
+    Vector3T::Index i;
+    v.cwiseAbs().maxCoeff(&i);
+    if( i == 2 ) // z
+    {
+        // - Vz Oz = Vx Ox + Vy Oy
+        //      Ox = Vy
+        //      Oy = Vx
+        //      Oz = -2(Vx * Vy) / Vz
+        o->x() = v.y();
+        o->y() = v.x();
+
+        o->z() = ( -2.0 * v.x() * v.y() ) / v.z();
+        return true;
+    }
+    if( i == 1 ) // y
+    {
+        // - Vy Oy = Vx Ox + Vz Oz
+        //      Ox = Vz
+        //      Oz = Vx
+        //      Oy = -2(Vx * Vz) / Vy
+        o->x() = v.z();
+        o->z() = v.x();
+        o->y() = ( -2.0 * v.x() * v.z() ) / v.y();
+        return true;
+    }
+    if( i == 0 ) // x
+    {
+        // - Vx Ox = Vy Oy + Vz Oz
+        //      Oy = Vz
+        //      Oz = Vy
+        //      Ox = -2(Vy * Vz) / Vx
+        o->y() = v.z();
+        o->z() = v.y();
+        o->x() = ( -2.0 * v.y() * v.z() ) / v.x();
+        return true;
+    }
+    return false;
+}
+
+bool WLGeometry::findTagentPlane( Vector3T* const u, Vector3T* const v, const Vector3T& n )
+{
+    if( !findOrthogonalVector( u, n ) )
+    {
+        return false;
+    }
+    *v = n.cross( *u );
+    return true;
+}
+
+size_t WLGeometry::createUpperHalfSphere( PointsT* const pos, size_t points, float r )
+{
+    if( points == 0 )
+    {
+        return 0;
+    }
+    if( isAlmostZero( r ) )
+    {
+        return 0;
+    }
+
+    typedef Eigen::ArrayXd ArrayT;
+    const ArrayT::Index n_angles = ceil( sqrt( points ) );
+    const ArrayT::Index n = ( n_angles * n_angles );
+
+    // Initialize angles
+    ArrayT theta( n_angles ); // vertical, 0° ... 90°
+    ArrayT phi( n_angles ); // horizontal, azimut, 0 ... 360°
+    for( ArrayT::Index i = 0; i < n_angles; ++i )
+    {
+        theta( i ) = ( (double)( i + 1 ) / (double)n_angles ) * M_PI_2;
+        phi( i ) = ( (double)i / (double)n_angles ) * 2.0 * M_PI;
+    }
+
+    // Initialize output
+    pos->resize( Eigen::NoChange, n );
+
+    // Generate points
+    // x = r * sin(theta) * cos(phi);
+    // y = r * sin(theta) * sin(phi);
+    // z = r * cos(theta);
+    ArrayT::Index element = 0;
+    const ArrayT sin_t = theta.sin();
+    const ArrayT cos_t = theta.cos();
+    const ArrayT sin_p = phi.sin();
+    const ArrayT cos_p = phi.cos();
+    for( ArrayT::Index t = 0; t < n_angles; ++t )
+    {
+        const double r_sin_t = r * sin_t( t );
+        const double z = r * cos_t( t );
+        for( ArrayT::Index p = 0; p < n_angles; ++p )
+        {
+            ( *pos )( 0, element ) = r_sin_t * cos_p( p );
+            ( *pos )( 1, element ) = r_sin_t * sin_p( p );
+            ( *pos )( 2, element ) = z;
+            ++element;
+        }
+    }
+
+    WAssertDebug( n == element && pos->cols() == n, "n == element && pos->cols() == n" );
+    return n;
 }
