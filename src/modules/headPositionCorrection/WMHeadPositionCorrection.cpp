@@ -163,7 +163,8 @@ bool WMHeadPositionCorrection::processCompute( WLEMMeasurement::SPtr emm )
     {
         m_correction.setMovementThreshold( m_propMvThreshold->get( false ) );
         m_correction.setSphereRadius( m_propRadius->get( false ) );
-        m_correction.setRefPosition( m_propPosition->get( false ) );
+        // TODO(pieloth): set ref tans.
+//        m_correction.setRefTransformation( m_propPosition->get( false ) );
         m_correction.setMegPosAndOri( *meg );
         m_correction.init();
     }
@@ -198,7 +199,8 @@ bool WMHeadPositionCorrection::processInit( WLEMMCommand::SPtr cmdIn )
 {
     m_correction.setMovementThreshold( m_propMvThreshold->get( false ) );
     m_correction.setSphereRadius( m_propRadius->get( false ) );
-    m_correction.setRefPosition( m_propPosition->get( false ) );
+    // TODO(pieloth): set ref tans.
+//    m_correction.setRefTransformation( m_propPosition->get( false ) );
     if( cmdIn->hasEmm() )
     {
         WLEMMeasurement::SPtr emm = cmdIn->getEmm();

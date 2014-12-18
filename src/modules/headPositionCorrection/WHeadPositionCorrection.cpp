@@ -41,7 +41,6 @@ using Eigen::SparseLU;
 typedef Eigen::SparseMatrix< ScalarT > SpMatrixT;
 
 const std::string WHeadPositionCorrection::CLASS = "WHeadPositionCorrection";
-static const double NO_REF_POS_Z = std::numeric_limits< double >::max();
 
 WHeadPositionCorrection::WHeadPositionCorrection() :
                 m_isInitialized( false ), m_movementThreshold( 0.001 ), m_radius( 0.07 )
@@ -70,11 +69,6 @@ bool WHeadPositionCorrection::init()
         wlog::error( CLASS ) << "MEG positions and orientations are not set!";
         return false;
     }
-    if( m_refPos.z() == NO_REF_POS_Z )
-    {
-        wlog::error( CLASS ) << "No reference position set!";
-        return false;
-    }
 
     // Initialize
     // ----------
@@ -85,14 +79,18 @@ bool WHeadPositionCorrection::init()
         wlog::error( CLASS ) << "Error on creating sphere.";
         return false;
     }
+    WAssertDebug( m_dipPos.cols() > 0 && m_dipOri.cols() > 0, "Dipoles are emtpy." );
 
     // 2. align sphere to head model/coordinates
-    // TODO may use center of fiducials as sphere center
+    // necessary?
 
     // 3. compute forward model for sphere at reference position
-    // TODO(pieloth): move/transform dipols to reference position
-    WAssertDebug( m_dipPos.cols() > 0 && m_dipOri.cols() > 0, "Dipoles are emtpy." );
-    if( !computeForward( &m_lfRef, m_megPos, m_megOri, m_dipPos, m_dipOri ) )
+    PositionsT dipPosRef;
+    OrientationsT dipOriRef;
+    // Move dipoles to reference position
+    dipPosRef = m_transRef * m_dipPos;
+    dipOriRef = m_transRef.linear() * m_dipOri;
+    if( !computeForward( &m_lfRef, m_megPos, m_megOri, dipPosRef, dipOriRef ) )
     {
         wlog::error( CLASS ) << "Error on computing leadfield for reference position.";
         return false;
@@ -110,7 +108,7 @@ bool WHeadPositionCorrection::isInitialzied() const
 void WHeadPositionCorrection::reset()
 {
     m_isInitialized = false;
-    m_refPos.z() = NO_REF_POS_Z;
+    m_transRef.setIdentity();
 }
 
 bool WHeadPositionCorrection::process( WLEMDMEG* const megOut, const WLEMDMEG& megIn, const WLEMDHPI& hpi )
@@ -122,11 +120,33 @@ bool WHeadPositionCorrection::process( WLEMDMEG* const megOut, const WLEMDMEG& m
         return false;
     }
 
+    const WLFreqT sfreq_hpi = hpi.getSampFreq();
+    const WLFreqT sfreq_meg = megIn.getSampFreq();
+    if( sfreq_hpi == WLEMData::UNDEFINED_FREQ || sfreq_hpi == WLEMData::UNDEFINED_FREQ )
+    {
+        wlog::error( CLASS ) << "Sampling frequency from HPI or MEG not set!";
+        return false;
+    }
+    if( sfreq_hpi > sfreq_meg || static_cast< size_t >( sfreq_meg ) % static_cast< size_t >( sfreq_hpi ) != 0 )
+    {
+        wlog::error( CLASS ) << "Pre-conditions not hold: sfreq_hpi <= sfreq_meg AND sfreq_meg%sfreq_hpi != 0";
+        return false;
+    }
+
+    WLEMData::DataT::Index smpOffset = sfreq_meg / sfreq_hpi;
+    WAssert( smpOffset > 0, "Offset is less or equals 0!" );
+
     WLArrayList< WLEMDHPI::TransformationT >::ConstSPtr trans = hpi.getTransformations();
     WLArrayList< WLEMDHPI::TransformationT >::const_iterator itTrans;
     PositionsT dipPos;
     OrientationsT dipOri;
     Eigen::Affine3d t;
+    WLEMData::DataT::Index smpStart = 0;
+
+    const WLChanNrT chans = megIn.getNrChans();
+    const WLSampleNrT smpls = megIn.getSamplesPerChan();
+    WLEMData::DataSPtr dataOut( new WLEMData::DataT( chans, smpls ) );
+    megOut->setData( dataOut );
     for( itTrans = trans->begin(); itTrans != trans->end(); ++itTrans )
     {
         if( checkMovementThreshold( *itTrans ) )
@@ -149,27 +169,25 @@ bool WHeadPositionCorrection::process( WLEMDMEG* const megOut, const WLEMDMEG& m
         }
 
         // 6. compute inverse solution
-        // TODO(pieloth): apply/interpolate different sFreq in HPI and MEG data!
-        WLEMData::DataT dipData = m_gNow * megIn.getData();
-
+        // attention: apply/interpolate different sFreq in HPI and MEG data!
+        WLEMData::DataT dipData = m_gNow * megIn.getData().block( 0, smpStart, chans, smpOffset );
         // 7. compute forward solution at reference position
-        WLEMData::DataT megData = m_lfRef * dipData;
-        // TODO(pieloth): set megData to megOut, attention sample ...
-    }
-    // TODO(pieloth): set megData to megOut, attention sample ...
-    WLEMData::DataSPtr dataOut( new WLEMData::DataT( megIn.getData() ) );
-    megOut->setData( dataOut );
+        dataOut->block( 0, smpStart, chans, smpOffset ) = m_lfRef * dipData;
 
+        smpStart += smpOffset;
+    }
+
+    WAssertDebug( smpStart >= smpStart, "smpStart >= smpStart" );
     WAssertDebug( megOut->getSamplesPerChan() == megIn.getSamplesPerChan(), "Sample size does not match." );
     WAssertDebug( megOut->getNrChans() == megIn.getNrChans(), "Channels size does not match." );
     return true;
 }
 
-void WHeadPositionCorrection::setRefPosition( const WPosition& pos )
+void WHeadPositionCorrection::setRefTransformation( const WLMatrix4::Matrix4T& trans )
 {
-    if( m_refPos != pos )
+    if( m_transRef.matrix() != trans )
     {
-        m_refPos = pos;
+        m_transRef.matrix() = trans;
         m_isInitialized = false;
     }
 }

@@ -27,9 +27,11 @@
 #include <string>
 
 #include <Eigen/Core>
+#include <Eigen/Geometry>
 
 #include <core/common/math/linearAlgebra/WPosition.h>
 
+#include "core/data/WLDataTypes.h"
 #include "core/data/emd/WLEMDHPI.h"
 #include "core/data/emd/WLEMDMEG.h"
 
@@ -81,11 +83,11 @@ public:
     bool process( WLEMDMEG* const megOut, const WLEMDMEG& meg, const WLEMDHPI& hpi );
 
     /**
-     * Sets the reference positions.
+     * Sets the transformation for the reference positions.
      *
-     * \param pos The reference positions.
+     * \param trans The transformation for the reference positions.
      */
-    void setRefPosition( const WPosition& pos );
+    void setRefTransformation( const WLMatrix4::Matrix4T& trans );
 
     /**
      * Sets the MEG positions and orientations.
@@ -162,7 +164,7 @@ private:
 
     bool m_isInitialized; //!< Flag to force initialization.
 
-    WPosition m_refPos; //!< Reference position to use.
+    Eigen::Affine3d m_transRef; //!< Reference position to use.
 
     WLEMDHPI::TransformationT m_transExc; //!< Last exceeded transformation/position.
 
