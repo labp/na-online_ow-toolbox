@@ -24,9 +24,10 @@
 #include <core/common/WPathHelper.h>
 
 #include "core/data/WLEMMeasurement.h"
+#include "core/data/WLEMMHpiInfo.h"
 #include "core/data/emd/WLEMDHPI.h"
 #include "core/data/emd/WLEMDMEG.h"
-#include "core/io/WLReaderFIFF.h"
+#include "core/io/WLReaderHpiInfo.h"
 #include "core/module/WLConstantsModule.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
@@ -237,13 +238,13 @@ void WMHeadPositionCorrection::hdlPosFileChanged( std::string fName )
     WProgress::SPtr progress( new WProgress( "Reading ref. head position." ) );
     m_progress->addSubProgress( progress );
 
-    WLEMMeasurement::SPtr emm( new WLEMMeasurement() );
-    WLReaderFIFF::SPtr reader;
+    WLEMMHpiInfo hpiInfo;
+    WLReaderHpiInfo::SPtr reader;
     bool rc = true;
     try
     {
-        reader.reset( new WLReaderFIFF( fName ) );
-        if( reader->read( &emm ) != WLIOStatus::SUCCESS )
+        reader.reset( new WLReaderHpiInfo( fName ) );
+        if( reader->read( &hpiInfo ) != WLIOStatus::SUCCESS )
         {
             errorLog() << "Could not read reference head position!";
             rc = false;
@@ -257,9 +258,9 @@ void WMHeadPositionCorrection::hdlPosFileChanged( std::string fName )
 
     if( rc )
     {
-        const WLMatrix4::Matrix4T refPos = emm->getDevToFidTransformation().inverse();
-        m_correction.setRefTransformation( refPos );
-        infoLog() << "Set reference position:\n" << refPos;
+        WLEMMHpiInfo::TransformationT t = hpiInfo.getDevToHead().inverse();
+        m_correction.setRefTransformation( t );
+        infoLog() << "Set reference position:\n" << t;
     }
     progress->finish();
     m_progress->removeSubProgress( progress );

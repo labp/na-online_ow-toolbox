@@ -253,6 +253,7 @@ bool WHeadPositionCorrection::generateDipoleSphere( PositionsT* const pos, Orien
             wlog::error( CLASS ) << "Error on creating orientations!";
             return false;
         }
+        // TODO(pieloth): Do we need normalized vectors?
         ori->col( i ) = o1;
         ori->col( i + points ) = o2;
     }
