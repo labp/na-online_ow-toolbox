@@ -34,6 +34,8 @@
 #include "core/util/WLGeometry.h"
 #include "core/util/profiler/WLTimeProfiler.h"
 
+#include "WMegCoilInformation.h"
+#include "WMegForward.h"
 #include "WHeadPositionCorrection.h"
 
 using Eigen::SparseLU;
@@ -253,9 +255,8 @@ bool WHeadPositionCorrection::generateDipoleSphere( PositionsT* const pos, Orien
             wlog::error( CLASS ) << "Error on creating orientations!";
             return false;
         }
-        // TODO(pieloth): Do we need normalized vectors?
-        ori->col( i ) = o1;
-        ori->col( i + points ) = o2;
+        ori->col( i ) = o1 / o1.norm();
+        ori->col( i + points ) = o2 / o2.norm();
     }
 
     WAssertDebug( pos->cols() >= nDipoles, "Dipole count does not match." );
@@ -271,8 +272,19 @@ bool WHeadPositionCorrection::computeForward( MatrixT* const lf, const Positions
 
     WLTimeProfiler profiler( CLASS, __func__, true );
 
-    // TODO(pieloth): compute real leadfield
-    *lf = MatrixT::Random( mPos.cols(), dPos.cols() );
+    // TODO(pieloth): Check correct coil type and differentiate between mag and grad. Split grad to 2 mags ...
+    // TODO(pieloth): MEG/coil does not change, so do not generate it everytime.
+    WMegCoilInformation::WMegCoils megSensors;
+    WMegCoilInformation::neuromagCoil3022( &megSensors );
+    megSensors.positions = mPos;
+    megSensors.orientations = mOri;
+    megSensors.areas.setOnes( mPos.cols() );
+    megSensors.windings.setOnes( mPos.cols() );
+
+    if( !WMegForward::computeForward( lf, megSensors, dPos, dOri ) )
+    {
+        return false;
+    }
 
     WAssertDebug( lf->rows() == mPos.cols() && lf->cols() == dPos.cols(),
                     "Dimension of L, MEG channels and dipoles does not match." );
@@ -334,5 +346,9 @@ bool WHeadPositionCorrection::checkMovementThreshold( const WLEMDHPI::Transforma
         return true;
     }
     // TODO(pieloth): check rotation, e.g. with 1 or more key points
+    // initial: pick 6 key points from dipoles min/max (x,0,0); (0,y,0); (0,0,z)
+    // compare max distance
+    // keyPoint 3x6
+    // (trans * keyPoints).colwise().norm() - (m_transExc * keyPoints).colwise().norm()).maxCoeff(), mind homog. coord.
     return false;
 }
