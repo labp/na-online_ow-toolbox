@@ -21,41 +21,4 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLFIFFLIB_H_
-#define WLFIFFLIB_H_
-
-#include <boost/cstdint.hpp>
-
-/**
- * A low-level C++ collection of constants for the Elekta Neuromag Functional Image File Format (FIFF).
- *
- * \author pieloth
- * \ingroup fiff
- */
-namespace WLFiffLib
-{
-    typedef int16_t int16;
-    typedef uint16_t uint16;
-
-    typedef int32_t int32;
-    typedef uint32_t uint32;
-
-    typedef uint64_t uint64;
-
-    typedef int32 block_id_t;
-    typedef int32 tag_id_t;
-
-    typedef int32 enum_t;
-    typedef float freq_t;
-    typedef int32 ichan_t;
-    typedef int32 nchan_t;
-    typedef int32 icoil_t;
-    typedef int32 ncoil_t;
-    typedef int32 isamples_t;
-    typedef int32 nsamples_t;
-    typedef float time_t;
-    typedef int32 ident_t;
-    typedef int32 kind_t;
-} /* namespace WLFiffLib */
-
-#endif  // WLFIFFLIB_H_
+#include "WLFiffHPI.h"

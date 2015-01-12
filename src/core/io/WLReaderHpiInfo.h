@@ -28,6 +28,9 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <fiff/fiff_dir_tree.h>
+#include <fiff/fiff_stream.h>
+
 #include "core/data/WLEMMHpiInfo.h"
 
 #include "WLReaderGeneric.h"
@@ -52,6 +55,11 @@ public:
     virtual ~WLReaderHpiInfo();
 
     virtual WLIOStatus::IOStatusT read( WLEMMHpiInfo* const hpiInfo );
+
+private:
+    bool readHpiMeas( WLEMMHpiInfo* const hpiInfo, FIFFLIB::FiffStream* const stream, const FIFFLIB::FiffDirTree& tree );
+    bool readHpiCoil( WLEMMHpiInfo* const hpiInfo, FIFFLIB::FiffStream* const stream, const FIFFLIB::FiffDirTree& tree );
+    bool readHpiResult( WLEMMHpiInfo* const hpiInfo, FIFFLIB::FiffStream* const stream, const FIFFLIB::FiffDirTree& tree );
 };
 
 #endif  // WLREADERHPIINFO_H_

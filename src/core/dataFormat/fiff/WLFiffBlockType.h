@@ -21,41 +21,29 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLFIFFLIB_H_
-#define WLFIFFLIB_H_
+#ifndef WLFIFFBLOCKTYPE_H_
+#define WLFIFFBLOCKTYPE_H_
 
-#include <boost/cstdint.hpp>
+#include "WLFiffLib.h"
 
-/**
- * A low-level C++ collection of constants for the Elekta Neuromag Functional Image File Format (FIFF).
- *
- * \author pieloth
- * \ingroup fiff
- */
 namespace WLFiffLib
 {
-    typedef int16_t int16;
-    typedef uint16_t uint16;
+    /**
+     * These tags are used to divide a FIFF file into logical blocks.
+     * \note This list is incomplete.
+     *
+     * \author pieloth
+     * \ingroup fiff
+     */
+    namespace BlockType
+    {
+        const block_id_t ISOTRAK = 107; /**< Head digitization data. */
+        const block_id_t HPI_MEAS = 108; /**< HPI measurement. */
+        const block_id_t HPI_RESULT = 109; /**< Result of a HPI fitting procedure. */
+        const block_id_t HPI_COIL = 110; /**< Data acquired from one HPI coil. */
 
-    typedef int32_t int32;
-    typedef uint32_t uint32;
-
-    typedef uint64_t uint64;
-
-    typedef int32 block_id_t;
-    typedef int32 tag_id_t;
-
-    typedef int32 enum_t;
-    typedef float freq_t;
-    typedef int32 ichan_t;
-    typedef int32 nchan_t;
-    typedef int32 icoil_t;
-    typedef int32 ncoil_t;
-    typedef int32 isamples_t;
-    typedef int32 nsamples_t;
-    typedef float time_t;
-    typedef int32 ident_t;
-    typedef int32 kind_t;
+        const block_id_t BEM = 310; /**< A boundary-element model (BEM) description. */
+        const block_id_t BEM_SURF = 311; /**< Describes one BEM surface. */
+    }
 } /* namespace WLFiffLib */
-
-#endif  // WLFIFFLIB_H_
+#endif  // WLFIFFBLOCKTYPE_H_

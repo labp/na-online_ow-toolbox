@@ -34,7 +34,10 @@
 
 #include <core/common/WLogger.h>
 
+#include "core/data/WLDataTypes.h"
 #include "core/data/WLDigPoint.h"
+#include "core/dataFormat/fiff/WLFiffBlockType.h"
+#include "core/dataFormat/fiff/WLFiffHPI.h"
 #include "WLReaderHpiInfo.h"
 
 using namespace FIFFLIB;
@@ -71,16 +74,132 @@ WLIOStatus::IOStatusT WLReaderHpiInfo::read( WLEMMHpiInfo* const hpiInfo )
         return WLIOStatus::ERROR_FOPEN;
     }
 
-    QList< FiffDirTree > hpiResult = tree.dir_tree_find( FIFFB_HPI_RESULT );
-    if( hpiResult.size() == 0 )
+    const bool hasHpiMeas = readHpiMeas( hpiInfo, stream.data(), tree );
+    const bool hasHpiResult = readHpiResult( hpiInfo, stream.data(), tree );
+
+    if( !hasHpiResult && !hasHpiMeas )
     {
-        wlog::error( CLASS ) << "Could not find FIFFB_HPI_RESULT.";
+        wlog::error( CLASS ) << "No data found!";
         return WLIOStatus::ERROR_UNKNOWN;
     }
 
-    FiffTag::SPtr t_pTag;
+    // Read some data
+    if( hasHpiResult ^ hasHpiMeas )
+    {
+        return WLIOStatus::SUCCESS;
+    }
+
+    // Read digpoints and/or freqs. Check if size are equals.
+    if( !hpiInfo->getDigPoints().empty() && !hpiInfo->getHpiFrequencies().empty() )
+    {
+        if( hpiInfo->getDigPoints().size() == hpiInfo->getHpiFrequencies().size() )
+        {
+            return WLIOStatus::SUCCESS;
+        }
+        else
+        {
+            wlog::error( CLASS ) << "Digitization points and frequencies does not match!";
+            return WLIOStatus::ERROR_UNKNOWN;
+        }
+    }
+    else
+    {
+        return WLIOStatus::SUCCESS;
+    }
+}
+
+bool WLReaderHpiInfo::readHpiMeas( WLEMMHpiInfo* const hpiInfo, FIFFLIB::FiffStream* const stream,
+                const FIFFLIB::FiffDirTree& tree )
+{
+    QList< FiffDirTree > hpiMeas = tree.dir_tree_find( FIFFB_HPI_MEAS );
+    if( hpiMeas.size() == 0 )
+    {
+        wlog::error( CLASS ) << "Could not found HPI_MEAS block!";
+        return false;
+    }
+
+    const bool hasHpiCoil = readHpiCoil( hpiInfo, stream, hpiMeas[0] );
+    if( !hasHpiCoil )
+    {
+        wlog::warn( CLASS ) << "Could not read HPI_COIL information!";
+    }
+
+    FiffTag::SPtr tag;
     fiff_int_t kind = -1;
     fiff_int_t pos = -1;
+    WLChanNrT nHpiCoil = -1;
+
+    for( qint32 k = 0; k < hpiMeas[0].nent; ++k )
+    {
+        kind = hpiMeas[0].dir[k].kind;
+        pos = hpiMeas[0].dir[k].pos;
+
+        if( kind == FIFF_HPI_NCOIL )
+        {
+            FiffTag::read_tag( stream, tag, pos );
+            nHpiCoil = *tag->toInt();
+            wlog::debug( CLASS ) << "nHpiCoil: " << nHpiCoil;
+            continue;
+        }
+    }
+
+    if( hasHpiCoil && nHpiCoil > 0 )
+    {
+        return hpiInfo->getHpiFrequencies().size() == nHpiCoil;
+    }
+    else
+    {
+        return hasHpiCoil || nHpiCoil != -1;
+    }
+}
+
+bool WLReaderHpiInfo::readHpiCoil( WLEMMHpiInfo* const hpiInfo, FIFFLIB::FiffStream* const stream,
+                const FIFFLIB::FiffDirTree& tree )
+{
+    QList< FiffDirTree > hpiCoils = tree.dir_tree_find( WLFiffLib::BlockType::HPI_COIL );
+    if( hpiCoils.size() == 0 )
+    {
+        wlog::error( CLASS ) << "Could not found HPI_COIL block!";
+        return false;
+    }
+
+    size_t ndata = 0;
+    FiffTag::SPtr tag;
+    fiff_int_t kind = -1;
+    fiff_int_t pos = -1;
+    for( qint32 iBlock = 0; iBlock < hpiCoils.size(); ++iBlock )
+    {
+        for( qint32 iTag = 0; iTag < hpiCoils[iBlock].nent; ++iTag )
+        {
+            kind = hpiCoils[iBlock].dir[iTag].kind;
+            pos = hpiCoils[iBlock].dir[iTag].pos;
+
+            if( kind == WLFiffLib::HPI::COIL_FREQ )
+            {
+                FiffTag::read_tag( stream, tag, pos );
+                hpiInfo->addHpiFrequency( *tag->toFloat() );
+                ++ndata;
+                continue;
+            }
+        }
+    }
+    return ndata > 0;
+}
+
+bool WLReaderHpiInfo::readHpiResult( WLEMMHpiInfo* const hpiInfo, FIFFLIB::FiffStream* const stream,
+                const FIFFLIB::FiffDirTree& tree )
+{
+    QList< FiffDirTree > hpiResult = tree.dir_tree_find( FIFFB_HPI_RESULT );
+    if( hpiResult.size() == 0 )
+    {
+        wlog::error( CLASS ) << "Could not found FIFFB_HPI_RESULT!";
+        return WLIOStatus::ERROR_UNKNOWN;
+    }
+
+    FiffTag::SPtr tag;
+    fiff_int_t kind = -1;
+    fiff_int_t pos = -1;
+    WLChanNrT nHpiCoil = -1;
 
     size_t ndata = 0;
     for( qint32 k = 0; k < hpiResult[0].nent; ++k )
@@ -90,13 +209,13 @@ WLIOStatus::IOStatusT WLReaderHpiInfo::read( WLEMMHpiInfo* const hpiInfo )
 
         if( kind == FIFF_COORD_TRANS )
         {
-            FiffTag::read_tag( stream.data(), t_pTag, pos );
-            const FiffCoordTrans trans = t_pTag->toCoordTrans();
+            FiffTag::read_tag( stream, tag, pos );
+            const FiffCoordTrans trans = tag->toCoordTrans();
             if( trans.from == FIFFV_COORD_DEVICE && trans.to == FIFFV_COORD_HEAD )
             {
                 hpiInfo->setDevToHead( trans.trans.cast< double >() );
                 ++ndata;
-                wlog::info( CLASS ) << "Found transformation device to head.";
+                wlog::info( CLASS ) << "Found transformation device to head:\n" << hpiInfo->getDevToHead();
             }
             else
             {
@@ -107,26 +226,19 @@ WLIOStatus::IOStatusT WLReaderHpiInfo::read( WLEMMHpiInfo* const hpiInfo )
 
         if( kind == FIFF_DIG_POINT )
         {
-            FiffTag::read_tag( stream.data(), t_pTag, pos );
-            const FiffDigPoint fDigPnt = t_pTag->toDigPoint();
+            // TODO(pieloth): These dig points are not equals with the points from isotrak!?
+            // Even after transformation dev->head or head->dev ...
+            FiffTag::read_tag( stream, tag, pos );
+            const FiffDigPoint fDigPnt = tag->toDigPoint();
             WLDigPoint::PointT pnt( fDigPnt.r[0], fDigPnt.r[1], fDigPnt.r[2] );
             WLDigPoint digPnt( pnt, fDigPnt.kind, fDigPnt.ident );
             if( hpiInfo->addDigPoint( digPnt ) )
             {
-                wlog::info( CLASS ) << "Found digitization point.";
+                wlog::info( CLASS ) << "Found digitization point: " << digPnt.getPoint();
                 ++ndata;
                 continue;
             }
         }
     }
-
-    if( ndata > 0 )
-    {
-        return WLIOStatus::SUCCESS;
-    }
-    else
-    {
-        wlog::error( CLASS ) << "No data found!";
-        return WLIOStatus::ERROR_UNKNOWN;
-    }
+    return ndata > 0;
 }
