@@ -38,6 +38,7 @@
 #include "core/data/WLDigPoint.h"
 #include "core/dataFormat/fiff/WLFiffBlockType.h"
 #include "core/dataFormat/fiff/WLFiffHPI.h"
+#include "WLReaderIsotrak.h"
 #include "WLReaderHpiInfo.h"
 
 using namespace FIFFLIB;
@@ -74,38 +75,49 @@ WLIOStatus::IOStatusT WLReaderHpiInfo::read( WLEMMHpiInfo* const hpiInfo )
         return WLIOStatus::ERROR_FOPEN;
     }
 
+    const bool hasIsotrakHpiPoints = readIsotrakHpiPoints( hpiInfo );
     const bool hasHpiMeas = readHpiMeas( hpiInfo, stream.data(), tree );
     const bool hasHpiResult = readHpiResult( hpiInfo, stream.data(), tree );
 
-    if( !hasHpiResult && !hasHpiMeas )
+    if( !hasHpiResult && !hasHpiMeas && !hasIsotrakHpiPoints )
     {
         wlog::error( CLASS ) << "No data found!";
         return WLIOStatus::ERROR_UNKNOWN;
     }
 
     // Read some data
-    if( hasHpiResult ^ hasHpiMeas )
+    if( ( hasHpiResult ^ hasHpiMeas ) ^ hasIsotrakHpiPoints )
     {
         return WLIOStatus::SUCCESS;
     }
 
     // Read digpoints and/or freqs. Check if size are equals.
-    if( !hpiInfo->getDigPoints().empty() && !hpiInfo->getHpiFrequencies().empty() )
+    if( !hpiInfo->getDigPointsResult().empty() && !hpiInfo->getHpiFrequencies().empty() )
     {
-        if( hpiInfo->getDigPoints().size() == hpiInfo->getHpiFrequencies().size() )
+        if( hpiInfo->getDigPointsResult().size() != hpiInfo->getHpiFrequencies().size() )
         {
-            return WLIOStatus::SUCCESS;
-        }
-        else
-        {
-            wlog::error( CLASS ) << "Digitization points and frequencies does not match!";
+            wlog::error( CLASS ) << "Digitization points (result) and frequencies does not match!";
             return WLIOStatus::ERROR_UNKNOWN;
         }
     }
-    else
+    if( !hpiInfo->getDigPointsHead().empty() && !hpiInfo->getHpiFrequencies().empty() )
     {
-        return WLIOStatus::SUCCESS;
+        if( hpiInfo->getDigPointsHead().size() != hpiInfo->getHpiFrequencies().size() )
+        {
+            wlog::error( CLASS ) << "Digitization points (isotrak) and frequencies does not match!";
+            return WLIOStatus::ERROR_UNKNOWN;
+        }
     }
+    if( !hpiInfo->getDigPointsResult().empty() && !hpiInfo->getDigPointsHead().empty() )
+    {
+        if( hpiInfo->getDigPointsResult().size() != hpiInfo->getDigPointsHead().size() )
+        {
+            wlog::error( CLASS ) << "nDigPnts_result and nDigPnts_isotrak does not match!";
+            return WLIOStatus::ERROR_UNKNOWN;
+        }
+    }
+
+    return WLIOStatus::SUCCESS;
 }
 
 bool WLReaderHpiInfo::readHpiMeas( WLEMMHpiInfo* const hpiInfo, FIFFLIB::FiffStream* const stream,
@@ -139,7 +151,6 @@ bool WLReaderHpiInfo::readHpiMeas( WLEMMHpiInfo* const hpiInfo, FIFFLIB::FiffStr
             FiffTag::read_tag( stream, tag, pos );
             nHpiCoil = *tag->toInt();
             wlog::debug( CLASS ) << "nHpiCoil: " << nHpiCoil;
-            continue;
         }
     }
 
@@ -179,7 +190,6 @@ bool WLReaderHpiInfo::readHpiCoil( WLEMMHpiInfo* const hpiInfo, FIFFLIB::FiffStr
                 FiffTag::read_tag( stream, tag, pos );
                 hpiInfo->addHpiFrequency( *tag->toFloat() );
                 ++ndata;
-                continue;
             }
         }
     }
@@ -232,13 +242,45 @@ bool WLReaderHpiInfo::readHpiResult( WLEMMHpiInfo* const hpiInfo, FIFFLIB::FiffS
             const FiffDigPoint fDigPnt = tag->toDigPoint();
             WLDigPoint::PointT pnt( fDigPnt.r[0], fDigPnt.r[1], fDigPnt.r[2] );
             WLDigPoint digPnt( pnt, fDigPnt.kind, fDigPnt.ident );
-            if( hpiInfo->addDigPoint( digPnt ) )
+            if( hpiInfo->addDigPointResult( digPnt ) )
             {
-                wlog::info( CLASS ) << "Found digitization point: " << digPnt.getPoint();
+                wlog::info( CLASS ) << "digPnt (result): " << digPnt.getPoint();
                 ++ndata;
-                continue;
             }
+            continue;
         }
     }
+    return ndata > 0;
+}
+
+bool WLReaderHpiInfo::readIsotrakHpiPoints( WLEMMHpiInfo* const hpiInfo )
+{
+    WLEMMHpiInfo::DigPointsT digPoints;
+    try
+    {
+        WLReaderIsotrak reader( m_fname );
+        if( reader.read( &digPoints ) != WLIOStatus::SUCCESS )
+        {
+            wlog::error( CLASS ) << "Could not read isotrak!";
+            return false;
+        }
+    }
+    catch( const std::exception& e )
+    {
+        wlog::error( CLASS ) << "Unknown error: " << e.what();
+        return false;
+    }
+
+    size_t ndata = 0;
+    WLEMMHpiInfo::DigPointsT::const_iterator it;
+    for( it = digPoints.begin(); it != digPoints.end(); ++it )
+    {
+        if( it->getKind() == WLEPointType::HPI && hpiInfo->addDigPointHead( *it ) )
+        {
+            wlog::info( CLASS ) << "digPnt (isotrak): " << it->getPoint();
+            ++ndata;
+        }
+    }
+
     return ndata > 0;
 }

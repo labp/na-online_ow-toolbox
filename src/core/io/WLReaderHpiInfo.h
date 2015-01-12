@@ -54,12 +54,50 @@ public:
     explicit WLReaderHpiInfo( std::string fname ) throw( WDHNoSuchFile );
     virtual ~WLReaderHpiInfo();
 
+    /**
+     * \param hpiInfo Object to fill.
+     * \return SUCCESS if some data was read.
+     */
     virtual WLIOStatus::IOStatusT read( WLEMMHpiInfo* const hpiInfo );
 
 private:
+    /**
+     * Reads hpi_meas struct containing hpi_coil infos.
+     *
+     * \param hpiInfo Object to fill.
+     * \param stream Fiff Stream.
+     * \param tree Entry point.
+     * \return True if some data was read.
+     */
     bool readHpiMeas( WLEMMHpiInfo* const hpiInfo, FIFFLIB::FiffStream* const stream, const FIFFLIB::FiffDirTree& tree );
+
+    /**
+     * Reads hpi_coil struct containing HPI coil frequencies.
+     *
+     * \param hpiInfo Object to fill.
+     * \param stream Fiff Stream.
+     * \param tree Entry point.
+     * \return True if some data was read.
+     */
     bool readHpiCoil( WLEMMHpiInfo* const hpiInfo, FIFFLIB::FiffStream* const stream, const FIFFLIB::FiffDirTree& tree );
+
+    /**
+     * Reads hpi_result struct containing dig_points and coord_trans.
+     *
+     * \param hpiInfo Object to fill.
+     * \param stream Fiff Stream.
+     * \param tree Entry point.
+     * \return True if some data was read.
+     */
     bool readHpiResult( WLEMMHpiInfo* const hpiInfo, FIFFLIB::FiffStream* const stream, const FIFFLIB::FiffDirTree& tree );
+
+    /**
+     * Reads the digitization points for HPI coils from the isotrak struct.
+     *
+     * \param hpiInfo
+     * \return True if some data was read.
+     */
+    bool readIsotrakHpiPoints( WLEMMHpiInfo* const hpiInfo );
 };
 
 #endif  // WLREADERHPIINFO_H_

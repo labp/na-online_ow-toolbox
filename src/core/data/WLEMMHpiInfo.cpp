@@ -46,35 +46,35 @@ void WLEMMHpiInfo::setDevToHead( const TransformationT& t )
     m_devToHead = t;
 }
 
-WLEMMHpiInfo::DigPointsT WLEMMHpiInfo::getDigPoints() const
+WLEMMHpiInfo::DigPointsT WLEMMHpiInfo::getDigPointsResult() const
 {
-    return m_digPoints;
+    return m_digPointsResult;
 }
 
-bool WLEMMHpiInfo::setDigPoints( const DigPointsT& digPoints )
+bool WLEMMHpiInfo::setDigPointsResult( const DigPointsT& digPoints )
 {
-    m_digPoints.clear();
+    m_digPointsResult.clear();
     DigPointsT::const_iterator it;
     for( it = digPoints.begin(); it != digPoints.end(); ++it )
     {
         if( it->getKind() == WLEPointType::HPI )
         {
-            m_digPoints.push_back( *it );
+            m_digPointsResult.push_back( *it );
         }
     }
 
-    if( !m_hpiFrequencies.empty() && m_hpiFrequencies.size() != m_digPoints.size() )
+    if( !m_hpiFrequencies.empty() && m_hpiFrequencies.size() != m_digPointsResult.size() )
     {
         wlog::warn( CLASS ) << "Attention, count of digitization points and frequencies is not equal!";
     }
-    return !m_digPoints.empty();
+    return !m_digPointsResult.empty();
 }
 
-bool WLEMMHpiInfo::addDigPoint( const WLDigPoint& digPoint )
+bool WLEMMHpiInfo::addDigPointResult( const WLDigPoint& digPoint )
 {
     if( digPoint.getKind() == WLEPointType::HPI )
     {
-        m_digPoints.push_back( digPoint );
+        m_digPointsResult.push_back( digPoint );
         return true;
     }
     else
@@ -83,9 +83,51 @@ bool WLEMMHpiInfo::addDigPoint( const WLDigPoint& digPoint )
     }
 }
 
-void WLEMMHpiInfo::clearDigPoints()
+void WLEMMHpiInfo::clearDigPointsResult()
 {
-    m_digPoints.clear();
+    m_digPointsResult.clear();
+}
+
+WLEMMHpiInfo::DigPointsT WLEMMHpiInfo::getDigPointsHead() const
+{
+    return m_digPointsHead;
+}
+
+bool WLEMMHpiInfo::setDigPointsHead( const DigPointsT& digPoints )
+{
+    m_digPointsHead.clear();
+    DigPointsT::const_iterator it;
+    for( it = digPoints.begin(); it != digPoints.end(); ++it )
+    {
+        if( it->getKind() == WLEPointType::HPI )
+        {
+            m_digPointsHead.push_back( *it );
+        }
+    }
+
+    if( !m_hpiFrequencies.empty() && m_hpiFrequencies.size() != m_digPointsHead.size() )
+    {
+        wlog::warn( CLASS ) << "Attention, count of digitization points and frequencies is not equal!";
+    }
+    return !m_digPointsHead.empty();
+}
+
+bool WLEMMHpiInfo::addDigPointHead( const WLDigPoint& digPoint )
+{
+    if( digPoint.getKind() == WLEPointType::HPI )
+    {
+        m_digPointsHead.push_back( digPoint );
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+void WLEMMHpiInfo::clearDigPointsHead()
+{
+    m_digPointsHead.clear();
 }
 
 WLEMMHpiInfo::HpiFrequenciesT WLEMMHpiInfo::getHpiFrequencies() const
@@ -95,7 +137,7 @@ WLEMMHpiInfo::HpiFrequenciesT WLEMMHpiInfo::getHpiFrequencies() const
 
 void WLEMMHpiInfo::setHpiFrequencies( const HpiFrequenciesT& freqs )
 {
-    if( !m_digPoints.empty() && m_digPoints.size() != freqs.size() )
+    if( !m_digPointsResult.empty() && m_digPointsResult.size() != freqs.size() )
     {
         wlog::warn( CLASS ) << "Attention, count of digitization points and frequencies is not equal!";
     }

@@ -69,32 +69,60 @@ public:
     void setDevToHead( const TransformationT& t );
 
     /**
-     * Gets the positions of the HPI coils in head coordinates.
+     * Gets the positions of the HPI coils from hpi_result.
      *
      * \return Digitization of HPI coils.
      */
-    DigPointsT getDigPoints() const;
+    DigPointsT getDigPointsResult() const;
 
     /**
-     * Sets digitization of HPI coils. Skips non HPI points.
+     * Sets digitization of HPI coils for hpi_result. Skips non HPI points.
      *
      * \param digPoints Digitization points.
      * \return True if one or more HPI coils were set.
      */
-    bool setDigPoints( const DigPointsT& digPoints );
+    bool setDigPointsResult( const DigPointsT& digPoints );
 
     /**
-     * Adds a digitization point for a HPI coil.
+     * Adds a digitization point for a HPI coil for hpi_result.
      *
      * \param digPoint Digitization point.
      * \return True if point was added.
      */
-    bool addDigPoint( const WLDigPoint& digPoint );
+    bool addDigPointResult( const WLDigPoint& digPoint );
 
     /**
-     * Deletes all digitization points.
+     * Deletes all digitization points from hpi_result.
      */
-    void clearDigPoints();
+    void clearDigPointsResult();
+
+    /**
+     * Gets the positions of the HPI coils in head coords.
+     *
+     * \return Digitization of HPI coils.
+     */
+    DigPointsT getDigPointsHead() const;
+
+    /**
+     * Sets digitization of HPI coils in head coords. Skips non HPI points.
+     *
+     * \param digPoints Digitization points.
+     * \return True if one or more HPI coils were set.
+     */
+    bool setDigPointsHead( const DigPointsT& digPoints );
+
+    /**
+     * Adds a digitization point for a HPI coil in head coords.
+     *
+     * \param digPoint Digitization point.
+     * \return True if point was added.
+     */
+    bool addDigPointHead( const WLDigPoint& digPoint );
+
+    /**
+     * Deletes all digitization points in head coords.
+     */
+    void clearDigPointsHead();
 
     /**
      * Gets the frequencies of HPI coils.
@@ -124,7 +152,8 @@ public:
 
 private:
     TransformationT m_devToHead;
-    DigPointsT m_digPoints;
+    DigPointsT m_digPointsResult;
+    DigPointsT m_digPointsHead;
     HpiFrequenciesT m_hpiFrequencies;
 };
 
@@ -134,7 +163,7 @@ private:
 inline std::ostream& operator<<( std::ostream &strm, const WLEMMHpiInfo& obj )
 {
 
-    strm << obj.CLASS << ": digPoints=" << obj.getDigPoints().size() << "; devToHead=";
+    strm << obj.CLASS << ": digPoints=" << obj.getDigPointsResult().size() << "; devToHead=";
     WLMatrix4::Matrix4T t = obj.getDevToHead();
     if( t.isIdentity() )
     {
