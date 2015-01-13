@@ -39,6 +39,17 @@ SET( ADDITIONAL_LIBS "" )
 INCLUDE_DIRECTORIES( ${libfiffio_dir}/include )
 LIST( APPEND ADDITIONAL_LIBS ${libfiffio_dir}/linux_x86_64/libfiffio.so )
 
+# --------------------------------------------------------------------------------------------------------------------------------
+# Add MNE Library headers
+# --------------------------------------------------------------------------------------------------------------------------------
+
+FIND_PACKAGE( MNE REQUIRED )
+INCLUDE_DIRECTORIES( ${MNE_INCLUDE_DIR} )
+
+FIND_PACKAGE( Qt5Core REQUIRED )
+INCLUDE_DIRECTORIES( ${Qt5_INCLUDE_DIRS} )
+INCLUDE_DIRECTORIES( ${Qt5Core_INCLUDE_DIRS} )
+
 
 # --------------------------------------------------------------------------------------------------------------------------------
 # Setup for compilation
