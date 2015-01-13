@@ -127,21 +127,21 @@ public:
     /**
      * Gets the frequencies of HPI coils.
      *
-     * \return Frequencies of HPI coils.
+     * \return Frequencies of HPI coils in Hz.
      */
     HpiFrequenciesT getHpiFrequencies() const;
 
     /**
      * Sets the frequencies for HPI coils.
      *
-     * \param freqs Frequency.
+     * \param freqs Frequency in Hz.
      */
     void setHpiFrequencies( const HpiFrequenciesT& freqs );
 
     /**
      * Adds a frequency for a HPI coil.
      *
-     * \param freq Frequency.
+     * \param freq Frequency in Hz.
      */
     void addHpiFrequency( WLFreqT freq );
 
