@@ -48,6 +48,7 @@ WLEMMeasurement::WLEMMeasurement()
     m_eventChannels.reset( new EDataT() );
     m_subject.reset( new WLEMMSubject() );
     m_profiler.reset( new WLLifetimeProfiler( CLASS, "lifetime" ) );
+    m_hpiInfo.reset( new WLEMMHpiInfo() );
 
     m_digPoints = WLList< WLDigPoint >::instance();
 }
@@ -59,6 +60,7 @@ WLEMMeasurement::WLEMMeasurement( WLEMMSubject::SPtr subject )
     m_subject = subject;
     m_eventChannels.reset( new EDataT() );
     m_profiler.reset( new WLLifetimeProfiler( CLASS, "lifetime" ) );
+    m_hpiInfo.reset( new WLEMMHpiInfo() );
     m_digPoints = WLList< WLDigPoint >::instance();
 }
 
@@ -74,6 +76,7 @@ WLEMMeasurement::WLEMMeasurement( const WLEMMeasurement& emm )
     m_digPoints = emm.m_digPoints;
     m_transDevToFid = emm.m_transDevToFid;
     m_transFidToACPC = emm.m_transFidToACPC;
+    m_hpiInfo = emm.m_hpiInfo;
 }
 
 WLEMMeasurement::~WLEMMeasurement()
@@ -313,4 +316,19 @@ const WLMatrix4::Matrix4T& WLEMMeasurement::getFidToACPCTransformation() const
 void WLEMMeasurement::setFidToACPCTransformation( const WLMatrix4::Matrix4T& mat )
 {
     m_transFidToACPC = mat;
+}
+
+WLEMMHpiInfo::SPtr WLEMMeasurement::getHpiInfo()
+{
+    return m_hpiInfo;
+}
+
+WLEMMHpiInfo::ConstSPtr WLEMMeasurement::getHpiInfo() const
+{
+    return m_hpiInfo;
+}
+
+void WLEMMeasurement::setHpiInfo( WLEMMHpiInfo::SPtr hpiInfo )
+{
+    m_hpiInfo = hpiInfo;
 }
