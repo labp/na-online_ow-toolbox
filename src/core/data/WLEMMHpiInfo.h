@@ -163,7 +163,11 @@ private:
 inline std::ostream& operator<<( std::ostream &strm, const WLEMMHpiInfo& obj )
 {
 
-    strm << obj.CLASS << ": digPoints=" << obj.getDigPointsResult().size() << "; devToHead=";
+    strm << obj.CLASS;
+    strm << ": digPointsResult=" << obj.getDigPointsResult().size();
+    strm << "; digPointsHead=" << obj.getDigPointsHead().size();
+    strm << "; frequencies=" << obj.getHpiFrequencies().size();
+    strm << "; devToHead=";
     WLMatrix4::Matrix4T t = obj.getDevToHead();
     if( t.isIdentity() )
     {

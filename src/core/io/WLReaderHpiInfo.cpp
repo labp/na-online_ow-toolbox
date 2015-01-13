@@ -189,6 +189,7 @@ bool WLReaderHpiInfo::readHpiCoil( WLEMMHpiInfo* const hpiInfo, FIFFLIB::FiffStr
             {
                 FiffTag::read_tag( stream, tag, pos );
                 hpiInfo->addHpiFrequency( *tag->toFloat() );
+                wlog::debug( CLASS ) << "HPI coil freq: " << *tag->toFloat();
                 ++ndata;
             }
         }
@@ -225,7 +226,7 @@ bool WLReaderHpiInfo::readHpiResult( WLEMMHpiInfo* const hpiInfo, FIFFLIB::FiffS
             {
                 hpiInfo->setDevToHead( trans.trans.cast< double >() );
                 ++ndata;
-                wlog::info( CLASS ) << "Found transformation device to head:\n" << hpiInfo->getDevToHead();
+                wlog::debug( CLASS ) << "Found transformation device to head:\n" << hpiInfo->getDevToHead();
             }
             else
             {
@@ -244,7 +245,7 @@ bool WLReaderHpiInfo::readHpiResult( WLEMMHpiInfo* const hpiInfo, FIFFLIB::FiffS
             WLDigPoint digPnt( pnt, fDigPnt.kind, fDigPnt.ident );
             if( hpiInfo->addDigPointResult( digPnt ) )
             {
-                wlog::info( CLASS ) << "digPnt (result): " << digPnt.getPoint();
+                wlog::debug( CLASS ) << "digPnt (result): " << digPnt.getPoint();
                 ++ndata;
             }
             continue;
@@ -277,7 +278,7 @@ bool WLReaderHpiInfo::readIsotrakHpiPoints( WLEMMHpiInfo* const hpiInfo )
     {
         if( it->getKind() == WLEPointType::HPI && hpiInfo->addDigPointHead( *it ) )
         {
-            wlog::info( CLASS ) << "digPnt (isotrak): " << it->getPoint();
+            wlog::debug( CLASS ) << "digPnt (isotrak): " << it->getPoint();
             ++ndata;
         }
     }

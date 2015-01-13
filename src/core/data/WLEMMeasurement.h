@@ -397,11 +397,12 @@ inline std::ostream& operator<<( std::ostream &strm, const WLEMMeasurement& obj 
     strm << WLEMMeasurement::CLASS << ": modalities=[";
     for( size_t m = 0; m < obj.getModalityCount(); ++m )
     {
-        strm << *obj.getModality( m ) << ", ";
+        strm << "{" << *obj.getModality( m ) << "}, ";
     }
     strm << "]";
     strm << ", digPoints=" << obj.getDigPoints()->size();
     strm << ", eventChannels=" << obj.getEventChannelCount();
+    strm << ", hpiInfo={" << *obj.getHpiInfo() << "}";
     return strm;
 }
 
