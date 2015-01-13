@@ -35,6 +35,7 @@
 #include "core/data/WLDataTypes.h"
 #include "core/data/WLEMMBemBoundary.h"
 #include "core/data/WLEMMCommand.h"
+#include "core/data/WLEMMHpiInfo.h"
 #include "core/data/WLEMMSurface.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
@@ -87,6 +88,10 @@ private:
     WPropFilename m_lfMEGFile;
     WLMatrix::SPtr m_leadfieldEEG;
     WLMatrix::SPtr m_leadfieldMEG;
+
+    bool hdlHpiInfoFileChanged( std::string fName );
+    WPropFilename m_hpiInfoFile;
+    WLEMMHpiInfo::SPtr m_hpiInfo;
 
     WPropTrigger m_trgReset;
     void cbReset();

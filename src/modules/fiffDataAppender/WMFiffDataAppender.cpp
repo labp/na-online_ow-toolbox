@@ -26,9 +26,10 @@
 #include <core/common/WPathHelper.h>
 
 #include "core/container/WLList.h"
+#include "core/io/WLReaderBem.h"
+#include "core/io/WLReaderHpiInfo.h"
 #include "core/io/WLReaderLeadfield.h"
 #include "core/io/WLReaderSourceSpace.h"
-#include "core/io/WLReaderBem.h"
 #include "core/module/WLConstantsModule.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
@@ -105,6 +106,10 @@ void WMFiffDataAppender::properties()
                     WPathHelper::getHomePath(), m_propCondition );
     m_lfMEGFile->changed( true );
 
+    m_hpiInfoFile = m_properties->addProperty( "HPI info file:", "Read HPI information from a FIFF file.",
+                    WPathHelper::getHomePath(), m_propCondition );
+    m_hpiInfoFile->changed( true );
+
     m_propStatus = m_properties->addProperty( "Status:", "Data status.", DATA_NOT_LOADED );
     m_propStatus->setPurpose( PV_PURPOSE_INFORMATION );
 
@@ -143,6 +148,11 @@ void WMFiffDataAppender::moduleInit()
         hdlLeadfieldFileChanged( &m_leadfieldMEG, m_lfMEGFile->get().string() );
     }
 
+    if( m_hpiInfoFile->changed( true ) )
+    {
+        hdlHpiInfoFileChanged( m_hpiInfoFile->get().string() );
+    }
+
     infoLog() << "Restoring module finished!";
 }
 
@@ -174,6 +184,11 @@ void WMFiffDataAppender::moduleMain()
         if( m_lfMEGFile->changed( true ) )
         {
             hdlLeadfieldFileChanged( &m_leadfieldMEG, m_lfMEGFile->get().string() );
+        }
+
+        if( m_hpiInfoFile->changed( true ) )
+        {
+            hdlHpiInfoFileChanged( m_hpiInfoFile->get().string() );
         }
 
         cmdIn.reset();
@@ -307,6 +322,47 @@ bool WMFiffDataAppender::hdlBemFileChanged( std::string fName )
     }
 }
 
+bool WMFiffDataAppender::hdlHpiInfoFileChanged( std::string fName )
+{
+    debugLog() << __func__ << "() called!";
+
+    WProgress::SPtr progress( new WProgress( "Reading HPI info" ) );
+    m_progress->addSubProgress( progress );
+    m_propStatus->set( DATA_LOADING, true );
+
+    m_hpiInfo.reset();
+    try
+    {
+        WLReaderHpiInfo reader( fName );
+        WLEMMHpiInfo::SPtr hpiInfo( new WLEMMHpiInfo() );
+        if( reader.read( hpiInfo.get() ) == WLIOStatus::SUCCESS )
+        {
+            infoLog() << "Read HPI info.";
+            infoLog() << *hpiInfo;
+            m_hpiInfo = hpiInfo;
+            m_propStatus->set( DATA_LOADED, true );
+            progress->finish();
+            m_progress->removeSubProgress( progress );
+            return true;
+        }
+        else
+        {
+            errorLog() << "Could not read HPI info!";
+            m_propStatus->set( DATA_ERROR, true );
+            progress->finish();
+            m_progress->removeSubProgress( progress );
+            return false;
+        }
+    }
+    catch( const WDHNoSuchFile& e )
+    {
+        errorLog() << "File does not exist: " << fName;
+        progress->finish();
+        m_progress->removeSubProgress( progress );
+        return false;
+    }
+}
+
 void WMFiffDataAppender::cbReset()
 {
     debugLog() << __func__ << "() called!";
@@ -329,6 +385,8 @@ void WMFiffDataAppender::cbReset()
     m_lfEEGFile->changed( true );
     m_lfMEGFile->set( WPathHelper::getHomePath().string(), true );
     m_lfMEGFile->changed( true );
+
+    m_hpiInfo.reset();
 
     m_propStatus->set( DATA_NOT_LOADED, true );
     m_trgReset->set( WPVBaseTypes::PV_TRIGGER_READY, true );
@@ -360,5 +418,9 @@ void WMFiffDataAppender::process( WLEMMCommand::SPtr cmd )
     if( m_surface )
     {
         subject->setSurface( m_surface );
+    }
+    if( m_hpiInfo )
+    {
+        emm->setHpiInfo( m_hpiInfo );
     }
 }
