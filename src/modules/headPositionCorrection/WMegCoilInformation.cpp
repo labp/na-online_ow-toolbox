@@ -125,7 +125,7 @@ void WMegCoilInformation::neuromagCoil3022( WMegCoils* const megCoils )
 
     //  0.0, +- 9.99, 0.3mm
     ip6 << 0.0, 9.99, 0.3;
-    ip7 << 0.0, -9.99, 03;
+    ip7 << 0.0, -9.99, 0.3;
 
     // +- 9.99, 0.0, 0.3mm
     ip8 << 9.99, 0.0, 0.3;
