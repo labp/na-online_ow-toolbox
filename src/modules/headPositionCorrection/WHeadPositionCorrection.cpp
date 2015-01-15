@@ -153,6 +153,7 @@ bool WHeadPositionCorrection::process( WLEMDMEG* const megOut, const WLEMDMEG& m
     {
         if( checkMovementThreshold( *itTrans ) )
         {
+            WLTimeProfiler profilerTras( CLASS, "process_trans", true );
             // 4. transform dipole sphere to head position, MEG coord, in case head position has changed
             t = Eigen::Affine3d( *itTrans );
             dipPos = t * m_dipPos;

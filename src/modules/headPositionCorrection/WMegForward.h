@@ -64,9 +64,13 @@ namespace WMegForward
     double weberToTesla( const WMegCoilInformation::WMegCoils& megSensor );
 
     /**
-     * Transfer local 2D integration coordinates to global 3D coordinates.
+     * Transfers local 3D integration coordinates to global 3D coordinates.
+     *
+     * \param ipOut Filled with integration points in global coords.
+     * \param megCoilInfo Coil geometry information.
+     * \return True if ipOut contains global 3D coords.
      */
-    bool computeIntegrationPoints( double* ipOut, int iSens, const WMegCoilInformation::WMegCoils& megSensor );
+    bool computeIntegrationPoints( PositionsT* ipOut, const WMegCoilInformation::WMegCoil& megCoilInfo );
 } /* namespace WMegForward */
 
 #endif  // MODULES_HEADPOSITIONCORRECTION_WMEGFORWARD_H_

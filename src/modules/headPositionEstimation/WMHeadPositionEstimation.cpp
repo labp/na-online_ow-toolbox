@@ -381,7 +381,7 @@ bool WMHeadPositionEstimation::processCompute( WLEMMeasurement::SPtr emmIn )
     }
 
     // Reconstructed HPI amplitudes and positions
-    WLEMMeasurement::SPtr emmOut = emmIn->clone();
+    WLEMMeasurement::SPtr emmOut = emmIn->clone(); // TODO(pieloth): Do we really need to clone this?
     emmOut->setModalityList( emmIn->getModalityList() );
     emmOut->addModality( hpiOut );
     viewUpdate( emmOut );

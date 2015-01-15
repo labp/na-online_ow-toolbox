@@ -39,6 +39,7 @@ namespace WMegCoilInformation
     typedef Eigen::Vector3d OrientationT;  //!< Rows: x, y, z; Columns: channels
     typedef Eigen::Matrix3Xd OrientationsT;  //!< Rows: x, y, z; Columns: channels
     typedef Eigen::VectorXd VectorT;
+    typedef Eigen::Vector3d Vector3T;
 
     typedef struct
     {
@@ -49,6 +50,19 @@ namespace WMegCoilInformation
         PositionsT integrationPoints;  //!< 3D positions of integration points
         VectorT integrationWeights;  //!< weights of integrations points
     } WMegCoils;
+
+    typedef struct
+    {
+        PositionT position; //!< Coil position in device coords.
+        OrientationT orientation; //!< Coil orientation in device coords.
+        double area; //!< TODO Area of the coil.
+        double winding; //!< TODO Winding of the coil.
+        PositionsT integrationPoints; //!< Integration points in local coil coords.
+        VectorT integrationWeights; //!< Weights of integration points.
+        Vector3T ex; //!< x-axis vector of local coil coords. in device coords.
+        Vector3T ey; //!< x-axis vector of local coil coords. in device coords.
+        Vector3T ez; //!< x-axis vector of local coil coords. in device coords.
+    } WMegCoil;
 
     /**
      * Accurate coil descriptions for type T1 planar gradiometer, 3012.

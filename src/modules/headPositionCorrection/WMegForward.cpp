@@ -25,6 +25,7 @@
 #include <limits>
 
 #include <Eigen/Dense>
+#include <Eigen/Geometry>
 
 #include <core/common/WAssert.h>
 #include <core/common/WLogger.h>
@@ -69,65 +70,31 @@ double WMegForward::weberToTesla( const WMegCoilInformation::WMegCoils& megSenso
     return N;
 }
 
-bool WMegForward::computeIntegrationPoints( double* ipOut, int iSens, const WMegCoilInformation::WMegCoils& megSensors )
+bool WMegForward::computeIntegrationPoints( PositionsT* ipOut, const WMegCoilInformation::WMegCoil& megCoilInfo )
 {
-    WAssertDebug( megSensors.positions.cols() == megSensors.orientations.cols(), "#pos != #ori" );
-
-    double xl, yl, zl;  // local coordinates of the current integration point
-    Vector3T v1;
-    Vector3T v2;
-    double P;
-    double lendir;
-
-    OrientationT mOri = megSensors.orientations.col( iSens );
-    lendir = mOri.norm();
-    if( lendir < 1e-30 )
+    if( ipOut == NULL )
     {
-        wlog::error( NSNAME ) << __func__ << ": lendir < 1e-30";
+        wlog::error( NSNAME ) << __func__ << ": ipOut is NULL!";
         return false;
     }
 
-    mOri = mOri / lendir;
-
-    //  Form right-hand coordinate-system [v1,v2,v3], where..
-    //  v1 and v2 make up the plane rectangular to dir
-    if( ( ( mOri( 0 ) != 0 ) || ( mOri( 2 ) != 0 ) ) )
+    PositionsT::Index n_intpnt = megCoilInfo.integrationPoints.cols();
+    if( n_intpnt < 1 )
     {
-        //  v1 |- to Dir[]
-        v1( 0 ) = mOri( 2 );
-        v1( 1 ) = 0.0;
-        v1( 2 ) = -mOri( 0 );
+        wlog::error( NSNAME ) << __func__ << ": No integration points available!";
+        return false;
     }
-    else   //  Dir[] equals (0,1,0)
-    {
-        v1( 0 ) = mOri( 1 );
-        v1( 1 ) = 0.0;
-        v1( 2 ) = 0.0;
-    }
+    ipOut->resize( 3, megCoilInfo.integrationPoints.cols() );
 
-    const int n_coils = megSensors.positions.cols();
-    const int n_intpnt = megSensors.integrationPoints.cols();
-    const int n_dim = 3;
+    // T = [ex 0; ey 0; ez 0; p 1]'
+    Eigen::Matrix4d T = Eigen::Matrix4d::Identity();
+    T.block( 0, 0, 3, 1 ) = megCoilInfo.ex;
+    T.block( 0, 1, 3, 1 ) = megCoilInfo.ey;
+    T.block( 0, 2, 3, 1 ) = megCoilInfo.ez;
+    T.block( 0, 3, 3, 1 ) = megCoilInfo.position;
 
-    P = v1.norm();
-    v1 = v1 / P;
-
-    v2 = mOri.cross( v1 );
-
-    for( int iCoil = 0; iCoil < n_coils; ++iCoil )
-    {
-        for( int iIntPnt = 0; iIntPnt < n_intpnt; ++iIntPnt )
-        {
-            xl = megSensors.integrationPoints( 0, iIntPnt );
-            yl = megSensors.integrationPoints( 1, iIntPnt );
-            zl = megSensors.integrationPoints( 2, iIntPnt );
-            for( int k = 0; k < n_dim; ++k )
-            {
-                ACCESS_3D(ipOut, n_intpnt, n_dim, iSens, iIntPnt,k ) = megSensors.positions( k, iSens ) + xl * v1( k )
-                                + yl * v2( k ) + zl * mOri( k );
-            }
-        }
-    }
+    // ip' = T * ip ... ip as homogeneous point
+    ipOut->block( 0, 0, 3, n_intpnt ) = ( T * megCoilInfo.integrationPoints.colwise().homogeneous() ).block( 0, 0, 3, n_intpnt );
 
     return true;
 }
@@ -172,9 +139,16 @@ bool WMegForward::computeForward( MatrixT* const pLfOut, const WMegCoilInformati
         // Compute for each Sensor
         for( int iSens = 0; iSens < n_sensors; ++iSens )
         {
-
-            double* ip3d = new double[n_sensors * n_intpnt * 3];
-            if( !computeIntegrationPoints( ip3d, iSens, megSensors ) )
+            PositionsT ip(3, n_intpnt);
+            // TODO
+            WMegCoilInformation::WMegCoil megCoilInfo;
+            megCoilInfo.ex.setRandom();
+            megCoilInfo.ey.setRandom();
+            megCoilInfo.ez.setRandom();
+            megCoilInfo.integrationPoints = megSensors.integrationPoints;
+            megCoilInfo.position = megSensors.positions.col(iSens);
+            megCoilInfo.orientation = megSensors.orientations.col(iSens);
+            if( !computeIntegrationPoints( &ip, megCoilInfo ) )
             {
                 wlog::error( NSNAME ) << __func__ << ": !computeIntegrationPoints()";
                 return false;
@@ -189,11 +163,8 @@ bool WMegForward::computeForward( MatrixT* const pLfOut, const WMegCoilInformati
                     continue;
                 }
 
-                for( int l = 0; l < 3; ++l )
-                {
-                    R( l ) = ACCESS_3D(ip3d, n_intpnt, 3, iSens, iIntPnt,l ) - cPos( l );
-                    A( l ) = R( l ) - R0( l );
-                }
+                R = ip.col(iIntPnt) -cPos;
+                A = R - R0;
 
                 r = R.norm();
                 if( r < 1e-35 )
@@ -229,7 +200,6 @@ bool WMegForward::computeForward( MatrixT* const pLfOut, const WMegCoilInformati
                 const Vector3T mag_ori = megSensors.orientations.col( iSens );
                 lfOut( iSens, iDip ) += w * mag_ori.dot( B );
             } // for each integration point, TODO(pieloth) gradiometer???
-            delete ip3d;
         }   // for each sensor
     }   // for each dipole
     lfOut /= weberToTesla( megSensors );
