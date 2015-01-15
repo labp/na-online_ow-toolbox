@@ -32,12 +32,13 @@
 #include <core/common/WAssert.h>
 #include <core/common/WLogger.h>
 
+#include "core/container/WLArrayList.h"
 #include "core/daqSystem/WLDaqNeuromag.h"
 #include "core/util/WLGeometry.h"
 #include "core/util/profiler/WLTimeProfiler.h"
 
-#include "WMegForward.h"
 #include "WHeadPositionCorrection.h"
+#include "WMegForwardSphere.h"
 
 using Eigen::SparseLU;
 
@@ -276,9 +277,11 @@ bool WHeadPositionCorrection::computeForward( MatrixT* const lf, const Positions
 
     // TODO(pieloth): Check correct coil type and differentiate between mag and grad. Split grad to 2 mags ...
     // TODO(pieloth): MEG/coil does not change, so do not generate it everytime.
-    std::vector< WLMegCoilInfo::SPtr > coilInfos;
-    createCoilInfos( &coilInfos, mPos, mOri );
-    if( !WMegForward::computeForward( lf, coilInfos/*megSensors*/, dPos, dOri ) )
+    WLArrayList< WLMegCoilInfo::SPtr >::SPtr coilInfos = WLArrayList< WLMegCoilInfo::SPtr >::instance();
+    createCoilInfos( coilInfos.get(), mPos, mOri );
+    WMegForwardSphere megForward;
+    megForward.setMegCoilInfos( coilInfos );
+    if( !megForward.computeForward( lf, dPos, dOri ) )
     {
         return false;
     }

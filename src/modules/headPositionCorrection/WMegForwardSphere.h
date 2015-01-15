@@ -21,15 +21,16 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef MODULES_HEADPOSITIONCORRECTION_WMEGFORWARD_H_
-#define MODULES_HEADPOSITIONCORRECTION_WMEGFORWARD_H_
+#ifndef WMEGFORWARDSPHERE_H_
+#define WMEGFORWARDSPHERE_H_
 
 #include <string>
 #include <vector>
 
 #include <Eigen/Core>
 
-#include "../../core/daqSystem/WLDaqNeuromag.h"
+#include "core/container/WLArrayList.h"
+#include "core/daqSystem/WLDaqNeuromag.h"
 #include "core/data/WLMegCoilInfo.h"
 
 /**
@@ -38,17 +39,20 @@
  *
  * \author pieloth
  */
-namespace WMegForward
+class WMegForwardSphere
 {
-    typedef Eigen::Vector3d PositionT;
+public:
     typedef Eigen::Matrix3Xd PositionsT;  //!< Rows: x, y, z; Columns: channels
-    typedef Eigen::Vector3d OrientationT;  //!< Rows: x, y, z; Columns: channels
     typedef Eigen::Matrix3Xd OrientationsT;  //!< Rows: x, y, z; Columns: channels
-    typedef Eigen::VectorXd VectorT;
-    typedef Eigen::Vector3d Vector3T;
     typedef Eigen::MatrixXd MatrixT;
 
-    const std::string NSNAME = "WMegForward";
+    static const std::string CLASS;
+
+    WMegForwardSphere();
+
+    virtual ~WMegForwardSphere();
+
+    void setMegCoilInfos( WLArrayList< WLMegCoilInfo::SPtr >::SPtr coilInfos );
 
     /**
      * Computes the MEG forward model for a spherical dipole arrangement.
@@ -60,10 +64,7 @@ namespace WMegForward
      * \param dOri
      * \return
      */
-    bool computeForward( MatrixT* const lfOut, const std::vector< WLMegCoilInfo::SPtr >& megSensors, const PositionsT& dPos,
-                    const OrientationsT& dOri );
-
-    double weberToTesla( const std::vector< WLMegCoilInfo::SPtr >& coilInfos );
+    bool computeForward( MatrixT* const lfOut, const PositionsT& dPos, const OrientationsT& dOri );
 
     /**
      * Transfers local 3D integration coordinates to global 3D coordinates.
@@ -72,7 +73,11 @@ namespace WMegForward
      * \param megCoilInfo Coil geometry information.
      * \return True if ipOut contains global 3D coords.
      */
-    bool computeIntegrationPoints( PositionsT* ipOut, const WLMegCoilInfo& megCoilInfo );
-} /* namespace WMegForward */
+    static bool computeIntegrationPoints( PositionsT* ipOut, const WLMegCoilInfo& megCoilInfo );
 
-#endif  // MODULES_HEADPOSITIONCORRECTION_WMEGFORWARD_H_
+    static double weberToTesla( const std::vector< WLMegCoilInfo::SPtr >& coilInfos );
+private:
+    WLArrayList< WLMegCoilInfo::SPtr >::SPtr m_coilInfos;
+};
+
+#endif  // WMEGFORWARDSPHERE_H_

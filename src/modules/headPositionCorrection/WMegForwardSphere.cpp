@@ -23,6 +23,7 @@
 
 #include <cmath>
 #include <limits>
+#include <string>
 #include <vector>
 
 #include <Eigen/Dense>
@@ -33,12 +34,32 @@
 #include "core/util/profiler/WLTimeProfiler.h"
 
 #include "core/data/WLMegCoilInfo.h"
-#include "WMegForward.h"
+#include "WMegForwardSphere.h"
+
+typedef Eigen::Vector3d PositionT;
+typedef Eigen::Vector3d OrientationT;
+typedef Eigen::VectorXd VectorT;
+typedef Eigen::Vector3d Vector3T;
 
 static const double MY0 = 4 * M_PI * 1.E-7; //!< absolute permeability
 static const double EPS = 0.0001;
 
-double WMegForward::weberToTesla( const std::vector< WLMegCoilInfo::SPtr >& megSensor )
+const std::string WMegForwardSphere::CLASS = "WMegForward";
+
+WMegForwardSphere::WMegForwardSphere()
+{
+}
+
+WMegForwardSphere::~WMegForwardSphere()
+{
+}
+
+void WMegForwardSphere::setMegCoilInfos( WLArrayList< WLMegCoilInfo::SPtr >::SPtr coilInfos )
+{
+    m_coilInfos = coilInfos;
+}
+
+double WMegForwardSphere::weberToTesla( const std::vector< WLMegCoilInfo::SPtr >& megSensor )
 {
     double N = 0.0;
     const int nNumberOfCoils = megSensor.size();
@@ -69,18 +90,18 @@ double WMegForward::weberToTesla( const std::vector< WLMegCoilInfo::SPtr >& megS
     return N;
 }
 
-bool WMegForward::computeIntegrationPoints( PositionsT* ipOut, const WLMegCoilInfo& megCoilInfo )
+bool WMegForwardSphere::computeIntegrationPoints( PositionsT* ipOut, const WLMegCoilInfo& megCoilInfo )
 {
     if( ipOut == NULL )
     {
-        wlog::error( NSNAME ) << __func__ << ": ipOut is NULL!";
+        wlog::error( CLASS ) << __func__ << ": ipOut is NULL!";
         return false;
     }
 
     PositionsT::Index n_intpnt = megCoilInfo.integrationPoints.cols();
     if( n_intpnt < 1 )
     {
-        wlog::error( NSNAME ) << __func__ << ": No integration points available!";
+        wlog::error( CLASS ) << __func__ << ": No integration points available!";
         return false;
     }
     ipOut->resize( 3, megCoilInfo.integrationPoints.cols() );
@@ -98,14 +119,16 @@ bool WMegForward::computeIntegrationPoints( PositionsT* ipOut, const WLMegCoilIn
     return true;
 }
 
-bool WMegForward::computeForward( MatrixT* const pLfOut, const std::vector< WLMegCoilInfo::SPtr >& megSensors,
-                const PositionsT& dipPos, const OrientationsT& dipOri )
+bool WMegForwardSphere::computeForward( MatrixT* const pLfOut, const PositionsT& dipPos, const OrientationsT& dipOri )
 {
+    // FIXME(pieloth): Move and fix assert to setCoilInfos
     WAssertDebug( megSensors.positions.cols() == megSensors.orientations.cols(), "#pos != #ori" );
     WAssertDebug( megSensors.positions.cols() == megSensors.windings.size(), "#pos != #windings" );
     WAssertDebug( megSensors.positions.cols() == megSensors.areas.size(), "#pos != #areas" );
     WAssertDebug( dipPos.cols() == dipOri.cols(), "#dipPos != #dipOri" );
-    WLTimeProfiler profiler( NSNAME, __func__, true );
+    WLTimeProfiler profiler( CLASS, __func__ );
+
+    // TODO(pieloth): Check for pre-computed integration points and for m_coilInfos.
 
     const PositionT cPos = PositionT::Zero(); // TODO(pieloth): Use a passed in center point.
     MatrixT& lfOut = *pLfOut;
@@ -121,7 +144,7 @@ bool WMegForward::computeForward( MatrixT* const pLfOut, const std::vector< WLMe
     Vector3T Aux2;              //  auxiliary variable
     double F, a, r, w;
 
-    const int n_sensors = megSensors.size();
+    const int n_sensors = m_coilInfos->size();
     const int n_dips = dipPos.cols();
 
     // Allocate Result Matrix
@@ -137,12 +160,13 @@ bool WMegForward::computeForward( MatrixT* const pLfOut, const std::vector< WLMe
         // Compute for each Sensor
         for( int iSens = 0; iSens < n_sensors; ++iSens )
         {
-            const WLMegCoilInfo& megCoilInfo = *megSensors.at( iSens );
+            const WLMegCoilInfo& megCoilInfo = *m_coilInfos->at( iSens );
             const int n_intpnt = megCoilInfo.integrationPoints.cols();
             PositionsT ip( 3, n_intpnt );
+            // TODO(pieloth): pre-compute, when setMegCoilInfos is called!
             if( !computeIntegrationPoints( &ip, megCoilInfo ) )
             {
-                wlog::error( NSNAME ) << __func__ << ": !computeIntegrationPoints()";
+                wlog::error( CLASS ) << __func__ << ": !computeIntegrationPoints()";
                 return false;
             }
 
@@ -151,7 +175,7 @@ bool WMegForward::computeForward( MatrixT* const pLfOut, const std::vector< WLMe
             {
                 if( fabs( megCoilInfo.integrationWeights( iIntPnt ) ) < EPS )
                 {
-                    wlog::debug( NSNAME ) << __func__ << ": skip integrationWeight";
+                    wlog::debug( CLASS ) << __func__ << ": skip integrationWeight";
                     continue;
                 }
 
@@ -161,21 +185,21 @@ bool WMegForward::computeForward( MatrixT* const pLfOut, const std::vector< WLMe
                 r = R.norm();
                 if( r < 1e-35 )
                 {
-                    wlog::error( NSNAME ) << __func__ << ": r < 1e-35";
+                    wlog::error( CLASS ) << __func__ << ": r < 1e-35";
                     return false;
                 } // gradiometer in origin
 
                 a = A.norm();
                 if( a < 1e-35 )
                 {
-                    wlog::error( NSNAME ) << __func__ << ": a < 1e-35";
+                    wlog::error( CLASS ) << __func__ << ": a < 1e-35";
                     return false;
                 } // dipole in gradiometer
 
                 F = a * ( r * a + r * r - R0.dot( R ) );
                 if( F < 1e-35 )
                 {
-                    wlog::error( NSNAME ) << __func__ << ": F < 1e-35";
+                    wlog::error( CLASS ) << __func__ << ": F < 1e-35";
                     return false;
                 }
 
@@ -194,6 +218,7 @@ bool WMegForward::computeForward( MatrixT* const pLfOut, const std::vector< WLMe
             } // for each integration point, TODO(pieloth) gradiometer???
         }   // for each sensor
     }   // for each dipole
+    // TODO(pieloth): pre-computer weberToTesla, when setMegCoilInfos is called!
     // TODO(pieloth): lfOut /= weberToTesla( megSensors );
     return true;
 }
