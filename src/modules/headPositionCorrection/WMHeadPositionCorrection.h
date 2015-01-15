@@ -80,6 +80,7 @@ private:
     WPropDouble m_propMvThreshold;
     WPropDouble m_propRadius;
     WPropFilename m_propPosFile;
+    WPropString m_propStatus; //!< Status of the module.
 
     WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input; //!< Buffered input connector.
 
@@ -92,7 +93,8 @@ private:
      *
      * \param fName Path to FIF file.
      */
-    void hdlPosFileChanged( std::string fName );
+    bool hdlPosFileChanged( std::string fName );
+    bool m_hasRefPos; //!< Indicates if a reference position is available.
 };
 
 #endif  // WMHEADPOSITIONCORRECTION_H_

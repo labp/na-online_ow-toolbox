@@ -151,7 +151,7 @@ public:
     void clearHpiFrequencies();
 
 private:
-    TransformationT m_devToHead;
+    TransformationT m_devToHead; //!< Transformation from device to head. Zero if not set/initialized.
     DigPointsT m_digPointsResult;
     DigPointsT m_digPointsHead;
     HpiFrequenciesT m_hpiFrequencies;

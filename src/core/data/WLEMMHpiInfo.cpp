@@ -29,7 +29,7 @@ const std::string WLEMMHpiInfo::CLASS = "WLEMMHpiInfo";
 
 WLEMMHpiInfo::WLEMMHpiInfo()
 {
-    m_devToHead.setIdentity();
+    m_devToHead.setZero(); // Init with zero due to indicate it was not set, because transformation matrix has at least one 1.
 }
 
 WLEMMHpiInfo::~WLEMMHpiInfo()

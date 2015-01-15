@@ -21,6 +21,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include <core/common/WPathHelper.h>
 
 #include "core/data/WLEMMeasurement.h"
@@ -38,7 +40,12 @@
 
 W_LOADABLE_MODULE( WMHeadPositionCorrection )
 
-WMHeadPositionCorrection::WMHeadPositionCorrection()
+static const std::string STATUS_NO_REF_POS = "No reference position."; //!< No reference position available.
+static const std::string STATUS_ERROR_READ = "Error on reading FIFF."; //!< Error on reading FIFF.
+static const std::string STATUS_REF_POS = "Reference position loaded."; //!< Reference position available.
+
+WMHeadPositionCorrection::WMHeadPositionCorrection() :
+                m_hasRefPos( false )
 {
 }
 
@@ -94,6 +101,9 @@ void WMHeadPositionCorrection::properties()
     m_propRadius = m_propGroup->addProperty( "Sphere Radius [m]:", "Sphere radius for dipole model in meter.", 0.07 );
     m_propPosFile = m_propGroup->addProperty( "Ref. Position:", "FIF file containing the reference position.",
                     WPathHelper::getHomePath(), m_propCondition );
+
+    m_propStatus = m_propGroup->addProperty( "Status:", "Reports the status of actions.", STATUS_NO_REF_POS );
+    m_propStatus->setPurpose( PV_PURPOSE_INFORMATION );
 }
 
 void WMHeadPositionCorrection::moduleInit()
@@ -107,7 +117,7 @@ void WMHeadPositionCorrection::moduleInit()
     ready(); // signal ready state
     waitRestored();
 
-    hdlPosFileChanged( m_propPosFile->get().string() );
+    m_hasRefPos = hdlPosFileChanged( m_propPosFile->get().string() );
     viewInit( WLEMDDrawable2D::WEGraphType::DYNAMIC );
 
     infoLog() << "Initializing module finished!";
@@ -133,7 +143,7 @@ void WMHeadPositionCorrection::moduleMain()
 
         if( m_propPosFile->changed( true ) )
         {
-            hdlPosFileChanged( m_propPosFile->get().string() );
+            m_hasRefPos = hdlPosFileChanged( m_propPosFile->get().string() );
         }
 
         cmdIn.reset();
@@ -162,6 +172,22 @@ bool WMHeadPositionCorrection::processCompute( WLEMMeasurement::SPtr emm )
     {
         errorLog() << "No HPI data available!";
         return false;
+    }
+    if( !m_hasRefPos )
+    {
+        if( !emm->getHpiInfo()->getDevToHead().isZero() )
+        {
+            WLEMMHpiInfo::TransformationT t = emm->getHpiInfo()->getDevToHead().inverse();
+            m_correction.setRefTransformation( t );
+            m_hasRefPos = true;
+            m_propStatus->set( STATUS_REF_POS, true );
+            infoLog() << "Set reference position from EMM: \n" << t;
+        }
+        else
+        {
+            errorLog() << "No reference head position!";
+            return false;
+        }
     }
 
     WLTimeProfiler profiler( getName(), __func__, true );
@@ -218,6 +244,14 @@ bool WMHeadPositionCorrection::processInit( WLEMMCommand::SPtr cmdIn )
             WLEMDMEG::SPtr meg = emm->getModality< WLEMDMEG >( WLEModality::MEG );
             m_correction.setMegPosAndOri( *meg );
         }
+        if( !m_hasRefPos && !emm->getHpiInfo()->getDevToHead().isZero() )
+        {
+            WLEMMHpiInfo::TransformationT t = emm->getHpiInfo()->getDevToHead().inverse();
+            m_correction.setRefTransformation( t );
+            m_hasRefPos = true;
+            m_propStatus->set( STATUS_REF_POS, true );
+            infoLog() << "Set reference position from EMM: \n" << t;
+        }
     }
 
     return m_correction.init();
@@ -227,11 +261,11 @@ bool WMHeadPositionCorrection::processReset( WLEMMCommand::SPtr cmdIn )
 {
     infoLog() << "Reseting module.";
     m_correction.reset();
-    hdlPosFileChanged( m_propPosFile->get().string() );
+    m_hasRefPos = hdlPosFileChanged( m_propPosFile->get().string() );
     return true;
 }
 
-void WMHeadPositionCorrection::hdlPosFileChanged( std::string fName )
+bool WMHeadPositionCorrection::hdlPosFileChanged( std::string fName )
 {
     debugLog() << __func__ << "() called!";
 
@@ -239,20 +273,21 @@ void WMHeadPositionCorrection::hdlPosFileChanged( std::string fName )
     m_progress->addSubProgress( progress );
 
     WLEMMHpiInfo hpiInfo;
-    WLReaderHpiInfo::SPtr reader;
     bool rc = true;
     try
     {
-        reader.reset( new WLReaderHpiInfo( fName ) );
-        if( reader->read( &hpiInfo ) != WLIOStatus::SUCCESS )
+        WLReaderHpiInfo reader( fName );
+        if( reader.read( &hpiInfo ) != WLIOStatus::SUCCESS )
         {
             errorLog() << "Could not read reference head position!";
+            m_propStatus->set( STATUS_ERROR_READ, true );
             rc = false;
         }
     }
     catch( const WException& e )
     {
         errorLog() << "Could not read reference head position!";
+        m_propStatus->set( STATUS_ERROR_READ, true );
         rc = false;
     }
 
@@ -260,8 +295,11 @@ void WMHeadPositionCorrection::hdlPosFileChanged( std::string fName )
     {
         WLEMMHpiInfo::TransformationT t = hpiInfo.getDevToHead().inverse();
         m_correction.setRefTransformation( t );
-        infoLog() << "Set reference position:\n" << t;
+
+        infoLog() << "Set reference position from FIFF:\n" << t;
+        m_propStatus->set( STATUS_REF_POS, true );
     }
     progress->finish();
     m_progress->removeSubProgress( progress );
+    return rc;
 }
