@@ -23,6 +23,7 @@
 
 #include <cmath>  // sqrt, ceil
 #include <limits> // max_double
+#include <vector>
 
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
@@ -31,10 +32,10 @@
 #include <core/common/WAssert.h>
 #include <core/common/WLogger.h>
 
+#include "core/daqSystem/WLDaqNeuromag.h"
 #include "core/util/WLGeometry.h"
 #include "core/util/profiler/WLTimeProfiler.h"
 
-#include "WMegCoilInformation.h"
 #include "WMegForward.h"
 #include "WHeadPositionCorrection.h"
 
@@ -275,14 +276,9 @@ bool WHeadPositionCorrection::computeForward( MatrixT* const lf, const Positions
 
     // TODO(pieloth): Check correct coil type and differentiate between mag and grad. Split grad to 2 mags ...
     // TODO(pieloth): MEG/coil does not change, so do not generate it everytime.
-    WMegCoilInformation::WMegCoils megSensors;
-    WMegCoilInformation::neuromagCoil3022( &megSensors );
-    megSensors.positions = mPos;
-    megSensors.orientations = mOri;
-    megSensors.areas.setOnes( mPos.cols() );
-    megSensors.windings.setOnes( mPos.cols() );
-
-    if( !WMegForward::computeForward( lf, megSensors, dPos, dOri ) )
+    std::vector< WLMegCoilInfo::SPtr > coilInfos;
+    createCoilInfos( &coilInfos, mPos, mOri );
+    if( !WMegForward::computeForward( lf, coilInfos/*megSensors*/, dPos, dOri ) )
     {
         return false;
     }
@@ -352,4 +348,32 @@ bool WHeadPositionCorrection::checkMovementThreshold( const WLEMDHPI::Transforma
     // keyPoint 3x6
     // (trans * keyPoints).colwise().norm() - (m_transExc * keyPoints).colwise().norm()).maxCoeff(), mind homog. coord.
     return false;
+}
+
+void WHeadPositionCorrection::createCoilInfos( std::vector< WLMegCoilInfo::SPtr >* const coilInfos, const PositionsT& mPos,
+                const OrientationsT& mOri )
+{
+    WLTimeProfiler profiler( CLASS, __func__, true );
+    WAssertDebug( mPos.rows() == mOri.rows() && mPos.cols() == mOri.cols(), "Dimension of MEG pos and ori does not match." );
+
+    coilInfos->reserve( mPos.cols() );
+    for( PositionsT::Index i = 0; i < mPos.cols(); ++i )
+    {
+        WLMegCoilInfo::SPtr coilInfo( new WLMegCoilInfo() );
+        coilInfo->position = mPos.col( i );
+        coilInfo->orientation = mOri.col( i );
+        // TODO(pieloth): ex, ey, ez
+        coilInfo->ex.setRandom();
+        coilInfo->ey.setRandom();
+        coilInfo->ez.setRandom();
+        if( i > 1 && ( i - 2 ) % 3 == 0 ) // magnetometer
+        {
+            WLDaqNeuromag::applyIntegrationPoints3022( coilInfo.get() );
+        }
+        else // gradiometer
+        {
+            WLDaqNeuromag::applyIntegrationPoints3012( coilInfo.get() );
+        }
+        coilInfos->push_back( coilInfo );
+    }
 }

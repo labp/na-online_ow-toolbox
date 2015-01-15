@@ -36,6 +36,7 @@
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
 #include "core/container/WLArrayList.h"
+#include "core/data/WLMegCoilInfo.h"
 #include "core/data/enum/WLEMEGGeneralCoilType.h"
 
 #include "WLEMData.h"
@@ -108,6 +109,38 @@ public:
      */
     OW_API_DEPRECATED
     void setChannelPositions3d( boost::shared_ptr< std::vector< WPosition > > chanPos3d );
+
+    /**
+     * Gets the coil information.
+     *
+     * \return Coil information.
+     */
+    WLArrayList< WLMegCoilInfo::SPtr >::SPtr getCoilInformation();
+
+    /**
+     * Gets the coil information for a coil.
+     *
+     * \param idx Coil index.
+     * \throws WOutOfBounds
+     * \return Coil information at index idx.
+     */
+    WLMegCoilInfo::SPtr getCoilInformation( WLArrayList< WLMegCoilInfo::SPtr >::size_type idx );
+
+    /**
+     * Gets the coil information for a coil.
+     *
+     * \param idx Coil index.
+     * \throws WOutOfBounds
+     * \return Coil information at index idx.
+     */
+    WLMegCoilInfo::ConstSPtr getCoilInformation( WLArrayList< WLMegCoilInfo::SPtr >::size_type idx ) const;
+
+    /**
+     * Sets the coil information.
+     *
+     * \param coilInfos Coil information to set.
+     */
+    void setCoilInformation( WLArrayList< WLMegCoilInfo::SPtr >::SPtr coilInfos );
 
     /**
      * Returns the faces.
@@ -281,6 +314,8 @@ private:
     WLEModality::Enum m_modality; //!< MEG, MEG_MAG, MEG_GRAD or MEG_GRAD_MERGE.
 
     WLArrayList< WPosition >::SPtr m_chanPos3d; //!< Channel positions.
+
+    WLArrayList< WLMegCoilInfo::SPtr >::SPtr m_coilInfos; //!< Coil information.
 
     WLArrayList< WVector3i >::SPtr m_faces; //!< Channel faces/triangulation.
 

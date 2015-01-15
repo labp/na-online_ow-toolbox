@@ -25,10 +25,12 @@
 #define MODULES_HEADPOSITIONCORRECTION_WMEGFORWARD_H_
 
 #include <string>
+#include <vector>
 
 #include <Eigen/Core>
 
-#include "WMegCoilInformation.h"
+#include "../../core/daqSystem/WLDaqNeuromag.h"
+#include "core/data/WLMegCoilInfo.h"
 
 /**
  * Computes the MEG forward model for a spherical dipole arrangement.
@@ -58,10 +60,10 @@ namespace WMegForward
      * \param dOri
      * \return
      */
-    bool computeForward( MatrixT* const lfOut, const WMegCoilInformation::WMegCoils& megSensor, const PositionsT& dPos,
+    bool computeForward( MatrixT* const lfOut, const std::vector< WLMegCoilInfo::SPtr >& megSensors, const PositionsT& dPos,
                     const OrientationsT& dOri );
 
-    double weberToTesla( const WMegCoilInformation::WMegCoils& megSensor );
+    double weberToTesla( const std::vector< WLMegCoilInfo::SPtr >& coilInfos );
 
     /**
      * Transfers local 3D integration coordinates to global 3D coordinates.
@@ -70,7 +72,7 @@ namespace WMegForward
      * \param megCoilInfo Coil geometry information.
      * \return True if ipOut contains global 3D coords.
      */
-    bool computeIntegrationPoints( PositionsT* ipOut, const WMegCoilInformation::WMegCoil& megCoilInfo );
+    bool computeIntegrationPoints( PositionsT* ipOut, const WLMegCoilInfo& megCoilInfo );
 } /* namespace WMegForward */
 
 #endif  // MODULES_HEADPOSITIONCORRECTION_WMEGFORWARD_H_

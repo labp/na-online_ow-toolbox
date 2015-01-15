@@ -30,6 +30,7 @@
 #include <core/common/WAssert.h>
 #include <core/common/WLogger.h>
 #include <core/common/exceptions/WPreconditionNotMet.h>
+#include <core/common/exceptions/WOutOfBounds.h>
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
@@ -43,6 +44,7 @@ WLEMDMEG::WLEMDMEG() :
 {
     m_modality = WLEModality::MEG;
     m_chanPos3d = WLArrayList< WPosition >::instance();
+    m_coilInfos = WLArrayList< WLMegCoilInfo::SPtr >::instance();
     m_faces = WLArrayList< WVector3i >::instance();
 
     m_eX = WLArrayList< WVector3f >::instance();
@@ -59,6 +61,7 @@ WLEMDMEG::WLEMDMEG( WLEModality::Enum modality )
 
     m_modality = modality;
     m_chanPos3d = WLArrayList< WPosition >::instance();
+    m_coilInfos = WLArrayList< WLMegCoilInfo::SPtr >::instance();
     m_faces = WLArrayList< WVector3i >::instance();
 
     m_eX = WLArrayList< WVector3f >::instance();
@@ -131,6 +134,34 @@ void WLEMDMEG::setChannelPositions3d( WLArrayList< WPosition >::SPtr chanPos3d )
 void WLEMDMEG::setChannelPositions3d( boost::shared_ptr< std::vector< WPosition > > chanPos3d )
 {
     m_chanPos3d = WLArrayList< WPosition >::instance( *chanPos3d );
+}
+
+WLArrayList< WLMegCoilInfo::SPtr >::SPtr WLEMDMEG::getCoilInformation()
+{
+    return m_coilInfos;
+}
+
+WLMegCoilInfo::SPtr WLEMDMEG::getCoilInformation( WLArrayList< WLMegCoilInfo::SPtr >::size_type idx )
+{
+    if( idx < 0 || idx >= m_coilInfos->size() )
+    {
+        throw WOutOfBounds();
+    }
+    return m_coilInfos->at( idx );
+}
+
+WLMegCoilInfo::ConstSPtr WLEMDMEG::getCoilInformation( WLArrayList< WLMegCoilInfo::SPtr >::size_type idx ) const
+{
+    if( idx < 0 || idx >= m_coilInfos->size() )
+    {
+        throw WOutOfBounds();
+    }
+    return m_coilInfos->at( idx );
+}
+
+void WLEMDMEG::setCoilInformation( WLArrayList< WLMegCoilInfo::SPtr >::SPtr coilInfos )
+{
+    m_coilInfos = coilInfos;
 }
 
 WLArrayList< WVector3i >::SPtr WLEMDMEG::getFaces()

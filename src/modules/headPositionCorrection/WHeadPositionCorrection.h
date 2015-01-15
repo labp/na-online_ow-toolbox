@@ -181,6 +181,9 @@ private:
     float m_radius; //!< Radius for dipole sphere.
 
     float m_movementThreshold; //!< Indicates if a correction is needed.
+
+    static void createCoilInfos( std::vector< WLMegCoilInfo::SPtr >* const coilInfos, const PositionsT& mPos,
+                    const OrientationsT& mOri );
 };
 
 #endif  // WHEADPOSITIONCORRECTION_H_

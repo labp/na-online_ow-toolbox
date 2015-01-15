@@ -23,6 +23,7 @@
 
 #include <cmath>
 #include <limits>
+#include <vector>
 
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
@@ -31,46 +32,44 @@
 #include <core/common/WLogger.h>
 #include "core/util/profiler/WLTimeProfiler.h"
 
-#include "WMegCoilInformation.h"
+#include "core/data/WLMegCoilInfo.h"
 #include "WMegForward.h"
 
 static const double MY0 = 4 * M_PI * 1.E-7; //!< absolute permeability
 static const double EPS = 0.0001;
 
-#define ACCESS_3D( a, dy, dz, x, y ,z) (a[x * dy * dz + y * dz + z])
-
-double WMegForward::weberToTesla( const WMegCoilInformation::WMegCoils& megSensor )
+double WMegForward::weberToTesla( const std::vector< WLMegCoilInfo::SPtr >& megSensor )
 {
     double N = 0.0;
-    const int nNumberOfCoils = megSensor.positions.cols();
+    const int nNumberOfCoils = megSensor.size();
 
     // a) find coil with lowest z amongst those with positive sense
     double MinZ = std::numeric_limits< double >::max();
     for( int i = 0; i < nNumberOfCoils; i++ )
     {
-        if( megSensor.windings( i ) < 0 )
+        if( megSensor[i]->windings < 0 )
         {
-            if( megSensor.positions( 2, i ) < MinZ )
+            if( megSensor[i]->position.z() < MinZ )
             {
-                MinZ = megSensor.positions( 2, i ); // TODO(pieloth) absolute value?
+                MinZ = megSensor[i]->position.z(); // TODO(pieloth) absolute value?
             }
         }
     }
 
     // b) sum up numbers of windings of all coils with negative sense and z smaller than a)
     for( int i = 0; i < nNumberOfCoils; i++ )
-        if( megSensor.windings( i ) > 0 && megSensor.positions( 2, i ) < MinZ )
-            N += megSensor.windings( i ) * megSensor.areas( i );
+        if( megSensor[i]->windings > 0 && megSensor[i]->position.z() < MinZ )
+            N += megSensor[i]->windings * megSensor[i]->area;
 
     // c) if N=0 negative senses are summed up
     if( !N )
         for( int i = 0; i < nNumberOfCoils; ++i )
-            N += fabs( megSensor.windings( i ) * megSensor.areas( i ) );
+            N += fabs( megSensor[i]->windings * megSensor[i]->area );
 
     return N;
 }
 
-bool WMegForward::computeIntegrationPoints( PositionsT* ipOut, const WMegCoilInformation::WMegCoil& megCoilInfo )
+bool WMegForward::computeIntegrationPoints( PositionsT* ipOut, const WLMegCoilInfo& megCoilInfo )
 {
     if( ipOut == NULL )
     {
@@ -99,7 +98,7 @@ bool WMegForward::computeIntegrationPoints( PositionsT* ipOut, const WMegCoilInf
     return true;
 }
 
-bool WMegForward::computeForward( MatrixT* const pLfOut, const WMegCoilInformation::WMegCoils& megSensors,
+bool WMegForward::computeForward( MatrixT* const pLfOut, const std::vector< WLMegCoilInfo::SPtr >& megSensors,
                 const PositionsT& dipPos, const OrientationsT& dipOri )
 {
     WAssertDebug( megSensors.positions.cols() == megSensors.orientations.cols(), "#pos != #ori" );
@@ -122,8 +121,7 @@ bool WMegForward::computeForward( MatrixT* const pLfOut, const WMegCoilInformati
     Vector3T Aux2;              //  auxiliary variable
     double F, a, r, w;
 
-    const int n_sensors = megSensors.positions.cols();
-    const int n_intpnt = megSensors.integrationPoints.cols();
+    const int n_sensors = megSensors.size();
     const int n_dips = dipPos.cols();
 
     // Allocate Result Matrix
@@ -139,31 +137,25 @@ bool WMegForward::computeForward( MatrixT* const pLfOut, const WMegCoilInformati
         // Compute for each Sensor
         for( int iSens = 0; iSens < n_sensors; ++iSens )
         {
-            PositionsT ip(3, n_intpnt);
-            // TODO
-            WMegCoilInformation::WMegCoil megCoilInfo;
-            megCoilInfo.ex.setRandom();
-            megCoilInfo.ey.setRandom();
-            megCoilInfo.ez.setRandom();
-            megCoilInfo.integrationPoints = megSensors.integrationPoints;
-            megCoilInfo.position = megSensors.positions.col(iSens);
-            megCoilInfo.orientation = megSensors.orientations.col(iSens);
+            const WLMegCoilInfo& megCoilInfo = *megSensors.at( iSens );
+            const int n_intpnt = megCoilInfo.integrationPoints.cols();
+            PositionsT ip( 3, n_intpnt );
             if( !computeIntegrationPoints( &ip, megCoilInfo ) )
             {
                 wlog::error( NSNAME ) << __func__ << ": !computeIntegrationPoints()";
                 return false;
             }
 
-            WAssert( n_intpnt == megSensors.integrationWeights.size(), "#ip != #ipWeights" );
+            WAssert( n_intpnt == megCoilInfo.integrationWeights.size(), "#ip != #ipWeights" );
             for( int iIntPnt = 0; iIntPnt < n_intpnt; ++iIntPnt )
             {
-                if( fabs( megSensors.integrationWeights( iIntPnt ) ) < EPS )
+                if( fabs( megCoilInfo.integrationWeights( iIntPnt ) ) < EPS )
                 {
                     wlog::debug( NSNAME ) << __func__ << ": skip integrationWeight";
                     continue;
                 }
 
-                R = ip.col(iIntPnt) -cPos;
+                R = ip.col( iIntPnt ) - cPos;
                 A = R - R0;
 
                 r = R.norm();
@@ -196,12 +188,12 @@ bool WMegForward::computeForward( MatrixT* const pLfOut, const WMegCoilInformati
                 Aux2 = QxR0.dot( R ) * NablaF;
                 B = ( MY0 / ( 4 * M_PI * F * F ) ) * ( Aux1 - Aux2 );
 
-                w = megSensors.windings( iSens ) * megSensors.integrationWeights( iIntPnt ) * megSensors.areas( iSens );
-                const Vector3T mag_ori = megSensors.orientations.col( iSens );
+                w = megCoilInfo.windings * megCoilInfo.integrationWeights( iIntPnt ) * megCoilInfo.area;
+                const Vector3T mag_ori = megCoilInfo.orientation;
                 lfOut( iSens, iDip ) += w * mag_ori.dot( B );
             } // for each integration point, TODO(pieloth) gradiometer???
         }   // for each sensor
     }   // for each dipole
-    lfOut /= weberToTesla( megSensors );
+    // TODO(pieloth): lfOut /= weberToTesla( megSensors );
     return true;
 }
