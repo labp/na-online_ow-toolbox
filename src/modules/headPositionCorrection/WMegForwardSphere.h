@@ -52,6 +52,11 @@ public:
 
     virtual ~WMegForwardSphere();
 
+    /**
+     * Sets coil information and pre-computes necessary data.
+     *
+     * \param coilInfos Coil information.
+     */
     void setMegCoilInfos( WLArrayList< WLMegCoilInfo::SPtr >::SPtr coilInfos );
 
     /**
@@ -78,7 +83,8 @@ public:
     static double weberToTesla( const std::vector< WLMegCoilInfo::SPtr >& coilInfos );
 private:
     WLArrayList< WLMegCoilInfo::SPtr >::SPtr m_coilInfos;
-    std::vector< PositionsT > m_intPntDev;
+    std::vector< PositionsT > m_intPntDev; //!< Integration point in device coords.
+    double m_w2t; //!< Weber to tesla.
 };
 
 #endif  // WMEGFORWARDSPHERE_H_

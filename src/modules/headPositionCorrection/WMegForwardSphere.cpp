@@ -48,6 +48,7 @@ const std::string WMegForwardSphere::CLASS = "WMegForward";
 
 WMegForwardSphere::WMegForwardSphere()
 {
+    m_w2t = 1.0;
 }
 
 WMegForwardSphere::~WMegForwardSphere()
@@ -58,6 +59,7 @@ void WMegForwardSphere::setMegCoilInfos( WLArrayList< WLMegCoilInfo::SPtr >::SPt
 {
     m_coilInfos = coilInfos;
     const WLArrayList< WLMegCoilInfo::SPtr >::size_type n_coils = m_coilInfos->size();
+    m_w2t = 1.0;
     m_intPntDev.clear();
     m_intPntDev.reserve( n_coils );
 
@@ -73,6 +75,9 @@ void WMegForwardSphere::setMegCoilInfos( WLArrayList< WLMegCoilInfo::SPtr >::SPt
         }
         m_intPntDev.push_back( intPnts );
     }
+
+    wlog::debug( CLASS ) << "Calculate weber to tesla.";
+    m_w2t = weberToTesla( *coilInfos );
 }
 
 double WMegForwardSphere::weberToTesla( const std::vector< WLMegCoilInfo::SPtr >& megSensor )
@@ -230,7 +235,6 @@ bool WMegForwardSphere::computeForward( MatrixT* const pLfOut, const PositionsT&
             } // for each integration point, TODO(pieloth) gradiometer???
         }   // for each sensor
     }   // for each dipole
-    // TODO(pieloth): pre-computer weberToTesla, when setMegCoilInfos is called!
-    // TODO(pieloth): lfOut /= weberToTesla( megSensors );
+    lfOut /= m_w2t;
     return true;
 }
