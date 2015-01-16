@@ -57,6 +57,22 @@ WMegForwardSphere::~WMegForwardSphere()
 void WMegForwardSphere::setMegCoilInfos( WLArrayList< WLMegCoilInfo::SPtr >::SPtr coilInfos )
 {
     m_coilInfos = coilInfos;
+    const WLArrayList< WLMegCoilInfo::SPtr >::size_type n_coils = m_coilInfos->size();
+    m_intPntDev.clear();
+    m_intPntDev.reserve( n_coils );
+
+    wlog::debug( CLASS ) << "Transform integration points to device coords.";
+    for( WLArrayList< WLMegCoilInfo::SPtr >::size_type i = 0; i < n_coils; ++i )
+    {
+        WLMegCoilInfo::SPtr coilInfo = ( *m_coilInfos )[i];
+        PositionsT intPnts( 3, coilInfo->integrationPoints.cols() );
+        if( !transformIntPntLocal2Dev( &intPnts, *coilInfo ) )
+        {
+            m_intPntDev.clear();
+            return;
+        }
+        m_intPntDev.push_back( intPnts );
+    }
 }
 
 double WMegForwardSphere::weberToTesla( const std::vector< WLMegCoilInfo::SPtr >& megSensor )
@@ -90,15 +106,9 @@ double WMegForwardSphere::weberToTesla( const std::vector< WLMegCoilInfo::SPtr >
     return N;
 }
 
-bool WMegForwardSphere::computeIntegrationPoints( PositionsT* ipOut, const WLMegCoilInfo& megCoilInfo )
+bool WMegForwardSphere::transformIntPntLocal2Dev( PositionsT* ipOut, const WLMegCoilInfo& megCoilInfo )
 {
-    if( ipOut == NULL )
-    {
-        wlog::error( CLASS ) << __func__ << ": ipOut is NULL!";
-        return false;
-    }
-
-    PositionsT::Index n_intpnt = megCoilInfo.integrationPoints.cols();
+    const PositionsT::Index n_intpnt = megCoilInfo.integrationPoints.cols();
     if( n_intpnt < 1 )
     {
         wlog::error( CLASS ) << __func__ << ": No integration points available!";
@@ -124,7 +134,18 @@ bool WMegForwardSphere::computeForward( MatrixT* const pLfOut, const PositionsT&
     WAssert( dipPos.cols() == dipOri.cols(), "#dipPos != #dipOri" );
     WLTimeProfiler profiler( CLASS, __func__ );
 
-    // TODO(pieloth): Check for pre-computed integration points and for m_coilInfos.
+    // Check some pre-conditions & prepare
+    // -----------------------------------
+    if( dipPos.cols() < 1 || m_intPntDev.empty() )
+    {
+        wlog::error( CLASS ) << "No dipoles or integration points!";
+        return false;
+    }
+    if( !m_coilInfos || m_coilInfos->empty() )
+    {
+        wlog::error( CLASS ) << "No coil information!";
+        return false;
+    }
 
     const PositionT cPos = PositionT::Zero(); // TODO(pieloth): Use a passed in center point.
     MatrixT& lfOut = *pLfOut;
@@ -147,6 +168,8 @@ bool WMegForwardSphere::computeForward( MatrixT* const pLfOut, const PositionsT&
     lfOut.resize( n_sensors, n_dips );
     lfOut.setZero();
 
+    // Compute forward model
+    // ---------------------
     // Compute for each Dipole ...
     for( int iDip = 0; iDip < n_dips; ++iDip )
     {
@@ -157,15 +180,8 @@ bool WMegForwardSphere::computeForward( MatrixT* const pLfOut, const PositionsT&
         for( int iSens = 0; iSens < n_sensors; ++iSens )
         {
             const WLMegCoilInfo& megCoilInfo = *m_coilInfos->at( iSens );
-            const int n_intpnt = megCoilInfo.integrationPoints.cols();
-            PositionsT ip( 3, n_intpnt );
-            // TODO(pieloth): pre-compute, when setMegCoilInfos is called!
-            if( !computeIntegrationPoints( &ip, megCoilInfo ) )
-            {
-                wlog::error( CLASS ) << __func__ << ": !computeIntegrationPoints()";
-                return false;
-            }
-
+            const PositionsT& ip = m_intPntDev[iSens];
+            const PositionsT::Index n_intpnt = ip.cols();
             WAssert( n_intpnt == megCoilInfo.integrationWeights.size(), "#ip != #ipWeights" );
             for( int iIntPnt = 0; iIntPnt < n_intpnt; ++iIntPnt )
             {

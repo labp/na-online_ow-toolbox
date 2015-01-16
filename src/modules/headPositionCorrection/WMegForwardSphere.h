@@ -67,17 +67,18 @@ public:
     bool computeForward( MatrixT* const lfOut, const PositionsT& dPos, const OrientationsT& dOri );
 
     /**
-     * Transfers local 3D integration coordinates to global 3D coordinates.
+     * Transforms local integration coordinates to device coordinates.
      *
-     * \param ipOut Filled with integration points in global coords.
+     * \param ipOut Filled with integration points in device coords.
      * \param megCoilInfo Coil geometry information.
-     * \return True if ipOut contains global 3D coords.
+     * \return True if ipOut contains IP in device coords.
      */
-    static bool computeIntegrationPoints( PositionsT* ipOut, const WLMegCoilInfo& megCoilInfo );
+    static bool transformIntPntLocal2Dev( PositionsT* ipOut, const WLMegCoilInfo& megCoilInfo );
 
     static double weberToTesla( const std::vector< WLMegCoilInfo::SPtr >& coilInfos );
 private:
     WLArrayList< WLMegCoilInfo::SPtr >::SPtr m_coilInfos;
+    std::vector< PositionsT > m_intPntDev;
 };
 
 #endif  // WMEGFORWARDSPHERE_H_
