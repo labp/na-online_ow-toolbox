@@ -142,6 +142,8 @@ public:
      */
     void setCoilInformation( WLArrayList< WLMegCoilInfo::SPtr >::SPtr coilInfos );
 
+    static bool createCoilInfos( WLEMDMEG* const meg );
+
     /**
      * Returns the faces.
      *

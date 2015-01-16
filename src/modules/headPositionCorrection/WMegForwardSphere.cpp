@@ -121,11 +121,7 @@ bool WMegForwardSphere::computeIntegrationPoints( PositionsT* ipOut, const WLMeg
 
 bool WMegForwardSphere::computeForward( MatrixT* const pLfOut, const PositionsT& dipPos, const OrientationsT& dipOri )
 {
-    // FIXME(pieloth): Move and fix assert to setCoilInfos
-    WAssertDebug( megSensors.positions.cols() == megSensors.orientations.cols(), "#pos != #ori" );
-    WAssertDebug( megSensors.positions.cols() == megSensors.windings.size(), "#pos != #windings" );
-    WAssertDebug( megSensors.positions.cols() == megSensors.areas.size(), "#pos != #areas" );
-    WAssertDebug( dipPos.cols() == dipOri.cols(), "#dipPos != #dipOri" );
+    WAssert( dipPos.cols() == dipOri.cols(), "#dipPos != #dipOri" );
     WLTimeProfiler profiler( CLASS, __func__ );
 
     // TODO(pieloth): Check for pre-computed integration points and for m_coilInfos.

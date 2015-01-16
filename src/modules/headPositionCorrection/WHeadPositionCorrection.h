@@ -31,6 +31,8 @@
 
 #include <core/common/math/linearAlgebra/WPosition.h>
 
+#include "core/container/WLArrayList.h"
+#include "core/data/WLMegCoilInfo.h"
 #include "core/data/WLDataTypes.h"
 #include "core/data/emd/WLEMDHPI.h"
 #include "core/data/emd/WLEMDMEG.h"
@@ -90,11 +92,11 @@ public:
     void setRefTransformation( const WLMatrix4::Matrix4T& trans );
 
     /**
-     * Sets the MEG positions and orientations.
+     * Sets the MEG positions, orientations, ex, ey, z and integration points.
      *
-     * \param meg The MEG to extract positions and orientation.
+     * \param coilInfo Container with coil information.
      */
-    void setMegPosAndOri( const WLEMDMEG& meg );
+    void setMegCoilInfos( WLArrayList< WLMegCoilInfo::SPtr >::SPtr coilInfo );
 
     /**
      * Sets the sphere radius.
@@ -182,8 +184,13 @@ private:
 
     float m_movementThreshold; //!< Indicates if a correction is needed.
 
-    static void createCoilInfos( std::vector< WLMegCoilInfo::SPtr >* const coilInfos, const PositionsT& mPos,
-                    const OrientationsT& mOri );
+    WLArrayList< WLMegCoilInfo::SPtr >::SPtr m_coilInfos; //!< Contains necessary coil information.
+
+    /**
+     * Applies the integration points and weights. TODO Should be done in daq modules!
+     * \param coilInfos Coil information.
+     */
+    static void applyCoilIntegrationPoints( std::vector< WLMegCoilInfo::SPtr >* const coilInfos );
 };
 
 #endif  // WHEADPOSITIONCORRECTION_H_

@@ -33,6 +33,7 @@
 #include "core/module/WLConstantsModule.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
+#include "core/util/WLDefines.h"
 #include "core/util/profiler/WLTimeProfiler.h"
 
 #include "WMHeadPositionCorrection.h"
@@ -198,9 +199,10 @@ bool WMHeadPositionCorrection::processCompute( WLEMMeasurement::SPtr emm )
 
     if( !m_correction.isInitialzied() )
     {
+        WLEMDMEG::createCoilInfos( meg.get() );
+        m_correction.setMegCoilInfos( meg->getCoilInformation() );
         m_correction.setMovementThreshold( m_propMvThreshold->get( false ) );
         m_correction.setSphereRadius( m_propRadius->get( false ) );
-        m_correction.setMegPosAndOri( *meg );
         m_correction.init();
     }
 
@@ -242,7 +244,8 @@ bool WMHeadPositionCorrection::processInit( WLEMMCommand::SPtr cmdIn )
         if( emm->hasModality( WLEModality::MEG ) )
         {
             WLEMDMEG::SPtr meg = emm->getModality< WLEMDMEG >( WLEModality::MEG );
-            m_correction.setMegPosAndOri( *meg );
+            WLEMDMEG::createCoilInfos( meg.get() );
+            m_correction.setMegCoilInfos( meg->getCoilInformation() );
         }
         if( !m_hasRefPos && !emm->getHpiInfo()->getDevToHead().isZero() )
         {
@@ -259,6 +262,7 @@ bool WMHeadPositionCorrection::processInit( WLEMMCommand::SPtr cmdIn )
 
 bool WMHeadPositionCorrection::processReset( WLEMMCommand::SPtr cmdIn )
 {
+    WL_UNUSED( cmdIn );
     infoLog() << "Reseting module.";
     m_correction.reset();
     m_hasRefPos = hdlPosFileChanged( m_propPosFile->get().string() );

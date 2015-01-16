@@ -32,7 +32,6 @@
 #include <core/common/WAssert.h>
 #include <core/common/WLogger.h>
 
-#include "core/container/WLArrayList.h"
 #include "core/daqSystem/WLDaqNeuromag.h"
 #include "core/util/WLGeometry.h"
 #include "core/util/profiler/WLTimeProfiler.h"
@@ -71,6 +70,11 @@ bool WHeadPositionCorrection::init()
     if( m_megPos.cols() == 0 || m_megOri.cols() == 0 )
     {
         wlog::error( CLASS ) << "MEG positions and orientations are not set!";
+        return false;
+    }
+    if( !m_coilInfos )
+    {
+        wlog::error( CLASS ) << "MEG coil infos are not set!";
         return false;
     }
 
@@ -197,25 +201,27 @@ void WHeadPositionCorrection::setRefTransformation( const WLMatrix4::Matrix4T& t
     }
 }
 
-void WHeadPositionCorrection::setMegPosAndOri( const WLEMDMEG& meg )
+void WHeadPositionCorrection::setMegCoilInfos( WLArrayList< WLMegCoilInfo::SPtr >::SPtr coilInfo )
 {
+    WLTimeProfiler profiler( CLASS, __func__, true );
     m_isInitialized = false;
-    WLArrayList< WPosition >::ConstSPtr poss = meg.getChannelPositions3d();
-    m_megPos.resize( 3, poss->size() );
-    WLArrayList< WVector3f >::ConstSPtr oris = meg.getEz();
-    m_megOri.resize( 3, oris->size() );
-
-    WAssert( poss->size() == oris->size(), "Size of MEG positions and orientations does not match." );
-    for( size_t i = 0; i < poss->size(); ++i )
+    const WLArrayList< WLMegCoilInfo::SPtr >::size_type n_coils = coilInfo->size();
+    if( n_coils == 0 )
     {
-        m_megPos.col( i ).x() = poss->at( i ).x();
-        m_megPos.col( i ).y() = poss->at( i ).y();
-        m_megPos.col( i ).z() = poss->at( i ).z();
-
-        m_megOri.col( i ).x() = oris->at( i ).x();
-        m_megOri.col( i ).y() = oris->at( i ).y();
-        m_megOri.col( i ).z() = oris->at( i ).z();
+        m_coilInfos.reset();
+        return;
     }
+
+    m_coilInfos = coilInfo;
+    m_megPos.resize( 3, n_coils );
+    m_megOri.resize( 3, n_coils );
+
+    for( WLArrayList< WLMegCoilInfo::SPtr >::size_type i = 0; i < n_coils; ++i )
+    {
+        m_megPos.col( i ) = ( *m_coilInfos )[i]->position;
+        m_megOri.col( i ) = ( *m_coilInfos )[i]->orientation;
+    }
+    applyCoilIntegrationPoints( m_coilInfos.get() );
 }
 
 void WHeadPositionCorrection::setSphereRadius( float r )
@@ -275,12 +281,8 @@ bool WHeadPositionCorrection::computeForward( MatrixT* const lf, const Positions
 
     WLTimeProfiler profiler( CLASS, __func__, true );
 
-    // TODO(pieloth): Check correct coil type and differentiate between mag and grad. Split grad to 2 mags ...
-    // TODO(pieloth): MEG/coil does not change, so do not generate it everytime.
-    WLArrayList< WLMegCoilInfo::SPtr >::SPtr coilInfos = WLArrayList< WLMegCoilInfo::SPtr >::instance();
-    createCoilInfos( coilInfos.get(), mPos, mOri );
     WMegForwardSphere megForward;
-    megForward.setMegCoilInfos( coilInfos );
+    megForward.setMegCoilInfos( m_coilInfos );
     if( !megForward.computeForward( lf, dPos, dOri ) )
     {
         return false;
@@ -353,22 +355,13 @@ bool WHeadPositionCorrection::checkMovementThreshold( const WLEMDHPI::Transforma
     return false;
 }
 
-void WHeadPositionCorrection::createCoilInfos( std::vector< WLMegCoilInfo::SPtr >* const coilInfos, const PositionsT& mPos,
-                const OrientationsT& mOri )
+void WHeadPositionCorrection::applyCoilIntegrationPoints( std::vector< WLMegCoilInfo::SPtr >* const coilInfos )
 {
-    WLTimeProfiler profiler( CLASS, __func__, true );
-    WAssertDebug( mPos.rows() == mOri.rows() && mPos.cols() == mOri.cols(), "Dimension of MEG pos and ori does not match." );
-
-    coilInfos->reserve( mPos.cols() );
-    for( PositionsT::Index i = 0; i < mPos.cols(); ++i )
+    const std::vector< WLMegCoilInfo::SPtr >::size_type n_coils = coilInfos->size();
+    for( std::vector< WLMegCoilInfo::SPtr >::size_type i = 0; i < n_coils; ++i )
     {
-        WLMegCoilInfo::SPtr coilInfo( new WLMegCoilInfo() );
-        coilInfo->position = mPos.col( i );
-        coilInfo->orientation = mOri.col( i );
-        // TODO(pieloth): ex, ey, ez
-        coilInfo->ex.setRandom();
-        coilInfo->ey.setRandom();
-        coilInfo->ez.setRandom();
+        WLMegCoilInfo::SPtr coilInfo = ( *coilInfos )[i];
+        // TODO(pieloth): Check correct coil type or read it in daq modules!
         if( i > 1 && ( i - 2 ) % 3 == 0 ) // magnetometer
         {
             WLDaqNeuromag::applyIntegrationPoints3022( coilInfo.get() );
@@ -377,6 +370,5 @@ void WHeadPositionCorrection::createCoilInfos( std::vector< WLMegCoilInfo::SPtr 
         {
             WLDaqNeuromag::applyIntegrationPoints3012( coilInfo.get() );
         }
-        coilInfos->push_back( coilInfo );
     }
 }
