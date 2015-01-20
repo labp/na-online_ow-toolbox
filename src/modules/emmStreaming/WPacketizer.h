@@ -39,13 +39,12 @@ public:
     virtual typename boost::shared_ptr< T > next() = 0;
 
 protected:
-    WPacketizer( boost::shared_ptr< const T > data, size_t blockSize ) :
-                    m_data( data ), m_blockSize( blockSize )
+    WPacketizer( boost::shared_ptr< const T > data ) :
+                    m_data( data )
     {
     }
 
     typename boost::shared_ptr< const T > m_data;
-    const size_t m_blockSize;
 };
 
 #endif  // WPACKETIZER_H_

@@ -32,8 +32,8 @@
 
 const std::string WPacketizerEMM::CLASS = "WPacketizerEMM";
 
-WPacketizerEMM::WPacketizerEMM( WLEMMeasurement::ConstSPtr data, size_t blockSize ) :
-                WPacketizer( data, blockSize ), m_blockCount( 0 )
+WPacketizerEMM::WPacketizerEMM( WLEMMeasurement::ConstSPtr data, WLTimeT blockSize ) :
+                WPacketizer( data ), m_blockSize(blockSize), m_blockCount( 0 )
 {
     m_hasData = false;
     const std::set< WLEModality::Enum > mods = data->getModalityTypes();
@@ -68,8 +68,7 @@ WLEMMeasurement::SPtr WPacketizerEMM::next()
     for( itEmd = m_emds.begin(); itEmd != m_emds.end(); ++itEmd )
     {
         smplFrq = ( *itEmd )->getSampFreq();
-        // TODO(pieloth): Why div 1000, ms in module input?
-        samples = smplFrq.value() * m_blockSize / 1000;
+        samples = smplFrq * m_blockSize;
         samplesOffset = m_blockCount * samples;
         WLEMData::SPtr emdPacket = ( *itEmd )->clone();
         WLEMData::DataSPtr emdData( new WLEMData::DataT( ( *itEmd )->getNrChans(), samples ) );
