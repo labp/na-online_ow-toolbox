@@ -171,7 +171,6 @@ bool WMEMMGenerator::generateEMM()
     m_emm.reset();
 
     const WLFreqT sampl_freq = m_propSamplFreq->get() * WLUnits::Hz;
-    // TODO(pieloth): Use unit "time".
     const WLTimeT length = m_propLength->get() * WLUnits::s;
     const size_t samples = sampl_freq * length;
     const size_t channels = m_propChans->get();
