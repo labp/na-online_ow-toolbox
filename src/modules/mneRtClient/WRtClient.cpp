@@ -604,7 +604,8 @@ bool WRtClient::preparePrototype( WLEMMeasurement* const emm )
 bool WRtClient::preparePrototype( WLEMData* const emd, const Eigen::RowVectorXi& picks )
 {
     const FIFFLIB::FiffChInfo fiffInfo = m_fiffInfo->chs[picks[0]];
-    emd->setSampFreq( m_fiffInfo->sfreq );
+    // Frequencies are in Hz, see Functional Image File Format, Appendix C.3 Common data tags
+    emd->setSampFreq( m_fiffInfo->sfreq * WLUnits::Hz );
     emd->setChanUnit( WLEUnit::fromFIFF( fiffInfo.unit ) );
     emd->setChanUnitExp( WLEExponent::fromFIFF( fiffInfo.unit_mul ) );
 

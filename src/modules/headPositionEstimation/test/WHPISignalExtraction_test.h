@@ -46,43 +46,43 @@ public:
     void test_getSetWindowsSize()
     {
         WHPISignalExtraction hpe;
-        const WLFreqT expected = 300.0;
+        const WLTimeT expected = 300.0;
         hpe.setWindowsSize( expected );
-        const WLFreqT actual = hpe.getWindowsSize();
+        const WLTimeT actual = hpe.getWindowsSize();
         TS_ASSERT_DELTA( expected, actual, DELTA );
     }
 
     void test_getSetStepSize()
     {
         WHPISignalExtraction hpe;
-        const WLFreqT expected = 42.0;
+        const WLTimeT expected = 42.0;
         hpe.setStepSize( expected );
-        const WLFreqT actual = hpe.getStepSize();
+        const WLTimeT actual = hpe.getStepSize();
         TS_ASSERT_DELTA( expected, actual, DELTA );
     }
 
     void test_addGetClearFrequencies()
     {
         WHPISignalExtraction hpe;
-        const WLFreqT hpi1 = 154.0;
+        const WLFreqT hpi1 = 154.0 * WLUnits::Hz;
         hpe.addFrequency( hpi1 );
-        const WLFreqT hpi2 = 158.0;
+        const WLFreqT hpi2 = 158.0 * WLUnits::Hz;
         hpe.addFrequency( hpi2 );
-        const WLFreqT hpi3 = 162.0;
+        const WLFreqT hpi3 = 162.0 * WLUnits::Hz;
         hpe.addFrequency( hpi3 );
-        const WLFreqT hpi4 = 166.0;
+        const WLFreqT hpi4 = 166.0 * WLUnits::Hz;
         hpe.addFrequency( hpi4 );
-        const WLFreqT hpi5 = 170.0;
+        const WLFreqT hpi5 = 170.0 * WLUnits::Hz;
         hpe.addFrequency( hpi5 );
 
         std::vector< WLFreqT > actualFreqs = hpe.getFrequencies();
         TS_ASSERT_EQUALS( actualFreqs.size(), 5 );
 
-        TS_ASSERT_DELTA( actualFreqs[0], hpi1, DELTA );
-        TS_ASSERT_DELTA( actualFreqs[1], hpi2, DELTA );
-        TS_ASSERT_DELTA( actualFreqs[2], hpi3, DELTA );
-        TS_ASSERT_DELTA( actualFreqs[3], hpi4, DELTA );
-        TS_ASSERT_DELTA( actualFreqs[4], hpi5, DELTA );
+        TS_ASSERT_DELTA( actualFreqs[0].value(), hpi1.value(), DELTA );
+        TS_ASSERT_DELTA( actualFreqs[1].value(), hpi2.value(), DELTA );
+        TS_ASSERT_DELTA( actualFreqs[2].value(), hpi3.value(), DELTA );
+        TS_ASSERT_DELTA( actualFreqs[3].value(), hpi4.value(), DELTA );
+        TS_ASSERT_DELTA( actualFreqs[4].value(), hpi5.value(), DELTA );
 
         hpe.clearFrequencies();
         actualFreqs = hpe.getFrequencies();
@@ -92,18 +92,18 @@ public:
     void test_prepare()
     {
         WHPISignalExtraction hpe;
-        const WLFreqT hpi1 = 154.0;
+        const WLFreqT hpi1 = 154.0 * WLUnits::Hz;
         hpe.addFrequency( hpi1 );
-        const WLFreqT hpi2 = 158.0;
+        const WLFreqT hpi2 = 158.0 * WLUnits::Hz;
         hpe.addFrequency( hpi2 );
-        const WLFreqT hpi3 = 162.0;
+        const WLFreqT hpi3 = 162.0 * WLUnits::Hz;
         hpe.addFrequency( hpi3 );
-        const WLFreqT hpi4 = 166.0;
+        const WLFreqT hpi4 = 166.0 * WLUnits::Hz;
         hpe.addFrequency( hpi4 );
-        const WLFreqT hpi5 = 170.0;
+        const WLFreqT hpi5 = 170.0 * WLUnits::Hz;
         hpe.addFrequency( hpi5 );
 
-        hpe.setSamplingFrequency( 500.0 );
+        hpe.setSamplingFrequency( 500.0 * WLUnits::Hz );
 
         TS_ASSERT( hpe.prepare() );
     }
@@ -111,19 +111,19 @@ public:
     void test_estimateAmplitueds()
     {
         WHPISignalExtraction hpe;
-        const WLFreqT hpi1 = 154.0;
+        const WLFreqT hpi1 = 154.0 * WLUnits::Hz;
         hpe.addFrequency( hpi1 );
-        const WLFreqT hpi2 = 158.0;
+        const WLFreqT hpi2 = 158.0 * WLUnits::Hz;
         hpe.addFrequency( hpi2 );
-        const WLFreqT hpi3 = 162.0;
+        const WLFreqT hpi3 = 162.0 * WLUnits::Hz;
         hpe.addFrequency( hpi3 );
-        const WLFreqT hpi4 = 166.0;
+        const WLFreqT hpi4 = 166.0 * WLUnits::Hz;
         hpe.addFrequency( hpi4 );
-        const WLFreqT hpi5 = 170.0;
+        const WLFreqT hpi5 = 170.0 * WLUnits::Hz;
         hpe.addFrequency( hpi5 );
         hpe.setStepSize( 10.0 );
         hpe.setWindowsSize( 200.0 );
-        hpe.setSamplingFrequency( 1000.0 );
+        hpe.setSamplingFrequency( 1000.0 * WLUnits::Hz );
         TS_ASSERT( hpe.prepare() );
 
         // TODO (pieloth): Implement test case.

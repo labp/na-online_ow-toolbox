@@ -25,8 +25,9 @@
 #define WLDATATYPES_H_
 
 #include <boost/shared_ptr.hpp>
+#include <boost/units/systems/si.hpp>
+#include <boost/units/quantity.hpp>
 
-// NOTE: Needs Eigen v3.1 or higher for sparse matrices, see README.
 #include <Eigen/Core>
 #include <Eigen/SparseCore>
 
@@ -112,7 +113,12 @@ namespace WLSpMatrix
     typedef boost::shared_ptr< const SpMatrixT > ConstSPtr;
 }
 
-typedef WLFiffLib::freq_t WLFreqT; /**< Type for frequencies: Hz, kHz and more.*/
+namespace WLUnits
+{
+    const  boost::units::si::frequency::unit_type Hz = boost::units::si::hertz;
+}
+
+typedef boost::units::quantity<boost::units::si::frequency> WLFreqT; /**< Type for frequencies in Hz. */
 typedef WLFiffLib::ident_t WLIdentT; /**< Type for decimal identification, running numbers and more. */
 typedef WLFiffLib::ichan_t WLChanIdxT; /**< Index type for channels. */
 typedef WLFiffLib::nchan_t WLChanNrT; /**< Type for number of channels (size, count). */

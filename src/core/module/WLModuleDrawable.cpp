@@ -507,9 +507,10 @@ void WLModuleDrawable::viewUpdate( WLEMMeasurement::SPtr emm )
         if( emm->hasModality( modality ) )
         {
             const WLEMData::ConstSPtr emd = emm->getModality( modality );
-            const float frequence = emd->getSampFreq();
+            const WLFreqT frequence = emd->getSampFreq();
             const double samples = static_cast< double >( emd->getSamplesPerChan() );
-            m_range = samples / frequence;
+            // TODO(pieloth): use unit "time" in s
+            m_range = samples / frequence.value();
             setTimerange( m_range );
         }
     }

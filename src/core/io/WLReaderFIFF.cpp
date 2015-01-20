@@ -85,10 +85,11 @@ WLIOStatus::IOStatusT WLReaderFIFF::read( WLEMMeasurement::SPtr* const out )
     LFMeasurementInfo& measinfo_in = data.GetLFMeasurement().GetLFMeasurementInfo();
     WLFiffLib::nchan_t nChannels = measinfo_in.GetNumberOfChannels();
     wlog::debug( CLASS ) << "Channels: " << nChannels;
-    emdRaw->setSampFreq( measinfo_in.GetSamplingFrequency() );
-    emdRaw->setAnalogHighPass( measinfo_in.GetHighpass() );
-    emdRaw->setAnalogLowPass( measinfo_in.GetLowpass() );
-    emdRaw->setLineFreq( measinfo_in.GetLineFreq() );
+    // Frequencies are in Hz, see Functional Image File Format, Appendix C.3 Common data tags
+    emdRaw->setSampFreq( measinfo_in.GetSamplingFrequency() * WLUnits::Hz );
+    emdRaw->setAnalogHighPass( measinfo_in.GetHighpass() * WLUnits::Hz );
+    emdRaw->setAnalogLowPass( measinfo_in.GetLowpass() * WLUnits::Hz );
+    emdRaw->setLineFreq( measinfo_in.GetLineFreq() * WLUnits::Hz );
 
     // Read Isotrak
     LFIsotrak& isotrak = measinfo_in.GetLFIsotrak();

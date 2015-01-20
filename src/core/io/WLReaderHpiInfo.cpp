@@ -188,7 +188,8 @@ bool WLReaderHpiInfo::readHpiCoil( WLEMMHpiInfo* const hpiInfo, FIFFLIB::FiffStr
             if( kind == WLFiffLib::HPI::COIL_FREQ )
             {
                 FiffTag::read_tag( stream, tag, pos );
-                hpiInfo->addHpiFrequency( *tag->toFloat() );
+                // Frequencies are in Hz, see Functional Image File Format, Appendix C.3 Common data tags
+                hpiInfo->addHpiFrequency( *tag->toFloat() * WLUnits::Hz );
                 wlog::debug( CLASS ) << "HPI coil freq: " << *tag->toFloat();
                 ++ndata;
             }

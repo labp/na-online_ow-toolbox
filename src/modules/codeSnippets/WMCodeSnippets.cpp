@@ -307,10 +307,10 @@ void WMCodeSnippets::generateSinusWave( WLEMData::DataT* const in, float sr, flo
 void WMCodeSnippets::emulateSinusWave()
 {
     const float length = 30.0;
-    const float sampling_frequency = 1000.0;
+    const WLFreqT sampling_frequency = 1000.0 * WLUnits::Hz;
     const float sinus_frequency = 100.0;
     const size_t block_size = 1000;
-    const float block_length = block_size / sampling_frequency;
+    const float block_length = block_size / sampling_frequency.value();
     const size_t channels = 5;
     const float amp_factor = 10;
     const float offset = 5;
@@ -327,7 +327,7 @@ void WMCodeSnippets::emulateSinusWave()
         seconds += block_length;
 
         WLEMData::DataSPtr data( new WLEMData::DataT( channels, block_size ) );
-        generateSinusWave( data.get(), sampling_frequency, sinus_frequency, amp_factor, offset );
+        generateSinusWave( data.get(), sampling_frequency.value(), sinus_frequency, amp_factor, offset );
 
         WLEMData::SPtr emd = eegPrototype->clone();
         emd->setData( data );

@@ -242,7 +242,7 @@ bool WFtbClient::getRawData( WLEMDRaw::SPtr* const rawData )
     WLEMData::DataSPtr dataPtr( new WLEMData::DataT( chans, samps ) ); // create data matrix
     WLEMData::DataT& data = *dataPtr;
 
-    ( *rawData )->setSampFreq( m_header->getHeaderDef().fsample );
+    ( *rawData )->setSampFreq( m_header->getHeaderDef().fsample * WLUnits::Hz);
 
     // insert value into the matrix
     for( int i = 0; i < samps; ++i ) // iterate all samples

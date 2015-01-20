@@ -138,7 +138,7 @@ bool WWriterFiff::beginFiff( const WLEMMeasurement* const emm )
     {
         eeg = emm->getModality< const WLEMDEEG >( WLEModality::EEG );
         info.nchan += eeg->getNrChans();
-        sfreq = eeg->getSampFreq();
+        sfreq = eeg->getSampFreq().value();
         setChannelInfo( &chs, eeg.get() );
     }
     WLEMDMEG::ConstSPtr meg;
@@ -146,7 +146,7 @@ bool WWriterFiff::beginFiff( const WLEMMeasurement* const emm )
     {
         meg = emm->getModality< const WLEMDMEG >( WLEModality::MEG );
         info.nchan += meg->getNrChans();
-        sfreq = sfreq == 0 ? meg->getSampFreq() : sfreq;
+        sfreq = sfreq == 0 ? meg->getSampFreq().value() : sfreq;
         setChannelInfo( &chs, meg.get() );
     }
 

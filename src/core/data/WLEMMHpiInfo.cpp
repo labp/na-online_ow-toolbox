@@ -146,7 +146,7 @@ void WLEMMHpiInfo::setHpiFrequencies( const HpiFrequenciesT& freqs )
 
 void WLEMMHpiInfo::addHpiFrequency( WLFreqT freq )
 {
-    if( freq < 100 )
+    if( freq < 100 * WLUnits::Hz )
     {
         wlog::warn( CLASS ) << "Frequency of " << freq << " is very low!";
     }

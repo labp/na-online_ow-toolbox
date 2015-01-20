@@ -60,7 +60,7 @@ WLEMMeasurement::SPtr WPacketizerEMM::next()
     WLEMMeasurement::SPtr emmPacket = m_data->clone();
     m_hasData = false;
 
-    float smplFrq;
+    WLFreqT smplFrq;
     WLSampleNrT samples = 0;
     WLSampleNrT samplesOffset;
     // clone each modality
@@ -68,7 +68,8 @@ WLEMMeasurement::SPtr WPacketizerEMM::next()
     for( itEmd = m_emds.begin(); itEmd != m_emds.end(); ++itEmd )
     {
         smplFrq = ( *itEmd )->getSampFreq();
-        samples = smplFrq * m_blockSize / 1000;
+        // TODO(pieloth): Why div 1000, ms in module input?
+        samples = smplFrq.value() * m_blockSize / 1000;
         samplesOffset = m_blockCount * samples;
         WLEMData::SPtr emdPacket = ( *itEmd )->clone();
         WLEMData::DataSPtr emdData( new WLEMData::DataT( ( *itEmd )->getNrChans(), samples ) );

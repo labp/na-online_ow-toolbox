@@ -135,7 +135,7 @@ bool WHeadPositionCorrection::process( WLEMDMEG* const megOut, const WLEMDMEG& m
         wlog::error( CLASS ) << "Sampling frequency from HPI or MEG not set!";
         return false;
     }
-    if( sfreq_hpi > sfreq_meg || static_cast< size_t >( sfreq_meg ) % static_cast< size_t >( sfreq_hpi ) != 0 )
+    if( sfreq_hpi > sfreq_meg || static_cast< size_t >( sfreq_meg.value() ) % static_cast< size_t >( sfreq_hpi.value() ) != 0 )
     {
         wlog::error( CLASS ) << "Pre-conditions not hold: sfreq_hpi <= sfreq_meg AND sfreq_meg%sfreq_hpi != 0";
         return false;

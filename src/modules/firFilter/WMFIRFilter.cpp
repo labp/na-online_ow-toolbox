@@ -366,7 +366,7 @@ bool WMFIRFilter::processCompute( WLEMMeasurement::SPtr emmIn )
     for( std::vector< WLEMData::SPtr >::const_iterator emdIn = emdsIn.begin(); emdIn != emdsIn.end(); ++emdIn )
     {
         debugLog() << "EMD type: " << ( *emdIn )->getModalityType();
-        if( ( *emdIn )->getSampFreq() != m_samplingFreq->get( false ) )
+        if( ( *emdIn )->getSampFreq().value() != m_samplingFreq->get( false ) )
         {
             infoLog() << "Skip modality for FIR filter, because sampling frequencies are not equals.";
             emmOut->addModality( *emdIn );
@@ -415,34 +415,34 @@ bool WMFIRFilter::processInit( WLEMMCommand::SPtr cmdIn )
         WLEMMeasurement::ConstSPtr emm = cmdIn->getEmm();
         WLEMData::ConstSPtr emd;
 
-        WLFreqT samplFreqEeg = 0.0;
+        WLFreqT samplFreqEeg = 0.0 * WLUnits::Hz;
         if( emm->hasModality( WLEModality::EEG ) )
         {
             emd = emm->getModality( WLEModality::EEG );
             samplFreqEeg = emd->getSampFreq();
         }
 
-        WLFreqT samplFreqMeg = 0.0;
+        WLFreqT samplFreqMeg = 0.0 * WLUnits::Hz;
         if( emm->hasModality( WLEModality::MEG ) )
         {
             emd = emm->getModality( WLEModality::MEG );
             samplFreqMeg = emd->getSampFreq();
         }
 
-        WLFreqT samplFreq = 0.0;
-        if( samplFreqEeg == samplFreqMeg && samplFreqEeg > 0.0 )
+        WLFreqT samplFreq = 0.0 * WLUnits::Hz;
+        if( samplFreqEeg == samplFreqMeg && samplFreqEeg > 0.0 * WLUnits::Hz )
         {
             samplFreq = samplFreqEeg;
         }
         else
-            if( samplFreqEeg < 0.1 || samplFreqMeg < 0.1 )
+            if( samplFreqEeg < 0.1 * WLUnits::Hz || samplFreqMeg < 0.1 * WLUnits::Hz )
             {
-                samplFreq = std::max( samplFreqEeg, samplFreqMeg );
+                samplFreq = std::max( samplFreqEeg.value(), samplFreqMeg.value() ) * WLUnits::Hz;
             }
-        if( samplFreq > 0.0 )
+        if( samplFreq > 0.0 * WLUnits::Hz )
         {
             infoLog() << "Init filter with new sampling rate: " << samplFreq;
-            m_samplingFreq->set( samplFreq, true );
+            m_samplingFreq->set( samplFreq.value(), true );
             handleDesignButtonPressed();
         }
         else

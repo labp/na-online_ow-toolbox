@@ -268,11 +268,11 @@ bool WMHeadPositionEstimation::hdlApplyFreq()
 
     m_hpiSignalExtraction.reset( new WHPISignalExtraction() );
 
-    m_hpiSignalExtraction->addFrequency( m_propHpi1Freq->get() );
-    m_hpiSignalExtraction->addFrequency( m_propHpi2Freq->get() );
-    m_hpiSignalExtraction->addFrequency( m_propHpi3Freq->get() );
-    m_hpiSignalExtraction->addFrequency( m_propHpi4Freq->get() );
-    m_hpiSignalExtraction->addFrequency( m_propHpi5Freq->get() );
+    m_hpiSignalExtraction->addFrequency( m_propHpi1Freq->get() * WLUnits::Hz );
+    m_hpiSignalExtraction->addFrequency( m_propHpi2Freq->get() * WLUnits::Hz );
+    m_hpiSignalExtraction->addFrequency( m_propHpi3Freq->get() * WLUnits::Hz );
+    m_hpiSignalExtraction->addFrequency( m_propHpi4Freq->get() * WLUnits::Hz );
+    m_hpiSignalExtraction->addFrequency( m_propHpi5Freq->get() * WLUnits::Hz );
 
     const WLTimeT win_size = m_hpiSignalExtraction->setWindowsSize( m_propWindowsSize->get() );
     m_hpiSignalExtraction->setStepSize( win_size );
@@ -300,15 +300,15 @@ bool WMHeadPositionEstimation::setHpiCoilFreqs( const WLEMMHpiInfo& hpiInfo )
     }
 
     WLEMMHpiInfo::HpiFrequenciesT::iterator it = freqs.begin();
-    m_propHpi1Freq->set( *it, true );
+    m_propHpi1Freq->set( it->value(), true );
     ++it;
-    m_propHpi2Freq->set( *it, true );
+    m_propHpi2Freq->set( it->value(), true );
     ++it;
-    m_propHpi3Freq->set( *it, true );
+    m_propHpi3Freq->set( it->value(), true );
     ++it;
-    m_propHpi4Freq->set( *it, true );
+    m_propHpi4Freq->set( it->value(), true );
     ++it;
-    m_propHpi5Freq->set( *it, true );
+    m_propHpi5Freq->set( it->value(), true );
 
     return hdlApplyFreq();
 }
