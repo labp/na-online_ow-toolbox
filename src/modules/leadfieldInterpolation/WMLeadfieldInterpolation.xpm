@@ -1,8 +1,8 @@
 /* XPM */
 static const char* module_xpm[] = {
 "16 16 2 1",
-" 	c None",
-".	c #000000",
+"  c #FFBC75",
+". c #000000",
 "                ",
 "                ",
 "                ",
