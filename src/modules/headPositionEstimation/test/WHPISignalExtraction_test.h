@@ -46,19 +46,19 @@ public:
     void test_getSetWindowsSize()
     {
         WHPISignalExtraction hpe;
-        const WLTimeT expected = 300.0;
+        const WLTimeT expected = 0.300 * WLUnits::s;
         hpe.setWindowsSize( expected );
         const WLTimeT actual = hpe.getWindowsSize();
-        TS_ASSERT_DELTA( expected, actual, DELTA );
+        TS_ASSERT_DELTA( expected.value(), actual.value(), DELTA );
     }
 
     void test_getSetStepSize()
     {
         WHPISignalExtraction hpe;
-        const WLTimeT expected = 42.0;
+        const WLTimeT expected = 42.0 * WLUnits::s;
         hpe.setStepSize( expected );
         const WLTimeT actual = hpe.getStepSize();
-        TS_ASSERT_DELTA( expected, actual, DELTA );
+        TS_ASSERT_DELTA( expected.value(), actual.value(), DELTA );
     }
 
     void test_addGetClearFrequencies()
@@ -121,8 +121,8 @@ public:
         hpe.addFrequency( hpi4 );
         const WLFreqT hpi5 = 170.0 * WLUnits::Hz;
         hpe.addFrequency( hpi5 );
-        hpe.setStepSize( 10.0 );
-        hpe.setWindowsSize( 200.0 );
+        hpe.setStepSize( 0.010 * WLUnits::s );
+        hpe.setWindowsSize( 0.200 * WLUnits::s );
         hpe.setSamplingFrequency( 1000.0 * WLUnits::Hz );
         TS_ASSERT( hpe.prepare() );
 

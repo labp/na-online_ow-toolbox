@@ -129,7 +129,7 @@ osg::ref_ptr< WLAnimationSideScroll::EMMNode > WLEMDDrawable2DMultiDynamic::crea
     }
 
     WLEMData* emd = emm->getModality( modality ).get();
-    m_blockLength = emd->getLength();
+    m_blockLength = emd->getLength().value();
 
     const ValueT x_pos = m_widget->width();
     const ValueT y_pos = m_widget->height() - m_yOffset;

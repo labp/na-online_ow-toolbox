@@ -274,9 +274,9 @@ bool WMHeadPositionEstimation::hdlApplyFreq()
     m_hpiSignalExtraction->addFrequency( m_propHpi4Freq->get() * WLUnits::Hz );
     m_hpiSignalExtraction->addFrequency( m_propHpi5Freq->get() * WLUnits::Hz );
 
-    const WLTimeT win_size = m_hpiSignalExtraction->setWindowsSize( m_propWindowsSize->get() );
+    const WLTimeT win_size = m_hpiSignalExtraction->setWindowsSize( m_propWindowsSize->get() * 1e-3 * WLUnits::s );
     m_hpiSignalExtraction->setStepSize( win_size );
-    m_propWindowsSize->set( win_size, true );
+    m_propWindowsSize->set( win_size.value() * 1e3, true );
 
     infoLog() << *m_hpiSignalExtraction;
     m_propStatus->set( STATUS_OK, true );

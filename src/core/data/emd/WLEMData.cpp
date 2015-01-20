@@ -217,7 +217,7 @@ WLFreqT WLEMData::getSampFreq() const
 
 WLTimeT WLEMData::getLength() const
 {
-    return getSamplesPerChan() / m_sampFreq.value();
+    return static_cast< double >( getSamplesPerChan() ) / m_sampFreq;
 }
 
 WLEMData::ChannelListSPtr WLEMData::getBadChannels() const

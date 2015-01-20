@@ -99,7 +99,6 @@ namespace WLMatrix4
     typedef boost::shared_ptr< const Matrix4T > ConstSPtr;
 }
 
-
 /**
  * Helper definitions for a generic (float/double) sparse matrix.
  *
@@ -115,15 +114,16 @@ namespace WLSpMatrix
 
 namespace WLUnits
 {
-    const  boost::units::si::frequency::unit_type Hz = boost::units::si::hertz;
+    const boost::units::si::frequency::unit_type Hz = boost::units::si::hertz;
+    const boost::units::si::time::unit_type s = boost::units::si::second;
 }
 
-typedef boost::units::quantity<boost::units::si::frequency> WLFreqT; /**< Type for frequencies in Hz. */
+typedef boost::units::quantity< boost::units::si::frequency > WLFreqT; /**< Type for frequencies in Hz. */
 typedef WLFiffLib::ident_t WLIdentT; /**< Type for decimal identification, running numbers and more. */
 typedef WLFiffLib::ichan_t WLChanIdxT; /**< Index type for channels. */
 typedef WLFiffLib::nchan_t WLChanNrT; /**< Type for number of channels (size, count). */
 typedef WLFiffLib::isamples_t WLSampleIdxT; /**< Index type for samples. */
 typedef WLFiffLib::nsamples_t WLSampleNrT; /**< Type for number of samples (size, count). */
-typedef WLFiffLib::time_t WLTimeT; /**< Type for time values: ms, s, min and more. */
+typedef boost::units::quantity< boost::units::si::time > WLTimeT; /**< Type for time values in seconds. */
 
 #endif  // WLDATATYPES_H_
