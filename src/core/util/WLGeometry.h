@@ -24,9 +24,13 @@
 #ifndef WLGEOMETRY_H_
 #define WLGEOMETRY_H_
 
+#include <cmath>
+#include <limits>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
+
+#include <Eigen/Core>
 
 #include <core/common/math/linearAlgebra/WMatrixFixed.h>
 #include <core/common/math/linearAlgebra/WPosition.h>
@@ -43,6 +47,8 @@
  */
 namespace WLGeometry
 {
+    typedef Eigen::Vector3d Vector3T;
+    typedef Eigen::Matrix3Xd PointsT;
     typedef WVector3d Vector;
     typedef WPosition Point;
     typedef double Angle;
@@ -66,6 +72,40 @@ namespace WLGeometry
     void transformPoints( std::vector< Point >* const out, const std::vector< Point >& in, const WLMatrix4::Matrix4T& trans );
 
     void toBaseExponent( std::vector< Point >* const out, const std::vector< Point >& in, WLEExponent::Enum exp );
+
+    /**
+     * Calculates an orthogonal vector to v.
+     *
+     * \param o An orthogonal vector of v.
+     * \param v Input vector.
+     * \return True if o contains an orthogonal vector of v.
+     */
+    bool findOrthogonalVector( Vector3T* const o, const Vector3T& v );
+
+    /**
+     * Calculates an tagent plane for the normal vector n. u, v and n are orthogonal to each other.
+     *
+     * \param u Plane vector 1 for parametrically description.
+     * \param v Plane vector 2 for parametrically description.
+     * \param n Normal vector.
+     * \return True if u and v contain a plane vector.
+     */
+    bool findTagentPlane( Vector3T* const u, Vector3T* const v, const Vector3T& n );
+
+    inline bool isAlmostZero( double v, double eps = 1e3 * std::numeric_limits< double >::min() )
+    {
+        return std::fabs( v ) <= eps;
+    }
+
+    /**
+     * Creates a half sphere with z >= 0.
+     *
+     * \param pos Points forming a half sphere.
+     * \param points Min. number of points.
+     * \param r Radius of the sphere.
+     * \return Number of points, which are forming the sphere (=> request points).
+     */
+    size_t createUpperHalfSphere( PointsT* const pos, size_t points, float r );
 }
 
 #endif  // WLGEOMETRY_H_

@@ -21,41 +21,49 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLFIFFLIB_H_
-#define WLFIFFLIB_H_
+#ifndef WLDAQNEUROMAG_H_
+#define WLDAQNEUROMAG_H_
 
-#include <boost/cstdint.hpp>
+#include <Eigen/Core>
+
+#include "core/data/WLMegCoilInfo.h"
+//class WLMegCoilInfo;
 
 /**
- * A low-level C++ collection of constants for the Elekta Neuromag Functional Image File Format (FIFF).
+ * Information about MEG coil geometry.
+ * \see \cite SrcModelling2008
  *
  * \author pieloth
- * \ingroup fiff
  */
-namespace WLFiffLib
+namespace WLDaqNeuromag
 {
-    typedef int16_t int16;
-    typedef uint16_t uint16;
+    /**
+     * Accurate coil descriptions for type T1 planar gradiometer, 3012.
+     *
+     * \param megCoil
+     */
+    void applyIntegrationPoints3012( WLMegCoilInfo* const megCoil );
 
-    typedef int32_t int32;
-    typedef uint32_t uint32;
+    /**
+     * Accurate coil descriptions for type T3 planar gradiometer, 3014.
+     *
+     * \param megCoil
+     */
+    void applyIntegrationPoints3014( WLMegCoilInfo* const megCoil );
 
-    typedef uint64_t uint64;
+    /**
+     * Accurate coil descriptions for type T1 magnetometer, 3022.
+     *
+     * \param megCoil
+     */
+    void applyIntegrationPoints3022( WLMegCoilInfo* const megCoil );
 
-    typedef int32 block_id_t;
-    typedef int32 tag_id_t;
+    /**
+     * Accurate coil descriptions for type T3 magnetometer, 3024.
+     *
+     * \param megCoil
+     */
+    void applyIntegrationPoints3024( WLMegCoilInfo* const megCoil );
+}
 
-    typedef int32 enum_t;
-    typedef float freq_t;
-    typedef int32 ichan_t;
-    typedef int32 nchan_t;
-    typedef int32 icoil_t;
-    typedef int32 ncoil_t;
-    typedef int32 isamples_t;
-    typedef int32 nsamples_t;
-    typedef float time_t;
-    typedef int32 ident_t;
-    typedef int32 kind_t;
-} /* namespace WLFiffLib */
-
-#endif  // WLFIFFLIB_H_
+#endif  // WLDAQNEUROMAG_H_

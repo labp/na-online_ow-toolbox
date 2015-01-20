@@ -36,6 +36,7 @@
 #include "core/data/enum/WLEModality.h"
 #include "core/module/WLConstantsModule.h"
 #include "core/io/WLReaderFIFF.h"
+#include "core/io/WLReaderHpiInfo.h"
 #include "core/util/WLGeometry.h"
 
 #include "WMFiffReader.h"
@@ -290,13 +291,13 @@ void WMFiffReader::handleFiffFileChanged()
 bool WMFiffReader::readFiffFile( const std::string& fName )
 {
     infoLog() << "Reading FIFF file: " << fName;
-    WLReaderFIFF::SPtr fiffReader;
     try
     {
-        fiffReader.reset( new WLReaderFIFF( fName ) );
+        WLReaderFIFF readerFiff( fName );
         m_emm.reset( new WLEMMeasurement() );
-        if( fiffReader->read( &m_emm ) == WLIOStatus::SUCCESS )
+        if( readerFiff.read( &m_emm ) == WLIOStatus::SUCCESS )
         {
+            infoLog() << "Read FIFF file.";
             if( m_emm->hasModality( WLEModality::EEG ) )
             {
                 WLEMDEEG::SPtr eeg = m_emm->getModality< WLEMDEEG >( WLEModality::EEG );
@@ -306,16 +307,35 @@ bool WMFiffReader::readFiffFile( const std::string& fName )
                     WLGeometry::computeTriangulation( eeg->getFaces().get(), *eeg->getChannelPositions3d(), -5 );
                 }
             }
-            infoLog() << *m_emm;
-            infoLog() << "Reading FIFF file finished!";
-            return true;
         }
     }
     catch( const WException& e )
     {
         errorLog() << "Error reading FIFF file: " << e.what();
+        return false;
     }
-    return false;
+
+    try
+    {
+        WLReaderHpiInfo readerHpi( fName );
+        if( readerHpi.read( m_emm->getHpiInfo().get() ) == WLIOStatus::SUCCESS )
+        {
+            infoLog() << "Read HPI info.";
+        }
+        else
+        {
+            warnLog() << "No HPI info read!";
+        }
+    }
+    catch( const WException& e )
+    {
+        errorLog() << "Error reading HPI info: " << e.what();
+        return false;
+    }
+
+    infoLog() << "Reading FIFF file finished:";
+    infoLog() << *m_emm;
+    return true;
 }
 
 bool WMFiffReader::retrieveAdditionalData( const std::string& fName )

@@ -33,6 +33,7 @@
 #include "core/data/WLDataTypes.h"
 #include "core/data/WLEMMCommand.h"
 #include "core/data/WLEMMeasurement.h"
+#include "core/data/WLEMMHpiInfo.h"
 #include "core/data/emd/WLEMDHPI.h"
 #include "core/gui/drawable/WLEMDDrawable3DHPI.h"
 #include "core/module/WLEMMCommandProcessor.h"
@@ -118,7 +119,15 @@ private:
      *
      * \return true, if successful.
      */
-    bool handleApplyFreq();
+    bool hdlApplyFreq();
+
+    /**
+     * Sets HPI coil frequencies from HPI info structure.
+     *
+     * \param hpiInfo Object containing HPI coil frequencies.
+     * \return True, if frequencies were set.
+     */
+    bool setHpiCoilFreqs( const WLEMMHpiInfo& hpiInfo );
 
     WHPISignalExtraction::SPtr m_hpiSignalExtraction;
 

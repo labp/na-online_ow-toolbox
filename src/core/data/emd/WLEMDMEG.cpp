@@ -21,6 +21,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <algorithm>  // std::max
 #include <string>
 #include <vector>
 
@@ -30,6 +31,7 @@
 #include <core/common/WAssert.h>
 #include <core/common/WLogger.h>
 #include <core/common/exceptions/WPreconditionNotMet.h>
+#include <core/common/exceptions/WOutOfBounds.h>
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
@@ -43,6 +45,7 @@ WLEMDMEG::WLEMDMEG() :
 {
     m_modality = WLEModality::MEG;
     m_chanPos3d = WLArrayList< WPosition >::instance();
+    m_coilInfos = WLArrayList< WLMegCoilInfo::SPtr >::instance();
     m_faces = WLArrayList< WVector3i >::instance();
 
     m_eX = WLArrayList< WVector3f >::instance();
@@ -59,6 +62,7 @@ WLEMDMEG::WLEMDMEG( WLEModality::Enum modality )
 
     m_modality = modality;
     m_chanPos3d = WLArrayList< WPosition >::instance();
+    m_coilInfos = WLArrayList< WLMegCoilInfo::SPtr >::instance();
     m_faces = WLArrayList< WVector3i >::instance();
 
     m_eX = WLArrayList< WVector3f >::instance();
@@ -72,6 +76,7 @@ WLEMDMEG::WLEMDMEG( const WLEMDMEG& meg ) :
     m_modality = meg.m_modality;
     m_chanPos3d = meg.m_chanPos3d;
     m_faces = meg.m_faces;
+    m_coilInfos = meg.m_coilInfos;
     m_eX = meg.m_eX;
     m_eY = meg.m_eY;
     m_eZ = meg.m_eZ;
@@ -131,6 +136,118 @@ void WLEMDMEG::setChannelPositions3d( WLArrayList< WPosition >::SPtr chanPos3d )
 void WLEMDMEG::setChannelPositions3d( boost::shared_ptr< std::vector< WPosition > > chanPos3d )
 {
     m_chanPos3d = WLArrayList< WPosition >::instance( *chanPos3d );
+}
+
+WLArrayList< WLMegCoilInfo::SPtr >::SPtr WLEMDMEG::getCoilInformation()
+{
+    return m_coilInfos;
+}
+
+WLMegCoilInfo::SPtr WLEMDMEG::getCoilInformation( WLArrayList< WLMegCoilInfo::SPtr >::size_type idx )
+{
+    if( idx < 0 || idx >= m_coilInfos->size() )
+    {
+        throw WOutOfBounds();
+    }
+    return m_coilInfos->at( idx );
+}
+
+WLMegCoilInfo::ConstSPtr WLEMDMEG::getCoilInformation( WLArrayList< WLMegCoilInfo::SPtr >::size_type idx ) const
+{
+    if( idx < 0 || idx >= m_coilInfos->size() )
+    {
+        throw WOutOfBounds();
+    }
+    return m_coilInfos->at( idx );
+}
+
+void WLEMDMEG::setCoilInformation( WLArrayList< WLMegCoilInfo::SPtr >::SPtr coilInfos )
+{
+    m_coilInfos = coilInfos;
+}
+
+bool WLEMDMEG::createCoilInfos( WLEMDMEG* const meg )
+{
+    // "Some" error checking
+    // ---------------------
+    if( meg == NULL )
+    {
+        wlog::error( CLASS ) << "MEG is NULL!";
+        return false;
+    }
+
+    WLArrayList< WVector3f >::ConstSPtr ex = meg->getEx();
+    WLArrayList< WVector3f >::ConstSPtr ey = meg->getEy();
+    WLArrayList< WVector3f >::ConstSPtr ez = meg->getEz();
+    if( ex->size() != ey->size() && ey->size() != ez->size() )
+    {
+        wlog::error( CLASS ) << "Sizes of ex, ey, ez are not equals!";
+    }
+    const WLArrayList< WVector3f >::size_type n_exyz = ex->size();
+
+    WLArrayList< WPosition >::ConstSPtr positions = meg->getChannelPositions3d();
+    const size_t n_pos = positions->size();
+    if( !positions->empty() && !ex->empty() && n_pos != n_exyz )
+    {
+        wlog::error( CLASS ) << "position.size and orientations.size are not equals!";
+        return false;
+    }
+
+    if( n_pos == 0 && n_exyz == 0 )
+    {
+        wlog::error( CLASS ) << "No data to create!";
+        return false;
+    }
+
+    WLArrayList< WLMegCoilInfo::SPtr >::SPtr coilInfos = meg->getCoilInformation();
+    if( !coilInfos->empty() )
+    {
+        if( !positions->empty() && n_pos != coilInfos->size() )
+        {
+            wlog::error( CLASS ) << "Coil infos are available, but position.size and coilInfo.size are not equals!";
+            return false;
+        }
+        if( !ex->empty() && n_exyz != coilInfos->size() )
+        {
+            wlog::error( CLASS ) << "Coil infos are available, but ex/ey/ez.size and coilInfo.size are not equals!";
+            return false;
+        }
+        wlog::info( CLASS ) << "Coil infos are available and will be overwritten!";
+    }
+    else
+    {
+        // Prepare coilInfo
+        const size_t n_chans = std::max( n_pos, n_exyz );
+        for( size_t i = 0; i < n_chans; ++i )
+        {
+            WLMegCoilInfo::SPtr coilInfo( new WLMegCoilInfo() );
+            coilInfos->push_back( coilInfo );
+        }
+    }
+
+    // apply positions, orientations and ex, ey, ez
+    // --------------------------------------------
+    for( WLArrayList< WPosition >::size_type i = 0; i < n_pos; ++i )
+    {
+        ( *coilInfos )[i]->position = ( *positions )[i];
+    }
+
+    for( WLArrayList< WVector3f >::size_type i = 0; i < n_exyz; ++i )
+    {
+        ( *coilInfos )[i]->ex.x() = ( *ex )[i].x();
+        ( *coilInfos )[i]->ex.y() = ( *ex )[i].y();
+        ( *coilInfos )[i]->ex.z() = ( *ex )[i].z();
+
+        ( *coilInfos )[i]->ey.x() = ( *ey )[i].x();
+        ( *coilInfos )[i]->ey.y() = ( *ey )[i].y();
+        ( *coilInfos )[i]->ey.z() = ( *ey )[i].z();
+
+        ( *coilInfos )[i]->ez.x() = ( *ez )[i].x();
+        ( *coilInfos )[i]->ez.y() = ( *ez )[i].y();
+        ( *coilInfos )[i]->ez.z() = ( *ez )[i].z();
+        ( *coilInfos )[i]->orientation = ( *coilInfos )[i]->ez;
+    }
+    return true;
 }
 
 WLArrayList< WVector3i >::SPtr WLEMDMEG::getFaces()

@@ -38,6 +38,7 @@
 #include "core/container/WLList.h"
 #include "core/data/WLDataTypes.h"
 #include "core/data/WLDigPoint.h"
+#include "core/data/WLEMMHpiInfo.h"
 #include "core/data/WLEMMSubject.h"
 #include "core/data/emd/WLEMData.h"
 #include "core/data/enum/WLEModality.h"
@@ -348,6 +349,27 @@ public:
      */
     void setFidToACPCTransformation( const WLMatrix4::Matrix4T& mat );
 
+    /**
+     * Gets the HPI information.
+     *
+     * \return HPI information
+     */
+    WLEMMHpiInfo::SPtr getHpiInfo();
+
+    /**
+     * Gets the HPI information.
+     *
+     * \return HPI information
+     */
+    WLEMMHpiInfo::ConstSPtr getHpiInfo() const;
+
+    /**
+     * Sets the HPI information.
+     *
+     * \param hpiInfo HPI information to set.
+     */
+    void setHpiInfo( WLEMMHpiInfo::SPtr hpiInfo );
+
 private:
     WLLifetimeProfiler::SPtr m_profiler;
 
@@ -366,6 +388,8 @@ private:
     WLMatrix4::Matrix4T m_transDevToFid; //!< %Transformation matrix: device to fiducial.
 
     WLMatrix4::Matrix4T m_transFidToACPC; //!< %Transformation matrix: fiducial to ACPC.
+
+    WLEMMHpiInfo::SPtr m_hpiInfo; //!< HPI info containing coil position and frequencies.
 };
 
 inline std::ostream& operator<<( std::ostream &strm, const WLEMMeasurement& obj )
@@ -373,11 +397,12 @@ inline std::ostream& operator<<( std::ostream &strm, const WLEMMeasurement& obj 
     strm << WLEMMeasurement::CLASS << ": modalities=[";
     for( size_t m = 0; m < obj.getModalityCount(); ++m )
     {
-        strm << *obj.getModality( m ) << ", ";
+        strm << "{" << *obj.getModality( m ) << "}, ";
     }
     strm << "]";
     strm << ", digPoints=" << obj.getDigPoints()->size();
     strm << ", eventChannels=" << obj.getEventChannelCount();
+    strm << ", hpiInfo={" << *obj.getHpiInfo() << "}";
     return strm;
 }
 

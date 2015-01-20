@@ -27,7 +27,6 @@
 
 # we use the directory name as module name
 GET_FILENAME_COMPONENT( MODULE_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME )
-SET( libfiffio_dir ${PROJECT_SOURCE_DIR}/../resources/platformDependent/libfiffio )
 
 
 # --------------------------------------------------------------------------------------------------------------------------------
@@ -36,8 +35,6 @@ SET( libfiffio_dir ${PROJECT_SOURCE_DIR}/../resources/platformDependent/libfiffi
 
 SET( ADDITIONAL_LIBS "" )
 
-INCLUDE_DIRECTORIES( ${libfiffio_dir}/include )
-LIST( APPEND ADDITIONAL_LIBS ${libfiffio_dir}/linux_x86_64/libfiffio.so )
 
 # --------------------------------------------------------------------------------------------------------------------------------
 # Add MNE Library headers

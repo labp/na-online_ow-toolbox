@@ -124,6 +124,7 @@ void WMHeadPositionEstimation::properties()
 
     m_trgApplySettings = m_propGroupExtraction->addProperty( "Apply Settings:", "Apply", WPVBaseTypes::PV_TRIGGER_READY,
                     m_condition );
+    m_trgApplySettings->changed( true );
 
     m_propGroupEstimation = m_properties->addPropertyGroup( "Head Position Estimation", "Head Position Estimation" );
 
@@ -225,7 +226,6 @@ void WMHeadPositionEstimation::moduleInit()
     waitRestored();
 
     viewInit();
-    handleApplyFreq();
 
     infoLog() << "Initializing module finished!";
 }
@@ -249,7 +249,7 @@ void WMHeadPositionEstimation::moduleMain()
 
         if( m_trgApplySettings->changed( true ) )
         {
-            handleApplyFreq();
+            hdlApplyFreq();
             m_trgApplySettings->set( WPVBaseTypes::PV_TRIGGER_READY, true );
         }
 
@@ -262,9 +262,9 @@ void WMHeadPositionEstimation::moduleMain()
     }
 }
 
-bool WMHeadPositionEstimation::handleApplyFreq()
+bool WMHeadPositionEstimation::hdlApplyFreq()
 {
-    debugLog() << "handleApplyFreq() called!";
+    debugLog() << __func__ << "() called!";
 
     m_hpiSignalExtraction.reset( new WHPISignalExtraction() );
 
@@ -283,21 +283,78 @@ bool WMHeadPositionEstimation::handleApplyFreq()
     return true;
 }
 
+bool WMHeadPositionEstimation::setHpiCoilFreqs( const WLEMMHpiInfo& hpiInfo )
+{
+    debugLog() << __func__ << "() called!";
+    if( hpiInfo.getHpiFrequencies().empty() )
+    {
+        errorLog() << "No HPI coil frequencies available!";
+        return false;
+    }
+
+    WLEMMHpiInfo::HpiFrequenciesT freqs = hpiInfo.getHpiFrequencies();
+    if( freqs.size() != 5 )
+    {
+        errorLog() << "5 HPI coils are needed, at the moment!";
+        return false;
+    }
+
+    WLEMMHpiInfo::HpiFrequenciesT::iterator it = freqs.begin();
+    m_propHpi1Freq->set( *it, true );
+    ++it;
+    m_propHpi2Freq->set( *it, true );
+    ++it;
+    m_propHpi3Freq->set( *it, true );
+    ++it;
+    m_propHpi4Freq->set( *it, true );
+    ++it;
+    m_propHpi5Freq->set( *it, true );
+
+    return hdlApplyFreq();
+}
+
 bool WMHeadPositionEstimation::processInit( WLEMMCommand::SPtr cmdIn )
 {
-    const bool rc = handleApplyFreq();
+    debugLog() << __func__ << "() called!";
+
+    bool rc = true;
+    if( cmdIn->hasEmm() )
+    {
+        infoLog() << "Initializing HPI coil frequencies.";
+        WLEMMeasurement::ConstSPtr emm = cmdIn->getEmm();
+        rc &= setHpiCoilFreqs( *emm->getHpiInfo() );
+    }
+    else
+    {
+        rc &= hdlApplyFreq();
+    }
+
     m_output->updateData( cmdIn );
     return rc;
 }
 
 bool WMHeadPositionEstimation::processCompute( WLEMMeasurement::SPtr emmIn )
 {
-    WLTimeProfiler tp( "WMHeadPositionEstimation", "processCompute" );
+    WLTimeProfiler tp( "WMHeadPositionEstimation", __func__ );
 
     WLEMDMEG::SPtr magIn;
     if( !extractMagnetometer( magIn, emmIn ) )
     {
         return false;
+    }
+
+    if( !m_hpiSignalExtraction )
+    {
+        infoLog() << "Initializing HPI coil frequencies.";
+        if( !setHpiCoilFreqs( *emmIn->getHpiInfo() ) )
+        {
+            infoLog() << "Using default or user defined HPI coil frequencies!";
+            if( !hdlApplyFreq() )
+            {
+                errorLog() << "Could not create HPI signal extraction!";
+                return false;
+            }
+        }
     }
 
     WLEMDHPI::SPtr hpiOut;
@@ -324,7 +381,7 @@ bool WMHeadPositionEstimation::processCompute( WLEMMeasurement::SPtr emmIn )
     }
 
     // Reconstructed HPI amplitudes and positions
-    WLEMMeasurement::SPtr emmOut = emmIn->clone();
+    WLEMMeasurement::SPtr emmOut = emmIn->clone(); // TODO(pieloth): Do we really need to clone this?
     emmOut->setModalityList( emmIn->getModalityList() );
     emmOut->addModality( hpiOut );
     viewUpdate( emmOut );
@@ -338,7 +395,7 @@ bool WMHeadPositionEstimation::processCompute( WLEMMeasurement::SPtr emmIn )
 
 bool WMHeadPositionEstimation::processReset( WLEMMCommand::SPtr cmdIn )
 {
-    m_hpiSignalExtraction->reset();
+    m_hpiSignalExtraction.reset();
     m_optim.reset();
     m_lastParams.setZero();
     m_output->updateData( cmdIn );
@@ -361,7 +418,7 @@ bool WMHeadPositionEstimation::processMisc( WLEMMCommand::SPtr cmd )
 
 bool WMHeadPositionEstimation::extractMagnetometer( WLEMDMEG::SPtr& magOut, WLEMMeasurement::ConstSPtr emmIn )
 {
-    WLTimeProfiler tp( "WMHeadPositionEstimation", "extractMagnetometer" );
+    WLTimeProfiler tp( "WMHeadPositionEstimation", __func__ );
     if( !emmIn->hasModality( WLEModality::MEG ) )
     {
         errorLog() << "No MEG data!";
@@ -382,12 +439,12 @@ bool WMHeadPositionEstimation::extractMagnetometer( WLEMDMEG::SPtr& magOut, WLEM
 
 bool WMHeadPositionEstimation::extractHpiSignals( WLEMDHPI::SPtr& hpiOut, WLEMDMEG::ConstSPtr magIn )
 {
-    WLTimeProfiler tp( "WMHeadPositionEstimation", "extractHpiSignals" );
+    WLTimeProfiler tp( "WMHeadPositionEstimation", __func__ );
 
     if( magIn->getSampFreq() != m_hpiSignalExtraction->getSamplingFrequency() )
     {
         m_hpiSignalExtraction->setSamplingFrequency( magIn->getSampFreq() );
-        infoLog() << "Update signal extraction:\n" << *m_hpiSignalExtraction;
+        infoLog() << "Update signal extraction sfreq: " << m_hpiSignalExtraction->getSamplingFrequency();
     }
 
     const bool rc = m_hpiSignalExtraction->reconstructAmplitudes( hpiOut, magIn );
@@ -406,7 +463,7 @@ bool WMHeadPositionEstimation::extractHpiSignals( WLEMDHPI::SPtr& hpiOut, WLEMDM
 
 bool WMHeadPositionEstimation::estimateHeadPosition( WLEMDHPI::SPtr hpiInOut, WLEMDMEG::ConstSPtr magMag )
 {
-    WLTimeProfiler tp( "WMHeadPositionEstimation", "estimateHeadPosition" );
+    WLTimeProfiler tp( "WMHeadPositionEstimation", __func__ );
 
     // Prepare optimization and MEG magnetometer data
     if( !m_optim )
