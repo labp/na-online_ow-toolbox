@@ -59,7 +59,7 @@ public:
     explicit WLEMDDrawable2DMultiDynamic( WUIViewWidget::SPtr widget );
     virtual ~WLEMDDrawable2DMultiDynamic();
 
-    virtual bool setTimeRange( ValueT timeRange );
+    virtual bool setTimeRange( WLTimeT timeRange );
 
     virtual void draw( WLEMMeasurement::SPtr emm );
 

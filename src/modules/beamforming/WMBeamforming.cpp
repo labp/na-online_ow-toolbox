@@ -124,7 +124,6 @@ void WMBeamforming::properties()
 //    WLModuleDrawable::setComputeModalitySelection( WLEModality::valuesLocalizeable() );
 //    WLModuleDrawable::hideComputeModalitySelection( true );
     WLModuleDrawable::properties();
-    WLModuleDrawable::setTimerangeInformationOnly( true );
     WLModuleDrawable::setViewModality( WLEModality::SOURCE );
     WLModuleDrawable::hideViewModalitySelection( true );
     WLModuleDrawable::hideLabelsOn( true );

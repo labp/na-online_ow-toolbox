@@ -192,7 +192,7 @@ void WLEMDDrawable2D::osgAddTimeGrid()
         m_rootGroup->removeChild( m_timeGridGroup );
         m_timeGridGroup = new WGEGroupNode;
 
-        const ValueT pxPerSec = ( width - m_xOffset ) / getTimeRange();
+        const ValueT pxPerSec = ( width - m_xOffset ) / m_timeRange;
         const ValueT deltaT = pxPerSec * 0.05;
 
         for( ValueT xPos = m_xOffset; xPos < width; xPos += deltaT )
@@ -259,16 +259,16 @@ void WLEMDDrawable2D::osgAddTimeGrid()
     }
 }
 
-WLEMDDrawable::ValueT WLEMDDrawable2D::getTimeRange() const
+WLTimeT WLEMDDrawable2D::getTimeRange() const
 {
-    return m_timeRange;
+    return m_timeRange * WLUnits::s;
 }
 
-bool WLEMDDrawable2D::setTimeRange( ValueT timeRange )
+bool WLEMDDrawable2D::setTimeRange( WLTimeT timeRange )
 {
-    if( timeRange != m_timeRange )
+    if( timeRange.value() != m_timeRange )
     {
-        m_timeRange = timeRange;
+        m_timeRange = timeRange.value();
         m_timeRangeChanged = true;
         return true;
     }
@@ -307,18 +307,18 @@ bool WLEMDDrawable2D::setSelectedPixel( ValueT value )
     return false;
 }
 
-float WLEMDDrawable2D::getSelectedTime() const
+WLEMDDrawable2D::ValueT WLEMDDrawable2D::getSelectedTime() const
 {
     return ( m_selectedPixel - m_xOffset ) / ( m_widget->width() - m_xOffset );
 }
 
-bool WLEMDDrawable2D::setSelectedTime( float relative )
+bool WLEMDDrawable2D::setSelectedTime( ValueT relative )
 {
     if( relative < 0 )
     {
         return false;
     }
-    const float pos = relative * ( m_widget->width() - m_xOffset ) + m_xOffset;
+    const ValueT pos = relative * ( m_widget->width() - m_xOffset ) + m_xOffset;
     return setSelectedPixel( pos );
 }
 

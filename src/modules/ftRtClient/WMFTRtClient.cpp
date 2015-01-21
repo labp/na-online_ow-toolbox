@@ -97,7 +97,6 @@ void WMFTRtClient::connectors()
 void WMFTRtClient::properties()
 {
     WLModuleDrawable::properties();
-    WLModuleDrawable::setTimerangeInformationOnly( true );
     WLModuleDrawable::hideComputeModalitySelection( true );
 
     //

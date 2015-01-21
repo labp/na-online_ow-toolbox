@@ -100,19 +100,19 @@ public:
     virtual bool setSelectedSample( ptrdiff_t pixe );
 
     /**
-     * Gets the selected point in time. TODO(pieloth): seconds or milliseconds?
+     * Gets the selected point in time.
      *
-     * \return The selected point in time in ???.
+     * \return The selected point in time between 0 and 1.
      */
-    virtual float getSelectedTime() const;
+    virtual ValueT getSelectedTime() const;
 
     /**
-     * Sets the selected point in time relative to the widget width. TODO(pieloth): seconds or milliseconds?
+     * Sets the selected point in time relative to the widget width.
      *
-     * \param relative Point in time in ???.
+     * \param relative Point in time between 0 and 1.
      * \return Selected point in time.
      */
-    virtual bool setSelectedTime( float relative );
+    virtual bool setSelectedTime( ValueT relative );
 
     /**
      * Returns the color map for the surface.

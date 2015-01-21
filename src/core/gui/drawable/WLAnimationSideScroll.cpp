@@ -80,14 +80,14 @@ void WLAnimationSideScroll::setStartPosition( const osg::Vec2d& pos )
     m_startPosition = osg::Vec3d( pos.x(), pos.y(), 0.0 );
 }
 
-double WLAnimationSideScroll::getTime() const
+WLTimeT WLAnimationSideScroll::getTime() const
 {
-    return m_time;
+    return m_time * WLUnits::s;
 }
 
-void WLAnimationSideScroll::setTime( double sec )
+void WLAnimationSideScroll::setTime( WLTimeT sec )
 {
-    m_time = fabs( sec );
+    m_time = fabs( sec.value() );
 }
 
 int WLAnimationSideScroll::getMaxFps() const

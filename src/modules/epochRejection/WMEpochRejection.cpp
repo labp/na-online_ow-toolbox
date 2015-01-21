@@ -103,7 +103,6 @@ void WMEpochRejection::connectors()
 void WMEpochRejection::properties()
 {
     WLModuleDrawable::properties();
-    WLModuleDrawable::setTimerangeInformationOnly( true );
     WLModuleDrawable::hideComputeModalitySelection( true );
 
     /* init property container */

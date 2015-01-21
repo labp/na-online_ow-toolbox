@@ -165,7 +165,7 @@ bool WLEMDDrawable3D::setSelectedSample( ptrdiff_t sample )
     return false;
 }
 
-float WLEMDDrawable3D::getSelectedTime() const
+WLEMDDrawable3D::ValueT WLEMDDrawable3D::getSelectedTime() const
 {
     if( m_emm && m_emm->hasModality( m_modality ) )
     {
@@ -178,7 +178,7 @@ float WLEMDDrawable3D::getSelectedTime() const
     }
 }
 
-bool WLEMDDrawable3D::setSelectedTime( float relative )
+bool WLEMDDrawable3D::setSelectedTime( ValueT relative )
 {
     if( relative < 0 )
     {

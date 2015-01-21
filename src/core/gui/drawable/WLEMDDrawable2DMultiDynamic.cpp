@@ -53,7 +53,7 @@ WLEMDDrawable2DMultiDynamic::WLEMDDrawable2DMultiDynamic( WUIViewWidget::SPtr wi
     m_blockLength = 0;
 
     m_animation = new WLAnimationSideScroll( m_osgChannelBlocks );
-    m_animation->setTime( 1 );
+    m_animation->setTime( 1.0 * WLUnits::s );
     m_animation->setXTranslation( m_widget->width() - m_xOffset );
     m_animation->setStartPosition( osg::Vec2d( m_widget->width(), m_widget->height() ) );
 }
@@ -68,7 +68,7 @@ WLEMDDrawable2DMultiDynamic::~WLEMDDrawable2DMultiDynamic()
     }
 }
 
-bool WLEMDDrawable2DMultiDynamic::setTimeRange( ValueT timeRange )
+bool WLEMDDrawable2DMultiDynamic::setTimeRange( WLTimeT timeRange )
 {
     bool rc = WLEMDDrawable2D::setTimeRange( timeRange );
     m_animation->setTime( getTimeRange() );
