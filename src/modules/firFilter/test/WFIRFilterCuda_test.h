@@ -37,9 +37,9 @@
 
 #define COEFFILE "22coeff.fcf"
 #define ORDER 40
-#define SFREQ 1000
-#define C1FREQ 100
-#define C2FREQ 1000
+#define SFREQ 1000.0
+#define C1FREQ 100.0
+#define C2FREQ 1000.0
 
 class WFIRFilterCudaTest: public CxxTest::TestSuite
 {
@@ -56,8 +56,9 @@ public:
         WFIRFilterCuda::SPtr filter( new WFIRFilterCuda( fileName.c_str() ) );
         WFIRFilterTestHelper::filterImpulseTest( filter );
 
-        filter.reset( new WFIRFilterCuda( WFIRFilter::WEFilterType::BANDPASS, WLWindowFunction::HAMMING, ORDER, SFREQ,
-        C1FREQ, C2FREQ ) );
+        filter.reset(
+                        new WFIRFilterCuda( WFIRFilter::WEFilterType::BANDPASS, WLWindowFunction::HAMMING, ORDER,
+                                        SFREQ * WLUnits::Hz, C1FREQ * WLUnits::Hz, C2FREQ * WLUnits::Hz ) );
         WFIRFilterTestHelper::filterImpulseTest( filter );
     }
 
@@ -67,8 +68,9 @@ public:
         WFIRFilterCuda::SPtr filter( new WFIRFilterCuda( fileName.c_str() ) );
         WFIRFilterTestHelper::filterStepTest( filter );
 
-        filter.reset( new WFIRFilterCuda( WFIRFilter::WEFilterType::BANDPASS, WLWindowFunction::HAMMING, ORDER, SFREQ,
-        C1FREQ, C2FREQ ) );
+        filter.reset(
+                        new WFIRFilterCuda( WFIRFilter::WEFilterType::BANDPASS, WLWindowFunction::HAMMING, ORDER,
+                                        SFREQ * WLUnits::Hz, C1FREQ * WLUnits::Hz, C2FREQ * WLUnits::Hz ) );
         WFIRFilterTestHelper::filterStepTest( filter );
     }
 
@@ -78,8 +80,9 @@ public:
         WFIRFilterCuda::SPtr filter( new WFIRFilterCuda( fileName.c_str() ) );
         WFIRFilterTestHelper::filterSineTest( filter );
 
-        filter.reset( new WFIRFilterCuda( WFIRFilter::WEFilterType::BANDPASS, WLWindowFunction::HAMMING, ORDER, SFREQ,
-        C1FREQ, C2FREQ ) );
+        filter.reset(
+                        new WFIRFilterCuda( WFIRFilter::WEFilterType::BANDPASS, WLWindowFunction::HAMMING, ORDER,
+                                        SFREQ * WLUnits::Hz, C1FREQ * WLUnits::Hz, C2FREQ * WLUnits::Hz ) );
         WFIRFilterTestHelper::filterSineTest( filter );
     }
 };

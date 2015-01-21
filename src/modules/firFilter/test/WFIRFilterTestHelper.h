@@ -191,13 +191,13 @@ private:
         const WFIRFilter::WEFilterType::Enum type = WFIRFilter::WEFilterType::LOWPASS;
         const WLWindowFunction::WLEWindow windows = WLWindowFunction::HAMMING;
         const size_t order = 200;
-        const float f_cutoff = 50.0;
+        const WFIRFilter::ScalarT f_cutoff = 50.0;
         const WFIRFilter::ScalarT sampling_frequency = 1000;
         filter->reset();
-        filter->setCutOffFrequency1( f_cutoff, false );
+        filter->setCutOffFrequency1( f_cutoff * WLUnits::Hz, false );
         filter->setFilterType( type, false );
         filter->setOrder( order, false );
-        filter->setSamplingFrequency( sampling_frequency, false );
+        filter->setSamplingFrequency( sampling_frequency * WLUnits::Hz, false );
         filter->setWindowType( windows, false );
         filter->design();
 
@@ -277,10 +277,10 @@ private:
         const float f_cutoff = 50.0;
         const WFIRFilter::ScalarT sampling_frequency = 1000;
         filter->reset();
-        filter->setCutOffFrequency1( f_cutoff, false );
+        filter->setCutOffFrequency1( f_cutoff * WLUnits::Hz, false );
         filter->setFilterType( type, false );
         filter->setOrder( order, false );
-        filter->setSamplingFrequency( sampling_frequency, false );
+        filter->setSamplingFrequency( sampling_frequency * WLUnits::Hz, false );
         filter->setWindowType( windows, false );
         filter->design();
 
@@ -361,11 +361,11 @@ private:
         const float fc2 = 100.0;
         const WFIRFilter::ScalarT sampling_frequency = 1000;
         filter->reset();
-        filter->setCutOffFrequency1( fc1, false );
-        filter->setCutOffFrequency2( fc2, false );
+        filter->setCutOffFrequency1( fc1 * WLUnits::Hz, false );
+        filter->setCutOffFrequency2( fc2 * WLUnits::Hz, false );
         filter->setFilterType( type, false );
         filter->setOrder( order, false );
-        filter->setSamplingFrequency( sampling_frequency, false );
+        filter->setSamplingFrequency( sampling_frequency * WLUnits::Hz, false );
         filter->setWindowType( windows, false );
         filter->design();
 
@@ -466,11 +466,11 @@ private:
         const float fc2 = 100.0;
         const WFIRFilter::ScalarT sampling_frequency = 1000;
         filter->reset();
-        filter->setCutOffFrequency1( fc1, false );
-        filter->setCutOffFrequency2( fc2, false );
+        filter->setCutOffFrequency1( fc1 * WLUnits::Hz, false );
+        filter->setCutOffFrequency2( fc2 * WLUnits::Hz, false );
         filter->setFilterType( type, false );
         filter->setOrder( order, false );
-        filter->setSamplingFrequency( sampling_frequency, false );
+        filter->setSamplingFrequency( sampling_frequency * WLUnits::Hz, false );
         filter->setWindowType( windows, false );
         filter->design();
 

@@ -63,7 +63,7 @@ WFIRFilter::WFIRFilter( const std::string& pathToFcf )
 }
 
 WFIRFilter::WFIRFilter( WFIRFilter::WEFilterType::Enum filtertype, WLWindowFunction::WLEWindow windowtype, int order,
-                ScalarT sFreq, ScalarT cFreq1, ScalarT cFreq2 )
+                WLFreqT sFreq, WLFreqT cFreq1, WLFreqT cFreq2 )
 {
     design( filtertype, windowtype, order, sFreq, cFreq1, cFreq2 );
 }
@@ -74,7 +74,7 @@ WFIRFilter::~WFIRFilter()
 
 WLEMData::SPtr WFIRFilter::filter( const WLEMData::ConstSPtr emdIn )
 {
-    WLTimeProfiler prfTime( CLASS, "filter" );
+    WLTimeProfiler prfTime( CLASS, __func__ );
 
     WLEMData::DataT in = emdIn->getData();
     WLEMData::DataSPtr out( new WLEMData::DataT( in.rows(), in.cols() ) );
@@ -97,7 +97,7 @@ WLEMData::SPtr WFIRFilter::filter( const WLEMData::ConstSPtr emdIn )
 
 void WFIRFilter::doPostProcessing( WLEMMeasurement::SPtr emmOut, WLEMMeasurement::ConstSPtr emmIn )
 {
-    WLTimeProfiler prfTime( CLASS, "doPostProcess" );
+    WLTimeProfiler prfTime( CLASS, __func__ );
 
     boost::shared_ptr< WLEMMeasurement::EDataT > eventsIn = emmIn->getEventChannels();
     if( !eventsIn || eventsIn->empty() )
@@ -169,7 +169,7 @@ void WFIRFilter::setOrder( size_t value, bool redesign )
     }
 }
 
-void WFIRFilter::setSamplingFrequency( ScalarT value, bool redesign )
+void WFIRFilter::setSamplingFrequency( WLFreqT value, bool redesign )
 {
     m_sFreq = value;
     if( redesign )
@@ -178,7 +178,7 @@ void WFIRFilter::setSamplingFrequency( ScalarT value, bool redesign )
     }
 }
 
-void WFIRFilter::setCutOffFrequency1( ScalarT value, bool redesign )
+void WFIRFilter::setCutOffFrequency1( WLFreqT value, bool redesign )
 {
     m_cFreq1 = value;
     if( redesign )
@@ -187,7 +187,7 @@ void WFIRFilter::setCutOffFrequency1( ScalarT value, bool redesign )
     }
 }
 
-void WFIRFilter::setCutOffFrequency2( ScalarT value, bool redesign )
+void WFIRFilter::setCutOffFrequency2( WLFreqT value, bool redesign )
 {
     m_cFreq2 = value;
     if( redesign )
@@ -293,13 +293,13 @@ void WFIRFilter::reset()
 
 void WFIRFilter::design()
 {
-    wlog::debug( CLASS ) << "design() called!";
+    wlog::debug( CLASS ) << __func__ << "() called!";
 
     this->reset();
 
     // prepare allPass for other filtertypes
     m_allPass.resize( m_order + 1, 0 );
-    designLowpass( &m_allPass, m_order, 0.5, 1.0, m_window );
+    designLowpass( &m_allPass, m_order, 0.5 * WLUnits::Hz, 1.0 * WLUnits::Hz, m_window );
 
     wlog::debug( CLASS ) << "design() m_allPass: " << m_allPass.size();
 #ifdef DEBUG
@@ -339,9 +339,9 @@ void WFIRFilter::design()
 }
 
 void WFIRFilter::design( WFIRFilter::WEFilterType::Enum filtertype, WLWindowFunction::WLEWindow windowtype, size_t order,
-                ScalarT sFreq, ScalarT cFreq1, ScalarT cFreq2 )
+                WLFreqT sFreq, WLFreqT cFreq1, WLFreqT cFreq2 )
 {
-    wlog::debug( CLASS ) << "design(...) called!";
+    wlog::debug( CLASS ) << __func__ << "(...) called!";
 
     m_type = filtertype;
     m_window = windowtype;
@@ -353,16 +353,16 @@ void WFIRFilter::design( WFIRFilter::WEFilterType::Enum filtertype, WLWindowFunc
     design();
 }
 
-void WFIRFilter::designLowpass( std::vector< ScalarT >* pCoeff, size_t order, ScalarT cFreq, ScalarT sFreq,
+void WFIRFilter::designLowpass( std::vector< ScalarT >* pCoeff, size_t order, WLFreqT cFreq, WLFreqT sFreq,
                 WLWindowFunction::WLEWindow windowtype )
 {
-    wlog::debug( CLASS ) << "designLowpass() called!";
+    wlog::debug( CLASS ) << __func__ << "() called!";
 
     WAssert( pCoeff, "pCoeff is NULL!" );
+    WAssert( cFreq.value() != 0, "cFreq != 0" );
+    WAssert( sFreq.value() != 0, "sFreq != 0" );
+    WAssert( pCoeff->size() == order + 1, "coeff.size() == order + 1" );
     std::vector< ScalarT >& coeff = *pCoeff;
-    WAssert( cFreq != 0, "cFreq != 0" );
-    WAssert( sFreq != 0, "sFreq != 0" );
-    WAssert( coeff.size() == order + 1, "coeff.size() == order + 1" );
 
     ScalarT a = 0.0;
     ScalarT b = 0.0;
@@ -391,7 +391,7 @@ void WFIRFilter::designLowpass( std::vector< ScalarT >* pCoeff, size_t order, Sc
 
 void WFIRFilter::designHighpass( void )
 {
-    wlog::debug( CLASS ) << "designHighpass() called!";
+    wlog::debug( CLASS ) << __func__ << "() called!";
 
     designLowpass( &m_coeffitients, m_order, m_cFreq1, m_sFreq, m_window );
     normalizeCoeff( &m_coeffitients );
@@ -405,7 +405,7 @@ void WFIRFilter::designHighpass( void )
 
 void WFIRFilter::designBandpass()
 {
-    wlog::debug( CLASS ) << "designBandpass() called!";
+    wlog::debug( CLASS ) << __func__ << "() called!";
 
     std::vector< ScalarT > tmpCoeff( m_coeffitients.size(), 0 );
 
@@ -425,7 +425,7 @@ void WFIRFilter::designBandpass()
 
 void WFIRFilter::designBandstop()
 {
-    wlog::debug( CLASS ) << "designBandstop() called!";
+    wlog::debug( CLASS ) << __func__ << "() called!";
 
     designBandpass();
 

@@ -71,8 +71,8 @@ public:
 
     explicit WFIRFilter( const std::string& pathToFcf );
 
-    WFIRFilter( WEFilterType::Enum filtertype, WLWindowFunction::WLEWindow windowtype, int order, ScalarT sFreq, ScalarT cFreq1,
-                    ScalarT cFreq2 );
+    WFIRFilter( WEFilterType::Enum filtertype, WLWindowFunction::WLEWindow windowtype, int order, WLFreqT sFreq, WLFreqT cFreq1,
+                    WLFreqT cFreq2 );
 
     virtual ~WFIRFilter();
 
@@ -90,17 +90,17 @@ public:
     void setFilterType( WEFilterType::Enum value, bool redesign = false );
     void setWindowType( WLWindowFunction::WLEWindow value, bool redesign = false );
     void setOrder( size_t value, bool redesign = false );
-    void setSamplingFrequency( ScalarT value, bool redesign = false );
-    void setCutOffFrequency1( ScalarT value, bool redesign = false );
-    void setCutOffFrequency2( ScalarT value, bool redesign = false );
+    void setSamplingFrequency( WLFreqT value, bool redesign = false );
+    void setCutOffFrequency1( WLFreqT value, bool redesign = false );
+    void setCutOffFrequency2( WLFreqT value, bool redesign = false );
     void setCoefficients( std::vector< ScalarT > values );
     bool setCoefficients( const std::string& pathToFcf );
 
     std::vector< ScalarT > getCoefficients();
 
     void design();
-    void design( WEFilterType::Enum filtertype, WLWindowFunction::WLEWindow windowtype, size_t order, ScalarT sFreq,
-                    ScalarT cFreq1, ScalarT cFreq2 );
+    void design( WEFilterType::Enum filtertype, WLWindowFunction::WLEWindow windowtype, size_t order, WLFreqT sFreq,
+                    WLFreqT cFreq1, WLFreqT cFreq2 );
 
     void reset();
 
@@ -110,9 +110,9 @@ protected:
     std::vector< ScalarT > m_coeffitients;
     WLWindowFunction::WLEWindow m_window;
     WEFilterType::Enum m_type;
-    ScalarT m_sFreq;
-    ScalarT m_cFreq1;
-    ScalarT m_cFreq2;
+    WLFreqT m_sFreq;
+    WLFreqT m_cFreq1;
+    WLFreqT m_cFreq2;
     size_t m_order;
     std::vector< ScalarT > m_allPass;
 
@@ -120,7 +120,7 @@ protected:
     void storePreviousData( WLEMData::ConstSPtr emd );
 
 private:
-    void designLowpass( std::vector< ScalarT >* pCoeff, size_t order, ScalarT cFreq1, ScalarT sFreq,
+    void designLowpass( std::vector< ScalarT >* pCoeff, size_t order, WLFreqT cFreq1, WLFreqT sFreq,
                     WLWindowFunction::WLEWindow windowtype );
     void designHighpass();
     void designBandpass();
