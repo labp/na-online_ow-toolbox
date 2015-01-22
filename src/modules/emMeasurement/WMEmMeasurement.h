@@ -201,7 +201,7 @@ private:
 
     WLArrayList< std::string >::SPtr m_elcLabels;
 
-    boost::shared_ptr< std::vector< WPosition > > m_elcPositions3d;
+    WLArrayList< WPosition >::SPtr m_elcPositions3d;
 
     boost::shared_ptr< std::vector< WVector3i > > m_elcFaces;
 

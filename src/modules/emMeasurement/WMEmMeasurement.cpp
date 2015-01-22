@@ -317,11 +317,11 @@ void WMEmMeasurement::streamData()
         WRealtimeTimer totalTimer;
         WRealtimeTimer waitTimer;
 
-        const double SEC_PER_BLOCK = ( double )m_fiffStreamBlockSize->get() / 1000; // blockSize in seconds
+        const WLTimeT SEC_PER_BLOCK = ( double )m_fiffStreamBlockSize->get() / 1000.0 * WLUnits::s; // blockSize in seconds
         WLSampleNrT blockSize = 0; // blockSize depending on SEC_PER_BLOCK and sampling frequency
         WLSampleNrT blockOffset = 0; // start index for current block
         size_t blockCount = 0;
-        int smplFrq;
+        WLFreqT smplFrq;
         WLEMData::DataT fiffData;
         bool hasData;
         std::vector< WLEMData::SPtr > emds = m_fiffEmm->getModalityList();
@@ -405,7 +405,7 @@ void WMEmMeasurement::streamData()
             infoLog() << "Streamed emmPacket #" << blockCount;
 
             // waiting to simulate streaming
-            const double tuSleep = SEC_PER_BLOCK * 1000000 - waitTimer.elapsed() * 1000000;
+            const double tuSleep = SEC_PER_BLOCK.value() * 1000000 - waitTimer.elapsed() * 1000000;
             if( tuSleep > 0 )
             {
                 boost::this_thread::sleep( boost::posix_time::microseconds( tuSleep ) );
@@ -461,7 +461,7 @@ void WMEmMeasurement::generateData()
         WLEMMeasurement::SPtr emm( new WLEMMeasurement() );
         WLEMDEEG::SPtr eeg( new WLEMDEEG() );
 
-        eeg->setSampFreq( m_generationFreq->get() );
+        eeg->setSampFreq( m_generationFreq->get() * WLUnits::Hz );
 
         const size_t channels = m_generationNrChans->get();
         const size_t samples = m_generationFreq->get() * ( ( double )m_generationBlockSize->get() / 1000.0 );
@@ -564,7 +564,7 @@ bool WMEmMeasurement::readElc( std::string fname )
 {
     m_elcFileStatus->set( LOADING_FILE, true );
     m_elcLabels = WLArrayList< std::string >::instance();
-    m_elcPositions3d.reset( new std::vector< WPosition >() );
+    m_elcPositions3d = WLArrayList< WPosition >::instance();
     m_elcFaces.reset( new std::vector< WVector3i >() );
 
     WLReaderELC* elcReader;
