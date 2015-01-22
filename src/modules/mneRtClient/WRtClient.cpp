@@ -60,7 +60,7 @@ WRtClient::WRtClient( const std::string& ip_address, const std::string& alias ) 
     m_blockSize = 500;
     m_applyScaling = false;
 
-    m_chPosEeg.reset( new ChannelsPositionsT );
+    m_chPosEeg = WLArrayList< WPosition >::instance();
     m_facesEeg.reset( new FacesT );
     m_digPoints = WLList< WLDigPoint >::instance();
 }
@@ -667,7 +667,7 @@ bool WRtClient::readChannelPositions( WLEMData* const emd, const Eigen::RowVecto
     }
 
     QList< FIFFLIB::FiffChInfo > chInfos = m_fiffInfo->chs;
-    ChannelsPositionsSPtr positions( new ChannelsPositionsT );
+    WLArrayList< WPosition >::SPtr positions = WLArrayList< WPosition >::instance();
     positions->reserve( picks.size() );
 
     WLEMDEEG* eeg = dynamic_cast< WLEMDEEG* >( emd );
@@ -749,7 +749,7 @@ bool WRtClient::readChannelFaces( WLEMData* const emd )
 {
     wlog::debug( CLASS ) << "readChannelFaces() called!";
 
-    ChannelsPositionsSPtr positions;
+    WLArrayList< WPosition >::SPtr positions;
     WLEMDEEG* eeg = dynamic_cast< WLEMDEEG* >( emd );
     if( eeg != NULL )
     {
@@ -771,7 +771,7 @@ bool WRtClient::readChannelFaces( WLEMData* const emd )
     }
 
     const WPosition zero = WPosition::zero();
-    ChannelsPositionsT::const_iterator it;
+    WLArrayList< WPosition >::const_iterator it;
     size_t nzero = 0;
     for( it = positions->begin(); it != positions->end(); ++it )
     {

@@ -34,6 +34,7 @@
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include "core/kernel/WDataModule.h"
 
+#include "core/container/WLArrayList.h"
 #include "core/data/WLDataTypes.h"
 #include "core/data/WLEMMSurface.h"
 #include "core/data/WLEMMeasurement.h"
@@ -95,7 +96,7 @@ private:
 
     bool handleSensorFileChanged();
 
-    boost::shared_ptr< std::vector< WPosition > > m_sensorPos;
+    WLArrayList< WPosition >::SPtr m_sensorPos;
 
     WPropTrigger m_trgGenerate;
 

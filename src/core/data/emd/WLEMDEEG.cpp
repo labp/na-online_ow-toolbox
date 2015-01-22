@@ -75,11 +75,6 @@ void WLEMDEEG::setChannelPositions3d( WLArrayList< WPosition >::SPtr chanPos3d )
     m_chanPos3d = chanPos3d;
 }
 
-void WLEMDEEG::setChannelPositions3d( boost::shared_ptr< std::vector< WPosition > > chanPos3d )
-{
-    m_chanPos3d = WLArrayList< WPosition >::instance( *chanPos3d );
-}
-
 WLArrayList< WVector3i >::SPtr WLEMDEEG::getFaces()
 {
     return m_faces;

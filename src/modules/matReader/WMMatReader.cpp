@@ -116,8 +116,8 @@ void WMMatReader::properties()
                     WPathHelper::getHomePath(), m_propCondition );
     m_propSensorFile->changed( true );
 
-    m_propSamplFreq = m_properties->addProperty( "Sampling Frequency:", "Sampling Frequency of the data in Hz.", SAMPLING_FEQUENCY,
-                    m_propCondition );
+    m_propSamplFreq = m_properties->addProperty( "Sampling Frequency:", "Sampling Frequency of the data in Hz.",
+                    SAMPLING_FEQUENCY, m_propCondition );
 
     m_trgGenerate = m_properties->addProperty( "Generate EMM:", "Generate", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
 
@@ -222,7 +222,7 @@ bool WMMatReader::handleSensorFileChanged()
         return false;
     }
 
-    m_sensorPos.reset( new std::vector< WPosition > );
+    m_sensorPos = WLArrayList< WPosition >::instance();
     if( reader->read( m_sensorPos.get() ) != WLIOStatus::SUCCESS )
     {
         errorLog() << ERROR_READ << " (Sensor Positions)";

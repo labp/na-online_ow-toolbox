@@ -107,35 +107,9 @@ WLArrayList< WPosition >::ConstSPtr WLEMDMEG::getChannelPositions3d() const
     return m_chanPos3d;
 }
 
-WLArrayList< WPosition >::ConstSPtr WLEMDMEG::getChannelPositions3d( WLEMEGGeneralCoilType::Enum type ) const
-{
-    if( m_chanPos3d->size() % 3 != 0 || m_chanPos3d->empty() )
-    {
-        return WLArrayList< WPosition >::ConstSPtr( new WLArrayList< WPosition > );
-    }
-
-    std::vector< size_t > picks = getPicks( type );
-    WLArrayList< WPosition >::SPtr posPtr( new WLArrayList< WPosition > );
-    WLArrayList< WPosition >& positions = *posPtr;
-    positions.reserve( picks.size() );
-
-    std::vector< size_t >::const_iterator it;
-    for( it = picks.begin(); it != picks.end(); ++it )
-    {
-        positions.push_back( m_chanPos3d->at( *it ) );
-    }
-
-    return posPtr;
-}
-
 void WLEMDMEG::setChannelPositions3d( WLArrayList< WPosition >::SPtr chanPos3d )
 {
     m_chanPos3d = chanPos3d;
-}
-
-void WLEMDMEG::setChannelPositions3d( boost::shared_ptr< std::vector< WPosition > > chanPos3d )
-{
-    m_chanPos3d = WLArrayList< WPosition >::instance( *chanPos3d );
 }
 
 WLArrayList< WLMegCoilInfo::SPtr >::SPtr WLEMDMEG::getCoilInformation()

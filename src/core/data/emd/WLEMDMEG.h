@@ -85,30 +85,12 @@ public:
     WLArrayList< WPosition >::ConstSPtr getChannelPositions3d() const;
 
     /**
-     * \deprecated Please use extractCoilModality()
-     * \param type Coil type.
-     * \return List containing requested coils.
-     */
-    OW_API_DEPRECATED
-    WLArrayList< WPosition >::ConstSPtr getChannelPositions3d( WLEMEGGeneralCoilType::Enum type ) const;
-
-    /**
      * Sets the positions.
      *
      * \note Positions must be in millimeter. TODO(pieloth): Which unit, meter or millimeter?
      * \param chanPos3d Positions to set.
      */
     void setChannelPositions3d( WLArrayList< WPosition >::SPtr chanPos3d );
-
-    /**
-     * Sets the positions.
-     *
-     * \deprecated Please use setChannelPositions3d( WLArrayList< WPosition >::SPtr chanPos3d )
-     * \note Positions must be in millimeter. TODO(pieloth): Which unit, meter or millimeter?
-     * \param chanPos3d Positions to set.
-     */
-    OW_API_DEPRECATED
-    void setChannelPositions3d( boost::shared_ptr< std::vector< WPosition > > chanPos3d );
 
     /**
      * Gets the coil information.
