@@ -53,7 +53,7 @@ static const WPosition RAP( 0.075132007, 0.017106384, -0.074811978 );
 
 WMAlignment::WMAlignment()
 {
-    m_transformation.setZero();
+    m_transformation = WLTransformation::instance();
 }
 
 WMAlignment::~WMAlignment()
@@ -211,15 +211,9 @@ bool WMAlignment::processCompute( WLEMMeasurement::SPtr emm )
     WLEMMCommand::SPtr cmd( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
     cmd->setEmm( emm );
 
-    // TODO(pieloth): #393 Use new transformation class in module.
-    if( !m_transformation.isZero() )
+    if( !m_transformation->empty() )
     {
-        WLTransformation::SPtr t = WLTransformation::instance();
-        t->from( WLECoordSystem::HEAD );
-        t->to( WLECoordSystem::AC_PC );
-        // TODO(pieloth): #393 set unit and exponent
-        t->data() = m_transformation;
-        emm->setFidToACPCTransformation( t );
+        emm->setFidToACPCTransformation( m_transformation );
         m_output->updateData( cmd );
         return true;
     }
@@ -229,7 +223,7 @@ bool WMAlignment::processCompute( WLEMMeasurement::SPtr emm )
     align.setNasionSkin( m_propEstNasion->get( false ) );
     align.setRpaSkin( m_propEstRPA->get( false ) );
 
-    double score = align.align( &m_transformation, emm );
+    double score = align.align( m_transformation.get(), emm );
     if( score == WEEGSkinAlignment::NOT_CONVERGED )
     {
         m_output->updateData( cmd );
@@ -238,12 +232,7 @@ bool WMAlignment::processCompute( WLEMMeasurement::SPtr emm )
     }
     m_propIcpConverged->set( true, false );
     m_propIcpScore->set( score, false );
-    WLTransformation::SPtr t = WLTransformation::instance();
-    t->from( WLECoordSystem::HEAD );
-    t->to( WLECoordSystem::AC_PC );
-    // TODO(pieloth): #393 set unit and exponent
-    t->data() = m_transformation;
-    emm->setFidToACPCTransformation( t );
+    emm->setFidToACPCTransformation( m_transformation );
     viewUpdate( emm );
 
     m_output->updateData( cmd );
@@ -257,15 +246,9 @@ bool WMAlignment::processInit( WLEMMCommand::SPtr cmd )
         WLTimeProfiler tp( "WMAlignment", __func__ );
 
         const WLEMMeasurement::SPtr emm = cmd->getEmm();
-        // TODO(pieloth): #393 Use new transformation class in module.
-        if( !m_transformation.isZero() )
+        if( !m_transformation->empty() )
         {
-            WLTransformation::SPtr t = WLTransformation::instance();
-            t->from( WLECoordSystem::HEAD );
-            t->to( WLECoordSystem::AC_PC );
-            // TODO(pieloth): #393 set unit and exponent
-            t->data() = m_transformation;
-            emm->setFidToACPCTransformation( t );
+            emm->setFidToACPCTransformation( m_transformation );
             m_output->updateData( cmd );
             return true;
         }
@@ -275,7 +258,7 @@ bool WMAlignment::processInit( WLEMMCommand::SPtr cmd )
         align.setNasionSkin( m_propEstNasion->get( false ) );
         align.setRpaSkin( m_propEstRPA->get( false ) );
 
-        double score = align.align( &m_transformation, emm );
+        double score = align.align( m_transformation.get(), emm );
         if( score == WEEGSkinAlignment::NOT_CONVERGED )
         {
             m_output->updateData( cmd );
@@ -285,12 +268,7 @@ bool WMAlignment::processInit( WLEMMCommand::SPtr cmd )
         }
         m_propIcpConverged->set( true, false );
         m_propIcpScore->set( score, false );
-        WLTransformation::SPtr t = WLTransformation::instance();
-        t->from( WLECoordSystem::HEAD );
-        t->to( WLECoordSystem::AC_PC );
-        // TODO(pieloth): #393 set unit and exponent
-        t->data() = m_transformation;
-        emm->setFidToACPCTransformation( t );
+        emm->setFidToACPCTransformation( m_transformation );
         viewUpdate( emm );
         m_output->updateData( cmd );
         return true;
@@ -327,7 +305,7 @@ void WMAlignment::handleTrgReset()
     debugLog() << __func__ << "() called";
 
     viewReset();
-    m_transformation.setZero();
+    m_transformation = WLTransformation::instance();
     m_propEstLPA->set( LAP, false );
     m_propEstNasion->set( NASION, false );
     m_propEstRPA->set( RAP, false );

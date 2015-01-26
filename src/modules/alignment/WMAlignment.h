@@ -32,9 +32,9 @@
 #include <core/ui/WUIViewWidget.h>
 #include <core/kernel/WModule.h>
 
-#include "core/data/WLDataTypes.h"
 #include "core/data/WLEMMCommand.h"
 #include "core/data/WLEMMeasurement.h"
+#include "core/data/WLTransformation.h"
 #include "core/gui/drawable/WLEMDDrawable3DEEGBEM.h"
 #include "core/module/WLEMMCommandProcessor.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
@@ -94,7 +94,7 @@ private:
     WCondition::SPtr m_propCondition;
     WPropTrigger m_trgReset;
 
-    WLMatrix4::Matrix4T m_transformation;
+    WLTransformation::SPtr m_transformation;
 
     // ----------------------------
     // Transformation Estimation Properties

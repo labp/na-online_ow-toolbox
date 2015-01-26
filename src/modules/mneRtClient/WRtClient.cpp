@@ -542,6 +542,8 @@ bool WRtClient::setDigPointsAndEEG( const std::list< WLDigPoint >& digPoints )
         ++nChPosEeg;
     }
     m_chPosEeg->resize( nChPosEeg );
+    // TODO(pieloth): #393 set unit and exponent.
+    m_chPosEeg->coordSystem( WLECoordSystem::HEAD );
     nChPosEeg = 0;
     for( it = m_digPoints->begin(); it != m_digPoints->end(); ++it )
     {
@@ -722,6 +724,8 @@ bool WRtClient::readChannelPositions( WLEMData* const emd, const Eigen::RowVecto
         chEzMEG->reserve( picks.size() );
 
         WLEMDMEG::PositionsT::SPtr posMeg = WLEMDMEG::PositionsT::instance();
+        // TODO(pieloth): #393 set unit and exponent.
+        posMeg->coordSystem( WLECoordSystem::DEVICE );
         posMeg->resize( picks.size() );
 
         for( Eigen::RowVectorXi::Index row = 0; row < picks.size(); ++row )

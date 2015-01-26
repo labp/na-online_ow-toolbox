@@ -52,6 +52,7 @@ public:
     typedef boost::shared_ptr< const WLTransformation > ConstSPtr; //!< Abbreviation for a const shared pointer.
 
     typedef Eigen::Matrix4d TransformationT;
+    typedef TransformationT::Scalar ScalarT; //!< Value type.
 
     static const std::string CLASS;
 

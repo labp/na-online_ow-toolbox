@@ -24,7 +24,6 @@
 #include <limits>
 #include <list>
 #include <string>
-#include <vector>
 
 #include <pcl/correspondence.h>
 #include <pcl/pcl_base.h>
@@ -34,6 +33,7 @@
 #include <pcl/registration/icp.h>
 
 #include <core/common/WLogger.h>
+#include <core/common/exceptions/WPreconditionNotMet.h>
 
 #include "core/util/profiler/WLTimeProfiler.h"
 #include "WAlignment.h"
@@ -68,17 +68,42 @@ void WAlignment::clearCorrespondences()
     m_correspondences.clear();
 }
 
-double WAlignment::align( TransformationT* const matrix, const PointsT& from, const PointsT& to )
+double WAlignment::align( TransformationT* const transformation, const PointsT& from, const PointsT& to )
 {
-    WLTimeProfiler tp( CLASS, "align" );
+    WLTimeProfiler tp( CLASS, __func__ );
+
+    // Error checking
+    // --------------
+    if( transformation == NULL )
+    {
+        wlog::error( CLASS ) << "Matrix pointer is null!";
+        return NOT_CONVERGED;
+    }
 
     if( from.empty() || to.empty() )
     {
         wlog::error( CLASS ) << "FROM or TO points are empty!";
         return NOT_CONVERGED;
     }
-    // TODO(pieloth): #393 Check unit and exponent!
 
+    if( from.unit() != WLEUnit::NONE && to.unit() != WLEUnit::NONE )
+    {
+        if( from.unit() != to.unit() )
+        {
+            throw WPreconditionNotMet( "Units are not equals!" );
+        }
+        if( from.exponent() != to.exponent() )
+        {
+            throw WPreconditionNotMet( "Exponents are not equals!" );
+        }
+    }
+    else
+    {
+        wlog::warn( CLASS ) << "Translation unit is not set and could not be checked: " << from.unit() << "/" << to.unit();
+    }
+
+    // Align
+    // -----
     PCLMatrixT pclMatrix = PCLMatrixT::Identity();
     if( !m_correspondences.empty() )
     {
@@ -86,23 +111,22 @@ double WAlignment::align( TransformationT* const matrix, const PointsT& from, co
     }
     else
     {
-        if( !matrix->isZero() && !matrix->isIdentity() )
+        if( !transformation->empty() )
         {
             wlog::info( CLASS ) << "Using matrix as initial transformation.";
-#ifndef LABP_FLOAT_COMPUTATION
-            pclMatrix = matrix->cast< PCLMatrixT::Scalar >();
-#else
-            pclMatrix = *matrix;
-#endif
+            pclMatrix = transformation->data().cast< PCLMatrixT::Scalar >();
         }
     }
 
     const double score = icpAlign( &pclMatrix, from, to );
-#ifndef LABP_FLOAT_COMPUTATION
-    *matrix = pclMatrix.cast< TransformationT::Scalar >();
-#else
-    *matrix = pclMatrix;
-#endif
+
+    // Prepare output
+    // --------------
+    transformation->from( from.coordSystem() );
+    transformation->to( to.coordSystem() );
+    transformation->unit( from.unit() );
+    transformation->exponent( from.exponent() );
+    transformation->data() = pclMatrix.cast< TransformationT::ScalarT >();
 
     return score;
 }
@@ -126,7 +150,7 @@ bool WAlignment::estimateTransformation( PCLMatrixT* const matrix )
         ++count;
     }
 
-    TransformationEstimationSVD< PointXYZ, PointXYZ > te;
+    TransformationEstimationSVD < PointXYZ, PointXYZ > te;
     te.estimateRigidTransformation( src, trg, corrs, *matrix );
     wlog::debug( CLASS ) << "Estimate transformation:\n" << *matrix;
 
@@ -138,22 +162,22 @@ double WAlignment::icpAlign( PCLMatrixT* const trans, const PointsT& from, const
     WLTimeProfiler tp( CLASS, "icpAlign" );
 
     wlog::debug( CLASS ) << "icpAlign: Transforming WPosition to PCL::PointXYZ";
-    PointCloud< PointXYZ > src;
+    PointCloud < PointXYZ > src;
     for( PointsT::IndexT i = 0; i < from.size(); ++i )
     {
-        const PointsT::PositionT tmp = from.at(i);
+        const PointsT::PositionT tmp = from.at( i );
         src.push_back( PointXYZ( tmp.x(), tmp.y(), tmp.z() ) );
     }
 
-    PointCloud< PointXYZ > trg;
+    PointCloud < PointXYZ > trg;
     for( PointsT::IndexT i = 0; i < to.size(); ++i )
     {
-        const PointsT::PositionT tmp = to.at(i);
+        const PointsT::PositionT tmp = to.at( i );
         trg.push_back( PointXYZ( tmp.x(), tmp.y(), tmp.z() ) );
     }
 
     wlog::debug( CLASS ) << "icpAlign: Run ICP";
-    IterativeClosestPoint< PointXYZ, PointXYZ > icp;
+    IterativeClosestPoint < PointXYZ, PointXYZ > icp;
     icp.setMaximumIterations( m_maxIterations );
     icp.setInputCloud( src.makeShared() );
     icp.setInputTarget( trg.makeShared() );

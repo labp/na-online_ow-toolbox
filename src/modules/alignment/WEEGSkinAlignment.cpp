@@ -50,27 +50,27 @@ WEEGSkinAlignment::~WEEGSkinAlignment()
 {
 }
 
-void WEEGSkinAlignment::setLpaSkin( const WPosition& lpaSkin )
+void WEEGSkinAlignment::setLpaSkin( const PointT& lpaSkin )
 {
     m_lpaSkin = lpaSkin;
 }
 
-const WPosition& WEEGSkinAlignment::getNasionSkin() const
+const WEEGSkinAlignment::PointT& WEEGSkinAlignment::getNasionSkin() const
 {
     return m_nasionSkin;
 }
 
-void WEEGSkinAlignment::setNasionSkin( const WPosition& nasionSkin )
+void WEEGSkinAlignment::setNasionSkin( const PointT& nasionSkin )
 {
     m_nasionSkin = nasionSkin;
 }
 
-const WPosition& WEEGSkinAlignment::getRpaSkin() const
+const WEEGSkinAlignment::PointT& WEEGSkinAlignment::getRpaSkin() const
 {
     return m_rpaSkin;
 }
 
-void WEEGSkinAlignment::setRpaSkin( const WPosition& rpaSkin )
+void WEEGSkinAlignment::setRpaSkin( const PointT& rpaSkin )
 {
     m_rpaSkin = rpaSkin;
 }
@@ -82,7 +82,7 @@ double WEEGSkinAlignment::align( TransformationT* const matrix, WLEMMeasurement:
 
     // Extract & set corresponding points
     // ----------------------------------
-    WPosition lpaEEG, nasionEEG, rpaEEG;
+    PointT lpaEEG, nasionEEG, rpaEEG;
     if( extractFiducialPoints( &lpaEEG, &nasionEEG, &rpaEEG, emm_ref ) )
     {
         if( m_lpaSkin != m_nasionSkin && m_nasionSkin != m_rpaSkin )
@@ -127,7 +127,7 @@ double WEEGSkinAlignment::align( TransformationT* const matrix, WLEMMeasurement:
     return WAlignment::align( matrix, *fromPtr, to );
 }
 
-bool WEEGSkinAlignment::extractFiducialPoints( WPosition* const lpa, WPosition* const nasion, WPosition* const rpa,
+bool WEEGSkinAlignment::extractFiducialPoints( PointT* const lpa, PointT* const nasion, PointT* const rpa,
                 const WLEMMeasurement& emm )
 {
     WLTimeProfiler tp( CLASS, __func__ );
@@ -214,18 +214,21 @@ bool WEEGSkinAlignment::extractBEMSkinPoints( PointsT* const out, const WLEMMeas
         }
     }
 
-    PointsT::PositionsT& pos = out->data();
-    pos.resize( PointsT::PositionsT::RowsAtCompileTime, idx );
+    PointsT::PositionsT& outPos = out->data();
+    outPos.resize( PointsT::PositionsT::RowsAtCompileTime, idx );
     idx = 0;
     for( itPos = bemPosition.begin(); itPos != bemPosition.end(); ++itPos )
     {
         if( itPos->z() > z_threashold )
         {
             PointsT::PositionT tmp( itPos->x(), itPos->y(), itPos->z() );
-            pos.col( idx ) = tmp * factor;
+            outPos.col( idx ) = tmp * factor;
             ++idx;
         }
     }
+
+    // TODO(pieloth): #393 check/use coordSystem from BEM boundary.
+    out->coordSystem( WLECoordSystem::AC_PC );
 
     return true;
 }

@@ -27,15 +27,9 @@
 #include <list>
 #include <string>
 #include <utility> // std::pair
-#include <vector>
 
-#include <Eigen/Core>
-
-#include <core/common/math/linearAlgebra/WPosition.h>
-
-#include "core/data/WLDataTypes.h"
-#include "core/data/WLEMMeasurement.h"
 #include "core/data/WLPositions.h"
+#include "core/data/WLTransformation.h"
 
 /**
  * Registration and Alignment implementation.
@@ -50,9 +44,10 @@
 class WAlignment
 {
 public:
-    typedef std::pair< WPosition, WPosition > CorrespondenceT;
+    typedef WLPositions::PositionT PointT;
     typedef WLPositions PointsT;
-    typedef WLMatrix4::Matrix4T TransformationT;
+    typedef WLTransformation TransformationT;
+    typedef std::pair< PointT, PointT > CorrespondenceT;
 
     static const std::string CLASS;
 
@@ -88,6 +83,7 @@ public:
      * If no correspondences are available and the matrix is not zero or not an identity,
      * the matrix will be used as a initial transformation.
      *
+     * \throws WPreconditionNotMet
      * \param matrix Holds the final transformation.
      * \param from Source points.
      * \param to Target points.

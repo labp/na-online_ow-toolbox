@@ -53,7 +53,8 @@ WLEMDMEG::WLEMDMEG() :
     m_eZ = WLArrayList< WVector3f >::instance();
 }
 
-WLEMDMEG::WLEMDMEG( WLEModality::Enum modality )
+WLEMDMEG::WLEMDMEG( WLEModality::Enum modality ) :
+                WLEMData()
 {
     if( !WLEModality::isMEG( modality ) )
     {

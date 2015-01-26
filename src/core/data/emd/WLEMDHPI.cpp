@@ -38,7 +38,8 @@ WLEMDHPI::WLEMDHPI() :
     m_transformations = WLArrayList< TransformationT >::instance();
 }
 
-WLEMDHPI::WLEMDHPI( const WLEMDHPI& hpi )
+WLEMDHPI::WLEMDHPI( const WLEMDHPI& hpi ) :
+                WLEMData()
 {
     m_nrHpiCoils = hpi.m_nrHpiCoils;
     m_chanPos3d = hpi.m_chanPos3d;
@@ -91,6 +92,8 @@ bool WLEMDHPI::setChannelPositions3d( WLList< WLDigPoint >::ConstSPtr digPoints 
         }
     }
     m_chanPos3d->resize( nPos );
+    // TODO(pieloth): #393 set unit and exponent.
+    m_chanPos3d->coordSystem( WLECoordSystem::HEAD );
     nPos = 0;
     for( it = digPoints->begin(); it != digPoints->end(); ++it )
     {

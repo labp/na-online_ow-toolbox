@@ -289,6 +289,8 @@ WLIOStatus::IOStatusT WLReaderFIFF::read( WLEMMeasurement::SPtr* const out )
             case WLEModality::EEG: // Set specific EEG data
             {
                 WLEMDEEG::SPtr eeg = emd->getAs< WLEMDEEG >();
+                // TODO(pieloth): #393 set unit and exponent.
+                positions->coordSystem( WLECoordSystem::HEAD );
                 eeg->setChannelPositions3d( positions );
                 wlog::debug( CLASS ) << "EEG positions: " << posTmp.size();
                 break;
@@ -296,6 +298,8 @@ WLIOStatus::IOStatusT WLReaderFIFF::read( WLEMMeasurement::SPtr* const out )
             case WLEModality::MEG: // Set specific MEG data
             {
                 WLEMDMEG::SPtr meg = emd->getAs< WLEMDMEG >();
+                // TODO(pieloth): #393 set unit and exponent.
+                positions->coordSystem( WLECoordSystem::DEVICE );
                 meg->setChannelPositions3d( positions );
                 meg->setEx( eX );
                 meg->setEy( eY );
