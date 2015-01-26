@@ -24,6 +24,7 @@
 #ifndef WLTRANSFORMATION_H_
 #define WLTRANSFORMATION_H_
 
+#include <ostream>
 #include <string>
 
 #include <boost/shared_ptr.hpp>
@@ -179,5 +180,17 @@ private:
     WLEUnit::Enum m_unit;
     WLEExponent::Enum m_exponent;
 };
+
+inline std::ostream& operator<<( std::ostream &strm, const WLTransformation& obj )
+{
+    strm << "WLTransformation: ";
+    strm << "from=" << obj.from() << ", ";
+    strm << "to=" << obj.to() << ", ";
+    strm << "unit=" << obj.unit() << ", ";
+    strm << "exponent=" << obj.exponent() << ", ";
+    strm << "matrix=[" << obj.data().row( 0 ) << ", " << obj.data().row( 1 ) << ", " << obj.data().row( 2 ) << ", "
+                    << obj.data().row( 3 ) << "]";
+    return strm;
+}
 
 #endif  // WLTRANSFORMATION_H_
