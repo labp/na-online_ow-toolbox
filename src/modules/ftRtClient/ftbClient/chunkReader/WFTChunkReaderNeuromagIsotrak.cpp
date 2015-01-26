@@ -79,7 +79,7 @@ bool WFTChunkReaderNeuromagIsotrak::read( WFTChunk::ConstSPtr chunk )
     if( createEEGPositions( getDigPoints( WLEPointType::EEG_ECG ) ) )
     {
         m_eegFaces->clear();
-        WLGeometry::computeTriangulation( m_eegFaces.get(), m_eegChPos->positions(), EEG_FACES_FACTOR );
+        WLGeometry::computeTriangulation( m_eegFaces.get(), m_eegChPos->data(), EEG_FACES_FACTOR );
     }
 
     return true;
@@ -172,7 +172,7 @@ bool WFTChunkReaderNeuromagIsotrak::createEEGPositions( WLList< WLDigPoint >::Co
             continue;
         }
         WLPositions::PositionT tmp( it->getPoint().x(), it->getPoint().y(), it->getPoint().z() );
-        m_eegChPos->positions().col( nPos ) = tmp;
+        m_eegChPos->data().col( nPos ) = tmp;
         ++nPos;
     }
 

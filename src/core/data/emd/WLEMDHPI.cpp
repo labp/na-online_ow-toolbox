@@ -96,9 +96,9 @@ bool WLEMDHPI::setChannelPositions3d( WLList< WLDigPoint >::ConstSPtr digPoints 
     {
         if( it->getKind() == WLEPointType::HPI )
         {
-            m_chanPos3d->positions().col( nPos ).x() = it->getPoint().x();
-            m_chanPos3d->positions().col( nPos ).y() = it->getPoint().y();
-            m_chanPos3d->positions().col( nPos ).z() = it->getPoint().z();
+            m_chanPos3d->data().col( nPos ).x() = it->getPoint().x();
+            m_chanPos3d->data().col( nPos ).y() = it->getPoint().y();
+            m_chanPos3d->data().col( nPos ).z() = it->getPoint().z();
             ++nPos;
         }
     }

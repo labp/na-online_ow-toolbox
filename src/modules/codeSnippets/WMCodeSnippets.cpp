@@ -220,12 +220,12 @@ bool WMCodeSnippets::writeEmdPositions( WLEMMeasurement::ConstSPtr emm )
     if( emm->hasModality( WLEModality::EEG ) )
     {
         WLEMDEEG::ConstSPtr emd = emm->getModality< const WLEMDEEG >( WLEModality::EEG );
-        rc &= writeEmdPositions( emd->getChannelPositions3d()->positions(), "/tmp/positions_eeg.txt" );
+        rc &= writeEmdPositions( emd->getChannelPositions3d()->data(), "/tmp/positions_eeg.txt" );
     }
     if( emm->hasModality( WLEModality::MEG ) )
     {
         WLEMDMEG::ConstSPtr emd = emm->getModality< const WLEMDMEG >( WLEModality::MEG );
-        rc &= writeEmdPositions( emd->getChannelPositions3d()->positions(), "/tmp/positions_meg.txt" );
+        rc &= writeEmdPositions( emd->getChannelPositions3d()->data(), "/tmp/positions_meg.txt" );
     }
 
     WLEMMSubject::ConstSPtr subject = emm->getSubject();

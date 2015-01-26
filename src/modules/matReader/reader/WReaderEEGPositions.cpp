@@ -122,9 +122,9 @@ WLIOStatus::IOStatusT WReaderEEGPositions::read( WLPositions* const positions )
         {
             continue;
         }
-        positions->positions().col(nEeg).x() = itChInfo->eeg_loc.col( 0 ).x();
-        positions->positions().col(nEeg).y() = itChInfo->eeg_loc.col( 0 ).y();
-        positions->positions().col(nEeg).z() = itChInfo->eeg_loc.col( 0 ).z();
+        positions->data().col(nEeg).x() = itChInfo->eeg_loc.col( 0 ).x();
+        positions->data().col(nEeg).y() = itChInfo->eeg_loc.col( 0 ).y();
+        positions->data().col(nEeg).z() = itChInfo->eeg_loc.col( 0 ).z();
     }
     wlog::debug( CLASS ) << "Channels skipped: " << skipped;
 

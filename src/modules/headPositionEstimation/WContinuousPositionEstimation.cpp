@@ -37,7 +37,7 @@ WContinuousPositionEstimation::WContinuousPositionEstimation( const WLPositions&
 {
     // TODO(pieloth): #393 Check coordSystems and exponents! -> WPreconditionNotMet
     // Transform HPI coil positions
-    m_hpiPos = hpiPos.positions().colwise().homogeneous();
+    m_hpiPos = hpiPos.data().colwise().homogeneous();
 
     // Transform sensor positions
     m_sensPos.reserve( sensPos.size() );
@@ -187,7 +187,7 @@ WLPositions::SPtr WContinuousPositionEstimation::getResultPositions() const
     const HPointsT points = paramsToTrans( getResultParams() ) * m_hpiPos;
     for( HPointsT::Index i = 0; i < points.cols(); ++i )
     {
-        positions->positions().col( i ) = points.block( 0, i, 3, 1 );
+        positions->data().col( i ) = points.block( 0, i, 3, 1 );
     }
 
     return positions;

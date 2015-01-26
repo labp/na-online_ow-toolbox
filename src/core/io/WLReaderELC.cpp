@@ -114,7 +114,7 @@ WLIOStatus::IOStatusT WLReaderELC::read( WLPositions* const posOut, std::vector<
     if( facesOut->empty() )
     {
         wlog::warn( CLASS ) << "No faces found! Faces will be generated.";
-        WLGeometry::computeTriangulation( facesOut, posOut->positions() );
+        WLGeometry::computeTriangulation( facesOut, posOut->data() );
     }
 
     ifs.close();
@@ -180,9 +180,9 @@ WLIOStatus::IOStatusT WLReaderELC::readPositions( ifstream& ifs, size_t count, W
         float posX = string_utils::fromString< float >( posTokens.at( posTokens.size() - 3 ) );
         float posY = string_utils::fromString< float >( posTokens.at( posTokens.size() - 2 ) );
         float posZ = string_utils::fromString< float >( posTokens.at( posTokens.size() - 1 ) );
-        posOut->positions().col( i ).x() = posX;
-        posOut->positions().col( i ).y() = posY;
-        posOut->positions().col( i ).z() = posZ;
+        posOut->data().col( i ).x() = posX;
+        posOut->data().col( i ).y() = posY;
+        posOut->data().col( i ).z() = posZ;
     }
     if( posOut->size() < count )
     {

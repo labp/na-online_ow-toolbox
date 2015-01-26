@@ -281,7 +281,7 @@ WLIOStatus::IOStatusT WLReaderFIFF::read( WLEMMeasurement::SPtr* const out )
         positions->resize( posTmp.size() );
         for( WLPositions::IndexT i = 0; i < positions->size(); ++i )
         {
-            positions->positions().col( i ) = posTmp.at( i );
+            positions->data().col( i ) = posTmp.at( i );
         }
 
         switch( emd->getModalityType() )

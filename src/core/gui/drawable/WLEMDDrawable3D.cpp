@@ -215,7 +215,7 @@ void WLEMDDrawable3D::osgAddSurface( const WLPositions& positions, const std::ve
         m_rootGroup->removeChild( m_surfaceGeode );
 
         const WLPositions::IndexT nbPositions = positions.size();
-        const WLPositions::PositionsT tmp = positions.positions() * m_zoomFactor;
+        const WLPositions::PositionsT tmp = positions.data() * m_zoomFactor;
         std::vector< WPosition > scaledPos;
         scaledPos.reserve( nbPositions );
         for( WLPositions::IndexT i = 0; i < nbPositions; ++i )

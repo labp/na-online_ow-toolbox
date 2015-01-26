@@ -205,7 +205,7 @@ bool WEEGSkinAlignment::extractBEMSkinPoints( PointsT* const out, const WLEMMeas
 
     const double factor = WLEExponent::factor( bemSkin->getVertexExponent() );
 
-    PointsT::PositionsT& pos = out->positions();
+    PointsT::PositionsT& pos = out->data();
     pos.resize( 3, bemPosition.size() );
     PointsT::IndexT idx = 0;
     for( itPos = bemPosition.begin(); itPos != bemPosition.end(); ++itPos )

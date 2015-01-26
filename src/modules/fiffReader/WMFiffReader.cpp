@@ -304,7 +304,7 @@ bool WMFiffReader::readFiffFile( const std::string& fName )
                 if( eeg->getFaces()->empty() )
                 {
                     warnLog() << "No faces found! Faces will be generated.";
-                    WLGeometry::computeTriangulation( eeg->getFaces().get(), eeg->getChannelPositions3d()->positions(), -5 );
+                    WLGeometry::computeTriangulation( eeg->getFaces().get(), eeg->getChannelPositions3d()->data(), -5 );
                 }
             }
         }

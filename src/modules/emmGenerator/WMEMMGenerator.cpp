@@ -185,7 +185,7 @@ bool WMEMMGenerator::generateEMM()
     positions->exponent( WLEExponent::BASE );
     positions->coordSystem( WLECoordSystem::HEAD );
     positions->resize( channels );
-    WLPositions::PositionsT& pos = positions->positions();
+    WLPositions::PositionsT& pos = positions->data();
     for( WLChanIdxT chan = 0; chan < channels; ++chan )
     {
         WLEMData::ChannelT channel( samples );

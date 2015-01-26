@@ -471,7 +471,7 @@ void WMEmMeasurement::generateData()
         positions->unit( WLEUnit::METER );
         positions->exponent( WLEExponent::BASE );
         positions->coordSystem( WLECoordSystem::HEAD );
-        WLEMDEEG::PositionsT::PositionsT& pos = positions->positions();
+        WLEMDEEG::PositionsT::PositionsT& pos = positions->data();
         for( WLChanIdxT chan = 0; chan < channels; ++chan )
         {
             WLEMData::ChannelT channel( samples );
@@ -542,7 +542,7 @@ bool WMEmMeasurement::readFiff( std::string fname )
                 if( eeg->getFaces()->empty() )
                 {
                     warnLog() << "No faces found! Faces will be generated.";
-                    WLGeometry::computeTriangulation( eeg->getFaces().get(), eeg->getChannelPositions3d()->positions(), -5 );
+                    WLGeometry::computeTriangulation( eeg->getFaces().get(), eeg->getChannelPositions3d()->data(), -5 );
                 }
             }
             infoLog() << *m_fiffEmm;

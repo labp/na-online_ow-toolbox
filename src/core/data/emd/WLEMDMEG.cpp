@@ -564,7 +564,7 @@ bool WLEMDMEG::extractCoilModality( WLEMDMEG::SPtr& megOut, WLEMDMEG::ConstSPtr 
         PositionsT::IndexT iPos = 0;
         for( it = picksFiltered.begin(); it != picksFiltered.end(); ++it )
         {
-            chPos.positions().col( iPos ) = chPos_from.at( *it );
+            chPos.data().col( iPos ) = chPos_from.at( *it );
             ++iPos;
         }
     }

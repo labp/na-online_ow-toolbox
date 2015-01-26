@@ -65,9 +65,9 @@ bool WLeadfieldInterpolation::prepareHDLeadfield( MNELIB::MNEForwardSolution::Co
     for( size_t ch = 0; ch < num_pos; ++ch )
     {
         const FIFFLIB::FiffChInfo& chInfo = hdLeadfield->info.chs.at( ch );
-        positions->positions().col( ch ).x() = chInfo.loc( 0, 0 );
-        positions->positions().col( ch ).y() = chInfo.loc( 1, 0 );
-        positions->positions().col( ch ).z() = chInfo.loc( 2, 0 );
+        positions->data().col( ch ).x() = chInfo.loc( 0, 0 );
+        positions->data().col( ch ).y() = chInfo.loc( 1, 0 );
+        positions->data().col( ch ).z() = chInfo.loc( 2, 0 );
     }
 
     setHDLeadfieldPosition( positions );

@@ -58,17 +58,17 @@ const WLPositions::PositionT WLPositions::at( PositionsT::Index i ) const
     return m_positions.col( i );
 }
 
-WLPositions::PositionsT& WLPositions::positions()
+WLPositions::PositionsT& WLPositions::data()
 {
     return m_positions;
 }
 
-const WLPositions::PositionsT& WLPositions::positions() const
+const WLPositions::PositionsT& WLPositions::data() const
 {
     return m_positions;
 }
 
-void WLPositions::positions( const PositionsT& positions )
+void WLPositions::data( const PositionsT& positions )
 {
     m_positions = positions;
 }

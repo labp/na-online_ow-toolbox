@@ -554,16 +554,16 @@ bool WRtClient::setDigPointsAndEEG( const std::list< WLDigPoint >& digPoints )
             isFirst = false;
             continue;
         }
-        m_chPosEeg->positions().col( nChPosEeg ).x() = it->getPoint().x();
-        m_chPosEeg->positions().col( nChPosEeg ).y() = it->getPoint().y();
-        m_chPosEeg->positions().col( nChPosEeg ).z() = it->getPoint().z();
+        m_chPosEeg->data().col( nChPosEeg ).x() = it->getPoint().x();
+        m_chPosEeg->data().col( nChPosEeg ).y() = it->getPoint().y();
+        m_chPosEeg->data().col( nChPosEeg ).z() = it->getPoint().z();
         ++nChPosEeg;
     }
 
     wlog::info( CLASS ) << "EEG positions from digPoints: " << m_chPosEeg->size();
 
     m_facesEeg->clear();
-    if( !WLGeometry::computeTriangulation( m_facesEeg.get(), m_chPosEeg->positions(), -5 ) )
+    if( !WLGeometry::computeTriangulation( m_facesEeg.get(), m_chPosEeg->data(), -5 ) )
     {
         wlog::warn( CLASS ) << "Could not generate faces!";
     }
@@ -697,9 +697,9 @@ bool WRtClient::readChannelPositions( WLEMData* const emd, const Eigen::RowVecto
             {
                 WAssertDebug( picks[row] < chInfos.size(), "Selected channel index out of chInfos boundary!" );
                 const Eigen::Matrix< double, 3, 2, Eigen::DontAlign >& chPos = chInfos.at( ( int )picks[row] ).eeg_loc;
-                posEeg->positions().col( row ).x() = chPos( 0, 0 );
-                posEeg->positions().col( row ).y() = chPos( 1, 0 );
-                posEeg->positions().col( row ).z() = chPos( 2, 0 );
+                posEeg->data().col( row ).x() = chPos( 0, 0 );
+                posEeg->data().col( row ).y() = chPos( 1, 0 );
+                posEeg->data().col( row ).z() = chPos( 2, 0 );
             }
             eeg->setChannelPositions3d( posEeg );
             return true;
@@ -723,9 +723,9 @@ bool WRtClient::readChannelPositions( WLEMData* const emd, const Eigen::RowVecto
         {
             WAssertDebug( picks[row] < chInfos.size(), "Selected channel index out of chInfos boundary!" );
             const Eigen::Matrix< double, 12, 1, Eigen::DontAlign >& chPos = chInfos.at( ( int )picks[row] ).loc;
-            posMeg->positions().col( row ).x() = chPos( 0, 0 );
-            posMeg->positions().col( row ).y() = chPos( 1, 0 );
-            posMeg->positions().col( row ).z() = chPos( 2, 0 );
+            posMeg->data().col( row ).x() = chPos( 0, 0 );
+            posMeg->data().col( row ).y() = chPos( 1, 0 );
+            posMeg->data().col( row ).z() = chPos( 2, 0 );
 
             const WVector3f ex( chPos( 3, 0 ), chPos( 4, 0 ), chPos( 5, 0 ) );
             chExMEG->push_back( ex );
@@ -784,7 +784,7 @@ bool WRtClient::readChannelFaces( WLEMData* const emd )
     FacesSPtr faces( new FacesT );
     if( nzero < 3 )
     {
-        if( WLGeometry::computeTriangulation( faces.get(), positions->positions(), -5 ) )
+        if( WLGeometry::computeTriangulation( faces.get(), positions->data(), -5 ) )
         {
             if( eeg != NULL )
             {

@@ -142,9 +142,9 @@ bool WFTChunkReaderNeuromagHdr::read( WFTChunk::ConstSPtr chunk )
             {
                 m_chPosEEG->resize( m_modalityPicks.at( WLEModality::EEG ).cols() );
             }
-            m_chPosEEG->positions().col( idxEEG ).x() = chPos( 0, 0 );
-            m_chPosEEG->positions().col( idxEEG ).x() = chPos( 1, 0 );
-            m_chPosEEG->positions().col( idxEEG ).x() = chPos( 2, 0 );
+            m_chPosEEG->data().col( idxEEG ).x() = chPos( 0, 0 );
+            m_chPosEEG->data().col( idxEEG ).x() = chPos( 1, 0 );
+            m_chPosEEG->data().col( idxEEG ).x() = chPos( 2, 0 );
             ++idxEEG;
         }
         if( modalityType == WLEModality::MEG )
@@ -154,9 +154,9 @@ bool WFTChunkReaderNeuromagHdr::read( WFTChunk::ConstSPtr chunk )
             {
                 m_chPosMEG->resize( m_modalityPicks.at( WLEModality::MEG ).cols() );
             }
-            m_chPosMEG->positions().col( idxMEG ).x() = chPos( 0, 0 );
-            m_chPosMEG->positions().col( idxMEG ).x() = chPos( 1, 0 );
-            m_chPosMEG->positions().col( idxMEG ).x() = chPos( 2, 0 );
+            m_chPosMEG->data().col( idxMEG ).x() = chPos( 0, 0 );
+            m_chPosMEG->data().col( idxMEG ).x() = chPos( 1, 0 );
+            m_chPosMEG->data().col( idxMEG ).x() = chPos( 2, 0 );
             ++idxMEG;
 
             const WVector3f ex( chPos( 3, 0 ), chPos( 4, 0 ), chPos( 5, 0 ) );

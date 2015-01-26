@@ -91,26 +91,26 @@ public:
     const PositionT at( PositionsT::Index i ) const;
 
     /**
-     * Sets new positions or data
+     * Sets new positions or data.
      * \attention Old positions are lost!
      *
      * \param positions New positions.
      */
-    void positions( const PositionsT& positions );
+    void data( const PositionsT& positions );
 
     /**
-     * Return a positions for direct and in place access.
+     * Return positions for direct and in place access.
      *
      * \return A reference to the data.
      */
-    PositionsT& positions();
+    PositionsT& data();
 
     /**
-     * Return a positions for direct and in place access.
+     * Return positions for direct and in place access.
      *
      * \return A const reference to the data.
      */
-    const PositionsT& positions() const;
+    const PositionsT& data() const;
 
     /**
      * Gets the count of positions.

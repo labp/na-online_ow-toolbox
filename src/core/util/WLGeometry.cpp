@@ -271,7 +271,7 @@ bool WLGeometry::transformPoints( WLPositions* const out, const WLPositions& in,
     // TODO(pieloth): #393 Check from/to in positions and transformation!
     // TODO(pieloth): transformPoints - unit test!
     out->resize( in.size() );
-    out->positions() = ( trans * in.positions().colwise().homogeneous() ).block( 0, 0, 3, in.size() );
+    out->data() = ( trans * in.data().colwise().homogeneous() ).block( 0, 0, 3, in.size() );
 
     return true;
 }
