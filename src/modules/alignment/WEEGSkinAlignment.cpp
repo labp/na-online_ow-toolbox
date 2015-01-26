@@ -77,7 +77,7 @@ void WEEGSkinAlignment::setRpaSkin( const WPosition& rpaSkin )
 
 double WEEGSkinAlignment::align( TransformationT* const matrix, WLEMMeasurement::ConstSPtr emm )
 {
-    WLTimeProfiler tp( CLASS, "align" );
+    WLTimeProfiler tp( CLASS, __func__ );
     const WLEMMeasurement& emm_ref = *emm;
 
     // Extract & set corresponding points
@@ -117,7 +117,7 @@ double WEEGSkinAlignment::align( TransformationT* const matrix, WLEMMeasurement:
     }
     else
     {
-        wlog::error( CLASS ) << "align: No EEG data!";
+        wlog::error( CLASS ) << __func__ << ": No EEG data!";
         return NOT_CONVERGED;
     }
     WLPositions::ConstSPtr fromPtr = eeg->getChannelPositions3d();
@@ -130,7 +130,7 @@ double WEEGSkinAlignment::align( TransformationT* const matrix, WLEMMeasurement:
 bool WEEGSkinAlignment::extractFiducialPoints( WPosition* const lpa, WPosition* const nasion, WPosition* const rpa,
                 const WLEMMeasurement& emm )
 {
-    WLTimeProfiler tp( CLASS, "extractFiducialPoints" );
+    WLTimeProfiler tp( CLASS, __func__ );
     WLList< WLDigPoint >::SPtr digPoints = emm.getDigPoints( WLEPointType::CARDINAL );
     int count = 0;
     WLList< WLDigPoint >::const_iterator cit;
@@ -165,7 +165,7 @@ bool WEEGSkinAlignment::extractFiducialPoints( WPosition* const lpa, WPosition* 
 
 bool WEEGSkinAlignment::extractBEMSkinPoints( PointsT* const out, const WLEMMeasurement& emm )
 {
-    WLTimeProfiler tp( CLASS, "extractBEMSkinPoints" );
+    WLTimeProfiler tp( CLASS, __func__ );
     WLEMMSubject::ConstSPtr subject = emm.getSubject();
     const std::list< WLEMMBemBoundary::SPtr >& bems = *subject->getBemBoundaries();
     std::list< WLEMMBemBoundary::SPtr >::const_iterator itBem;
@@ -180,7 +180,7 @@ bool WEEGSkinAlignment::extractBEMSkinPoints( PointsT* const out, const WLEMMeas
     }
     if( !bemSkin )
     {
-        wlog::error( CLASS ) << "extractBEMSkinPoints: No BEM skin layer available!";
+        wlog::error( CLASS ) << __func__ << ": No BEM skin layer available!";
         return false;
     }
 
@@ -205,15 +205,25 @@ bool WEEGSkinAlignment::extractBEMSkinPoints( PointsT* const out, const WLEMMeas
 
     const double factor = WLEExponent::factor( bemSkin->getVertexExponent() );
 
-    PointsT::PositionsT& pos = out->data();
-    pos.resize( 3, bemPosition.size() );
     PointsT::IndexT idx = 0;
+    for( itPos = bemPosition.begin(); itPos != bemPosition.end(); ++itPos )
+    {
+        if( itPos->z() > z_threashold )
+        {
+            ++idx;
+        }
+    }
+
+    PointsT::PositionsT& pos = out->data();
+    pos.resize( PointsT::PositionsT::RowsAtCompileTime, idx );
+    idx = 0;
     for( itPos = bemPosition.begin(); itPos != bemPosition.end(); ++itPos )
     {
         if( itPos->z() > z_threashold )
         {
             PointsT::PositionT tmp( itPos->x(), itPos->y(), itPos->z() );
             pos.col( idx ) = tmp * factor;
+            ++idx;
         }
     }
 
