@@ -25,16 +25,16 @@
 #define WREADEREEGPOSITIONS_H_
 
 #include <string>
-#include <vector>
 
 #include <boost/shared_ptr.hpp>
 
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/dataHandler/exceptions/WDHNoSuchFile.h>
 
+#include "core/data/WLPositions.h"
 #include "core/io/WLReaderGeneric.h"
 
-class WReaderEEGPositions: public WLReaderGeneric< std::vector< WPosition > >
+class WReaderEEGPositions: public WLReaderGeneric< WLPositions >
 {
 public:
     /**
@@ -42,18 +42,13 @@ public:
      */
     typedef boost::shared_ptr< WReaderEEGPositions > SPtr;
 
-    /**
-     * Shared pointer abbreviation to a const instance of this class.
-     */
-    typedef boost::shared_ptr< const WReaderEEGPositions > ConstSPtr;
-
     static const std::string CLASS;
 
     explicit WReaderEEGPositions( std::string fname ) throw( WDHNoSuchFile );
 
     virtual ~WReaderEEGPositions();
 
-    virtual WLIOStatus::IOStatusT read( std::vector< WPosition >* const positions );
+    virtual WLIOStatus::IOStatusT read( WLPositions* const positions );
 };
 
 #endif  // WREADEREEGPOSITIONS_H_

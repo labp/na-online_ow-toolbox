@@ -29,6 +29,7 @@
 
 #include <core/kernel/WModule.h>
 
+#include "core/data/WLPositions.h"
 #include "core/data/emd/WLEMData.h"
 #include "core/module/WLModuleInputDataCollection.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
@@ -103,6 +104,7 @@ private:
     WCondition::SPtr m_propCondition;
 
     bool writeEmdPositions( WLEMMeasurement::ConstSPtr emm );
+    bool writeEmdPositions( const WLPositions::PositionsT& positions, std::string fname );
     bool writeEmdPositions( const std::vector< WPosition >& positions, std::string fname );
 
     void emulateSinusWave();

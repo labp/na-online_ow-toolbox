@@ -30,10 +30,10 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
-#include "core/dataHandler/io/WReader.h"
+#include <core/dataHandler/io/WReader.h>
 
+#include "core/data/WLPositions.h"
 #include "core/data/enum/WLEExponent.h"
 #include "core/io/WLIOStatus.h"
 
@@ -58,18 +58,16 @@ public:
     /**
      * Reads out a elc file. Positions are converted to millimeter, if necessary.
      */
-    WLIOStatus::IOStatusT read( std::vector< WPosition >* const posOut, std::vector< std::string >* const labelsOut,
+    WLIOStatus::IOStatusT read( WLPositions* const posOut, std::vector< std::string >* const labelsOut,
                     std::vector< WVector3i >* const facesOut );
 
 private:
     WLIOStatus::IOStatusT readUnit( WLEExponent::Enum* const exp, const std::string& line );
     WLIOStatus::IOStatusT readNumPos( size_t* const count, const std::string& line );
     WLIOStatus::IOStatusT readNumPoly( size_t* const count, const std::string& line );
-    WLIOStatus::IOStatusT readPositions( std::ifstream& ifs, size_t count, std::vector< WPosition >* const posOut );
+    WLIOStatus::IOStatusT readPositions( std::ifstream& ifs, size_t count, WLPositions* const posOut );
     WLIOStatus::IOStatusT readLabels( std::ifstream& ifs, size_t count, std::vector< std::string >* const labelsOut );
     WLIOStatus::IOStatusT readPolygons( std::ifstream& ifs, size_t count, std::vector< WVector3i >* const facesOut );
-
-    void convertToMilli( std::vector< WPosition >* const pos, WLEExponent::Enum exp );
 };
 
 #endif  // WLREADERELC_H_

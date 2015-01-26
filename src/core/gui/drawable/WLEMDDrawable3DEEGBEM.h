@@ -36,6 +36,7 @@
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/ui/WUIViewWidget.h>
 
+#include "core/data/WLPositions.h"
 #include "WLEMDDrawable3D.h"
 
 /**
@@ -68,7 +69,7 @@ protected:
     virtual void osgNodeCallback( osg::NodeVisitor* nv );
 
 private:
-    void osgAddNodes( const std::vector< WPosition >& positions );
+    void osgAddNodes( const WLPositions& positions );
 
     bool m_electrodesChanged;
 

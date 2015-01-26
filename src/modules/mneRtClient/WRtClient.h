@@ -106,7 +106,7 @@ private:
     WLEMDEEG::ConstSPtr m_eegPrototype;
     WLEMDMEG::ConstSPtr m_megPrototype;
 
-    WLArrayList< WPosition >::SPtr m_chPosEeg;
+    WLEMDEEG::PositionsT::SPtr m_chPosEeg;
     FacesSPtr m_facesEeg;
 
     Eigen::RowVectorXi m_picksEeg;

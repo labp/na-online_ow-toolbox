@@ -35,6 +35,7 @@
 
 #include "core/data/WLDataTypes.h"
 #include "core/data/WLEMMeasurement.h"
+#include "core/data/WLPositions.h"
 
 /**
  * Registration and Alignment implementation.
@@ -50,7 +51,7 @@ class WAlignment
 {
 public:
     typedef std::pair< WPosition, WPosition > CorrespondenceT;
-    typedef std::vector< WPosition > PointsT;
+    typedef WLPositions PointsT;
     typedef WLMatrix4::Matrix4T TransformationT;
 
     static const std::string CLASS;

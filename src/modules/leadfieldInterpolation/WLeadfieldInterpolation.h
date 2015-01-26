@@ -34,6 +34,7 @@
 #include <core/common/math/linearAlgebra/WPosition.h>
 
 #include "core/data/WLDataTypes.h"
+#include "core/data/WLPositions.h"
 
 /**
  * Interpolates a high resolution leadfield (HD leadfield) with K nearest neighbors of each sensors.
@@ -43,9 +44,7 @@
 class WLeadfieldInterpolation
 {
 public:
-    typedef std::vector< WPosition > PositionsT;
-
-    typedef boost::shared_ptr< PositionsT > PositionsSPtr;
+    typedef WLPositions PositionsT;
 
     static const std::string CLASS;
 
@@ -60,12 +59,12 @@ public:
     /**
      * Sets the positions of real sensors.
      */
-    void setSensorPositions( PositionsSPtr posSensors );
+    void setSensorPositions( PositionsT::SPtr posSensors );
 
     /**
      * Sets the positions of the HD leadfield sensors.
      */
-    void setHDLeadfieldPosition( PositionsSPtr posHdLeadfield );
+    void setHDLeadfieldPosition( PositionsT::SPtr posHdLeadfield );
 
     /**
      * Sets the high resolution leadfield.
@@ -100,9 +99,9 @@ private:
         std::vector< float >* squareDistances;
     };
 
-    PositionsSPtr m_posSensors;
+    PositionsT::SPtr m_posSensors;
 
-    PositionsSPtr m_posHDLeadfield;
+    PositionsT::SPtr m_posHDLeadfield;
 
     WLMatrix::SPtr m_hdLeadfield;
 

@@ -37,6 +37,7 @@
 
 #include "core/container/WLArrayList.h"
 #include "core/data/WLMegCoilInfo.h"
+#include "core/data/WLPositions.h"
 #include "core/data/enum/WLEMEGGeneralCoilType.h"
 
 #include "WLEMData.h"
@@ -56,6 +57,8 @@ public:
 
     typedef std::vector< size_t > CoilPicksT; //!< Collection of indices for coil picks.
 
+    typedef WLPositions PositionsT;
+
     static const std::string CLASS; //!< Class name for logging purpose.
 
     WLEMDMEG();
@@ -71,26 +74,25 @@ public:
     virtual WLEModality::Enum getModalityType() const;
 
     /**
-     * Returns the positions in millimeter. TODO(pieloth): Which unit, meter or millimeter?
+     * Returns the sensor positions.
      *
-     * \return Positions in millimeter.
+     * \return Sensor positions.
      */
-    WLArrayList< WPosition >::SPtr getChannelPositions3d();
+    PositionsT::SPtr getChannelPositions3d();
 
     /**
-     * Returns the positions in millimeter. TODO(pieloth): Which unit, meter or millimeter?
+     * Returns the sensor positions.
      *
-     * \return Positions in millimeter.
+     * \return Sensor positions.
      */
-    WLArrayList< WPosition >::ConstSPtr getChannelPositions3d() const;
+    PositionsT::ConstSPtr getChannelPositions3d() const;
 
     /**
-     * Sets the positions.
+     * Sets the sensor positions.
      *
-     * \note Positions must be in millimeter. TODO(pieloth): Which unit, meter or millimeter?
-     * \param chanPos3d Positions to set.
+     * \param positions Positions to set.
      */
-    void setChannelPositions3d( WLArrayList< WPosition >::SPtr chanPos3d );
+    void setChannelPositions3d( PositionsT::SPtr chanPos3d );
 
     /**
      * Gets the coil information.
@@ -297,7 +299,7 @@ public:
 private:
     WLEModality::Enum m_modality; //!< MEG, MEG_MAG, MEG_GRAD or MEG_GRAD_MERGE.
 
-    WLArrayList< WPosition >::SPtr m_chanPos3d; //!< Channel positions.
+    PositionsT::SPtr m_chanPos3d; //!< Channel positions.
 
     WLArrayList< WLMegCoilInfo::SPtr >::SPtr m_coilInfos; //!< Coil information.
 

@@ -33,6 +33,7 @@
 #include <osg/MatrixTransform>
 #include <osg/ref_ptr>
 
+#include "core/data/WLPositions.h"
 #include "WLEMDDrawable3D.h"
 
 /**
@@ -86,7 +87,7 @@ private:
     static osg::Matrixd getTransformation( View view );
 
     void osgInitMegHelmet();
-    void osgAddOrUpdateHpiCoils( const std::vector< WPosition >& positions );
+    void osgAddOrUpdateHpiCoils( const WLPositions& positions );
 
     osg::Matrixd m_viewTransformation; /**< Transformation matrix for osg::MatrixTransform. */
     osg::ref_ptr< osg::MatrixTransform > m_viewGeode; /**< Transforms the MEG device coordinates for the requested view. */

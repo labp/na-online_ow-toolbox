@@ -32,9 +32,9 @@
 #include <boost/shared_ptr.hpp>
 #include <Eigen/Dense>
 
-#include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
+#include "core/data/WLPositions.h"
 #include "cppmath/DownhillSimplexMethod.hpp"
 
 /**
@@ -68,7 +68,7 @@ public:
      * \param sensPos Sensor positions, i.e. magnetometer positions, in device coordinate system.
      * \param sensOri Sensor orientation, i.e. magnetometer orientation, in device coordinate system.
      */
-    WContinuousPositionEstimation( const std::vector< WPosition >& hpiPos, const std::vector< WPosition >& sensPos,
+    WContinuousPositionEstimation( const WLPositions& hpiPos, const WLPositions& sensPos,
                     const std::vector< WVector3f >& sensOri );
     virtual ~WContinuousPositionEstimation();
 
@@ -86,7 +86,7 @@ public:
      *
      * \return HPI coil positions in MEG device coordinates.
      */
-    std::vector< WPosition > getResultPositions() const;
+    WLPositions::SPtr getResultPositions() const;
 
     /**
      * Gets the final transformation matrix from head coordinates to MEG device coordinates.

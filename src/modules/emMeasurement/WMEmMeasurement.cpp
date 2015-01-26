@@ -463,27 +463,36 @@ void WMEmMeasurement::generateData()
 
         eeg->setSampFreq( m_generationFreq->get() * WLUnits::Hz );
 
-        const size_t channels = m_generationNrChans->get();
-        const size_t samples = m_generationFreq->get() * ( ( double )m_generationBlockSize->get() / 1000.0 );
+        const WLChanNrT channels = m_generationNrChans->get();
+        const WLSampleNrT samples = m_generationFreq->get() * ( ( double )m_generationBlockSize->get() / 1000.0 );
         eeg->getData().resize( channels, samples );
-        for( size_t chan = 0; chan < channels; ++chan )
+        WLEMDEEG::PositionsT::SPtr positions = WLEMDEEG::PositionsT::instance();
+        positions->resize( channels );
+        positions->unit( WLEUnit::METER );
+        positions->exponent( WLEExponent::BASE );
+        positions->coordSystem( WLECoordSystem::HEAD );
+        WLEMDEEG::PositionsT::PositionsT& pos = positions->positions();
+        for( WLChanIdxT chan = 0; chan < channels; ++chan )
         {
             WLEMData::ChannelT channel( samples );
-            for( size_t smp = 0; smp < samples; ++smp )
+            for( WLSampleIdxT smp = 0; smp < samples; ++smp )
             {
                 channel( smp ) = ( 30.0 * ( WLEMData::ScalarT )rand() / RAND_MAX - 15.0 );
             }
-            WPosition::ValueType a = ( WPosition::ValueType )rand() / RAND_MAX - 0.5;
-            WPosition::ValueType b = ( WPosition::ValueType )rand() / RAND_MAX - 0.5;
-            WPosition::ValueType c = ( WPosition::ValueType )rand() / RAND_MAX - 0.5;
-            WPosition::ValueType m = sqrt( a * a + b * b + c * c );
-            WPosition::ValueType r = 100;
+            WLEMDEEG::PositionsT::ScalarT a = ( WLEMDEEG::PositionsT::ScalarT )rand() / RAND_MAX - 0.5;
+            WLEMDEEG::PositionsT::ScalarT b = ( WLEMDEEG::PositionsT::ScalarT )rand() / RAND_MAX - 0.5;
+            WLEMDEEG::PositionsT::ScalarT c = ( WLEMDEEG::PositionsT::ScalarT )rand() / RAND_MAX - 0.5;
+            WLEMDEEG::PositionsT::ScalarT m = sqrt( a * a + b * b + c * c );
+            WLEMDEEG::PositionsT::ScalarT r = 100.0;
             a *= r / m;
             b *= r / m;
             c *= r / m;
-            eeg->getChannelPositions3d()->push_back( WPosition( a, b, abs( c ) ) * 0.001 );
+            pos.col( chan ).x() = a * 0.001;
+            pos.col( chan ).y() = b * 0.001;
+            pos.col( chan ).z() = abs( c ) * 0.001;
             eeg->getData().row( chan ) = channel;
         }
+        eeg->setChannelPositions3d( positions );
 
         emm->addModality( eeg );
         setAdditionalInformation( emm );
@@ -533,7 +542,7 @@ bool WMEmMeasurement::readFiff( std::string fname )
                 if( eeg->getFaces()->empty() )
                 {
                     warnLog() << "No faces found! Faces will be generated.";
-                    WLGeometry::computeTriangulation( eeg->getFaces().get(), *eeg->getChannelPositions3d(), -5 );
+                    WLGeometry::computeTriangulation( eeg->getFaces().get(), eeg->getChannelPositions3d()->positions(), -5 );
                 }
             }
             infoLog() << *m_fiffEmm;
@@ -564,7 +573,7 @@ bool WMEmMeasurement::readElc( std::string fname )
 {
     m_elcFileStatus->set( LOADING_FILE, true );
     m_elcLabels = WLArrayList< std::string >::instance();
-    m_elcPositions3d = WLArrayList< WPosition >::instance();
+    m_elcPositions3d = WLPositions::instance();
     m_elcFaces.reset( new std::vector< WVector3i >() );
 
     WLReaderELC* elcReader;
@@ -589,7 +598,7 @@ bool WMEmMeasurement::readElc( std::string fname )
         debugLog() << "First data read from elc file ... ";
         std::stringstream stream;
         stream << "ELC positions: ";
-        for( size_t i = 0; i < 5 && i < m_elcPositions3d->size(); ++i )
+        for( WLPositions::IndexT i = 0; i < 5 && i < m_elcPositions3d->size(); ++i )
         {
             stream << m_elcPositions3d->at( i ) << " ";
         }

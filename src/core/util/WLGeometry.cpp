@@ -30,6 +30,7 @@
 
 #include <boost/shared_ptr.hpp>
 #include <Eigen/Dense>
+#include <Eigen/Geometry> // homogeneous
 
 #include <osg/Array>
 #include <osgUtil/DelaunayTriangulator>
@@ -47,22 +48,23 @@
 
 #include "WLGeometry.h"
 
-bool WLGeometry::computeTriangulation( std::vector< WVector3i >* const triangles, const std::vector< WPosition >& points,
+bool WLGeometry::computeTriangulation( std::vector< WVector3i >* const triangles, osg::ref_ptr< osg::Vec3Array > osgPoints,
                 double transformationFactor )
 {
-    WLTimeProfiler tp( "WLGeometry", "computeTriangulation" );
-
+    WLTimeProfiler tp( "WLGeometry", __func__ );
     const std::string SOURCE = "WLGeometry::computeTriangulation";
 
+    if( triangles == NULL )
+    {
+        wlog::error( SOURCE ) << "Output pointer is NULL!";
+        return false;
+    }
     // Using algorithm of core/graphicsEngine/WGEGeometryUtils.cpp
-    if( points.size() < 3 )
+    if( osgPoints->size() < 3 )
     {
         wlog::error( SOURCE ) << "The Delaunay triangulation needs at least 3 vertices!";
         return false;
     }
-
-    osg::ref_ptr< osg::Vec3Array > osgPoints = wge::osgVec3Array( points );
-    wlog::debug( SOURCE ) << "osgPoints: " << osgPoints->size();
 
     if( transformationFactor != 0.0 )
     {
@@ -123,12 +125,12 @@ bool WLGeometry::computeTriangulation( std::vector< WVector3i >* const triangles
     const osg::DrawElementsUInt* const osgTriangles = triangulator->getTriangles();
     wlog::debug( SOURCE ) << "osgTriangles: " << osgTriangles->size();
     WAssertDebug( osgTriangles->size() % 3 == 0, "triangles/3 != 0!" );
-    size_t nbTriangles = osgTriangles->size() / 3;
+    osg::DrawElementsUInt::size_type nbTriangles = osgTriangles->size() / 3;
     triangles->reserve( nbTriangles );
 
     // Convert the new index of the osgTriangle to the original index stored in map.
-    size_t vertID;
-    for( size_t triangleID = 0; triangleID < nbTriangles; ++triangleID )
+    osg::DrawElementsUInt::size_type vertID;
+    for( osg::DrawElementsUInt::size_type triangleID = 0; triangleID < nbTriangles; ++triangleID )
     {
         vertID = triangleID * 3;
 
@@ -141,6 +143,30 @@ bool WLGeometry::computeTriangulation( std::vector< WVector3i >* const triangles
     }
     wlog::debug( SOURCE ) << "triangles: " << triangles->size();
     return true;
+}
+
+bool WLGeometry::computeTriangulation( std::vector< WVector3i >* const triangles, const std::vector< WPosition >& points,
+                double transformationFactor )
+{
+    WLTimeProfiler tp( "WLGeometry", __func__ );
+
+    osg::ref_ptr< osg::Vec3Array > osgPoints = wge::osgVec3Array( points );
+    return computeTriangulation( triangles, osgPoints, transformationFactor );
+}
+
+bool WLGeometry::computeTriangulation( std::vector< WVector3i >* const triangles, const PointsT& positions,
+                double transformationFactor )
+{
+    WLTimeProfiler tp( "WLGeometry", __func__ );
+
+    osg::ref_ptr< osg::Vec3Array > osgPoints = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
+    osgPoints->reserve( positions.cols() );
+    for( PointsT::Index i = 0; i != positions.cols(); ++i )
+    {
+        const osg::Vec3 tmp( positions.col( i ).x(), positions.col( i ).y(), positions.col( i ).z() );
+        osgPoints->push_back( tmp );
+    }
+    return computeTriangulation( triangles, osgPoints, transformationFactor );
 }
 
 WLGeometry::MatrixRotation WLGeometry::getRotationXYZMatrix( double x, double y, double z )
@@ -234,6 +260,22 @@ void WLGeometry::transformPoints( std::vector< Point >* const out, const std::ve
     }
 }
 
+bool WLGeometry::transformPoints( WLPositions* const out, const WLPositions& in, const WLMatrix4::Matrix4T& trans )
+{
+    const std::string SOURCE = "WLGeometry::transformPoints";
+    if( out == NULL )
+    {
+        wlog::error( SOURCE ) << "Out pointer is null!";
+        return false;
+    }
+    // TODO(pieloth): #393 Check from/to in positions and transformation!
+    // TODO(pieloth): transformPoints - unit test!
+    out->resize( in.size() );
+    out->positions() = ( trans * in.positions().colwise().homogeneous() ).block( 0, 0, 3, in.size() );
+
+    return true;
+}
+
 void WLGeometry::toBaseExponent( std::vector< Point >* const out, const std::vector< Point >& in, WLEExponent::Enum exp )
 {
     out->reserve( in.size() );
@@ -248,15 +290,15 @@ void WLGeometry::toBaseExponent( std::vector< Point >* const out, const std::vec
 
 bool WLGeometry::findOrthogonalVector( Vector3T* const o, const Vector3T& v )
 {
-    // 0 = Vx Ox + Vy Oy + Vz Oz
+// 0 = Vx Ox + Vy Oy + Vz Oz
     if( v.isZero( 1e3 * std::numeric_limits< double >::min() ) )
     {
         return false;
     }
 
-    // avoid division by zero, pick max(abs) as divisor
+// avoid division by zero, pick max(abs) as divisor
     Vector3T::Index i;
-    v.cwiseAbs().maxCoeff(&i);
+    v.cwiseAbs().maxCoeff( &i );
     if( i == 2 ) // z
     {
         // - Vz Oz = Vx Ox + Vy Oy
@@ -319,22 +361,22 @@ size_t WLGeometry::createUpperHalfSphere( PointsT* const pos, size_t points, flo
     const ArrayT::Index n_angles = ceil( sqrt( points ) );
     const ArrayT::Index n = ( n_angles * n_angles );
 
-    // Initialize angles
+// Initialize angles
     ArrayT theta( n_angles ); // vertical, 0° ... 90°
     ArrayT phi( n_angles ); // horizontal, azimut, 0 ... 360°
     for( ArrayT::Index i = 0; i < n_angles; ++i )
     {
-        theta( i ) = ( (double)( i + 1 ) / (double)n_angles ) * M_PI_2;
-        phi( i ) = ( (double)i / (double)n_angles ) * 2.0 * M_PI;
+        theta( i ) = ( ( double )( i + 1 ) / ( double )n_angles ) * M_PI_2;
+        phi( i ) = ( ( double )i / ( double )n_angles ) * 2.0 * M_PI;
     }
 
-    // Initialize output
+// Initialize output
     pos->resize( Eigen::NoChange, n );
 
-    // Generate points
-    // x = r * sin(theta) * cos(phi);
-    // y = r * sin(theta) * sin(phi);
-    // z = r * cos(theta);
+// Generate points
+// x = r * sin(theta) * cos(phi);
+// y = r * sin(theta) * sin(phi);
+// z = r * cos(theta);
     ArrayT::Index element = 0;
     const ArrayT sin_t = theta.sin();
     const ArrayT cos_t = theta.cos();

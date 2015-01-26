@@ -34,14 +34,14 @@
 WLEMDEEG::WLEMDEEG() :
                 WLEMData()
 {
-    m_chanPos3d = WLArrayList< WPosition >::instance();
+    m_positions = WLPositions::instance();
     m_faces = WLArrayList< WVector3i >::instance();
 }
 
 WLEMDEEG::WLEMDEEG( const WLEMDEEG& eeg ) :
                 WLEMData( eeg )
 {
-    m_chanPos3d = eeg.m_chanPos3d;
+    m_positions = eeg.m_positions;
     m_faces = eeg.m_faces;
 }
 
@@ -60,19 +60,19 @@ WLEModality::Enum WLEMDEEG::getModalityType() const
     return WLEModality::EEG;
 }
 
-WLArrayList< WPosition >::SPtr WLEMDEEG::getChannelPositions3d()
+WLEMDEEG::PositionsT::SPtr WLEMDEEG::getChannelPositions3d()
 {
-    return m_chanPos3d;
+    return m_positions;
 }
 
-WLArrayList< WPosition >::ConstSPtr WLEMDEEG::getChannelPositions3d() const
+WLEMDEEG::PositionsT::ConstSPtr WLEMDEEG::getChannelPositions3d() const
 {
-    return m_chanPos3d;
+    return m_positions;
 }
 
-void WLEMDEEG::setChannelPositions3d( WLArrayList< WPosition >::SPtr chanPos3d )
+void WLEMDEEG::setChannelPositions3d( PositionsT::SPtr positions )
 {
-    m_chanPos3d = chanPos3d;
+    m_positions = positions;
 }
 
 WLArrayList< WVector3i >::SPtr WLEMDEEG::getFaces()

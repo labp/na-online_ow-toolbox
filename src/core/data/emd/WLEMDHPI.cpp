@@ -34,8 +34,7 @@ WLEMDHPI::WLEMDHPI() :
     m_chanNames->reserve( 5 );
     m_nrHpiCoils = 0;
 
-    m_chanPos3d = WLArrayList< WPosition >::instance();
-    m_chanPos3d->reserve( 5 );
+    m_chanPos3d = PositionsT::instance();
     m_transformations = WLArrayList< TransformationT >::instance();
 }
 
@@ -60,24 +59,19 @@ WLEModality::Enum WLEMDHPI::getModalityType() const
     return WLEModality::HPI;
 }
 
-WLArrayList< WPosition >::SPtr WLEMDHPI::getChannelPositions3d()
+WLEMDHPI::PositionsT::SPtr WLEMDHPI::getChannelPositions3d()
 {
     return m_chanPos3d;
 }
 
-WLArrayList< WPosition >::ConstSPtr WLEMDHPI::getChannelPositions3d() const
+WLEMDHPI::PositionsT::ConstSPtr WLEMDHPI::getChannelPositions3d() const
 {
     return m_chanPos3d;
 }
 
-void WLEMDHPI::setChannelPositions3d( WLArrayList< WPosition >::SPtr chanPos3d )
+void WLEMDHPI::setChannelPositions3d( PositionsT::SPtr chanPos3d )
 {
     m_chanPos3d = chanPos3d;
-}
-
-void WLEMDHPI::setChannelPositions3d( boost::shared_ptr< std::vector< WPosition > > chanPos3d )
-{
-    m_chanPos3d = WLArrayList< WPosition >::instance( *chanPos3d );
 }
 
 bool WLEMDHPI::setChannelPositions3d( WLList< WLDigPoint >::ConstSPtr digPoints )
@@ -85,15 +79,27 @@ bool WLEMDHPI::setChannelPositions3d( WLList< WLDigPoint >::ConstSPtr digPoints 
     if( m_chanPos3d->size() > 0 )
     {
         wlog::warn( CLASS ) << "Overwriting channel positions.";
-        m_chanPos3d->clear();
     }
 
     WLList< WLDigPoint >::const_iterator it;
+    PositionsT::IndexT nPos = 0;
     for( it = digPoints->begin(); it != digPoints->end(); ++it )
     {
         if( it->getKind() == WLEPointType::HPI )
         {
-            m_chanPos3d->push_back( it->getPoint() );
+            ++nPos;
+        }
+    }
+    m_chanPos3d->resize( nPos );
+    nPos = 0;
+    for( it = digPoints->begin(); it != digPoints->end(); ++it )
+    {
+        if( it->getKind() == WLEPointType::HPI )
+        {
+            m_chanPos3d->positions().col( nPos ).x() = it->getPoint().x();
+            m_chanPos3d->positions().col( nPos ).y() = it->getPoint().y();
+            m_chanPos3d->positions().col( nPos ).z() = it->getPoint().z();
+            ++nPos;
         }
     }
 
@@ -104,7 +110,7 @@ bool WLEMDHPI::setChannelPositions3d( WLList< WLDigPoint >::ConstSPtr digPoints 
     if( getNrChans() > 0 && ( getNrChans() % m_chanPos3d->size() != 0 ) )
     {
         wlog::error( CLASS ) << "Found positions do not match channel count!";
-        m_chanPos3d->clear();
+        m_chanPos3d->resize( 0 );
         return false;
     }
     return m_chanPos3d->size() > 0;

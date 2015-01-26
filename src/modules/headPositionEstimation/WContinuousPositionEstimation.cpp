@@ -23,31 +23,27 @@
 
 #include <cmath> // PI, sin, cos
 
+#include <Eigen/Geometry>
+
 #include <core/common/WLogger.h>
 
 #include "WContinuousPositionEstimation.h"
 
 const std::string WContinuousPositionEstimation::CLASS = "WContinuousPositionEstimation";
 
-WContinuousPositionEstimation::WContinuousPositionEstimation( const std::vector< WPosition >& hpiPos,
-                const std::vector< WPosition >& sensPos, const std::vector< WVector3f >& sensOri ) :
+WContinuousPositionEstimation::WContinuousPositionEstimation( const WLPositions& hpiPos, const WLPositions& sensPos,
+                const std::vector< WVector3f >& sensOri ) :
                 DownhillSimplexMethod()
 {
+    // TODO(pieloth): #393 Check coordSystems and exponents! -> WPreconditionNotMet
     // Transform HPI coil positions
-    m_hpiPos = HPointsT::Ones( 4, hpiPos.size() );
-    for( std::vector< WPosition >::size_type i = 0; i < hpiPos.size(); ++i )
-    {
-        m_hpiPos( 0, i ) = hpiPos[i].x();
-        m_hpiPos( 1, i ) = hpiPos[i].y();
-        m_hpiPos( 2, i ) = hpiPos[i].z();
-    }
+    m_hpiPos = hpiPos.positions().colwise().homogeneous();
 
     // Transform sensor positions
     m_sensPos.reserve( sensPos.size() );
-    std::vector< WPosition >::const_iterator itPos;
-    for( itPos = sensPos.begin(); itPos != sensPos.end(); ++itPos )
+    for( WLPositions::IndexT iPos = 0; iPos < sensPos.size(); ++iPos )
     {
-        m_sensPos.push_back( PointT( *itPos ) );
+        m_sensPos.push_back( PointT( sensPos.at( iPos ) ) );
     }
 
     // Transform sensor orientations
@@ -182,19 +178,19 @@ WContinuousPositionEstimation::Vector3T WContinuousPositionEstimation::computeMa
     return lf;
 }
 
-std::vector< WPosition > WContinuousPositionEstimation::getResultPositions() const
+WLPositions::SPtr WContinuousPositionEstimation::getResultPositions() const
 {
-    std::vector< WPosition > vecPos;
-    vecPos.reserve( 5 );
+    WLPositions::SPtr positions = WLPositions::instance();
+    positions->coordSystem( WLECoordSystem::DEVICE );
+    positions->resize( m_hpiPos.cols() );
 
     const HPointsT points = paramsToTrans( getResultParams() ) * m_hpiPos;
     for( HPointsT::Index i = 0; i < points.cols(); ++i )
     {
-        const WPosition pos( points.block( 0, i, 3, 1 ) );
-        vecPos.push_back( pos );
+        positions->positions().col( i ) = points.block( 0, i, 3, 1 );
     }
 
-    return vecPos;
+    return positions;
 }
 
 WContinuousPositionEstimation::TransformationT WContinuousPositionEstimation::getResultTransformation() const

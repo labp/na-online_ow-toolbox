@@ -35,6 +35,7 @@
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/ui/WUIViewWidget.h>
 
+#include "core/data/WLPositions.h"
 #include "WLEMDDrawable3D.h"
 
 /**
@@ -67,9 +68,9 @@ protected:
     virtual void osgNodeCallback( osg::NodeVisitor* nv );
 
 private:
-    void osgAddLabels( const std::vector< WPosition >& positions, const std::vector< std::string >& labels );
+    void osgAddLabels( const WLPositions& positions, const std::vector< std::string >& labels );
 
-    void osgAddNodes( const std::vector< WPosition >& positions );
+    void osgAddNodes( const WLPositions& positions );
 
     void osgUpdateSurfaceColor( const WLEMData::DataT& data );
 

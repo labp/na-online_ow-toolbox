@@ -468,7 +468,7 @@ bool WMHeadPositionEstimation::estimateHeadPosition( WLEMDHPI::SPtr hpiInOut, WL
     // Prepare optimization and MEG magnetometer data
     if( !m_optim )
     {
-        WLArrayList< WPosition >::ConstSPtr magPos = magMag->getChannelPositions3d();
+        WLEMDMEG::PositionsT::ConstSPtr magPos = magMag->getChannelPositions3d();
         WLArrayList< WVector3f >::ConstSPtr magOri = magMag->getEz();
         debugLog() << "magPos: " << *magPos;
         debugLog() << "magOri: " << *magOri;
@@ -548,7 +548,7 @@ bool WMHeadPositionEstimation::estimateHeadPosition( WLEMDHPI::SPtr hpiInOut, WL
         debugLog() << "Transformation:\n" << result;
 
         std::vector< WPosition > pos;
-        WLGeometry::transformPoints( &pos, *hpiInOut->getChannelPositions3d(), result );
+//        WLGeometry::transformPoints( &pos, *hpiInOut->getChannelPositions3d(), result );
         debugLog() << "HPI positions:\n";
         for( size_t i = 0; i < pos.size(); ++i )
         {

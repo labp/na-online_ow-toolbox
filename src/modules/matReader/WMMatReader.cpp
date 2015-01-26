@@ -222,7 +222,7 @@ bool WMMatReader::handleSensorFileChanged()
         return false;
     }
 
-    m_sensorPos = WLArrayList< WPosition >::instance();
+    m_sensorPos = WLPositions::instance();
     if( reader->read( m_sensorPos.get() ) != WLIOStatus::SUCCESS )
     {
         errorLog() << ERROR_READ << " (Sensor Positions)";

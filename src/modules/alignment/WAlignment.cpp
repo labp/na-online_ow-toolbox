@@ -77,6 +77,7 @@ double WAlignment::align( TransformationT* const matrix, const PointsT& from, co
         wlog::error( CLASS ) << "FROM or TO points are empty!";
         return NOT_CONVERGED;
     }
+    // TODO(pieloth): #393 Check unit and exponent!
 
     PCLMatrixT pclMatrix = PCLMatrixT::Identity();
     if( !m_correspondences.empty() )
@@ -138,16 +139,17 @@ double WAlignment::icpAlign( PCLMatrixT* const trans, const PointsT& from, const
 
     wlog::debug( CLASS ) << "icpAlign: Transforming WPosition to PCL::PointXYZ";
     PointCloud< PointXYZ > src;
-    PointsT::const_iterator itPos;
-    for( itPos = from.begin(); itPos != from.end(); ++itPos )
+    for( PointsT::IndexT i = 0; from.size(); ++i )
     {
-        src.push_back( PointXYZ( itPos->x(), itPos->y(), itPos->z() ) );
+        const PointsT::PositionT tmp = from.at(i);
+        src.push_back( PointXYZ( tmp.x(), tmp.y(), tmp.z() ) );
     }
 
     PointCloud< PointXYZ > trg;
-    for( itPos = to.begin(); itPos != to.end(); ++itPos )
+    for( PointsT::IndexT i = 0; i != to.size(); ++i )
     {
-        trg.push_back( PointXYZ( itPos->x(), itPos->y(), itPos->z() ) );
+        const PointsT::PositionT tmp = to.at(i);
+        trg.push_back( PointXYZ( tmp.x(), tmp.y(), tmp.z() ) );
     }
 
     wlog::debug( CLASS ) << "icpAlign: Run ICP";

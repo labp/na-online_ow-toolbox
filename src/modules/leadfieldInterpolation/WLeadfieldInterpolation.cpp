@@ -59,17 +59,15 @@ bool WLeadfieldInterpolation::prepareHDLeadfield( MNELIB::MNEForwardSolution::Co
 
     const size_t num_pos = hdLeadfield->info.chs.size();
 
-    PositionsSPtr positions( new PositionsT );
-    positions->reserve( num_pos );
+    PositionsT::SPtr positions = PositionsT::instance();
+    positions->resize( num_pos );
 
     for( size_t ch = 0; ch < num_pos; ++ch )
     {
         const FIFFLIB::FiffChInfo& chInfo = hdLeadfield->info.chs.at( ch );
-        const WPosition::ValueType x = chInfo.loc( 0, 0 );
-        const WPosition::ValueType y = chInfo.loc( 1, 0 );
-        const WPosition::ValueType z = chInfo.loc( 2, 0 );
-
-        positions->push_back( WPosition( x, y, z ) );
+        positions->positions().col( ch ).x() = chInfo.loc( 0, 0 );
+        positions->positions().col( ch ).y() = chInfo.loc( 1, 0 );
+        positions->positions().col( ch ).z() = chInfo.loc( 2, 0 );
     }
 
     setHDLeadfieldPosition( positions );
@@ -84,12 +82,12 @@ bool WLeadfieldInterpolation::prepareHDLeadfield( MNELIB::MNEForwardSolution::Co
     return true;
 }
 
-void WLeadfieldInterpolation::setSensorPositions( PositionsSPtr sensors )
+void WLeadfieldInterpolation::setSensorPositions( PositionsT::SPtr sensors )
 {
     m_posSensors = sensors;
 }
 
-void WLeadfieldInterpolation::setHDLeadfieldPosition( PositionsSPtr posHdLeadfield )
+void WLeadfieldInterpolation::setHDLeadfieldPosition( PositionsT::SPtr posHdLeadfield )
 {
     m_posHDLeadfield = posHdLeadfield;
 }
@@ -173,10 +171,11 @@ bool WLeadfieldInterpolation::searchNearestNeighbor( std::vector< NeighborsT >* 
     inCloud->reserve( inputPoints.size() );
     for( size_t i = 0; i < inputPoints.size(); ++i )
     {
-        inCloud->push_back( pcl::PointXYZ( inputPoints[i].x(), inputPoints[i].y(), inputPoints[i].z() ) );
+        const PositionsT::PositionT tmp = inputPoints.at( i );
+        inCloud->push_back( pcl::PointXYZ( tmp.x(), tmp.y(), tmp.z() ) );
     }
 
-    pcl::KdTreeFLANN< pcl::PointXYZ > kdtree;
+    pcl::KdTreeFLANN < pcl::PointXYZ > kdtree;
     kdtree.setInputCloud( inCloud );
 
     for( size_t spIdx = 0; spIdx < searchPoints.size(); ++spIdx )
@@ -184,7 +183,8 @@ bool WLeadfieldInterpolation::searchNearestNeighbor( std::vector< NeighborsT >* 
         ( *neighbors )[spIdx].indexNeighbors = new std::vector< int >( NEIGHBORS );
         ( *neighbors )[spIdx].squareDistances = new std::vector< float >( NEIGHBORS );
 
-        const pcl::PointXYZ searchPoint( searchPoints[spIdx].x(), searchPoints[spIdx].y(), searchPoints[spIdx].z() );
+        const PositionsT::PositionT tmp = searchPoints.at( spIdx );
+        const pcl::PointXYZ searchPoint( tmp.x(), tmp.y(), tmp.z() );
         //wlog::info( CLASS ) << "Search point: " << searchPoint;
         const int found = kdtree.nearestKSearch( searchPoint, NEIGHBORS, *( ( *neighbors )[spIdx].indexNeighbors ),
                         *( ( *neighbors )[spIdx].squareDistances ) );

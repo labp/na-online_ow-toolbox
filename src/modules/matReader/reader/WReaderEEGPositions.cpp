@@ -22,7 +22,6 @@
 //---------------------------------------------------------------------------
 
 #include <string>
-#include <vector>
 
 #include <fiff/fiff.h>
 #include <fiff/fiff_ch_info.h>
@@ -43,7 +42,7 @@ using namespace FIFFLIB;
 const std::string WReaderEEGPositions::CLASS = "WReaderEEGPositions";
 
 WReaderEEGPositions::WReaderEEGPositions( std::string fname ) throw( WDHNoSuchFile ) :
-                WLReaderGeneric< std::vector< WPosition > >( fname )
+                WLReaderGeneric< WLPositions >( fname )
 {
 }
 
@@ -51,7 +50,7 @@ WReaderEEGPositions::~WReaderEEGPositions()
 {
 }
 
-WLIOStatus::IOStatusT WReaderEEGPositions::read( std::vector< WPosition >* const positions )
+WLIOStatus::IOStatusT WReaderEEGPositions::read( WLPositions* const positions )
 {
     QFile file( QString::fromStdString( m_fname ) );
 
@@ -103,9 +102,9 @@ WLIOStatus::IOStatusT WReaderEEGPositions::read( std::vector< WPosition >* const
         fiffChInfos.append( tag->toChInfo() );
     }
 
-    positions->clear();
     QList< FiffChInfo >::Iterator itChInfo;
     size_t skipped = 0;
+    WLPositions::IndexT nEeg = 0;
     for( itChInfo = fiffChInfos.begin(); itChInfo != fiffChInfos.end(); ++itChInfo )
     {
         if( itChInfo->coil_type != FIFFV_COIL_EEG || itChInfo->kind != FIFFV_EEG_CH )
@@ -113,8 +112,19 @@ WLIOStatus::IOStatusT WReaderEEGPositions::read( std::vector< WPosition >* const
             ++skipped;
             continue;
         }
-        const WPosition pos( itChInfo->eeg_loc.col( 0 ).x(), itChInfo->eeg_loc.col( 0 ).y(), itChInfo->eeg_loc.col( 0 ).z() );
-        positions->push_back( pos );
+        ++nEeg;
+    }
+    positions->resize(nEeg);
+    nEeg = 0;
+    for( itChInfo = fiffChInfos.begin(); itChInfo != fiffChInfos.end(); ++itChInfo )
+    {
+        if( itChInfo->coil_type != FIFFV_COIL_EEG || itChInfo->kind != FIFFV_EEG_CH )
+        {
+            continue;
+        }
+        positions->positions().col(nEeg).x() = itChInfo->eeg_loc.col( 0 ).x();
+        positions->positions().col(nEeg).y() = itChInfo->eeg_loc.col( 0 ).y();
+        positions->positions().col(nEeg).z() = itChInfo->eeg_loc.col( 0 ).z();
     }
     wlog::debug( CLASS ) << "Channels skipped: " << skipped;
 

@@ -39,6 +39,7 @@
 #include "core/data/WLEMMSurface.h"
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMCommand.h"
+#include "core/data/WLPositions.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
 /**
@@ -96,7 +97,7 @@ private:
 
     bool handleSensorFileChanged();
 
-    WLArrayList< WPosition >::SPtr m_sensorPos;
+    WLPositions::SPtr m_sensorPos;
 
     WPropTrigger m_trgGenerate;
 

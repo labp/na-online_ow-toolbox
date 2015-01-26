@@ -40,6 +40,7 @@
 #include "core/data/WLEMMSurface.h"
 #include "core/data/WLEMMBemBoundary.h"
 #include "core/data/WLDataTypes.h"
+#include "core/data/WLPositions.h"
 
 #include "core/module/WLModuleDrawable.h"
 
@@ -201,7 +202,7 @@ private:
 
     WLArrayList< std::string >::SPtr m_elcLabels;
 
-    WLArrayList< WPosition >::SPtr m_elcPositions3d;
+    WLPositions::SPtr m_elcPositions3d;
 
     boost::shared_ptr< std::vector< WVector3i > > m_elcFaces;
 

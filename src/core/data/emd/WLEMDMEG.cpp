@@ -44,7 +44,7 @@ WLEMDMEG::WLEMDMEG() :
                 WLEMData()
 {
     m_modality = WLEModality::MEG;
-    m_chanPos3d = WLArrayList< WPosition >::instance();
+    m_chanPos3d = WLPositions::instance();
     m_coilInfos = WLArrayList< WLMegCoilInfo::SPtr >::instance();
     m_faces = WLArrayList< WVector3i >::instance();
 
@@ -61,7 +61,7 @@ WLEMDMEG::WLEMDMEG( WLEModality::Enum modality )
     }
 
     m_modality = modality;
-    m_chanPos3d = WLArrayList< WPosition >::instance();
+    m_chanPos3d = WLPositions::instance();
     m_coilInfos = WLArrayList< WLMegCoilInfo::SPtr >::instance();
     m_faces = WLArrayList< WVector3i >::instance();
 
@@ -97,17 +97,17 @@ WLEModality::Enum WLEMDMEG::getModalityType() const
     return m_modality;
 }
 
-WLArrayList< WPosition >::SPtr WLEMDMEG::getChannelPositions3d()
+WLEMDMEG::PositionsT::SPtr WLEMDMEG::getChannelPositions3d()
 {
     return m_chanPos3d;
 }
 
-WLArrayList< WPosition >::ConstSPtr WLEMDMEG::getChannelPositions3d() const
+WLEMDMEG::PositionsT::ConstSPtr WLEMDMEG::getChannelPositions3d() const
 {
     return m_chanPos3d;
 }
 
-void WLEMDMEG::setChannelPositions3d( WLArrayList< WPosition >::SPtr chanPos3d )
+void WLEMDMEG::setChannelPositions3d( PositionsT::SPtr chanPos3d )
 {
     m_chanPos3d = chanPos3d;
 }
@@ -159,8 +159,8 @@ bool WLEMDMEG::createCoilInfos( WLEMDMEG* const meg )
     }
     const WLArrayList< WVector3f >::size_type n_exyz = ex->size();
 
-    WLArrayList< WPosition >::ConstSPtr positions = meg->getChannelPositions3d();
-    const size_t n_pos = positions->size();
+    PositionsT::ConstSPtr positions = meg->getChannelPositions3d();
+    const PositionsT::IndexT n_pos = positions->size();
     if( !positions->empty() && !ex->empty() && n_pos != n_exyz )
     {
         wlog::error( CLASS ) << "position.size and orientations.size are not equals!";
@@ -191,8 +191,8 @@ bool WLEMDMEG::createCoilInfos( WLEMDMEG* const meg )
     else
     {
         // Prepare coilInfo
-        const size_t n_chans = std::max( n_pos, n_exyz );
-        for( size_t i = 0; i < n_chans; ++i )
+        const PositionsT::IndexT n_chans = std::max( n_pos, static_cast< PositionsT::IndexT >( n_exyz ) );
+        for( PositionsT::IndexT i = 0; i < n_chans; ++i )
         {
             WLMegCoilInfo::SPtr coilInfo( new WLMegCoilInfo() );
             coilInfos->push_back( coilInfo );
@@ -201,9 +201,9 @@ bool WLEMDMEG::createCoilInfos( WLEMDMEG* const meg )
 
     // apply positions, orientations and ex, ey, ez
     // --------------------------------------------
-    for( WLArrayList< WPosition >::size_type i = 0; i < n_pos; ++i )
+    for( PositionsT::IndexT i = 0; i < n_pos; ++i )
     {
-        ( *coilInfos )[i]->position = ( *positions )[i];
+        ( *coilInfos )[i]->position = positions->at( i );
     }
 
     for( WLArrayList< WVector3f >::size_type i = 0; i < n_exyz; ++i )
@@ -556,14 +556,16 @@ bool WLEMDMEG::extractCoilModality( WLEMDMEG::SPtr& megOut, WLEMDMEG::ConstSPtr 
         }
     }
 
-    const WLArrayList< WPosition >& chPos_from = *megIn->getChannelPositions3d();
-    WLArrayList< WPosition >& chPos = *megOut->getChannelPositions3d();
-    chPos.reserve( picksFiltered.size() );
-    if( picksFiltered.size() <= chPos_from.size() )
+    const PositionsT& chPos_from = *megIn->getChannelPositions3d();
+    PositionsT& chPos = *megOut->getChannelPositions3d();
+    chPos.resize( picksFiltered.size() );
+    if( picksFiltered.size() <= static_cast< CoilPicksT::size_type >( chPos_from.size() ) )
     {
+        PositionsT::IndexT iPos = 0;
         for( it = picksFiltered.begin(); it != picksFiltered.end(); ++it )
         {
-            chPos.push_back( chPos_from[*it] );
+            chPos.positions().col( iPos ) = chPos_from.at( *it );
+            ++iPos;
         }
     }
 

@@ -39,7 +39,7 @@ const int WFTChunkReaderNeuromagIsotrak::EEG_FACES_FACTOR = -5;
 WFTChunkReaderNeuromagIsotrak::WFTChunkReaderNeuromagIsotrak()
 {
     m_digPoints.reset( new WLList< WLDigPoint > );
-    m_eegChPos.reset( new WLArrayList< WPosition > );
+    m_eegChPos = WLPositions::instance();
     m_eegFaces.reset( new WLArrayList< WVector3i > );
 }
 
@@ -63,7 +63,7 @@ bool WFTChunkReaderNeuromagIsotrak::read( WFTChunk::ConstSPtr chunk )
     }
 
     m_digPoints.reset( new WLList< WLDigPoint > );
-    m_eegChPos.reset( new WLArrayList< WPosition > );
+    m_eegChPos = WLPositions::instance();
     m_eegFaces.reset( new WLArrayList< WVector3i > );
 
     WLReaderIsotrak::SPtr reader( new WLReaderIsotrak( ( const char* )chunk->getData(), chunk->getDataSize() ) );
@@ -79,7 +79,7 @@ bool WFTChunkReaderNeuromagIsotrak::read( WFTChunk::ConstSPtr chunk )
     if( createEEGPositions( getDigPoints( WLEPointType::EEG_ECG ) ) )
     {
         m_eegFaces->clear();
-        WLGeometry::computeTriangulation( m_eegFaces.get(), *m_eegChPos, EEG_FACES_FACTOR );
+        WLGeometry::computeTriangulation( m_eegFaces.get(), m_eegChPos->positions(), EEG_FACES_FACTOR );
     }
 
     return true;
@@ -127,7 +127,7 @@ WLList< WLDigPoint >::SPtr WFTChunkReaderNeuromagIsotrak::getDigPoints( WLEPoint
     return digForKind;
 }
 
-WLArrayList< WPosition >::SPtr WFTChunkReaderNeuromagIsotrak::getEEGChanPos() const
+WLPositions::SPtr WFTChunkReaderNeuromagIsotrak::getEEGChanPos() const
 {
     return m_eegChPos;
 }
@@ -139,10 +139,9 @@ WLArrayList< WVector3i >::SPtr WFTChunkReaderNeuromagIsotrak::getEEGFaces() cons
 
 bool WFTChunkReaderNeuromagIsotrak::createEEGPositions( WLList< WLDigPoint >::ConstSPtr digPoints )
 {
-    m_eegChPos->reserve( digPoints->size() );
-
     bool isFirst = true;
     WLList< WLDigPoint >::const_iterator it;
+    WLPositions::IndexT nPos = 0;
     for( it = digPoints->begin(); it != digPoints->end(); ++it )
     {
         if( it->getKind() != WLEPointType::EEG_ECG )
@@ -155,8 +154,26 @@ bool WFTChunkReaderNeuromagIsotrak::createEEGPositions( WLList< WLDigPoint >::Co
             isFirst = false;
             continue;
         }
+        ++nPos;
+    }
 
-        m_eegChPos->push_back( it->getPoint() );
+    m_eegChPos->resize( nPos );
+    nPos = 0;
+    for( it = digPoints->begin(); it != digPoints->end(); ++it )
+    {
+        if( it->getKind() != WLEPointType::EEG_ECG )
+        {
+            continue;
+        }
+
+        if( isFirst )
+        {
+            isFirst = false;
+            continue;
+        }
+        WLPositions::PositionT tmp( it->getPoint().x(), it->getPoint().y(), it->getPoint().z() );
+        m_eegChPos->positions().col( nPos ) = tmp;
+        ++nPos;
     }
 
     return !digPoints->empty() && !m_eegChPos->empty();

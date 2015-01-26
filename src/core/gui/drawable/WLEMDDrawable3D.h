@@ -37,6 +37,7 @@
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 #include <core/ui/WUIViewWidget.h>
 
+#include "core/data/WLPositions.h"
 #include "core/data/enum/WLEModality.h"
 #include "core/gui/colorMap/WLColorMap.h"
 
@@ -141,7 +142,7 @@ protected:
      * \param positions Positions or vertices.
      * \param faces Faces/triangulation.
      */
-    void osgAddSurface( const std::vector< WPosition >& positions, const std::vector< WVector3i >& faces );
+    void osgAddSurface( const WLPositions& positions, const std::vector< WVector3i >& faces );
 
     /**
      * Draws and adds the color map bar.
