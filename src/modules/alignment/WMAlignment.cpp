@@ -206,14 +206,20 @@ void WMAlignment::moduleMain()
 
 bool WMAlignment::processCompute( WLEMMeasurement::SPtr emm )
 {
-    WLTimeProfiler tp( "WMAlignment", "processCompute" );
+    WLTimeProfiler tp( "WMAlignment", __func__ );
 
     WLEMMCommand::SPtr cmd( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
     cmd->setEmm( emm );
 
+    // TODO(pieloth): #393 Use new transformation class in module.
     if( !m_transformation.isZero() )
     {
-        emm->setFidToACPCTransformation( m_transformation );
+        WLTransformation::SPtr t = WLTransformation::instance();
+        t->from( WLECoordSystem::HEAD );
+        t->to( WLECoordSystem::AC_PC );
+        // TODO(pieloth): #393 set unit and exponent
+        t->data() = m_transformation;
+        emm->setFidToACPCTransformation( t );
         m_output->updateData( cmd );
         return true;
     }
@@ -232,7 +238,12 @@ bool WMAlignment::processCompute( WLEMMeasurement::SPtr emm )
     }
     m_propIcpConverged->set( true, false );
     m_propIcpScore->set( score, false );
-    emm->setFidToACPCTransformation( m_transformation );
+    WLTransformation::SPtr t = WLTransformation::instance();
+    t->from( WLECoordSystem::HEAD );
+    t->to( WLECoordSystem::AC_PC );
+    // TODO(pieloth): #393 set unit and exponent
+    t->data() = m_transformation;
+    emm->setFidToACPCTransformation( t );
     viewUpdate( emm );
 
     m_output->updateData( cmd );
@@ -243,13 +254,18 @@ bool WMAlignment::processInit( WLEMMCommand::SPtr cmd )
 {
     if( cmd->hasEmm() )
     {
-        WLTimeProfiler tp( "WMAlignment", "processInit" );
+        WLTimeProfiler tp( "WMAlignment", __func__ );
 
         const WLEMMeasurement::SPtr emm = cmd->getEmm();
-
+        // TODO(pieloth): #393 Use new transformation class in module.
         if( !m_transformation.isZero() )
         {
-            emm->setFidToACPCTransformation( m_transformation );
+            WLTransformation::SPtr t = WLTransformation::instance();
+            t->from( WLECoordSystem::HEAD );
+            t->to( WLECoordSystem::AC_PC );
+            // TODO(pieloth): #393 set unit and exponent
+            t->data() = m_transformation;
+            emm->setFidToACPCTransformation( t );
             m_output->updateData( cmd );
             return true;
         }
@@ -269,7 +285,12 @@ bool WMAlignment::processInit( WLEMMCommand::SPtr cmd )
         }
         m_propIcpConverged->set( true, false );
         m_propIcpScore->set( score, false );
-        emm->setFidToACPCTransformation( m_transformation );
+        WLTransformation::SPtr t = WLTransformation::instance();
+        t->from( WLECoordSystem::HEAD );
+        t->to( WLECoordSystem::AC_PC );
+        // TODO(pieloth): #393 set unit and exponent
+        t->data() = m_transformation;
+        emm->setFidToACPCTransformation( t );
         viewUpdate( emm );
         m_output->updateData( cmd );
         return true;
@@ -303,7 +324,7 @@ bool WMAlignment::processMisc( WLEMMCommand::SPtr cmd )
 
 void WMAlignment::handleTrgReset()
 {
-    debugLog() << "handleTrgReset() called";
+    debugLog() << __func__ << "() called";
 
     viewReset();
     m_transformation.setZero();

@@ -591,7 +591,12 @@ bool WRtClient::preparePrototype( WLEMMeasurement* const emm )
 #endif
     if( !devToHead.isZero() )
     {
-        emm->setDevToFidTransformation( devToHead );
+        WLTransformation::SPtr t = WLTransformation::instance();
+        t->from( WLECoordSystem::DEVICE );
+        t->to( WLECoordSystem::HEAD );
+        // TODO(pieloth): #393 set unit and exponent
+        t->data() = devToHead;
+        emm->setDevToFidTransformation( t );
     }
 
     if( m_digPoints->empty() )

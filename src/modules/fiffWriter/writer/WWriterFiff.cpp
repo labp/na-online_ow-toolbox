@@ -165,9 +165,9 @@ bool WWriterFiff::beginFiff( const WLEMMeasurement* const emm )
     devToHead.from = FIFFV_COORD_DEVICE;
     devToHead.to = FIFFV_COORD_HEAD;
 #if LABP_FLOAT_COMPUTATION
-    devToHead.trans = emm->getDevToFidTransformation();
+    devToHead.trans = emm->getDevToFidTransformation()->data();
 #else
-    devToHead.trans = emm->getDevToFidTransformation().cast< float >();
+    devToHead.trans = emm->getDevToFidTransformation()->data().cast< float >();
 #endif
     info.dev_head_t = devToHead;
 

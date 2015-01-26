@@ -30,6 +30,7 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <core/common/WAssert.h>
 #include <core/common/WLogger.h>
 #include <core/common/exceptions/WNotFound.h>
 
@@ -43,8 +44,14 @@ const std::string WLEMMeasurement::CLASS = "WLEMMeasurement";
 
 WLEMMeasurement::WLEMMeasurement()
 {
-    m_transDevToFid.setIdentity();
-    m_transFidToACPC.setIdentity();
+    m_transDevToFid = WLTransformation::instance();
+    m_transDevToFid->from( WLECoordSystem::DEVICE );
+    m_transDevToFid->to( WLECoordSystem::HEAD );
+
+    m_transFidToACPC = WLTransformation::instance();
+    m_transFidToACPC->from( WLECoordSystem::HEAD );
+    m_transFidToACPC->to( WLECoordSystem::AC_PC );
+
     m_eventChannels.reset( new EDataT() );
     m_subject.reset( new WLEMMSubject() );
     m_profiler.reset( new WLLifetimeProfiler( CLASS, "lifetime" ) );
@@ -55,8 +62,14 @@ WLEMMeasurement::WLEMMeasurement()
 
 WLEMMeasurement::WLEMMeasurement( WLEMMSubject::SPtr subject )
 {
-    m_transDevToFid.setIdentity();
-    m_transFidToACPC.setIdentity();
+    m_transDevToFid = WLTransformation::instance();
+    m_transDevToFid->from( WLECoordSystem::DEVICE );
+    m_transDevToFid->to( WLECoordSystem::HEAD );
+
+    m_transFidToACPC = WLTransformation::instance();
+    m_transFidToACPC->from( WLECoordSystem::HEAD );
+    m_transFidToACPC->to( WLECoordSystem::AC_PC );
+
     m_subject = subject;
     m_eventChannels.reset( new EDataT() );
     m_profiler.reset( new WLLifetimeProfiler( CLASS, "lifetime" ) );
@@ -298,23 +311,35 @@ WLList< WLDigPoint >::SPtr WLEMMeasurement::getDigPoints( WLEPointType::Enum kin
     return digForKind;
 }
 
-const WLMatrix4::Matrix4T& WLEMMeasurement::getDevToFidTransformation() const
+WLTransformation::SPtr WLEMMeasurement::getDevToFidTransformation()
 {
     return m_transDevToFid;
 }
 
-void WLEMMeasurement::setDevToFidTransformation( const WLMatrix4::Matrix4T& mat )
+WLTransformation::ConstSPtr WLEMMeasurement::getDevToFidTransformation() const
 {
+    return m_transDevToFid;
+}
+
+void WLEMMeasurement::setDevToFidTransformation( WLTransformation::SPtr mat )
+{
+    WAssert( mat->from() == WLECoordSystem::DEVICE && mat->to() == WLECoordSystem::HEAD, "From/to coordSystem are wrong!" );
     m_transDevToFid = mat;
 }
 
-const WLMatrix4::Matrix4T& WLEMMeasurement::getFidToACPCTransformation() const
+WLTransformation::SPtr WLEMMeasurement::getFidToACPCTransformation()
 {
     return m_transFidToACPC;
 }
 
-void WLEMMeasurement::setFidToACPCTransformation( const WLMatrix4::Matrix4T& mat )
+WLTransformation::ConstSPtr WLEMMeasurement::getFidToACPCTransformation() const
 {
+    return m_transFidToACPC;
+}
+
+void WLEMMeasurement::setFidToACPCTransformation( WLTransformation::SPtr mat )
+{
+    WAssert( mat->from() == WLECoordSystem::HEAD && mat->to() == WLECoordSystem::AC_PC, "From/to coordSystem are wrong!" );
     m_transFidToACPC = mat;
 }
 

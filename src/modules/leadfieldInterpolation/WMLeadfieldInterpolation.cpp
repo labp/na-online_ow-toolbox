@@ -329,8 +329,7 @@ bool WMLeadfieldInterpolation::interpolate()
     li.prepareHDLeadfield( m_fwdSolution );
     const WLEMDEEG::PositionsT& eeg_pos =
                     *( m_fiffEmm->getModality( WLEModality::EEG )->getAs< WLEMDEEG >()->getChannelPositions3d() );
-    WLeadfieldInterpolation::PositionsT::SPtr eegPosTrans = WLeadfieldInterpolation::PositionsT::instance();
-    WLGeometry::transformPoints( eegPosTrans.get(), eeg_pos, m_fiffEmm->getFidToACPCTransformation() );
+    WLeadfieldInterpolation::PositionsT::SPtr eegPosTrans = *m_fiffEmm->getFidToACPCTransformation() * eeg_pos;
     li.setSensorPositions( eegPosTrans );
 
     m_leadfieldInterpolated.reset(

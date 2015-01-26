@@ -30,6 +30,14 @@ WLPositions::WLPositions( WLEUnit::Enum unit, WLEExponent::Enum exponent, WLECoo
 {
 }
 
+WLPositions::WLPositions( const WLPositions& pos )
+{
+    m_unit = pos.m_unit;
+    m_exponent = pos.m_exponent;
+    m_coordSystem = pos.m_coordSystem;
+    m_positions.resize( PositionsT::RowsAtCompileTime, pos.size() );
+}
+
 WLPositions::~WLPositions()
 {
 }
@@ -80,7 +88,7 @@ WLPositions::IndexT WLPositions::size() const
 
 void WLPositions::resize( WLPositions::IndexT nPos )
 {
-    m_positions.resize( 3, nPos );
+    m_positions.resize( PositionsT::RowsAtCompileTime, nPos );
 }
 
 bool WLPositions::empty() const

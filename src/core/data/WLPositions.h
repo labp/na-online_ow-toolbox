@@ -61,6 +61,14 @@ public:
                     WLECoordSystem::Enum coordSystem = WLECoordSystem::UNKNOWN );
 
     /**
+     * Copy constructor, applies unit, exponent, coordSystem and resizes the positions.
+     * \note Positions are not copied!
+     *
+     * \param pos WLPositions to copy.
+     */
+    explicit WLPositions( const WLPositions& pos );
+
+    /**
      * Destructor.
      */
     virtual ~WLPositions();

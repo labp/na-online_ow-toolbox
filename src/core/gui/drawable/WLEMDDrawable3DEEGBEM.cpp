@@ -95,9 +95,8 @@ void WLEMDDrawable3DEEGBEM::osgNodeCallback( osg::NodeVisitor* nv )
 
     osgAddSurface( bemPositions, bemFaces );
 
-    WLPositions pointsTrans;
-    WLGeometry::transformPoints( &pointsTrans, *emd->getChannelPositions3d(), emm->getFidToACPCTransformation() );
-    osgAddNodes( pointsTrans );
+    WLPositions::SPtr pointsTrans = *emm->getFidToACPCTransformation() * *emd->getChannelPositions3d();
+    osgAddNodes( *pointsTrans );
 
     WLEMDDrawable3D::osgNodeCallback( nv );
     m_rootGroup->removeChild( m_colorMapNode );

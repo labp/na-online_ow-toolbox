@@ -40,6 +40,7 @@
 #include "core/data/WLDigPoint.h"
 #include "core/data/WLEMMHpiInfo.h"
 #include "core/data/WLEMMSubject.h"
+#include "core/data/WLTransformation.h"
 #include "core/data/emd/WLEMData.h"
 #include "core/data/enum/WLEModality.h"
 #include "core/data/enum/WLEPointType.h"
@@ -326,28 +327,42 @@ public:
      *
      * \return %transformation matrix
      */
-    const WLMatrix4::Matrix4T& getDevToFidTransformation() const;
+    WLTransformation::SPtr getDevToFidTransformation();
+
+    /**
+     * Gets the transformation matrix: device to fiducial.
+     *
+     * \return %transformation matrix
+     */
+    WLTransformation::ConstSPtr getDevToFidTransformation() const;
 
     /**
      * Sets the transformation matrix: device to fiducial.
      *
      * \param mat %Transformation matrix.
      */
-    void setDevToFidTransformation( const WLMatrix4::Matrix4T& mat );
+    void setDevToFidTransformation( WLTransformation::SPtr mat );
 
     /**
      * Gets the transformation matrix: fiducial to ACPC.
      *
      * \return %transformation matrix
      */
-    const WLMatrix4::Matrix4T& getFidToACPCTransformation() const;
+    WLTransformation::SPtr getFidToACPCTransformation();
+
+    /**
+     * Gets the transformation matrix: fiducial to ACPC.
+     *
+     * \return %transformation matrix
+     */
+    WLTransformation::ConstSPtr getFidToACPCTransformation() const;
 
     /**
      * Sets the transformation matrix: fiducial to ACPC.
      *
      * \param mat %Transformation matrix.
      */
-    void setFidToACPCTransformation( const WLMatrix4::Matrix4T& mat );
+    void setFidToACPCTransformation( WLTransformation::SPtr mat );
 
     /**
      * Gets the HPI information.
@@ -385,9 +400,9 @@ private:
 
     WLList< WLDigPoint >::SPtr m_digPoints; //!< Digitized points.
 
-    WLMatrix4::Matrix4T m_transDevToFid; //!< %Transformation matrix: device to fiducial.
+    WLTransformation::SPtr m_transDevToFid; //!< %Transformation matrix: device to fiducial.
 
-    WLMatrix4::Matrix4T m_transFidToACPC; //!< %Transformation matrix: fiducial to ACPC.
+    WLTransformation::SPtr m_transFidToACPC; //!< %Transformation matrix: fiducial to ACPC.
 
     WLEMMHpiInfo::SPtr m_hpiInfo; //!< HPI info containing coil position and frequencies.
 };
