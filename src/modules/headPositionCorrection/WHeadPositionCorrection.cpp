@@ -161,7 +161,7 @@ bool WHeadPositionCorrection::process( WLEMDMEG* const megOut, const WLEMDMEG& m
         {
             WLTimeProfiler profilerTras( CLASS, "process_trans", true );
             // 4. transform dipole sphere to head position, MEG coord, in case head position has changed
-            t = Eigen::Affine3d( *itTrans );
+            t = Eigen::Affine3d( itTrans->data() );
             dipPos = t * m_dipPos;
             dipOri = t.linear() * m_dipOri;  // attention: Eigen::Affine3d.rotation() returns a identity matrix!?
             // 5. compute forward model+inverse operator, in case head position has changed
@@ -341,7 +341,7 @@ bool WHeadPositionCorrection::computeInverseOperation( MatrixT* const g, const M
 
 bool WHeadPositionCorrection::checkMovementThreshold( const WLEMDHPI::TransformationT& trans )
 {
-    const Eigen::Vector4d diffTrans = m_transExc.col( 3 ) - trans.col( 3 );
+    const Eigen::Vector4d diffTrans = m_transExc.data().col( 3 ) - trans.data().col( 3 );
     if( diffTrans.norm() > m_movementThreshold )
     {
         m_transExc = trans;

@@ -133,7 +133,7 @@ bool WLEMDHPI::setNrHpiCoils( WLChanNrT count )
         wlog::error( CLASS ) << "Number of HPI coils not set! Count does not match data channels.";
         return false;
     }
-    const size_t n_pos = getChannelPositions3d()->size();
+    const PositionsT::IndexT n_pos = getChannelPositions3d()->size();
     if( n_pos > 0 && ( n_pos != count ) )
     {
         wlog::error( CLASS ) << "Number of HPI coils not set! Count does not match positions.";

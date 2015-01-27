@@ -513,7 +513,9 @@ bool WMHeadPositionEstimation::estimateHeadPosition( WLEMDHPI::SPtr hpiInOut, WL
         m_lastParams = m_optim->getResultParams();
         const double error = m_optim->getResultError();
         const size_t iterations = m_optim->getResultIterations();
-        const WLEMDHPI::TransformationT result = m_optim->getResultTransformation();
+        // TODO(pieloth): #393 Use WLTransformation. set from, to, unit, exponent
+        WLEMDHPI::TransformationT result;
+        result.data() = m_optim->getResultTransformation();
 
         // Calculate errors for informational output
         if( error < errorMin )

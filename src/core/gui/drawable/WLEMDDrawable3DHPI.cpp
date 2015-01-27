@@ -78,10 +78,11 @@ void WLEMDDrawable3DHPI::osgNodeCallback( osg::NodeVisitor* nv )
     WLEMDHPI::ConstSPtr emdHpi = m_emm->getModality< const WLEMDHPI >( WLEModality::HPI );
     WLPositions::ConstSPtr positions = emdHpi->getChannelPositions3d();
     WLArrayList< WLEMDHPI::TransformationT >::ConstSPtr transformations = emdHpi->getTransformations();
-    WLPositions posNew;
-    posNew.resize( positions->size() );
-    WLGeometry::transformPoints( &posNew, *positions, transformations->at( 0 ) );
-    osgAddOrUpdateHpiCoils( posNew );
+    WLPositions::SPtr posNew = transformations->at( 0 ) * *positions;
+    // TODO (pieloth): #393 remove comment
+//    posNew.resize( positions->size() );
+//    WLGeometry::transformPoints( &posNew, *positions, transformations->at( 0 ) );
+    osgAddOrUpdateHpiCoils( *posNew );
 
     WLEMDDrawable3D::osgNodeCallback( nv );
     m_rootGroup->removeChild( m_colorMapNode );

@@ -31,12 +31,10 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <core/common/WDefines.h>
-#include <core/common/math/linearAlgebra/WPosition.h>
-#include <core/common/math/linearAlgebra/WVectorFixed.h>
-
 #include "core/data/WLDigPoint.h"
 #include "core/data/WLPositions.h"
+#include "core/data/WLTransformation.h"
+#include "core/container/WLArrayList.h"
 #include "core/container/WLList.h"
 #include "WLEMData.h"
 
@@ -59,7 +57,7 @@ public:
      */
     typedef boost::shared_ptr< const WLEMDHPI > ConstSPtr;
 
-    typedef Eigen::Matrix< double, 4, 4 > TransformationT;
+    typedef WLTransformation TransformationT;
 
     typedef WLPositions PositionsT;
 
@@ -153,6 +151,7 @@ inline std::ostream& operator<<( std::ostream &strm, const WLEMDHPI& obj )
     const WLEMData& emd = static_cast< const WLEMData& >( obj );
     strm << emd;
     strm << ", positions=" << obj.getChannelPositions3d()->size();
+    strm << ", transformations=" << obj.getTransformations()->size();
     return strm;
 }
 
