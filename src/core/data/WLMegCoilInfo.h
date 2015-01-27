@@ -31,6 +31,7 @@
  * Information about MEG coil.
  *
  * \author pieloth
+ * \ingroup data
  */
 class WLMegCoilInfo
 {

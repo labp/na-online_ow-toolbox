@@ -36,9 +36,10 @@
 
 /**
  * A container-like class for positions/points in different units and coordinate systems. The aim is to prevent calculations with
- * positions in different coordinate systems and units.
+ * positions in different coordinate systems and units. Use it in combination with WLTransformation.
  *
  * \author pieloth
+ * \ingroup data
  */
 class WLPositions
 {

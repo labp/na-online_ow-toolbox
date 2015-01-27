@@ -41,9 +41,10 @@
 
 /**
  * Transformation matrix for different units and coordinate systems. The aim is to prevent calculations with
- * positions in different coordinate systems and units.
+ * positions in different coordinate systems and units. Use it in combination with WLPositions.
  *
  * \author pieloth
+ * \ingroup data
  */
 class WLTransformation
 {
