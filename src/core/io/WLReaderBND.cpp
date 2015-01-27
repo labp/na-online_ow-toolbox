@@ -29,7 +29,6 @@
 #include <boost/shared_ptr.hpp>
 
 #include <core/common/exceptions/WTypeMismatch.h>
-#include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 #include <core/common/WLogger.h>
 #include <core/common/WStringUtils.h>
@@ -114,8 +113,8 @@ WLIOStatus::IOStatusT WLReaderBND::read( WLEMMBemBoundary::SPtr* const boundary 
 
     if( ( *boundary )->getFaces()->empty() )
     {
-        wlog::warn( "WReaderBND" ) << "No faces found! Faces will be generated.";
-        WLGeometry::computeTriangulation( ( *boundary )->getFaces().get(), *( *boundary )->getVertex() );
+        wlog::warn( CLASS ) << "No faces found! Faces will be generated.";
+        WLGeometry::computeTriangulation( ( *boundary )->getFaces().get(), ( *boundary )->getVertex()->data() );
     }
 
     ifs.close();
@@ -147,15 +146,26 @@ WLIOStatus::IOStatusT WLReaderBND::readUnit( WLEMMBemBoundary::SPtr boundary, co
     wlog::debug( CLASS ) << "Unit: " << unit;
     if( unit.find( "mm" ) != string::npos )
     {
-        boundary->setVertexUnit( WLEUnit::METER );
-        boundary->setVertexExponent( WLEExponent::MILLI );
+        boundary->getVertex()->unit( WLEUnit::METER );
+        boundary->getVertex()->exponent( WLEExponent::MILLI );
         return WLIOStatus::SUCCESS;
     }
-    else
+    if( unit.find( "cm" ) != string::npos )
     {
-        wlog::warn( CLASS ) << "Unknown unit.";
-        return WLIOStatus::ERROR_UNKNOWN;
+        boundary->getVertex()->unit( WLEUnit::METER );
+        boundary->getVertex()->exponent( WLEExponent::CENTI );
+        return WLIOStatus::SUCCESS;
     }
+    if( unit.find( "m" ) != string::npos )
+    {
+        boundary->getVertex()->unit( WLEUnit::METER );
+        boundary->getVertex()->exponent( WLEExponent::BASE );
+        return WLIOStatus::SUCCESS;
+    }
+
+    wlog::warn( CLASS ) << "Unknown unit.";
+    return WLIOStatus::ERROR_UNKNOWN;
+
 }
 
 WLIOStatus::IOStatusT WLReaderBND::readNumPos( size_t* const count, const string& line )
@@ -176,8 +186,9 @@ WLIOStatus::IOStatusT WLReaderBND::readNumPoly( size_t* const count, const strin
 
 WLIOStatus::IOStatusT WLReaderBND::readPositions( ifstream& ifs, size_t count, WLEMMBemBoundary::SPtr boundary )
 {
-    WLArrayList< WPosition >::SPtr pos( new WLArrayList< WPosition >() );
-    pos->reserve( count );
+    WLPositions::SPtr pos = boundary->getVertex();
+    pos->resize( count );
+    pos->coordSystem( WLECoordSystem::AC_PC );
 
     string line;
     for( size_t i = 0; i < count && getline( ifs, line ); ++i )
@@ -188,9 +199,9 @@ WLIOStatus::IOStatusT WLReaderBND::readPositions( ifstream& ifs, size_t count, W
         float posX = string_utils::fromString< float >( posTokens.at( posTokens.size() - 3 ) );
         float posY = string_utils::fromString< float >( posTokens.at( posTokens.size() - 2 ) );
         float posZ = string_utils::fromString< float >( posTokens.at( posTokens.size() - 1 ) );
-        pos->push_back( WPosition( posX, posY, posZ ) );
+        pos->data().col( i ) = WLPositions::PositionT( posX, posY, posZ );
     }
-    if( pos->size() < count )
+    if( static_cast< size_t >( pos->size() ) < count )
     {
         return WLIOStatus::ERROR_FREAD;
     }

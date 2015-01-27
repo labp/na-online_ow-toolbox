@@ -89,8 +89,8 @@ void WLEMDDrawable3DEEGBEM::osgNodeCallback( osg::NodeVisitor* nv )
         }
     }
 
-    std::vector< WPosition > bemPositions;
-    WLGeometry::toBaseExponent( &bemPositions, *bemSkin->getVertex(), bemSkin->getVertexExponent() );
+    WLPositions bemPositions;
+    WLGeometry::toBaseExponent( &bemPositions, *bemSkin->getVertex() );
     const std::vector< WVector3i >& bemFaces = *bemSkin->getFaces();
 
     osgAddSurface( bemPositions, bemFaces );
@@ -132,19 +132,20 @@ void WLEMDDrawable3DEEGBEM::osgAddNodes( const WLPositions& positions )
     }
 }
 
-void WLEMDDrawable3DEEGBEM::osgAddSurface( const std::vector< WPosition >& positions, const std::vector< WVector3i >& faces )
+void WLEMDDrawable3DEEGBEM::osgAddSurface( const WLPositions& positions, const std::vector< WVector3i >& faces )
 {
     // draw head surface
     if( m_surfaceChanged )
     {
         m_rootGroup->removeChild( m_surfaceGeode );
 
-        const size_t nbPositions = positions.size();
+        const WLPositions::IndexT nbPositions = positions.size();
         std::vector< WPosition > scaledPos;
         scaledPos.reserve( nbPositions );
-        for( size_t i = 0; i < nbPositions; ++i )
+        for( WLPositions::IndexT i = 0; i < nbPositions; ++i )
         {
-            scaledPos.push_back( positions[i] * m_zoomFactor );
+            const WLPositions::PositionT tmp = positions.at( i ) * m_zoomFactor;
+            scaledPos.push_back( WPosition( tmp.x(), tmp.y(), tmp.z() ) );
         }
         boost::shared_ptr< WTriangleMesh > tri;
         if( faces.size() > 0 )

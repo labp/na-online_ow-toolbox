@@ -240,8 +240,7 @@ bool WMCodeSnippets::writeEmdPositions( WLEMMeasurement::ConstSPtr emm )
         {
             if( ( *it )->getBemType() == WLEBemType::OUTER_SKIN || ( *it )->getBemType() == WLEBemType::HEAD )
             {
-                const vector< WPosition >& pos = *( *it )->getVertex();
-                rc &= writeEmdPositions( pos, "/tmp/positions_skin.txt" );
+                rc &= writeEmdPositions( ( *it )->getVertex()->data(), "/tmp/positions_skin.txt" );
                 break;
             }
         }

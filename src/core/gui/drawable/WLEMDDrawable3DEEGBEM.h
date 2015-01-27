@@ -64,7 +64,7 @@ public:
 protected:
     virtual bool mustDraw() const;
 
-    virtual void osgAddSurface( const std::vector< WPosition >& positions, const std::vector< WVector3i >& faces );
+    virtual void osgAddSurface( const WLPositions& positions, const std::vector< WVector3i >& faces );
 
     virtual void osgNodeCallback( osg::NodeVisitor* nv );
 

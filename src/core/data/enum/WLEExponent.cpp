@@ -34,6 +34,7 @@ WLEExponent::ContainerT WLEExponent::values()
 
     con.insert( WLEExponent::KILO );
     con.insert( WLEExponent::BASE );
+    con.insert( WLEExponent::CENTI );
     con.insert( WLEExponent::MILLI );
     con.insert( WLEExponent::MICRO );
     con.insert( WLEExponent::NANO );
@@ -51,6 +52,8 @@ std::string WLEExponent::name( Enum val )
             return "10^3";
         case WLEExponent::BASE:
             return "1";
+        case WLEExponent::CENTI:
+            return "10^-2";
         case WLEExponent::MILLI:
             return "10^-3";
         case WLEExponent::MICRO:
@@ -77,6 +80,8 @@ double WLEExponent::factor( Enum val )
             return 1.0e+3;
         case WLEExponent::BASE:
             return 1.0;
+        case WLEExponent::CENTI:
+            return 1.0e-2;
         case WLEExponent::MILLI:
             return 1.0e-3;
         case WLEExponent::MICRO:
@@ -88,6 +93,7 @@ double WLEExponent::factor( Enum val )
         case WLEExponent::FEMTO:
             return 1.0e-15;
         case WLEExponent::UNKNOWN:
+            wlog::warn( "WLEExponent" ) << "Using 1.0 for " << WLEExponent::UNKNOWN;
             return 1.0;
         default:
             WAssert( false, "Unknown WLEExponent!" );
@@ -103,6 +109,8 @@ WLEExponent::Enum WLEExponent::fromFIFF( WLFiffLib::unitm_t unitm )
             return WLEExponent::KILO;
         case WLFiffLib::UnitMultiplier::NONE:
             return WLEExponent::BASE;
+        case WLFiffLib::UnitMultiplier::C:
+            return WLEExponent::CENTI;
         case WLFiffLib::UnitMultiplier::M:
             return WLEExponent::MILLI;
         case WLFiffLib::UnitMultiplier::MU:

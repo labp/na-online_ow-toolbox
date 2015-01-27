@@ -288,6 +288,23 @@ void WLGeometry::toBaseExponent( std::vector< Point >* const out, const std::vec
     }
 }
 
+void WLGeometry::toBaseExponent( WLPositions* const out, const WLPositions& in )
+{
+    out->resize( in.size() );
+    out->unit( in.unit() );
+    out->exponent( WLEExponent::BASE );
+    out->coordSystem( in.coordSystem() );
+    if( in.exponent() != WLEExponent::BASE )
+    {
+        WLPositions::ScalarT factor = WLEExponent::factor( in.exponent() );
+        out->data() = in.data() * factor;
+    }
+    else
+    {
+        out->data() = in.data();
+    }
+}
+
 bool WLGeometry::findOrthogonalVector( Vector3T* const o, const Vector3T& v )
 {
 // 0 = Vx Ox + Vy Oy + Vz Oz

@@ -23,9 +23,6 @@
 
 #include <string>
 
-#include <boost/shared_ptr.hpp>
-
-#include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
 #include "core/container/WLArrayList.h"
@@ -36,12 +33,12 @@ const std::string WLEMMBemBoundary::CLASS = "WLEMMBemBoundary";
 
 WLEMMBemBoundary::WLEMMBemBoundary()
 {
-    setVertexUnit( WLEUnit::NONE );
-    setVertexExponent( WLEExponent::UNKNOWN );
+//    setVertexUnit( WLEUnit::NONE );
+//    setVertexExponent( WLEExponent::UNKNOWN );
     setConductivityUnit( WLEUnit::NONE );
     setBemType( WLEBemType::UNDEFINED );
 
-    m_vertex = WLArrayList< WPosition >::instance();
+    m_vertex = WLPositions::instance();
     m_faces = WLArrayList< WVector3i >::instance();
 }
 
@@ -49,40 +46,40 @@ WLEMMBemBoundary::~WLEMMBemBoundary()
 {
 }
 
-WLArrayList< WPosition >::SPtr WLEMMBemBoundary::getVertex()
+WLPositions::SPtr WLEMMBemBoundary::getVertex()
 {
     return m_vertex;
 }
 
-WLArrayList< WPosition >::ConstSPtr WLEMMBemBoundary::getVertex() const
+WLPositions::ConstSPtr WLEMMBemBoundary::getVertex() const
 {
     return m_vertex;
 }
 
-void WLEMMBemBoundary::setVertex( WLArrayList< WPosition >::SPtr vertex )
+void WLEMMBemBoundary::setVertex( WLPositions::SPtr vertex )
 {
     m_vertex = vertex;
 }
 
-WLEUnit::Enum WLEMMBemBoundary::getVertexUnit() const
-{
-    return m_vertexUnit;
-}
-
-void WLEMMBemBoundary::setVertexUnit( WLEUnit::Enum unit )
-{
-    m_vertexUnit = unit;
-}
-
-WLEExponent::Enum WLEMMBemBoundary::getVertexExponent() const
-{
-    return m_vertexExponent;
-}
-
-void WLEMMBemBoundary::setVertexExponent( WLEExponent::Enum exponent )
-{
-    m_vertexExponent = exponent;
-}
+//WLEUnit::Enum WLEMMBemBoundary::getVertexUnit() const
+//{
+//    return m_vertexUnit;
+//}
+//
+//void WLEMMBemBoundary::setVertexUnit( WLEUnit::Enum unit )
+//{
+//    m_vertexUnit = unit;
+//}
+//
+//WLEExponent::Enum WLEMMBemBoundary::getVertexExponent() const
+//{
+//    return m_vertexExponent;
+//}
+//
+//void WLEMMBemBoundary::setVertexExponent( WLEExponent::Enum exponent )
+//{
+//    m_vertexExponent = exponent;
+//}
 
 WLEBemType::Enum WLEMMBemBoundary::getBemType() const
 {
