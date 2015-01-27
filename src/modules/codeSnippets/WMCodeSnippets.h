@@ -105,7 +105,6 @@ private:
 
     bool writeEmdPositions( WLEMMeasurement::ConstSPtr emm );
     bool writeEmdPositions( const WLPositions::PositionsT& positions, std::string fname );
-    bool writeEmdPositions( const std::vector< WPosition >& positions, std::string fname );
 
     void emulateSinusWave();
 

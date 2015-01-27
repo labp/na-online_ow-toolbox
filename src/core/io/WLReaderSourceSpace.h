@@ -29,6 +29,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "core/data/WLEMMSurface.h"
+#include "core/data/WLPositions.h"
 #include "core/io/WLReaderGeneric.h"
 
 /**
@@ -56,6 +57,9 @@ public:
     virtual ~WLReaderSourceSpace();
 
     virtual WLIOStatus::IOStatusT read( WLEMMSurface::SPtr* const surface );
+
+private:
+    void estimateExponent( WLPositions* const pos );
 };
 
 #endif  // WLREADERSOURCESPACE_H_

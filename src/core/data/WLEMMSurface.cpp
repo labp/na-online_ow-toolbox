@@ -26,7 +26,6 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
 #include "WLEMMSurface.h"
@@ -35,25 +34,19 @@ const std::string WLEMMSurface::CLASS = "WLEMMSurface";
 
 WLEMMSurface::WLEMMSurface()
 {
-    setVertexUnit( WLEUnit::NONE );
-    setVertexExponent( WLEExponent::UNKNOWN );
-
-    m_vertex = WLArrayList< WPosition >::instance();
+    m_vertex = WLPositions::instance();
     m_faces = WLArrayList< WVector3i >::instance();
+    m_hemisphere = Hemisphere::BOTH;
 }
 
-WLEMMSurface::WLEMMSurface( WLArrayList< WPosition >::SPtr vertex, WLEUnit::Enum vertexUnit, WLEExponent::Enum vertexExponent,
-                WLArrayList< WVector3i >::SPtr faces, Hemisphere::Enum hemisphere ) :
-                m_vertex( vertex ), m_vertexUnit( vertexUnit ), m_vertexExponent( vertexExponent ), m_faces( faces ), m_hemisphere(
-                                hemisphere )
+WLEMMSurface::WLEMMSurface( WLPositions::SPtr vertex, WLArrayList< WVector3i >::SPtr faces, Hemisphere::Enum hemisphere ) :
+                m_vertex( vertex ), m_faces( faces ), m_hemisphere( hemisphere )
 {
 }
 
 WLEMMSurface::WLEMMSurface( const WLEMMSurface& surface )
 {
-    m_vertex = WLArrayList< WPosition >::instance();
-    m_vertexUnit = surface.m_vertexUnit;
-    m_vertexExponent = surface.m_vertexExponent;
+    m_vertex = WLPositions::instance();
     m_faces = WLArrayList< WVector3i >::instance();
     m_hemisphere = surface.m_hemisphere;
 }
@@ -62,39 +55,19 @@ WLEMMSurface::~WLEMMSurface()
 {
 }
 
-WLArrayList< WPosition >::SPtr WLEMMSurface::getVertex()
+WLPositions::SPtr WLEMMSurface::getVertex()
 {
     return m_vertex;
 }
 
-WLArrayList< WPosition >::ConstSPtr WLEMMSurface::getVertex() const
+WLPositions::ConstSPtr WLEMMSurface::getVertex() const
 {
     return m_vertex;
 }
 
-void WLEMMSurface::setVertex( WLArrayList< WPosition >::SPtr vertex )
+void WLEMMSurface::setVertex( WLPositions::SPtr vertex )
 {
     m_vertex = vertex;
-}
-
-WLEUnit::Enum WLEMMSurface::getVertexUnit() const
-{
-    return m_vertexUnit;
-}
-
-void WLEMMSurface::setVertexUnit( WLEUnit::Enum unit )
-{
-    m_vertexUnit = unit;
-}
-
-WLEExponent::Enum WLEMMSurface::getVertexExponent() const
-{
-    return m_vertexExponent;
-}
-
-void WLEMMSurface::setVertexExponent( WLEExponent::Enum exponent )
-{
-    m_vertexExponent = exponent;
 }
 
 WLArrayList< WVector3i >::SPtr WLEMMSurface::getFaces()

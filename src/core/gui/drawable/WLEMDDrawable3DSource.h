@@ -96,14 +96,6 @@ protected:
     ROISelectorSPtr m_roiSelecor;
 
 private:
-    /**
-     * TODO(pieloth): #393 overloading of Drawable3D's osgAddSurface(), combine!
-     *
-     * \param positions
-     * \param faces
-     */
-    void osgAddSurface( const std::vector< WPosition >& positions, const std::vector< WVector3i >& faces );
-
     void osgUpdateSurfaceColor( const WLEMData::DataT& data );
 
     /**

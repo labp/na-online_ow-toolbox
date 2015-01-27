@@ -25,6 +25,7 @@
 #define WLPOSITIONS_H_
 
 #include <ostream>
+#include <string>
 
 #include <boost/shared_ptr.hpp>
 #include <Eigen/Core>
@@ -49,6 +50,8 @@ public:
     typedef Eigen::Matrix3Xd PositionsT; //!< Rows: x, y, z; Columns: channels
     typedef PositionsT::Index IndexT; //!< Index type to access positions.
     typedef PositionsT::Scalar ScalarT; //!< Value type.
+
+    static const std::string CLASS;
 
     /**
      * Constructor.
@@ -184,6 +187,23 @@ public:
      * \param coordSystem Coordinate system to set.
      */
     void coordSystem( WLECoordSystem::Enum coordSystem );
+
+    /**
+     * Applies the transformation to positions.
+     *
+     * \throws WPreconditionNotMet
+     * \param positions Positions to transfrom.
+     * \return Transformed positions.
+     */
+    /**
+     * Appends positions to this instance.
+     * \attention This function is costly and does a resize and copy!
+     *
+     * \throws WPreconditionNotMet
+     * \param positions Positions to append.
+     * \return Object with appended positions.
+     */
+    WLPositions& operator+=( const WLPositions& positions );
 
 private:
     PositionsT m_positions;

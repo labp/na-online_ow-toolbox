@@ -28,7 +28,6 @@
 #include <boost/smart_ptr/shared_ptr.hpp>
 #include <core/common/exceptions/WTypeMismatch.h>
 #include <core/common/math/linearAlgebra/WMatrixFixed.h>
-#include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 #include <core/common/WLogger.h>
 #include <core/common/WStringUtils.h>
@@ -103,7 +102,7 @@ WLIOStatus::IOStatusT WLReaderDIP::read( WLEMMSurface::SPtr* const surface )
     if( ( *surface )->getFaces()->empty() )
     {
         wlog::warn( CLASS ) << "No faces found! Faces will be generated.";
-        WLGeometry::computeTriangulation( ( *surface )->getFaces().get(), *( *surface )->getVertex() );
+        WLGeometry::computeTriangulation( ( *surface )->getFaces().get(), ( *surface )->getVertex()->data() );
     }
 
     ifs.close();
@@ -115,17 +114,28 @@ WLIOStatus::IOStatusT WLReaderDIP::readUnit( WLEMMSurface::SPtr surface, const s
     vector< string > tokens = string_utils::tokenize( line );
     string unit = tokens.at( 1 );
     wlog::debug( CLASS ) << "Unit: " << unit;
+    WLPositions::SPtr vertex = surface->getVertex();
     if( unit.find( "mm" ) != string::npos )
     {
-        surface->setVertexUnit( WLEUnit::METER );
-        surface->setVertexExponent( WLEExponent::MILLI );
+        vertex->unit( WLEUnit::METER );
+        vertex->exponent( WLEExponent::MILLI );
         return WLIOStatus::SUCCESS;
     }
-    else
+    if( unit.find( "cm" ) != string::npos )
     {
-        wlog::warn( CLASS ) << "Unknown unit.";
-        return WLIOStatus::ERROR_UNKNOWN;
+        vertex->unit( WLEUnit::METER );
+        vertex->exponent( WLEExponent::CENTI );
+        return WLIOStatus::SUCCESS;
     }
+    if( unit.find( "m" ) != string::npos )
+    {
+        vertex->unit( WLEUnit::METER );
+        vertex->exponent( WLEExponent::BASE );
+        return WLIOStatus::SUCCESS;
+    }
+
+    wlog::warn( CLASS ) << "Unknown unit.";
+    return WLIOStatus::ERROR_UNKNOWN;
 }
 
 WLIOStatus::IOStatusT WLReaderDIP::readNumPos( size_t* const count, const string& line )
@@ -146,8 +156,9 @@ WLIOStatus::IOStatusT WLReaderDIP::readNumPoly( size_t* const count, const strin
 
 WLIOStatus::IOStatusT WLReaderDIP::readPositions( ifstream& ifs, size_t count, WLEMMSurface::SPtr surface )
 {
-    WLArrayList< WPosition >::SPtr pos( new WLArrayList< WPosition >() );
-    pos->reserve( count );
+    WLPositions::SPtr pos = surface->getVertex();
+    pos->coordSystem( WLECoordSystem::AC_PC );
+    pos->resize( count );
 
     string line;
     for( size_t i = 0; i < count && getline( ifs, line ); ++i )
@@ -155,12 +166,12 @@ WLIOStatus::IOStatusT WLReaderDIP::readPositions( ifstream& ifs, size_t count, W
         vector< string > lineTokens = string_utils::tokenize( line, ":" );
 
         vector< string > posTokens = string_utils::tokenize( lineTokens.back() );
-        float posX = string_utils::fromString< float >( posTokens.at( posTokens.size() - 3 ) );
-        float posY = string_utils::fromString< float >( posTokens.at( posTokens.size() - 2 ) );
-        float posZ = string_utils::fromString< float >( posTokens.at( posTokens.size() - 1 ) );
-        pos->push_back( WPosition( posX, posY, posZ ) );
+        const float posX = string_utils::fromString< float >( posTokens.at( posTokens.size() - 3 ) );
+        const float posY = string_utils::fromString< float >( posTokens.at( posTokens.size() - 2 ) );
+        const float posZ = string_utils::fromString< float >( posTokens.at( posTokens.size() - 1 ) );
+        pos->data().col( i ) = WLPositions::PositionT( posX, posY, posZ );
     }
-    if( pos->size() < count )
+    if( static_cast< size_t >( pos->size() ) < count )
     {
         return WLIOStatus::ERROR_FREAD;
     }

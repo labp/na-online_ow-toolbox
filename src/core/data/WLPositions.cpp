@@ -21,9 +21,15 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
+#include <core/common/WLogger.h>
+#include <core/common/exceptions/WPreconditionNotMet.h>
 #include <core/common/exceptions/WOutOfBounds.h>
 
 #include "WLPositions.h"
+
+const std::string WLPositions::CLASS = "WLPositions";
 
 WLPositions::WLPositions( WLEUnit::Enum unit, WLEExponent::Enum exponent, WLECoordSystem::Enum coordSystem ) :
                 m_unit( unit ), m_exponent( exponent ), m_coordSystem( coordSystem )
@@ -124,4 +130,51 @@ WLECoordSystem::Enum WLPositions::coordSystem() const
 void WLPositions::coordSystem( WLECoordSystem::Enum coordSystem )
 {
     m_coordSystem = coordSystem;
+}
+
+WLPositions& WLPositions::operator+=( const WLPositions& positions )
+{
+    // TODO(pieloth): unit test
+
+    if( positions.empty() )
+    {
+        return *this;
+    }
+
+    if( ( m_coordSystem != WLECoordSystem::UNKNOWN && positions.coordSystem() != WLECoordSystem::UNKNOWN ) )
+    {
+        if( m_coordSystem != positions.coordSystem() )
+        {
+            throw WPreconditionNotMet( "From coordinate system are not equals!" );
+        }
+    }
+    else
+    {
+        wlog::warn( CLASS ) << "Coordinate system is not set and could not be checked: " << m_coordSystem << "/"
+                        << positions.coordSystem();
+    }
+    if( m_unit != WLEUnit::NONE && positions.unit() != WLEUnit::NONE )
+    {
+        if( m_unit != positions.unit() )
+        {
+            // TODO(pieloth): Calculate to one unit.
+            throw WPreconditionNotMet( "Units are not equals!" );
+        }
+        if( m_exponent != positions.exponent() )
+        {
+            // TODO(pieloth): Calculate to one exponent.
+            throw WPreconditionNotMet( "Exponents are not equals!" );
+        }
+    }
+    else
+    {
+        wlog::warn( CLASS ) << "Unit is not set and could not be checked: " << m_unit << "/" << positions.unit();
+    }
+
+    const PositionsT old = this->data();
+    this->resize( old.cols() + positions.size() );
+    this->data().block( 0, 0, PositionT::RowsAtCompileTime, old.cols() ) = old;
+    this->data().block( 0, old.cols(), PositionT::RowsAtCompileTime, positions.size() ) = positions.data();
+
+    return *this;
 }

@@ -232,7 +232,7 @@ bool WMCodeSnippets::writeEmdPositions( WLEMMeasurement::ConstSPtr emm )
     try
     {
         WLEMMSurface::ConstSPtr surface = subject->getSurface( WLEMMSurface::Hemisphere::BOTH );
-        rc &= writeEmdPositions( *surface->getVertex(), "/tmp/positions_src.txt" );
+        rc &= writeEmdPositions( surface->getVertex()->data(), "/tmp/positions_src.txt" );
 
         const std::list< WLEMMBemBoundary::SPtr >& bems = *subject->getBemBoundaries();
         std::list< WLEMMBemBoundary::SPtr >::const_iterator it;
@@ -250,43 +250,6 @@ bool WMCodeSnippets::writeEmdPositions( WLEMMeasurement::ConstSPtr emm )
         errorLog() << "No source space both available!";
     }
     return rc;
-}
-
-bool WMCodeSnippets::writeEmdPositions( const vector< WPosition >& positions, string fname )
-{
-    ofstream fstream;
-    fstream.open( fname.c_str(), ofstream::out );
-    if( !fstream.is_open() )
-    {
-        return false;
-    }
-
-    Eigen::Matrix4f mat;
-    if( fname.compare( "/tmp/positions_meg.txt" ) == 0 )
-    {
-        debugLog() << "transforming: " << fname;
-        mat << 0.99732f, 0.0693495f, -0.0232939f, -0.00432357f, -0.0672088f, 0.994307f, 0.0826812f, -0.00446779f, 0.0288952f, -0.0808941f, 0.996304f, 0.0442954f, 0.0f, 0.0f, 0.0f, 1.0f;
-    }
-    else
-        if( fname.compare( "/tmp/positions_src.txt" ) == 0 || fname.compare( "/tmp/positions_skin.txt" ) == 0 )
-        {
-            mat.setIdentity();
-            mat *= 0.001;
-        }
-        else
-        {
-            mat.setIdentity();
-        }
-
-    vector< WPosition >::const_iterator it = positions.begin();
-    for( ; it != positions.end(); ++it )
-    {
-        Eigen::Vector4f vec( it->x(), it->y(), it->z(), 1.0 );
-        vec = mat * vec;
-        fstream << vec.x() << "\t" << vec.y() << "\t" << vec.z() << std::endl;
-    }
-    fstream.close();
-    return true;
 }
 
 bool WMCodeSnippets::writeEmdPositions( const WLPositions::PositionsT& positions, string fname )
