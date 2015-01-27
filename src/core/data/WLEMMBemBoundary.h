@@ -65,12 +65,6 @@ public:
     WLPositions::ConstSPtr getVertex() const;
     void setVertex( WLPositions::SPtr vertex );
 
-//    WLEUnit::Enum getVertexUnit() const;
-//    void setVertexUnit( WLEUnit::Enum unit );
-//
-//    WLEExponent::Enum getVertexExponent() const;
-//    void setVertexExponent( WLEExponent::Enum exponent );
-
     WLEBemType::Enum getBemType() const;
     void setBemType( WLEBemType::Enum exponent );
 

@@ -33,8 +33,6 @@ const std::string WLEMMBemBoundary::CLASS = "WLEMMBemBoundary";
 
 WLEMMBemBoundary::WLEMMBemBoundary()
 {
-//    setVertexUnit( WLEUnit::NONE );
-//    setVertexExponent( WLEExponent::UNKNOWN );
     setConductivityUnit( WLEUnit::NONE );
     setBemType( WLEBemType::UNDEFINED );
 
@@ -60,26 +58,6 @@ void WLEMMBemBoundary::setVertex( WLPositions::SPtr vertex )
 {
     m_vertex = vertex;
 }
-
-//WLEUnit::Enum WLEMMBemBoundary::getVertexUnit() const
-//{
-//    return m_vertexUnit;
-//}
-//
-//void WLEMMBemBoundary::setVertexUnit( WLEUnit::Enum unit )
-//{
-//    m_vertexUnit = unit;
-//}
-//
-//WLEExponent::Enum WLEMMBemBoundary::getVertexExponent() const
-//{
-//    return m_vertexExponent;
-//}
-//
-//void WLEMMBemBoundary::setVertexExponent( WLEExponent::Enum exponent )
-//{
-//    m_vertexExponent = exponent;
-//}
 
 WLEBemType::Enum WLEMMBemBoundary::getBemType() const
 {
