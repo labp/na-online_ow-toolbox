@@ -64,7 +64,8 @@ bool WFTChunkReaderNeuromagIsotrak::read( WFTChunk::ConstSPtr chunk )
 
     m_digPoints.reset( new WLList< WLDigPoint > );
     m_eegChPos = WLPositions::instance();
-    // TODO(pieloth): #393 set unit and exponent.
+    m_eegChPos->unit( WLEUnit::METER );
+    m_eegChPos->exponent( WLEExponent::BASE );
     m_eegChPos->coordSystem( WLECoordSystem::HEAD );
     m_eegFaces.reset( new WLArrayList< WVector3i > );
 

@@ -92,7 +92,8 @@ bool WLEMDHPI::setChannelPositions3d( WLList< WLDigPoint >::ConstSPtr digPoints 
         }
     }
     m_chanPos3d->resize( nPos );
-    // TODO(pieloth): #393 set unit and exponent.
+    m_chanPos3d->unit( WLEUnit::METER );
+    m_chanPos3d->exponent( WLEExponent::BASE );
     m_chanPos3d->coordSystem( WLECoordSystem::HEAD );
     nPos = 0;
     for( it = digPoints->begin(); it != digPoints->end(); ++it )

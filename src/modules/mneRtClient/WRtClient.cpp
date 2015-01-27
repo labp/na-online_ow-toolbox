@@ -542,7 +542,8 @@ bool WRtClient::setDigPointsAndEEG( const std::list< WLDigPoint >& digPoints )
         ++nChPosEeg;
     }
     m_chPosEeg->resize( nChPosEeg );
-    // TODO(pieloth): #393 set unit and exponent.
+    m_chPosEeg->unit( WLEUnit::METER );
+    m_chPosEeg->exponent( WLEExponent::BASE );
     m_chPosEeg->coordSystem( WLECoordSystem::HEAD );
     nChPosEeg = 0;
     for( it = m_digPoints->begin(); it != m_digPoints->end(); ++it )
@@ -596,7 +597,8 @@ bool WRtClient::preparePrototype( WLEMMeasurement* const emm )
         WLTransformation::SPtr t = WLTransformation::instance();
         t->from( WLECoordSystem::DEVICE );
         t->to( WLECoordSystem::HEAD );
-        // TODO(pieloth): #393 set unit and exponent
+        t->unit( WLEUnit::METER );
+        t->exponent( WLEExponent::BASE );
         t->data() = devToHead;
         emm->setDevToFidTransformation( t );
     }
@@ -724,7 +726,8 @@ bool WRtClient::readChannelPositions( WLEMData* const emd, const Eigen::RowVecto
         chEzMEG->reserve( picks.size() );
 
         WLEMDMEG::PositionsT::SPtr posMeg = WLEMDMEG::PositionsT::instance();
-        // TODO(pieloth): #393 set unit and exponent.
+        posMeg->unit( WLEUnit::METER );
+        posMeg->exponent( WLEExponent::BASE );
         posMeg->coordSystem( WLECoordSystem::DEVICE );
         posMeg->resize( picks.size() );
 

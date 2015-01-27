@@ -80,11 +80,13 @@ bool WFTChunkReaderNeuromagHdr::read( WFTChunk::ConstSPtr chunk )
     m_stimulusPicks.resize( 0 );
 
     m_chPosEEG = WLPositions::instance();
-    // TODO(pieloth): #393 set unit and exponent.
+    m_chPosEEG->unit( WLEUnit::METER );
+    m_chPosEEG->exponent( WLEExponent::BASE );
     m_chPosEEG->coordSystem( WLECoordSystem::HEAD );
 
     m_chPosMEG = WLPositions::instance();
-    // TODO(pieloth): #393 set unit and exponent.
+    m_chPosMEG->unit( WLEUnit::METER );
+    m_chPosMEG->exponent( WLEExponent::BASE );
     m_chPosMEG->coordSystem( WLECoordSystem::DEVICE );
 
     m_chExMEG.reset( new WLArrayList< WVector3f > );
