@@ -21,6 +21,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <core/common/WAssert.h>
 #include <core/common/WLogger.h>
 
 #include "WLEMMHpiInfo.h"
@@ -29,20 +30,28 @@ const std::string WLEMMHpiInfo::CLASS = "WLEMMHpiInfo";
 
 WLEMMHpiInfo::WLEMMHpiInfo()
 {
-    m_devToHead.setZero(); // Init with zero due to indicate it was not set, because transformation matrix has at least one 1.
+    m_devToHead = TransformationT::instance();
+    m_devToHead->from( WLECoordSystem::DEVICE );
+    m_devToHead->to( WLECoordSystem::HEAD );
 }
 
 WLEMMHpiInfo::~WLEMMHpiInfo()
 {
 }
 
-WLEMMHpiInfo::TransformationT WLEMMHpiInfo::getDevToHead() const
+WLEMMHpiInfo::TransformationT::SPtr WLEMMHpiInfo::getDevToHead()
 {
     return m_devToHead;
 }
 
-void WLEMMHpiInfo::setDevToHead( const TransformationT& t )
+WLEMMHpiInfo::TransformationT::ConstSPtr WLEMMHpiInfo::getDevToHead() const
 {
+    return m_devToHead;
+}
+
+void WLEMMHpiInfo::setDevToHead( TransformationT::SPtr t )
+{
+    WAssert( t->from() == WLECoordSystem::DEVICE && t->to() == WLECoordSystem::HEAD, "From/to coordSystem are wrong!" );
     m_devToHead = t;
 }
 

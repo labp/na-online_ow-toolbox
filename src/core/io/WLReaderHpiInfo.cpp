@@ -36,6 +36,7 @@
 
 #include "core/data/WLDataTypes.h"
 #include "core/data/WLDigPoint.h"
+#include "core/data/WLTransformation.h"
 #include "core/dataFormat/fiff/WLFiffBlockType.h"
 #include "core/dataFormat/fiff/WLFiffHPI.h"
 #include "WLReaderIsotrak.h"
@@ -225,7 +226,13 @@ bool WLReaderHpiInfo::readHpiResult( WLEMMHpiInfo* const hpiInfo, FIFFLIB::FiffS
             const FiffCoordTrans trans = tag->toCoordTrans();
             if( trans.from == FIFFV_COORD_DEVICE && trans.to == FIFFV_COORD_HEAD )
             {
-                hpiInfo->setDevToHead( trans.trans.cast< double >() );
+                WLTransformation::SPtr t = WLTransformation::instance();
+                t->unit( WLEUnit::METER );
+                t->exponent( WLEExponent::BASE );
+                t->from( WLECoordSystem::DEVICE );
+                t->from( WLECoordSystem::HEAD );
+                t->data( trans.trans.cast< WLTransformation::ScalarT >() );
+                hpiInfo->setDevToHead( t );
                 ++ndata;
                 wlog::debug( CLASS ) << "Found transformation device to head:\n" << hpiInfo->getDevToHead();
             }

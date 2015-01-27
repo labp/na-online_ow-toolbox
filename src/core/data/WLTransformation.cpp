@@ -104,6 +104,17 @@ void WLTransformation::exponent( WLEExponent::Enum exponent )
     m_exponent = exponent;
 }
 
+WLTransformation::SPtr WLTransformation::inverse() const
+{
+    WLTransformation::SPtr inverse = WLTransformation::instance();
+    inverse->from( to() );
+    inverse->to( from() );
+    inverse->unit( unit() );
+    inverse->exponent( exponent() );
+    inverse->data( m_transformation.inverse() );
+    return inverse;
+}
+
 WLPositions::SPtr WLTransformation::operator*( const WLPositions& positions ) const
 {
     // TODO(pieloth): unit test

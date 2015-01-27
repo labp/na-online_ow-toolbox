@@ -165,6 +165,13 @@ public:
     void exponent( WLEExponent::Enum exponent );
 
     /**
+     * Creates the inverse transformation, i.e. to->from.
+     *
+     * \return New instance with swapped from/to and inverse matrix.
+     */
+    WLTransformation::SPtr inverse() const;
+
+    /**
      * Applies the transformation to positions.
      *
      * \throws WPreconditionNotMet
