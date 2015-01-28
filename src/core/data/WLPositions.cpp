@@ -134,8 +134,6 @@ void WLPositions::coordSystem( WLECoordSystem::Enum coordSystem )
 
 WLPositions& WLPositions::operator+=( const WLPositions& positions )
 {
-    // TODO(pieloth): unit test
-
     if( positions.empty() )
     {
         return *this;
@@ -157,12 +155,10 @@ WLPositions& WLPositions::operator+=( const WLPositions& positions )
     {
         if( m_unit != positions.unit() )
         {
-            // TODO(pieloth): Calculate to one unit.
             throw WPreconditionNotMet( "Units are not equals!" );
         }
         if( m_exponent != positions.exponent() )
         {
-            // TODO(pieloth): Calculate to one exponent.
             throw WPreconditionNotMet( "Exponents are not equals!" );
         }
     }
