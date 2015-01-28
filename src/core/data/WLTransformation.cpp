@@ -141,8 +141,6 @@ WLTransformation::SPtr WLTransformation::inverse() const
 
 WLPositions::SPtr WLTransformation::operator*( const WLPositions& positions ) const
 {
-    // TODO(pieloth): unit test
-
     if( ( m_from != WLECoordSystem::UNKNOWN && positions.coordSystem() != WLECoordSystem::UNKNOWN ) )
     {
         if( m_from != positions.coordSystem() )
@@ -159,12 +157,10 @@ WLPositions::SPtr WLTransformation::operator*( const WLPositions& positions ) co
     {
         if( m_unit != positions.unit() )
         {
-            // TODO(pieloth): Calculate to one unit.
             throw WPreconditionNotMet( "Units are not equals!" );
         }
         if( m_exponent != positions.exponent() )
         {
-            // TODO(pieloth): Calculate to one exponent.
             throw WPreconditionNotMet( "Exponents are not equals!" );
         }
     }
