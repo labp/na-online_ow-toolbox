@@ -37,9 +37,16 @@ WContinuousPositionEstimation::WContinuousPositionEstimation( const WLPositions&
                 DownhillSimplexMethod(), m_unit( hpiPos.unit() ), m_exponent( hpiPos.exponent() )
 {
     WAssert( hpiPos.unit() == sensPos.unit(), "Units are not equals!" );
+    WAssert( hpiPos.unit() == WLEUnit::UNKNOWN || hpiPos.unit() == WLEUnit::METER, "Unit is not meter!" );
     WAssert( hpiPos.exponent() == sensPos.exponent(), "Exponents are not equals!" );
+    WAssert( hpiPos.exponent() == WLEExponent::UNKNOWN || hpiPos.exponent() == WLEExponent::BASE, "Is not base unit!" );
     WAssert( hpiPos.coordSystem() == WLECoordSystem::HEAD, "HPI positions are not in head coordinates!" );
     WAssert( sensPos.coordSystem() == WLECoordSystem::DEVICE, "Senor positions are not in device coordinates!" );
+
+    if( hpiPos.unit() == WLEUnit::UNKNOWN || hpiPos.exponent() == WLEExponent::UNKNOWN )
+    {
+        wlog::warn( CLASS ) << "Unit or exponent is unknown, meter is used!";
+    }
 
     // Transform HPI coil positions
     m_hpiPos = hpiPos.data().colwise().homogeneous();

@@ -64,8 +64,8 @@ public:
     /**
      * Constructor.
      *
-     * \param hpiPos HPI positions in head coordinate system.
-     * \param sensPos Sensor positions, i.e. magnetometer positions, in device coordinate system.
+     * \param hpiPos HPI positions in head coordinate system and meter.
+     * \param sensPos Sensor positions, i.e. magnetometer positions, in device coordinate system and meter.
      * \param sensOri Sensor orientation, i.e. magnetometer orientation, in device coordinate system.
      */
     WContinuousPositionEstimation( const WLPositions& hpiPos, const WLPositions& sensPos,
@@ -125,8 +125,8 @@ private:
      */
     TransformationT paramsToTrans( const ParamsT& params ) const;
 
-    HPointsT m_hpiPos;
-    std::vector< PointT > m_sensPos;
+    HPointsT m_hpiPos; //!< In meter as translation.
+    std::vector< PointT > m_sensPos; //!< In meter as translation.
     std::vector< OrientationT > m_sensOri;
 
     /**

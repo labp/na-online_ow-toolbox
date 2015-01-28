@@ -135,16 +135,16 @@ void WMHeadPositionEstimation::properties()
     m_propInitFactor = m_propGroupEstimation->addProperty( "Initial Factor:", "Initial factor to create initial parameter set.",
                     2.0 );
 
-    m_propInitRz = m_propGroupEstimation->addProperty( "Rz:", "Initial rotation around the z axis for z-y-x rotation degrees.",
-                    0.0 );
-    m_propInitRy = m_propGroupEstimation->addProperty( "Ry:", "Initial rotation around the y axis for z-y-x rotation degrees.",
-                    0.0 );
-    m_propInitRx = m_propGroupEstimation->addProperty( "Rx:", "Initial rotation around the x axis for z-y-x rotation degrees.",
-                    0.0 );
+    m_propInitRz = m_propGroupEstimation->addProperty( "Rz [°]:",
+                    "Initial rotation around the z axis for z-y-x rotation degrees.", 0.0 );
+    m_propInitRy = m_propGroupEstimation->addProperty( "Ry [°]:",
+                    "Initial rotation around the y axis for z-y-x rotation degrees.", 0.0 );
+    m_propInitRx = m_propGroupEstimation->addProperty( "Rx [°]:",
+                    "Initial rotation around the x axis for z-y-x rotation degrees.", 0.0 );
 
-    m_propInitTx = m_propGroupEstimation->addProperty( "Tx:", "Initial x translation in meter.", 0.0 );
-    m_propInitTy = m_propGroupEstimation->addProperty( "Ty:", "Initial y translation in meter.", 0.0 );
-    m_propInitTz = m_propGroupEstimation->addProperty( "Tz:", "Initial z translation in meter.", 0.0 );
+    m_propInitTx = m_propGroupEstimation->addProperty( "Tx [m]:", "Initial x translation in meter.", 0.0 );
+    m_propInitTy = m_propGroupEstimation->addProperty( "Ty [m]:", "Initial y translation in meter.", 0.0 );
+    m_propInitTz = m_propGroupEstimation->addProperty( "Tz [m]:", "Initial z translation in meter.", 0.0 );
 
     m_propErrorMin = m_infoProperties->addProperty( "Error (min.):", "Min. fitting error of last block.", 0.0 );
     m_propErrorMin->setPurpose( PV_PURPOSE_INFORMATION );
