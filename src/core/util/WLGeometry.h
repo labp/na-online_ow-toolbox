@@ -79,8 +79,6 @@ namespace WLGeometry
 
     void transformPoints( std::vector< Point >* const out, const std::vector< Point >& in, const WLMatrix4::Matrix4T& trans );
 
-    bool transformPoints( WLPositions* const out, const WLPositions& in, const WLMatrix4::Matrix4T& trans );
-
     void toBaseExponent( WLPositions* const out, const WLPositions& in );
 
     void toBaseExponent( std::vector< Point >* const out, const std::vector< Point >& in, WLEExponent::Enum exp );

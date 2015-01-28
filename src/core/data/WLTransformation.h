@@ -53,6 +53,8 @@ public:
     typedef boost::shared_ptr< const WLTransformation > ConstSPtr; //!< Abbreviation for a const shared pointer.
 
     typedef Eigen::Matrix4d TransformationT;
+    typedef Eigen::Matrix3d RotationT;
+    typedef Eigen::Vector3d TranslationT;
     typedef TransformationT::Scalar ScalarT; //!< Value type.
 
     static const std::string CLASS;
@@ -69,6 +71,13 @@ public:
                     WLEUnit::Enum unit = WLEUnit::NONE, WLEExponent::Enum exponent = WLEExponent::BASE );
 
     /**
+     * Copy-constructor.
+     *
+     * \param obj Instance to copy.
+     */
+    WLTransformation( const WLTransformation& obj );
+
+    /**
      * Destructor.
      */
     virtual ~WLTransformation();
@@ -79,6 +88,11 @@ public:
      * \return new instance.
      */
     static WLTransformation::SPtr instance();
+
+    /**
+     * Sets matrix to identity.
+     */
+    void setIdentity();
 
     /**
      * Sets a new transformation matrix.
@@ -100,6 +114,20 @@ public:
      * \return A const reference to the data.
      */
     const TransformationT& data() const;
+
+    /**
+     * Returns the rotation part.
+     *
+     * \return 3x3 matrix.
+     */
+    RotationT rotation() const;
+
+    /**
+     * Returns the translation part.
+     *
+     * \return x, y, z vector.
+     */
+    TranslationT translation() const;
 
     /**
      * Checks if a transformation matrix is set.

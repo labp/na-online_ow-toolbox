@@ -260,22 +260,6 @@ void WLGeometry::transformPoints( std::vector< Point >* const out, const std::ve
     }
 }
 
-bool WLGeometry::transformPoints( WLPositions* const out, const WLPositions& in, const WLMatrix4::Matrix4T& trans )
-{
-    const std::string SOURCE = "WLGeometry::transformPoints";
-    if( out == NULL )
-    {
-        wlog::error( SOURCE ) << "Out pointer is null!";
-        return false;
-    }
-    // TODO(pieloth): #393 Check from/to in positions and transformation!
-    // TODO(pieloth): transformPoints - unit test!
-    out->resize( in.size() );
-    out->data() = ( trans * in.data().colwise().homogeneous() ).block( 0, 0, 3, in.size() );
-
-    return true;
-}
-
 void WLGeometry::toBaseExponent( std::vector< Point >* const out, const std::vector< Point >& in, WLEExponent::Enum exp )
 {
     out->reserve( in.size() );

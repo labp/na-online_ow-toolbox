@@ -25,6 +25,7 @@
 
 #include <Eigen/Geometry>
 
+#include <core/common/WAssert.h>
 #include <core/common/WLogger.h>
 
 #include "WContinuousPositionEstimation.h"
@@ -33,9 +34,13 @@ const std::string WContinuousPositionEstimation::CLASS = "WContinuousPositionEst
 
 WContinuousPositionEstimation::WContinuousPositionEstimation( const WLPositions& hpiPos, const WLPositions& sensPos,
                 const std::vector< WVector3f >& sensOri ) :
-                DownhillSimplexMethod()
+                DownhillSimplexMethod(), m_unit( hpiPos.unit() ), m_exponent( hpiPos.exponent() )
 {
-    // TODO(pieloth): #393 Check coordSystems and exponents! -> WPreconditionNotMet
+    WAssert( hpiPos.unit() == sensPos.unit(), "Units are not equals!" );
+    WAssert( hpiPos.exponent() == sensPos.exponent(), "Exponents are not equals!" );
+    WAssert( hpiPos.coordSystem() == WLECoordSystem::HEAD, "HPI positions are not in head coordinates!" );
+    WAssert( sensPos.coordSystem() == WLECoordSystem::DEVICE, "Senor positions are not in device coordinates!" );
+
     // Transform HPI coil positions
     m_hpiPos = hpiPos.data().colwise().homogeneous();
 
@@ -181,6 +186,8 @@ WContinuousPositionEstimation::Vector3T WContinuousPositionEstimation::computeMa
 WLPositions::SPtr WContinuousPositionEstimation::getResultPositions() const
 {
     WLPositions::SPtr positions = WLPositions::instance();
+    positions->unit( m_unit );
+    positions->exponent( m_exponent );
     positions->coordSystem( WLECoordSystem::DEVICE );
     positions->resize( m_hpiPos.cols() );
 
@@ -193,9 +200,15 @@ WLPositions::SPtr WContinuousPositionEstimation::getResultPositions() const
     return positions;
 }
 
-WContinuousPositionEstimation::TransformationT WContinuousPositionEstimation::getResultTransformation() const
+WLTransformation::SPtr WContinuousPositionEstimation::getResultTransformation() const
 {
-    return paramsToTrans( getResultParams() );
+    WLTransformation::SPtr t = WLTransformation::instance();
+    t->unit( m_unit );
+    t->exponent( m_exponent );
+    t->from( WLECoordSystem::HEAD );
+    t->to( WLECoordSystem::DEVICE );
+    t->data( paramsToTrans( getResultParams() ) );
+    return t;
 }
 
 WContinuousPositionEstimation::TransformationT WContinuousPositionEstimation::paramsToTrans( const ParamsT& params ) const

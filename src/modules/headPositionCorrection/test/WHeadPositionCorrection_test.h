@@ -53,34 +53,34 @@ public:
         const float r = 0.7;
 
         TS_ASSERT( corr.generateDipoleSphere( &pos, &ori, nDipoles, r ) );
-        TS_ASSERT( pos.cols() >= nDipoles && ori.cols() >= nDipoles );
-        TS_ASSERT( pos.cols() == ori.cols() );
+        TS_ASSERT( pos.size() >= nDipoles && ori.cols() >= nDipoles );
+        TS_ASSERT( pos.size() == ori.cols() );
 
         // Test: upper half - 0 <= z <= r
-        TS_ASSERT( pos.row( 2 ).minCoeff() >= 0 );
-        TS_ASSERT( pos.row( 2 ).maxCoeff() <= r );
+        TS_ASSERT( pos.data().row( 2 ).minCoeff() >= 0 );
+        TS_ASSERT( pos.data().row( 2 ).maxCoeff() <= r );
 
         // Test: upper half - -r <= x <= r
-        TS_ASSERT( -r <= pos.row( 0 ).minCoeff() && pos.row( 0 ).minCoeff() < 0.0 );
-        TS_ASSERT( 0.0 < pos.row( 0 ).maxCoeff() && pos.row( 0 ).maxCoeff() <= r );
+        TS_ASSERT( -r <= pos.data().row( 0 ).minCoeff() && pos.data().row( 0 ).minCoeff() < 0.0 );
+        TS_ASSERT( 0.0 < pos.data().row( 0 ).maxCoeff() && pos.data().row( 0 ).maxCoeff() <= r );
 
         // Test: upper half - -r <= y <= r
-        TS_ASSERT( -r <= pos.row( 1 ).minCoeff() && pos.row( 1 ).minCoeff() < 0.0 );
-        TS_ASSERT( 0.0 < pos.row( 1 ).maxCoeff() && pos.row( 1 ).maxCoeff() <= r );
+        TS_ASSERT( -r <= pos.data().row( 1 ).minCoeff() && pos.data().row( 1 ).minCoeff() < 0.0 );
+        TS_ASSERT( 0.0 < pos.data().row( 1 ).maxCoeff() && pos.data().row( 1 ).maxCoeff() <= r );
 
         // Test: radius - for all |p| == r
-        TS_ASSERT_DELTA( pos.colwise().norm().minCoeff(), r, eps );
-        TS_ASSERT_DELTA( pos.colwise().norm().maxCoeff(), r, eps );
+        TS_ASSERT_DELTA( pos.data().colwise().norm().minCoeff(), r, eps );
+        TS_ASSERT_DELTA( pos.data().colwise().norm().maxCoeff(), r, eps );
 
-        TS_ASSERT( pos.cols() % 2 == 0 ); // 2 Dipoles at each position.
+        TS_ASSERT( pos.size() % 2 == 0 ); // 2 Dipoles at each position.
 
-        const size_t offset = pos.cols() / 2;
+        const size_t offset = pos.size() / 2;
 
-        for( WHeadPositionCorrection::PositionsT::Index i = 0; i < offset; ++i )
+        for( WHeadPositionCorrection::PositionsT::IndexT i = 0; i < offset; ++i )
         {
-            TS_ASSERT( pos.col( i ) == pos.col( i + offset ) );
-            TS_ASSERT_DELTA( pos.col( i ).dot( ori.col( i ) ), 0.0, eps );
-            TS_ASSERT_DELTA( pos.col( i ).dot( ori.col( i + offset ) ), 0.0, eps );
+            TS_ASSERT( pos.at( i ) == pos.at( i + offset ) );
+            TS_ASSERT_DELTA( pos.at( i ).dot( ori.col( i ) ), 0.0, eps );
+            TS_ASSERT_DELTA( pos.at( i ).dot( ori.col( i + offset ) ), 0.0, eps );
             TS_ASSERT_DELTA( ori.col( i ).dot( ori.col( i + offset ) ), 0.0, eps );
         }
     }

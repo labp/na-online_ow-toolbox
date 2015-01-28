@@ -79,9 +79,6 @@ void WLEMDDrawable3DHPI::osgNodeCallback( osg::NodeVisitor* nv )
     WLPositions::ConstSPtr positions = emdHpi->getChannelPositions3d();
     WLArrayList< WLEMDHPI::TransformationT >::ConstSPtr transformations = emdHpi->getTransformations();
     WLPositions::SPtr posNew = transformations->at( 0 ) * *positions;
-    // TODO (pieloth): #393 remove comment
-//    posNew.resize( positions->size() );
-//    WLGeometry::transformPoints( &posNew, *positions, transformations->at( 0 ) );
     osgAddOrUpdateHpiCoils( *posNew );
 
     WLEMDDrawable3D::osgNodeCallback( nv );

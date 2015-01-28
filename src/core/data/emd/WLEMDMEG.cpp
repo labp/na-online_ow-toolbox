@@ -560,6 +560,9 @@ bool WLEMDMEG::extractCoilModality( WLEMDMEG::SPtr& megOut, WLEMDMEG::ConstSPtr 
     const PositionsT& chPos_from = *megIn->getChannelPositions3d();
     PositionsT& chPos = *megOut->getChannelPositions3d();
     chPos.resize( picksFiltered.size() );
+    chPos.unit( chPos_from.unit() );
+    chPos.exponent( chPos_from.exponent() );
+    chPos.coordSystem( chPos_from.coordSystem() );
     if( picksFiltered.size() <= static_cast< CoilPicksT::size_type >( chPos_from.size() ) )
     {
         PositionsT::IndexT iPos = 0;

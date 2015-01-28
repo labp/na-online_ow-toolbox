@@ -513,9 +513,7 @@ bool WMHeadPositionEstimation::estimateHeadPosition( WLEMDHPI::SPtr hpiInOut, WL
         m_lastParams = m_optim->getResultParams();
         const double error = m_optim->getResultError();
         const size_t iterations = m_optim->getResultIterations();
-        // TODO(pieloth): #393 Use WLTransformation. set from, to, unit, exponent
-        WLEMDHPI::TransformationT result;
-        result.data() = m_optim->getResultTransformation();
+        WLTransformation::ConstSPtr result = m_optim->getResultTransformation();
 
         // Calculate errors for informational output
         if( error < errorMin )
@@ -540,21 +538,20 @@ bool WMHeadPositionEstimation::estimateHeadPosition( WLEMDHPI::SPtr hpiInOut, WL
         itAvg += iterations;
 
         // Store result and set next sample
-        trans->push_back( result );
+        trans->push_back( *result );
         m_optim->nextSample();
 
 #ifdef HPI_TEST
         // Debug output
         debugLog() << ">>>>> BEGIN";
         debugLog() << "Estimation: " << conv << " " << iterations << " " << error;
-        debugLog() << "Transformation:\n" << result;
+        debugLog() << "Transformation:\n" << result->data();
 
-        std::vector< WPosition > pos;
-//        WLGeometry::transformPoints( &pos, *hpiInOut->getChannelPositions3d(), result );
+        WLPositions::SPtr pos = *result * *hpiInOut->getChannelPositions3d();
         debugLog() << "HPI positions:\n";
-        for( size_t i = 0; i < pos.size(); ++i )
+        for( WLPositions::IndexT i = 0; i < pos->size(); ++i )
         {
-            debugLog() << pos[i].x() << " " << pos[i].y() << " " << pos[i].z();
+            debugLog() << pos->at( i ).x() << " " << pos->at( i ).y() << " " << pos->at( i ).z();
         }
         debugLog() << "<<<<< END";
 #endif // HPI_TEST

@@ -179,11 +179,10 @@ bool WMHeadPositionCorrection::processCompute( WLEMMeasurement::SPtr emm )
         if( !emm->getHpiInfo()->getDevToHead()->empty() )
         {
             WLEMMHpiInfo::TransformationT::SPtr t = emm->getHpiInfo()->getDevToHead()->inverse();
-            // TODO(pieloth): #393 Use WLTansformation.
-            m_correction.setRefTransformation( t->data() );
+            m_correction.setRefTransformation( *t );
             m_hasRefPos = true;
             m_propStatus->set( STATUS_REF_POS, true );
-            infoLog() << "Set reference position from EMM: \n" << t;
+            infoLog() << "Set reference position from EMM: \n" << *t;
         }
         else
         {
@@ -251,11 +250,10 @@ bool WMHeadPositionCorrection::processInit( WLEMMCommand::SPtr cmdIn )
         if( !m_hasRefPos && !emm->getHpiInfo()->getDevToHead()->empty() )
         {
             WLEMMHpiInfo::TransformationT::SPtr t = emm->getHpiInfo()->getDevToHead()->inverse();
-            // TODO(pieloth): #393 Use WLTansformation.
-            m_correction.setRefTransformation( t->data() );
+            m_correction.setRefTransformation( *t );
             m_hasRefPos = true;
             m_propStatus->set( STATUS_REF_POS, true );
-            infoLog() << "Set reference position from EMM: \n" << t;
+            infoLog() << "Set reference position from EMM: \n" << *t;
         }
     }
 
@@ -300,10 +298,9 @@ bool WMHeadPositionCorrection::hdlPosFileChanged( std::string fName )
     if( rc )
     {
         WLEMMHpiInfo::TransformationT::SPtr t = hpiInfo.getDevToHead()->inverse();
-        // TODO(pieloth): #393 Use WLTansformation.
-        m_correction.setRefTransformation( t->data() );
+        m_correction.setRefTransformation( *t );
 
-        infoLog() << "Set reference position from FIFF:\n" << t;
+        infoLog() << "Set reference position from FIFF:\n" << *t;
         m_propStatus->set( STATUS_REF_POS, true );
     }
     progress->finish();

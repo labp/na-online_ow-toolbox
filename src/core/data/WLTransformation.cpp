@@ -34,6 +34,15 @@ WLTransformation::WLTransformation( WLECoordSystem::Enum from, WLECoordSystem::E
     m_transformation.setZero(); // Set zero for empty(). Transformation matrix should never be zero due to homogeneous transl.
 }
 
+WLTransformation::WLTransformation( const WLTransformation& obj )
+{
+    m_from = obj.m_from;
+    m_to = obj.m_to;
+    m_unit = obj.m_unit;
+    m_exponent = obj.m_exponent;
+    m_transformation = obj.m_transformation;
+}
+
 WLTransformation::~WLTransformation()
 {
 }
@@ -42,6 +51,11 @@ WLTransformation::SPtr WLTransformation::instance()
 {
     WLTransformation::SPtr instance( new WLTransformation() );
     return instance;
+}
+
+void WLTransformation::setIdentity()
+{
+    m_transformation.setIdentity();
 }
 
 void WLTransformation::data( const TransformationT& transformation )
@@ -57,6 +71,16 @@ WLTransformation::TransformationT& WLTransformation::data()
 const WLTransformation::TransformationT& WLTransformation::data() const
 {
     return m_transformation;
+}
+
+WLTransformation::RotationT WLTransformation::rotation() const
+{
+    return m_transformation.block( 0, 0, 3, 3 );
+}
+
+WLTransformation::TranslationT WLTransformation::translation() const
+{
+    return m_transformation.block( 0, 3, 3, 1 );
 }
 
 bool WLTransformation::empty() const

@@ -35,6 +35,7 @@
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
 #include "core/data/WLPositions.h"
+#include "core/data/WLTransformation.h"
 #include "cppmath/DownhillSimplexMethod.hpp"
 
 /**
@@ -58,7 +59,6 @@ public:
     typedef Eigen::Matrix< double, 3, 1 > PointT;
     typedef Eigen::Matrix< double, 3, 1 > OrientationT;
     typedef Eigen::Matrix< double, 3, 1 > MomentT;
-    typedef Eigen::Matrix< double, 4, 4 > TransformationT;
     typedef Eigen::MatrixXd MatrixT;
 
     /**
@@ -93,7 +93,7 @@ public:
      *
      * \return Transformation matrix.
      */
-    TransformationT getResultTransformation() const;
+    WLTransformation::SPtr getResultTransformation() const;
 
     /**
      * Move index to next data samples.
@@ -112,6 +112,10 @@ private:
     typedef Eigen::Matrix< double, 4, Eigen::Dynamic > HPointsT; /**< Array of homogeneous points for matrix operations. */
     typedef PointT Vector3T;
     typedef Eigen::Matrix3d RotationT;
+    typedef WLTransformation::TransformationT TransformationT;
+
+    const WLEUnit::Enum m_unit;
+    const WLEExponent::Enum m_exponent;
 
     /**
      * Calculates the transformation matrix from the rotation (radiant) and translation (meter).

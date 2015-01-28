@@ -198,6 +198,7 @@ public:
      */
     /**
      * Appends positions to this instance.
+     * \attention Be aware of "empty" positions!
      * \attention This function is costly and does a resize and copy!
      *
      * \throws WPreconditionNotMet
