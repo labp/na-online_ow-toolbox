@@ -108,7 +108,7 @@ protected:
     virtual bool processReset( WLEMMCommand::SPtr cmdIn );
 
 private:
-    WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input; /**< Buffered input connector. */
+    WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input; //!< Buffered input connector.
 
     /**
      * A condition used to notify about changes in several properties.
@@ -118,8 +118,8 @@ private:
     // Trigger properties //
     WPropGroup m_propGrpTrigger;
 
-    WPropInt m_preTrigger;
-    WPropInt m_postTrigger;
+    WPropInt m_preTrigger; //!< Samples before trigger/event.
+    WPropInt m_postTrigger; //!< Samples after trigger/event.
 
     WPropString m_triggers;
     WPropInt m_triggerChannel;

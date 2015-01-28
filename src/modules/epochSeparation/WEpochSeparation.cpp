@@ -43,10 +43,10 @@ WEpochSeparation::WEpochSeparation()
     reset();
 }
 
-WEpochSeparation::WEpochSeparation( WLChanIdxT channel, std::set< WLEMMeasurement::EventT > triggerMask, size_t preSamples,
-                size_t postSamples ) :
-                m_channel( channel ), m_triggerMask( triggerMask ), m_preSamples( preSamples ), m_postSamples( postSamples ), m_blockSize(
-                                0 )
+WEpochSeparation::WEpochSeparation( WLChanIdxT channel, std::set< WLEMMeasurement::EventT > triggerMask, WLSampleNrT preSamples,
+                WLSampleNrT postSamples ) :
+                m_channel( channel ), m_triggerMask( triggerMask ), m_preSamples( preSamples ), m_postSamples( postSamples ),
+                m_blockSize( 0 )
 {
 }
 
@@ -74,22 +74,22 @@ void WEpochSeparation::setTriggerMask( std::set< WLEMMeasurement::EventT > trigg
     m_triggerMask = triggerMask;
 }
 
-size_t WEpochSeparation::getPreSamples() const
+WLSampleNrT WEpochSeparation::getPreSamples() const
 {
     return m_preSamples;
 }
 
-void WEpochSeparation::setPreSamples( size_t preSamples )
+void WEpochSeparation::setPreSamples( WLSampleNrT preSamples )
 {
     m_preSamples = preSamples;
 }
 
-size_t WEpochSeparation::getPostSamples() const
+WLSampleNrT WEpochSeparation::getPostSamples() const
 {
     return m_postSamples;
 }
 
-void WEpochSeparation::setPostSamples( size_t postSamples )
+void WEpochSeparation::setPostSamples( WLSampleNrT postSamples )
 {
     m_postSamples = postSamples;
 }
@@ -125,7 +125,7 @@ WLEMMeasurement::SPtr WEpochSeparation::getNextEpoch()
 
 size_t WEpochSeparation::extract( const WLEMMeasurement::SPtr emmIn )
 {
-    WLTimeProfiler tp( CLASS, "extract" );
+    WLTimeProfiler tp( CLASS, __func__ );
     size_t count = 0;
     if( emmIn->getModalityCount() < 1 || emmIn->getEventChannelCount() < m_channel + 1 )
     {
@@ -137,7 +137,7 @@ size_t WEpochSeparation::extract( const WLEMMeasurement::SPtr emmIn )
     m_buffer->addData( emmIn );
 
     // Find trigger matches //
-    std::list< size_t > indices;
+    std::list< WLSampleIdxT > indices;
     WLEMMeasurement::EChannelT& events = emmIn->getEventChannel( m_channel );
 
     WLEMMeasurement::EventT prevEvent = 0;
@@ -156,7 +156,7 @@ size_t WEpochSeparation::extract( const WLEMMeasurement::SPtr emmIn )
     }
 
     // Process preSamples of found matches //
-    for( std::list< size_t >::iterator it = indices.begin(); it != indices.end(); ++it )
+    for( std::list< WLSampleIdxT >::iterator it = indices.begin(); it != indices.end(); ++it )
     {
         try
         {
@@ -190,7 +190,7 @@ size_t WEpochSeparation::extract( const WLEMMeasurement::SPtr emmIn )
     return count;
 }
 
-inline size_t WEpochSeparation::nmod( ptrdiff_t a, size_t n )
+inline WLSampleIdxT WEpochSeparation::nmod( WLSampleIdxT a, WLSampleNrT n )
 {
     WAssertDebug( n > 0, "nmod(a, n): n must be greater than 0!" );
     if( a > 0 )
@@ -225,10 +225,10 @@ void WEpochSeparation::setupBuffer( WLEMData::ConstSPtr emd )
     }
 }
 
-WEpochSeparation::LeftEpoch::SPtr WEpochSeparation::processPreSamples( size_t eIndex ) throw( WException )
+WEpochSeparation::LeftEpoch::SPtr WEpochSeparation::processPreSamples( WLSampleIdxT eIndex ) throw( WException )
 {
-    wlog::debug( CLASS ) << "processPreSamples() called!";
-    WLTimeProfiler tp( CLASS, "processPreSamples" );
+    wlog::debug( CLASS ) << __func__ << "() called!";
+    WLTimeProfiler tp( CLASS, __func__ );
     LeftEpoch::SPtr leftEpoch( new LeftEpoch() );
 
     leftEpoch->m_emm = m_buffer->getData()->clone();
@@ -255,13 +255,13 @@ WEpochSeparation::LeftEpoch::SPtr WEpochSeparation::processPreSamples( size_t eI
 
     // Initialize indices //
     // pStart: Index for first samples in first packet
-    size_t pStart = nmod( eIndex - m_preSamples, m_blockSize );
+    WLSampleIdxT pStart = nmod( eIndex - m_preSamples, m_blockSize );
     // pIndex: Index of the first packet in (circular) buffer
-    ptrdiff_t pIndex = static_cast< ptrdiff_t >( floor( ( double )( ( int )eIndex - ( int )m_preSamples ) / m_blockSize ) );
+    WLSampleIdxT pIndex = static_cast< WLSampleIdxT >( floor( ( double )( ( int )eIndex - ( int )m_preSamples ) / m_blockSize ) );
     wlog::debug( CLASS ) << "pIndex: " << pIndex << " - pStart: " << pStart;
 
-    size_t samplesCopied = 0;
-    size_t offset;
+    WLSampleNrT samplesCopied = 0;
+    WLSampleNrT offset;
     while( samplesCopied < ( m_preSamples + 1 ) )
     {
         WAssertDebug( pStart < m_blockSize, "pStart < m_blockSize" );
@@ -302,24 +302,24 @@ WEpochSeparation::LeftEpoch::SPtr WEpochSeparation::processPreSamples( size_t eI
     leftEpoch->m_startIndex = eIndex + 1;
 
     wlog::debug( CLASS ) << "samplesCopied: " << samplesCopied;
-    wlog::debug( CLASS ) << "processPreSamples() finished!";
+    wlog::debug( CLASS ) << __func__ << "() finished!";
 
     return leftEpoch;
 }
 
 bool WEpochSeparation::processPostSamples( LeftEpoch::SPtr leftEpoch, WLEMMeasurement::ConstSPtr emm )
 {
-    wlog::debug( CLASS ) << "processPostSamples() called!";
-    WLTimeProfiler tp( CLASS, "processPostSamples" );
+    wlog::debug( CLASS ) << __func__ << "() called!";
+    WLTimeProfiler tp( CLASS, __func__ );
 
     WLEMMeasurement::SPtr emmEpoch = leftEpoch->m_emm;
-    size_t samplesLeft = leftEpoch->m_leftSamples;
-    size_t pStart = leftEpoch->m_startIndex;
+    WLSampleNrT samplesLeft = leftEpoch->m_leftSamples;
+    WLSampleIdxT pStart = leftEpoch->m_startIndex;
 
     WLEMData::ConstSPtr emd;
     WLEMData::SPtr emdEpoch;
 
-    size_t offset = std::min( samplesLeft, m_blockSize - pStart );
+    WLSampleNrT offset = std::min( samplesLeft, m_blockSize - pStart );
     WAssertDebug( pStart + offset <= m_blockSize, "pStart + offset <= blockSize" );
 
     const size_t modalities = emm->getModalityCount();
@@ -352,6 +352,6 @@ bool WEpochSeparation::processPostSamples( LeftEpoch::SPtr leftEpoch, WLEMMeasur
 
     wlog::debug( CLASS ) << "samples copied: " << offset;
     wlog::debug( CLASS ) << "samplesLeft: " << samplesLeft;
-    wlog::debug( CLASS ) << "processPostSamples() finished!";
+    wlog::debug( CLASS ) << __func__ << "() finished!";
     return samplesLeft == 0;
 }
