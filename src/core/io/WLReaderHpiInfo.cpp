@@ -230,7 +230,7 @@ bool WLReaderHpiInfo::readHpiResult( WLEMMHpiInfo* const hpiInfo, FIFFLIB::FiffS
                 t->unit( WLEUnit::METER );
                 t->exponent( WLEExponent::BASE );
                 t->from( WLECoordSystem::DEVICE );
-                t->from( WLECoordSystem::HEAD );
+                t->to( WLECoordSystem::HEAD );
                 t->data( trans.trans.cast< WLTransformation::ScalarT >() );
                 hpiInfo->setDevToHead( t );
                 ++ndata;
