@@ -140,7 +140,7 @@ private:
     WPropSelection m_connectorSelection;
 
     WPropString m_simFile;
-    WPropInt m_blockSize;
+    WPropInt m_blockSize; //!< Samples of one block.
 
     void callbackApplyScaling();
     WPropBool m_applyScaling;

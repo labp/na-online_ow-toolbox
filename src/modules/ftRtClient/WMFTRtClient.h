@@ -174,7 +174,7 @@ private:
      */
     WPropInt m_port;
 
-    WPropInt m_blockSize;
+    WPropInt m_blockSize; //!< Samples of one block.
 
     /**
      * The connection status.

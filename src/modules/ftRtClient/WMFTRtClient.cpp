@@ -145,7 +145,7 @@ void WMFTRtClient::properties()
                     m_propCondition );
     m_trgDisconnect->setHidden( true );
 
-    m_blockSize = m_propGrpFtClient->addProperty( "Block size:", "Samples per packet.", 500 );
+    m_blockSize = m_propGrpFtClient->addProperty( "Block size [samples]:", "Samples per packet.", 500 );
 
     m_streamStatus = m_propGrpFtClient->addProperty( "Streaming status:", "Shows the status of the streaming client.",
                     CLIENT_NOT_STREAMING );

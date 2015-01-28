@@ -135,7 +135,7 @@ void WMMneRtClient::properties()
     m_simFile = m_propGrpConControl->addProperty( "Simulation File:", "Local path on server to simluation file.", sim_file );
 
     const int block_size = 500;
-    m_blockSize = m_propGrpConControl->addProperty( "Block size:", "Samples per packet.", block_size );
+    m_blockSize = m_propGrpConControl->addProperty( "Block size [samples]:", "Samples per packet.", block_size );
 
     // TODO(pieloth): Is data stored without scaling by default? ... WMFiffWriter
     m_applyScaling = m_propGrpConControl->addProperty( "Apply scaling:", "Enable scale factor (range * cal).", false,
