@@ -112,7 +112,7 @@ void WMEMMStreaming::properties()
 
     m_propAutoStart = m_properties->addProperty( "Auto start: ", "Start streaming when data is available.", true );
 
-    m_propBlockSize = m_properties->addProperty( "Block size (ms): ", "Block size for streaming in milliseconds.", 1000 );
+    m_propBlockSize = m_properties->addProperty( "Block size [ms]: ", "Block size for streaming in milliseconds.", 1000 );
     m_propBlockSize->setMin( 1 );
     m_propBlockSize->setMax( 10000 );
 
