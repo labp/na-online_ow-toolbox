@@ -95,11 +95,11 @@ void WMEMMGenerator::properties()
 
     m_propCondition = WCondition::SPtr( new WCondition() );
 
-    m_propSamplFreq = m_properties->addProperty( "Sampling Frequency:", "Sampling Frequency in Hz.", 1000.0 );
+    m_propSamplFreq = m_properties->addProperty( "Sampling Freq. [Hz]:", "Sampling Frequency in Hz.", 1000.0 );
     m_propSamplFreq->setMin( 1 );
     m_propSamplFreq->setMax( 9999 );
 
-    m_propLength = m_properties->addProperty( "Length:", "Length of the measurement in seconds.", 60 );
+    m_propLength = m_properties->addProperty( "Length [s]:", "Length of the measurement in seconds.", 60 );
     m_propLength->setMin( 1 );
     m_propLength->setMax( 3600 );
 

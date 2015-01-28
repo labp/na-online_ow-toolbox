@@ -64,16 +64,16 @@ protected:
     virtual void moduleMain();
 
 private:
-    WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output; /**<  Output connector for buffered input connectors. */
+    WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output; //!<  Output connector for buffered input connectors.
 
     /**
      * A condition used to notify about changes in several properties.
      */
     WCondition::SPtr m_propCondition;
 
-    WPropDouble m_propSamplFreq;
+    WPropDouble m_propSamplFreq; //!< Sampling frequency in Hz
 
-    WPropInt m_propLength;
+    WPropInt m_propLength; //!< Length in seconds.
 
     WPropInt m_propChans;
 
