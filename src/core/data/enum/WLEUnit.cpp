@@ -82,7 +82,7 @@ WLEUnit::Enum WLEUnit::fromFIFF( WLFiffLib::unit_t unit )
         case WLFiffLib::Unit::T:
             return WLEUnit::TESLA;
         case WLFiffLib::Unit::TM:
-            return WLEUnit::TESLA;
+            return WLEUnit::TESLA_PER_METER;
         default:
             wlog::warn( "WLEUnit" ) << "No conversion from WLFiffLib::Unit(" << unit << ") to WLEUnit!";
             return WLEUnit::NONE;
