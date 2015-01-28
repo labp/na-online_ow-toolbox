@@ -52,7 +52,7 @@ public:
      */
     typedef boost::shared_ptr< const WEpochAveragingTotal > ConstSPtr;
 
-    explicit WEpochAveragingTotal( size_t tbase );
+    explicit WEpochAveragingTotal( WLSampleNrT tbase );
 
     virtual ~WEpochAveragingTotal();
 

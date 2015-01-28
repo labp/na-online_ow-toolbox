@@ -126,12 +126,12 @@ void WMEpochAveraging::properties()
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_averageTypeSelection );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_averageTypeSelection );
 
-    m_tbase = m_propGrpAverage->addProperty( "TBase", "Sample count for baseline correction from index 0 to TBase.",
+    m_tbase = m_propGrpAverage->addProperty( "TBase [samples]", "Sample count for baseline correction from index 0 to TBase.",
                     static_cast< int >( tbase ) );
     m_tbase->setMin( 0 );
 
-    m_sizeMovingAverage = m_propGrpAverage->addProperty( "Size of Moving Average", "Size of Moving Average in samples",
-                    static_cast< int >( avgMovingSize ) );
+    m_sizeMovingAverage = m_propGrpAverage->addProperty( "Moving Average [#epochs]",
+                    "Number of epochs/trials for Moving Average.", static_cast< int >( avgMovingSize ) );
 
     m_resetAverage = m_propGrpAverage->addProperty( "(Re)set data", "(Re)set", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
     m_resetAverage->changed( true );

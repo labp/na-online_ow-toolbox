@@ -35,7 +35,7 @@
 
 const std::string WEpochAveragingTotal::CLASS = "WEpochAveragingTotal";
 
-WEpochAveragingTotal::WEpochAveragingTotal( size_t tbase ) :
+WEpochAveragingTotal::WEpochAveragingTotal( WLSampleNrT tbase ) :
                 WEpochAveraging( tbase )
 {
 }

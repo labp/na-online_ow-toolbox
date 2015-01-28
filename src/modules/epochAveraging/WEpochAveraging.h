@@ -53,7 +53,7 @@ public:
      */
     typedef boost::shared_ptr< const WEpochAveraging > ConstSPtr;
 
-    explicit WEpochAveraging( size_t tbase );
+    explicit WEpochAveraging( WLSampleNrT tbase );
 
     virtual ~WEpochAveraging();
 
@@ -62,9 +62,9 @@ public:
      */
     virtual size_t getCount() const;
 
-    size_t getTBase() const;
+    WLSampleNrT getTBase() const;
 
-    void setTBase( size_t tbase, bool reset = true );
+    void setTBase( WLSampleNrT tbase, bool reset = true );
 
     /**
      * Calculates the average of the passed in and the previously passed in WDataSetEMM objects.
@@ -106,7 +106,7 @@ protected:
      */
     size_t m_count;
 
-    WLSampleNrT m_tbase;
+    WLSampleNrT m_tbase; //!< Samples for baseline correction.
 
     /**
      * Does a baseline correction for each channel using m_tbase samples for mean.

@@ -33,7 +33,7 @@
 
 const std::string WEpochAveragingMoving::CLASS = "WEpochAveragingMoving";
 
-WEpochAveragingMoving::WEpochAveragingMoving( size_t tbase, size_t size ) :
+WEpochAveragingMoving::WEpochAveragingMoving( WLSampleNrT tbase, size_t size ) :
                 WEpochAveraging( tbase )
 {
     setSize( size );

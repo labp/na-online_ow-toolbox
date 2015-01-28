@@ -54,7 +54,7 @@ public:
      */
     typedef boost::shared_ptr< const WEpochAveragingMoving > ConstSPtr;
 
-    WEpochAveragingMoving( size_t tbase, size_t size );
+    WEpochAveragingMoving( WLSampleNrT tbase, size_t size );
 
     virtual ~WEpochAveragingMoving();
 
