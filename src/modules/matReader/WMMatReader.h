@@ -101,7 +101,7 @@ private:
 
     WPropTrigger m_trgGenerate;
 
-    WPropDouble m_propSamplFreq;
+    WPropDouble m_propSamplFreq; //!< Sampling frequency in Hz.
 
     bool handleGenerateEMM();
 
