@@ -123,6 +123,16 @@ double WEEGSkinAlignment::align( TransformationT* const matrix, WLEMMeasurement:
         return NOT_CONVERGED;
     }
     WLPositions::ConstSPtr fromPtr = eeg->getChannelPositions3d();
+    if( fromPtr->unit() != WLEUnit::UNKNOWN && fromPtr->unit() != WLEUnit::METER )
+    {
+        wlog::error( CLASS ) << __func__ << ": EEG positions are not in meter!";
+        return NOT_CONVERGED;
+    }
+    if( fromPtr->exponent() != WLEExponent::UNKNOWN && fromPtr->exponent() != WLEExponent::BASE )
+    {
+        wlog::error( CLASS ) << __func__ << ": EEG positions are not in meter!";
+        return NOT_CONVERGED;
+    }
 
     // Compute alignment
     // -----------------
@@ -187,8 +197,15 @@ bool WEEGSkinAlignment::extractBEMSkinPoints( PointsT* const out, const WLEMMeas
     }
 
     const WLPositions& bemPosition = *bemSkin->getVertex();
-    const WLPositions::ScalarT min = bemPosition.data().row(2).minCoeff();
-    const WLPositions::ScalarT max = bemPosition.data().row(2).maxCoeff();
+    if( bemPosition.unit() != WLEUnit::UNKNOWN && bemPosition.unit() != WLEUnit::METER )
+    {
+        wlog::error( CLASS ) << __func__ << ": BEM points are not in meter!";
+        return NOT_CONVERGED;
+    }
+
+    const WLPositions::ScalarT min = bemPosition.data().row( 2 ).minCoeff();
+    const WLPositions::ScalarT max = bemPosition.data().row( 2 ).maxCoeff();
+    // Cut-off neck/lower part
     const WLPositions::ScalarT z_threashold = min + ( max - min ) * 0.25;
     wlog::debug( CLASS ) << "icpAlign: BEM z_threashold: " << z_threashold;
 
@@ -218,7 +235,6 @@ bool WEEGSkinAlignment::extractBEMSkinPoints( PointsT* const out, const WLEMMeas
 
     out->coordSystem( bemPosition.coordSystem() );
     out->unit( bemPosition.unit() );
-    out->exponent( WLEExponent::BASE );
 
     return true;
 }

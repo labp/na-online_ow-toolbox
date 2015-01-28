@@ -103,9 +103,12 @@ void WMAlignment::properties()
     m_propEstGroup = m_properties->addPropertyGroup( "Transformation Estimation",
                     "Contains properties an initial transformation estimation.", false );
 
-    m_propEstLPA = m_propEstGroup->addProperty( "LPA (AC-PC):", "Left pre-auricular in AC-PC coordinate system.", LAP, false );
-    m_propEstNasion = m_propEstGroup->addProperty( "Nasion (AC-PC):", "Nasion in AC-PC coordinate system.", NASION, false );
-    m_propEstRPA = m_propEstGroup->addProperty( "RPA (AC-PC):", "Right pre-auricular in AC-PC coordinate system.", RAP, false );
+    m_propEstLPA = m_propEstGroup->addProperty( "LPA (AC-PC) [m]:", "Left pre-auricular in AC-PC coordinate system and meter.",
+                    LAP, false );
+    m_propEstNasion = m_propEstGroup->addProperty( "Nasion (AC-PC) [m]:", "Nasion in AC-PC coordinate system and meter.", NASION,
+                    false );
+    m_propEstRPA = m_propEstGroup->addProperty( "RPA (AC-PC) [m]:", "Right pre-auricular in AC-PC coordinate system and meter.",
+                    RAP, false );
 
     m_propIcpGroup = m_properties->addPropertyGroup( "ICP properties", "Contains properties for ICP.", false );
     m_propIcpIterations = m_propIcpGroup->addProperty( "Iterations:", "Maximum iterations for ICP algorithm.",

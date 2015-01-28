@@ -64,42 +64,42 @@ public:
     /**
      * Returns the left pre-auricular position on the BEM skin layer.
      *
-     * \return the position.
+     * \return the position in meter.
      */
     const PointT& getLpaSkin() const;
 
     /**
      * Sets the left pre-auricular position on the BEM skin layer.
      *
-     * \param lpaSkin the position.
+     * \param lpaSkin the position in meter.
      */
     void setLpaSkin( const PointT& lpaSkin );
 
     /**
      * Returns the nasion position on the BEM skin layer.
      *
-     * \return the position.
+     * \return the position in meter.
      */
     const PointT& getNasionSkin() const;
 
     /**
      * Sets the nasion position on the BEM skin layer.
      *
-     * \param nasionSkin the position.
+     * \param nasionSkin the position in meter.
      */
     void setNasionSkin( const PointT& nasionSkin );
 
     /**
      * Returns the right pre-auricular position on the BEM skin layer.
      *
-     * \return the position.
+     * \return the position in meter.
      */
     const PointT& getRpaSkin() const;
 
     /**
      * Sets the right pre-auricular position on the BEM skin layer.
      *
-     * \param rpaSkin the position.
+     * \param rpaSkin the position in meter.
      */
     void setRpaSkin( const PointT& rpaSkin );
 
@@ -108,9 +108,9 @@ private:
 
     bool extractBEMSkinPoints( PointsT* const out, const WLEMMeasurement& emm );
 
-    PointT m_lpaSkin;
-    PointT m_nasionSkin;
-    PointT m_rpaSkin;
+    PointT m_lpaSkin; //!< Left, BEM coordinates and in meter.
+    PointT m_nasionSkin; //!< Nasion, BEM coordinates and in meter.
+    PointT m_rpaSkin; //!< Right, BEM coordinates and in meter.
 };
 
 #endif  // WEEGSKINALIGNMENT_H_

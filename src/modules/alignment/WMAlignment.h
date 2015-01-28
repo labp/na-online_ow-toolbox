@@ -88,8 +88,8 @@ private:
     WUIViewWidget::SPtr m_widget;
     WLEMDDrawable3DEEGBEM::SPtr m_drawable;
 
-    WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input; /**< Buffered input connector. */
-    WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output; /**<  Output connector for buffered input connectors. */
+    WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input; //!< Buffered input connector.
+    WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output; //!<  Output connector for buffered input connectors.
 
     WCondition::SPtr m_propCondition;
     WPropTrigger m_trgReset;
@@ -100,9 +100,9 @@ private:
     // Transformation Estimation Properties
     // ----------------------------
     WPropGroup m_propEstGroup;
-    WPropPosition m_propEstLPA;
-    WPropPosition m_propEstNasion;
-    WPropPosition m_propEstRPA;
+    WPropPosition m_propEstLPA; //!< Left, AC-PC coordinates and in meter.
+    WPropPosition m_propEstNasion; //!< Nasion, AC-PC coordinates and in meter.
+    WPropPosition m_propEstRPA; //!< Right, AC-PC coordinates and in meter.
 
     // ----------------------------
     // ICP Properties
