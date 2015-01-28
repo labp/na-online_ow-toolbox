@@ -68,7 +68,7 @@ public:
      * \param exponent Exponent e.g. milli. Default: BASE
      */
     WLTransformation( WLECoordSystem::Enum from = WLECoordSystem::UNKNOWN, WLECoordSystem::Enum to = WLECoordSystem::UNKNOWN,
-                    WLEUnit::Enum unit = WLEUnit::NONE, WLEExponent::Enum exponent = WLEExponent::BASE );
+                    WLEUnit::Enum unit = WLEUnit::UNKNOWN, WLEExponent::Enum exponent = WLEExponent::BASE );
 
     /**
      * Copy-constructor.

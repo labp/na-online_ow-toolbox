@@ -40,7 +40,7 @@ namespace WLEUnit
 {
     enum Enum
     {
-        NONE = WLFiffLib::Unit::NONE,         //!< NONE
+        UNKNOWN = WLFiffLib::Unit::NONE,         //!< none/Unknown
         UNITLESS = WLFiffLib::Unit::UNITLESS, //!< UNITLESS
         METER = WLFiffLib::Unit::M,           //!< METER
         VOLT = WLFiffLib::Unit::V,            //!< VOLT

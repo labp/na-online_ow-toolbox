@@ -61,7 +61,7 @@ public:
      * \param exponent Exponent e.g. milli. Default: BASE
      * \param coordSystem Coordinate system e.g. head. Default: UNKNOWN
      */
-    WLPositions( WLEUnit::Enum unit = WLEUnit::NONE, WLEExponent::Enum exponent = WLEExponent::BASE,
+    WLPositions( WLEUnit::Enum unit = WLEUnit::UNKNOWN, WLEExponent::Enum exponent = WLEExponent::BASE,
                     WLECoordSystem::Enum coordSystem = WLECoordSystem::UNKNOWN );
 
     /**

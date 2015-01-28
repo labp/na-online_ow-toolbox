@@ -84,7 +84,7 @@ bool WHeadPositionCorrection::init()
         wlog::error( CLASS ) << "MEG coordinate system is wrong: " << m_megPos.coordSystem();
         return false;
     }
-    if( m_megPos.unit() != WLEUnit::NONE && m_megPos.unit() != WLEUnit::METER )
+    if( m_megPos.unit() != WLEUnit::UNKNOWN && m_megPos.unit() != WLEUnit::METER )
     {
         wlog::error( CLASS ) << "Unit is not meter!";
         return false;

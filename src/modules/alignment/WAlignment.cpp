@@ -86,7 +86,7 @@ double WAlignment::align( TransformationT* const transformation, const PointsT& 
         return NOT_CONVERGED;
     }
 
-    if( from.unit() != WLEUnit::NONE && to.unit() != WLEUnit::NONE )
+    if( from.unit() != WLEUnit::UNKNOWN && to.unit() != WLEUnit::UNKNOWN )
     {
         if( from.unit() != to.unit() )
         {

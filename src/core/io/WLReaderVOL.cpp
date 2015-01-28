@@ -83,7 +83,7 @@ WLIOStatus::IOStatusT WLReaderVOL::read( std::list< WLEMMBemBoundary::SPtr >* co
             else
                 if( line.find( "UnitConduct=" ) == 0 )
                 {
-                    WLEUnit::Enum unit = WLEUnit::NONE;
+                    WLEUnit::Enum unit = WLEUnit::UNKNOWN;
                     rc = readConductUnit( &unit, line );
                     hasUnit = true;
                 }
@@ -130,7 +130,7 @@ WLIOStatus::IOStatusT WLReaderVOL::readConductUnit( WLEUnit::Enum* const unit, c
     }
     else
     {
-        *unit = WLEUnit::NONE;
+        *unit = WLEUnit::UNKNOWN;
         wlog::warn( CLASS ) << "Unknown unit.";
         return WLIOStatus::ERROR_UNKNOWN;
     }

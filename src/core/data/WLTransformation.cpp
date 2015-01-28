@@ -153,7 +153,7 @@ WLPositions::SPtr WLTransformation::operator*( const WLPositions& positions ) co
         wlog::warn( CLASS ) << "Coordinate system is not set and could not be checked: " << m_from << "/"
                         << positions.coordSystem();
     }
-    if( m_unit != WLEUnit::NONE && positions.unit() != WLEUnit::NONE )
+    if( m_unit != WLEUnit::UNKNOWN && positions.unit() != WLEUnit::UNKNOWN )
     {
         if( m_unit != positions.unit() )
         {

@@ -32,7 +32,7 @@ WLEUnit::ContainerT WLEUnit::values()
 {
     ContainerT con;
 
-    con.insert( WLEUnit::NONE );
+    con.insert( WLEUnit::UNKNOWN );
     con.insert( WLEUnit::UNITLESS );
     con.insert( WLEUnit::METER );
     con.insert( WLEUnit::VOLT );
@@ -47,10 +47,10 @@ std::string WLEUnit::name( Enum val )
 {
     switch( val )
     {
-        case NONE:
-            return "(none)";
+        case UNKNOWN:
+            return "(unknown)";
         case UNITLESS:
-            return "(-)";
+            return "(unitless)";
         case METER:
             return "m";
         case VOLT:
@@ -63,7 +63,7 @@ std::string WLEUnit::name( Enum val )
             return "S/m";
         default:
             WAssert( false, "Unknown WLEUnit!" );
-            return WLEUnit::name( WLEUnit::NONE );
+            return WLEUnit::name( WLEUnit::UNKNOWN );
     }
 }
 
@@ -72,7 +72,7 @@ WLEUnit::Enum WLEUnit::fromFIFF( WLFiffLib::unit_t unit )
     switch( unit )
     {
         case WLFiffLib::Unit::NONE:
-            return WLEUnit::NONE;
+            return WLEUnit::UNKNOWN;
         case WLFiffLib::Unit::UNITLESS:
             return WLEUnit::UNITLESS;
         case WLFiffLib::Unit::M:
@@ -85,6 +85,6 @@ WLEUnit::Enum WLEUnit::fromFIFF( WLFiffLib::unit_t unit )
             return WLEUnit::TESLA_PER_METER;
         default:
             wlog::warn( "WLEUnit" ) << "No conversion from WLFiffLib::Unit(" << unit << ") to WLEUnit!";
-            return WLEUnit::NONE;
+            return WLEUnit::UNKNOWN;
     }
 }

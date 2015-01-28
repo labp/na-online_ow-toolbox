@@ -33,7 +33,7 @@ const std::string WLEMMBemBoundary::CLASS = "WLEMMBemBoundary";
 
 WLEMMBemBoundary::WLEMMBemBoundary()
 {
-    setConductivityUnit( WLEUnit::NONE );
+    setConductivityUnit( WLEUnit::UNKNOWN );
     setBemType( WLEBemType::UNDEFINED );
 
     m_vertex = WLPositions::instance();

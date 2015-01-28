@@ -41,7 +41,7 @@ WLEMData::WLEMData() :
 {
     m_data.reset( new DataT() );
     m_chanNames = WLArrayList< std::string >::instance();
-    m_chanUnit = WLEUnit::NONE;
+    m_chanUnit = WLEUnit::UNKNOWN;
     m_chanUnitExp = WLEExponent::UNKNOWN;
     m_sampFreq = UNDEFINED_FREQ;
     m_lineFreq = UNDEFINED_FREQ;
