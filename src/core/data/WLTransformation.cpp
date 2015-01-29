@@ -139,13 +139,36 @@ WLTransformation::SPtr WLTransformation::inverse() const
     return inverse;
 }
 
-WLPositions::SPtr WLTransformation::operator*( const WLPositions& positions ) const
+bool WLTransformation::isUnitCompatible( const WLPositions& positions ) const
+{
+    if( m_unit != WLEUnit::UNKNOWN && positions.unit() != WLEUnit::UNKNOWN )
+    {
+        if( m_unit != positions.unit() )
+        {
+            wlog::debug( CLASS ) << "Units are not equals!";
+            return false;
+        }
+        if( m_exponent != positions.exponent() )
+        {
+            wlog::debug( CLASS ) << "Exponents are not equals!";
+            return false;
+        }
+    }
+    else
+    {
+        wlog::warn( CLASS ) << "Translation unit is not set and could not be checked: " << m_unit << "/" << positions.unit();
+    }
+    return true;
+}
+
+bool WLTransformation::isCompatible( const WLPositions& positions ) const
 {
     if( ( m_from != WLECoordSystem::UNKNOWN && positions.coordSystem() != WLECoordSystem::UNKNOWN ) )
     {
         if( m_from != positions.coordSystem() )
         {
-            throw WPreconditionNotMet( "From coordinate system are not equals!" );
+            wlog::debug( CLASS ) << "Coordinate systems are not equals!";
+            return false;
         }
     }
     else
@@ -153,20 +176,18 @@ WLPositions::SPtr WLTransformation::operator*( const WLPositions& positions ) co
         wlog::warn( CLASS ) << "Coordinate system is not set and could not be checked: " << m_from << "/"
                         << positions.coordSystem();
     }
-    if( m_unit != WLEUnit::UNKNOWN && positions.unit() != WLEUnit::UNKNOWN )
+    if( !isUnitCompatible( positions ) )
     {
-        if( m_unit != positions.unit() )
-        {
-            throw WPreconditionNotMet( "Units are not equals!" );
-        }
-        if( m_exponent != positions.exponent() )
-        {
-            throw WPreconditionNotMet( "Exponents are not equals!" );
-        }
+        return false;
     }
-    else
+    return true;
+}
+
+WLPositions::SPtr WLTransformation::operator*( const WLPositions& positions ) const
+{
+    if( !isCompatible( positions ) )
     {
-        wlog::warn( CLASS ) << "Translation unit is not set and could not be checked: " << m_unit << "/" << positions.unit();
+        throw WPreconditionNotMet( "Position and transformation are not compatible! Check unit, exponent and coordSystem." );
     }
 
     WLPositions::SPtr out( new WLPositions( positions ) );

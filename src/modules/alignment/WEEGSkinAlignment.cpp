@@ -133,6 +133,7 @@ double WEEGSkinAlignment::align( TransformationT* const matrix, WLEMMeasurement:
         wlog::error( CLASS ) << __func__ << ": EEG positions are not in meter!";
         return NOT_CONVERGED;
     }
+    // From/to unit/exp. is checked in WAlignment.
 
     // Compute alignment
     // -----------------
@@ -197,12 +198,6 @@ bool WEEGSkinAlignment::extractBEMSkinPoints( PointsT* const out, const WLEMMeas
     }
 
     const WLPositions& bemPosition = *bemSkin->getVertex();
-    if( bemPosition.unit() != WLEUnit::UNKNOWN && bemPosition.unit() != WLEUnit::METER )
-    {
-        wlog::error( CLASS ) << __func__ << ": BEM points are not in meter!";
-        return NOT_CONVERGED;
-    }
-
     const WLPositions::ScalarT min = bemPosition.data().row( 2 ).minCoeff();
     const WLPositions::ScalarT max = bemPosition.data().row( 2 ).maxCoeff();
     // Cut-off neck/lower part

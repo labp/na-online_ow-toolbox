@@ -36,9 +36,8 @@ WContinuousPositionEstimation::WContinuousPositionEstimation( const WLPositions&
                 const std::vector< WVector3f >& sensOri ) :
                 DownhillSimplexMethod(), m_unit( hpiPos.unit() ), m_exponent( hpiPos.exponent() )
 {
-    WAssert( hpiPos.unit() == sensPos.unit(), "Units are not equals!" );
+    WAssert( hpiPos.isUnitCompatible( sensPos ), "Units/exp. are not equals!" );
     WAssert( hpiPos.unit() == WLEUnit::UNKNOWN || hpiPos.unit() == WLEUnit::METER, "Unit is not meter!" );
-    WAssert( hpiPos.exponent() == sensPos.exponent(), "Exponents are not equals!" );
     WAssert( hpiPos.exponent() == WLEExponent::UNKNOWN || hpiPos.exponent() == WLEExponent::BASE, "Is not base unit!" );
     WAssert( hpiPos.coordSystem() == WLECoordSystem::HEAD, "HPI positions are not in head coordinates!" );
     WAssert( sensPos.coordSystem() == WLECoordSystem::DEVICE, "Senor positions are not in device coordinates!" );

@@ -190,12 +190,21 @@ public:
     void coordSystem( WLECoordSystem::Enum coordSystem );
 
     /**
-     * Applies the transformation to positions.
+     * Checks if units and(!) exponents are compatible.
      *
-     * \throws WPreconditionNotMet
-     * \param positions Positions to transfrom.
-     * \return Transformed positions.
+     * \param positions Positions to check.
+     * \return True if unit and exponent are compatible (equals or unknown).
      */
+    bool isUnitCompatible( const WLPositions& positions ) const;
+
+    /**
+     * Checks if the positions are compatible.
+     *
+     * \param positions Positions to check.
+     * \return True if unit, exponent and coordSystem are compatible (equals or unknown).
+     */
+    bool isCompatible( const WLPositions& positions ) const;
+
     /**
      * Appends positions to this instance.
      * \attention Be aware of "empty" positions!
@@ -216,7 +225,7 @@ private:
 
 inline std::ostream& operator<<( std::ostream &strm, const WLPositions& obj )
 {
-    strm << "WLPositions: ";
+    strm << WLPositions::CLASS << ": ";
     strm << "size=" << obj.size() << ", ";
     strm << "unit=" << obj.unit() << ", ";
     strm << "exponent=" << obj.exponent() << ", ";

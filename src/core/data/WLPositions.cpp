@@ -132,18 +132,36 @@ void WLPositions::coordSystem( WLECoordSystem::Enum coordSystem )
     m_coordSystem = coordSystem;
 }
 
-WLPositions& WLPositions::operator+=( const WLPositions& positions )
+bool WLPositions::isUnitCompatible( const WLPositions& positions ) const
 {
-    if( positions.empty() )
+    if( m_unit != WLEUnit::UNKNOWN && positions.unit() != WLEUnit::UNKNOWN )
     {
-        return *this;
+        if( m_unit != positions.unit() )
+        {
+            wlog::debug( CLASS ) << "Units are not equals!";
+            return false;
+        }
+        if( m_exponent != positions.exponent() )
+        {
+            wlog::debug( CLASS ) << "Exponents are not equals!";
+            return false;
+        }
     }
+    else
+    {
+        wlog::warn( CLASS ) << "Unit is not set and could not be checked: " << m_unit << "/" << positions.unit();
+    }
+    return true;
+}
 
+bool WLPositions::isCompatible( const WLPositions& positions ) const
+{
     if( ( m_coordSystem != WLECoordSystem::UNKNOWN && positions.coordSystem() != WLECoordSystem::UNKNOWN ) )
     {
         if( m_coordSystem != positions.coordSystem() )
         {
-            throw WPreconditionNotMet( "From coordinate system are not equals!" );
+            wlog::debug( CLASS ) << "Coordinate systems are not equals!";
+            return false;
         }
     }
     else
@@ -151,20 +169,24 @@ WLPositions& WLPositions::operator+=( const WLPositions& positions )
         wlog::warn( CLASS ) << "Coordinate system is not set and could not be checked: " << m_coordSystem << "/"
                         << positions.coordSystem();
     }
-    if( m_unit != WLEUnit::UNKNOWN && positions.unit() != WLEUnit::UNKNOWN )
+    if( !isUnitCompatible( positions ) )
     {
-        if( m_unit != positions.unit() )
-        {
-            throw WPreconditionNotMet( "Units are not equals!" );
-        }
-        if( m_exponent != positions.exponent() )
-        {
-            throw WPreconditionNotMet( "Exponents are not equals!" );
-        }
+        return false;
     }
-    else
+
+    return true;
+}
+
+WLPositions& WLPositions::operator+=( const WLPositions& positions )
+{
+    if( positions.empty() )
     {
-        wlog::warn( CLASS ) << "Unit is not set and could not be checked: " << m_unit << "/" << positions.unit();
+        return *this;
+    }
+
+    if( !isCompatible( positions ) )
+    {
+        throw WPreconditionNotMet( "Positions are not compatible! Check unit, exponent and coordSystem." );
     }
 
     const PositionsT old = this->data();

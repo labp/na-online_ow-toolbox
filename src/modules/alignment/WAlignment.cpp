@@ -86,20 +86,9 @@ double WAlignment::align( TransformationT* const transformation, const PointsT& 
         return NOT_CONVERGED;
     }
 
-    if( from.unit() != WLEUnit::UNKNOWN && to.unit() != WLEUnit::UNKNOWN )
+    if( !from.isUnitCompatible( to ) )
     {
-        if( from.unit() != to.unit() )
-        {
-            throw WPreconditionNotMet( "Units are not equals!" );
-        }
-        if( from.exponent() != to.exponent() )
-        {
-            throw WPreconditionNotMet( "Exponents are not equals!" );
-        }
-    }
-    else
-    {
-        wlog::warn( CLASS ) << "Translation unit is not set and could not be checked: " << from.unit() << "/" << to.unit();
+        throw WPreconditionNotMet( "Units/exp. are not equals!" );
     }
 
     // Align
@@ -133,7 +122,7 @@ double WAlignment::align( TransformationT* const transformation, const PointsT& 
 
 bool WAlignment::estimateTransformation( PCLMatrixT* const matrix )
 {
-    WLTimeProfiler tp( CLASS, "estimateTransformation" );
+    WLTimeProfiler tp( CLASS, __func__ );
 
     PointCloud< PointXYZ > src, trg;
     Correspondences corrs;
@@ -159,7 +148,7 @@ bool WAlignment::estimateTransformation( PCLMatrixT* const matrix )
 
 double WAlignment::icpAlign( PCLMatrixT* const trans, const PointsT& from, const PointsT& to )
 {
-    WLTimeProfiler tp( CLASS, "icpAlign" );
+    WLTimeProfiler tp( CLASS, __func__ );
 
     wlog::debug( CLASS ) << "icpAlign: Transforming WPosition to PCL::PointXYZ";
     PointCloud < PointXYZ > src;
