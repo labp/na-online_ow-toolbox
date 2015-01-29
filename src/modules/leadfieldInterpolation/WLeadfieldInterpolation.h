@@ -59,12 +59,12 @@ public:
     /**
      * Sets the positions of real sensors.
      */
-    void setSensorPositions( PositionsT::SPtr posSensors );
+    void setSensorPositions( PositionsT::ConstSPtr posSensors );
 
     /**
      * Sets the positions of the HD leadfield sensors.
      */
-    void setHDLeadfieldPosition( PositionsT::SPtr posHdLeadfield );
+    void setHDLeadfieldPosition( PositionsT::ConstSPtr posHdLeadfield );
 
     /**
      * Sets the high resolution leadfield.
@@ -99,14 +99,16 @@ private:
         std::vector< float >* squareDistances;
     };
 
-    PositionsT::SPtr m_posSensors;
+    PositionsT::ConstSPtr m_posSensors;
 
-    PositionsT::SPtr m_posHDLeadfield;
+    PositionsT::ConstSPtr m_posHDLeadfield;
 
     WLMatrix::SPtr m_hdLeadfield;
 
     bool searchNearestNeighbor( std::vector< NeighborsT >* const neighbors, const PositionsT& searchPoints,
                     const PositionsT& inputPoints );
+
+    void estimateExponent( WLPositions* const pos );
 };
 
 #endif  // WLEADFIELDINTERPOLATION_H_
