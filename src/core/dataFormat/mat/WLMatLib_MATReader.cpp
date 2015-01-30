@@ -161,16 +161,16 @@ bool WLMatLib::MATReader::retrieveDataElements( std::list< ElementInfo_t >* cons
 bool WLMatLib::MATReader::readTagField( mDataType_t* const dataType, mNumBytes_t* const numBytes, std::ifstream& ifs )
 {
     const std::streampos pos = ifs.tellg();
-    ifs.read( ( char* )dataType, sizeof( WLMatLib::mDataType_t ) );
-    ifs.read( ( char* )numBytes, sizeof( WLMatLib::mNumBytes_t ) );
+    ifs.read( ( char* )dataType, sizeof(WLMatLib::mDataType_t) );
+    ifs.read( ( char* )numBytes, sizeof(WLMatLib::mNumBytes_t) );
     if( *dataType > WLMatLib::DataTypes::miUTF32 )
     {
         wlog::debug( LIBNAME ) << "Small Data Element Format found.";
         WLMatLib::mDataTypeSmall_t typeSmall;
         WLMatLib::mNumBytesSmall_t bytesSmall;
-        ifs.seekg( -( sizeof( WLMatLib::mDataType_t ) + sizeof( WLMatLib::mNumBytes_t ) ), ifstream::cur );
-        ifs.read( ( char* )&typeSmall, sizeof( WLMatLib::mDataTypeSmall_t ) );
-        ifs.read( ( char* )&bytesSmall, sizeof( WLMatLib::mNumBytesSmall_t ) );
+        ifs.seekg( -( sizeof(WLMatLib::mDataType_t) + sizeof(WLMatLib::mNumBytes_t) ), ifstream::cur );
+        ifs.read( ( char* )&typeSmall, sizeof(WLMatLib::mDataTypeSmall_t) );
+        ifs.read( ( char* )&bytesSmall, sizeof(WLMatLib::mNumBytesSmall_t) );
         *dataType = typeSmall;
         *numBytes = bytesSmall;
     }
@@ -302,6 +302,10 @@ bool WLMatLib::MATReader::readArraySubelements( ElementInfo_t* const element, st
     element->arrayName.assign( tmp );
     free( tmp );
     wlog::debug( LIBNAME ) << "Array Name: " << element->arrayName;
+    if( bytes > 4 )
+    {
+        tagStart += bytes;
+    }
     nextElement( ifs, tagStart, bytes );
 
     // Set Data Position
