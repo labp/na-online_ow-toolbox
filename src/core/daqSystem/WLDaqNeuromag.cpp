@@ -175,7 +175,7 @@ void WLDaqNeuromag::applyIntegrationPoints3024( WLMegCoilInfo* const megCoil )
 
     //  0.0, +- 8.13, 0.3mm
     ip6 << 0.0, 8.13, 0.3;
-    ip7 << 0.0, -8.13, 03;
+    ip7 << 0.0, -8.13, 0.3;
 
     // +- 8.13, 0.0, 0.3mm
     ip8 << 8.13, 0.0, 0.3;
