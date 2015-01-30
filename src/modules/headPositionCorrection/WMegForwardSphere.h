@@ -80,11 +80,9 @@ public:
      */
     static bool transformIntPntLocal2Dev( PositionsT* ipOut, const WLMegCoilInfo& megCoilInfo );
 
-    static double weberToTesla( const std::vector< WLMegCoilInfo::SPtr >& coilInfos );
 private:
     WLArrayList< WLMegCoilInfo::SPtr >::SPtr m_coilInfos;
     std::vector< PositionsT > m_intPntDev; //!< Integration point in device coords.
-    double m_w2t; //!< Weber to tesla.
 };
 
 #endif  // WMEGFORWARDSPHERE_H_

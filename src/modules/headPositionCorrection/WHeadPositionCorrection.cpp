@@ -60,8 +60,6 @@ bool WHeadPositionCorrection::init()
     WLTimeProfiler profiler( CLASS, __func__, true );
     wlog::debug( CLASS ) << __func__ << "() called!";
 
-    // TODO(pieloth): Check unit/exponent/from/to megPos, dipPos, refTrans
-
     // Check pre-conditions
     // --------------------
     if( m_isInitialized )

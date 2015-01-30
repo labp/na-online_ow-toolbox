@@ -48,7 +48,6 @@ const std::string WMegForwardSphere::CLASS = "WMegForward";
 
 WMegForwardSphere::WMegForwardSphere()
 {
-    m_w2t = 1.0;
 }
 
 WMegForwardSphere::~WMegForwardSphere()
@@ -59,7 +58,6 @@ void WMegForwardSphere::setMegCoilInfos( WLArrayList< WLMegCoilInfo::SPtr >::SPt
 {
     m_coilInfos = coilInfos;
     const WLArrayList< WLMegCoilInfo::SPtr >::size_type n_coils = m_coilInfos->size();
-    m_w2t = 1.0;
     m_intPntDev.clear();
     m_intPntDev.reserve( n_coils );
 
@@ -77,38 +75,6 @@ void WMegForwardSphere::setMegCoilInfos( WLArrayList< WLMegCoilInfo::SPtr >::SPt
     }
 
     wlog::debug( CLASS ) << "Calculate weber to tesla.";
-    m_w2t = weberToTesla( *coilInfos );
-}
-
-double WMegForwardSphere::weberToTesla( const std::vector< WLMegCoilInfo::SPtr >& megSensor )
-{
-    double N = 0.0;
-    const int nNumberOfCoils = megSensor.size();
-
-    // a) find coil with lowest z amongst those with positive sense
-    double MinZ = std::numeric_limits< double >::max();
-    for( int i = 0; i < nNumberOfCoils; i++ )
-    {
-        if( megSensor[i]->windings < 0 )
-        {
-            if( megSensor[i]->position.z() < MinZ )
-            {
-                MinZ = megSensor[i]->position.z(); // TODO(pieloth) absolute value?
-            }
-        }
-    }
-
-    // b) sum up numbers of windings of all coils with negative sense and z smaller than a)
-    for( int i = 0; i < nNumberOfCoils; i++ )
-        if( megSensor[i]->windings > 0 && megSensor[i]->position.z() < MinZ )
-            N += megSensor[i]->windings * megSensor[i]->area;
-
-    // c) if N=0 negative senses are summed up
-    if( !N )
-        for( int i = 0; i < nNumberOfCoils; ++i )
-            N += fabs( megSensor[i]->windings * megSensor[i]->area );
-
-    return N;
 }
 
 bool WMegForwardSphere::transformIntPntLocal2Dev( PositionsT* ipOut, const WLMegCoilInfo& megCoilInfo )
@@ -233,8 +199,9 @@ bool WMegForwardSphere::computeForward( MatrixT* const pLfOut, const PositionsT&
                 const Vector3T mag_ori = megCoilInfo.orientation;
                 lfOut( iSens, iDip ) += w * mag_ori.dot( B );
             } // for each integration point, TODO(pieloth) gradiometer???
+            lfOut( iSens, iDip ) /= megCoilInfo.area; // Wb = Tm^2 --> Wb/m^2 = T
         }   // for each sensor
     }   // for each dipole
-    lfOut /= m_w2t;
+
     return true;
 }
