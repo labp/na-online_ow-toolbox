@@ -4,12 +4,17 @@ __author__ = 'Christof Pieloth'
 
 import argparse
 from argparse import RawTextHelpFormatter
-import logging
+import signal
 import sys
 
-from packbacker.installers import installer_prototypes
 from packbacker.job import Job
 from packbacker.utils import UtilsUI
+
+
+def sigint_handler(signum, frame):
+    sys.exit('Installation canceled by user!')
+
+signal.signal(signal.SIGINT, sigint_handler)
 
 
 def main():
@@ -17,7 +22,7 @@ def main():
     parser = argparse.ArgumentParser(formatter_class=RawTextHelpFormatter)
     parser.name = 'PackBacker'
     parser.description = 'PackBacker is a light tool to download and install 3rd party libraries.'
-    parser.add_argument("-j", "--job", help="Job file.", required=True)
+    parser.add_argument("job", help="Job file.")
     parser.epilog = 'PackBacker  Copyright (C) 2014  Christof Pieloth\n' \
                     'This program comes with ABSOLUTELY NO WARRANTY; see LICENSE file.\n' \
                     'This is free software, and you are welcome to redistribute it\n' \
@@ -36,9 +41,13 @@ def main():
         UtilsUI.print_error('Could not create job. Cancel installations!')
         errors += 1
 
-    UtilsUI.print_error('PackBacker finished with errors: ' + str(errors))
-    return errors
+    if errors == 0:
+        UtilsUI.print('PackBacker finished.')
+        return 0
+    else:
+        UtilsUI.print_error('PackBacker finished with errors: ' + str(errors))
+        return 1
 
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())

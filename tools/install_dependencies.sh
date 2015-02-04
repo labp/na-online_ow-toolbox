@@ -14,4 +14,4 @@ echo "you have to install them:"
 echo "- Eigen v3.1.1 or later"
 echo "- Point Cloud Library"
 echo ""
-python3 ./PackBacker/packbacker.py -j ./PackBacker/jobs/na-online_dependencies.pb
+python3 ./PackBacker/packbacker.py ./PackBacker/jobs/na-online_dependencies.pb
