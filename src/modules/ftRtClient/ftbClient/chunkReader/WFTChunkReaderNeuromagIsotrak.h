@@ -33,6 +33,7 @@
 
 #include "core/container/WLArrayList.h"
 #include "core/container/WLList.h"
+#include "core/data/WLPositions.h"
 #include "core/data/enum/WLEPointType.h"
 #include "core/data/WLDigPoint.h"
 #include "WFTChunkReader.h"
@@ -99,9 +100,9 @@ public:
     /**
      * Gets the EEG channel positions.
      *
-     * \return Returns a shared pointer on a WLArrayList< WPosition >.
+     * \return Returns a shared pointer on a WLPositions.
      */
-    WLArrayList< WPosition >::SPtr getEEGChanPos() const;
+    WLPositions::SPtr getEEGChanPos() const;
 
     /**
      * Gets the EEG 3D faces.
@@ -127,7 +128,7 @@ private:
     /**
      * The EEG channel positions.
      */
-    WLArrayList< WPosition >::SPtr m_eegChPos;
+    WLPositions::SPtr m_eegChPos;
 
     /**
      * The EEG faces.

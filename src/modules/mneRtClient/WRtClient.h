@@ -42,6 +42,7 @@
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
+#include "core/container/WLArrayList.h"
 #include "core/container/WLList.h"
 #include "core/data/WLDataTypes.h"
 #include "core/data/WLDigPoint.h"
@@ -90,9 +91,6 @@ public:
     bool setDigPointsAndEEG( const std::list< WLDigPoint >& digPoints );
 
 private:
-    typedef std::vector< WPosition > ChannelsPositionsT;
-    typedef boost::shared_ptr< ChannelsPositionsT > ChannelsPositionsSPtr;
-
     typedef std::vector< WVector3i > FacesT;
     typedef boost::shared_ptr< FacesT > FacesSPtr;
 
@@ -108,7 +106,7 @@ private:
     WLEMDEEG::ConstSPtr m_eegPrototype;
     WLEMDMEG::ConstSPtr m_megPrototype;
 
-    ChannelsPositionsSPtr m_chPosEeg;
+    WLEMDEEG::PositionsT::SPtr m_chPosEeg;
     FacesSPtr m_facesEeg;
 
     Eigen::RowVectorXi m_picksEeg;

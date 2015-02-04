@@ -67,7 +67,7 @@ bool WHeadPositionCorrection::init()
         return true;
     }
     m_isInitialized = false;
-    if( m_megPos.cols() == 0 || m_megOri.cols() == 0 )
+    if( m_megPos.empty() || m_megOri.cols() == 0 )
     {
         wlog::error( CLASS ) << "MEG positions and orientations are not set!";
         return false;
@@ -77,28 +77,52 @@ bool WHeadPositionCorrection::init()
         wlog::error( CLASS ) << "MEG coil infos are not set!";
         return false;
     }
+    if( m_megPos.coordSystem() != WLECoordSystem::UNKNOWN && m_megPos.coordSystem() != WLECoordSystem::DEVICE )
+    {
+        wlog::error( CLASS ) << "MEG coordinate system is wrong: " << m_megPos.coordSystem();
+        return false;
+    }
+    if( m_megPos.unit() != WLEUnit::UNKNOWN && m_megPos.unit() != WLEUnit::METER )
+    {
+        wlog::error( CLASS ) << "Unit is not meter!";
+        return false;
+
+    }
+    if( m_megPos.exponent() != WLEExponent::UNKNOWN && m_megPos.exponent() != WLEExponent::BASE )
+    {
+        wlog::error( CLASS ) << "Exponent is not meter!";
+        return false;
+    }
+    if( m_transRef.from() != WLECoordSystem::HEAD || m_transRef.to() != WLECoordSystem::DEVICE )
+    {
+        wlog::error( CLASS ) << "Reference transformation has wrong from/to coordinate system!";
+        return false;
+    }
 
     // Initialize
     // ----------
     // 1. generate simples dipole sphere: positions, orientations
-    const size_t nDip = m_megPos.cols() * 2;
+    const PositionsT::IndexT nDip = m_megPos.size() * 2;
     if( !generateDipoleSphere( &m_dipPos, &m_dipOri, nDip, m_radius ) )
     {
         wlog::error( CLASS ) << "Error on creating sphere.";
         return false;
     }
-    WAssertDebug( m_dipPos.cols() > 0 && m_dipOri.cols() > 0, "Dipoles are emtpy." );
+    m_dipPos.unit( m_megPos.unit() );
+    m_dipPos.exponent( m_megPos.exponent() );
+    m_dipPos.coordSystem( WLECoordSystem::HEAD );
+    WAssertDebug( !m_dipPos.empty() && m_dipOri.cols() > 0, "Dipoles are emtpy." );
 
     // 2. align sphere to head model/coordinates
     // necessary?
 
     // 3. compute forward model for sphere at reference position
-    PositionsT dipPosRef;
+    PositionsT::SPtr dipPos;
     OrientationsT dipOriRef;
     // Move dipoles to reference position
-    dipPosRef = m_transRef * m_dipPos;
-    dipOriRef = m_transRef.linear() * m_dipOri;
-    if( !computeForward( &m_lfRef, m_megPos, m_megOri, dipPosRef, dipOriRef ) )
+    dipPos = m_transRef * m_dipPos;
+    dipOriRef = m_transRef.rotation() * m_dipOri;
+    if( !computeForward( &m_lfRef, m_megPos, m_megOri, *dipPos, dipOriRef ) )
     {
         wlog::error( CLASS ) << "Error on computing leadfield for reference position.";
         return false;
@@ -135,7 +159,7 @@ bool WHeadPositionCorrection::process( WLEMDMEG* const megOut, const WLEMDMEG& m
         wlog::error( CLASS ) << "Sampling frequency from HPI or MEG not set!";
         return false;
     }
-    if( sfreq_hpi > sfreq_meg || static_cast< size_t >( sfreq_meg ) % static_cast< size_t >( sfreq_hpi ) != 0 )
+    if( sfreq_hpi > sfreq_meg || static_cast< size_t >( sfreq_meg.value() ) % static_cast< size_t >( sfreq_hpi.value() ) != 0 )
     {
         wlog::error( CLASS ) << "Pre-conditions not hold: sfreq_hpi <= sfreq_meg AND sfreq_meg%sfreq_hpi != 0";
         return false;
@@ -146,9 +170,8 @@ bool WHeadPositionCorrection::process( WLEMDMEG* const megOut, const WLEMDMEG& m
 
     WLArrayList< WLEMDHPI::TransformationT >::ConstSPtr trans = hpi.getTransformations();
     WLArrayList< WLEMDHPI::TransformationT >::const_iterator itTrans;
-    PositionsT dipPos;
+    PositionsT::SPtr dipPos;
     OrientationsT dipOri;
-    Eigen::Affine3d t;
     WLEMData::DataT::Index smpStart = 0;
 
     const WLChanNrT chans = megIn.getNrChans();
@@ -161,11 +184,10 @@ bool WHeadPositionCorrection::process( WLEMDMEG* const megOut, const WLEMDMEG& m
         {
             WLTimeProfiler profilerTras( CLASS, "process_trans", true );
             // 4. transform dipole sphere to head position, MEG coord, in case head position has changed
-            t = Eigen::Affine3d( *itTrans );
-            dipPos = t * m_dipPos;
-            dipOri = t.linear() * m_dipOri;  // attention: Eigen::Affine3d.rotation() returns a identity matrix!?
+            dipPos = *itTrans * m_dipPos;
+            dipOri = itTrans->rotation() * m_dipOri;
             // 5. compute forward model+inverse operator, in case head position has changed
-            if( !computeForward( &m_lfNow, m_megPos, m_megOri, dipPos, dipOri ) )
+            if( !computeForward( &m_lfNow, m_megPos, m_megOri, *dipPos, dipOri ) )
             {
                 wlog::error( CLASS ) << "Error on computing forward solution for current head position.";
                 return false;
@@ -192,11 +214,11 @@ bool WHeadPositionCorrection::process( WLEMDMEG* const megOut, const WLEMDMEG& m
     return true;
 }
 
-void WHeadPositionCorrection::setRefTransformation( const WLMatrix4::Matrix4T& trans )
+void WHeadPositionCorrection::setRefTransformation( const WLTransformation& trans )
 {
-    if( m_transRef.matrix() != trans )
+    if( m_transRef.data() != trans.data() )
     {
-        m_transRef.matrix() = trans;
+        m_transRef = trans;
         m_isInitialized = false;
     }
 }
@@ -213,12 +235,15 @@ void WHeadPositionCorrection::setMegCoilInfos( WLArrayList< WLMegCoilInfo::SPtr 
     }
 
     m_coilInfos = coilInfo;
-    m_megPos.resize( 3, n_coils );
+    m_megPos.resize( n_coils );
+    m_megPos.unit( WLEUnit::METER ); // Position from MEG coil infos are in meter, see API
+    m_megPos.exponent( WLEExponent::BASE ); // Position from MEG coil infos are in meter, see API
+    m_megPos.coordSystem( WLECoordSystem::DEVICE );
     m_megOri.resize( 3, n_coils );
 
     for( WLArrayList< WLMegCoilInfo::SPtr >::size_type i = 0; i < n_coils; ++i )
     {
-        m_megPos.col( i ) = ( *m_coilInfos )[i]->position;
+        m_megPos.data().col( i ) = ( *m_coilInfos )[i]->position;
         m_megOri.col( i ) = ( *m_coilInfos )[i]->orientation;
     }
     applyCoilIntegrationPoints( m_coilInfos.get() );
@@ -242,7 +267,7 @@ bool WHeadPositionCorrection::generateDipoleSphere( PositionsT* const pos, Orien
 
     // generate dipolse
     PositionsT pTmp;
-    const size_t points = WLGeometry::createUpperHalfSphere( &pTmp, std::ceil( nDipoles / 2.0 ), r );
+    const size_t points = WLGeometry::createUpperHalfSphere( &pTmp.data(), std::ceil( nDipoles / 2.0 ), r );
     if( points == 0 )
     {
         wlog::error( CLASS ) << "Error on creating sphere!";
@@ -250,16 +275,15 @@ bool WHeadPositionCorrection::generateDipoleSphere( PositionsT* const pos, Orien
     }
     wlog::debug( CLASS ) << "Number of dipoles: " << 2 * points;
 
-    pos->resize( Eigen::NoChange, 2 * points );
-    pos->block( 0, 0, 3, points ) = pTmp;
-    pos->block( 0, points, 3, points ) = pTmp;
+    pos->data( pTmp.data() );
+    *pos += pTmp;
 
     // generate orientations
     ori->resize( Eigen::NoChange, 2 * points );
     OrientationT o1, o2;
     for( OrientationsT::Index i = 0; i < points; ++i )
     {
-        if( !WLGeometry::findTagentPlane( &o1, &o2, pos->col( i ) ) )
+        if( !WLGeometry::findTagentPlane( &o1, &o2, pos->at( i ) ) )
         {
             wlog::error( CLASS ) << "Error on creating orientations!";
             return false;
@@ -268,27 +292,33 @@ bool WHeadPositionCorrection::generateDipoleSphere( PositionsT* const pos, Orien
         ori->col( i + points ) = o2 / o2.norm();
     }
 
-    WAssertDebug( pos->cols() >= nDipoles, "Dipole count does not match." );
-    WAssertDebug( pos->rows() == ori->rows() && pos->cols() == ori->cols(), "Dimension of pos and ori does not match." );
+    WAssertDebug( pos->size() >= nDipoles, "Dipole count does not match." );
+    WAssertDebug( pos->size() == ori->cols(), "Positions and orientation count does not match." );
     return true;
 }
 
 bool WHeadPositionCorrection::computeForward( MatrixT* const lf, const PositionsT& mPos, const OrientationsT& mOri,
                 const PositionsT& dPos, const OrientationsT& dOri ) const
 {
-    WAssertDebug( mPos.rows() == mOri.rows() && mPos.cols() == mOri.cols(), "Dimension of MEG pos and ori does not match." );
-    WAssertDebug( dPos.rows() == dOri.rows() && dPos.cols() == dOri.cols(), "Dimension of dipole pos and ori does not match." );
+    WAssertDebug( mPos.size() == mOri.cols(), "Positions and orientation count does not match." );
+    WAssertDebug( dPos.size() == dOri.cols(), "Dipole and orientation count does not match." );
 
     WLTimeProfiler profiler( CLASS, __func__, true );
 
+    if( mPos.coordSystem() != dPos.coordSystem() )
+    {
+        wlog::error( CLASS ) << "MEG and dipole coordinate systems are not equals!";
+        return false;
+    }
+
     WMegForwardSphere megForward;
     megForward.setMegCoilInfos( m_coilInfos );
-    if( !megForward.computeForward( lf, dPos, dOri ) )
+    if( !megForward.computeForward( lf, dPos.data(), dOri ) )
     {
         return false;
     }
 
-    WAssertDebug( lf->rows() == mPos.cols() && lf->cols() == dPos.cols(),
+    WAssertDebug( lf->rows() == mPos.size() && lf->cols() == dPos.size(),
                     "Dimension of L, MEG channels and dipoles does not match." );
     return true;
 }
@@ -341,7 +371,7 @@ bool WHeadPositionCorrection::computeInverseOperation( MatrixT* const g, const M
 
 bool WHeadPositionCorrection::checkMovementThreshold( const WLEMDHPI::TransformationT& trans )
 {
-    const Eigen::Vector4d diffTrans = m_transExc.col( 3 ) - trans.col( 3 );
+    const Eigen::Vector4d diffTrans = m_transExc.data().col( 3 ) - trans.data().col( 3 );
     if( diffTrans.norm() > m_movementThreshold )
     {
         m_transExc = trans;

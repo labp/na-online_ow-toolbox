@@ -32,9 +32,9 @@
 #include <core/ui/WUIViewWidget.h>
 #include <core/kernel/WModule.h>
 
-#include "core/data/WLDataTypes.h"
 #include "core/data/WLEMMCommand.h"
 #include "core/data/WLEMMeasurement.h"
+#include "core/data/WLTransformation.h"
 #include "core/gui/drawable/WLEMDDrawable3DEEGBEM.h"
 #include "core/module/WLEMMCommandProcessor.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
@@ -88,21 +88,21 @@ private:
     WUIViewWidget::SPtr m_widget;
     WLEMDDrawable3DEEGBEM::SPtr m_drawable;
 
-    WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input; /**< Buffered input connector. */
-    WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output; /**<  Output connector for buffered input connectors. */
+    WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input; //!< Buffered input connector.
+    WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output; //!<  Output connector for buffered input connectors.
 
     WCondition::SPtr m_propCondition;
     WPropTrigger m_trgReset;
 
-    WLMatrix4::Matrix4T m_transformation;
+    WLTransformation::SPtr m_transformation;
 
     // ----------------------------
     // Transformation Estimation Properties
     // ----------------------------
     WPropGroup m_propEstGroup;
-    WPropPosition m_propEstLPA;
-    WPropPosition m_propEstNasion;
-    WPropPosition m_propEstRPA;
+    WPropPosition m_propEstLPA; //!< Left, AC-PC coordinates and in meter.
+    WPropPosition m_propEstNasion; //!< Nasion, AC-PC coordinates and in meter.
+    WPropPosition m_propEstRPA; //!< Right, AC-PC coordinates and in meter.
 
     // ----------------------------
     // ICP Properties

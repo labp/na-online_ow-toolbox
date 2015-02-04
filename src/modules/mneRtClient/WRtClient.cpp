@@ -60,7 +60,7 @@ WRtClient::WRtClient( const std::string& ip_address, const std::string& alias ) 
     m_blockSize = 500;
     m_applyScaling = false;
 
-    m_chPosEeg.reset( new ChannelsPositionsT );
+    m_chPosEeg = WLEMDEEG::PositionsT::instance();
     m_facesEeg.reset( new FacesT );
     m_digPoints = WLList< WLDigPoint >::instance();
 }
@@ -525,32 +525,48 @@ bool WRtClient::setDigPointsAndEEG( const std::list< WLDigPoint >& digPoints )
     m_digPoints = WLList< WLDigPoint >::instance( digPoints );
     wlog::info( CLASS ) << "Digitization points: " << m_digPoints->size();
 
-    m_chPosEeg->clear();
-    m_chPosEeg->reserve( m_digPoints->size() );
     std::list< WLDigPoint >::const_iterator it;
     bool isFirst = true;
+    WLEMDEEG::PositionsT::IndexT nChPosEeg = 0;
     for( it = m_digPoints->begin(); it != m_digPoints->end(); ++it )
     {
         if( it->getKind() != WLEPointType::EEG_ECG )
         {
             continue;
         }
-
-        if( !isFirst )
-        {
-            m_chPosEeg->push_back( it->getPoint() );
-        }
-        else
+        if( isFirst )
         {
             isFirst = false;
             continue;
         }
+        ++nChPosEeg;
+    }
+    m_chPosEeg->resize( nChPosEeg );
+    m_chPosEeg->unit( WLEUnit::METER );
+    m_chPosEeg->exponent( WLEExponent::BASE );
+    m_chPosEeg->coordSystem( WLECoordSystem::HEAD );
+    nChPosEeg = 0;
+    for( it = m_digPoints->begin(); it != m_digPoints->end(); ++it )
+    {
+        if( it->getKind() != WLEPointType::EEG_ECG )
+        {
+            continue;
+        }
+        if( isFirst )
+        {
+            isFirst = false;
+            continue;
+        }
+        m_chPosEeg->data().col( nChPosEeg ).x() = it->getPoint().x();
+        m_chPosEeg->data().col( nChPosEeg ).y() = it->getPoint().y();
+        m_chPosEeg->data().col( nChPosEeg ).z() = it->getPoint().z();
+        ++nChPosEeg;
     }
 
     wlog::info( CLASS ) << "EEG positions from digPoints: " << m_chPosEeg->size();
 
     m_facesEeg->clear();
-    if( !WLGeometry::computeTriangulation( m_facesEeg.get(), *m_chPosEeg, -5 ) )
+    if( !WLGeometry::computeTriangulation( m_facesEeg.get(), m_chPosEeg->data(), -5 ) )
     {
         wlog::warn( CLASS ) << "Could not generate faces!";
     }
@@ -578,7 +594,13 @@ bool WRtClient::preparePrototype( WLEMMeasurement* const emm )
 #endif
     if( !devToHead.isZero() )
     {
-        emm->setDevToFidTransformation( devToHead );
+        WLTransformation::SPtr t = WLTransformation::instance();
+        t->from( WLECoordSystem::DEVICE );
+        t->to( WLECoordSystem::HEAD );
+        t->unit( WLEUnit::METER );
+        t->exponent( WLEExponent::BASE );
+        t->data() = devToHead;
+        emm->setDevToFidTransformation( t );
     }
 
     if( m_digPoints->empty() )
@@ -604,7 +626,8 @@ bool WRtClient::preparePrototype( WLEMMeasurement* const emm )
 bool WRtClient::preparePrototype( WLEMData* const emd, const Eigen::RowVectorXi& picks )
 {
     const FIFFLIB::FiffChInfo fiffInfo = m_fiffInfo->chs[picks[0]];
-    emd->setSampFreq( m_fiffInfo->sfreq );
+    // Frequencies are in Hz, see Functional Image File Format, Appendix C.3 Common data tags
+    emd->setSampFreq( m_fiffInfo->sfreq * WLUnits::Hz );
     emd->setChanUnit( WLEUnit::fromFIFF( fiffInfo.unit ) );
     emd->setChanUnitExp( WLEExponent::fromFIFF( fiffInfo.unit_mul ) );
 
@@ -666,9 +689,6 @@ bool WRtClient::readChannelPositions( WLEMData* const emd, const Eigen::RowVecto
     }
 
     QList< FIFFLIB::FiffChInfo > chInfos = m_fiffInfo->chs;
-    ChannelsPositionsSPtr positions( new ChannelsPositionsT );
-    positions->reserve( picks.size() );
-
     WLEMDEEG* eeg = dynamic_cast< WLEMDEEG* >( emd );
     if( eeg != NULL )
     {
@@ -680,24 +700,18 @@ bool WRtClient::readChannelPositions( WLEMData* const emd, const Eigen::RowVecto
         }
         else
         {
+            WLEMDEEG::PositionsT::SPtr posEeg = WLEMDEEG::PositionsT::instance();
+            posEeg->resize( picks.size() );
             for( Eigen::RowVectorXi::Index row = 0; row < picks.size(); ++row )
             {
                 WAssertDebug( picks[row] < chInfos.size(), "Selected channel index out of chInfos boundary!" );
                 const Eigen::Matrix< double, 3, 2, Eigen::DontAlign >& chPos = chInfos.at( ( int )picks[row] ).eeg_loc;
-                const WPosition pos( chPos( 0, 0 ), chPos( 1, 0 ), chPos( 2, 0 ) );
-                positions->push_back( pos );
+                posEeg->data().col( row ).x() = chPos( 0, 0 );
+                posEeg->data().col( row ).y() = chPos( 1, 0 );
+                posEeg->data().col( row ).z() = chPos( 2, 0 );
             }
-
-            if( !positions->empty() )
-            {
-                eeg->setChannelPositions3d( positions );
-                return true;
-            }
-            else
-            {
-                wlog::error( CLASS ) << "No EEG positions found!";
-                return false;
-            }
+            eeg->setChannelPositions3d( posEeg );
+            return true;
         }
     }
 
@@ -711,12 +725,19 @@ bool WRtClient::readChannelPositions( WLEMData* const emd, const Eigen::RowVecto
         chEyMEG->reserve( picks.size() );
         chEzMEG->reserve( picks.size() );
 
+        WLEMDMEG::PositionsT::SPtr posMeg = WLEMDMEG::PositionsT::instance();
+        posMeg->unit( WLEUnit::METER );
+        posMeg->exponent( WLEExponent::BASE );
+        posMeg->coordSystem( WLECoordSystem::DEVICE );
+        posMeg->resize( picks.size() );
+
         for( Eigen::RowVectorXi::Index row = 0; row < picks.size(); ++row )
         {
             WAssertDebug( picks[row] < chInfos.size(), "Selected channel index out of chInfos boundary!" );
             const Eigen::Matrix< double, 12, 1, Eigen::DontAlign >& chPos = chInfos.at( ( int )picks[row] ).loc;
-            const WPosition pos( chPos( 0, 0 ), chPos( 1, 0 ), chPos( 2, 0 ) );
-            positions->push_back( pos );
+            posMeg->data().col( row ).x() = chPos( 0, 0 );
+            posMeg->data().col( row ).y() = chPos( 1, 0 );
+            posMeg->data().col( row ).z() = chPos( 2, 0 );
 
             const WVector3f ex( chPos( 3, 0 ), chPos( 4, 0 ), chPos( 5, 0 ) );
             chExMEG->push_back( ex );
@@ -726,19 +747,12 @@ bool WRtClient::readChannelPositions( WLEMData* const emd, const Eigen::RowVecto
             chEzMEG->push_back( ez );
         }
 
-        if( !positions->empty() )
-        {
-            meg->setChannelPositions3d( positions );
-            meg->setEx( chExMEG );
-            meg->setEy( chEyMEG );
-            meg->setEz( chEzMEG );
-            return true;
-        }
-        else
-        {
-            wlog::error( CLASS ) << "No MEG positions found!";
-            return false;
-        }
+        meg->setChannelPositions3d( posMeg );
+        meg->setEx( chExMEG );
+        meg->setEy( chEyMEG );
+        meg->setEz( chEzMEG );
+        return true;
+
     }
 
     return false;
@@ -748,7 +762,7 @@ bool WRtClient::readChannelFaces( WLEMData* const emd )
 {
     wlog::debug( CLASS ) << "readChannelFaces() called!";
 
-    ChannelsPositionsSPtr positions;
+    WLPositions::SPtr positions;
     WLEMDEEG* eeg = dynamic_cast< WLEMDEEG* >( emd );
     if( eeg != NULL )
     {
@@ -769,12 +783,11 @@ bool WRtClient::readChannelFaces( WLEMData* const emd )
         return false;
     }
 
-    const WPosition zero = WPosition::zero();
-    ChannelsPositionsT::const_iterator it;
+    const WLPositions::PositionT zero = WLPositions::PositionT::Zero();
     size_t nzero = 0;
-    for( it = positions->begin(); it != positions->end(); ++it )
+    for( WLPositions::IndexT i = 0; i < positions->size(); ++i )
     {
-        if( *it == zero )
+        if( positions->at( i ) == zero )
         {
             ++nzero;
         }
@@ -783,7 +796,7 @@ bool WRtClient::readChannelFaces( WLEMData* const emd )
     FacesSPtr faces( new FacesT );
     if( nzero < 3 )
     {
-        if( WLGeometry::computeTriangulation( faces.get(), *positions, -5 ) )
+        if( WLGeometry::computeTriangulation( faces.get(), positions->data(), -5 ) )
         {
             if( eeg != NULL )
             {

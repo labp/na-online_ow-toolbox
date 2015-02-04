@@ -36,6 +36,7 @@
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/ui/WUIViewWidget.h>
 
+#include "core/data/WLPositions.h"
 #include "WLEMDDrawable3D.h"
 
 /**
@@ -63,12 +64,12 @@ public:
 protected:
     virtual bool mustDraw() const;
 
-    virtual void osgAddSurface( const std::vector< WPosition >& positions, const std::vector< WVector3i >& faces );
+    virtual void osgAddSurface( const WLPositions& positions, const std::vector< WVector3i >& faces );
 
     virtual void osgNodeCallback( osg::NodeVisitor* nv );
 
 private:
-    void osgAddNodes( const std::vector< WPosition >& positions );
+    void osgAddNodes( const WLPositions& positions );
 
     bool m_electrodesChanged;
 

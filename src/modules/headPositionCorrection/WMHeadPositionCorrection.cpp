@@ -176,13 +176,13 @@ bool WMHeadPositionCorrection::processCompute( WLEMMeasurement::SPtr emm )
     }
     if( !m_hasRefPos )
     {
-        if( !emm->getHpiInfo()->getDevToHead().isZero() )
+        if( !emm->getHpiInfo()->getDevToHead()->empty() )
         {
-            WLEMMHpiInfo::TransformationT t = emm->getHpiInfo()->getDevToHead().inverse();
-            m_correction.setRefTransformation( t );
+            WLEMMHpiInfo::TransformationT::SPtr t = emm->getHpiInfo()->getDevToHead()->inverse();
+            m_correction.setRefTransformation( *t );
             m_hasRefPos = true;
             m_propStatus->set( STATUS_REF_POS, true );
-            infoLog() << "Set reference position from EMM: \n" << t;
+            infoLog() << "Set reference position from EMM: \n" << *t;
         }
         else
         {
@@ -247,13 +247,13 @@ bool WMHeadPositionCorrection::processInit( WLEMMCommand::SPtr cmdIn )
             WLEMDMEG::createCoilInfos( meg.get() );
             m_correction.setMegCoilInfos( meg->getCoilInformation() );
         }
-        if( !m_hasRefPos && !emm->getHpiInfo()->getDevToHead().isZero() )
+        if( !m_hasRefPos && !emm->getHpiInfo()->getDevToHead()->empty() )
         {
-            WLEMMHpiInfo::TransformationT t = emm->getHpiInfo()->getDevToHead().inverse();
-            m_correction.setRefTransformation( t );
+            WLEMMHpiInfo::TransformationT::SPtr t = emm->getHpiInfo()->getDevToHead()->inverse();
+            m_correction.setRefTransformation( *t );
             m_hasRefPos = true;
             m_propStatus->set( STATUS_REF_POS, true );
-            infoLog() << "Set reference position from EMM: \n" << t;
+            infoLog() << "Set reference position from EMM: \n" << *t;
         }
     }
 
@@ -297,10 +297,10 @@ bool WMHeadPositionCorrection::hdlPosFileChanged( std::string fName )
 
     if( rc )
     {
-        WLEMMHpiInfo::TransformationT t = hpiInfo.getDevToHead().inverse();
-        m_correction.setRefTransformation( t );
+        WLEMMHpiInfo::TransformationT::SPtr t = hpiInfo.getDevToHead()->inverse();
+        m_correction.setRefTransformation( *t );
 
-        infoLog() << "Set reference position from FIFF:\n" << t;
+        infoLog() << "Set reference position from FIFF:\n" << *t;
         m_propStatus->set( STATUS_REF_POS, true );
     }
     progress->finish();

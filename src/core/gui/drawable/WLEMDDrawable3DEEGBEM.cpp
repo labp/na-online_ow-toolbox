@@ -89,22 +89,20 @@ void WLEMDDrawable3DEEGBEM::osgNodeCallback( osg::NodeVisitor* nv )
         }
     }
 
-    std::vector< WPosition > bemPositions;
-    WLGeometry::toBaseExponent( &bemPositions, *bemSkin->getVertex(), bemSkin->getVertexExponent() );
+    WLPositions bemPositions;
+    WLGeometry::toBaseExponent( &bemPositions, *bemSkin->getVertex() );
     const std::vector< WVector3i >& bemFaces = *bemSkin->getFaces();
 
     osgAddSurface( bemPositions, bemFaces );
 
-    std::vector< WPosition > pointsTrans;
-    WLGeometry::transformPoints( &pointsTrans, *( emd->getChannelPositions3d() ), emm->getFidToACPCTransformation() );
-
-    osgAddNodes( pointsTrans );
+    WLPositions::SPtr pointsTrans = *emm->getFidToACPCTransformation() * *emd->getChannelPositions3d();
+    osgAddNodes( *pointsTrans );
 
     WLEMDDrawable3D::osgNodeCallback( nv );
     m_rootGroup->removeChild( m_colorMapNode );
 }
 
-void WLEMDDrawable3DEEGBEM::osgAddNodes( const std::vector< WPosition >& positions )
+void WLEMDDrawable3DEEGBEM::osgAddNodes( const WLPositions& positions )
 {
     if( m_electrodesChanged )
     {
@@ -113,12 +111,13 @@ void WLEMDDrawable3DEEGBEM::osgAddNodes( const std::vector< WPosition >& positio
         const float sphere_size = 3.0f;
         m_electrodesGeode = new osg::Geode;
 
-        const size_t count_max = positions.size();
+        const WLPositions::IndexT count_max = positions.size();
         m_electrodesDrawables.clear();
         m_electrodesDrawables.reserve( count_max );
-        for( size_t channelID = 0; channelID < count_max; ++channelID )
+        for( WLPositions::IndexT channelID = 0; channelID < count_max; ++channelID )
         {
-            osg::Vec3 pos = positions.at( channelID ) * m_zoomFactor;
+            const WLPositions::PositionT tmp = positions.at( channelID ) * m_zoomFactor;
+            osg::Vec3 pos( tmp.x(), tmp.y(), tmp.z() );
             // create sphere geode on electrode position
             osg::ref_ptr< osg::ShapeDrawable > shape = new osg::ShapeDrawable( new osg::Sphere( pos, sphere_size ) );
             shape->setDataVariance( osg::Object::DYNAMIC );
@@ -133,19 +132,20 @@ void WLEMDDrawable3DEEGBEM::osgAddNodes( const std::vector< WPosition >& positio
     }
 }
 
-void WLEMDDrawable3DEEGBEM::osgAddSurface( const std::vector< WPosition >& positions, const std::vector< WVector3i >& faces )
+void WLEMDDrawable3DEEGBEM::osgAddSurface( const WLPositions& positions, const std::vector< WVector3i >& faces )
 {
     // draw head surface
     if( m_surfaceChanged )
     {
         m_rootGroup->removeChild( m_surfaceGeode );
 
-        const size_t nbPositions = positions.size();
+        const WLPositions::IndexT nbPositions = positions.size();
         std::vector< WPosition > scaledPos;
         scaledPos.reserve( nbPositions );
-        for( size_t i = 0; i < nbPositions; ++i )
+        for( WLPositions::IndexT i = 0; i < nbPositions; ++i )
         {
-            scaledPos.push_back( positions[i] * m_zoomFactor );
+            const WLPositions::PositionT tmp = positions.at( i ) * m_zoomFactor;
+            scaledPos.push_back( WPosition( tmp.x(), tmp.y(), tmp.z() ) );
         }
         boost::shared_ptr< WTriangleMesh > tri;
         if( faces.size() > 0 )

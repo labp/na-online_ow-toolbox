@@ -100,19 +100,19 @@ public:
     bool hasData() const = 0;
 
     /**
-     * Gets the time range to visualize. TODO(pieloth): seconds or millimeter?
+     * Gets the time range to visualize.
      *
-     * \return Time range in ???.
+     * \return Time range in seconds.
      */
-    virtual ValueT getTimeRange() const;
+    virtual WLTimeT getTimeRange() const;
 
     /**
-     * Sets the time range to visualize. TODO(pieloth): seconds or millimeter?
+     * Sets the time range to visualize.
      *
-     * \param timeRange Time range in ???
+     * \param timeRange Time range in seconds.
      * \return True if time range has changed.
      */
-    virtual bool setTimeRange( ValueT timeRange );
+    virtual bool setTimeRange( WLTimeT timeRange );
 
     /**
      * Gets the amplitude scale (max. value).
@@ -144,19 +144,19 @@ public:
     virtual bool setSelectedPixel( ValueT value );
 
     /**
-     * Gets the selected point in time. TODO(pieloth): seconds or milliseconds?
+     * Gets the selected point in time.
      *
-     * \return The selected point in time in ???.
+     * \return The selected point in time between 0 and 1.
      */
-    virtual float getSelectedTime() const;
+    virtual ValueT getSelectedTime() const;
 
     /**
-     * Sets the selected point in time relative to the widget width. TODO(pieloth): seconds or milliseconds?
+     * Sets the selected point in time relative to the widget width.
      *
-     * \param relative Point in time in ???.
+     * \param relative Point in time in between 0 and 1.
      * \return Selected point in time.
      */
-    virtual bool setSelectedTime( float relative );
+    virtual bool setSelectedTime( ValueT relative );
 
     /**
      * Gets a pair of EMM with the relative index for a x-coordinate.
@@ -208,7 +208,7 @@ protected:
     ValueT m_timeGridWidth;
     ValueT m_timeGridHight;
 
-    ValueT m_timeRange;
+    ValueT m_timeRange; //!< Time range to draw in seconds.
     bool m_timeRangeChanged;
 
     ValueT m_xOffset; //!< Time-axis offset for raw data visualization, e.g. for labels.

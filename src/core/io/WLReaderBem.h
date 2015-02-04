@@ -30,6 +30,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "core/data/WLEMMBemBoundary.h"
+#include "core/data/WLPositions.h"
 #include "core/io/WLReaderGeneric.h"
 
 /**
@@ -57,6 +58,9 @@ public:
     virtual ~WLReaderBem();
 
     virtual WLIOStatus::IOStatusT read( std::list< WLEMMBemBoundary::SPtr >* const bems );
+
+private:
+    void estimateExponent( WLPositions* const pos );
 };
 
 #endif  // WLREADERBEM_H_

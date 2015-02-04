@@ -29,14 +29,16 @@
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
-
 #include <Eigen/Core>
+#include <osg/Array>
+#include <osg/ref_ptr>
 
 #include <core/common/math/linearAlgebra/WMatrixFixed.h>
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
 #include "core/data/WLDataTypes.h"
+#include "core/data/WLPositions.h"
 #include "core/data/enum/WLEExponent.h"
 
 /**
@@ -54,8 +56,14 @@ namespace WLGeometry
     typedef double Angle;
     typedef WMatrix3d MatrixRotation;
 
+    bool computeTriangulation( std::vector< WVector3i >* const triangles, osg::ref_ptr< osg::Vec3Array > osgPoints,
+                        double transformationFactor = -0.005 );
+
     bool computeTriangulation( std::vector< WVector3i >* const triangles, const std::vector< WPosition >& positions,
                     double transformationFactor = -0.005 );
+
+    bool computeTriangulation( std::vector< WVector3i >* const triangles, const PointsT& positions,
+                        double transformationFactor = -0.005 );
 
     MatrixRotation getRotationXYZMatrix( double x, double y, double z );
 
@@ -70,6 +78,8 @@ namespace WLGeometry
     Point minDistance( const Point&, const std::vector< Point >& );
 
     void transformPoints( std::vector< Point >* const out, const std::vector< Point >& in, const WLMatrix4::Matrix4T& trans );
+
+    void toBaseExponent( WLPositions* const out, const WLPositions& in );
 
     void toBaseExponent( std::vector< Point >* const out, const std::vector< Point >& in, WLEExponent::Enum exp );
 

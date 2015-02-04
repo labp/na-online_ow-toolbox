@@ -64,7 +64,7 @@ static const int AUTO_SCALE_PACKETS = 8;
 
 WLModuleDrawable::WLModuleDrawable()
 {
-    m_range = -1;
+    m_range = 0.0 * WLUnits::s;
     m_autoScaleCounter = AUTO_SCALE_PACKETS;
     m_graphType = WLEMDDrawable2D::WEGraphType::MULTI;
     m_boundCalculator.reset( new WLBoundCalculator ); // define the default bound calculator.
@@ -138,14 +138,6 @@ void WLModuleDrawable::properties()
 
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_selectionCalculate );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_selectionCalculate );
-
-    // TODO(pieloth): unit = actually seconds, but we are currently ignoring it, cause we take the whole width to draw the channels
-    // we are not using it, also it will be hidden until a solution is found. Dynamic view divide the width into the amount
-    // of blocks ( default 2 ), also timeRange is not longer required.
-    m_timeRange = m_propView->addProperty( "Time Range", "Size of time windows in ???.", 1.0,
-                    boost::bind( &WLModuleDrawable::callbackTimeRangeChanged, this ), true );
-    m_timeRange->setMin( 0.100 );
-    m_timeRange->setMax( 4.0 );
 
     modalities = WLEModality::valuesDevice();
     WLEModality::ContainerT tmp = WLEModality::valuesMEGCoil();
@@ -402,15 +394,6 @@ void WLModuleDrawable::callbackAmplitudeScaleChanged()
     }
 }
 
-void WLModuleDrawable::callbackTimeRangeChanged()
-{
-    if( m_drawable2D )
-    {
-        // TODO(pieloth): specify seconds, samples, ...?
-        m_drawable2D->setTimeRange( m_timeRange->get() );
-    }
-}
-
 void WLModuleDrawable::callbackChannelHeightChanged()
 {
     if( m_drawable2D )
@@ -473,7 +456,7 @@ void WLModuleDrawable::viewInit( WLEMDDrawable2D::WEGraphType::Enum graphType )
         m_scrollHandler = new WL2DChannelScrollHandler( drawable );
         m_widget2D->addEventHandler( m_scrollHandler );
     }
-    m_drawable2D->setTimeRange( m_timeRange->get() );
+    m_drawable2D->setTimeRange( m_range );
     m_drawable2D->setAmplitudeScale( m_amplitudeScale->get() );
     m_resize2dHandler = new WLResizeHandler( m_drawable2D );
     m_widget2D->addEventHandler( m_resize2dHandler );
@@ -500,17 +483,20 @@ void WLModuleDrawable::viewUpdate( WLEMMeasurement::SPtr emm )
         return;
     }
 
-// Set 2D time grid
-    if( m_range < 0 )
+    // Set 2D time grid
+    if( m_range <= 0.0 * WLUnits::s )
     {
         WLEModality::Enum modality = this->getViewModality();
         if( emm->hasModality( modality ) )
         {
             const WLEMData::ConstSPtr emd = emm->getModality( modality );
-            const float frequence = emd->getSampFreq();
+            const WLFreqT frequence = emd->getSampFreq();
             const double samples = static_cast< double >( emd->getSamplesPerChan() );
             m_range = samples / frequence;
-            setTimerange( m_range );
+            if( m_drawable2D )
+            {
+                m_drawable2D->setTimeRange( m_range );
+            }
         }
     }
 
@@ -539,7 +525,7 @@ void WLModuleDrawable::viewUpdate( WLEMMeasurement::SPtr emm )
 void WLModuleDrawable::viewReset()
 {
     debugLog() << "viewReset() called!";
-    m_range = -1;
+    m_range = 0.0 * WLUnits::s;
 
     WUIViewWidget::SPtr widget2D = m_widget2D;
     m_drawable2D = WLEMDDrawable2D::getInstance( widget2D, getViewModality(), m_graphType );
@@ -549,7 +535,7 @@ void WLModuleDrawable::viewReset()
         drawable->setChannelHeight( static_cast< WLEMDDrawable::ValueT >( m_channelHeight->get() ) );
         m_scrollHandler->setDrawable( drawable );
     }
-    m_drawable2D->setTimeRange( m_timeRange->get() );
+    m_drawable2D->setTimeRange( m_range );
     m_drawable2D->setAmplitudeScale( m_amplitudeScale->get() );
     m_resize2dHandler->setDrawable( m_drawable2D );
 
@@ -600,30 +586,6 @@ void WLModuleDrawable::viewCleanup()
     m_widget2D.reset();
     m_widget3D->close();
     m_widget3D.reset();
-}
-
-double WLModuleDrawable::getTimerange()
-{
-    return m_timeRange->get();
-}
-
-void WLModuleDrawable::setTimerange( double value )
-{
-    value = max( value, m_timeRange->getMin()->getMin() );
-    value = min( value, m_timeRange->getMax()->getMax() );
-    m_timeRange->set( value );
-}
-
-void WLModuleDrawable::setTimerangeInformationOnly( bool enable )
-{
-    if( enable == true )
-    {
-        m_timeRange->setPurpose( PV_PURPOSE_INFORMATION );
-    }
-    else
-    {
-        m_timeRange->setPurpose( PV_PURPOSE_PARAMETER );
-    }
 }
 
 void WLModuleDrawable::createColorMap()

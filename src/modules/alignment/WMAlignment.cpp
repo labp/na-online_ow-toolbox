@@ -53,7 +53,7 @@ static const WPosition RAP( 0.075132007, 0.017106384, -0.074811978 );
 
 WMAlignment::WMAlignment()
 {
-    m_transformation.setZero();
+    m_transformation = WLTransformation::instance();
 }
 
 WMAlignment::~WMAlignment()
@@ -103,9 +103,12 @@ void WMAlignment::properties()
     m_propEstGroup = m_properties->addPropertyGroup( "Transformation Estimation",
                     "Contains properties an initial transformation estimation.", false );
 
-    m_propEstLPA = m_propEstGroup->addProperty( "LPA (AC-PC):", "Left pre-auricular in AC-PC coordinate system.", LAP, false );
-    m_propEstNasion = m_propEstGroup->addProperty( "Nasion (AC-PC):", "Nasion in AC-PC coordinate system.", NASION, false );
-    m_propEstRPA = m_propEstGroup->addProperty( "RPA (AC-PC):", "Right pre-auricular in AC-PC coordinate system.", RAP, false );
+    m_propEstLPA = m_propEstGroup->addProperty( "LPA (AC-PC) [m]:", "Left pre-auricular in AC-PC coordinate system and meter.",
+                    LAP, false );
+    m_propEstNasion = m_propEstGroup->addProperty( "Nasion (AC-PC) [m]:", "Nasion in AC-PC coordinate system and meter.", NASION,
+                    false );
+    m_propEstRPA = m_propEstGroup->addProperty( "RPA (AC-PC) [m]:", "Right pre-auricular in AC-PC coordinate system and meter.",
+                    RAP, false );
 
     m_propIcpGroup = m_properties->addPropertyGroup( "ICP properties", "Contains properties for ICP.", false );
     m_propIcpIterations = m_propIcpGroup->addProperty( "Iterations:", "Maximum iterations for ICP algorithm.",
@@ -206,12 +209,12 @@ void WMAlignment::moduleMain()
 
 bool WMAlignment::processCompute( WLEMMeasurement::SPtr emm )
 {
-    WLTimeProfiler tp( "WMAlignment", "processCompute" );
+    WLTimeProfiler tp( "WMAlignment", __func__ );
 
     WLEMMCommand::SPtr cmd( new WLEMMCommand( WLEMMCommand::Command::COMPUTE ) );
     cmd->setEmm( emm );
 
-    if( !m_transformation.isZero() )
+    if( !m_transformation->empty() )
     {
         emm->setFidToACPCTransformation( m_transformation );
         m_output->updateData( cmd );
@@ -223,7 +226,7 @@ bool WMAlignment::processCompute( WLEMMeasurement::SPtr emm )
     align.setNasionSkin( m_propEstNasion->get( false ) );
     align.setRpaSkin( m_propEstRPA->get( false ) );
 
-    double score = align.align( &m_transformation, emm );
+    double score = align.align( m_transformation.get(), emm );
     if( score == WEEGSkinAlignment::NOT_CONVERGED )
     {
         m_output->updateData( cmd );
@@ -243,11 +246,10 @@ bool WMAlignment::processInit( WLEMMCommand::SPtr cmd )
 {
     if( cmd->hasEmm() )
     {
-        WLTimeProfiler tp( "WMAlignment", "processInit" );
+        WLTimeProfiler tp( "WMAlignment", __func__ );
 
         const WLEMMeasurement::SPtr emm = cmd->getEmm();
-
-        if( !m_transformation.isZero() )
+        if( !m_transformation->empty() )
         {
             emm->setFidToACPCTransformation( m_transformation );
             m_output->updateData( cmd );
@@ -259,7 +261,7 @@ bool WMAlignment::processInit( WLEMMCommand::SPtr cmd )
         align.setNasionSkin( m_propEstNasion->get( false ) );
         align.setRpaSkin( m_propEstRPA->get( false ) );
 
-        double score = align.align( &m_transformation, emm );
+        double score = align.align( m_transformation.get(), emm );
         if( score == WEEGSkinAlignment::NOT_CONVERGED )
         {
             m_output->updateData( cmd );
@@ -303,10 +305,10 @@ bool WMAlignment::processMisc( WLEMMCommand::SPtr cmd )
 
 void WMAlignment::handleTrgReset()
 {
-    debugLog() << "handleTrgReset() called";
+    debugLog() << __func__ << "() called";
 
     viewReset();
-    m_transformation.setZero();
+    m_transformation = WLTransformation::instance();
     m_propEstLPA->set( LAP, false );
     m_propEstNasion->set( NASION, false );
     m_propEstRPA->set( RAP, false );

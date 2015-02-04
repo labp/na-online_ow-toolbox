@@ -32,9 +32,10 @@
 #include <boost/shared_ptr.hpp>
 #include <Eigen/Dense>
 
-#include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
+#include "core/data/WLPositions.h"
+#include "core/data/WLTransformation.h"
 #include "cppmath/DownhillSimplexMethod.hpp"
 
 /**
@@ -58,17 +59,16 @@ public:
     typedef Eigen::Matrix< double, 3, 1 > PointT;
     typedef Eigen::Matrix< double, 3, 1 > OrientationT;
     typedef Eigen::Matrix< double, 3, 1 > MomentT;
-    typedef Eigen::Matrix< double, 4, 4 > TransformationT;
     typedef Eigen::MatrixXd MatrixT;
 
     /**
      * Constructor.
      *
-     * \param hpiPos HPI positions in head coordinate system.
-     * \param sensPos Sensor positions, i.e. magnetometer positions, in device coordinate system.
+     * \param hpiPos HPI positions in head coordinate system and meter.
+     * \param sensPos Sensor positions, i.e. magnetometer positions, in device coordinate system and meter.
      * \param sensOri Sensor orientation, i.e. magnetometer orientation, in device coordinate system.
      */
-    WContinuousPositionEstimation( const std::vector< WPosition >& hpiPos, const std::vector< WPosition >& sensPos,
+    WContinuousPositionEstimation( const WLPositions& hpiPos, const WLPositions& sensPos,
                     const std::vector< WVector3f >& sensOri );
     virtual ~WContinuousPositionEstimation();
 
@@ -86,14 +86,14 @@ public:
      *
      * \return HPI coil positions in MEG device coordinates.
      */
-    std::vector< WPosition > getResultPositions() const;
+    WLPositions::SPtr getResultPositions() const;
 
     /**
      * Gets the final transformation matrix from head coordinates to MEG device coordinates.
      *
      * \return Transformation matrix.
      */
-    TransformationT getResultTransformation() const;
+    WLTransformation::SPtr getResultTransformation() const;
 
     /**
      * Move index to next data samples.
@@ -112,6 +112,10 @@ private:
     typedef Eigen::Matrix< double, 4, Eigen::Dynamic > HPointsT; /**< Array of homogeneous points for matrix operations. */
     typedef PointT Vector3T;
     typedef Eigen::Matrix3d RotationT;
+    typedef WLTransformation::TransformationT TransformationT;
+
+    const WLEUnit::Enum m_unit;
+    const WLEExponent::Enum m_exponent;
 
     /**
      * Calculates the transformation matrix from the rotation (radiant) and translation (meter).
@@ -121,8 +125,8 @@ private:
      */
     TransformationT paramsToTrans( const ParamsT& params ) const;
 
-    HPointsT m_hpiPos;
-    std::vector< PointT > m_sensPos;
+    HPointsT m_hpiPos; //!< In meter as translation.
+    std::vector< PointT > m_sensPos; //!< In meter as translation.
     std::vector< OrientationT > m_sensOri;
 
     /**

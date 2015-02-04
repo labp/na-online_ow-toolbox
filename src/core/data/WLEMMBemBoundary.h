@@ -29,10 +29,10 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
 #include "core/container/WLArrayList.h"
+#include "core/data/WLPositions.h"
 #include "core/data/enum/WLEExponent.h"
 #include "core/data/enum/WLEBemType.h"
 #include "core/data/enum/WLEUnit.h"
@@ -61,15 +61,9 @@ public:
     WLEMMBemBoundary();
     ~WLEMMBemBoundary();
 
-    WLArrayList< WPosition >::SPtr getVertex();
-    WLArrayList< WPosition >::ConstSPtr getVertex() const;
-    void setVertex( WLArrayList< WPosition >::SPtr vertex );
-
-    WLEUnit::Enum getVertexUnit() const;
-    void setVertexUnit( WLEUnit::Enum unit );
-
-    WLEExponent::Enum getVertexExponent() const;
-    void setVertexExponent( WLEExponent::Enum exponent );
+    WLPositions::SPtr getVertex();
+    WLPositions::ConstSPtr getVertex() const;
+    void setVertex( WLPositions::SPtr vertex );
 
     WLEBemType::Enum getBemType() const;
     void setBemType( WLEBemType::Enum exponent );
@@ -85,7 +79,7 @@ public:
     void setConductivityUnit( WLEUnit::Enum unit );
 
 private:
-    WLArrayList< WPosition >::SPtr m_vertex;
+    WLPositions::SPtr m_vertex;
 
     WLEUnit::Enum m_vertexUnit;
     WLEExponent::Enum m_vertexExponent;

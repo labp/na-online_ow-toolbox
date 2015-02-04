@@ -85,10 +85,11 @@ WLIOStatus::IOStatusT WLReaderFIFF::read( WLEMMeasurement::SPtr* const out )
     LFMeasurementInfo& measinfo_in = data.GetLFMeasurement().GetLFMeasurementInfo();
     WLFiffLib::nchan_t nChannels = measinfo_in.GetNumberOfChannels();
     wlog::debug( CLASS ) << "Channels: " << nChannels;
-    emdRaw->setSampFreq( measinfo_in.GetSamplingFrequency() );
-    emdRaw->setAnalogHighPass( measinfo_in.GetHighpass() );
-    emdRaw->setAnalogLowPass( measinfo_in.GetLowpass() );
-    emdRaw->setLineFreq( measinfo_in.GetLineFreq() );
+    // Frequencies are in Hz, see Functional Image File Format, Appendix C.3 Common data tags
+    emdRaw->setSampFreq( measinfo_in.GetSamplingFrequency() * WLUnits::Hz );
+    emdRaw->setAnalogHighPass( measinfo_in.GetHighpass() * WLUnits::Hz );
+    emdRaw->setAnalogLowPass( measinfo_in.GetLowpass() * WLUnits::Hz );
+    emdRaw->setLineFreq( measinfo_in.GetLineFreq() * WLUnits::Hz );
 
     // Read Isotrak
     LFIsotrak& isotrak = measinfo_in.GetLFIsotrak();
@@ -200,8 +201,7 @@ WLIOStatus::IOStatusT WLReaderFIFF::read( WLEMMeasurement::SPtr* const out )
 
         // Collect data: measurement, positions, base vectors
         // TODO(pieloth): set channels size
-
-        WLArrayList< WPosition >::SPtr positions( new WLArrayList< WPosition >() );
+        std::vector< WLPositions::PositionT > posTmp;
         const float* pos;
 
         WLArrayList< WVector3f >::SPtr eX( new WLArrayList< WVector3f >() );
@@ -254,7 +254,7 @@ WLIOStatus::IOStatusT WLReaderFIFF::read( WLEMMeasurement::SPtr* const out )
                 if( mod == WLFiffLib::ChType::MAGN || mod == WLFiffLib::ChType::EL )
                 {
                     pos = measinfo_in.GetLFChannelInfo()[chan]->GetR0();
-                    positions->push_back( WPosition( pos[0], pos[1], pos[2] ) );
+                    posTmp.push_back( WLPositions::PositionT( pos[0], pos[1], pos[2] ) );
                 }
 
                 // Collect general data
@@ -277,23 +277,34 @@ WLIOStatus::IOStatusT WLReaderFIFF::read( WLEMMeasurement::SPtr* const out )
         emd->setChanUnit( WLEUnit::fromFIFF( fiffUnit ) );
         emd->setData( data );
 
+        WLPositions::SPtr positions = WLPositions::instance();
+        positions->resize( posTmp.size() );
+        positions->unit( WLEUnit::METER );
+        positions->exponent( WLEExponent::BASE );
+        for( WLPositions::IndexT i = 0; i < positions->size(); ++i )
+        {
+            positions->data().col( i ) = posTmp.at( i );
+        }
+
         switch( emd->getModalityType() )
         {
             case WLEModality::EEG: // Set specific EEG data
             {
                 WLEMDEEG::SPtr eeg = emd->getAs< WLEMDEEG >();
+                positions->coordSystem( WLECoordSystem::HEAD );
                 eeg->setChannelPositions3d( positions );
-                wlog::debug( CLASS ) << "EEG positions: " << positions->size();
+                wlog::debug( CLASS ) << "EEG positions: " << posTmp.size();
                 break;
             }
             case WLEModality::MEG: // Set specific MEG data
             {
                 WLEMDMEG::SPtr meg = emd->getAs< WLEMDMEG >();
+                positions->coordSystem( WLECoordSystem::DEVICE );
                 meg->setChannelPositions3d( positions );
                 meg->setEx( eX );
                 meg->setEy( eY );
                 meg->setEz( eZ );
-                wlog::debug( CLASS ) << "MEG positions: " << meg->getChannelPositions3d()->size();
+                wlog::debug( CLASS ) << "MEG positions: " << posTmp.size();
                 break;
             }
             default:

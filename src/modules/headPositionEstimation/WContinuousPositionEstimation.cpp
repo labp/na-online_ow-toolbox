@@ -23,31 +23,38 @@
 
 #include <cmath> // PI, sin, cos
 
+#include <Eigen/Geometry>
+
+#include <core/common/WAssert.h>
 #include <core/common/WLogger.h>
 
 #include "WContinuousPositionEstimation.h"
 
 const std::string WContinuousPositionEstimation::CLASS = "WContinuousPositionEstimation";
 
-WContinuousPositionEstimation::WContinuousPositionEstimation( const std::vector< WPosition >& hpiPos,
-                const std::vector< WPosition >& sensPos, const std::vector< WVector3f >& sensOri ) :
-                DownhillSimplexMethod()
+WContinuousPositionEstimation::WContinuousPositionEstimation( const WLPositions& hpiPos, const WLPositions& sensPos,
+                const std::vector< WVector3f >& sensOri ) :
+                DownhillSimplexMethod(), m_unit( hpiPos.unit() ), m_exponent( hpiPos.exponent() )
 {
-    // Transform HPI coil positions
-    m_hpiPos = HPointsT::Ones( 4, hpiPos.size() );
-    for( std::vector< WPosition >::size_type i = 0; i < hpiPos.size(); ++i )
+    WAssert( hpiPos.isUnitCompatible( sensPos ), "Units/exp. are not equals!" );
+    WAssert( hpiPos.unit() == WLEUnit::UNKNOWN || hpiPos.unit() == WLEUnit::METER, "Unit is not meter!" );
+    WAssert( hpiPos.exponent() == WLEExponent::UNKNOWN || hpiPos.exponent() == WLEExponent::BASE, "Is not base unit!" );
+    WAssert( hpiPos.coordSystem() == WLECoordSystem::HEAD, "HPI positions are not in head coordinates!" );
+    WAssert( sensPos.coordSystem() == WLECoordSystem::DEVICE, "Senor positions are not in device coordinates!" );
+
+    if( hpiPos.unit() == WLEUnit::UNKNOWN || hpiPos.exponent() == WLEExponent::UNKNOWN )
     {
-        m_hpiPos( 0, i ) = hpiPos[i].x();
-        m_hpiPos( 1, i ) = hpiPos[i].y();
-        m_hpiPos( 2, i ) = hpiPos[i].z();
+        wlog::warn( CLASS ) << "Unit or exponent is unknown, meter is used!";
     }
+
+    // Transform HPI coil positions
+    m_hpiPos = hpiPos.data().colwise().homogeneous();
 
     // Transform sensor positions
     m_sensPos.reserve( sensPos.size() );
-    std::vector< WPosition >::const_iterator itPos;
-    for( itPos = sensPos.begin(); itPos != sensPos.end(); ++itPos )
+    for( WLPositions::IndexT iPos = 0; iPos < sensPos.size(); ++iPos )
     {
-        m_sensPos.push_back( PointT( *itPos ) );
+        m_sensPos.push_back( PointT( sensPos.at( iPos ) ) );
     }
 
     // Transform sensor orientations
@@ -182,24 +189,32 @@ WContinuousPositionEstimation::Vector3T WContinuousPositionEstimation::computeMa
     return lf;
 }
 
-std::vector< WPosition > WContinuousPositionEstimation::getResultPositions() const
+WLPositions::SPtr WContinuousPositionEstimation::getResultPositions() const
 {
-    std::vector< WPosition > vecPos;
-    vecPos.reserve( 5 );
+    WLPositions::SPtr positions = WLPositions::instance();
+    positions->unit( m_unit );
+    positions->exponent( m_exponent );
+    positions->coordSystem( WLECoordSystem::DEVICE );
+    positions->resize( m_hpiPos.cols() );
 
     const HPointsT points = paramsToTrans( getResultParams() ) * m_hpiPos;
     for( HPointsT::Index i = 0; i < points.cols(); ++i )
     {
-        const WPosition pos( points.block( 0, i, 3, 1 ) );
-        vecPos.push_back( pos );
+        positions->data().col( i ) = points.block( 0, i, 3, 1 );
     }
 
-    return vecPos;
+    return positions;
 }
 
-WContinuousPositionEstimation::TransformationT WContinuousPositionEstimation::getResultTransformation() const
+WLTransformation::SPtr WContinuousPositionEstimation::getResultTransformation() const
 {
-    return paramsToTrans( getResultParams() );
+    WLTransformation::SPtr t = WLTransformation::instance();
+    t->unit( m_unit );
+    t->exponent( m_exponent );
+    t->from( WLECoordSystem::HEAD );
+    t->to( WLECoordSystem::DEVICE );
+    t->data( paramsToTrans( getResultParams() ) );
+    return t;
 }
 
 WContinuousPositionEstimation::TransformationT WContinuousPositionEstimation::paramsToTrans( const ParamsT& params ) const

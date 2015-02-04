@@ -111,14 +111,14 @@ public:
      *
      * \return Time in seconds
      */
-    double getTime() const;
+    WLTimeT getTime() const;
 
     /**
      * Sets the time for a complete translation.
      *
      * \param sec Time in seconds
      */
-    void setTime( double sec );
+    void setTime( WLTimeT sec );
 
     /**
      * Gets the upper frame limit.

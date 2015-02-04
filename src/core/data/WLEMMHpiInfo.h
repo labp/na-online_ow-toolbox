@@ -30,6 +30,7 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include "WLTransformation.h"
 #include "WLDataTypes.h"
 #include "WLDigPoint.h"
 
@@ -47,7 +48,7 @@ public:
 
     typedef std::list< WLDigPoint > DigPointsT;
     typedef std::list< WLFreqT > HpiFrequenciesT;
-    typedef WLMatrix4::Matrix4T TransformationT;
+    typedef WLTransformation TransformationT;
 
     static const std::string CLASS;
 
@@ -57,16 +58,23 @@ public:
     /**
      * Gets the transformation for device to head.
      *
-     * \return Transformation matrix, default identity matrix.
+     * \return Transformation matrix.
      */
-    TransformationT getDevToHead() const;
+    TransformationT::SPtr getDevToHead();
+
+    /**
+     * Gets the transformation for device to head.
+     *
+     * \return Transformation matrix.
+     */
+    TransformationT::ConstSPtr getDevToHead() const;
 
     /**
      * Sets the transformation for device to head.
      *
      * \param t Transformation matrix.
      */
-    void setDevToHead( const TransformationT& t );
+    void setDevToHead( TransformationT::SPtr t );
 
     /**
      * Gets the positions of the HPI coils from hpi_result.
@@ -151,7 +159,7 @@ public:
     void clearHpiFrequencies();
 
 private:
-    TransformationT m_devToHead; //!< Transformation from device to head. Zero if not set/initialized.
+    WLTransformation::SPtr m_devToHead; //!< Transformation from device to head. Zero if not set/initialized.
     DigPointsT m_digPointsResult;
     DigPointsT m_digPointsHead;
     HpiFrequenciesT m_hpiFrequencies;
@@ -165,18 +173,21 @@ inline std::ostream& operator<<( std::ostream &strm, const WLEMMHpiInfo& obj )
 
     strm << obj.CLASS;
     strm << ": digPointsResult=" << obj.getDigPointsResult().size();
-    strm << "; digPointsHead=" << obj.getDigPointsHead().size();
-    strm << "; frequencies=" << obj.getHpiFrequencies().size();
-    strm << "; devToHead=";
-    WLMatrix4::Matrix4T t = obj.getDevToHead();
+    strm << ", digPointsHead=" << obj.getDigPointsHead().size();
+    strm << ", frequencies=" << obj.getHpiFrequencies().size();
+    strm << ", devToHead=";
+    const WLTransformation::TransformationT& t = obj.getDevToHead()->data();
     if( t.isIdentity() )
     {
         strm << "IDENTITY";
+        return strm;
     }
-    else
+    if( t.isZero() )
     {
-        strm << "[" << t.row( 0 ) << ", " << t.row( 1 ) << ", " << t.row( 2 ) << ", " << t.row( 3 ) << "]";
+        strm << "EMPTY";
+        return strm;
     }
+    strm << "[" << t.row( 0 ) << ", " << t.row( 1 ) << ", " << t.row( 2 ) << ", " << t.row( 3 ) << "]";
     return strm;
 }
 

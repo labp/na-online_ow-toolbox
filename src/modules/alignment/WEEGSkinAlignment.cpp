@@ -26,6 +26,8 @@
 #include <string>
 #include <vector>
 
+#include <Eigen/Dense>  // min/max for WLPositions
+
 #include <core/common/WLogger.h>
 
 #include "core/container/WLArrayList.h"
@@ -50,39 +52,39 @@ WEEGSkinAlignment::~WEEGSkinAlignment()
 {
 }
 
-void WEEGSkinAlignment::setLpaSkin( const WPosition& lpaSkin )
+void WEEGSkinAlignment::setLpaSkin( const PointT& lpaSkin )
 {
     m_lpaSkin = lpaSkin;
 }
 
-const WPosition& WEEGSkinAlignment::getNasionSkin() const
+const WEEGSkinAlignment::PointT& WEEGSkinAlignment::getNasionSkin() const
 {
     return m_nasionSkin;
 }
 
-void WEEGSkinAlignment::setNasionSkin( const WPosition& nasionSkin )
+void WEEGSkinAlignment::setNasionSkin( const PointT& nasionSkin )
 {
     m_nasionSkin = nasionSkin;
 }
 
-const WPosition& WEEGSkinAlignment::getRpaSkin() const
+const WEEGSkinAlignment::PointT& WEEGSkinAlignment::getRpaSkin() const
 {
     return m_rpaSkin;
 }
 
-void WEEGSkinAlignment::setRpaSkin( const WPosition& rpaSkin )
+void WEEGSkinAlignment::setRpaSkin( const PointT& rpaSkin )
 {
     m_rpaSkin = rpaSkin;
 }
 
 double WEEGSkinAlignment::align( TransformationT* const matrix, WLEMMeasurement::ConstSPtr emm )
 {
-    WLTimeProfiler tp( CLASS, "align" );
+    WLTimeProfiler tp( CLASS, __func__ );
     const WLEMMeasurement& emm_ref = *emm;
 
     // Extract & set corresponding points
     // ----------------------------------
-    WPosition lpaEEG, nasionEEG, rpaEEG;
+    PointT lpaEEG, nasionEEG, rpaEEG;
     if( extractFiducialPoints( &lpaEEG, &nasionEEG, &rpaEEG, emm_ref ) )
     {
         if( m_lpaSkin != m_nasionSkin && m_nasionSkin != m_rpaSkin )
@@ -117,20 +119,31 @@ double WEEGSkinAlignment::align( TransformationT* const matrix, WLEMMeasurement:
     }
     else
     {
-        wlog::error( CLASS ) << "align: No EEG data!";
+        wlog::error( CLASS ) << __func__ << ": No EEG data!";
         return NOT_CONVERGED;
     }
-    WLArrayList< WPosition >::ConstSPtr fromPtr = eeg->getChannelPositions3d();
+    WLPositions::ConstSPtr fromPtr = eeg->getChannelPositions3d();
+    if( fromPtr->unit() != WLEUnit::UNKNOWN && fromPtr->unit() != WLEUnit::METER )
+    {
+        wlog::error( CLASS ) << __func__ << ": EEG positions are not in meter!";
+        return NOT_CONVERGED;
+    }
+    if( fromPtr->exponent() != WLEExponent::UNKNOWN && fromPtr->exponent() != WLEExponent::BASE )
+    {
+        wlog::error( CLASS ) << __func__ << ": EEG positions are not in meter!";
+        return NOT_CONVERGED;
+    }
+    // From/to unit/exp. is checked in WAlignment.
 
     // Compute alignment
     // -----------------
     return WAlignment::align( matrix, *fromPtr, to );
 }
 
-bool WEEGSkinAlignment::extractFiducialPoints( WPosition* const lpa, WPosition* const nasion, WPosition* const rpa,
+bool WEEGSkinAlignment::extractFiducialPoints( PointT* const lpa, PointT* const nasion, PointT* const rpa,
                 const WLEMMeasurement& emm )
 {
-    WLTimeProfiler tp( CLASS, "extractFiducialPoints" );
+    WLTimeProfiler tp( CLASS, __func__ );
     WLList< WLDigPoint >::SPtr digPoints = emm.getDigPoints( WLEPointType::CARDINAL );
     int count = 0;
     WLList< WLDigPoint >::const_iterator cit;
@@ -165,7 +178,7 @@ bool WEEGSkinAlignment::extractFiducialPoints( WPosition* const lpa, WPosition* 
 
 bool WEEGSkinAlignment::extractBEMSkinPoints( PointsT* const out, const WLEMMeasurement& emm )
 {
-    WLTimeProfiler tp( CLASS, "extractBEMSkinPoints" );
+    WLTimeProfiler tp( CLASS, __func__ );
     WLEMMSubject::ConstSPtr subject = emm.getSubject();
     const std::list< WLEMMBemBoundary::SPtr >& bems = *subject->getBemBoundaries();
     std::list< WLEMMBemBoundary::SPtr >::const_iterator itBem;
@@ -180,39 +193,43 @@ bool WEEGSkinAlignment::extractBEMSkinPoints( PointsT* const out, const WLEMMeas
     }
     if( !bemSkin )
     {
-        wlog::error( CLASS ) << "extractBEMSkinPoints: No BEM skin layer available!";
+        wlog::error( CLASS ) << __func__ << ": No BEM skin layer available!";
         return false;
     }
 
-    const std::vector< WPosition >& bemPosition = *bemSkin->getVertex();
-    WPosition::ValueType min = std::numeric_limits< WPosition::ValueType >::max();
-    WPosition::ValueType max = std::numeric_limits< WPosition::ValueType >::min();
-    std::vector< WPosition >::const_iterator itPos;
-    for( itPos = bemPosition.begin(); itPos != bemPosition.end(); ++itPos )
-    {
-        const WPosition::ValueType z = itPos->z();
-        if( z < min )
-        {
-            min = z;
-        }
-        if( z > max )
-        {
-            max = z;
-        }
-    }
-    const WPosition::ValueType z_threashold = min + ( max - min ) * 0.25;
+    const WLPositions& bemPosition = *bemSkin->getVertex();
+    const WLPositions::ScalarT min = bemPosition.data().row( 2 ).minCoeff();
+    const WLPositions::ScalarT max = bemPosition.data().row( 2 ).maxCoeff();
+    // Cut-off neck/lower part
+    const WLPositions::ScalarT z_threashold = min + ( max - min ) * 0.25;
     wlog::debug( CLASS ) << "icpAlign: BEM z_threashold: " << z_threashold;
 
-    const double factor = WLEExponent::factor( bemSkin->getVertexExponent() );
-
-    out->reserve( bemPosition.size() );
-    for( itPos = bemPosition.begin(); itPos != bemPosition.end(); ++itPos )
+    PointsT::IndexT idx = 0;
+    for( WLPositions::IndexT i = 0; i < bemPosition.size(); ++i )
     {
-        if( itPos->z() > z_threashold )
+        if( bemPosition.at( i ).z() > z_threashold )
         {
-            out->push_back( *itPos * factor );
+            ++idx;
         }
     }
+
+    const double factor = WLEExponent::factor( bemPosition.exponent() );
+    out->exponent( WLEExponent::BASE );
+    PointsT::PositionsT& outPos = out->data();
+    outPos.resize( PointsT::PositionsT::RowsAtCompileTime, idx );
+    idx = 0;
+    for( WLPositions::IndexT i = 0; i < bemPosition.size(); ++i )
+    {
+        if( bemPosition.at( i ).z() > z_threashold )
+        {
+            const PointsT::PositionT tmp( bemPosition.at( i ).x(), bemPosition.at( i ).y(), bemPosition.at( i ).z() );
+            outPos.col( idx ) = tmp * factor;
+            ++idx;
+        }
+    }
+
+    out->coordSystem( bemPosition.coordSystem() );
+    out->unit( bemPosition.unit() );
 
     return true;
 }

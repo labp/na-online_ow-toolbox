@@ -110,7 +110,6 @@ void WMSourceReconstruction::connectors()
 void WMSourceReconstruction::properties()
 {
     WLModuleDrawable::properties();
-    WLModuleDrawable::setTimerangeInformationOnly( true );
     WLModuleDrawable::setViewModality( WLEModality::SOURCE );
     WLModuleDrawable::hideViewModalitySelection( true );
     WLModuleDrawable::hideLabelsOn( true );

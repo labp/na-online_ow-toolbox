@@ -37,6 +37,7 @@
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 #include <core/ui/WUIViewWidget.h>
 
+#include "core/data/WLPositions.h"
 #include "core/data/enum/WLEModality.h"
 #include "core/gui/colorMap/WLColorMap.h"
 
@@ -100,19 +101,19 @@ public:
     virtual bool setSelectedSample( ptrdiff_t pixe );
 
     /**
-     * Gets the selected point in time. TODO(pieloth): seconds or milliseconds?
+     * Gets the selected point in time.
      *
-     * \return The selected point in time in ???.
+     * \return The selected point in time between 0 and 1.
      */
-    virtual float getSelectedTime() const;
+    virtual ValueT getSelectedTime() const;
 
     /**
-     * Sets the selected point in time relative to the widget width. TODO(pieloth): seconds or milliseconds?
+     * Sets the selected point in time relative to the widget width.
      *
-     * \param relative Point in time in ???.
+     * \param relative Point in time between 0 and 1.
      * \return Selected point in time.
      */
-    virtual bool setSelectedTime( float relative );
+    virtual bool setSelectedTime( ValueT relative );
 
     /**
      * Returns the color map for the surface.
@@ -141,7 +142,7 @@ protected:
      * \param positions Positions or vertices.
      * \param faces Faces/triangulation.
      */
-    void osgAddSurface( const std::vector< WPosition >& positions, const std::vector< WVector3i >& faces );
+    void osgAddSurface( const WLPositions& positions, const std::vector< WVector3i >& faces );
 
     /**
      * Draws and adds the color map bar.

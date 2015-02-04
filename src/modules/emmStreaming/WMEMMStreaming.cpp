@@ -112,7 +112,7 @@ void WMEMMStreaming::properties()
 
     m_propAutoStart = m_properties->addProperty( "Auto start: ", "Start streaming when data is available.", true );
 
-    m_propBlockSize = m_properties->addProperty( "Block size (ms): ", "Block size for streaming in milliseconds.", 1000 );
+    m_propBlockSize = m_properties->addProperty( "Block size [ms]: ", "Block size for streaming in milliseconds.", 1000 );
     m_propBlockSize->setMin( 1 );
     m_propBlockSize->setMax( 10000 );
 
@@ -235,9 +235,10 @@ void WMEMMStreaming::cbTrgStop()
 
 void WMEMMStreaming::stream()
 {
-    WPacketizerEMM packetizer( m_data, m_propBlockSize->get() );
+    const double SEC_PER_BLOCK = ( double )m_propBlockSize->get() / 1000.0; // blockSize in seconds
+    WPacketizerEMM packetizer( m_data, SEC_PER_BLOCK * WLUnits::s );
     WRealtimeTimer waitTimer;
-    const double SEC_PER_BLOCK = ( double )m_propBlockSize->get() / 1000; // blockSize in seconds
+
 
     WLEMMeasurement::SPtr emm;
     WLEMMCommand::SPtr cmd;

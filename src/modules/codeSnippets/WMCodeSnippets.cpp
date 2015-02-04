@@ -28,6 +28,7 @@
 #include <vector>
 
 #include <Eigen/Core>
+#include <Eigen/Geometry> // homogeneous
 
 #include <core/common/WException.h>
 #include <core/common/WRealtimeTimer.h>
@@ -219,19 +220,19 @@ bool WMCodeSnippets::writeEmdPositions( WLEMMeasurement::ConstSPtr emm )
     if( emm->hasModality( WLEModality::EEG ) )
     {
         WLEMDEEG::ConstSPtr emd = emm->getModality< const WLEMDEEG >( WLEModality::EEG );
-        rc &= writeEmdPositions( *emd->getChannelPositions3d(), "/tmp/positions_eeg.txt" );
+        rc &= writeEmdPositions( emd->getChannelPositions3d()->data(), "/tmp/positions_eeg.txt" );
     }
     if( emm->hasModality( WLEModality::MEG ) )
     {
         WLEMDMEG::ConstSPtr emd = emm->getModality< const WLEMDMEG >( WLEModality::MEG );
-        rc &= writeEmdPositions( *emd->getChannelPositions3d(), "/tmp/positions_meg.txt" );
+        rc &= writeEmdPositions( emd->getChannelPositions3d()->data(), "/tmp/positions_meg.txt" );
     }
 
     WLEMMSubject::ConstSPtr subject = emm->getSubject();
     try
     {
         WLEMMSurface::ConstSPtr surface = subject->getSurface( WLEMMSurface::Hemisphere::BOTH );
-        rc &= writeEmdPositions( *surface->getVertex(), "/tmp/positions_src.txt" );
+        rc &= writeEmdPositions( surface->getVertex()->data(), "/tmp/positions_src.txt" );
 
         const std::list< WLEMMBemBoundary::SPtr >& bems = *subject->getBemBoundaries();
         std::list< WLEMMBemBoundary::SPtr >::const_iterator it;
@@ -239,8 +240,7 @@ bool WMCodeSnippets::writeEmdPositions( WLEMMeasurement::ConstSPtr emm )
         {
             if( ( *it )->getBemType() == WLEBemType::OUTER_SKIN || ( *it )->getBemType() == WLEBemType::HEAD )
             {
-                const vector< WPosition >& pos = *( *it )->getVertex();
-                rc &= writeEmdPositions( pos, "/tmp/positions_skin.txt" );
+                rc &= writeEmdPositions( ( *it )->getVertex()->data(), "/tmp/positions_skin.txt" );
                 break;
             }
         }
@@ -252,7 +252,7 @@ bool WMCodeSnippets::writeEmdPositions( WLEMMeasurement::ConstSPtr emm )
     return rc;
 }
 
-bool WMCodeSnippets::writeEmdPositions( const vector< WPosition >& positions, string fname )
+bool WMCodeSnippets::writeEmdPositions( const WLPositions::PositionsT& positions, string fname )
 {
     ofstream fstream;
     fstream.open( fname.c_str(), ofstream::out );
@@ -261,7 +261,7 @@ bool WMCodeSnippets::writeEmdPositions( const vector< WPosition >& positions, st
         return false;
     }
 
-    Eigen::Matrix4f mat;
+    Eigen::Matrix4d mat;
     if( fname.compare( "/tmp/positions_meg.txt" ) == 0 )
     {
         debugLog() << "transforming: " << fname;
@@ -278,11 +278,9 @@ bool WMCodeSnippets::writeEmdPositions( const vector< WPosition >& positions, st
             mat.setIdentity();
         }
 
-    vector< WPosition >::const_iterator it = positions.begin();
-    for( ; it != positions.end(); ++it )
+    for( WLPositions::IndexT i = 0; i < positions.cols(); ++i )
     {
-        Eigen::Vector4f vec( it->x(), it->y(), it->z(), 1.0 );
-        vec = mat * vec;
+        const Eigen::Vector4d vec = mat * positions.col( i ).homogeneous();
         fstream << vec.x() << "\t" << vec.y() << "\t" << vec.z() << std::endl;
     }
     fstream.close();
@@ -307,10 +305,10 @@ void WMCodeSnippets::generateSinusWave( WLEMData::DataT* const in, float sr, flo
 void WMCodeSnippets::emulateSinusWave()
 {
     const float length = 30.0;
-    const float sampling_frequency = 1000.0;
+    const WLFreqT sampling_frequency = 1000.0 * WLUnits::Hz;
     const float sinus_frequency = 100.0;
     const size_t block_size = 1000;
-    const float block_length = block_size / sampling_frequency;
+    const float block_length = block_size / sampling_frequency.value();
     const size_t channels = 5;
     const float amp_factor = 10;
     const float offset = 5;
@@ -327,7 +325,7 @@ void WMCodeSnippets::emulateSinusWave()
         seconds += block_length;
 
         WLEMData::DataSPtr data( new WLEMData::DataT( channels, block_size ) );
-        generateSinusWave( data.get(), sampling_frequency, sinus_frequency, amp_factor, offset );
+        generateSinusWave( data.get(), sampling_frequency.value(), sinus_frequency, amp_factor, offset );
 
         WLEMData::SPtr emd = eegPrototype->clone();
         emd->setData( data );

@@ -34,6 +34,7 @@
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
 #include "core/container/WLArrayList.h"
+#include "core/data/WLPositions.h"
 
 #include "WLEMData.h"
 
@@ -50,6 +51,8 @@ public:
 
     typedef boost::shared_ptr< const WLEMDEEG > ConstSPtr; //!< Abbreviation for const shared pointer.
 
+    typedef WLPositions PositionsT;
+
     WLEMDEEG();
 
     explicit WLEMDEEG( const WLEMDEEG& eeg );
@@ -61,36 +64,25 @@ public:
     virtual WLEModality::Enum getModalityType() const;
 
     /**
-     * Returns the positions in millimeter. TODO(pieloth): Which unit, meter or millimeter?
+     * Returns the sensor positions.
      *
-     * \return Positions in millimeter.
+     * \return Sensor positions.
      */
-    WLArrayList< WPosition >::SPtr getChannelPositions3d();
+    PositionsT::SPtr getChannelPositions3d();
 
     /**
-     * Returns the positions in millimeter. TODO(pieloth): Which unit, meter or millimeter?
+     * Returns the sensor positions.
      *
-     * \return Positions in millimeter.
+     * \return Sensor positions.
      */
-    WLArrayList< WPosition >::ConstSPtr getChannelPositions3d() const;
+    PositionsT::ConstSPtr getChannelPositions3d() const;
 
     /**
-     * Sets the positions.
+     * Sets the sensor positions.
      *
-     * \note Positions must be in millimeter. TODO(pieloth): Which unit, meter or millimeter?
-     * \param chanPos3d Positions to set.
+     * \param positions Positions to set.
      */
-    void setChannelPositions3d( WLArrayList< WPosition >::SPtr chanPos3d );
-
-    /**
-     * Sets the positions.
-     *
-     * \deprecated Please use setChannelPositions3d( WLArrayList< WPosition >::SPtr chanPos3d )
-     * \note Positions must be in millimeter. TODO(pieloth): Which unit, meter or millimeter?
-     * \param chanPos3d Positions to set.
-     */
-    OW_API_DEPRECATED
-    void setChannelPositions3d( boost::shared_ptr< std::vector< WPosition > > chanPos3d );
+    void setChannelPositions3d( PositionsT::SPtr positions );
 
     /**
      * Returns the faces.
@@ -123,7 +115,7 @@ public:
     void setFaces( boost::shared_ptr< std::vector< WVector3i > > faces );
 
 private:
-    WLArrayList< WPosition >::SPtr m_chanPos3d; //!< Channel positions.
+    WLPositions::SPtr m_positions; //!< Sensor positions.
 
     WLArrayList< WVector3i >::SPtr m_faces; //!< Channel faces/triangulation.
 };

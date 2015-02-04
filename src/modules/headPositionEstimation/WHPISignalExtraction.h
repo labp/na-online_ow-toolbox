@@ -56,24 +56,31 @@ public:
     /**
      * Gets the windows size.
      *
-     * \return Windows size in ms.
+     * \return Windows size in s.
      */
     WLTimeT getWindowsSize() const;
 
     /**
      * Sets the windows size. Requested size could be change if it is to small!
      *
-     * \param winSize Windows size in ms.
-     * \return set windows size in ms
+     * \param winSize Windows size in s.
+     * \return set windows size in s
      */
     WLTimeT setWindowsSize( WLTimeT winSize );
 
     /**
      * Gets the step size.
      *
-     * \return Step size in ms.
+     * \return Step size in s.
      */
     WLTimeT getStepSize() const;
+
+    /**
+     * Sets the step size.
+     *
+     * \param stepSize Step size in s.
+     */
+    void setStepSize( WLTimeT stepSize );
 
     /**
      * Gets the sampling frequency.
@@ -88,13 +95,6 @@ public:
      * \param sfreq Sampling frequency in Hz.
      */
     void setSamplingFrequency( WLFreqT sfreq );
-
-    /**
-     * Sets the step size.
-     *
-     * \param stepSize Step size in ms.
-     */
-    void setStepSize( WLTimeT stepSize );
 
     /**
      * Adds a frequency of a HPI coil. Transforms the frequency into angular frequency.

@@ -176,27 +176,6 @@ protected:
     void hideComputeModalitySelection( bool enable );
 
     /**
-     * Gets the time range to visualize. TODO(pieloth): seconds or milliseconds?
-     *
-     * \return Time range in ???.
-     */
-    double getTimerange();
-
-    /**
-     * Sets the time range in ??? to visualize. TODO(pieloth): seconds or milliseconds?
-     *
-     * \return Time range in ???.
-     */
-    void setTimerange( double value );
-
-    /**
-     * Deactivate user changes for time range in the GUI.
-     *
-     * \param enable True to deactivate user changes.
-     */
-    void setTimerangeInformationOnly( bool enable );
-
-    /**
      * Hides the sensor labels/ channels names in 3D view.
      *
      * \param enable True to hide.
@@ -243,8 +222,6 @@ protected:
 private:
     void createColorMap();
 
-    void callbackTimeRangeChanged();
-
     void callbackChannelHeightChanged();
 
     void callbackColorChanged();
@@ -270,8 +247,6 @@ private:
     WPropBool m_autoSensitivity;
 
     WPropBool m_labelsOn;
-
-    WPropDouble m_timeRange; //!< The width of the graph in seconds as property.
 
     WPropDouble m_channelHeight; //!< The distance between two curves of the graph in pixel as property.
 
@@ -305,7 +280,7 @@ private:
 
     WLColorMap::SPtr m_colorMap;
 
-    double m_range;
+    WLTimeT m_range;
 
     WLABoundCalculator::SPtr m_boundCalculator; //!< Calculates the boundaries for 2D and 3D views based on the signal data.
 

@@ -86,7 +86,7 @@ void WLEMDDrawable3DMEG::setLabels( bool labelsOn )
     }
 }
 
-void WLEMDDrawable3DMEG::osgAddLabels( const std::vector< WPosition >& positions, const std::vector< std::string >& labels )
+void WLEMDDrawable3DMEG::osgAddLabels( const WLPositions& positions, const std::vector< std::string >& labels )
 {
     if( m_labelsChanged && m_labelsOn )
     {
@@ -98,7 +98,7 @@ void WLEMDDrawable3DMEG::osgAddLabels( const std::vector< WPosition >& positions
         const float text_size = 14.0;
         const osg::Vec4 text_color( 0.0, 0.0, 0.0, 1.0 );
 
-        for( size_t i = 0; i < positions.size(); ++i )
+        for( WLPositions::IndexT i = 0; i < positions.size(); ++i )
         {
             std::string name;
             if( i < labels.size() )
@@ -109,7 +109,8 @@ void WLEMDDrawable3DMEG::osgAddLabels( const std::vector< WPosition >& positions
             {
                 name = boost::lexical_cast< std::string >( i );
             }
-            osg::Vec3 pos = positions.at( i ) * 1000;
+            const WLPositions::PositionT tmp = positions.at( i ) * m_zoomFactor;
+            osg::Vec3 pos( tmp.x(), tmp.y(), tmp.z() );
             // create text geode for the channel label
             osg::ref_ptr< osgText::Text > text = new osgText::Text;
             text->setText( name );
@@ -131,7 +132,7 @@ void WLEMDDrawable3DMEG::osgAddLabels( const std::vector< WPosition >& positions
     m_labelsChanged = false;
 }
 
-void WLEMDDrawable3DMEG::osgAddNodes( const std::vector< WPosition >& positions )
+void WLEMDDrawable3DMEG::osgAddNodes( const WLPositions& positions )
 {
     if( m_electrodesChanged )
     {
@@ -141,10 +142,10 @@ void WLEMDDrawable3DMEG::osgAddNodes( const std::vector< WPosition >& positions 
         m_electrodesGeode = new osg::Geode;
         m_electrodesDrawables.clear();
         m_electrodesDrawables.reserve( positions.size() );
-        std::vector< WPosition >::const_iterator it;
-        for( it = positions.begin(); it != positions.end(); ++it )
+        for( WLPositions::IndexT i = 0; i < positions.size(); ++i )
         {
-            const osg::Vec3 pos = *it * m_zoomFactor;
+            const WLPositions::PositionT tmp = positions.at( i ) * m_zoomFactor;
+            osg::Vec3 pos( tmp.x(), tmp.y(), tmp.z() );
             // create sphere geode on electrode position
             osg::ref_ptr< osg::ShapeDrawable > shape = new osg::ShapeDrawable( new osg::Sphere( pos, sphere_size ) );
             shape->setDataVariance( osg::Object::DYNAMIC );

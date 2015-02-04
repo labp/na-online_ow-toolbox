@@ -21,10 +21,12 @@
 //
 //---------------------------------------------------------------------------
 
+#include <cmath>
 #include <list>
 #include <string>
 
 #include <boost/shared_ptr.hpp>
+#include <Eigen/Dense>  // min/max
 #include <QtCore/QFile>
 #include <QtCore/QList>
 #include <QtCore/QString>
@@ -32,10 +34,10 @@
 #include <mne/mne_surface.h>
 
 #include <core/common/WLogger.h>
-#include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
 #include "core/container/WLArrayList.h"
+#include "core/data/WLPositions.h"
 
 #include "WLReaderBem.h"
 
@@ -68,19 +70,17 @@ WLIOStatus::IOStatusT WLReaderBem::read( std::list< WLEMMBemBoundary::SPtr >* co
         WLEMMBemBoundary::SPtr bem( new WLEMMBemBoundary() );
         bem->setBemType( WLEBemType::fromFIFF( ( *it )->id ) );
         bem->setConductivity( ( *it )->sigma );
-
-        WLArrayList< WPosition >::SPtr vertex( new WLArrayList< WPosition > );
         const MNESurface::PointsT::Index nr_ver = ( *it )->rr.cols();
-        const double factor = 1000;
-        vertex->reserve( nr_ver );
+        WLPositions::SPtr vertex = WLPositions::instance();
+        vertex->resize( nr_ver );
         for( MNESurface::PointsT::Index i = 0; i < nr_ver; ++i )
         {
-            WPosition pos( ( *it )->rr( 0, i ) * factor, ( *it )->rr( 1, i ) * factor, ( *it )->rr( 2, i ) * factor );
-            vertex->push_back( pos );
+            const WLPositions::PositionT pos( ( *it )->rr( 0, i ), ( *it )->rr( 1, i ), ( *it )->rr( 2, i ) );
+            vertex->data().col( i ) = ( pos );
         }
+        estimateExponent( vertex.get() );
+        vertex->coordSystem( WLECoordSystem::AC_PC ); // TODO(pieloth): coord_frame? 5-> DATA-VOLUME
         bem->setVertex( vertex );
-        bem->setVertexExponent( WLEExponent::MILLI );
-        bem->setVertexUnit( WLEUnit::METER );
 
         WLArrayList< WVector3i >::SPtr faces( new WLArrayList< WVector3i > );
         const MNESurface::PointsT::Index nr_tri = ( *it )->tris.cols();
@@ -99,4 +99,32 @@ WLIOStatus::IOStatusT WLReaderBem::read( std::list< WLEMMBemBoundary::SPtr >* co
     }
 
     return WLIOStatus::SUCCESS;
+}
+
+void WLReaderBem::estimateExponent( WLPositions* const pos )
+{
+    const WLPositions::ScalarT min = pos->data().row( 0 ).minCoeff();
+    const WLPositions::ScalarT max = pos->data().row( 0 ).maxCoeff();
+    const WLPositions::ScalarT diff = fabs( max - min );
+    pos->unit( WLEUnit::METER );
+    if( diff < 0.5 )
+    {
+        pos->exponent( WLEExponent::BASE );
+        wlog::debug( CLASS ) << __func__ << ": estimate meter";
+        return;
+    }
+    if( diff < 50 )
+    {
+        pos->exponent( WLEExponent::CENTI );
+        wlog::debug( CLASS ) << __func__ << ": estimate centimeter";
+        return;
+    }
+    if( diff < 500 )
+    {
+        pos->exponent( WLEExponent::MILLI );
+        wlog::debug( CLASS ) << __func__ << ": estimate millimeter";
+        return;
+    }
+    pos->exponent( WLEExponent::UNKNOWN );
+    wlog::debug( CLASS ) << __func__ << ": estimate unknown!";
 }

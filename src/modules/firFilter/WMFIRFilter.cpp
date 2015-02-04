@@ -157,16 +157,16 @@ void WMFIRFilter::properties()
     WPropertyHelper::PC_NOTEMPTY::addTo( m_windowSelection );
 
     // the frequencies
-    m_samplingFreq = m_propGrpFirFilter->addProperty( "Sampling Frequency",
+    m_samplingFreq = m_propGrpFirFilter->addProperty( "Sampling Frequency [Hz]",
                     "Samplingfrequency comes from data. Do only change this for down- or upsampling", 500.0 );
     m_samplingFreq->setMin( 1.0 );
     m_samplingFreq->setMax( 16000.0 );
 
-    m_cFreq1 = m_propGrpFirFilter->addProperty( "Cutoff frequency 1", "Frequency for filterdesign", 1.0 );
+    m_cFreq1 = m_propGrpFirFilter->addProperty( "Cutoff frequency 1 [Hz]", "Frequency for filterdesign", 1.0 );
     m_cFreq1->setMin( 0.0 );
     m_cFreq1->setMax( 2000.0 );
 
-    m_cFreq2 = m_propGrpFirFilter->addProperty( "Cutoff frequency 2",
+    m_cFreq2 = m_propGrpFirFilter->addProperty( "Cutoff frequency 2 [Hz]",
                     "Frequency for filterdesign. Second frequency is needed for bandpass and bandstop", 20.0 );
     m_cFreq2->setMin( 0.0 );
     m_cFreq2->setMax( 2000.0 );
@@ -284,21 +284,21 @@ void WMFIRFilter::handleImplementationChanged( void )
 #ifdef FOUND_CUDA
         infoLog() << "Using FIR filter for CUDA.";
         m_firFilter = WFIRFilter::SPtr(
-                        new WFIRFilterCuda( fType, wType, m_order->get(), m_samplingFreq->get(), m_cFreq1->get(),
-                                        m_cFreq2->get() ) );
+                        new WFIRFilterCuda( fType, wType, m_order->get(), m_samplingFreq->get() * WLUnits::Hz,
+                                        m_cFreq1->get() * WLUnits::Hz, m_cFreq2->get() * WLUnits::Hz ) );
 #else
         errorLog() << "Build process has detected, that your machine has no CUDA support! Using CPU instead.";
         m_firFilter = WFIRFilter::SPtr(
-                        new WFIRFilterCpu( fType, wType, m_order->get(), m_samplingFreq->get(), m_cFreq1->get(),
-                                        m_cFreq2->get() ) );
+                        new WFIRFilterCpu( fType, wType, m_order->get(), m_samplingFreq->get() * WLUnits::Hz,
+                                        m_cFreq1->get() * WLUnits::Hz, m_cFreq2->get() * WLUnits::Hz ) );
 #endif // FOUND_CUDA
     }
     else
     {
         infoLog() << "Using FIR filter for CPU.";
         m_firFilter = WFIRFilter::SPtr(
-                        new WFIRFilterCpu( fType, wType, m_order->get(), m_samplingFreq->get(), m_cFreq1->get(),
-                                        m_cFreq2->get() ) );
+                        new WFIRFilterCpu( fType, wType, m_order->get(), m_samplingFreq->get() * WLUnits::Hz,
+                                        m_cFreq1->get() * WLUnits::Hz, m_cFreq2->get() * WLUnits::Hz ) );
     }
 
     WLEMMCommand::SPtr labp( new WLEMMCommand( WLEMMCommand::Command::RESET ) );
@@ -320,9 +320,9 @@ void WMFIRFilter::handleDesignButtonPressed( void )
     m_firFilter->setWindowType(
                     m_windowSelection->get().at( 0 )->getAs< WItemSelectionItemTyped< WLWindowFunction::WLEWindow > >()->getValue() );
     m_firFilter->setOrder( m_order->get() );
-    m_firFilter->setSamplingFrequency( m_samplingFreq->get() );
-    m_firFilter->setCutOffFrequency1( m_cFreq1->get() );
-    m_firFilter->setCutOffFrequency2( m_cFreq2->get() );
+    m_firFilter->setSamplingFrequency( m_samplingFreq->get() * WLUnits::Hz );
+    m_firFilter->setCutOffFrequency1( m_cFreq1->get() * WLUnits::Hz );
+    m_firFilter->setCutOffFrequency2( m_cFreq2->get() * WLUnits::Hz );
     m_firFilter->design();
 
     m_designTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, true );
@@ -366,7 +366,7 @@ bool WMFIRFilter::processCompute( WLEMMeasurement::SPtr emmIn )
     for( std::vector< WLEMData::SPtr >::const_iterator emdIn = emdsIn.begin(); emdIn != emdsIn.end(); ++emdIn )
     {
         debugLog() << "EMD type: " << ( *emdIn )->getModalityType();
-        if( ( *emdIn )->getSampFreq() != m_samplingFreq->get( false ) )
+        if( ( *emdIn )->getSampFreq().value() != m_samplingFreq->get( false ) )
         {
             infoLog() << "Skip modality for FIR filter, because sampling frequencies are not equals.";
             emmOut->addModality( *emdIn );
@@ -415,34 +415,34 @@ bool WMFIRFilter::processInit( WLEMMCommand::SPtr cmdIn )
         WLEMMeasurement::ConstSPtr emm = cmdIn->getEmm();
         WLEMData::ConstSPtr emd;
 
-        WLFreqT samplFreqEeg = 0.0;
+        WLFreqT samplFreqEeg = 0.0 * WLUnits::Hz;
         if( emm->hasModality( WLEModality::EEG ) )
         {
             emd = emm->getModality( WLEModality::EEG );
             samplFreqEeg = emd->getSampFreq();
         }
 
-        WLFreqT samplFreqMeg = 0.0;
+        WLFreqT samplFreqMeg = 0.0 * WLUnits::Hz;
         if( emm->hasModality( WLEModality::MEG ) )
         {
             emd = emm->getModality( WLEModality::MEG );
             samplFreqMeg = emd->getSampFreq();
         }
 
-        WLFreqT samplFreq = 0.0;
-        if( samplFreqEeg == samplFreqMeg && samplFreqEeg > 0.0 )
+        WLFreqT samplFreq = 0.0 * WLUnits::Hz;
+        if( samplFreqEeg == samplFreqMeg && samplFreqEeg > 0.0 * WLUnits::Hz )
         {
             samplFreq = samplFreqEeg;
         }
         else
-            if( samplFreqEeg < 0.1 || samplFreqMeg < 0.1 )
+            if( samplFreqEeg < 0.1 * WLUnits::Hz || samplFreqMeg < 0.1 * WLUnits::Hz )
             {
-                samplFreq = std::max( samplFreqEeg, samplFreqMeg );
+                samplFreq = std::max( samplFreqEeg.value(), samplFreqMeg.value() ) * WLUnits::Hz;
             }
-        if( samplFreq > 0.0 )
+        if( samplFreq > 0.0 * WLUnits::Hz )
         {
             infoLog() << "Init filter with new sampling rate: " << samplFreq;
-            m_samplingFreq->set( samplFreq, true );
+            m_samplingFreq->set( samplFreq.value(), true );
             handleDesignButtonPressed();
         }
         else

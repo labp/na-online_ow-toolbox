@@ -21,7 +21,10 @@
 //
 //---------------------------------------------------------------------------
 
+#include <cmath>  // abs()
 #include <string>
+
+#include <Eigen/Dense>  // min/max
 
 #include <fiff/fiff_dir_entry.h>
 #include <fiff/fiff_dir_tree.h>
@@ -34,6 +37,7 @@
 #include <QtCore/QList>
 #include <QtCore/QString>
 
+#include <core/common/WAssert.h>
 #include <core/common/WLogger.h>
 
 #include "core/container/WLArrayList.h"
@@ -93,6 +97,7 @@ WLIOStatus::IOStatusT WLReaderSourceSpace::read( WLEMMSurface::SPtr* const surfa
         wlog::debug( CLASS ) << "ID: " << sourceSpace[k].id;
         wlog::debug( CLASS ) << "Sources: " << sourceSpace[k].np;
         wlog::debug( CLASS ) << "Faces: " << sourceSpace[k].ntri;
+        wlog::debug( CLASS ) << "Coord Frame: " << sourceSpace[k].coord_frame;
     }
     if( sourceSpace.size() != 2 )
     {
@@ -108,26 +113,30 @@ WLIOStatus::IOStatusT WLReaderSourceSpace::read( WLEMMSurface::SPtr* const surfa
     WLEMMSurface* const pSurface = surface->get();
 
     // Convert to LaBP type
-    pSurface->setVertexExponent( WLEExponent::MILLI );
     pSurface->setHemisphere( WLEMMSurface::Hemisphere::BOTH );
     const QString LH = "lh";
     const QString RH = "rh";
+    WLPositions::SPtr vSurface = pSurface->getVertex();
+    vSurface->coordSystem( WLECoordSystem::AC_PC );
 
     // Append left and right hemispheres: BOTH = LH|RH
-    WLArrayList< WPosition >::SPtr pos( new WLArrayList< WPosition >() );
-    pos->reserve( sourceSpace[LH].np + sourceSpace[RH].np );
+    vSurface->resize( sourceSpace[LH].np + sourceSpace[RH].np );
+    WLPositions::IndexT vIdx = 0;
     for( fiff_int_t i = 0; i < sourceSpace[LH].np; ++i )
     {
-        WPosition dip( sourceSpace[LH].rr.row( i ).cast< WPosition::ValueType >() * 1000 );
-        pos->push_back( dip );
+        const WLPositions::PositionT dip( sourceSpace[LH].rr.row( i ).cast< WLPositions::ScalarT >() );
+        vSurface->data().col( vIdx ) = dip;
+        ++vIdx;
     }
     for( fiff_int_t i = 0; i < sourceSpace[RH].np; ++i )
     {
-        WPosition dip( sourceSpace[RH].rr.row( i ).cast< WPosition::ValueType >() * 1000 );
-        pos->push_back( dip );
+        const WLPositions::PositionT dip( sourceSpace[RH].rr.row( i ).cast< WLPositions::ScalarT >() );
+        vSurface->data().col( vIdx ) = dip;
+        ++vIdx;
     }
-    pSurface->setVertex( pos );
-    wlog::info( CLASS ) << "Vertices: " << pos->size();
+    WAssert( vIdx == vSurface->size(), "vIdx == vSurface->size()" );
+    estimateExponent( vSurface.get() );
+    wlog::info( CLASS ) << "Vertices: " << vSurface->size();
 
     WLArrayList< WVector3i >::SPtr faces( new WLArrayList< WVector3i >() );
     faces->reserve( sourceSpace[LH].ntri + sourceSpace[RH].ntri );
@@ -150,4 +159,32 @@ WLIOStatus::IOStatusT WLReaderSourceSpace::read( WLEMMSurface::SPtr* const surfa
     pSurface->setFaces( faces );
     wlog::info( CLASS ) << "Faces: " << faces->size();
     return WLIOStatus::SUCCESS;
+}
+
+void WLReaderSourceSpace::estimateExponent( WLPositions* const pos )
+{
+    const WLPositions::ScalarT min = pos->data().row( 0 ).minCoeff();
+    const WLPositions::ScalarT max = pos->data().row( 0 ).maxCoeff();
+    const WLPositions::ScalarT diff = fabs( max - min );
+    pos->unit( WLEUnit::METER );
+    if( diff < 0.5 )
+    {
+        pos->exponent( WLEExponent::BASE );
+        wlog::debug( CLASS ) << __func__ << ": estimate meter";
+        return;
+    }
+    if( diff < 50 )
+    {
+        pos->exponent( WLEExponent::CENTI );
+        wlog::debug( CLASS ) << __func__ << ": estimate centimeter";
+        return;
+    }
+    if( diff < 500 )
+    {
+        pos->exponent( WLEExponent::MILLI );
+        wlog::debug( CLASS ) << __func__ << ": estimate millimeter";
+        return;
+    }
+    pos->exponent( WLEExponent::UNKNOWN );
+    wlog::debug( CLASS ) << __func__ << ": estimate unknown!";
 }

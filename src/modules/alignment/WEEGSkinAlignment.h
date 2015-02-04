@@ -26,8 +26,6 @@
 
 #include <string>
 
-#include <core/common/math/linearAlgebra/WPosition.h>
-
 #include "core/data/WLEMMeasurement.h"
 
 #include "WAlignment.h"
@@ -66,53 +64,53 @@ public:
     /**
      * Returns the left pre-auricular position on the BEM skin layer.
      *
-     * \return the position.
+     * \return the position in meter.
      */
-    const WPosition& getLpaSkin() const;
+    const PointT& getLpaSkin() const;
 
     /**
      * Sets the left pre-auricular position on the BEM skin layer.
      *
-     * \param lpaSkin the position.
+     * \param lpaSkin the position in meter.
      */
-    void setLpaSkin( const WPosition& lpaSkin );
+    void setLpaSkin( const PointT& lpaSkin );
 
     /**
      * Returns the nasion position on the BEM skin layer.
      *
-     * \return the position.
+     * \return the position in meter.
      */
-    const WPosition& getNasionSkin() const;
+    const PointT& getNasionSkin() const;
 
     /**
      * Sets the nasion position on the BEM skin layer.
      *
-     * \param nasionSkin the position.
+     * \param nasionSkin the position in meter.
      */
-    void setNasionSkin( const WPosition& nasionSkin );
+    void setNasionSkin( const PointT& nasionSkin );
 
     /**
      * Returns the right pre-auricular position on the BEM skin layer.
      *
-     * \return the position.
+     * \return the position in meter.
      */
-    const WPosition& getRpaSkin() const;
+    const PointT& getRpaSkin() const;
 
     /**
      * Sets the right pre-auricular position on the BEM skin layer.
      *
-     * \param rpaSkin the position.
+     * \param rpaSkin the position in meter.
      */
-    void setRpaSkin( const WPosition& rpaSkin );
+    void setRpaSkin( const PointT& rpaSkin );
 
 private:
-    bool extractFiducialPoints( WPosition* const lpa, WPosition* const nasion, WPosition* const rpa, const WLEMMeasurement& emm );
+    bool extractFiducialPoints( PointT* const lpa, PointT* const nasion, PointT* const rpa, const WLEMMeasurement& emm );
 
     bool extractBEMSkinPoints( PointsT* const out, const WLEMMeasurement& emm );
 
-    WPosition m_lpaSkin;
-    WPosition m_nasionSkin;
-    WPosition m_rpaSkin;
+    PointT m_lpaSkin; //!< Left, BEM coordinates and in meter.
+    PointT m_nasionSkin; //!< Nasion, BEM coordinates and in meter.
+    PointT m_rpaSkin; //!< Right, BEM coordinates and in meter.
 };
 
 #endif  // WEEGSKINALIGNMENT_H_

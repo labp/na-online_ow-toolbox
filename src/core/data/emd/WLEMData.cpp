@@ -34,14 +34,14 @@
 
 const std::string WLEMData::CLASS = "WLEMData";
 
-const WLFreqT WLEMData::UNDEFINED_FREQ = -1;
+const WLFreqT WLEMData::UNDEFINED_FREQ = -1 * WLUnits::Hz;
 
 WLEMData::WLEMData() :
                 boost::enable_shared_from_this< WLEMData >()
 {
     m_data.reset( new DataT() );
     m_chanNames = WLArrayList< std::string >::instance();
-    m_chanUnit = WLEUnit::NONE;
+    m_chanUnit = WLEUnit::UNKNOWN;
     m_chanUnitExp = WLEExponent::UNKNOWN;
     m_sampFreq = UNDEFINED_FREQ;
     m_lineFreq = UNDEFINED_FREQ;
@@ -217,7 +217,7 @@ WLFreqT WLEMData::getSampFreq() const
 
 WLTimeT WLEMData::getLength() const
 {
-    return getSamplesPerChan() / m_sampFreq;
+    return static_cast< double >( getSamplesPerChan() ) / m_sampFreq;
 }
 
 WLEMData::ChannelListSPtr WLEMData::getBadChannels() const
@@ -255,7 +255,7 @@ void WLEMData::setCoordSystem( WLECoordSystem::Enum coordSystem )
     m_CoordSystem = coordSystem;
 }
 
-void WLEMData::setLineFreq( float lineFreq )
+void WLEMData::setLineFreq( WLFreqT lineFreq )
 {
     m_lineFreq = lineFreq;
 }

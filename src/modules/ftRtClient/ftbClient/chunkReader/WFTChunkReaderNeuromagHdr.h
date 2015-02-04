@@ -35,6 +35,7 @@
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
 #include "core/container/WLArrayList.h"
+#include "core/data/WLPositions.h"
 #include "core/data/emd/WLEMDRaw.h"
 #include "core/data/enum/WLEModality.h"
 #include "WFTChunkReader.h"
@@ -92,8 +93,8 @@ private:
     ModalityPicksT m_modalityPicks; /**< Contains channel indices for each modality. */
     ModalityChNamesT m_modalityChNames; /**< Contains channel names for each modality. */
 
-    WLArrayList< WPosition >::SPtr m_chPosEEG; /**< The channel positions for EEG. */
-    WLArrayList< WPosition >::SPtr m_chPosMEG; /**< The channel position for MEG. */
+    WLPositions::SPtr m_chPosEEG; /**< The channel positions for EEG. */
+    WLPositions::SPtr m_chPosMEG; /**< The channel position for MEG. */
 
     WLArrayList< WVector3f >::SPtr m_chExMEG; /**< Coil coordinate system x-axis unit vector. */
     WLArrayList< WVector3f >::SPtr m_chEyMEG; /**< Coil coordinate system y-axis unit vector. */

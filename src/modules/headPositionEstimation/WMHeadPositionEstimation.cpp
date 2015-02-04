@@ -135,16 +135,16 @@ void WMHeadPositionEstimation::properties()
     m_propInitFactor = m_propGroupEstimation->addProperty( "Initial Factor:", "Initial factor to create initial parameter set.",
                     2.0 );
 
-    m_propInitRz = m_propGroupEstimation->addProperty( "Rz:", "Initial rotation around the z axis for z-y-x rotation degrees.",
-                    0.0 );
-    m_propInitRy = m_propGroupEstimation->addProperty( "Ry:", "Initial rotation around the y axis for z-y-x rotation degrees.",
-                    0.0 );
-    m_propInitRx = m_propGroupEstimation->addProperty( "Rx:", "Initial rotation around the x axis for z-y-x rotation degrees.",
-                    0.0 );
+    m_propInitRz = m_propGroupEstimation->addProperty( "Rz [°]:",
+                    "Initial rotation around the z axis for z-y-x rotation degrees.", 0.0 );
+    m_propInitRy = m_propGroupEstimation->addProperty( "Ry [°]:",
+                    "Initial rotation around the y axis for z-y-x rotation degrees.", 0.0 );
+    m_propInitRx = m_propGroupEstimation->addProperty( "Rx [°]:",
+                    "Initial rotation around the x axis for z-y-x rotation degrees.", 0.0 );
 
-    m_propInitTx = m_propGroupEstimation->addProperty( "Tx:", "Initial x translation in meter.", 0.0 );
-    m_propInitTy = m_propGroupEstimation->addProperty( "Ty:", "Initial y translation in meter.", 0.0 );
-    m_propInitTz = m_propGroupEstimation->addProperty( "Tz:", "Initial z translation in meter.", 0.0 );
+    m_propInitTx = m_propGroupEstimation->addProperty( "Tx [m]:", "Initial x translation in meter.", 0.0 );
+    m_propInitTy = m_propGroupEstimation->addProperty( "Ty [m]:", "Initial y translation in meter.", 0.0 );
+    m_propInitTz = m_propGroupEstimation->addProperty( "Tz [m]:", "Initial z translation in meter.", 0.0 );
 
     m_propErrorMin = m_infoProperties->addProperty( "Error (min.):", "Min. fitting error of last block.", 0.0 );
     m_propErrorMin->setPurpose( PV_PURPOSE_INFORMATION );
@@ -268,15 +268,15 @@ bool WMHeadPositionEstimation::hdlApplyFreq()
 
     m_hpiSignalExtraction.reset( new WHPISignalExtraction() );
 
-    m_hpiSignalExtraction->addFrequency( m_propHpi1Freq->get() );
-    m_hpiSignalExtraction->addFrequency( m_propHpi2Freq->get() );
-    m_hpiSignalExtraction->addFrequency( m_propHpi3Freq->get() );
-    m_hpiSignalExtraction->addFrequency( m_propHpi4Freq->get() );
-    m_hpiSignalExtraction->addFrequency( m_propHpi5Freq->get() );
+    m_hpiSignalExtraction->addFrequency( m_propHpi1Freq->get() * WLUnits::Hz );
+    m_hpiSignalExtraction->addFrequency( m_propHpi2Freq->get() * WLUnits::Hz );
+    m_hpiSignalExtraction->addFrequency( m_propHpi3Freq->get() * WLUnits::Hz );
+    m_hpiSignalExtraction->addFrequency( m_propHpi4Freq->get() * WLUnits::Hz );
+    m_hpiSignalExtraction->addFrequency( m_propHpi5Freq->get() * WLUnits::Hz );
 
-    const WLTimeT win_size = m_hpiSignalExtraction->setWindowsSize( m_propWindowsSize->get() );
+    const WLTimeT win_size = m_hpiSignalExtraction->setWindowsSize( m_propWindowsSize->get() * 1e-3 * WLUnits::s );
     m_hpiSignalExtraction->setStepSize( win_size );
-    m_propWindowsSize->set( win_size, true );
+    m_propWindowsSize->set( win_size.value() * 1e3, true );
 
     infoLog() << *m_hpiSignalExtraction;
     m_propStatus->set( STATUS_OK, true );
@@ -300,15 +300,15 @@ bool WMHeadPositionEstimation::setHpiCoilFreqs( const WLEMMHpiInfo& hpiInfo )
     }
 
     WLEMMHpiInfo::HpiFrequenciesT::iterator it = freqs.begin();
-    m_propHpi1Freq->set( *it, true );
+    m_propHpi1Freq->set( it->value(), true );
     ++it;
-    m_propHpi2Freq->set( *it, true );
+    m_propHpi2Freq->set( it->value(), true );
     ++it;
-    m_propHpi3Freq->set( *it, true );
+    m_propHpi3Freq->set( it->value(), true );
     ++it;
-    m_propHpi4Freq->set( *it, true );
+    m_propHpi4Freq->set( it->value(), true );
     ++it;
-    m_propHpi5Freq->set( *it, true );
+    m_propHpi5Freq->set( it->value(), true );
 
     return hdlApplyFreq();
 }
@@ -468,7 +468,7 @@ bool WMHeadPositionEstimation::estimateHeadPosition( WLEMDHPI::SPtr hpiInOut, WL
     // Prepare optimization and MEG magnetometer data
     if( !m_optim )
     {
-        WLArrayList< WPosition >::ConstSPtr magPos = magMag->getChannelPositions3d();
+        WLEMDMEG::PositionsT::ConstSPtr magPos = magMag->getChannelPositions3d();
         WLArrayList< WVector3f >::ConstSPtr magOri = magMag->getEz();
         debugLog() << "magPos: " << *magPos;
         debugLog() << "magOri: " << *magOri;
@@ -513,7 +513,7 @@ bool WMHeadPositionEstimation::estimateHeadPosition( WLEMDHPI::SPtr hpiInOut, WL
         m_lastParams = m_optim->getResultParams();
         const double error = m_optim->getResultError();
         const size_t iterations = m_optim->getResultIterations();
-        const WLEMDHPI::TransformationT result = m_optim->getResultTransformation();
+        WLTransformation::ConstSPtr result = m_optim->getResultTransformation();
 
         // Calculate errors for informational output
         if( error < errorMin )
@@ -538,21 +538,20 @@ bool WMHeadPositionEstimation::estimateHeadPosition( WLEMDHPI::SPtr hpiInOut, WL
         itAvg += iterations;
 
         // Store result and set next sample
-        trans->push_back( result );
+        trans->push_back( *result );
         m_optim->nextSample();
 
 #ifdef HPI_TEST
         // Debug output
         debugLog() << ">>>>> BEGIN";
         debugLog() << "Estimation: " << conv << " " << iterations << " " << error;
-        debugLog() << "Transformation:\n" << result;
+        debugLog() << "Transformation:\n" << result->data();
 
-        std::vector< WPosition > pos;
-        WLGeometry::transformPoints( &pos, *hpiInOut->getChannelPositions3d(), result );
+        WLPositions::SPtr pos = *result * *hpiInOut->getChannelPositions3d();
         debugLog() << "HPI positions:\n";
-        for( size_t i = 0; i < pos.size(); ++i )
+        for( WLPositions::IndexT i = 0; i < pos->size(); ++i )
         {
-            debugLog() << pos[i].x() << " " << pos[i].y() << " " << pos[i].z();
+            debugLog() << pos->at( i ).x() << " " << pos->at( i ).y() << " " << pos->at( i ).z();
         }
         debugLog() << "<<<<< END";
 #endif // HPI_TEST

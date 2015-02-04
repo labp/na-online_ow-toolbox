@@ -47,7 +47,7 @@ WFIRFilterCuda::WFIRFilterCuda() :
 }
 
 WFIRFilterCuda::WFIRFilterCuda( WFIRFilter::WEFilterType::Enum filtertype, WLWindowFunction::WLEWindow windowtype, int order,
-                ScalarT sFreq, ScalarT cFreq1, ScalarT cFreq2 ) :
+                WLFreqT sFreq, WLFreqT cFreq1, WLFreqT cFreq2 ) :
                 WFIRFilter( filtertype, windowtype, order, sFreq, cFreq1, cFreq2 )
 {
 }

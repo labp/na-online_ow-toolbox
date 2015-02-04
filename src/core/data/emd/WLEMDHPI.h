@@ -31,11 +31,10 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <core/common/WDefines.h>
-#include <core/common/math/linearAlgebra/WPosition.h>
-#include <core/common/math/linearAlgebra/WVectorFixed.h>
-
 #include "core/data/WLDigPoint.h"
+#include "core/data/WLPositions.h"
+#include "core/data/WLTransformation.h"
+#include "core/container/WLArrayList.h"
 #include "core/container/WLList.h"
 #include "WLEMData.h"
 
@@ -58,7 +57,9 @@ public:
      */
     typedef boost::shared_ptr< const WLEMDHPI > ConstSPtr;
 
-    typedef Eigen::Matrix< double, 4, 4 > TransformationT;
+    typedef WLTransformation TransformationT;
+
+    typedef WLPositions PositionsT;
 
     static const std::string CLASS;
 
@@ -73,22 +74,25 @@ public:
     virtual WLEModality::Enum getModalityType() const;
 
     /**
-     * Returns the positions in millimeter.
+     * Gets the HPI coil positions.
+     *
+     * \return Positions.
      */
-    WLArrayList< WPosition >::SPtr getChannelPositions3d();
+    PositionsT::SPtr getChannelPositions3d();
 
     /**
-     * Returns the positions in millimeter.
+     * Gets the HPI coil positions.
+     *
+     * \return Positions.
      */
-    WLArrayList< WPosition >::ConstSPtr getChannelPositions3d() const;
+    PositionsT::ConstSPtr getChannelPositions3d() const;
 
     /**
-     * Sets the positions. Positions must be in millimeter.
+     * Sets the HPI coil positions.
+     *
+     * \param chanPos3d Positions to set.
      */
-    void setChannelPositions3d( WLArrayList< WPosition >::SPtr chanPos3d );
-
-    OW_API_DEPRECATED
-    void setChannelPositions3d( boost::shared_ptr< std::vector< WPosition > > chanPos3d );
+    void setChannelPositions3d( PositionsT::SPtr chanPos3d );
 
     /**
      * Extracts the channel positions of the HPI coils from the digitization points.
@@ -135,7 +139,7 @@ public:
     void setTransformations( WLArrayList< TransformationT >::SPtr trans );
 
 private:
-    WLArrayList< WPosition >::SPtr m_chanPos3d;
+    PositionsT::SPtr m_chanPos3d;
 
     WLArrayList< TransformationT >::SPtr m_transformations;
 
@@ -147,6 +151,7 @@ inline std::ostream& operator<<( std::ostream &strm, const WLEMDHPI& obj )
     const WLEMData& emd = static_cast< const WLEMData& >( obj );
     strm << emd;
     strm << ", positions=" << obj.getChannelPositions3d()->size();
+    strm << ", transformations=" << obj.getTransformations()->size();
     return strm;
 }
 

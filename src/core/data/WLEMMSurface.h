@@ -29,12 +29,10 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/math/linearAlgebra/WVectorFixed.h>
 
 #include "core/container/WLArrayList.h"
-#include "core/data/enum/WLEUnit.h"
-#include "core/data/enum/WLEExponent.h"
+#include "core/data/WLPositions.h"
 
 /**
  * Brain surface/model.
@@ -66,22 +64,15 @@ public:
     };
 
     WLEMMSurface();
-    WLEMMSurface( WLArrayList< WPosition >::SPtr vertex, WLEUnit::Enum vertexUnit, WLEExponent::Enum vertexExponent,
-                    WLArrayList< WVector3i >::SPtr faces, Hemisphere::Enum hemisphere );
+    WLEMMSurface( WLPositions::SPtr vertex, WLArrayList< WVector3i >::SPtr faces, Hemisphere::Enum hemisphere );
 
-    WLEMMSurface( const WLEMMSurface& surface );
+    explicit WLEMMSurface( const WLEMMSurface& surface );
 
     ~WLEMMSurface();
 
-    WLArrayList< WPosition >::SPtr getVertex();
-    WLArrayList< WPosition >::ConstSPtr getVertex() const;
-    void setVertex( WLArrayList< WPosition >::SPtr vertex );
-
-    WLEUnit::Enum getVertexUnit() const;
-    void setVertexUnit( WLEUnit::Enum unit );
-
-    WLEExponent::Enum getVertexExponent() const;
-    void setVertexExponent( WLEExponent::Enum exponent );
+    WLPositions::SPtr getVertex();
+    WLPositions::ConstSPtr getVertex() const;
+    void setVertex( WLPositions::SPtr vertex );
 
     WLArrayList< WVector3i >::SPtr getFaces();
     WLArrayList< WVector3i >::ConstSPtr getFaces() const;
@@ -91,9 +82,7 @@ public:
     void setHemisphere( Hemisphere::Enum val );
 
 private:
-    WLArrayList< WPosition >::SPtr m_vertex;
-    WLEUnit::Enum m_vertexUnit;
-    WLEExponent::Enum m_vertexExponent;
+    WLPositions::SPtr m_vertex;
     WLArrayList< WVector3i >::SPtr m_faces;
     Hemisphere::Enum m_hemisphere;
 };

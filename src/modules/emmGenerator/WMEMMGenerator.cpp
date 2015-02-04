@@ -95,11 +95,11 @@ void WMEMMGenerator::properties()
 
     m_propCondition = WCondition::SPtr( new WCondition() );
 
-    m_propSamplFreq = m_properties->addProperty( "Sampling Frequency:", "Sampling Frequency in Hz.", 1000.0 );
+    m_propSamplFreq = m_properties->addProperty( "Sampling Freq. [Hz]:", "Sampling Frequency in Hz.", 1000.0 );
     m_propSamplFreq->setMin( 1 );
     m_propSamplFreq->setMax( 9999 );
 
-    m_propLength = m_properties->addProperty( "Length:", "Length of the measurement in seconds.", 60 );
+    m_propLength = m_properties->addProperty( "Length [s]:", "Length of the measurement in seconds.", 60 );
     m_propLength->setMin( 1 );
     m_propLength->setMax( 3600 );
 
@@ -170,34 +170,42 @@ bool WMEMMGenerator::generateEMM()
 {
     m_emm.reset();
 
-    const float sampl_freq = m_propSamplFreq->get();
-    const size_t length = m_propLength->get();
-    const size_t samples = sampl_freq * length;
-    const size_t channels = m_propChans->get();
+    const WLFreqT sampl_freq = m_propSamplFreq->get() * WLUnits::Hz;
+    const WLTimeT length = m_propLength->get() * WLUnits::s;
+    const WLSampleNrT samples = sampl_freq * length;
+    const WLChanNrT channels = m_propChans->get();
 
     WLEMMeasurement::SPtr emm( new WLEMMeasurement() );
     WLEMDEEG::SPtr eeg( new WLEMDEEG() );
 
     eeg->setSampFreq( sampl_freq );
     eeg->getData().resize( channels, samples );
-    for( size_t chan = 0; chan < channels; ++chan )
+    WLPositions::SPtr positions = WLPositions::instance();
+    positions->unit( WLEUnit::METER );
+    positions->exponent( WLEExponent::BASE );
+    positions->coordSystem( WLECoordSystem::HEAD );
+    positions->resize( channels );
+    WLPositions::PositionsT& pos = positions->data();
+    for( WLChanIdxT chan = 0; chan < channels; ++chan )
     {
         WLEMData::ChannelT channel( samples );
-        for( size_t smp = 0; smp < samples; ++smp )
+        for( WLSampleIdxT smp = 0; smp < samples; ++smp )
         {
             channel( smp ) = ( 30.0 * ( WLEMData::ScalarT )rand() / RAND_MAX - 15.0 );
         }
-        WPosition::ValueType a = ( WPosition::ValueType )rand() / RAND_MAX - 0.5;
-        WPosition::ValueType b = ( WPosition::ValueType )rand() / RAND_MAX - 0.5;
-        WPosition::ValueType c = ( WPosition::ValueType )rand() / RAND_MAX - 0.5;
-        WPosition::ValueType m = sqrt( a * a + b * b + c * c );
-        WPosition::ValueType r = 100;
+        WLPositions::ScalarT a = ( WLPositions::ScalarT )rand() / RAND_MAX - 0.5;
+        WLPositions::ScalarT b = ( WLPositions::ScalarT )rand() / RAND_MAX - 0.5;
+        WLPositions::ScalarT c = ( WLPositions::ScalarT )rand() / RAND_MAX - 0.5;
+        WLPositions::ScalarT m = sqrt( a * a + b * b + c * c );
+        WLPositions::ScalarT r = 100;
         a *= r / m;
         b *= r / m;
         c *= r / m;
-        eeg->getChannelPositions3d()->push_back( WPosition( a, b, abs( c ) ) * 0.001 );
+        WLPositions::PositionT tmp( a, b, abs( c ) );
+        pos.col( chan ) = tmp * 0.001;
         eeg->getData().row( chan ) = channel;
     }
+    eeg->setChannelPositions3d( positions );
 
     emm->addModality( eeg );
     m_emm = emm;

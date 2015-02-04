@@ -29,11 +29,11 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include <core/common/math/linearAlgebra/WPosition.h>
-
 #include "core/container/WLArrayList.h"
 #include "core/data/WLMegCoilInfo.h"
 #include "core/data/WLDataTypes.h"
+#include "core/data/WLPositions.h"
+#include "core/data/WLTransformation.h"
 #include "core/data/emd/WLEMDHPI.h"
 #include "core/data/emd/WLEMDMEG.h"
 
@@ -51,6 +51,8 @@ class WHeadPositionCorrection
 {
 public:
     static const std::string CLASS;
+
+    typedef WLTransformation TransformationT;
 
     WHeadPositionCorrection();
     virtual ~WHeadPositionCorrection();
@@ -89,7 +91,7 @@ public:
      *
      * \param trans The transformation for the reference positions.
      */
-    void setRefTransformation( const WLMatrix4::Matrix4T& trans );
+    void setRefTransformation( const TransformationT& trans );
 
     /**
      * Sets the MEG positions, orientations, ex, ey, z and integration points.
@@ -116,8 +118,8 @@ private:
     friend class WHeadPositionCorrectionTest;
 
     typedef Eigen::ArrayXd ArrayT;
-    typedef Eigen::Vector3d PositionT;
-    typedef Eigen::Matrix3Xd PositionsT; //!< Rows: x, y, z; Columns: channels
+    typedef WLPositions::PositionT PositionT;
+    typedef WLPositions PositionsT; //!< Rows: x, y, z; Columns: channels
     typedef Eigen::Vector3d OrientationT; //!< Rows: x, y, z; Columns: channels
     typedef Eigen::Matrix3Xd OrientationsT; //!< Rows: x, y, z; Columns: channels
     typedef Eigen::MatrixXd MatrixT;
@@ -162,13 +164,12 @@ private:
      * \param trans Transformation to check.
      * \return True if movement must be corrected.
      */
-    bool checkMovementThreshold( const WLEMDHPI::TransformationT& trans );
+    bool checkMovementThreshold( const TransformationT& trans );
 
     bool m_isInitialized; //!< Flag to force initialization.
 
-    Eigen::Affine3d m_transRef; //!< Reference position to use.
-
-    WLEMDHPI::TransformationT m_transExc; //!< Last exceeded transformation/position.
+    TransformationT m_transRef; //!< Reference position to use.
+    TransformationT m_transExc; //!< Last exceeded transformation/position.
 
     MatrixT m_lfRef; //!< Forward model for reference position.
     MatrixT m_lfNow; //!< Forward model for current head position.

@@ -34,10 +34,12 @@
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include "core/kernel/WDataModule.h"
 
+#include "core/container/WLArrayList.h"
 #include "core/data/WLDataTypes.h"
 #include "core/data/WLEMMSurface.h"
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/WLEMMCommand.h"
+#include "core/data/WLPositions.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
 /**
@@ -95,11 +97,11 @@ private:
 
     bool handleSensorFileChanged();
 
-    boost::shared_ptr< std::vector< WPosition > > m_sensorPos;
+    WLPositions::SPtr m_sensorPos;
 
     WPropTrigger m_trgGenerate;
 
-    WPropDouble m_propSamplFreq;
+    WPropDouble m_propSamplFreq; //!< Sampling frequency in Hz.
 
     bool handleGenerateEMM();
 

@@ -91,7 +91,6 @@ void WMEpochSeparation::connectors()
 void WMEpochSeparation::properties()
 {
     WLModuleDrawable::properties();
-    WLModuleDrawable::setTimerangeInformationOnly( true );
     WLModuleDrawable::hideComputeModalitySelection( true );
 
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
@@ -99,8 +98,8 @@ void WMEpochSeparation::properties()
     // Trigger properties //
     m_propGrpTrigger = m_properties->addPropertyGroup( "Trigger Properties", "Contains properties for trigger.", false );
 
-    m_preTrigger = m_propGrpTrigger->addProperty( "Pre-Samples", "Samples before trigger", 50 );
-    m_postTrigger = m_propGrpTrigger->addProperty( "Post-Samples", "Samples after trigger", 100 );
+    m_preTrigger = m_propGrpTrigger->addProperty( "Pre [samples]", "Samples before trigger", 50 );
+    m_postTrigger = m_propGrpTrigger->addProperty( "Post [samples]", "Samples after trigger", 100 );
 
     const std::string stdMask = "50";
     m_triggers = m_propGrpTrigger->addProperty( "Triggers", "Comma separated trigger values to detect.", stdMask );
@@ -224,8 +223,8 @@ bool WMEpochSeparation::processReset( WLEMMCommand::SPtr cmdIn )
     viewReset();
     m_separation->reset();
 
-    int preSamples = m_preTrigger->get();
-    int postSamples = m_postTrigger->get();
+    WLSampleNrT preSamples = m_preTrigger->get();
+    WLSampleNrT postSamples = m_postTrigger->get();
 
     m_separation->setChannel( m_triggerChannel->get() );
     m_separation->setPreSamples( preSamples );

@@ -66,7 +66,6 @@ void WMTemplateRoiSelection::connectors()
 void WMTemplateRoiSelection::properties()
 {
     WLModuleDrawable::properties();
-    WLModuleDrawable::setTimerangeInformationOnly( true );
     WLModuleDrawable::setViewModality( WLEModality::SOURCE );
 
     /* init property container */

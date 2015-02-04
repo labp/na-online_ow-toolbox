@@ -38,28 +38,28 @@
 namespace WLDaqNeuromag
 {
     /**
-     * Accurate coil descriptions for type T1 planar gradiometer, 3012.
+     * Accurate coil descriptions for type T1 planar gradiometer, 3012. Positions/Points in meter.
      *
      * \param megCoil
      */
     void applyIntegrationPoints3012( WLMegCoilInfo* const megCoil );
 
     /**
-     * Accurate coil descriptions for type T3 planar gradiometer, 3014.
+     * Accurate coil descriptions for type T3 planar gradiometer, 3014. Positions/Points in meter.
      *
      * \param megCoil
      */
     void applyIntegrationPoints3014( WLMegCoilInfo* const megCoil );
 
     /**
-     * Accurate coil descriptions for type T1 magnetometer, 3022.
+     * Accurate coil descriptions for type T1 magnetometer, 3022. Positions/Points in meter.
      *
      * \param megCoil
      */
     void applyIntegrationPoints3022( WLMegCoilInfo* const megCoil );
 
     /**
-     * Accurate coil descriptions for type T3 magnetometer, 3024.
+     * Accurate coil descriptions for type T3 magnetometer, 3024. Positions/Points in meter.
      *
      * \param megCoil
      */

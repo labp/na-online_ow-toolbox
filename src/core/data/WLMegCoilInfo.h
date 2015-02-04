@@ -31,6 +31,7 @@
  * Information about MEG coil.
  *
  * \author pieloth
+ * \ingroup data
  */
 class WLMegCoilInfo
 {
@@ -54,11 +55,11 @@ public:
     WLMegCoilInfo();
     virtual ~WLMegCoilInfo();
 
-    PositionT position; //!< Coil position in device coords.
+    PositionT position; //!< Coil position in device coords and meter.
     OrientationT orientation; //!< Coil orientation in device coords.
-    double area; //!< TODO Area of the coil.
-    double windings; //!< TODO Windings of the coil.
-    PositionsT integrationPoints; //!< Integration points in local coil coords.
+    double area; //!< Area of the coil in meter^2.
+    double windings; //!< Windings of the coil.
+    PositionsT integrationPoints; //!< Integration points in local coil coords and meter.
     VectorT integrationWeights; //!< Weights of integration points.
     Vector3T ex; //!< x-axis vector of local coil coords. in device coords.
     Vector3T ey; //!< x-axis vector of local coil coords. in device coords.

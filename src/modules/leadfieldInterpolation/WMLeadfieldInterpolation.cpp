@@ -308,8 +308,8 @@ bool WMLeadfieldInterpolation::readHDLeadfield( const std::string& fname )
 
 bool WMLeadfieldInterpolation::interpolate()
 {
-    debugLog() << "interpolate() called!";
-    WLTimeProfiler tp( "WMLeadfieldInterpolation", "interpolate" );
+    debugLog() << __func__ << "() called!";
+    WLTimeProfiler tp( "WMLeadfieldInterpolation", __func__ );
 
     if( !m_fwdSolution || !m_fiffEmm )
     {
@@ -324,13 +324,21 @@ bool WMLeadfieldInterpolation::interpolate()
         m_start->set( WPVBaseTypes::PV_TRIGGER_READY, true );
         return false;
     }
+    if( m_fiffEmm->getFidToACPCTransformation()->empty() )
+    {
+        errorLog() << "Error no transformation from HEAD to ACPC!";
+        return false;
+    }
 
     WLeadfieldInterpolation li;
-    li.prepareHDLeadfield( m_fwdSolution );
-    const std::vector< WPosition >& eeg_pos =
-                    *( m_fiffEmm->getModality( WLEModality::EEG )->getAs< WLEMDEEG >()->getChannelPositions3d() );
-    WLeadfieldInterpolation::PositionsSPtr eegPosTrans( new WLeadfieldInterpolation::PositionsT );
-    WLGeometry::transformPoints( eegPosTrans.get(), eeg_pos, m_fiffEmm->getFidToACPCTransformation() );
+    if( !li.prepareHDLeadfield( m_fwdSolution ) )
+    {
+        errorLog() << "Error during preparing HD leadfield!";
+        return false;
+    }
+    const WLEMDEEG::PositionsT::ConstSPtr eeg_pos =
+                    ( m_fiffEmm->getModality( WLEModality::EEG )->getAs< WLEMDEEG >()->getChannelPositions3d() );
+    WLeadfieldInterpolation::PositionsT::SPtr eegPosTrans = *m_fiffEmm->getFidToACPCTransformation() * *eeg_pos;
     li.setSensorPositions( eegPosTrans );
 
     m_leadfieldInterpolated.reset(
@@ -352,7 +360,7 @@ bool WMLeadfieldInterpolation::interpolate()
 
 bool WMLeadfieldInterpolation::processCompute( WLEMMeasurement::SPtr emm )
 {
-    WLTimeProfiler tp( "WMLeadfieldInterpolation", "processCompute" );
+    WLTimeProfiler tp( "WMLeadfieldInterpolation", __func__ );
     bool rc = true;
     if( m_leadfieldInterpolated )
     {
@@ -387,7 +395,7 @@ bool WMLeadfieldInterpolation::processCompute( WLEMMeasurement::SPtr emm )
 
 bool WMLeadfieldInterpolation::processInit( WLEMMCommand::SPtr cmdIn )
 {
-    WLTimeProfiler tp( "WMLeadfieldInterpolation", "processInit" );
+    WLTimeProfiler tp( "WMLeadfieldInterpolation", __func__ );
     bool rc = true;
     if( cmdIn->hasEmm() && m_fwdSolution )
     {

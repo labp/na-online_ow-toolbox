@@ -25,6 +25,7 @@
 #define WLEMDDRAWABLE3DSOURCE_H_
 
 #include <list>
+#include <vector>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/spirit/home/support/detail/hold_any.hpp>
@@ -33,6 +34,8 @@
 #include <osg/ShapeDrawable>
 
 #include <core/common/WPropertyTypes.h>
+#include <core/common/math/linearAlgebra/WPosition.h>
+#include <core/common/math/linearAlgebra/WVectorFixed.h>
 #include <core/ui/WUIViewWidget.h>
 #include <core/graphicsEngine/WPickInfo.h>
 
@@ -112,10 +115,10 @@ private:
      */
     WPropTrigger m_trgNewRoi;
 
-    osg::ref_ptr<osg::ShapeDrawable> m_shapeX;
-    osg::ref_ptr<osg::ShapeDrawable> m_shapeY;
-    osg::ref_ptr<osg::ShapeDrawable> m_shapeZ;
-    osg::ref_ptr<osg::Geode> m_coords;
+    osg::ref_ptr< osg::ShapeDrawable > m_shapeX;
+    osg::ref_ptr< osg::ShapeDrawable > m_shapeY;
+    osg::ref_ptr< osg::ShapeDrawable > m_shapeZ;
+    osg::ref_ptr< osg::Geode > m_coords;
 };
 
 #endif  // WLEMDDRAWABLE3DSOURCE_H_

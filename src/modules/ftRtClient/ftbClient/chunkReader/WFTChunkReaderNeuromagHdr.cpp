@@ -48,8 +48,8 @@ const std::string WFTChunkReaderNeuromagHdr::CLASS = "WFTChunkReaderNeuromagHdr"
 WFTChunkReaderNeuromagHdr::WFTChunkReaderNeuromagHdr()
 {
     m_measInfo.reset( new FIFFLIB::FiffInfo );
-    m_chPosEEG.reset( new WLArrayList< WPosition > );
-    m_chPosMEG.reset( new WLArrayList< WPosition > );
+    m_chPosEEG = WLPositions::instance();
+    m_chPosMEG = WLPositions::instance();
     m_chExMEG.reset( new WLArrayList< WVector3f > );
     m_chEyMEG.reset( new WLArrayList< WVector3f > );
     m_chEzMEG.reset( new WLArrayList< WVector3f > );
@@ -79,8 +79,16 @@ bool WFTChunkReaderNeuromagHdr::read( WFTChunk::ConstSPtr chunk )
     m_modalityPicks.clear();
     m_stimulusPicks.resize( 0 );
 
-    m_chPosEEG.reset( new WLArrayList< WPosition > );
-    m_chPosMEG.reset( new WLArrayList< WPosition > );
+    m_chPosEEG = WLPositions::instance();
+    m_chPosEEG->unit( WLEUnit::METER );
+    m_chPosEEG->exponent( WLEExponent::BASE );
+    m_chPosEEG->coordSystem( WLECoordSystem::HEAD );
+
+    m_chPosMEG = WLPositions::instance();
+    m_chPosMEG->unit( WLEUnit::METER );
+    m_chPosMEG->exponent( WLEExponent::BASE );
+    m_chPosMEG->coordSystem( WLECoordSystem::DEVICE );
+
     m_chExMEG.reset( new WLArrayList< WVector3f > );
     m_chEyMEG.reset( new WLArrayList< WVector3f > );
     m_chEzMEG.reset( new WLArrayList< WVector3f > );
@@ -99,6 +107,8 @@ bool WFTChunkReaderNeuromagHdr::read( WFTChunk::ConstSPtr chunk )
     //
     //  Process channel information.
     //
+    WLPositions::IndexT idxEEG = 0;
+    WLPositions::IndexT idxMEG = 0;
     for( int i = 0; i < m_measInfo->chs.size(); ++i )
     {
         FIFFLIB::FiffChInfo info = m_measInfo->chs.at( i );
@@ -136,14 +146,26 @@ bool WFTChunkReaderNeuromagHdr::read( WFTChunk::ConstSPtr chunk )
         if( modalityType == WLEModality::EEG )
         {
             const Eigen::Matrix< double, 3, 2, Eigen::DontAlign >& chPos = info.eeg_loc;
-            const WPosition pos( chPos( 0, 0 ), chPos( 1, 0 ), chPos( 2, 0 ) );
-            m_chPosEEG->push_back( pos );
+            if( m_chPosEEG->empty() )
+            {
+                m_chPosEEG->resize( m_modalityPicks.at( WLEModality::EEG ).cols() );
+            }
+            m_chPosEEG->data().col( idxEEG ).x() = chPos( 0, 0 );
+            m_chPosEEG->data().col( idxEEG ).x() = chPos( 1, 0 );
+            m_chPosEEG->data().col( idxEEG ).x() = chPos( 2, 0 );
+            ++idxEEG;
         }
         if( modalityType == WLEModality::MEG )
         {
             const Eigen::Matrix< double, 12, 1, Eigen::DontAlign >& chPos = info.loc;
-            const WPosition pos( chPos( 0, 0 ), chPos( 1, 0 ), chPos( 2, 0 ) );
-            m_chPosMEG->push_back( pos );
+            if( m_chPosMEG->empty() )
+            {
+                m_chPosMEG->resize( m_modalityPicks.at( WLEModality::MEG ).cols() );
+            }
+            m_chPosMEG->data().col( idxMEG ).x() = chPos( 0, 0 );
+            m_chPosMEG->data().col( idxMEG ).x() = chPos( 1, 0 );
+            m_chPosMEG->data().col( idxMEG ).x() = chPos( 2, 0 );
+            ++idxMEG;
 
             const WVector3f ex( chPos( 3, 0 ), chPos( 4, 0 ), chPos( 5, 0 ) );
             m_chExMEG->push_back( ex );

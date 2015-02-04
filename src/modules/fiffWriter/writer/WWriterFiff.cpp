@@ -138,7 +138,7 @@ bool WWriterFiff::beginFiff( const WLEMMeasurement* const emm )
     {
         eeg = emm->getModality< const WLEMDEEG >( WLEModality::EEG );
         info.nchan += eeg->getNrChans();
-        sfreq = eeg->getSampFreq();
+        sfreq = eeg->getSampFreq().value();
         setChannelInfo( &chs, eeg.get() );
     }
     WLEMDMEG::ConstSPtr meg;
@@ -146,7 +146,7 @@ bool WWriterFiff::beginFiff( const WLEMMeasurement* const emm )
     {
         meg = emm->getModality< const WLEMDMEG >( WLEModality::MEG );
         info.nchan += meg->getNrChans();
-        sfreq = sfreq == 0 ? meg->getSampFreq() : sfreq;
+        sfreq = sfreq == 0 ? meg->getSampFreq().value() : sfreq;
         setChannelInfo( &chs, meg.get() );
     }
 
@@ -165,9 +165,9 @@ bool WWriterFiff::beginFiff( const WLEMMeasurement* const emm )
     devToHead.from = FIFFV_COORD_DEVICE;
     devToHead.to = FIFFV_COORD_HEAD;
 #if LABP_FLOAT_COMPUTATION
-    devToHead.trans = emm->getDevToFidTransformation();
+    devToHead.trans = emm->getDevToFidTransformation()->data();
 #else
-    devToHead.trans = emm->getDevToFidTransformation().cast< float >();
+    devToHead.trans = emm->getDevToFidTransformation()->data().cast< float >();
 #endif
     info.dev_head_t = devToHead;
 
@@ -309,7 +309,7 @@ bool WWriterFiff::writeData( const WLEMMeasurement* const emm )
 
 void WWriterFiff::setChannelInfo( FIFFLIB::FiffChInfo* const chInfo )
 {
-    chInfo->scanno = 1; // TODO
+    chInfo->scanno = 1; // TODO(pieloth): scanno not available atm
     chInfo->range = 1.0f;
     chInfo->cal = 1.0;
 }
@@ -334,11 +334,11 @@ void WWriterFiff::setChannelInfo( QList< FIFFLIB::FiffChInfo >* const chs, const
 void WWriterFiff::setChannelInfo( QList< FIFFLIB::FiffChInfo >* const chs, const WLEMDEEG* const eeg )
 {
     const std::vector< std::string >& chNames = *eeg->getChanNames();
-    const std::vector< WPosition >& pos = *eeg->getChannelPositions3d();
+    const WLEMDEEG::PositionsT& pos = *eeg->getChannelPositions3d();
     for( WLChanIdxT c = 0; c < eeg->getNrChans(); ++c )
     {
         FiffChInfo chInfo;
-        const WPosition p = pos.at( c );
+        const WLEMDEEG::PositionsT::PositionT p = pos.at( c );
         const Vector3d v( p.x(), p.y(), p.z() );
         setChannelInfo( &chInfo );
         chInfo.coil_type = FIFFV_COIL_EEG;
@@ -357,12 +357,12 @@ void WWriterFiff::setChannelInfo( QList< FIFFLIB::FiffChInfo >* const chs, const
 void WWriterFiff::setChannelInfo( QList< FIFFLIB::FiffChInfo >* const chs, const WLEMDMEG* const meg )
 {
     const std::vector< std::string >& chNames = *meg->getChanNames();
-    const std::vector< WPosition >& pos = *meg->getChannelPositions3d();
+    const WLEMDMEG::PositionsT& pos = *meg->getChannelPositions3d();
     for( WLChanIdxT c = 0; c < meg->getNrChans(); ++c )
     {
         FiffChInfo chInfo;
         setChannelInfo( &chInfo );
-        const WPosition p = pos.at( c );
+        const WLEMDMEG::PositionsT::PositionT p = pos.at( c );
         const Vector3d v( p.x(), p.y(), p.z() );
         chInfo.loc.setZero();
         chInfo.loc( 0, 0 ) = v.x();

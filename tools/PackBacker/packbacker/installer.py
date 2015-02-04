@@ -1,49 +1,45 @@
-"""
-Install and setup 3rd software which is not contained in distribution's packet management.
-All installers must implement AInstaller and check CLI arguments -d and --destdir for destination path.
-Furthermore the __main__ must invoke the installation with installers.do_install().
-"""
-
 __author__ = 'Christof Pieloth'
 
 import logging
 import os
 
+from packbacker.pluginloader import BaseClassCondition
+from packbacker.pluginloader import PluginLoader
 from packbacker.utils import UtilsUI
 
 
 class Installer(object):
-    """Abstract installers with default implementations of pre_install and post_install."""
+    """Abstract installer with default implementations of pre_install and post_install."""
 
     def __init__(self, name, label):
-        self._name = name
-        self._label = label
-        self._arg_dest = os.path.expanduser('~')
-        self._log = logging.getLogger(self._name)
+        self.__name = name
+        self.__label = label
+        self.__arg_dest = os.path.expanduser('~')
+        self.__log = logging.getLogger(self.__name)
 
     @property
     def name(self):
         """Short name of the installers."""
-        return self._name
+        return self.__name
 
     @property
     def label(self):
         """Long name of the installers."""
-        return self._label
+        return self.__label
 
     @property
     def arg_dest(self):
         """Destination directory."""
-        return self._arg_dest
+        return self.__arg_dest
 
     @arg_dest.setter
     def arg_dest(self, dest):
-        self._arg_dest = os.path.expanduser(dest)
+        self.__arg_dest = os.path.expanduser(dest)
 
     @property
     def log(self):
         """Logger for this installers."""
-        return self._log
+        return self.__log
 
     def _pre_install(self):
         """Is called before the installation. It can be used to check for tools which are required."""
@@ -92,3 +88,16 @@ class Installer(object):
     def matches(self, installer):
         """Checks if this command should be used for execution."""
         return installer.lower().startswith(self.name)
+
+    @staticmethod
+    def load_prototypes(path):
+        """Returns prototypes of all known installers."""
+        prototypes = []
+        loader = PluginLoader()
+        loader.load_directory(path, BaseClassCondition(Installer))
+        for k in loader.plugins:
+            clazz = loader.plugins[k]
+            if callable(clazz):
+                prototypes.append(clazz().prototype())
+
+        return prototypes

@@ -42,6 +42,7 @@ namespace WLEExponent
     {
         KILO = WLFiffLib::UnitMultiplier::K,
         BASE = WLFiffLib::UnitMultiplier::NONE,
+        CENTI = WLFiffLib::UnitMultiplier::C,
         MILLI = WLFiffLib::UnitMultiplier::M,
         MICRO = WLFiffLib::UnitMultiplier::MU,
         NANO = WLFiffLib::UnitMultiplier::N,

@@ -34,11 +34,10 @@
 
 const std::string WHPISignalExtraction::CLASS = "WHPISignalExtraction";
 
-static const WLTimeT WINDOWS_SIZE = 0.2;
-static const WLTimeT STEP_SIZE = 0.01;
-static const WLFreqT SAMPLING_FREQ = 1000.0;
-static const float SEC_TO_MS = 1000.0;
-static const float MIN_WINDOWS_PERIODS = 20.0;
+static const WLTimeT WINDOWS_SIZE = 0.2 * WLUnits::s;
+static const WLTimeT STEP_SIZE = 0.01 * WLUnits::s;
+static const WLFreqT SAMPLING_FREQ = 1000.0 * WLUnits::Hz;
+static const double MIN_WINDOWS_PERIODS = 20.0;
 
 WHPISignalExtraction::WHPISignalExtraction() :
                 m_isPrepared( false ), m_windowsSize( WINDOWS_SIZE ), m_stepSize( STEP_SIZE ), m_sampFreq( SAMPLING_FREQ )
@@ -52,12 +51,11 @@ WHPISignalExtraction::~WHPISignalExtraction()
 
 WLTimeT WHPISignalExtraction::getWindowsSize() const
 {
-    return m_windowsSize * SEC_TO_MS;
+    return m_windowsSize;
 }
 
 WLTimeT WHPISignalExtraction::setWindowsSize( WLTimeT winSize )
 {
-    winSize = winSize / SEC_TO_MS;
     if( !m_angFrequencies.empty() )
     {
         const std::vector< WLFreqT >& freqs = getFrequencies();
@@ -67,6 +65,7 @@ WLTimeT WHPISignalExtraction::setWindowsSize( WLTimeT winSize )
         {
             fmin = std::min( fmin, *it );
         }
+
         const float N = fmin * winSize;
         if( N < MIN_WINDOWS_PERIODS )
         {
@@ -77,17 +76,17 @@ WLTimeT WHPISignalExtraction::setWindowsSize( WLTimeT winSize )
     }
     m_windowsSize = winSize;
     m_isPrepared = false;
-    return m_windowsSize * SEC_TO_MS;
+    return m_windowsSize;
 }
 
 WLTimeT WHPISignalExtraction::getStepSize() const
 {
-    return m_stepSize * SEC_TO_MS;
+    return m_stepSize;
 }
 
 void WHPISignalExtraction::setStepSize( WLTimeT stepSize )
 {
-    m_stepSize = stepSize / SEC_TO_MS;
+    m_stepSize = stepSize;
     m_isPrepared = false;
 }
 
@@ -134,13 +133,13 @@ void WHPISignalExtraction::setSamplingFrequency( WLFreqT sfreq )
 bool WHPISignalExtraction::prepare()
 {
     wlog::debug( CLASS ) << "prepare() called!";
-    WLTimeProfiler prof( CLASS, "pepare" );
+    WLTimeProfiler prof( CLASS, __func__ );
 
     if( m_isPrepared )
     {
         return m_isPrepared;
     }
-    if( m_sampFreq < 0.0 )
+    if( m_sampFreq < 0.0 * WLUnits::Hz )
     {
         wlog::error( CLASS ) << "Wrong sampling frequency.";
         return m_isPrepared;
@@ -157,15 +156,16 @@ bool WHPISignalExtraction::prepare()
     wlog::debug( CLASS ) << "N=" << N;
     MatrixT m_a( N, 2 * J );
 
-    const WLTimeT T = 1 / m_sampFreq;
+    const WLTimeT T = 1.0 / m_sampFreq;
     wlog::debug( CLASS ) << "T=" << T;
 
     for( MatrixT::Index i = 0; i < N; ++i )
     {
         for( MatrixT::Index j = 0; j < J; ++j )
         {
-            m_a( i, j ) = sin( m_angFrequencies[j] * i * T );
-            m_a( i, j + J ) = cos( m_angFrequencies[j] * i * T );
+            const double tmp = m_angFrequencies[j] * T;
+            m_a( i, j ) = sin( tmp * i );
+            m_a( i, j + J ) = cos( tmp * i );
         }
     }
     wlog::debug( CLASS ) << "A=" << m_a.rows() << "x" << m_a.cols();
@@ -182,7 +182,7 @@ bool WHPISignalExtraction::reconstructAmplitudes( WLEMDHPI::SPtr& hpiOut, WLEMDM
 {
     wlog::debug( CLASS ) << "reconstructAmplitudes() called!";
 
-    WLTimeProfiler prof( CLASS, "reconstructAmplitudes" );
+    WLTimeProfiler prof( CLASS, __func__ );
     // Some error handling
     // -------------------
     if( !m_isPrepared )

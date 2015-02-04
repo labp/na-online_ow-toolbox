@@ -165,7 +165,7 @@ bool WLEMDDrawable3D::setSelectedSample( ptrdiff_t sample )
     return false;
 }
 
-float WLEMDDrawable3D::getSelectedTime() const
+WLEMDDrawable3D::ValueT WLEMDDrawable3D::getSelectedTime() const
 {
     if( m_emm && m_emm->hasModality( m_modality ) )
     {
@@ -178,7 +178,7 @@ float WLEMDDrawable3D::getSelectedTime() const
     }
 }
 
-bool WLEMDDrawable3D::setSelectedTime( float relative )
+bool WLEMDDrawable3D::setSelectedTime( ValueT relative )
 {
     if( relative < 0 )
     {
@@ -207,21 +207,22 @@ void WLEMDDrawable3D::setColorMap( WLColorMap::SPtr colorMap )
     m_colorMapChanged = true;
 }
 
-void WLEMDDrawable3D::osgAddSurface( const std::vector< WPosition >& positions, const std::vector< WVector3i >& faces )
+void WLEMDDrawable3D::osgAddSurface( const WLPositions& positions, const std::vector< WVector3i >& faces )
 {
     // draw head surface
     if( m_surfaceChanged )
     {
         m_rootGroup->removeChild( m_surfaceGeode );
 
-        const size_t nbPositions = positions.size();
+        const WLPositions::IndexT nbPositions = positions.size();
+        const WLPositions::PositionsT tmp = positions.data() * m_zoomFactor;
         std::vector< WPosition > scaledPos;
         scaledPos.reserve( nbPositions );
-        for( size_t i = 0; i < nbPositions; ++i )
+        for( WLPositions::IndexT i = 0; i < nbPositions; ++i )
         {
-            scaledPos.push_back( positions[i] * m_zoomFactor );
+            scaledPos.push_back( WPosition( tmp.col( i ).x(), tmp.col( i ).y(), tmp.col( i ).z() ) );
         }
-        boost::shared_ptr< WTriangleMesh > tri;
+        WTriangleMesh::SPtr tri;
         if( faces.size() > 0 )
         {
             osg::ref_ptr< osg::Vec3Array > vertices = wge::osgVec3Array( scaledPos );
@@ -235,7 +236,7 @@ void WLEMDDrawable3D::osgAddSurface( const std::vector< WPosition >& positions, 
                 triangles.push_back( faces.at( i ).z() );
             }
 
-            tri = boost::shared_ptr< WTriangleMesh >( new WTriangleMesh( vertices, triangles ) );
+            tri = WTriangleMesh::SPtr( new WTriangleMesh( vertices, triangles ) );
             m_surfaceGeometry = wge::convertToOsgGeometry( tri, WColor( 1.0, 1.0, 1.0, 1.0 ), true );
         }
         else

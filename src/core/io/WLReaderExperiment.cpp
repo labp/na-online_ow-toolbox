@@ -325,11 +325,15 @@ bool WLReaderExperiment::readSourceSpace( std::string surfaceKind, WLEMMSubject:
     wlog::info( CLASS ) << "Combine left and right surface to BOTH.";
     WLEMMSurface::SPtr bothSurface( new WLEMMSurface( *rhSurface ) );
     bothSurface->setHemisphere( WLEMMSurface::Hemisphere::BOTH );
-    WLArrayList< WPosition >::SPtr bVertex = bothSurface->getVertex();
-    WLArrayList< WVector3i >::SPtr bFaces = bothSurface->getFaces();
+    WLPositions& bVertex = *bothSurface->getVertex();
+    bVertex.resize( 0 );
+    bVertex.unit( lhSurface->getVertex()->unit() );
+    bVertex.exponent( lhSurface->getVertex()->exponent() );
+    bVertex.coordSystem( lhSurface->getVertex()->coordSystem() );
+    bVertex += *lhSurface->getVertex();
+    bVertex += *rhSurface->getVertex();
 
-    bVertex->insert( bVertex->end(), lhSurface->getVertex()->begin(), lhSurface->getVertex()->end() );
-    bVertex->insert( bVertex->end(), rhSurface->getVertex()->begin(), rhSurface->getVertex()->end() );
+    WLArrayList< WVector3i >::SPtr bFaces = bothSurface->getFaces();
     bFaces->insert( bFaces->end(), lhSurface->getFaces()->begin(), lhSurface->getFaces()->end() );
     // NOTE: remind offset of faces
     const int tmp = static_cast< int >( lhSurface->getVertex()->size() );

@@ -57,7 +57,8 @@ public:
 
     WEpochSeparation();
 
-    WEpochSeparation( WLChanIdxT channel, std::set< WLEMMeasurement::EventT > triggerMask, size_t preSamples, size_t postSamples );
+    WEpochSeparation( WLChanIdxT channel, std::set< WLEMMeasurement::EventT > triggerMask, WLSampleNrT preSamples,
+                    WLSampleNrT postSamples );
 
     virtual ~WEpochSeparation();
 
@@ -86,22 +87,22 @@ public:
     /**
      * Returns the samples to be stored before the trigger.
      */
-    size_t getPreSamples() const;
+    WLSampleNrT getPreSamples() const;
 
     /**
      * Sets the samples count, which shall be stored before the trigger.
      */
-    void setPreSamples( size_t preSamples );
+    void setPreSamples( WLSampleNrT preSamples );
 
     /**
      * Returns the samples to be stored after the trigger.
      */
-    size_t getPostSamples() const;
+    WLSampleNrT getPostSamples() const;
 
     /**
      * Sets the samples count, which shall be stored after the trigger.
      */
-    void setPostSamples( size_t postSamples );
+    void setPostSamples( WLSampleNrT postSamples );
 
     /**
      * Reset all necessary attributes.
@@ -164,12 +165,12 @@ private:
         /**
          * Left samples which has to be collected from next packets.
          */
-        size_t m_leftSamples;
+        WLSampleNrT m_leftSamples;
 
         /**
          * Start index in next packet.
          */
-        size_t m_startIndex;
+        WLSampleIdxT m_startIndex;
     };
 
     /**
@@ -186,7 +187,7 @@ private:
      *
      * \return Structure which contains a new EMM object and left sample count.
      */
-    LeftEpoch::SPtr processPreSamples( size_t eIndex ) throw( WException );
+    LeftEpoch::SPtr processPreSamples( WLSampleIdxT eIndex ) throw( WException );
 
     /**
      * Fills the incomplete epoch from given EMM object.
@@ -200,9 +201,9 @@ private:
 
     WLChanIdxT m_channel;
     std::set< WLEMMeasurement::EventT > m_triggerMask;
-    size_t m_preSamples;
-    size_t m_postSamples;
-    size_t m_blockSize;
+    WLSampleNrT m_preSamples; //!< Samples before trigger/event.
+    WLSampleNrT m_postSamples; //!< Samples after triffer/event.
+    WLSampleNrT m_blockSize; //!< Block size in samples.
 
     WLRingBuffer< WLEMMeasurement >::SPtr m_buffer;
     std::deque< WLEMMeasurement::SPtr > m_epochs;
@@ -211,7 +212,7 @@ private:
     /**
      * Correct modulo calculation for negative values.
      */
-    size_t nmod( ptrdiff_t a, size_t n );
+    WLSampleIdxT nmod( WLSampleIdxT a, WLSampleNrT n );
 };
 
 #endif  // WEPOCHSEPARATION_H_

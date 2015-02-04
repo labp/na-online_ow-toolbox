@@ -76,12 +76,10 @@ void WLEMDDrawable3DHPI::osgNodeCallback( osg::NodeVisitor* nv )
     osgInitMegHelmet();
 
     WLEMDHPI::ConstSPtr emdHpi = m_emm->getModality< const WLEMDHPI >( WLEModality::HPI );
-    WLArrayList< WPosition >::ConstSPtr positions = emdHpi->getChannelPositions3d();
+    WLPositions::ConstSPtr positions = emdHpi->getChannelPositions3d();
     WLArrayList< WLEMDHPI::TransformationT >::ConstSPtr transformations = emdHpi->getTransformations();
-    std::vector< WPosition > posNew;
-    posNew.reserve( positions->size() );
-    WLGeometry::transformPoints( &posNew, *positions, transformations->at( 0 ) );
-    osgAddOrUpdateHpiCoils( posNew );
+    WLPositions::SPtr posNew = transformations->at( 0 ) * *positions;
+    osgAddOrUpdateHpiCoils( *posNew );
 
     WLEMDDrawable3D::osgNodeCallback( nv );
     m_rootGroup->removeChild( m_colorMapNode );
@@ -108,7 +106,7 @@ void WLEMDDrawable3DHPI::osgInitMegHelmet()
         wlog::error( CLASS ) << "Could not extract magnetometer!";
         return;
     }
-    const std::vector< WPosition >& positions = *( magOut->getChannelPositions3d() );
+    const WLEMDMEG::PositionsT& positions = *( magOut->getChannelPositions3d() );
     const std::vector< WVector3i >& faces = *( magOut->getFaces() );
 
     // Prepare view: top, side, buttom
@@ -121,10 +119,10 @@ void WLEMDDrawable3DHPI::osgInitMegHelmet()
     const WColor mag_node = defaultColor::BLUE;
     const float sphere_size = 1.0f;
     m_magSensorsGeode = new osg::Geode;
-    std::vector< WPosition >::const_iterator it;
-    for( it = positions.begin(); it != positions.end(); ++it )
+    for( WLEMDMEG::PositionsT::IndexT i = 0; i < positions.size(); ++i )
     {
-        const osg::Vec3 pos = *it * m_zoomFactor;
+        const WLEMDMEG::PositionsT::PositionT tmp = positions.at( i ) * m_zoomFactor;
+        const osg::Vec3 pos( tmp.x(), tmp.y(), tmp.z() );
         // create sphere geode on electrode position
         osg::ref_ptr< osg::ShapeDrawable > shape = new osg::ShapeDrawable( new osg::Sphere( pos, sphere_size ) );
         shape->setColor( mag_node );
@@ -138,12 +136,13 @@ void WLEMDDrawable3DHPI::osgInitMegHelmet()
     // osgAddSurface
     // -------------
     const WColor mag_surface( 0.9, 0.9, 9.0, 0.6 );
-    const size_t nbPositions = positions.size();
+    const WLEMDMEG::PositionsT::IndexT nbPositions = positions.size();
     std::vector< WPosition > scaledPos;
     scaledPos.reserve( nbPositions );
-    for( size_t i = 0; i < nbPositions; ++i )
+    for( WLEMDMEG::PositionsT::IndexT i = 0; i < nbPositions; ++i )
     {
-        scaledPos.push_back( positions[i] * m_zoomFactor );
+        const WLEMDMEG::PositionsT::PositionT tmp = positions.at( i ) * m_zoomFactor;
+        scaledPos.push_back( WPosition( tmp.x(), tmp.y(), tmp.z() ) );
     }
     WTriangleMesh::SPtr tri;
     if( faces.size() > 0 )
@@ -190,15 +189,15 @@ void WLEMDDrawable3DHPI::osgInitMegHelmet()
     m_rootGroup->addChild( m_viewGeode );
 }
 
-void WLEMDDrawable3DHPI::osgAddOrUpdateHpiCoils( const std::vector< WPosition >& positions )
+void WLEMDDrawable3DHPI::osgAddOrUpdateHpiCoils( const WLPositions& positions )
 {
     m_viewGeode->removeChild( m_hpiCoilsGeode );
     const float sphere_size = 3.0f;
     m_hpiCoilsGeode = new osg::Geode;
-    std::vector< WPosition >::const_iterator it;
-    for( it = positions.begin(); it != positions.end(); ++it )
+    for( WLPositions::IndexT i = 0; i < positions.size(); ++i )
     {
-        const osg::Vec3 pos = *it * m_zoomFactor;
+        const WLPositions::PositionT tmp = positions.at( i ) * m_zoomFactor;
+        const osg::Vec3 pos( tmp.x(), tmp.y(), tmp.z() );
         // create sphere geode on hpi position
         osg::ref_ptr< osg::ShapeDrawable > shape = new osg::ShapeDrawable( new osg::Sphere( pos, sphere_size ) );
         shape->setColor( defaultColor::DARKRED );

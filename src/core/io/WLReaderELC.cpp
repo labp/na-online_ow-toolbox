@@ -50,7 +50,7 @@ WLReaderELC::WLReaderELC( std::string fname ) :
 {
 }
 
-WLIOStatus::IOStatusT WLReaderELC::read( std::vector< WPosition >* const posOut, std::vector< std::string >* const labelsOut,
+WLIOStatus::IOStatusT WLReaderELC::read( WLPositions* const posOut, std::vector< std::string >* const labelsOut,
                 std::vector< WVector3i >* const facesOut )
 {
     ifstream ifs;
@@ -73,6 +73,8 @@ WLIOStatus::IOStatusT WLReaderELC::read( std::vector< WPosition >* const posOut,
             if( line.find( "UnitPosition" ) == 0 )
             {
                 rc = readUnit( &exp, line );
+                posOut->exponent( exp );
+                posOut->unit( WLEUnit::METER );
             }
             else
                 if( line.substr( 0, 16 ) == "NumberPositions=" )
@@ -102,10 +104,6 @@ WLIOStatus::IOStatusT WLReaderELC::read( std::vector< WPosition >* const posOut,
                                     rc = readPolygons( ifs, countPoly, facesOut );
                                 }
         }
-        if( exp != WLEExponent::MILLI )
-        {
-            convertToMilli( posOut, exp );
-        }
     }
     catch( const WTypeMismatch& e )
     {
@@ -116,25 +114,11 @@ WLIOStatus::IOStatusT WLReaderELC::read( std::vector< WPosition >* const posOut,
     if( facesOut->empty() )
     {
         wlog::warn( CLASS ) << "No faces found! Faces will be generated.";
-        WLGeometry::computeTriangulation( facesOut, *posOut );
+        WLGeometry::computeTriangulation( facesOut, posOut->data() );
     }
 
     ifs.close();
     return rc;
-}
-
-void WLReaderELC::convertToMilli( std::vector< WPosition >* const pos, WLEExponent::Enum exp )
-{
-    wlog::info( CLASS ) << "Points will be converted from " << exp << " to " << WLEExponent::MILLI;
-    const double fromFactor = WLEExponent::factor( exp );
-    const double toFactor = WLEExponent::factor( WLEExponent::MILLI );
-    const double factor = fromFactor / toFactor;
-    wlog::info( CLASS ) << "Factor: " << factor;
-
-    for( std::vector< WPosition >::size_type i = 0; i < pos->size(); ++i )
-    {
-        ( *pos )[i] *= factor;
-    }
 }
 
 WLIOStatus::IOStatusT WLReaderELC::readUnit( WLEExponent::Enum* const exp, const string& line )
@@ -177,7 +161,7 @@ WLIOStatus::IOStatusT WLReaderELC::readNumPoly( size_t* const count, const strin
     return WLIOStatus::SUCCESS;
 }
 
-WLIOStatus::IOStatusT WLReaderELC::readPositions( ifstream& ifs, size_t count, std::vector< WPosition >* const posOut )
+WLIOStatus::IOStatusT WLReaderELC::readPositions( ifstream& ifs, size_t count, WLPositions* const posOut )
 {
     // Check output data
     if( !posOut )
@@ -185,7 +169,7 @@ WLIOStatus::IOStatusT WLReaderELC::readPositions( ifstream& ifs, size_t count, s
         wlog::error( CLASS ) << "Position vector is null!";
         return WLIOStatus::ERROR_UNKNOWN;
     }
-    posOut->reserve( count );
+    posOut->resize( count );
 
     string line;
     for( size_t i = 0; i < count && getline( ifs, line ); ++i )
@@ -196,7 +180,9 @@ WLIOStatus::IOStatusT WLReaderELC::readPositions( ifstream& ifs, size_t count, s
         float posX = string_utils::fromString< float >( posTokens.at( posTokens.size() - 3 ) );
         float posY = string_utils::fromString< float >( posTokens.at( posTokens.size() - 2 ) );
         float posZ = string_utils::fromString< float >( posTokens.at( posTokens.size() - 1 ) );
-        posOut->push_back( WPosition( posX, posY, posZ ) );
+        posOut->data().col( i ).x() = posX;
+        posOut->data().col( i ).y() = posY;
+        posOut->data().col( i ).z() = posZ;
     }
     if( posOut->size() < count )
     {

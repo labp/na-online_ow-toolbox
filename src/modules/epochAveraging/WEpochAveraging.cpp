@@ -36,7 +36,7 @@
 
 const std::string WEpochAveraging::CLASS = "WEpochAveraging";
 
-WEpochAveraging::WEpochAveraging( size_t tbase ) :
+WEpochAveraging::WEpochAveraging( WLSampleNrT tbase ) :
                 m_tbase( tbase )
 {
     reset();
@@ -57,12 +57,12 @@ void WEpochAveraging::reset()
     m_count = 0;
 }
 
-size_t WEpochAveraging::getTBase() const
+WLSampleNrT WEpochAveraging::getTBase() const
 {
     return m_tbase;
 }
 
-void WEpochAveraging::setTBase( size_t tbase, bool reset )
+void WEpochAveraging::setTBase( WLSampleNrT tbase, bool reset )
 {
     if( reset )
     {

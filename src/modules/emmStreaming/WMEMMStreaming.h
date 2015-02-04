@@ -81,7 +81,7 @@ private:
     WPropBool m_propAutoStart;
     WPropTrigger m_trgStart;
     WPropTrigger m_trgStop;
-    WPropInt m_propBlockSize;
+    WPropInt m_propBlockSize; //!< Block size in milliseconds.
     WPropInt m_propBlocksSent;
 
     struct EStreaming

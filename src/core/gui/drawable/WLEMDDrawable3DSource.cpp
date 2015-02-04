@@ -25,6 +25,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include <osg/Array>
+#include <osg/ref_ptr>
 
 #include <core/common/math/linearAlgebra/WPosition.h>
 #include <core/common/WLogger.h>
@@ -101,7 +102,7 @@ void WLEMDDrawable3DSource::osgNodeCallback( osg::NodeVisitor* nv )
 
     WLEMMSurface::ConstSPtr surf = subject->getSurface( WLEMMSurface::Hemisphere::BOTH );
 
-    m_zoomFactor = WLEExponent::factor( surf->getVertexExponent() ) * 1000;
+    m_zoomFactor = WLEExponent::factor( surf->getVertex()->exponent() ) * 1000;
     osgAddSurface( *surf->getVertex(), *surf->getFaces() );
 
     osgUpdateSurfaceColor( emd->getData() );

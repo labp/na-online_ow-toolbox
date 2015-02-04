@@ -38,7 +38,7 @@ class WPacketizerEMM: public WPacketizer< WLEMMeasurement >
 public:
     static const std::string CLASS;
 
-    WPacketizerEMM( WLEMMeasurement::ConstSPtr data, size_t blockSize );
+    WPacketizerEMM( WLEMMeasurement::ConstSPtr data, WLTimeT blockSize );
     virtual ~WPacketizerEMM();
 
     virtual bool hasNext() const;
@@ -49,6 +49,7 @@ private:
     std::vector< WLEMData::ConstSPtr > m_emds;
     boost::shared_ptr< WLEMMeasurement::EDataT > m_events;
 
+    const WLTimeT m_blockSize;
     size_t m_blockCount;
     bool m_hasData;
 };
