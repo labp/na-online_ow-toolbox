@@ -14,8 +14,9 @@ class Installer(object):
     def __init__(self, name, label):
         self.__name = name
         self.__label = label
-        self.__arg_dest = os.path.expanduser('~')
         self.__log = logging.getLogger(self.__name)
+        self.__arg_dest = os.path.expanduser('~')
+        self.__arg_version = None
 
     @property
     def name(self):
@@ -35,6 +36,15 @@ class Installer(object):
     @arg_dest.setter
     def arg_dest(self, dest):
         self.__arg_dest = os.path.expanduser(dest)
+
+    @property
+    def arg_version(self):
+        """Version of the dependency (optional)."""
+        return self.__arg_version
+
+    @arg_version.setter
+    def arg_version(self, version):
+        self.__arg_version = version
 
     @property
     def log(self):

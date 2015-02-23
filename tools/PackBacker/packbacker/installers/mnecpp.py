@@ -21,6 +21,7 @@ class MneCpp(Installer):
     def __init__(self):
         Installer.__init__(self, 'mne-cpp', 'MNE-CPP')
         self.__arg_qmake5 = 'qmake5'
+        self.arg_version = "38667b56a09aa2e15c58eba85f455d99c42ce880"  # 2014-11-19
 
     @property
     def arg_qmake5(self):
@@ -40,6 +41,8 @@ class MneCpp(Installer):
             raise ParameterError(Parameter.DEST_DIR + ' parameter is missing!')
         if installer.PARAM_QMAKE5 in params:
             installer.arg_qmake5 = params[installer.PARAM_QMAKE5]
+        if Parameter.VERSION in params:
+            installer.arg_version = params[Parameter.VERSION]
         return installer
 
     @classmethod
@@ -89,8 +92,7 @@ class MneCpp(Installer):
         UtilsUI.print_step_begin("Initializing")
         repo_dir = os.path.join(self.arg_dest, self.REPO_FOLDER)
         os.chdir(repo_dir)
-        version = "38667b56a09aa2e15c58eba85f455d99c42ce880"  # 2014-11-19
-        call("git checkout " + version, shell=True)
+        call("git checkout " + self.arg_version, shell=True)
         UtilsUI.print_step_end("Initializing")
         return True
 

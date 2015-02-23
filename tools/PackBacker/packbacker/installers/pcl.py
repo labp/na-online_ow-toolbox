@@ -21,6 +21,7 @@ class Pcl(Installer):
 
     def __init__(self):
         Installer.__init__(self, "pcl", "Point Cloud Library (PCL)")
+        self.arg_version = "pcl-1.7.1"  # 2013-10-07
 
     @classmethod
     def instance(cls, params):
@@ -29,6 +30,8 @@ class Pcl(Installer):
             installer.arg_dest = params[Parameter.DEST_DIR]
         else:
             raise ParameterError(Parameter.DEST_DIR + ' parameter is missing!')
+        if Parameter.VERSION in params:
+            installer.arg_version = params[Parameter.VERSION]
         return installer
 
     @classmethod
@@ -77,8 +80,7 @@ class Pcl(Installer):
         UtilsUI.print_step_begin("Initializing")
         repo_dir = os.path.join(self.arg_dest, self.REPO_FOLDER)
         os.chdir(repo_dir)
-        version = "pcl-1.7.1"  # 2013-10-07
-        call("git checkout " + version, shell=True)
+        call("git checkout " + self.arg_version, shell=True)
         UtilsUI.print_step_end("Initializing")
         return True
 
