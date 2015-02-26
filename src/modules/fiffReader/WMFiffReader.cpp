@@ -215,25 +215,25 @@ void WMFiffReader::moduleMain()
 
         if( m_reloadFiff )
         {
-            handleFiffFileChanged();
+            hdlFiffFileChanged();
             m_reloadFiff = false;
         }
 
         if( m_trgLoadData->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
-            handleTrgLoad();
+            hdlTrgLoad();
         }
 
         if( m_trgSendEMM->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
-            handleTrgSendEMM();
+            hdlTrgSendEMM();
         }
     }
 }
 
-void WMFiffReader::handleTrgSendEMM()
+void WMFiffReader::hdlTrgSendEMM()
 {
-    debugLog() << "handleTrgSendEMM() called!";
+    debugLog() << __func__ << "() called!";
 
     if( !m_emm )
     {
@@ -252,7 +252,7 @@ void WMFiffReader::handleTrgSendEMM()
     m_trgSendEMM->set( WPVBaseTypes::PV_TRIGGER_READY, true );
 }
 
-void WMFiffReader::handleFiffFileChanged()
+void WMFiffReader::hdlFiffFileChanged()
 {
     WDataModuleInputFile::SPtr inputFile = getInputAs< WDataModuleInputFile >();
     if( !inputFile )
@@ -401,7 +401,7 @@ bool WMFiffReader::retrieveAdditionalData( const std::string& fName )
     return hasData;
 }
 
-void WMFiffReader::handleTrgLoad()
+void WMFiffReader::hdlTrgLoad()
 {
     WProgress::SPtr progress( new WProgress( "Reading additional data" ) );
     m_progress->addSubProgress( progress );

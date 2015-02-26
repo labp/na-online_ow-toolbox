@@ -82,7 +82,7 @@ private:
     WLEMMSubject::SPtr m_subject;
 
     WPropTrigger m_trgSendEMM;
-    void handleTrgSendEMM();
+    void hdlTrgSendEMM();
 
     struct EFileStatus
     {
@@ -98,7 +98,7 @@ private:
     void updateFileStatus( EFileStatus::Enum status );
 
     bool m_reloadFiff;
-    void handleFiffFileChanged();
+    void hdlFiffFileChanged();
     bool readFiffFile( const std::string& fName );
 
     struct EDataStatus
@@ -115,7 +115,7 @@ private:
     void updateDataStatus( EDataStatus::Enum status );
 
     WPropTrigger m_trgLoadData;
-    void handleTrgLoad();
+    void hdlTrgLoad();
     bool readData();
 
     bool retrieveAdditionalData( const std::string& fName );
