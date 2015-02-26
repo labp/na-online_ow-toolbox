@@ -50,8 +50,9 @@
 #include "core/data/emd/WLEMData.h"
 #include "core/data/emd/WLEMDEEG.h"
 #include "core/data/emd/WLEMDMEG.h"
+#include "core/io/WLRtClient.h"
 
-class WRtClient
+class WRtClient: public WLRtClient
 {
 public:
     typedef boost::shared_ptr< WRtClient > SPtr;
@@ -62,27 +63,33 @@ public:
     WRtClient( const std::string& ip_address, const std::string& alias );
     virtual ~WRtClient();
 
-    bool connect();
+    virtual bool connect();
 
-    bool isConnected() const;
+    virtual void disconnect();
 
-    void disconnect();
+    virtual bool start();
 
-    bool start();
-
-    bool stop();
-
-    bool isStreaming() const;
+    virtual bool stop();
 
     int getConnectors( std::map< int, std::string >* const conMap );
     bool setConnector( int conId );
 
     bool setSimulationFile( std::string simFile );
 
-    void setBlockSize( int blockSize );
-    int getBlockSize() const;
+    /**
+     * Not used in this implementation. readEmm() should be split into read and fetch.
+     *
+     * \return true
+     */
+    virtual bool fetchData();
+    /**
+     * Returns a EMM prototype which should be used for readEmm().
+     *
+     * \return An EMM instance with necessary informations.
+     */
+    WLEMMeasurement::SPtr getEmmPrototype() const;
 
-    bool readData( WLEMMeasurement::SPtr* const emmIn );
+    virtual bool readEmm( WLEMMeasurement::SPtr emmIn );
 
     bool isScalingApplied() const;
     void setScaling( bool applyScaling );
@@ -93,9 +100,6 @@ public:
 private:
     typedef std::vector< WVector3i > FacesT;
     typedef boost::shared_ptr< FacesT > FacesSPtr;
-
-    bool m_isStreaming;
-    bool m_isConnected;
 
     std::map< int, std::string > m_conMap;
     int m_conSelected;
@@ -132,8 +136,6 @@ private:
     const std::string m_ipAddress;
     const std::string m_alias;
     qint32 m_clientId;
-
-    int m_blockSize;
 
     WLList< WLDigPoint >::SPtr m_digPoints;
 

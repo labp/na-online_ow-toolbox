@@ -327,8 +327,8 @@ void WMMneRtClient::handleTrgDataStart()
         bool isFirst = true;
         while( !m_stopStreaming && !m_shutdownFlag() )
         {
-            WLEMMeasurement::SPtr emm;
-            if( m_rtClient->readData( &emm ) )
+            WLEMMeasurement::SPtr emm = m_rtClient->getEmmPrototype();
+            if( m_rtClient->readEmm( emm ) )
             {
                 if( isFirst )
                 {

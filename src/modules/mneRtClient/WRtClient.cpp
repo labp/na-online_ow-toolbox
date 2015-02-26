@@ -53,8 +53,6 @@ const std::string WRtClient::CLASS = "WRtClient";
 WRtClient::WRtClient( const std::string& ip_address, const std::string& alias ) :
                 m_ipAddress( ip_address ), m_alias( alias )
 {
-    m_isStreaming = false;
-    m_isConnected = false;
     m_clientId = -1;
     m_conSelected = -1;
     m_blockSize = 500;
@@ -101,15 +99,20 @@ bool WRtClient::connect()
         wlog::info( CLASS ) << "Data Client connected!";
     }
 
-    m_isConnected = m_rtCmdClient->state() == QAbstractSocket::ConnectedState
-                    && m_rtDataClient->state() == QAbstractSocket::ConnectedState;
+    if( m_rtCmdClient->state() == QAbstractSocket::ConnectedState && m_rtDataClient->state() == QAbstractSocket::ConnectedState )
+    {
+        m_status = STATUS_CONNECTED;
+    }
 
     if( !isConnected() )
     {
         disconnect();
+        return false;
     }
-
-    return m_isConnected;
+    else
+    {
+        return true;
+    }
 }
 
 bool WRtClient::prepareStreaming()
@@ -208,11 +211,6 @@ bool WRtClient::prepareStreaming()
     return m_picksEeg.size() > 0 || m_picksMeg.size() > 0;
 }
 
-bool WRtClient::isConnected() const
-{
-    return m_isConnected;
-}
-
 void WRtClient::disconnect()
 {
     wlog::debug( CLASS ) << "disconnect() called!";
@@ -234,7 +232,7 @@ void WRtClient::disconnect()
             wlog::info( CLASS ) << "Command Client disconnected!";
         }
     }
-    m_isConnected = false;
+    m_status = STATUS_DISCONNECTED;
 }
 
 bool WRtClient::start()
@@ -269,7 +267,7 @@ bool WRtClient::start()
     ( *m_rtCmdClient )["start"].send();
     // TODO(pieloth): Check if streaming has been started.
 
-    m_isStreaming = true;
+    m_status = STATUS_STREAMING;
 
     return true;
 }
@@ -292,14 +290,9 @@ bool WRtClient::stop()
 
     ( *m_rtCmdClient )["stop-all"].send();
 // TODO(pieloth): Check if streaming has been stopped.
-    m_isStreaming = false;
+    m_status = STATUS_STOPPED;
 
     return true;
-}
-
-bool WRtClient::isStreaming() const
-{
-    return m_isStreaming;
 }
 
 bool WRtClient::isScalingApplied() const
@@ -357,16 +350,6 @@ bool WRtClient::setConnector( int conId )
     }
 }
 
-void WRtClient::setBlockSize( int blockSize )
-{
-    m_blockSize = blockSize;
-}
-
-int WRtClient::getBlockSize() const
-{
-    return m_blockSize;
-}
-
 bool WRtClient::setSimulationFile( std::string fname )
 {
     if( !isConnected() )
@@ -391,7 +374,18 @@ bool WRtClient::setSimulationFile( std::string fname )
     }
 }
 
-bool WRtClient::readData( WLEMMeasurement::SPtr* const emmIn )
+bool WRtClient::fetchData()
+{
+    // Not used in this implementation.
+    return true;
+}
+
+WLEMMeasurement::SPtr WRtClient::getEmmPrototype() const
+{
+    return m_emmPrototype->clone();
+}
+
+bool WRtClient::readEmm( WLEMMeasurement::SPtr emmIn )
 {
     wlog::debug( CLASS ) << "readData() called!";
     if( !isConnected() )
@@ -399,8 +393,6 @@ bool WRtClient::readData( WLEMMeasurement::SPtr* const emmIn )
         wlog::error( CLASS ) << "Client not connected!";
         return false;
     }
-
-    *emmIn = m_emmPrototype->clone();
 
     FIFFLIB::fiff_int_t kind;
     Eigen::MatrixXf matRawBuffer;
@@ -414,17 +406,17 @@ bool WRtClient::readData( WLEMMeasurement::SPtr* const emmIn )
         if( m_picksEeg.size() > 0 )
         {
             emd = readEEG( matRawBuffer );
-            ( *emmIn )->addModality( emd );
+            emmIn->addModality( emd );
         }
         if( m_picksMeg.size() > 0 )
         {
             emd = readMEG( matRawBuffer );
-            ( *emmIn )->addModality( emd );
+            emmIn->addModality( emd );
         }
         if( m_picksStim.size() > 0 )
         {
             boost::shared_ptr< WLEMMeasurement::EDataT > events = readEvents( matRawBuffer );
-            ( *emmIn )->setEventChannels( events );
+            emmIn->setEventChannels( events );
         }
         return true;
     }
@@ -432,7 +424,7 @@ bool WRtClient::readData( WLEMMeasurement::SPtr* const emmIn )
     {
         if( kind == FIFF_BLOCK_END )
         {
-            m_isStreaming = false;
+            m_status = STATUS_STOPPED;
             return false;
         }
         return false;
