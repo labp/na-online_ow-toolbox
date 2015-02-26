@@ -136,7 +136,7 @@ void WMEpochRejection::properties()
 
     // getting the SelectorProperty from the list an add it to the properties
     m_rejectionTypeSelection = m_propGrpRejection->addProperty( "Rejection Type", "Choose a rejection type.",
-                    m_rejectionType->getSelectorFirst(), boost::bind( &WMEpochRejection::callbackRejectionTypeChanged, this ) );
+                    m_rejectionType->getSelectorFirst(), boost::bind( &WMEpochRejection::cbRejectionTypeChanged, this ) );
     m_rejectionTypeSelection->changed( true );
 
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_rejectionTypeSelection );
@@ -218,7 +218,7 @@ void WMEpochRejection::moduleInit()
 
     viewInit( WLEMDDrawable2D::WEGraphType::SINGLE );
 
-    callbackRejectionTypeChanged(); // set the rejection type.
+    cbRejectionTypeChanged(); // set the rejection type.
 
     initThresholds();
 
@@ -261,7 +261,7 @@ void WMEpochRejection::moduleMain()
         // button applyBufferSize clicked
         if( m_applyBufferSize->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
-            handleApplyBufferSize();
+            hdlApplyBufferSize();
 
             m_applyBufferSize->set( WPVBaseTypes::PV_TRIGGER_READY, true );
         }
@@ -269,7 +269,7 @@ void WMEpochRejection::moduleMain()
         // button/trigger applyThresholds clicked
         if( m_applyThresholds->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
-            handleApplyThresholds();
+            hdlApplyThresholds();
 
             m_applyThresholds->set( WPVBaseTypes::PV_TRIGGER_READY, true );
         }
@@ -277,7 +277,7 @@ void WMEpochRejection::moduleMain()
         // button/trigger moduleReset clicked
         if( m_resetModule->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
-            handleModuleReset();
+            hdlModuleReset();
 
             m_resetModule->set( WPVBaseTypes::PV_TRIGGER_READY, true );
         }
@@ -311,7 +311,7 @@ void WMEpochRejection::moduleMain()
 
 bool WMEpochRejection::processCompute( WLEMMeasurement::SPtr emmIn )
 {
-    WLTimeProfiler tp( "WMEpochRejection", "processCompute" );
+    WLTimeProfiler tp( "WMEpochRejection", __func__ );
 
     // show process visualization
     boost::shared_ptr< WProgress > rejectProcess = boost::shared_ptr< WProgress >( new WProgress( "Check data for rejection." ) );
@@ -416,9 +416,9 @@ void WMEpochRejection::updateBadChannels( WLEMMeasurement::SPtr emm )
     }
 }
 
-void WMEpochRejection::callbackRejectionTypeChanged()
+void WMEpochRejection::cbRejectionTypeChanged()
 {
-    debugLog() << "callbackRejectionTypeChanged() called.";
+    debugLog() << __func__ << "() called.";
 
     m_rejection =
                     m_rejectionTypeSelection->get().at( 0 )->getAs< WItemSelectionItemTyped< WEpochRejection::SPtr > >()->getValue();
@@ -438,12 +438,12 @@ void WMEpochRejection::initThresholds()
     m_rejection->setThresholds( m_thresholds );
 }
 
-void WMEpochRejection::handleApplyBufferSize()
+void WMEpochRejection::hdlApplyBufferSize()
 {
     WBadEpochManager::instance()->resizeBuffer( m_epochBufferSize->get() );
 }
 
-void WMEpochRejection::handleApplyThresholds()
+void WMEpochRejection::hdlApplyThresholds()
 {
     debugLog() << "Apply thresholds.";
 
@@ -457,12 +457,12 @@ void WMEpochRejection::handleApplyThresholds()
 
     m_rejection->setThresholds( m_thresholds );
 
-    handleModuleReset();
+    hdlModuleReset();
 
     checkBufferedEpochs(); // test all buffered epochs.
 }
 
-void WMEpochRejection::handleModuleReset()
+void WMEpochRejection::hdlModuleReset()
 {
     debugLog() << "Module reset.";
 

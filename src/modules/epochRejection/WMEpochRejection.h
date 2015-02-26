@@ -130,16 +130,16 @@ private:
      */
     void updateOutput( WLEMMeasurement::SPtr emm );
 
-    void handleApplyBufferSize();
+    void hdlApplyBufferSize();
 
-    void handleApplyThresholds();
+    void hdlApplyThresholds();
 
-    void handleModuleReset();
+    void hdlModuleReset();
 
     /**
      * Switches the rejection algorithm.
      */
-    void callbackRejectionTypeChanged();
+    void cbRejectionTypeChanged();
 
     /**
      * Method to test all buffered Epochs for rejection.
