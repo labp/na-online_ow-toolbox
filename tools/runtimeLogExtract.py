@@ -1,10 +1,10 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Extracts and sums runtimes from a log file."""
 
 import argparse
 import re
 
-class TimeRecord:
+class TimeRecord(object):
 	"""Stores all information about a defined time tag, which should be extracted."""
 	
 	def __init__(self, pattern, name):
