@@ -117,7 +117,7 @@ void WMSourceReconstruction::properties()
 
     m_percent = getViewProperties()->addProperty( "Percent of strength", "The pecental value of strength to display the sources.",
                     WLBoundCalculatorHistogram::DEFAULT_PERCENTAGE,
-                    boost::bind( &WMSourceReconstruction::callbackIncludesChanged, this ), false );
+                    boost::bind( &WMSourceReconstruction::cbIncludesChanged, this ), false );
     m_percent->setMax( 100 );
     m_percent->setMin( 0 );
 
@@ -213,9 +213,9 @@ void WMSourceReconstruction::moduleInit()
 
     infoLog() << "Restoring module ...";
 
-    handleImplementationChanged();
-    handleWeightingTypeChanged();
-    handleSnrChanged();
+    hdlImplementationChanged();
+    hdlWeightingTypeChanged();
+    hdlSnrChanged();
 
     infoLog() << "Restoring module finished!";
 }
@@ -241,22 +241,22 @@ void WMSourceReconstruction::moduleMain()
 
         if( m_resetModule->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
-            handleResetTrigger();
+            hdlResetTrigger();
         }
 
         if( m_weightingTypesSelection->changed( true ) )
         {
-            handleWeightingTypeChanged();
+            hdlWeightingTypeChanged();
         }
 
         if( m_snr->changed( true ) )
         {
-            handleSnrChanged();
+            hdlSnrChanged();
         }
 
         if( m_useCuda->changed( true ) )
         {
-            handleImplementationChanged();
+            hdlImplementationChanged();
         }
 
         cmd.reset();
@@ -267,7 +267,7 @@ void WMSourceReconstruction::moduleMain()
 
         if( m_lastModality != getComputeModality() )
         {
-            handleComputeModalityChanged();
+            hdlComputeModalityChanged();
         }
 
         const bool dataValid = ( cmd );
@@ -282,9 +282,9 @@ void WMSourceReconstruction::moduleMain()
     viewCleanup();
 }
 
-void WMSourceReconstruction::handleImplementationChanged( void )
+void WMSourceReconstruction::hdlImplementationChanged( void )
 {
-    debugLog() << "callbackImplementationChanged() called!";
+    debugLog() << __func__ << "() called!";
 
     if( m_useCuda->get() )
     {
@@ -303,9 +303,9 @@ void WMSourceReconstruction::handleImplementationChanged( void )
     }
 }
 
-void WMSourceReconstruction::handleResetTrigger()
+void WMSourceReconstruction::hdlResetTrigger()
 {
-    debugLog() << "handleResetTrigger() called!";
+    debugLog() << __func__ << "() called!";
 
     WLEMMCommand::SPtr cmd( new WLEMMCommand( WLEMMCommand::Command::RESET ) );
     processReset( cmd );
@@ -313,9 +313,9 @@ void WMSourceReconstruction::handleResetTrigger()
     m_resetModule->set( WPVBaseTypes::PV_TRIGGER_READY );
 }
 
-void WMSourceReconstruction::handleWeightingTypeChanged()
+void WMSourceReconstruction::hdlWeightingTypeChanged()
 {
-    debugLog() << "handleWeightingTypeChanged() called!";
+    debugLog() << __func__ << "() called!";
     WProgress::SPtr progress( new WProgress( "Changing weighting type" ) );
     m_progress->addSubProgress( progress );
 
@@ -341,13 +341,13 @@ void WMSourceReconstruction::handleWeightingTypeChanged()
     m_progress->removeSubProgress( progress );
 }
 
-void WMSourceReconstruction::handleSnrChanged()
+void WMSourceReconstruction::hdlSnrChanged()
 {
-    debugLog() << "handleSnrChanged() called!";
+    debugLog() << __func__ << "() called!";
     WProgress::SPtr progress( new WProgress( "Changing SNR" ) );
     m_progress->addSubProgress( progress );
 
-    WLTimeProfiler tp( "WMSourceReconstruction", "handleSnrChanged" );
+    WLTimeProfiler tp( "WMSourceReconstruction", __func__ );
 
     if( !m_nCovarianceMatrix || !m_dCovarianceMatrix )
     {
@@ -377,20 +377,20 @@ void WMSourceReconstruction::handleSnrChanged()
     m_progress->removeSubProgress( progress );
 }
 
-void WMSourceReconstruction::handleComputeModalityChanged()
+void WMSourceReconstruction::hdlComputeModalityChanged()
 {
-    debugLog() << "handleComputeModalityChanged()";
+    debugLog() << __func__ << "() called!";
     m_lastModality = getComputeModality();
     m_sourceReconstruction->reset();
 }
 
 bool WMSourceReconstruction::inverseSolutionFromSubject( WLEMMeasurement::SPtr emm, WLEModality::Enum modality )
 {
-    debugLog() << "inverseSolutionFromSubject() called!";
+    debugLog() << __func__ << "() called!";
     WProgress::SPtr progress( new WProgress( "Computing inverse operator" ) );
     m_progress->addSubProgress( progress );
 
-    WLTimeProfiler tp( "WMSourceReconstruction", "inverseSolutionFromSubject" );
+    WLTimeProfiler tp( "WMSourceReconstruction", __func__ );
 
     WLEMMSubject::SPtr subject = emm->getSubject();
     if( !subject )
@@ -427,8 +427,8 @@ bool WMSourceReconstruction::inverseSolutionFromSubject( WLEMMeasurement::SPtr e
     m_nCovarianceMatrix.reset( new MatrixT( leadfield->rows(), leadfield->rows() ) );
     m_nCovarianceMatrix->setIdentity();
 
-    handleWeightingTypeChanged();
-    handleSnrChanged();
+    hdlWeightingTypeChanged();
+    hdlSnrChanged();
 
     progress->finish();
     m_progress->removeSubProgress( progress );
@@ -437,7 +437,7 @@ bool WMSourceReconstruction::inverseSolutionFromSubject( WLEMMeasurement::SPtr e
 
 bool WMSourceReconstruction::processCompute( WLEMMeasurement::SPtr emmIn )
 {
-    WLTimeProfiler tp( "WMSourceReconstruction", "processCompute" );
+    WLTimeProfiler tp( "WMSourceReconstruction", __func__ );
 
     WLEMMeasurement::SPtr emmOut;
     WLEMDSource::SPtr sourceOut;
@@ -488,7 +488,7 @@ bool WMSourceReconstruction::processCompute( WLEMMeasurement::SPtr emmIn )
 
 bool WMSourceReconstruction::processInit( WLEMMCommand::SPtr cmdIn )
 {
-    WLTimeProfiler tp( "WMSourceReconstruction", "processInit" );
+    WLTimeProfiler tp( "WMSourceReconstruction", __func__ );
     WLEModality::Enum modality = this->getComputeModality();
     bool rc = true;
     if( cmdIn->hasEmm() )
@@ -525,7 +525,7 @@ bool WMSourceReconstruction::processReset( WLEMMCommand::SPtr cmdIn )
     return true;
 }
 
-void WMSourceReconstruction::callbackIncludesChanged()
+void WMSourceReconstruction::cbIncludesChanged()
 {
     getBoundCalculator()->getAs< WLBoundCalculatorHistogram >()->setPercent( m_percent->get() );
 

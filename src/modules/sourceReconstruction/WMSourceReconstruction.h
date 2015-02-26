@@ -86,7 +86,7 @@ protected:
     virtual bool processReset( WLEMMCommand::SPtr cmdIn );
 
 private:
-    WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input; /**< Buffered input connector. */
+    WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input; //!< Buffered input connector.
 
     /**
      * A condition used to notify about changes in several properties.
@@ -101,12 +101,12 @@ private:
     WPropGroup m_propGrpSourceReconstruction;
 
     WPropBool m_useCuda;
-    void handleImplementationChanged();
+    void hdlImplementationChanged();
 
     // algorithm properties //
     WPropTrigger m_resetModule;
     WSourceReconstruction::SPtr m_sourceReconstruction;
-    void handleResetTrigger();
+    void hdlResetTrigger();
 
     // Leadfield properties //
     WPropString m_leadfieldStatus;
@@ -119,14 +119,14 @@ private:
     WPropString m_weightingStatus;
     WPropInt m_weightingRows;
     WPropInt m_weightingCols;
-    void handleWeightingTypeChanged();
+    void hdlWeightingTypeChanged();
 
     // SNR properties //
     WPropDouble m_snr;
-    void handleSnrChanged();
+    void hdlSnrChanged();
 
     WLEModality::Enum m_lastModality;
-    void handleComputeModalityChanged();
+    void hdlComputeModalityChanged();
 
     // Generate inverse solution //
     WPropString m_inverseStatus;
@@ -138,7 +138,7 @@ private:
     WLMatrix::SPtr m_nCovarianceMatrix;
     WLMatrix::SPtr m_dCovarianceMatrix;
 
-    void callbackIncludesChanged();
+    void cbIncludesChanged();
 };
 
 #endif  // WMSOURCERECONSTRUCTION_H
