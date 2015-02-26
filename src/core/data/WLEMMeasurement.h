@@ -44,7 +44,6 @@
 #include "core/data/emd/WLEMData.h"
 #include "core/data/enum/WLEModality.h"
 #include "core/data/enum/WLEPointType.h"
-#include "core/util/profiler/WLLifetimeProfiler.h"
 
 /**
  * \brief Electromagnetic measurement contains all data and information about a measurement.
@@ -274,27 +273,6 @@ public:
     WLChanNrT getEventChannelCount() const;
 
     /**
-     * Gets profiler for lifetime and clone counter.
-     *
-     * \return profiler
-     */
-    WLLifetimeProfiler::SPtr getProfiler();
-
-    /**
-     * Gets profiler for lifetime and clone counter.
-     *
-     * \return profiler
-     */
-    WLLifetimeProfiler::ConstSPtr getProfiler() const;
-
-    /**
-     * Sets profiler for lifetime and clone counter.
-     *
-     * \param profiler
-     */
-    void setProfiler( WLLifetimeProfiler::SPtr profiler );
-
-    /**
      * Gets the digitized points, i.e. EEG and HPI.
      *
      * \return digitized points
@@ -386,8 +364,6 @@ public:
     void setHpiInfo( WLEMMHpiInfo::SPtr hpiInfo );
 
 private:
-    WLLifetimeProfiler::SPtr m_profiler;
-
     std::string m_experimenter; //!< experiment supervisor.
 
     std::string m_expDescription; //!< description of experiment.

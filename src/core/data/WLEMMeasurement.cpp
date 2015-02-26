@@ -54,7 +54,6 @@ WLEMMeasurement::WLEMMeasurement()
 
     m_eventChannels.reset( new EDataT() );
     m_subject.reset( new WLEMMSubject() );
-    m_profiler.reset( new WLLifetimeProfiler( CLASS, "lifetime" ) );
     m_hpiInfo.reset( new WLEMMHpiInfo() );
 
     m_digPoints = WLList< WLDigPoint >::instance();
@@ -72,7 +71,6 @@ WLEMMeasurement::WLEMMeasurement( WLEMMSubject::SPtr subject )
 
     m_subject = subject;
     m_eventChannels.reset( new EDataT() );
-    m_profiler.reset( new WLLifetimeProfiler( CLASS, "lifetime" ) );
     m_hpiInfo.reset( new WLEMMHpiInfo() );
     m_digPoints = WLList< WLDigPoint >::instance();
 }
@@ -80,8 +78,6 @@ WLEMMeasurement::WLEMMeasurement( WLEMMSubject::SPtr subject )
 WLEMMeasurement::WLEMMeasurement( const WLEMMeasurement& emm )
 {
     m_eventChannels.reset( new EDataT() );
-
-    m_profiler.reset( new WLLifetimeProfiler( *emm.m_profiler ) );
 
     m_expDescription = emm.m_expDescription;
     m_experimenter = emm.m_experimenter;
@@ -265,21 +261,6 @@ WLEMMeasurement::EChannelT& WLEMMeasurement::getEventChannel( WLChanIdxT i ) con
 WLChanNrT WLEMMeasurement::getEventChannelCount() const
 {
     return m_eventChannels->size();
-}
-
-WLLifetimeProfiler::SPtr WLEMMeasurement::getProfiler()
-{
-    return m_profiler;
-}
-
-WLLifetimeProfiler::ConstSPtr WLEMMeasurement::getProfiler() const
-{
-    return m_profiler;
-}
-
-void WLEMMeasurement::setProfiler( WLLifetimeProfiler::SPtr profiler )
-{
-    m_profiler = profiler;
 }
 
 WLList< WLDigPoint >::SPtr WLEMMeasurement::getDigPoints()

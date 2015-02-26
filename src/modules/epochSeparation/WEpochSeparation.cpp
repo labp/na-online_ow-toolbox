@@ -345,10 +345,6 @@ bool WEpochSeparation::processPostSamples( LeftEpoch::SPtr leftEpoch, WLEMMeasur
     samplesLeft -= offset;
     leftEpoch->m_leftSamples = samplesLeft;
     leftEpoch->m_startIndex = 0;
-    if( samplesLeft == 0 )
-    {
-        emmEpoch->setProfiler( emm->getProfiler()->clone() );
-    }
 
     wlog::debug( CLASS ) << "samples copied: " << offset;
     wlog::debug( CLASS ) << "samplesLeft: " << samplesLeft;
