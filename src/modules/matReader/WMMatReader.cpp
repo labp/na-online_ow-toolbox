@@ -151,7 +151,7 @@ void WMMatReader::moduleMain()
         if( m_reloadMatFile )
         {
             m_status->set( READING_MAT, true );
-            if( handleMatFileChanged() )
+            if( hdlMatFileChanged() )
             {
                 m_status->set( SUCCESS_READ, true );
             }
@@ -165,7 +165,7 @@ void WMMatReader::moduleMain()
         if( m_propSensorFile->changed( true ) )
         {
             m_status->set( READING_SENSORS, true );
-            if( handleSensorFileChanged() )
+            if( hdlSensorFileChanged() )
             {
                 m_status->set( SUCCESS_READ, true );
             }
@@ -178,7 +178,7 @@ void WMMatReader::moduleMain()
         if( m_trgGenerate->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
             m_status->set( GENERATE_EMM, true );
-            if( handleGenerateEMM() )
+            if( hdlGenerateEMM() )
             {
                 m_status->set( SUCCESS_EMM, true );
             }
@@ -206,7 +206,7 @@ void WMMatReader::handleInputChange()
     }
 }
 
-bool WMMatReader::handleSensorFileChanged()
+bool WMMatReader::hdlSensorFileChanged()
 {
     const std::string fName = m_propSensorFile->get().string();
     infoLog() << "Start reading file: " << fName;
@@ -233,7 +233,7 @@ bool WMMatReader::handleSensorFileChanged()
     return true;
 }
 
-bool WMMatReader::handleMatFileChanged()
+bool WMMatReader::hdlMatFileChanged()
 {
     WDataModuleInputFile::SPtr inputFile = getInputAs< WDataModuleInputFile >();
     if( !inputFile )
@@ -276,7 +276,7 @@ bool WMMatReader::handleMatFileChanged()
     return true;
 }
 
-bool WMMatReader::handleGenerateEMM()
+bool WMMatReader::hdlGenerateEMM()
 {
     if( !m_matrix )
     {

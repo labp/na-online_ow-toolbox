@@ -79,7 +79,7 @@ protected:
     virtual bool processCompute( WLEMMeasurement::SPtr emm );
 
 private:
-    WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output; /**<  Output connector for buffered input connectors. */
+    WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output; //!<  Output connector for buffered input connectors.
 
     /**
      * A condition used to notify about changes in several properties.
@@ -89,13 +89,13 @@ private:
     WPropString m_status;
 
     bool m_reloadMatFile;
-    bool handleMatFileChanged();
+    bool hdlMatFileChanged();
 
     WLMatrix::SPtr m_matrix;
 
     WPropFilename m_propSensorFile;
 
-    bool handleSensorFileChanged();
+    bool hdlSensorFileChanged();
 
     WLPositions::SPtr m_sensorPos;
 
@@ -103,15 +103,7 @@ private:
 
     WPropDouble m_propSamplFreq; //!< Sampling frequency in Hz.
 
-    bool handleGenerateEMM();
-
-    WPropFilename m_propLfFile;
-    WLMatrix::SPtr m_leadfield;
-    bool handleLfFileChanged();
-
-    WPropFilename m_propSrcSpaceFile;
-    WLEMMSurface::SPtr m_surface;
-    bool handleSurfaceFileChanged();
+    bool hdlGenerateEMM();
 };
 
 #endif  // WMMATREADER_H_
