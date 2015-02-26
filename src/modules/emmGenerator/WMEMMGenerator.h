@@ -79,7 +79,7 @@ private:
 
     WPropTrigger m_trgGenerate;
 
-    void handleTrgGenerate();
+    void hdlTrgGenerate();
 
     bool generateEMM();
 
