@@ -70,7 +70,7 @@ WRtClient::~WRtClient()
 
 bool WRtClient::connect()
 {
-    wlog::debug( CLASS ) << "connect() called!";
+    wlog::debug( CLASS ) << __func__ << "() called!";
 
     QString ip_address = QString::fromStdString( m_ipAddress );
     wlog::info( CLASS ) << "Connecting to " << m_ipAddress;
@@ -117,7 +117,7 @@ bool WRtClient::connect()
 
 bool WRtClient::prepareStreaming()
 {
-    wlog::debug( CLASS ) << "prepareStreaming() called!";
+    wlog::debug( CLASS ) << __func__ << "() called!";
 
     wlog::debug( CLASS ) << "Set buffer size.";
     ( *m_rtCmdClient )["bufsize"].pValues()[0] = QVariant( m_blockSize );
@@ -213,7 +213,7 @@ bool WRtClient::prepareStreaming()
 
 void WRtClient::disconnect()
 {
-    wlog::debug( CLASS ) << "disconnect() called!";
+    wlog::debug( CLASS ) << __func__ << "() called!";
     stop();
     if( !m_rtDataClient.isNull() )
     {
@@ -237,7 +237,7 @@ void WRtClient::disconnect()
 
 bool WRtClient::start()
 {
-    wlog::debug( CLASS ) << "start() called!";
+    wlog::debug( CLASS ) << __func__ << "() called!";
 
     if( isStreaming() )
     {
@@ -274,7 +274,7 @@ bool WRtClient::start()
 
 bool WRtClient::stop()
 {
-    wlog::debug( CLASS ) << "stop() called!";
+    wlog::debug( CLASS ) << __func__ << "() called!";
 
     if( !isConnected() )
     {
@@ -387,7 +387,7 @@ WLEMMeasurement::SPtr WRtClient::getEmmPrototype() const
 
 bool WRtClient::readEmm( WLEMMeasurement::SPtr emmIn )
 {
-    wlog::debug( CLASS ) << "readData() called!";
+    wlog::debug( CLASS ) << __func__ << "() called!";
     if( !isConnected() )
     {
         wlog::error( CLASS ) << "Client not connected!";
@@ -464,7 +464,7 @@ bool WRtClient::readEmd( WLEMData* const emd, const Eigen::RowVectorXi& picks, c
 
 WLEMDEEG::SPtr WRtClient::readEEG( const Eigen::MatrixXf& rawData )
 {
-    wlog::debug( CLASS ) << "readEEG() called!";
+    wlog::debug( CLASS ) << __func__ << "() called!";
     WLEMDEEG::SPtr eeg = m_eegPrototype->clone()->getAs< WLEMDEEG >();
     readEmd( eeg.get(), m_picksEeg, rawData );
     return eeg;
@@ -472,7 +472,7 @@ WLEMDEEG::SPtr WRtClient::readEEG( const Eigen::MatrixXf& rawData )
 
 WLEMDMEG::SPtr WRtClient::readMEG( const Eigen::MatrixXf& rawData )
 {
-    wlog::debug( CLASS ) << "readMEG() called!";
+    wlog::debug( CLASS ) << __func__ << "() called!";
     WLEMDMEG::SPtr meg = m_megPrototype->clone()->getAs< WLEMDMEG >();
     readEmd( meg.get(), m_picksMeg, rawData );
     return meg;
@@ -480,7 +480,7 @@ WLEMDMEG::SPtr WRtClient::readMEG( const Eigen::MatrixXf& rawData )
 
 boost::shared_ptr< WLEMMeasurement::EDataT > WRtClient::readEvents( const Eigen::MatrixXf& rawData )
 {
-    wlog::debug( CLASS ) << "readStim() called!";
+    wlog::debug( CLASS ) << __func__ << "() called!";
 
     boost::shared_ptr< WLEMMeasurement::EDataT > events( new WLEMMeasurement::EDataT );
     if( m_picksStim.size() == 0 )
@@ -647,7 +647,7 @@ bool WRtClient::preparePrototype( WLEMDMEG* const emd, const Eigen::RowVectorXi&
 
 bool WRtClient::readChannelNames( WLEMData* const emd, const Eigen::RowVectorXi& picks )
 {
-    wlog::debug( CLASS ) << "readChannelNames() called!";
+    wlog::debug( CLASS ) << __func__ << "() called!";
 
     if( picks.size() > 0 )
     {
@@ -672,7 +672,7 @@ bool WRtClient::readChannelNames( WLEMData* const emd, const Eigen::RowVectorXi&
 
 bool WRtClient::readChannelPositions( WLEMData* const emd, const Eigen::RowVectorXi& picks )
 {
-    wlog::debug( CLASS ) << "readChannelPositions() called!";
+    wlog::debug( CLASS ) << __func__ << "() called!";
 
     if( picks.size() == 0 )
     {
@@ -752,7 +752,7 @@ bool WRtClient::readChannelPositions( WLEMData* const emd, const Eigen::RowVecto
 
 bool WRtClient::readChannelFaces( WLEMData* const emd )
 {
-    wlog::debug( CLASS ) << "readChannelFaces() called!";
+    wlog::debug( CLASS ) << __func__ << "() called!";
 
     WLPositions::SPtr positions;
     WLEMDEEG* eeg = dynamic_cast< WLEMDEEG* >( emd );

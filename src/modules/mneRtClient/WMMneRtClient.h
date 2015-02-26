@@ -122,27 +122,27 @@ private:
     WPropTrigger m_trgConConnect;
     WPropTrigger m_trgConDisconnect;
 
-    void handleTrgConConnect();
-    void handleTrgConDisconnect();
+    void hdlTrgConConnect();
+    void hdlTrgConDisconnect();
 
     WPropString m_propDataStatus;
     WPropTrigger m_trgDataStart;
     WPropTrigger m_trgDataStop;
 
-    void handleTrgDataStart();
-    void callbackTrgDataStop();
+    void hdlTrgDataStart();
+    void cbTrgDataStop();
 
     WRtClient::SPtr m_rtClient;
     bool m_stopStreaming;
 
-    void handleTrgConnectorChanged();
+    void hdlTrgConnectorChanged();
     WItemSelection::SPtr m_connectorItem;
     WPropSelection m_connectorSelection;
 
     WPropString m_simFile;
     WPropInt m_blockSize; //!< Samples of one block.
 
-    void callbackApplyScaling();
+    void cbApplyScaling();
     WPropBool m_applyScaling;
 
     // Additional data //
@@ -150,7 +150,7 @@ private:
 
     WPropFilename m_digPointsFile;
     WLList< WLDigPoint >::SPtr m_digPoints;
-    bool handleDigPointsFileChanged( std::string fName );
+    bool hdlDigPointsFileChanged( std::string fName );
 
     WPropString m_additionalStatus;
 
@@ -158,7 +158,7 @@ private:
      * Reset additional infomation button.
      */
     WPropTrigger m_trgAdditionalReset;
-    void handleTrgAdditionalReset();
+    void hdlTrgAdditionalReset();
 };
 
 #endif  // WMMNERTCLIENT_H

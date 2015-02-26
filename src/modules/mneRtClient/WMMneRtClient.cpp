@@ -70,7 +70,7 @@ WMMneRtClient::WMMneRtClient() :
 
 WMMneRtClient::~WMMneRtClient()
 {
-    handleTrgConDisconnect();
+    hdlTrgConDisconnect();
 }
 
 WModule::SPtr WMMneRtClient::factory() const
@@ -139,7 +139,7 @@ void WMMneRtClient::properties()
 
     // TODO(pieloth): Is data stored without scaling by default? ... WMFiffWriter
     m_applyScaling = m_propGrpConControl->addProperty( "Apply scaling:", "Enable scale factor (range * cal).", false,
-                    boost::bind( &WMMneRtClient::callbackApplyScaling, this ) );
+                    boost::bind( &WMMneRtClient::cbApplyScaling, this ) );
 
     // Setup streaming //
     m_propDataStatus = m_propGrpConControl->addProperty( "Data status:", "Streaming status.", STATUS_DATA_NOT_STREAMING );
@@ -147,7 +147,7 @@ void WMMneRtClient::properties()
     m_trgDataStart = m_propGrpConControl->addProperty( "Start streaming:", "Start", WPVBaseTypes::PV_TRIGGER_READY,
                     m_propCondition );
     m_trgDataStop = m_propGrpConControl->addProperty( "Stop streaming:", "Stop", WPVBaseTypes::PV_TRIGGER_READY,
-                    boost::bind( &WMMneRtClient::callbackTrgDataStop, this ) );
+                    boost::bind( &WMMneRtClient::cbTrgDataStop, this ) );
     m_trgDataStop->setHidden( true );
 
     // Setup additional data //
@@ -186,7 +186,7 @@ void WMMneRtClient::moduleInit()
 
     if( m_digPointsFile->changed( true ) )
     {
-        if( handleDigPointsFileChanged( m_digPointsFile->get().string() ) )
+        if( hdlDigPointsFileChanged( m_digPointsFile->get().string() ) )
         {
             // TODO(pieloth): set dig points
             m_rtClient->setDigPointsAndEEG( *m_digPoints.get() );
@@ -210,31 +210,31 @@ void WMMneRtClient::moduleMain()
 
         if( m_trgConConnect->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
-            handleTrgConConnect();
+            hdlTrgConConnect();
         }
         if( m_trgConDisconnect->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
-            handleTrgConDisconnect();
+            hdlTrgConDisconnect();
         }
         if( m_trgDataStart->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
-            handleTrgDataStart();
+            hdlTrgDataStart();
         }
         if( m_connectorSelection->changed( true ) )
         {
-            handleTrgConnectorChanged();
+            hdlTrgConnectorChanged();
         }
 
         if( m_digPointsFile->changed( true ) )
         {
-            if( handleDigPointsFileChanged( m_digPointsFile->get().string() ) )
+            if( hdlDigPointsFileChanged( m_digPointsFile->get().string() ) )
             {
                 m_rtClient->setDigPointsAndEEG( *m_digPoints.get() );
             }
         }
         if( m_trgAdditionalReset->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
-            handleTrgAdditionalReset();
+            hdlTrgAdditionalReset();
 
             m_trgAdditionalReset->set( WPVBaseTypes::PV_TRIGGER_READY, true );
         }
@@ -243,9 +243,9 @@ void WMMneRtClient::moduleMain()
     viewCleanup();
 }
 
-void WMMneRtClient::handleTrgConConnect()
+void WMMneRtClient::hdlTrgConConnect()
 {
-    debugLog() << "handleTrgConConnect() called!";
+    debugLog() << __func__ << "() called!";
 
     m_rtClient.reset( new WRtClient( m_propConIp->get(), "OW-LaBP" ) );
 
@@ -283,11 +283,11 @@ void WMMneRtClient::handleTrgConConnect()
     m_trgConDisconnect->set( WPVBaseTypes::PV_TRIGGER_READY, true );
 }
 
-void WMMneRtClient::handleTrgConDisconnect()
+void WMMneRtClient::hdlTrgConDisconnect()
 {
-    debugLog() << "handleTrgConDisconnect() called!";
+    debugLog() << __func__ << "() called!";
 
-    callbackTrgDataStop();
+    cbTrgDataStop();
     m_rtClient->disconnect();
 
     if( !m_rtClient->isConnected() )
@@ -308,15 +308,15 @@ void WMMneRtClient::handleTrgConDisconnect()
     processReset( WLEMMCommand::instance( WLEMMCommand::Command::RESET ) );
 }
 
-void WMMneRtClient::handleTrgDataStart()
+void WMMneRtClient::hdlTrgDataStart()
 {
-    debugLog() << "handleTrgDataStart() called!";
+    debugLog() << __func__ << "() called!";
 
     m_stopStreaming = false;
 
     m_rtClient->setSimulationFile( m_simFile->get() );
     m_rtClient->setBlockSize( m_blockSize->get() );
-    callbackApplyScaling();
+    cbApplyScaling();
     viewReset();
     if( m_rtClient->start() )
     {
@@ -352,13 +352,13 @@ void WMMneRtClient::handleTrgDataStart()
     m_trgDataStop->set( WPVBaseTypes::PV_TRIGGER_READY, true );
 }
 
-void WMMneRtClient::callbackTrgDataStop()
+void WMMneRtClient::cbTrgDataStop()
 {
-    debugLog() << "callbackTrgDataStop() called!";
+    debugLog() << __func__ << "() called!";
     m_stopStreaming = true;
 }
 
-void WMMneRtClient::callbackApplyScaling()
+void WMMneRtClient::cbApplyScaling()
 {
     if( !m_rtClient )
     {
@@ -367,7 +367,7 @@ void WMMneRtClient::callbackApplyScaling()
     m_rtClient->setScaling( m_applyScaling->get( false ) );
 }
 
-void WMMneRtClient::handleTrgConnectorChanged()
+void WMMneRtClient::hdlTrgConnectorChanged()
 {
     debugLog() << "callbackTrgConnectorChanged() called!";
 
@@ -382,7 +382,7 @@ void WMMneRtClient::handleTrgConnectorChanged()
     }
 }
 
-bool WMMneRtClient::handleDigPointsFileChanged( std::string fName )
+bool WMMneRtClient::hdlDigPointsFileChanged( std::string fName )
 {
     debugLog() << "handleDigPointsFileChanged()";
 
@@ -422,7 +422,7 @@ bool WMMneRtClient::handleDigPointsFileChanged( std::string fName )
     }
 }
 
-void WMMneRtClient::handleTrgAdditionalReset()
+void WMMneRtClient::hdlTrgAdditionalReset()
 {
     debugLog() << "callbackTrgAdditionalReset()";
 
