@@ -120,7 +120,7 @@ void WMEpochAveraging::properties()
 
     // getting the SelectorProperty from the list an add it to the properties
     m_averageTypeSelection = m_propGrpAverage->addProperty( "Average Type", "Choose a average type.",
-                    m_averageType->getSelectorFirst(), boost::bind( &WMEpochAveraging::callbackAverageTypeChanged, this ) );
+                    m_averageType->getSelectorFirst(), boost::bind( &WMEpochAveraging::cbAverageTypeChanged, this ) );
     m_averageTypeSelection->changed( true );
 
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_averageTypeSelection );
@@ -155,7 +155,7 @@ void WMEpochAveraging::moduleInit()
 
     infoLog() << "Restoring module ...";
 
-    callbackAverageTypeChanged();
+    cbAverageTypeChanged();
     // handleResetAveragePressed(); ... called by callbackAverageTypeChanged
 
     infoLog() << "Restoring module finished!";
@@ -183,7 +183,7 @@ void WMEpochAveraging::moduleMain()
         // Configuration setup //
         if( m_resetAverage->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
-            handleResetAveragePressed();
+            hdlResetAveragePressed();
         }
 
         cmdIn.reset();
@@ -203,9 +203,9 @@ void WMEpochAveraging::moduleMain()
     viewCleanup();
 }
 
-void WMEpochAveraging::callbackAverageTypeChanged()
+void WMEpochAveraging::cbAverageTypeChanged()
 {
-    debugLog() << "callbackAverageTypeChanged() called!";
+    debugLog() << __func__ << "() called!";
 
     m_averaging = m_averageTypeSelection->get().at( 0 )->getAs< WItemSelectionItemTyped< WEpochAveraging::SPtr > >()->getValue();
     if( typeid(WEpochAveragingTotal) == typeid(*m_averaging) )
@@ -218,9 +218,9 @@ void WMEpochAveraging::callbackAverageTypeChanged()
     }
 }
 
-void WMEpochAveraging::handleResetAveragePressed()
+void WMEpochAveraging::hdlResetAveragePressed()
 {
-    debugLog() << "handleResetAveragePressed() called!";
+    debugLog() << __func__ << "() called!";
 
     WLEMMCommand::SPtr cmd = WLEMMCommand::instance( WLEMMCommand::Command::RESET );
     processReset( cmd );
@@ -230,7 +230,7 @@ void WMEpochAveraging::handleResetAveragePressed()
 
 bool WMEpochAveraging::processCompute( WLEMMeasurement::SPtr emmIn )
 {
-    WLTimeProfiler tp( "WMEpochAveraging", "processCompute" );
+    WLTimeProfiler tp( "WMEpochAveraging", __func__ );
     WLEMMeasurement::SPtr emmOut;
 
     emmOut = m_averaging->getAverage( emmIn );
