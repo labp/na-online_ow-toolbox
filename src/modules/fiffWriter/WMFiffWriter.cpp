@@ -124,7 +124,7 @@ void WMFiffWriter::moduleMain()
 
         if( m_propFile->changed( true ) )
         {
-            if( handleFileChanged() )
+            if( hdlFileChanged() )
             {
                 m_propFileStatus->set( OPEN, true );
             }
@@ -136,7 +136,7 @@ void WMFiffWriter::moduleMain()
 
         if( m_trgClose->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
-            handleFileClose();
+            hdlFileClose();
         }
 
         cmdIn.reset();
@@ -159,7 +159,7 @@ void WMFiffWriter::moduleMain()
     }
 }
 
-bool WMFiffWriter::handleFileChanged()
+bool WMFiffWriter::hdlFileChanged()
 {
     if( m_fiffWriter )
     {
@@ -180,7 +180,7 @@ bool WMFiffWriter::handleFileChanged()
     }
 }
 
-void WMFiffWriter::handleFileClose()
+void WMFiffWriter::hdlFileClose()
 {
     if( m_fiffWriter )
     {
@@ -229,7 +229,7 @@ bool WMFiffWriter::processTime( WLEMMCommand::SPtr labp )
 bool WMFiffWriter::processReset( WLEMMCommand::SPtr labp )
 {
     m_input->clear();
-    handleFileChanged();
+    hdlFileChanged();
     m_output->updateData( labp );
     return true;
 }

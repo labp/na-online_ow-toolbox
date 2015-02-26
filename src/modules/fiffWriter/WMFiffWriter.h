@@ -108,9 +108,9 @@ private:
 
     WPropString m_propFileStatus;
 
-    bool handleFileChanged();
+    bool hdlFileChanged();
 
-    void handleFileClose();
+    void hdlFileClose();
 
     WWriterFiff::SPtr m_fiffWriter;
 };
