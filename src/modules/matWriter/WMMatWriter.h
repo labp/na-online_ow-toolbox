@@ -65,7 +65,7 @@ protected:
     virtual void moduleMain();
 
 private:
-    WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input; /**< Buffered input connector. */
+    WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input; //!< Buffered input connector.
 
     /**
      * A condition used to notify about changes in several properties.
@@ -78,7 +78,7 @@ private:
 
     WPropFilename m_propMatFile;
 
-    bool handleMatFileChanged();
+    bool hdlMatFileChanged();
 
     WLWriterMAT::SPtr m_writer;
 
