@@ -95,24 +95,24 @@ private:
     WLEMDDrawable3DHPI::SPtr m_drawableSide;
     WLEMDDrawable3DHPI::SPtr m_drawableFront;
 
-    WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input; /**< Buffered input connector. */
-    WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output; /**<  Output connector for buffered input connectors. */
+    WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input; //!< Buffered input connector.
+    WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output; //!<  Output connector for buffered input connectors.
 
-    WCondition::SPtr m_condition; /**< Used to notify module when a property changed. */
+    WCondition::SPtr m_condition; //!< Used to notify module when a property changed.
 
-    WPropGroup m_propGroupExtraction; /**< Collects all properties for HPI Signal Extraction. */
+    WPropGroup m_propGroupExtraction; //!< Collects all properties for HPI Signal Extraction.
 
-    WPropDouble m_propHpi1Freq; /**< Frequency for HPI coil 1 in Hz. */
-    WPropDouble m_propHpi2Freq; /**< Frequency for HPI coil 2 in Hz. */
-    WPropDouble m_propHpi3Freq; /**< Frequency for HPI coil 3 in Hz. */
-    WPropDouble m_propHpi4Freq; /**< Frequency for HPI coil 4 in Hz. */
-    WPropDouble m_propHpi5Freq; /**< Frequency for HPI coil 5 in Hz. */
+    WPropDouble m_propHpi1Freq; //!< Frequency for HPI coil 1 in Hz.
+    WPropDouble m_propHpi2Freq; //!< Frequency for HPI coil 2 in Hz.
+    WPropDouble m_propHpi3Freq; //!< Frequency for HPI coil 3 in Hz.
+    WPropDouble m_propHpi4Freq; //!< Frequency for HPI coil 4 in Hz.
+    WPropDouble m_propHpi5Freq; //!< Frequency for HPI coil 5 in Hz.
 
-    WPropDouble m_propWindowsSize; /**< Windows size in milliseconds. */
+    WPropDouble m_propWindowsSize; //!< Windows size in milliseconds.
 
-    WPropString m_propStatus; /**< Status of the module. */
+    WPropString m_propStatus; //!< Status of the module.
 
-    WPropTrigger m_trgApplySettings; /**< Forces an apply of the HPI frequencies. */
+    WPropTrigger m_trgApplySettings; //!< Forces an apply of the HPI frequencies.
 
     /**
      * Applies the frequencies of the HPI coils.
@@ -131,25 +131,25 @@ private:
 
     WHPISignalExtraction::SPtr m_hpiSignalExtraction;
 
-    WPropGroup m_propGroupEstimation; /**< Collects all properties for Head Position Estimation. */
+    WPropGroup m_propGroupEstimation; //!< Collects all properties for Head Position Estimation.
 
-    WPropInt m_propMaxIterations; /**< Maximum iterations for minimization algorithm. */
+    WPropInt m_propMaxIterations; //!< Maximum iterations for minimization algorithm.
 
-    WPropDouble m_propEpsilon; /**< Epsilon/threshold for minimization algorithm. */
+    WPropDouble m_propEpsilon; //!< Epsilon/threshold for minimization algorithm.
 
-    WPropDouble m_propInitFactor; /**< Initial factor to create initial parameter set. */
+    WPropDouble m_propInitFactor; //!< Initial factor to create initial parameter set.
 
-    WPropDouble m_propInitRz; /**< Initial alpha angle (degree) for z-y-x rotation. */
+    WPropDouble m_propInitRz; //!< Initial alpha angle (degree) for z-y-x rotation.
 
-    WPropDouble m_propInitRy; /**< Initial  beta angle (degree) for z-y-x rotation. */
+    WPropDouble m_propInitRy; //!< Initial  beta angle (degree) for z-y-x rotation.
 
-    WPropDouble m_propInitRx; /**< Initial  gamma angle (degree) for z-y-x rotation. */
+    WPropDouble m_propInitRx; //!< Initial  gamma angle (degree) for z-y-x rotation.
 
-    WPropDouble m_propInitTx; /**< Initial x translation (meter). */
+    WPropDouble m_propInitTx; //!< Initial x translation (meter).
 
-    WPropDouble m_propInitTy; /**< Initial y translation (meter). */
+    WPropDouble m_propInitTy; //!< Initial y translation (meter).
 
-    WPropDouble m_propInitTz; /**< Initial z translation (meter). */
+    WPropDouble m_propInitTz; //!< Initial z translation (meter).
 
     /**
      * Extracts EMDMEG containing magnetometer data only.
@@ -178,9 +178,9 @@ private:
      */
     bool estimateHeadPosition( WLEMDHPI::SPtr hpiInOut, WLEMDMEG::ConstSPtr magIn );
 
-    WContinuousPositionEstimation::SPtr m_optim; /**< Algorithm for position estimation. */
+    WContinuousPositionEstimation::SPtr m_optim; //!< Algorithm for position estimation.
 
-    WContinuousPositionEstimation::ParamsT m_lastParams; /**< Transformation parameter of the last estimation, used as initial. */
+    WContinuousPositionEstimation::ParamsT m_lastParams; //!< Transformation parameter of the last estimation, used as initial.
 
     WPropDouble m_propErrorMin;
     WPropDouble m_propErrorAvg;

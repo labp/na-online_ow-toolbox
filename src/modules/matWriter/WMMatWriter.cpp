@@ -54,7 +54,7 @@ WMMatWriter::~WMMatWriter()
 
 const std::string WMMatWriter::getName() const
 {
-    return WLConstantsModule::NAME_PREFIX + " MAT-File Writer";
+    return WLConstantsModule::generateModuleName( "MAT-File Writer" );
 }
 
 const std::string WMMatWriter::getDescription() const

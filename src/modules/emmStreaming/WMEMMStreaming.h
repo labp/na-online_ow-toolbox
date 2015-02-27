@@ -71,7 +71,7 @@ protected:
     virtual bool processReset( WLEMMCommand::SPtr cmdIn );
 
 private:
-    WModuleInputData< WLEMMCommand >::SPtr m_input; /**< Input connector. */
+    WModuleInputData< WLEMMCommand >::SPtr m_input; //!< Input connector.
 
     /**
      * A condition used to notify about changes in several properties.
@@ -105,7 +105,7 @@ private:
     void hdlTrgStart();
     void cbTrgStop();
 
-    WPropTrigger m_trgReset; /**< Reset additional data. */
+    WPropTrigger m_trgReset; //!< Reset additional data.
     void hdlTrgReset();
 };
 

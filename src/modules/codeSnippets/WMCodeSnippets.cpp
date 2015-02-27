@@ -61,7 +61,7 @@ WMCodeSnippets::~WMCodeSnippets()
 
 const string WMCodeSnippets::getName() const
 {
-    return WLConstantsModule::NAME_PREFIX + " Code Snippets";
+    return WLConstantsModule::generateModuleName( "Code Snippets" );
 }
 
 const string WMCodeSnippets::getDescription() const

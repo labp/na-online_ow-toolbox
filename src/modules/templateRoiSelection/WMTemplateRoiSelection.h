@@ -24,7 +24,7 @@
 #ifndef WMTEMPLATEROISELECTION_H_
 #define WMTEMPLATEROISELECTION_H_
 
-#include <boost/shared_ptr.hpp>
+#include <string>
 
 #include <core/kernel/WModule.h>
 
@@ -51,6 +51,10 @@ public:
 
     virtual const std::string getDescription() const;
 
+    virtual WModule::SPtr factory() const;
+
+    virtual const char** getXPMIcon() const;
+
 protected:
     virtual void moduleInit();
 
@@ -60,10 +64,6 @@ protected:
 
     virtual void properties();
 
-    virtual boost::shared_ptr< WModule > factory() const;
-
-    virtual const char** getXPMIcon() const;
-
     virtual bool processCompute( WLEMMeasurement::SPtr emm );
     virtual bool processInit( WLEMMCommand::SPtr labp );
     virtual bool processReset( WLEMMCommand::SPtr labp );
@@ -71,7 +71,7 @@ protected:
 private:
     WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input; //!< Input connector.
 
-    boost::shared_ptr< WCondition > m_propCondition; //!< A condition used to notify about changes in several properties.
+    WCondition::SPtr m_propCondition; //!< A condition used to notify about changes in several properties.
 };
 
 #endif  // WMTEMPLATEROISELECTION_H_

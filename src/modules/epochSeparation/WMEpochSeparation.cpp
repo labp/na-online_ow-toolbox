@@ -25,8 +25,6 @@
 #include <sstream> // string to int
 #include <set>
 
-#include <boost/shared_ptr.hpp>
-
 #include <core/common/WItemSelectionItemTyped.h>
 #include <core/common/WPropertyHelper.h>
 #include <core/kernel/WModule.h>
@@ -54,9 +52,9 @@ WMEpochSeparation::~WMEpochSeparation()
 {
 }
 
-boost::shared_ptr< WModule > WMEpochSeparation::factory() const
+WModule::SPtr WMEpochSeparation::factory() const
 {
-    return boost::shared_ptr< WModule >( new WMEpochSeparation() );
+    return WModule::SPtr( new WMEpochSeparation() );
 }
 
 const char** WMEpochSeparation::getXPMIcon() const
@@ -66,7 +64,7 @@ const char** WMEpochSeparation::getXPMIcon() const
 
 const std::string WMEpochSeparation::getName() const
 {
-    return WLConstantsModule::NAME_PREFIX + " Epoch Separation";
+    return WLConstantsModule::generateModuleName( "Epoch Separation" );
 }
 
 const std::string WMEpochSeparation::getDescription() const
@@ -93,7 +91,7 @@ void WMEpochSeparation::properties()
     WLModuleDrawable::properties();
     WLModuleDrawable::hideComputeModalitySelection( true );
 
-    m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+    m_propCondition = WCondition::SPtr( new WCondition() );
 
     // Trigger properties //
     m_propGrpTrigger = m_properties->addPropertyGroup( "Trigger Properties", "Contains properties for trigger.", false );

@@ -62,7 +62,7 @@ WMEMMGenerator::~WMEMMGenerator()
 
 const std::string WMEMMGenerator::getName() const
 {
-    return WLConstantsModule::NAME_PREFIX + " EMM Generator";
+    return WLConstantsModule::generateModuleName( "EMM Generator" );
 }
 
 const std::string WMEMMGenerator::getDescription() const

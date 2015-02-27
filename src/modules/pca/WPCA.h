@@ -40,6 +40,8 @@
 class WPCA
 {
 public:
+    typedef boost::shared_ptr< WPCA > SPtr;
+    typedef boost::shared_ptr< const WPCA > ConstSPtr;
 
     typedef WLEMDPCA::MatrixT MatrixT;
     typedef WLEMDPCA::VectorT VectorT;

@@ -55,7 +55,7 @@ WMFiffWriter::~WMFiffWriter()
 
 const std::string WMFiffWriter::getName() const
 {
-    return WLConstantsModule::NAME_PREFIX + " FIFF Writer";
+    return WLConstantsModule::generateModuleName( " FIFF Writer" );
 }
 
 const std::string WMFiffWriter::getDescription() const

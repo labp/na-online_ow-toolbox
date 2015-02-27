@@ -29,7 +29,6 @@
 #include <vector>
 
 #include <boost/bind.hpp>
-#include <boost/shared_ptr.hpp>
 
 #include <core/common/WException.h>
 #include <core/common/WItemSelectionItemTyped.h>
@@ -66,9 +65,9 @@ WMFIRFilter::~WMFIRFilter()
 {
 }
 
-boost::shared_ptr< WModule > WMFIRFilter::factory() const
+WModule::SPtr WMFIRFilter::factory() const
 {
-    return boost::shared_ptr< WModule >( new WMFIRFilter() );
+    return WModule::SPtr( new WMFIRFilter() );
 }
 
 const char** WMFIRFilter::getXPMIcon() const
@@ -78,7 +77,7 @@ const char** WMFIRFilter::getXPMIcon() const
 
 const std::string WMFIRFilter::getName() const
 {
-    return WLConstantsModule::NAME_PREFIX + " FIR Filter";
+    return WLConstantsModule::generateModuleName( "FIR Filter" );
 }
 
 const std::string WMFIRFilter::getDescription() const

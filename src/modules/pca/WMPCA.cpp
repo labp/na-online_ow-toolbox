@@ -52,9 +52,9 @@ WMPCA::~WMPCA()
 {
 }
 
-boost::shared_ptr< WModule > WMPCA::factory() const
+WModule::SPtr WMPCA::factory() const
 {
-    return boost::shared_ptr< WModule >( new WMPCA() );
+    return WModule::SPtr( new WMPCA() );
 }
 
 const char** WMPCA::getXPMIcon() const
@@ -64,12 +64,12 @@ const char** WMPCA::getXPMIcon() const
 
 const std::string WMPCA::getName() const
 {
-    return WLConstantsModule::NAME_PREFIX + " PCA";
+    return WLConstantsModule::generateModuleName( "PCA" );
 }
 
 const std::string WMPCA::getDescription() const
 {
-    return "Employs PCA to reduce the dimensionality of EEG/MEG data."; // TODO(kaehler): Comments
+    return "Employs PCA to reduce the dimensionality of EEG/MEG data.";
 }
 
 void WMPCA::connectors()
@@ -89,7 +89,7 @@ void WMPCA::properties()
 {
     WLModuleDrawable::properties();
 
-    m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+    m_propCondition = WCondition::SPtr( new WCondition() );
 
     m_propGrpPCAComputation = m_properties->addPropertyGroup( "PCA Computation Properties",
                     "Contains properties for the PCA algorithm", false );
@@ -102,19 +102,19 @@ void WMPCA::properties()
     //                "Set the number of dimensions for the reduced data.", 5.0 );
 
     m_finalDimensions = m_propGrpPCAComputation->addProperty( "Average Type", "Choose a average type.", 5,
-                    boost::bind( &WMPCA::callbackPCATypeChanged, this ) );
+                    boost::bind( &WMPCA::cbPcaTypeChanged, this ) );
     m_finalDimensions->setMin( 1 );
     m_finalDimensions->setMax( 100 );
 
     m_reverse = m_propGrpPCAComputation->addProperty( "Reverse", "Should the data be presented in the original basis?", false,
-                    boost::bind( &WMPCA::callbackPCATypeChanged, this ) );
+                    boost::bind( &WMPCA::cbPcaTypeChanged, this ) );
 
-    m_processModality = boost::shared_ptr< WItemSelection >( new WItemSelection() );
+    m_processModality = WItemSelection::SPtr( new WItemSelection() );
     std::set< WLEModality::Enum > mEnums = WLEModality::values();
     for( std::set< WLEModality::Enum >::iterator it = mEnums.begin(); it != mEnums.end(); ++it )
     {
         m_processModality->addItem(
-                        boost::shared_ptr< WItemSelectionItemTyped< WLEModality::Enum > >(
+                        WItemSelectionItemTyped< WLEModality::Enum >::SPtr(
                                         new WItemSelectionItemTyped< WLEModality::Enum >( *it, WLEModality::name( *it ),
                                                         WLEModality::name( *it ) ) ) );
     }
@@ -122,7 +122,7 @@ void WMPCA::properties()
     // getting the SelectorProperty from the list an add it to the properties
     m_processModalitySelection = m_propGrpPCAComputation->addProperty( "Process Modality",
                     "What kind of filter do you want to use", m_processModality->getSelectorFirst(),
-                    boost::bind( &WMPCA::callbackProcessModalityChanged, this ) );
+                    boost::bind( &WMPCA::cbProcessModalityChanged, this ) );
 
     // Be sure it is at least one selected, but not more than one
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_processModalitySelection );
@@ -203,15 +203,15 @@ void WMPCA::moduleMain()
     }
 }
 
-void WMPCA::callbackPCATypeChanged()
+void WMPCA::cbPcaTypeChanged()
 {
-    debugLog() << "handlePCATypeChanged() called!";
+    debugLog() << __func__ << "() called!";
     m_pca->setParams( m_finalDimensions->get(), m_reverse->get() );
 }
 
-void WMPCA::callbackProcessModalityChanged( void )
+void WMPCA::cbProcessModalityChanged( void )
 {
-    debugLog() << "handleProcessModalityChanged() called!";
+    debugLog() << __func__ << "() called!";
 }
 
 bool WMPCA::processCompute( WLEMMeasurement::SPtr emm )

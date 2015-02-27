@@ -25,8 +25,6 @@
 #include <typeinfo>
 #include <vector>
 
-#include <boost/shared_ptr.hpp>
-
 #include <core/common/WItemSelectionItemTyped.h>
 #include <core/common/WPropertyHelper.h>
 #include <core/kernel/WModule.h>
@@ -35,7 +33,6 @@
 #include "core/module/WLConstantsModule.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
-
 #include "core/util/profiler/WLTimeProfiler.h"
 
 #include "WEpochAveraging.h"
@@ -56,9 +53,9 @@ WMEpochAveraging::~WMEpochAveraging()
 {
 }
 
-boost::shared_ptr< WModule > WMEpochAveraging::factory() const
+WModule::SPtr WMEpochAveraging::factory() const
 {
-    return boost::shared_ptr< WModule >( new WMEpochAveraging() );
+    return WModule::SPtr( new WMEpochAveraging() );
 }
 
 const char** WMEpochAveraging::getXPMIcon() const
@@ -68,7 +65,7 @@ const char** WMEpochAveraging::getXPMIcon() const
 
 const std::string WMEpochAveraging::getName() const
 {
-    return WLConstantsModule::NAME_PREFIX + " Epoch Averaging";
+    return WLConstantsModule::generateModuleName( "Epoch Averaging" );
 }
 
 const std::string WMEpochAveraging::getDescription() const
@@ -94,7 +91,7 @@ void WMEpochAveraging::properties()
     WLModuleDrawable::properties();
     WLModuleDrawable::hideComputeModalitySelection( true );
 
-    m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+    m_propCondition = WCondition::SPtr( new WCondition() );
 
     // Averaging properties //
     const size_t tbase = 25;
@@ -107,7 +104,7 @@ void WMEpochAveraging::properties()
 
     m_averageType = WItemSelection::SPtr( new WItemSelection() );
 
-    boost::shared_ptr< WItemSelectionItemTyped< WEpochAveraging::SPtr > > item;
+    WItemSelectionItemTyped< WEpochAveraging::SPtr >::SPtr item;
     WEpochAveraging::SPtr avg;
 
     avg.reset( new WEpochAveragingTotal( tbase ) );

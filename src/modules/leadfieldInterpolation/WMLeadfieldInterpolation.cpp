@@ -67,7 +67,7 @@ WMLeadfieldInterpolation::~WMLeadfieldInterpolation()
 
 const std::string WMLeadfieldInterpolation::getName() const
 {
-    return WLConstantsModule::NAME_PREFIX + " Leadfield Interpolation";
+    return WLConstantsModule::generateModuleName( "Leadfield Interpolation" );
 }
 
 const std::string WMLeadfieldInterpolation::getDescription() const

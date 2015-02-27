@@ -67,50 +67,22 @@ public:
      */
     virtual ~WMEpochRejection();
 
-    /**
-     * Gives back the name of this module.
-     *
-     * \return the module's name.
-     */
     virtual const std::string getName() const;
 
-    /**
-     * Gives back a description of this module.
-     *
-     * \return description to module.
-     */
     virtual const std::string getDescription() const;
+
+    virtual WModule::SPtr factory() const;
+
+    virtual const char** getXPMIcon() const;
 
 protected:
     virtual void moduleInit();
 
-    /**
-     * Entry point after loading the module. Runs in separate thread.
-     */
     virtual void moduleMain();
 
-    /**
-     * Initialize the connectors this module is using.
-     */
     virtual void connectors();
 
-    /**
-     * Initialize the properties for this module.
-     */
     virtual void properties();
-
-    /**
-     * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
-     * should never be initialized or modified in some other way. A simple new instance is required.
-     *
-     * \return the prototype used to create every module in OpenWalnut.
-     */
-    virtual boost::shared_ptr< WModule > factory() const;
-
-    /**
-     * Get the icon for this module in XPM format.
-     */
-    virtual const char** getXPMIcon() const;
 
     virtual bool processCompute( WLEMMeasurement::SPtr emm );
     virtual bool processInit( WLEMMCommand::SPtr labp );
@@ -150,10 +122,7 @@ private:
 
     WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input; /**< Buffered input connector. */
 
-    /**
-     * A condition used to notify about changes in several properties.
-     */
-    boost::shared_ptr< WCondition > m_propCondition;
+    WCondition::SPtr m_propCondition;
 
     /**
      * Property group for the rejection module.
@@ -253,7 +222,7 @@ private:
     /**
      * Selection box to specify the rejection algorithm.
      */
-    boost::shared_ptr< WItemSelection > m_rejectionType;
+    WItemSelection::SPtr m_rejectionType;
     WPropSelection m_rejectionTypeSelection;
 
     /**
@@ -275,30 +244,6 @@ private:
      * Pointer to the rejection algorithm.
      */
     WEpochRejection::SPtr m_rejection;
-
-    static const std::string NO_FILE_LOADED;
-
-    static const std::string LOADING_FILE;
-
-    static const std::string FILE_LOADED;
-
-    static const std::string FILE_ERROR;
-
-    static const double EEG_THRESHOLD;
-
-    static const double EOG_THRESHOLD;
-
-    static const double MEG_MAG_THRESHOLD;
-
-    static const double MEG_GRAD_THRESHOLD;
-
-    static const std::string EEG_LABEL;
-
-    static const std::string EOG_LABEL;
-
-    static const std::string MEG_MAG_LABEL;
-
-    static const std::string MEG_GRAD_LABEL;
 };
 
 #endif  // WMEPOCHREJECTION_H

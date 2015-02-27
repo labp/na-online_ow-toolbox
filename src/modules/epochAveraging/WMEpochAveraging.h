@@ -26,13 +26,10 @@
 
 #include <string>
 
-#include <boost/shared_ptr.hpp>
-
 #include <core/kernel/WModule.h>
 
 #include "core/data/WLEMMCommand.h"
 #include "core/data/WLEMMeasurement.h"
-
 #include "core/module/WLEMMCommandProcessor.h"
 #include "core/module/WLModuleDrawable.h"
 #include "core/module/WLModuleInputDataRingBuffer.h"
@@ -60,50 +57,21 @@ public:
      */
     virtual ~WMEpochAveraging();
 
-    /**
-     * \par Description
-     * Gives back the name of this module.
-     * \return the module's name.
-     */
     virtual const std::string getName() const;
 
-    /**
-     * \par Description
-     * Gives back a description of this module.
-     * \return description to module.
-     */
     virtual const std::string getDescription() const;
 
-    /**
-     * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
-     * should never be initialized or modified in some other way. A simple new instance is required.
-     *
-     * \return the prototype used to create every module in OpenWalnut.
-     */
-    virtual boost::shared_ptr< WModule > factory() const;
+    virtual WModule::SPtr factory() const;
 
-    /**
-     * Get the icon for this module in XPM format.
-     */
     virtual const char** getXPMIcon() const;
 
 protected:
     virtual void moduleInit();
 
-    /**
-     * \par Description
-     * Entry point after loading the module. Runs in separate thread.
-     */
     virtual void moduleMain();
 
-    /**
-     * Initialize the connectors this module is using.
-     */
     virtual void connectors();
 
-    /**
-     * Initialize the properties for this module.
-     */
     virtual void properties();
 
     // ----------------------------
@@ -114,7 +82,7 @@ protected:
     virtual bool processReset( WLEMMCommand::SPtr cmdIn );
 
 private:
-    WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input; /**< Buffered input connector. */
+    WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input; //!< Buffered input connector.
 
     /**
      * A condition used to notify about changes in several properties.
@@ -132,7 +100,7 @@ private:
      */
     void hdlResetAveragePressed();
     WPropInt m_sizeMovingAverage; //!< Size of moving average in epochs/trials.
-    boost::shared_ptr< WItemSelection > m_averageType;
+    WItemSelection::SPtr m_averageType;
     WPropSelection m_averageTypeSelection;
 
     WPropInt m_tbase; //!< Samples for baseline correction.

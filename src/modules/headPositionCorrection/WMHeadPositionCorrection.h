@@ -26,8 +26,6 @@
 
 #include <string>
 
-#include <boost/shared_ptr.hpp>
-
 #include <core/common/WCondition.h>
 #include <core/common/WPropertyTypes.h>
 #include <core/kernel/WModule.h>
@@ -47,8 +45,6 @@
 class WMHeadPositionCorrection: public WLModuleDrawable
 {
 public:
-    typedef boost::shared_ptr< WMHeadPositionCorrection > SPtr; //!< Abbreviation for a shared pointer.
-
     WMHeadPositionCorrection();
     virtual ~WMHeadPositionCorrection();
 

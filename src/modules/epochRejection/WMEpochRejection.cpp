@@ -59,6 +59,18 @@
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMEpochRejection )
 
+// file status messages
+static const std::string NO_FILE_LOADED = "No file loaded.";
+static const std::string LOADING_FILE = "Loading file ...";
+static const std::string FILE_LOADED = "File successfully loaded.";
+static const std::string FILE_ERROR = "Could not load file.";
+
+// default thresholds
+static const double EEG_THRESHOLD = 150e-6;
+static const double EOG_THRESHOLD = 80e-6;
+static const double MEG_MAG_THRESHOLD = 4e-12;
+static const double MEG_GRAD_THRESHOLD = 200e-12;
+
 WMEpochRejection::WMEpochRejection()
 {
 }
@@ -67,9 +79,9 @@ WMEpochRejection::~WMEpochRejection()
 {
 }
 
-boost::shared_ptr< WModule > WMEpochRejection::factory() const
+WModule::SPtr WMEpochRejection::factory() const
 {
-    return boost::shared_ptr< WModule >( new WMEpochRejection() );
+    return WModule::SPtr( new WMEpochRejection() );
 }
 
 const char** WMEpochRejection::getXPMIcon() const
@@ -79,7 +91,7 @@ const char** WMEpochRejection::getXPMIcon() const
 
 const std::string WMEpochRejection::getName() const
 {
-    return WLConstantsModule::NAME_PREFIX + " Epoch Rejection";
+    return WLConstantsModule::generateModuleName( "Epoch Rejection" );
 }
 
 const std::string WMEpochRejection::getDescription() const
@@ -106,7 +118,7 @@ void WMEpochRejection::properties()
     WLModuleDrawable::hideComputeModalitySelection( true );
 
     /* init property container */
-    m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+    m_propCondition = WCondition::SPtr( new WCondition() );
 
     /* PropertyGroup: thresholds for the several modalities  */
     m_propGrpRejection = m_properties->addPropertyGroup( "Rejection Properties", "Rejection Properties", false );
@@ -244,17 +256,17 @@ void WMEpochRejection::moduleMain()
         // parsing a ".cfg" file
         if( m_rejectFile->changed( true ) )
         {
-            m_rejectFileStatus->set( WMEpochRejection::LOADING_FILE, true ); // change file notification
+            m_rejectFileStatus->set( LOADING_FILE, true ); // change file notification
 
             if( m_parser->parse( m_rejectFile->get().string() ) ) // start parsing the file
             {
                 setThresholds( ( m_thresholds = m_parser->getThresholdList() ) );
 
-                m_rejectFileStatus->set( WMEpochRejection::FILE_LOADED, true ); // show success notification
+                m_rejectFileStatus->set( FILE_LOADED, true ); // show success notification
             }
             else
             {
-                m_rejectFileStatus->set( WMEpochRejection::FILE_ERROR, true ); // show error notification
+                m_rejectFileStatus->set( FILE_ERROR, true ); // show error notification
             }
         }
 
@@ -513,21 +525,3 @@ bool WMEpochRejection::checkBadChannels( WLEMMeasurement::SPtr emm )
 
     return rc;
 }
-
-// file status messages
-const std::string WMEpochRejection::NO_FILE_LOADED = "No file loaded.";
-const std::string WMEpochRejection::LOADING_FILE = "Loading file ...";
-const std::string WMEpochRejection::FILE_LOADED = "File successfully loaded.";
-const std::string WMEpochRejection::FILE_ERROR = "Could not load file.";
-
-// default thresholds
-const double WMEpochRejection::EEG_THRESHOLD = 150e-6;
-const double WMEpochRejection::EOG_THRESHOLD = 80e-6;
-const double WMEpochRejection::MEG_MAG_THRESHOLD = 4e-12;
-const double WMEpochRejection::MEG_GRAD_THRESHOLD = 200e-12;
-
-// file labels for modalities
-const std::string WMEpochRejection::EEG_LABEL = "eegReject";
-const std::string WMEpochRejection::EOG_LABEL = "eogReject";
-const std::string WMEpochRejection::MEG_GRAD_LABEL = "gradReject";
-const std::string WMEpochRejection::MEG_MAG_LABEL = "magReject";
