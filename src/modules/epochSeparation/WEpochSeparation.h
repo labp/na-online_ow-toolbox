@@ -32,9 +32,9 @@
 
 #include <core/common/WException.h>
 
+#include "core/container/WLRingBuffer.h"
 #include "core/data/WLEMMeasurement.h"
 #include "core/data/emd/WLEMData.h"
-#include "core/util/WLRingBuffer.h"
 
 /**
  * Epoch separation based on trigger detection. Epochs can be combined from several packets.

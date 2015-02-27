@@ -41,8 +41,6 @@
 #include "core/module/WLModuleInputDataRingBuffer.h"
 #include "core/module/WLModuleOutputDataCollectionable.h"
 
-#include "core/util/WLRingBuffer.h"
-
 #include "WMCodeSnippets.h"
 #include "WMCodeSnippets.xpm"
 

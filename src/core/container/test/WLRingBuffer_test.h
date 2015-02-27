@@ -24,6 +24,8 @@
 #ifndef WLRINGBUFFER_TEST_H
 #define WLRINGBUFFER_TEST_H
 
+#include "../WLRingBuffer.h"
+
 #include <cstddef>
 #include <cstdlib>
 #include <exception>
@@ -34,7 +36,6 @@
 #include <core/common/WException.h>
 #include <core/common/WLogger.h>
 
-#include "../WLRingBuffer.h"
 
 /**
  * Unit tests our WFiber class
