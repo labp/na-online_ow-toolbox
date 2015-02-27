@@ -27,8 +27,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/shared_ptr.hpp>
-
 #include <core/common/WPropertyTypes.h>
 
 #include "core/container/WLList.h"
@@ -57,30 +55,12 @@ public:
      */
     virtual ~WMMneRtClient();
 
-    /**
-     * Returns the name of this module.
-     * \return the module's name.
-     */
     virtual const std::string getName() const;
 
-    /**
-     * Returns a description of this module.
-     * \return description of module.
-     */
     virtual const std::string getDescription() const;
 
-    /**
-     * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
-     * should never be initialized or modified in some other way. A simple new instance is required.
-     *
-     * \return the prototype used to create every module in OpenWalnut.
-     */
     virtual WModule::SPtr factory() const;
 
-    /**
-     * Get the icon for this module in XPM format.
-     * \return The icon.
-     */
     virtual const char** getXPMIcon() const;
 
 protected:
@@ -93,23 +73,13 @@ protected:
 
     virtual void moduleInit();
 
-    /**
-     * Entry point after loading the module. Runs in separate thread.
-     */
     virtual void moduleMain();
 
-    /**
-     * Initialize the connectors this module is using.
-     */
     virtual void connectors();
 
-    /**
-     * Initialize the properties for this module.
-     */
     virtual void properties();
 
 private:
-    //! a condition for the matrix selection
     WCondition::SPtr m_propCondition;
 
     /**

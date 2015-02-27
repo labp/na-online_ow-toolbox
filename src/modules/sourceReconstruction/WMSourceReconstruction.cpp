@@ -86,7 +86,7 @@ const char** WMSourceReconstruction::getXPMIcon() const
 
 const std::string WMSourceReconstruction::getName() const
 {
-    return WLConstantsModule::NAME_PREFIX + " Source Reconstruction";
+    return WLConstantsModule::generateModuleName( "Source Reconstruction" );
 }
 
 const std::string WMSourceReconstruction::getDescription() const

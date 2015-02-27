@@ -70,10 +70,10 @@ protected:
     virtual void moduleMain();
 
 private:
-    WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input; /**< Input connector. */
-    WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output; /**< Output connector. */
+    WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input; //!< Input connector.
+    WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output; //!< Output connector.
 
-    WCondition::SPtr m_propCondition; /**< A condition used to notify about changes in several properties. */
+    WCondition::SPtr m_propCondition; //!< A condition used to notify about changes in several properties.
 
     WPropFilename m_srcSpaceFile;
     bool hdlLeadfieldFileChanged( WLMatrix::SPtr* const lf, std::string fName );

@@ -72,7 +72,7 @@ WMEMMStreaming::~WMEMMStreaming()
 
 const std::string WMEMMStreaming::getName() const
 {
-    return WLConstantsModule::generateModuleName("EMM Streaming");
+    return WLConstantsModule::generateModuleName( "EMM Streaming" );
 }
 
 const std::string WMEMMStreaming::getDescription() const
@@ -238,7 +238,6 @@ void WMEMMStreaming::stream()
     const double SEC_PER_BLOCK = ( double )m_propBlockSize->get() / 1000.0; // blockSize in seconds
     WPacketizerEMM packetizer( m_data, SEC_PER_BLOCK * WLUnits::s );
     WRealtimeTimer waitTimer;
-
 
     WLEMMeasurement::SPtr emm;
     WLEMMCommand::SPtr cmd;

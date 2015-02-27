@@ -42,7 +42,7 @@ WMTemplateRoiSelection::~WMTemplateRoiSelection()
 
 const std::string WMTemplateRoiSelection::getName() const
 {
-    return WLConstantsModule::NAME_PREFIX + " Template ROI Selection";
+    return WLConstantsModule::generateModuleName( "Template ROI Selection" );
 }
 
 const std::string WMTemplateRoiSelection::getDescription() const
@@ -69,12 +69,12 @@ void WMTemplateRoiSelection::properties()
     WLModuleDrawable::setViewModality( WLEModality::SOURCE );
 
     /* init property container */
-    m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+    m_propCondition = WCondition::SPtr( new WCondition() );
 }
 
-boost::shared_ptr< WModule > WMTemplateRoiSelection::factory() const
+WModule::SPtr WMTemplateRoiSelection::factory() const
 {
-    return boost::shared_ptr< WModule >( new WMTemplateRoiSelection() );
+    return WModule::SPtr( new WMTemplateRoiSelection() );
 }
 
 const char** WMTemplateRoiSelection::getXPMIcon() const
@@ -144,7 +144,7 @@ bool WMTemplateRoiSelection::processCompute( WLEMMeasurement::SPtr emm )
     WLTimeProfiler tp( "WMTemplateRoiSelection", __func__ );
 
     // show process visualization
-    boost::shared_ptr< WProgress > processComp = boost::shared_ptr< WProgress >( new WProgress( "Do the process." ) );
+    WProgress::SPtr processComp( new WProgress( "Do the process." ) );
     m_progress->addSubProgress( processComp );
 
     // ---------- PROCESSING ----------

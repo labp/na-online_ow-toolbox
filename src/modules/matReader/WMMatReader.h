@@ -27,8 +27,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/shared_ptr.hpp>
-
 #include <core/common/WCondition.h>
 #include <core/common/WPropertyTypes.h>
 #include <core/common/math/linearAlgebra/WPosition.h>

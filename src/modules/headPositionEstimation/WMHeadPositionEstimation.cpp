@@ -67,7 +67,7 @@ WMHeadPositionEstimation::~WMHeadPositionEstimation()
 
 const std::string WMHeadPositionEstimation::getName() const
 {
-    return WLConstantsModule::NAME_PREFIX + " Head Position Estimation";
+    return WLConstantsModule::generateModuleName( "Head Position Estimation" );
 }
 
 const std::string WMHeadPositionEstimation::getDescription() const

@@ -102,7 +102,7 @@ void WMFTRtClient::properties()
     //
     // init property container
     //
-    m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+    m_propCondition = WCondition::SPtr( new WCondition() );
 
     //
     // property group streaming client

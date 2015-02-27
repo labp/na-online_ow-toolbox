@@ -43,17 +43,15 @@ W_LOADABLE_MODULE( WMTemplateRoi )
 
 WMTemplateRoi::WMTemplateRoi()
 {
-
 }
 
 WMTemplateRoi::~WMTemplateRoi()
 {
-
 }
 
 const std::string WMTemplateRoi::getName() const
 {
-    return WLConstantsModule::NAME_PREFIX + " Template ROI";
+    return WLConstantsModule::generateModuleName( "Template ROI" );
 }
 
 const std::string WMTemplateRoi::getDescription() const
@@ -80,7 +78,7 @@ void WMTemplateRoi::properties()
     WLModuleDrawable::setViewModality( WLEModality::SOURCE );
 
     /* init property container */
-    m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+    m_propCondition = WCondition::SPtr( new WCondition() );
 }
 
 void WMTemplateRoi::moduleInit()
@@ -153,9 +151,9 @@ void WMTemplateRoi::moduleMain()
     }
 }
 
-boost::shared_ptr< WModule > WMTemplateRoi::factory() const
+WModule::SPtr WMTemplateRoi::factory() const
 {
-    return boost::shared_ptr< WModule >( new WMTemplateRoi() );
+    return WModule::SPtr( new WMTemplateRoi() );
 }
 
 const char** WMTemplateRoi::getXPMIcon() const
@@ -174,7 +172,7 @@ bool WMTemplateRoi::processCompute( WLEMMeasurement::SPtr emm )
     m_Emm = emm;
 
     // show process visualization
-    boost::shared_ptr< WProgress > processComp = boost::shared_ptr< WProgress >( new WProgress( "Do the process." ) );
+    WProgress::SPtr processComp( new WProgress( "Do the process." ) );
     m_progress->addSubProgress( processComp );
 
     // ---------- PROCESSING ----------

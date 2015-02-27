@@ -71,7 +71,7 @@ protected:
     virtual void moduleMain();
 
 private:
-    WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output; /**<  Output connector for buffered input connectors. */
+    WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output; //!<  Output connector for buffered input connectors.
 
     /**
      * A condition used to notify about changes in several properties.

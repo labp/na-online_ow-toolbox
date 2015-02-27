@@ -99,7 +99,7 @@ WMFiffReader::~WMFiffReader()
 
 const std::string WMFiffReader::getName() const
 {
-    return WLConstantsModule::NAME_PREFIX + " FIFF Reader";
+    return WLConstantsModule::generateModuleName( "FIFF Reader" );
 }
 
 const std::string WMFiffReader::getDescription() const

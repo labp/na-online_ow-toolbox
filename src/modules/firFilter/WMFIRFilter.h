@@ -56,50 +56,21 @@ public:
      */
     virtual ~WMFIRFilter();
 
-    /**
-     * \par Description
-     * Gives back the name of this module.
-     * \return the module's name.
-     */
     virtual const std::string getName() const;
 
-    /**
-     * \par Description
-     * Gives back a description of this module.
-     * \return description to module.
-     */
     virtual const std::string getDescription() const;
 
-    /**
-     * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
-     * should never be initialized or modified in some other way. A simple new instance is required.
-     *
-     * \return the prototype used to create every module in OpenWalnut.
-     */
     virtual WModule::SPtr factory() const;
 
-    /**
-     * Get the icon for this module in XPM format.
-     */
     virtual const char** getXPMIcon() const;
 
 protected:
     virtual void moduleInit();
 
-    /**
-     * \par Description
-     * Entry point after loading the module. Runs in separate thread.
-     */
     virtual void moduleMain();
 
-    /**
-     * Initialize the connectors this module is using.
-     */
     virtual void connectors();
 
-    /**
-     * Initialize the properties for this module.
-     */
     virtual void properties();
 
     // ----------------------------
@@ -130,7 +101,7 @@ private:
     WPropDouble m_samplingFreq;
     WPropTrigger m_designTrigger;
 
-    WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input; /**< Buffered input connector. */
+    WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input; //!< Buffered input connector.
 
     /**
      * A condition used to notify about changes in several properties.

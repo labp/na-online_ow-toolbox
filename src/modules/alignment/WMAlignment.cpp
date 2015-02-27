@@ -62,7 +62,7 @@ WMAlignment::~WMAlignment()
 
 const std::string WMAlignment::getName() const
 {
-    return WLConstantsModule::NAME_PREFIX + " Alignment";
+    return WLConstantsModule::generateModuleName( "Alignment" );
 }
 
 const std::string WMAlignment::getDescription() const
