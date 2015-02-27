@@ -142,7 +142,7 @@ void WMMatWriter::moduleMain()
 
         if( m_propMatFile->changed( true ) )
         {
-            if( handleMatFileChanged() )
+            if( hdlMatFileChanged() )
             {
                 m_status->set( SUCCESS_OPEN, true );
             }
@@ -177,7 +177,7 @@ void WMMatWriter::moduleMain()
     }
 }
 
-bool WMMatWriter::handleMatFileChanged()
+bool WMMatWriter::hdlMatFileChanged()
 {
     if( m_writer.get() != NULL )
     {

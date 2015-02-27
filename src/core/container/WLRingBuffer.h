@@ -43,6 +43,7 @@
  * \author pieloth
  * \ingroup util
  */
+// TODO(pieloth): Move class to core/container
 template< typename T >
 class WLRingBuffer
 {
@@ -83,7 +84,7 @@ public:
      *
      * \return element or WException
      */
-    boost::shared_ptr< T > getData( ptrdiff_t offset ) throw( WException );
+    boost::shared_ptr< T > getData( ptrdiff_t offset = 0 ) throw( WException );
 
     /**
      * Adds an elements to the buffer.
@@ -233,7 +234,7 @@ boost::shared_ptr< T > WLRingBuffer< T >::popData() throw( WException )
 }
 
 template< typename T >
-boost::shared_ptr< T > WLRingBuffer< T >::getData( ptrdiff_t offset = 0 ) throw( WException )
+boost::shared_ptr< T > WLRingBuffer< T >::getData( ptrdiff_t offset ) throw( WException )
 {
 #ifdef DEBUG
     wlog::debug( CLASS ) << "getData() called!";

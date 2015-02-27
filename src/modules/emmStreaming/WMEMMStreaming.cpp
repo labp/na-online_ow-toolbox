@@ -249,8 +249,6 @@ void WMEMMStreaming::stream()
         waitTimer.reset();
 
         emm = packetizer.next();
-        // Set a new profiler for the new EMM
-        emm->setProfiler( WLLifetimeProfiler::instance( WLEMMeasurement::CLASS, "lifetime" ) );
 
         if( blocksSent == 0 )
         {

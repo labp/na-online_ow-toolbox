@@ -186,10 +186,10 @@ void WMBeamforming::moduleInit()
     // csd/covariance
     if( m_CSDFile->changed( true ) )
     {
-        handleCSDChanged( m_CSDFile->get().string(), &m_CSD );
+        hdlCsdChanged( m_CSDFile->get().string(), &m_CSD );
     }
 
-    handleImplementationChanged();
+    hdlImplementationChanged();
 
     infoLog() << "Restoring module finished!";
 }
@@ -213,17 +213,17 @@ void WMBeamforming::moduleMain()
 
         if( m_useCuda->changed( true ) )
         {
-            handleImplementationChanged();
+            hdlImplementationChanged();
         }
         // csd/covariance
         if( m_CSDFile->changed( true ) )                                                          // Leadfield File MATLAB
         {
-            handleCSDChanged( m_CSDFile->get().string(), &m_CSD );
+            hdlCsdChanged( m_CSDFile->get().string(), &m_CSD );
         }
 
         if( m_lastModality != getComputeModality() )
         {
-            handleComputeModalityChanged();
+            hdlComputeModalityChanged();
         }
 
         cmdIn.reset();
@@ -241,7 +241,7 @@ void WMBeamforming::moduleMain()
     viewCleanup();
 }
 
-void WMBeamforming::handleImplementationChanged( void )
+void WMBeamforming::hdlImplementationChanged( void )
 {
     debugLog() << __func__ << "() called!";
 
@@ -262,7 +262,7 @@ void WMBeamforming::handleImplementationChanged( void )
     }
 }
 
-void WMBeamforming::handleComputeModalityChanged()
+void WMBeamforming::hdlComputeModalityChanged()
 {
     debugLog() << __func__ << "() called!";
 
@@ -270,7 +270,7 @@ void WMBeamforming::handleComputeModalityChanged()
     m_beamforming->reset();
 }
 
-bool WMBeamforming::handleCSDChanged( std::string fName, Eigen::MatrixXcd* const csd )
+bool WMBeamforming::hdlCsdChanged( std::string fName, Eigen::MatrixXcd* const csd )
 {
     debugLog() << __func__ << "() called!";
 

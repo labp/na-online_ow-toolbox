@@ -83,7 +83,7 @@ private:
 
     void moduleInit();
 
-    void handleTrgReset();
+    void hdlTrgReset();
 
     WUIViewWidget::SPtr m_widget;
     WLEMDDrawable3DEEGBEM::SPtr m_drawable;

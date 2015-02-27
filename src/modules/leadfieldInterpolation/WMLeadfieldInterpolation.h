@@ -49,31 +49,12 @@ public:
     WMLeadfieldInterpolation();
     virtual ~WMLeadfieldInterpolation();
 
-    /**
-     * \par Description
-     * Gives back the name of this module.
-     * \return the module's name.
-     */
     virtual const std::string getName() const;
 
-    /**
-     * \par Description
-     * Gives back a description of this module.
-     * \return description to module.
-     */
     virtual const std::string getDescription() const;
 
-    /**
-     * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
-     * should never be initialized or modified in some other way. A simple new instance is required.
-     *
-     * \return the prototype used to create every module in OpenWalnut.
-     */
     virtual WModule::SPtr factory() const;
 
-    /**
-     * Get the icon for this module in XPM format.
-     */
     virtual const char** getXPMIcon() const;
 
 protected:
@@ -85,25 +66,15 @@ protected:
 
     virtual void moduleInit();
 
-    /**
-     * \par Description
-     * Entry point after loading the module. Runs in separate thread.
-     */
     virtual void moduleMain();
 
-    /**
-     * Initialize the connectors this module is using.
-     */
     virtual void connectors();
 
-    /**
-     * Initialize the properties for this module.
-     */
     virtual void properties();
 
 private:
-    WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input; /**< Buffered input connector. */
-    WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output; /**<  Output connector for buffered input connectors. */
+    WLModuleInputDataRingBuffer< WLEMMCommand >::SPtr m_input; //!< Buffered input connector.
+    WLModuleOutputDataCollectionable< WLEMMCommand >::SPtr m_output; //!<  Output connector for buffered input connectors.
 
     WCondition::SPtr m_propCondition;
 
@@ -128,22 +99,6 @@ private:
     bool readHDLeadfield( const std::string& fname );
 
     bool interpolate();
-
-    static const std::string ERROR;
-
-    static const std::string COMPUTING;
-
-    static const std::string SUCCESS;
-
-    static const std::string NONE;
-
-    static const std::string FIFF_OK_TEXT; // Conflicts with mne/fiff/fiff_constants.h
-
-    static const std::string HD_LEADFIELD_OK_TEXT;
-
-    static const std::string READING;
-
-    static const std::string COMMAND;
 };
 
 #endif  // WMLEADFIELDINTERPOLATION_H_

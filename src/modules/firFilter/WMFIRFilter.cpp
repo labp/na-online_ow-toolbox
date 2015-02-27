@@ -109,7 +109,7 @@ void WMFIRFilter::properties()
     m_propGrpFirFilter = m_properties->addPropertyGroup( "FIR Filter", "Contains properties for FIR Filter.", false );
 
     m_coeffFile = m_propGrpFirFilter->addProperty( "Coefficients:", "Load coefficients from file.", WPathHelper::getAppPath(),
-                    boost::bind( &WMFIRFilter::callbackCoeffFileChanged, this ) );
+                    boost::bind( &WMFIRFilter::cbCoeffFileChanged, this ) );
     m_coeffFile->changed( true );
 
     m_useCuda = m_propGrpFirFilter->addProperty( "Use Cuda", "Activate CUDA support.", true, m_propCondition );
@@ -132,7 +132,7 @@ void WMFIRFilter::properties()
 
     // getting the SelectorProperty from the list an add it to the properties
     m_filterTypeSelection = m_propGrpFirFilter->addProperty( "FilterType", "What kind of filter do you want to use",
-                    m_filterTypes->getSelectorFirst(), boost::bind( &WMFIRFilter::callbackFilterTypeChanged, this ) );
+                    m_filterTypes->getSelectorFirst(), boost::bind( &WMFIRFilter::cbFilterTypeChanged, this ) );
 
     // Be sure it is at least one selected, but not more than one
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_filterTypeSelection );
@@ -198,14 +198,14 @@ void WMFIRFilter::moduleInit()
 
     infoLog() << "Restoring module ...";
 
-    handleImplementationChanged();
-    callbackFilterTypeChanged();
+    hdlImplementationChanged();
+    cbFilterTypeChanged();
     if( !( m_coeffFile->get().string().empty() )
                     && m_coeffFile->get().string().compare( WPathHelper::getAppPath().string() ) != 0 )
     {
-        callbackCoeffFileChanged();
+        cbCoeffFileChanged();
     }
-    handleDesignButtonPressed();
+    hdlDesignButtonPressed();
 
     infoLog() << "Restoring module finished!";
 }
@@ -231,12 +231,12 @@ void WMFIRFilter::moduleMain()
 
         if( m_useCuda->changed( true ) )
         {
-            handleImplementationChanged();
+            hdlImplementationChanged();
         }
 
         if( m_designTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
-            handleDesignButtonPressed();
+            hdlDesignButtonPressed();
             WLEMMCommand::SPtr cmd = WLEMMCommand::instance( WLEMMCommand::Command::RESET );
             processReset( cmd );
         }
@@ -258,18 +258,18 @@ void WMFIRFilter::moduleMain()
     viewCleanup();
 }
 
-void WMFIRFilter::callbackCoeffFileChanged( void )
+void WMFIRFilter::cbCoeffFileChanged( void )
 {
-    debugLog() << "handleCoeffFileChanged() called!";
+    debugLog() << __func__ << "() called!";
     const char *path = m_coeffFile->get().string().c_str();
     infoLog() << "Reading *.fcf file: " << m_coeffFile->get().string();
 
     m_firFilter->setCoefficients( path );
 }
 
-void WMFIRFilter::handleImplementationChanged( void )
+void WMFIRFilter::hdlImplementationChanged( void )
 {
-    debugLog() << "handleImplementationChanged() called!";
+    debugLog() << __func__ << "() called!";
 
     WProgress::SPtr progress( new WProgress( "Changing FIR Filter" ) );
     m_progress->addSubProgress( progress );
@@ -308,9 +308,9 @@ void WMFIRFilter::handleImplementationChanged( void )
     m_progress->removeSubProgress( progress );
 }
 
-void WMFIRFilter::handleDesignButtonPressed( void )
+void WMFIRFilter::hdlDesignButtonPressed( void )
 {
-    debugLog() << "handleDesignButtonPressed() called!";
+    debugLog() << __func__ << "() called!";
 
     WProgress::SPtr progress( new WProgress( "Updating FIR Filter" ) );
     m_progress->addSubProgress( progress );
@@ -333,9 +333,9 @@ void WMFIRFilter::handleDesignButtonPressed( void )
     m_progress->removeSubProgress( progress );
 }
 
-void WMFIRFilter::callbackFilterTypeChanged( void )
+void WMFIRFilter::cbFilterTypeChanged( void )
 {
-    debugLog() << "callbackFilterTypeChanged() called!";
+    debugLog() << __func__ << "() called!";
     if( ( WFIRFilter::WEFilterType::name( WFIRFilter::WEFilterType::BANDPASS ).compare(
                     m_filterTypeSelection->get().at( 0 )->getName() ) == 0
                     || WFIRFilter::WEFilterType::name( WFIRFilter::WEFilterType::BANDSTOP ).compare(
@@ -351,7 +351,7 @@ void WMFIRFilter::callbackFilterTypeChanged( void )
 
 bool WMFIRFilter::processCompute( WLEMMeasurement::SPtr emmIn )
 {
-    WLTimeProfiler tp( "WMFIRFilter", "processCompute" );
+    WLTimeProfiler tp( "WMFIRFilter", __func__ );
 
     WLEMMeasurement::SPtr emmOut;
 
@@ -443,7 +443,7 @@ bool WMFIRFilter::processInit( WLEMMCommand::SPtr cmdIn )
         {
             infoLog() << "Init filter with new sampling rate: " << samplFreq;
             m_samplingFreq->set( samplFreq.value(), true );
-            handleDesignButtonPressed();
+            hdlDesignButtonPressed();
         }
         else
         {

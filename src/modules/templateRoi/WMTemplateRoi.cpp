@@ -165,7 +165,7 @@ const char** WMTemplateRoi::getXPMIcon() const
 
 bool WMTemplateRoi::processCompute( WLEMMeasurement::SPtr emm )
 {
-    WLTimeProfiler tp( "WMTemplateRoi", "processCompute" );
+    WLTimeProfiler tp( "WMTemplateRoi", __func__ );
 
     startUp( emm );
 

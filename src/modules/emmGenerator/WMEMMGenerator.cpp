@@ -139,14 +139,14 @@ void WMEMMGenerator::moduleMain()
 
         if( m_trgGenerate->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
-            handleTrgGenerate();
+            hdlTrgGenerate();
         }
     }
 }
 
-void WMEMMGenerator::handleTrgGenerate()
+void WMEMMGenerator::hdlTrgGenerate()
 {
-    debugLog() << "handleTrgGenerate() called!";
+    debugLog() << __func__ << "() called!";
 
     updateDataStatus( EDataStatus::GENERATING_DATA );
     if( generateEMM() )

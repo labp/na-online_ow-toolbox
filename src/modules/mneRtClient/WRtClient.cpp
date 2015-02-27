@@ -53,8 +53,6 @@ const std::string WRtClient::CLASS = "WRtClient";
 WRtClient::WRtClient( const std::string& ip_address, const std::string& alias ) :
                 m_ipAddress( ip_address ), m_alias( alias )
 {
-    m_isStreaming = false;
-    m_isConnected = false;
     m_clientId = -1;
     m_conSelected = -1;
     m_blockSize = 500;
@@ -72,7 +70,7 @@ WRtClient::~WRtClient()
 
 bool WRtClient::connect()
 {
-    wlog::debug( CLASS ) << "connect() called!";
+    wlog::debug( CLASS ) << __func__ << "() called!";
 
     QString ip_address = QString::fromStdString( m_ipAddress );
     wlog::info( CLASS ) << "Connecting to " << m_ipAddress;
@@ -101,20 +99,25 @@ bool WRtClient::connect()
         wlog::info( CLASS ) << "Data Client connected!";
     }
 
-    m_isConnected = m_rtCmdClient->state() == QAbstractSocket::ConnectedState
-                    && m_rtDataClient->state() == QAbstractSocket::ConnectedState;
+    if( m_rtCmdClient->state() == QAbstractSocket::ConnectedState && m_rtDataClient->state() == QAbstractSocket::ConnectedState )
+    {
+        m_status = STATUS_CONNECTED;
+    }
 
     if( !isConnected() )
     {
         disconnect();
+        return false;
     }
-
-    return m_isConnected;
+    else
+    {
+        return true;
+    }
 }
 
 bool WRtClient::prepareStreaming()
 {
-    wlog::debug( CLASS ) << "prepareStreaming() called!";
+    wlog::debug( CLASS ) << __func__ << "() called!";
 
     wlog::debug( CLASS ) << "Set buffer size.";
     ( *m_rtCmdClient )["bufsize"].pValues()[0] = QVariant( m_blockSize );
@@ -208,14 +211,9 @@ bool WRtClient::prepareStreaming()
     return m_picksEeg.size() > 0 || m_picksMeg.size() > 0;
 }
 
-bool WRtClient::isConnected() const
-{
-    return m_isConnected;
-}
-
 void WRtClient::disconnect()
 {
-    wlog::debug( CLASS ) << "disconnect() called!";
+    wlog::debug( CLASS ) << __func__ << "() called!";
     stop();
     if( !m_rtDataClient.isNull() )
     {
@@ -234,12 +232,12 @@ void WRtClient::disconnect()
             wlog::info( CLASS ) << "Command Client disconnected!";
         }
     }
-    m_isConnected = false;
+    m_status = STATUS_DISCONNECTED;
 }
 
 bool WRtClient::start()
 {
-    wlog::debug( CLASS ) << "start() called!";
+    wlog::debug( CLASS ) << __func__ << "() called!";
 
     if( isStreaming() )
     {
@@ -269,14 +267,14 @@ bool WRtClient::start()
     ( *m_rtCmdClient )["start"].send();
     // TODO(pieloth): Check if streaming has been started.
 
-    m_isStreaming = true;
+    m_status = STATUS_STREAMING;
 
     return true;
 }
 
 bool WRtClient::stop()
 {
-    wlog::debug( CLASS ) << "stop() called!";
+    wlog::debug( CLASS ) << __func__ << "() called!";
 
     if( !isConnected() )
     {
@@ -292,14 +290,9 @@ bool WRtClient::stop()
 
     ( *m_rtCmdClient )["stop-all"].send();
 // TODO(pieloth): Check if streaming has been stopped.
-    m_isStreaming = false;
+    m_status = STATUS_STOPPED;
 
     return true;
-}
-
-bool WRtClient::isStreaming() const
-{
-    return m_isStreaming;
 }
 
 bool WRtClient::isScalingApplied() const
@@ -357,16 +350,6 @@ bool WRtClient::setConnector( int conId )
     }
 }
 
-void WRtClient::setBlockSize( int blockSize )
-{
-    m_blockSize = blockSize;
-}
-
-int WRtClient::getBlockSize() const
-{
-    return m_blockSize;
-}
-
 bool WRtClient::setSimulationFile( std::string fname )
 {
     if( !isConnected() )
@@ -391,16 +374,25 @@ bool WRtClient::setSimulationFile( std::string fname )
     }
 }
 
-bool WRtClient::readData( WLEMMeasurement::SPtr* const emmIn )
+bool WRtClient::fetchData()
 {
-    wlog::debug( CLASS ) << "readData() called!";
+    // Not used in this implementation.
+    return true;
+}
+
+WLEMMeasurement::SPtr WRtClient::getEmmPrototype() const
+{
+    return m_emmPrototype->clone();
+}
+
+bool WRtClient::readEmm( WLEMMeasurement::SPtr emmIn )
+{
+    wlog::debug( CLASS ) << __func__ << "() called!";
     if( !isConnected() )
     {
         wlog::error( CLASS ) << "Client not connected!";
         return false;
     }
-
-    *emmIn = m_emmPrototype->clone();
 
     FIFFLIB::fiff_int_t kind;
     Eigen::MatrixXf matRawBuffer;
@@ -414,17 +406,17 @@ bool WRtClient::readData( WLEMMeasurement::SPtr* const emmIn )
         if( m_picksEeg.size() > 0 )
         {
             emd = readEEG( matRawBuffer );
-            ( *emmIn )->addModality( emd );
+            emmIn->addModality( emd );
         }
         if( m_picksMeg.size() > 0 )
         {
             emd = readMEG( matRawBuffer );
-            ( *emmIn )->addModality( emd );
+            emmIn->addModality( emd );
         }
         if( m_picksStim.size() > 0 )
         {
             boost::shared_ptr< WLEMMeasurement::EDataT > events = readEvents( matRawBuffer );
-            ( *emmIn )->setEventChannels( events );
+            emmIn->setEventChannels( events );
         }
         return true;
     }
@@ -432,7 +424,7 @@ bool WRtClient::readData( WLEMMeasurement::SPtr* const emmIn )
     {
         if( kind == FIFF_BLOCK_END )
         {
-            m_isStreaming = false;
+            m_status = STATUS_STOPPED;
             return false;
         }
         return false;
@@ -472,7 +464,7 @@ bool WRtClient::readEmd( WLEMData* const emd, const Eigen::RowVectorXi& picks, c
 
 WLEMDEEG::SPtr WRtClient::readEEG( const Eigen::MatrixXf& rawData )
 {
-    wlog::debug( CLASS ) << "readEEG() called!";
+    wlog::debug( CLASS ) << __func__ << "() called!";
     WLEMDEEG::SPtr eeg = m_eegPrototype->clone()->getAs< WLEMDEEG >();
     readEmd( eeg.get(), m_picksEeg, rawData );
     return eeg;
@@ -480,7 +472,7 @@ WLEMDEEG::SPtr WRtClient::readEEG( const Eigen::MatrixXf& rawData )
 
 WLEMDMEG::SPtr WRtClient::readMEG( const Eigen::MatrixXf& rawData )
 {
-    wlog::debug( CLASS ) << "readMEG() called!";
+    wlog::debug( CLASS ) << __func__ << "() called!";
     WLEMDMEG::SPtr meg = m_megPrototype->clone()->getAs< WLEMDMEG >();
     readEmd( meg.get(), m_picksMeg, rawData );
     return meg;
@@ -488,7 +480,7 @@ WLEMDMEG::SPtr WRtClient::readMEG( const Eigen::MatrixXf& rawData )
 
 boost::shared_ptr< WLEMMeasurement::EDataT > WRtClient::readEvents( const Eigen::MatrixXf& rawData )
 {
-    wlog::debug( CLASS ) << "readStim() called!";
+    wlog::debug( CLASS ) << __func__ << "() called!";
 
     boost::shared_ptr< WLEMMeasurement::EDataT > events( new WLEMMeasurement::EDataT );
     if( m_picksStim.size() == 0 )
@@ -655,7 +647,7 @@ bool WRtClient::preparePrototype( WLEMDMEG* const emd, const Eigen::RowVectorXi&
 
 bool WRtClient::readChannelNames( WLEMData* const emd, const Eigen::RowVectorXi& picks )
 {
-    wlog::debug( CLASS ) << "readChannelNames() called!";
+    wlog::debug( CLASS ) << __func__ << "() called!";
 
     if( picks.size() > 0 )
     {
@@ -680,7 +672,7 @@ bool WRtClient::readChannelNames( WLEMData* const emd, const Eigen::RowVectorXi&
 
 bool WRtClient::readChannelPositions( WLEMData* const emd, const Eigen::RowVectorXi& picks )
 {
-    wlog::debug( CLASS ) << "readChannelPositions() called!";
+    wlog::debug( CLASS ) << __func__ << "() called!";
 
     if( picks.size() == 0 )
     {
@@ -760,7 +752,7 @@ bool WRtClient::readChannelPositions( WLEMData* const emd, const Eigen::RowVecto
 
 bool WRtClient::readChannelFaces( WLEMData* const emd )
 {
-    wlog::debug( CLASS ) << "readChannelFaces() called!";
+    wlog::debug( CLASS ) << __func__ << "() called!";
 
     WLPositions::SPtr positions;
     WLEMDEEG* eeg = dynamic_cast< WLEMDEEG* >( emd );

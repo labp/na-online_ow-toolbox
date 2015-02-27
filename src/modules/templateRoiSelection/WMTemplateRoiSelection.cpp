@@ -141,7 +141,7 @@ void WMTemplateRoiSelection::moduleMain()
 
 bool WMTemplateRoiSelection::processCompute( WLEMMeasurement::SPtr emm )
 {
-    WLTimeProfiler tp( "WMTemplateRoiSelection", "processCompute" );
+    WLTimeProfiler tp( "WMTemplateRoiSelection", __func__ );
 
     // show process visualization
     boost::shared_ptr< WProgress > processComp = boost::shared_ptr< WProgress >( new WProgress( "Do the process." ) );

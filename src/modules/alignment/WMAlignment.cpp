@@ -286,7 +286,7 @@ bool WMAlignment::processInit( WLEMMCommand::SPtr cmd )
 bool WMAlignment::processReset( WLEMMCommand::SPtr cmd )
 {
     m_input->clear();
-    handleTrgReset();
+    hdlTrgReset();
     m_output->updateData( cmd );
     return true;
 }
@@ -303,7 +303,7 @@ bool WMAlignment::processMisc( WLEMMCommand::SPtr cmd )
     return true;
 }
 
-void WMAlignment::handleTrgReset()
+void WMAlignment::hdlTrgReset()
 {
     debugLog() << __func__ << "() called";
 

@@ -107,7 +107,7 @@ private:
     WPropFilename m_CSDFile;
     WPropString m_CSDStatus;
     Eigen::MatrixXcd m_CSD;
-    bool handleCSDChanged( std::string fName, Eigen::MatrixXcd* const csd );
+    bool hdlCsdChanged( std::string fName, Eigen::MatrixXcd* const csd );
 
 //    WPropInt m_type;
 
@@ -118,9 +118,9 @@ private:
 
     // Modality
     WLEModality::Enum m_lastModality;
-    void handleComputeModalityChanged();
+    void hdlComputeModalityChanged();
     WPropBool m_useCuda;
-    void handleImplementationChanged( void );
+    void hdlImplementationChanged( void );
     WPropDouble m_reg;
 };
 

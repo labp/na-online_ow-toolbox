@@ -25,8 +25,9 @@
 #define WLDATATYPES_H_
 
 #include <boost/shared_ptr.hpp>
-#include <boost/units/systems/si.hpp>
+#include <boost/units/io.hpp>  // operator<< for logging
 #include <boost/units/quantity.hpp>
+#include <boost/units/systems/si.hpp>
 
 #include <Eigen/Core>
 #include <Eigen/SparseCore>

@@ -20,6 +20,7 @@ class Eigen3(Installer):
 
     def __init__(self):
         Installer.__init__(self, 'eigen3', 'Eigen version 3')
+        self.arg_version = "3.2.2"
 
     @classmethod
     def instance(cls, params):
@@ -28,6 +29,8 @@ class Eigen3(Installer):
             installer.arg_dest = params[Parameter.DEST_DIR]
         else:
             raise ParameterError(Parameter.DEST_DIR + ' parameter is missing!')
+        if Parameter.VERSION in params:
+            installer.arg_version = params[Parameter.VERSION]
         return installer
 
     @classmethod
@@ -66,7 +69,6 @@ class Eigen3(Installer):
         UtilsUI.print_step_begin("Initializing")
         repo_dir = os.path.join(self.arg_dest, self.REPO_FOLDER)
         os.chdir(repo_dir)
-        version = "3.2.2"
-        call("hg update " + version, shell=True)
+        call("hg update " + self.arg_version, shell=True)
         UtilsUI.print_step_end("Initializing")
         return True

@@ -49,14 +49,13 @@ using WLMatrix::MatrixT;
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMLeadfieldInterpolation )
 
-const std::string WMLeadfieldInterpolation::ERROR = "error";
-const std::string WMLeadfieldInterpolation::COMPUTING = "computing";
-const std::string WMLeadfieldInterpolation::SUCCESS = "success";
-const std::string WMLeadfieldInterpolation::NONE = "none";
-const std::string WMLeadfieldInterpolation::FIFF_OK_TEXT = "FIFF ok";
-const std::string WMLeadfieldInterpolation::HD_LEADFIELD_OK_TEXT = "HD leadfield ok";
-const std::string WMLeadfieldInterpolation::READING = "reading ...";
-const std::string WMLeadfieldInterpolation::COMMAND = "leadfield";
+static const std::string ERROR = "error";
+static const std::string COMPUTING = "computing";
+static const std::string SUCCESS = "success";
+static const std::string NONE = "none";
+static const std::string FIFF_OK_TEXT = "FIFF ok";
+static const std::string HD_LEADFIELD_OK_TEXT = "HD leadfield ok";
+static const std::string READING = "reading ...";
 
 WMLeadfieldInterpolation::WMLeadfieldInterpolation()
 {

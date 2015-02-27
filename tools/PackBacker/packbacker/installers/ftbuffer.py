@@ -23,6 +23,7 @@ class FtBuffer(Installer):
 
     def __init__(self):
         Installer.__init__(self, 'ftbuffer', 'FieldTrip Buffer')
+        self.arg_version = "bc7d5c3c0c9a52bc4e15c892deb87fffabe76890"  # 2014-11-19
 
     @classmethod
     def instance(cls, params):
@@ -31,6 +32,8 @@ class FtBuffer(Installer):
             installer.arg_dest = params[Parameter.DEST_DIR]
         else:
             raise ParameterError(Parameter.DEST_DIR + ' parameter is missing!')
+        if Parameter.VERSION in params:
+            installer.arg_version = params[Parameter.VERSION]
         return installer
 
     @classmethod
@@ -85,8 +88,7 @@ class FtBuffer(Installer):
         UtilsUI.print_step_begin("Initializing")
         repo_dir = os.path.join(self.arg_dest, self.REPO_FOLDER)
         os.chdir(repo_dir)
-        version = "bc7d5c3c0c9a52bc4e15c892deb87fffabe76890"  # 2014-11-19
-        call("git checkout " + version, shell=True)
+        call("git checkout " + self.arg_version, shell=True)
         UtilsUI.print_step_end("Initializing")
         return True
 

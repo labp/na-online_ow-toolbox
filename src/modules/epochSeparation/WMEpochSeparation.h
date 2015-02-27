@@ -129,7 +129,7 @@ private:
     /**
      * Resets the epoch separation algorithm and sets the WProperties.
      */
-    void handleResetTriggerPressed();
+    void hdlTrgResetPressed();
 
     WEpochSeparation::SPtr m_separation;
 };

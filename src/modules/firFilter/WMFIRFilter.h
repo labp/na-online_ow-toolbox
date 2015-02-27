@@ -111,10 +111,10 @@ protected:
 
 private:
     // GUI event handler
-    void handleDesignButtonPressed();
-    void callbackFilterTypeChanged();
-    void callbackCoeffFileChanged();
-    void handleImplementationChanged();
+    void hdlDesignButtonPressed();
+    void cbFilterTypeChanged();
+    void cbCoeffFileChanged();
+    void hdlImplementationChanged();
 
     WPropGroup m_propGrpFirFilter;
 

@@ -130,7 +130,7 @@ private:
     /**
      * Resets the averaging algorithm.
      */
-    void handleResetAveragePressed();
+    void hdlResetAveragePressed();
     WPropInt m_sizeMovingAverage; //!< Size of moving average in epochs/trials.
     boost::shared_ptr< WItemSelection > m_averageType;
     WPropSelection m_averageTypeSelection;
@@ -140,7 +140,7 @@ private:
     /**
      * Switches the averaging algorithm.
      */
-    void callbackAverageTypeChanged();
+    void cbAverageTypeChanged();
 
     WEpochAveraging::SPtr m_averaging;
 };

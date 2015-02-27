@@ -126,7 +126,7 @@ void WMEpochSeparation::moduleInit()
 
     infoLog() << "Restoring module ...";
 
-    handleResetTriggerPressed();
+    hdlTrgResetPressed();
 
     infoLog() << "Restoring module finished!";
 }
@@ -153,7 +153,7 @@ void WMEpochSeparation::moduleMain()
         // Configuration setup //
         if( m_resetTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
-            handleResetTriggerPressed();
+            hdlTrgResetPressed();
         }
 
         cmdIn.reset();
@@ -173,9 +173,9 @@ void WMEpochSeparation::moduleMain()
     viewCleanup();
 }
 
-void WMEpochSeparation::handleResetTriggerPressed()
+void WMEpochSeparation::hdlTrgResetPressed()
 {
-    debugLog() << "handleResetTriggerPressed() called!";
+    debugLog() << __func__ << "() called!";
 
     WLEMMCommand::SPtr cmd = WLEMMCommand::instance( WLEMMCommand::Command::RESET );
     processReset( cmd );
@@ -187,7 +187,7 @@ void WMEpochSeparation::handleResetTriggerPressed()
 
 bool WMEpochSeparation::processCompute( WLEMMeasurement::SPtr emmIn )
 {
-    WLTimeProfiler tp( "WMEpochSeparation", "processCompute" );
+    WLTimeProfiler tp( "WMEpochSeparation", __func__ );
 
     WLEMMeasurement::SPtr emmOut;
 
@@ -256,4 +256,3 @@ bool WMEpochSeparation::processReset( WLEMMCommand::SPtr cmdIn )
 
     return true;
 }
-
