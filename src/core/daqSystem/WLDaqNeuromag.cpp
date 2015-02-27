@@ -28,14 +28,6 @@
 
 static const double MM_TO_M = WLEExponent::factor( WLEExponent::MILLI );
 
-static double calcArea( const WLMegCoilInfo::PositionT& tl, const WLMegCoilInfo::PositionT& bl,
-                const WLMegCoilInfo::PositionT& br )
-{
-    const WLMegCoilInfo::PositionT::Scalar a = ( tl - bl ).norm();
-    const WLMegCoilInfo::PositionT::Scalar b = ( br - bl ).norm();
-    return a * b;
-}
-
 void WLDaqNeuromag::applyIntegrationPoints3012( WLMegCoilInfo* const megCoil )
 {
     // TODO(pieloth): Check assumption that we map 1 gradiometer to 2 magnetometer.
@@ -107,12 +99,6 @@ void WLDaqNeuromag::applyIntegrationPoints3012( WLMegCoilInfo* const megCoil )
     megCoil->integrationPoints.col( 14 ) = ip7 * MM_TO_M;
     megCoil->integrationPoints.col( 15 ) = ip8 * MM_TO_M;
 
-    // TODO(pieloth): Area of one magnetometer only?
-    const WLMegCoilInfo::PositionT tl = ip7 * MM_TO_M;
-    const WLMegCoilInfo::PositionT bl = ip8 * MM_TO_M;
-    const WLMegCoilInfo::PositionT br = ip6 * MM_TO_M;
-    megCoil->area = calcArea( tl, bl, br );
-
     megCoil->integrationWeights( 8 ) = iw2;
     megCoil->integrationWeights( 9 ) = iw2;
     megCoil->integrationWeights( 10 ) = iw2;
@@ -161,12 +147,6 @@ void WLDaqNeuromag::applyIntegrationPoints3022( WLMegCoilInfo* const megCoil )
     megCoil->integrationPoints.col( 7 ) = ip8 * MM_TO_M;
     megCoil->integrationPoints.col( 8 ) = ip9 * MM_TO_M;
 
-    // TODO(pieloth): Area correct?
-    const WLMegCoilInfo::PositionT tl = ip4 * MM_TO_M;
-    const WLMegCoilInfo::PositionT bl = ip5 * MM_TO_M;
-    const WLMegCoilInfo::PositionT br = ip3 * MM_TO_M;
-    megCoil->area = calcArea( tl, bl, br );
-
     // Integration weights
     megCoil->integrationWeights.resize( n_intpnt );
     megCoil->integrationWeights( 0 ) = 16.0 / 81.0;
@@ -211,12 +191,6 @@ void WLDaqNeuromag::applyIntegrationPoints3024( WLMegCoilInfo* const megCoil )
     megCoil->integrationPoints.col( 6 ) = ip7 * MM_TO_M;
     megCoil->integrationPoints.col( 7 ) = ip8 * MM_TO_M;
     megCoil->integrationPoints.col( 8 ) = ip9 * MM_TO_M;
-
-    // TODO(pieloth): Area correct?
-    const WLMegCoilInfo::PositionT tl = ip4 * MM_TO_M;
-    const WLMegCoilInfo::PositionT bl = ip5 * MM_TO_M;
-    const WLMegCoilInfo::PositionT br = ip3 * MM_TO_M;
-    megCoil->area = calcArea( tl, bl, br );
 
     // Integration weights
     megCoil->integrationWeights.resize( n_intpnt );

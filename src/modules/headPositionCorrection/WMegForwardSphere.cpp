@@ -195,11 +195,11 @@ bool WMegForwardSphere::computeForward( MatrixT* const pLfOut, const PositionsT&
                 Aux2 = QxR0.dot( R ) * NablaF;
                 B = ( MY0 / ( 4 * M_PI * F * F ) ) * ( Aux1 - Aux2 );
 
-                w = megCoilInfo.windings * megCoilInfo.integrationWeights( iIntPnt ) * megCoilInfo.area;
+                w = megCoilInfo.windings * megCoilInfo.integrationWeights( iIntPnt ); // * megCoilInfo.area; reduced in lf/=area
                 const Vector3T mag_ori = megCoilInfo.orientation;
                 lfOut( iSens, iDip ) += w * mag_ori.dot( B );
             } // for each integration point, TODO(pieloth) gradiometer???
-            lfOut( iSens, iDip ) /= megCoilInfo.area; // Wb = Tm^2 --> Wb/m^2 = T
+            // lfOut( iSens, iDip ) /= megCoilInfo.area; reduced, see w = ... * area // Wb = Tm^2 --> Wb/m^2 = T
         }   // for each sensor
     }   // for each dipole
 
