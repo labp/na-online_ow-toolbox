@@ -27,7 +27,6 @@ WLMegCoilInfo::WLMegCoilInfo()
 {
     position.setZero();
     orientation.setZero();
-    area = 1;
     windings = 1;
     ex.setZero();
     ey.setZero();

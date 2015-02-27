@@ -57,7 +57,6 @@ public:
 
     PositionT position; //!< Coil position in device coords and meter.
     OrientationT orientation; //!< Coil orientation in device coords.
-    double area; //!< Area of the coil in meter^2.
     double windings; //!< Windings of the coil.
     PositionsT integrationPoints; //!< Integration points in local coil coords and meter.
     VectorT integrationWeights; //!< Weights of integration points.
